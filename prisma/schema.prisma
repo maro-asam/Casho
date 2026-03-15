@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  stores    Store[]
+  createdAt DateTime   @default(now())
+  cartItems CartItem[]
+  orders    Order[]
+}
+
+model Store {
+  id                 String   @id @default(uuid())
+  name               String
+  slug               String   @unique
+  subscriptionStatus String   @default("inactive")
+  paymentMethods     String[] @default([])
+
+  userId     String
+  user       User           @relation(fields: [userId], references: [id])
+  products   Product[]
+  createdAt  DateTime       @default(now())
+  cartItems  CartItem[]
+  orders     Order[]
+  categories Category[]
+  banners    Banner[]
+  settings   StoreSettings?
+}
+
+model StoreSettings {
+  id      String @id @default(uuid())
+  storeId String @unique
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  logo             String?
+  coverImage       String?
+  primaryColor     String? // "#000000"
+  secondaryColor   String?
+  announcementText String?
+
+  whatsappNumber String?
+  instagram      String?
+  facebook       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String
+  storeId   String
+  store     Store     @relation(fields: [storeId], references: [id])
+  products  Product[]
+  createdAt DateTime  @default(now())
+
+  @@unique([storeId, slug])
+}
+
+model Product {
+  id      String  @id @default(uuid())
+  name    String
+  slug    String  @unique
+  price   Float
+  image   String?
+  storeId String
+  store   Store   @relation(fields: [storeId], references: [id])
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+
+  createdAt  DateTime    @default(now())
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+model Banner {
+  id      String @id @default(uuid())
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  title    String
+  image    String
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model CartItem {
+  id             String @id @default(uuid())
+  guestSessionId String
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@unique([guestSessionId, productId])
+}
+
+model Order {
+  id String @id @default(uuid())
+
+  guestSessionId String
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  status        OrderStatus @default(PENDING)
+  paymentMethod String
+
+  subtotal Int
+  shipping Int @default(0)
+  total    Int
+
+  fullName String
+  phone    String
+  address  String
+
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+  user      User?       @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  price    Int
+  quantity Int
+
+  createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
