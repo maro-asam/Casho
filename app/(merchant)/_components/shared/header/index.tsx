@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import MobileHeaderMenu from "./MobileHeaderMenu";
 import Image from "next/image";
+import { ModeToggle } from "@/theme/ModeToggle";
 
 const links = [
   { name: "الرئيسية", href: "/" },
@@ -46,6 +47,8 @@ const Header = async () => {
             <span className="text-primary ">C</span>ASHO
           </div>
         </Link>
+
+        <ModeToggle />
 
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((link) => (

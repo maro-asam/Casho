@@ -4,6 +4,7 @@ import { Cairo, Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/theme/theme-provider";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -21,7 +22,7 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={cn( inter.className, "font-sans", inter.variable)}
+      className={cn(inter.className, inter.className, "font-sans", inter.variable)}
       style={{ scrollBehavior: "smooth" }}
     >
       <body
@@ -29,12 +30,19 @@ export default function RootLayout({
         cz-shortcut-listen="true"
         smooth-scroll="true"
       >
-        <main>
-          <NextTopLoader />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main>
+            <NextTopLoader />
 
-          {children}
-          <Toaster theme="light" dir="rtl" richColors position="top-center" />
-        </main>
+            {children}
+            <Toaster theme="light" dir="rtl" richColors position="top-center" />
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );
