@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { MustSession } from "../auth/auth-helpers.actions";
+import { MustSession, ReadSession } from "../auth/auth-helpers.actions";
 
 export async function AddToCartAction(storeSlug: string, productId: string) {
   const { guestSessionId } = await MustSession();
@@ -18,8 +18,9 @@ export async function AddToCartAction(storeSlug: string, productId: string) {
     where: {
       id: productId,
       storeId: store.id,
+      isActive: true,
     },
-    select: { id: true },
+    select: { id: true, name: true },
   });
 
   if (!product) throw new Error("Product not found");
@@ -33,6 +34,7 @@ export async function AddToCartAction(storeSlug: string, productId: string) {
     },
     update: {
       quantity: { increment: 1 },
+      storeId: store.id,
     },
     create: {
       guestSessionId,
@@ -42,13 +44,23 @@ export async function AddToCartAction(storeSlug: string, productId: string) {
     },
   });
 
-  return { success: true };
+  revalidatePath(`/store/${storeSlug}`);
+  revalidatePath(`/store/${storeSlug}/cart`);
+
+  return {
+    success: true,
+    message: "تم اضافة المنتج الي العربة",
+  };
 }
 
 export async function GetCartItemsAction(storeSlug: string) {
-  const { guestSessionId } = await MustSession();
+  const { guestSessionId } = await ReadSession();
 
-  const store = await prisma.store.findFirst({
+  if (!storeSlug) {
+    throw new Error("Store slug is required");
+  }
+
+  const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
     select: {
       id: true,
@@ -58,6 +70,13 @@ export async function GetCartItemsAction(storeSlug: string) {
   });
 
   if (!store) throw new Error("Store not found");
+
+  if (!guestSessionId) {
+    return {
+      store,
+      items: [],
+    };
+  }
 
   const items = await prisma.cartItem.findMany({
     where: {
@@ -88,8 +107,17 @@ export async function UpdateCartItemQtyAction(
   const { guestSessionId } = await MustSession();
 
   const cartItem = await prisma.cartItem.findFirst({
-    where: { id: cartItemId, guestSessionId },
-    select: { id: true, quantity: true },
+    where: {
+      id: cartItemId,
+      guestSessionId,
+      store: {
+        slug: storeSlug,
+      },
+    },
+    select: {
+      id: true,
+      quantity: true,
+    },
   });
 
   if (!cartItem) throw new Error("Cart item not found");
@@ -97,27 +125,31 @@ export async function UpdateCartItemQtyAction(
   if (type === "decrement") {
     if (cartItem.quantity <= 1) {
       await prisma.cartItem.delete({
-        where: { id: cartItemId },
+        where: { id: cartItem.id },
       });
+
       revalidatePath(`/store/${storeSlug}/cart`);
+      revalidatePath(`/store/${storeSlug}`);
       return { deleted: true };
     }
 
     await prisma.cartItem.update({
-      where: { id: cartItemId },
+      where: { id: cartItem.id },
       data: { quantity: { decrement: 1 } },
     });
 
     revalidatePath(`/store/${storeSlug}/cart`);
+    revalidatePath(`/store/${storeSlug}`);
     return { success: true };
   }
 
   await prisma.cartItem.update({
-    where: { id: cartItemId },
+    where: { id: cartItem.id },
     data: { quantity: { increment: 1 } },
   });
 
   revalidatePath(`/store/${storeSlug}/cart`);
+  revalidatePath(`/store/${storeSlug}`);
   return { success: true };
 }
 
@@ -128,9 +160,16 @@ export async function RemoveCartItemAction(
   const { guestSessionId } = await MustSession();
 
   await prisma.cartItem.deleteMany({
-    where: { id: cartItemId, guestSessionId },
+    where: {
+      id: cartItemId,
+      guestSessionId,
+      store: {
+        slug: storeSlug,
+      },
+    },
   });
 
   revalidatePath(`/store/${storeSlug}/cart`);
+  revalidatePath(`/store/${storeSlug}`);
   return { success: true };
 }

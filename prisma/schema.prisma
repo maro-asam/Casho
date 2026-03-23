@@ -67,13 +67,14 @@ model Category {
 }
 
 model Product {
-  id      String  @id @default(uuid())
-  name    String
-  slug    String  @unique
-  price   Float
-  image   String?
+  id    String @id @default(uuid())
+  name  String
+  slug  String @unique
+  price Float
+  image String @default("/images/product-placeholder.png")
+
   storeId String
-  store   Store   @relation(fields: [storeId], references: [id])
+  store   Store  @relation(fields: [storeId], references: [id])
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])

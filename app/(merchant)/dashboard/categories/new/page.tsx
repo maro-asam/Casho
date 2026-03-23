@@ -25,7 +25,7 @@ export default async function NewCategoryPage() {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-2xl border-dashed">
+        <Card className="rounded-22xl border-dashed">
           <CardContent className="flex min-h-[220px] flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
               <FolderPlus className="size-6 text-muted-foreground" />
@@ -43,7 +43,7 @@ export default async function NewCategoryPage() {
   return (
     <div className="space-y-6 p-6" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 rounded-22xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -74,9 +74,9 @@ export default async function NewCategoryPage() {
 
       {/* Form Card */}
       <div className="mx-auto w-full max-w-2xl">
-        <Card className="rounded-2xl shadow-sm">
+        <Card className="rounded-22xl shadow-sm">
           <CardHeader className="space-y-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-22xl bg-primary/10 text-primary">
               <FolderPlus className="size-6" />
             </div>
 

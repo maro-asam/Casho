@@ -1,15 +1,26 @@
-import { requireAuth } from "@/actions/auth/require.actions";
-import { GetOrdersAction } from "@/actions/store/orders.actions";
-import { prisma } from "@/lib/prisma";
-
+import Link from "next/link";
+import { Metadata } from "next";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  FolderOpen,
+  ShoppingCart,
+  Store,
+  MapPin,
+  Phone,
+  CreditCard,
+  CalendarClock,
+  Eye,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 
+import { requireAuth } from "@/actions/auth/require.actions";
+import { prisma } from "@/lib/prisma";
+import { OrderStatus } from "@/lib/generated/prisma/enums";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
+import { OrderStatusSelect } from "../../_components/order-status-select";
 import {
   Table,
   TableBody,
@@ -18,16 +29,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { Badge } from "@/components/ui/badge";
-import { OrderStatus } from "@/lib/generated/prisma/enums";
-import { OrderStatusSelect } from "../../_components/order-status-select";
-import Link from "next/link";
-import { Metadata } from "next";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "الطلبات",
 };
+
+const PAGE_SIZE = 6;
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("ar-EG", {
@@ -84,8 +92,18 @@ function getStatusBadgeVariant(status: OrderStatus) {
   }
 }
 
-const OrdersRoute = async () => {
+type OrdersRouteProps = {
+  searchParams?: Promise<{
+    page?: string;
+  }>;
+};
+
+const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
   const userId = await requireAuth();
+  const resolvedSearchParams = await searchParams;
+
+  const currentPage = Math.max(1, Number(resolvedSearchParams?.page) || 1);
+  const skip = (currentPage - 1) * PAGE_SIZE;
 
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -94,140 +112,275 @@ const OrdersRoute = async () => {
 
   if (!store) {
     return (
-      <div className="wrapper py-10" dir="rtl">
-        <Card>
-          <CardContent className="py-10 text-center">
-            لم يتم العثور على متجر
+      <div className="p-6" dir="rtl">
+        <Card className="rounded-22xl border-dashed">
+          <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+              <Store className="size-6 text-muted-foreground" />
+            </div>
+            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              يجب إنشاء متجر أولًا حتى تتمكن من متابعة الطلبات وإدارتها.
+            </p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  const orders = await GetOrdersAction(store.id);
+  const [totalOrders, orders] = await Promise.all([
+    prisma.order.count({
+      where: {
+        storeId: store.id,
+      },
+    }),
+    prisma.order.findMany({
+      where: {
+        storeId: store.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: PAGE_SIZE,
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
 
   return (
-    <div className="wrapper py-10 space-y-6" dir="rtl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">الطلبات</CardTitle>
-          <CardDescription>
-            متجر:{" "}
-            <span className="font-medium text-foreground">{store.name}</span>
-          </CardDescription>
-        </CardHeader>
-      </Card>
+    <div className="space-y-6 p-6" dir="rtl">
+      <DashboardSectionHeader
+        icon={ShoppingCart}
+        title="الطلبات"
+        badge={totalOrders}
+        description={
+          <>
+            متابعة وإدارة طلبات متجر{" "}
+            <span className="font-semibold text-foreground">{store.name}</span>
+          </>
+        }
+      />
 
       {orders.length === 0 ? (
-        <Card>
-          <CardContent className="py-10 text-center">
-            <h2 className="mb-2 text-lg font-semibold">
-              لا توجد طلبات حتى الآن
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              لما العملاء يبدأوا يطلبوا من المتجر، الطلبات هتظهر هنا.
+        <Card className="rounded-22xl border-dashed shadow-sm">
+          <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <FolderOpen className="size-7 text-muted-foreground" />
+            </div>
+
+            <h2 className="text-xl font-bold">لا توجد طلبات حتى الآن</h2>
+            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+              لما العملاء يبدأوا يطلبوا من المتجر، الطلبات هتظهر هنا وتقدر تتابع
+              حالتها بسهولة.
             </p>
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>كل الطلبات</CardTitle>
-            <CardDescription>تابع الطلبات وغيّر حالتها من هنا</CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">رقم الطلب</TableHead>
-                    <TableHead className="text-right">العميل</TableHead>
-                    <TableHead className="text-right">الهاتف</TableHead>
-                    <TableHead className="text-right">العنوان</TableHead>
-                    <TableHead className="text-right">الدفع</TableHead>
-                    <TableHead className="text-right">المنتجات</TableHead>
-                    <TableHead className="text-right">الشحن</TableHead>
-                    <TableHead className="text-right">الإجمالي</TableHead>
-                    <TableHead className="text-right">الحالة</TableHead>
-                    <TableHead className="text-right">تغيير الحالة</TableHead>
-                    <TableHead className="text-right">التاريخ</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {orders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium">
-                        <Link
-                          href={`/dashboard/orders/${order.id}`}
-                          className="hover:underline text-primary"
-                        >
-                          #{order.id.slice(0, 8)}
-                        </Link>
-                      </TableCell>
-
-                      <TableCell>{order.fullName}</TableCell>
-
-                      <TableCell>{order.phone}</TableCell>
-
-                      <TableCell className="min-w-[220px]">
-                        {order.address}
-                      </TableCell>
-
-                      <TableCell className="text-primary">
-                        {getPaymentMethodLabel(order.paymentMethod)}
-                      </TableCell>
-
-                      <TableCell className="min-w-[240px]">
-                        <div className="space-y-1">
-                          {order.items.length > 0 ? (
-                            order.items.map((item) => (
-                              <div
-                                key={item.id}
-                                className="text-sm text-muted-foreground"
-                              >
-                                {item.product.name} × {item.quantity}
-                              </div>
-                            ))
-                          ) : (
-                            <span className="text-muted-foreground">
-                              لا توجد منتجات
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-
-                      <TableCell>{formatPrice(order.shipping)}</TableCell>
-
-                      <TableCell className="font-semibold">
-                        {formatPrice(order.total)}
-                      </TableCell>
-
-                      <TableCell>
-                        <Badge variant={getStatusBadgeVariant(order.status)}>
-                          {getStatusLabel(order.status)}
-                        </Badge>
-                      </TableCell>
-
-                      <TableCell>
-                        <OrderStatusSelect
-                          orderId={order.id}
-                          storeId={store.id}
-                          currentStatus={order.status}
-                        />
-                      </TableCell>
-
-                      <TableCell className="text-muted-foreground">
-                        {formatDate(order.createdAt)}
-                      </TableCell>
+        <>
+          <Card className="rounded-22xl shadow-sm">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">رقم الطلب</TableHead>
+                      <TableHead className="text-right">العميل</TableHead>
+                      <TableHead className="text-right">الدفع</TableHead>
+                      <TableHead className="text-right">المنتجات</TableHead>
+                      <TableHead className="text-right">الإجمالي</TableHead>
+                      <TableHead className="text-right">الحالة</TableHead>
+                      <TableHead className="text-right">تغيير الحالة</TableHead>
+                      <TableHead className="text-right">التاريخ</TableHead>
+                      <TableHead className="text-right">التفاصيل</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+
+                  <TableBody>
+                    {orders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium">
+                          <Link
+                            href={`/dashboard/orders/${order.id}`}
+                            className="text-primary hover:underline"
+                          >
+                            #{order.id.slice(0, 8)}
+                          </Link>
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="min-w-55 space-y-1">
+                            <div className="font-medium">{order.fullName}</div>
+
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Phone className="size-3.5" />
+                              <span>{order.phone}</span>
+                            </div>
+
+                            <div className="flex items-start gap-1 text-xs text-muted-foreground">
+                              <MapPin className="mt-0.5 size-3.5 shrink-0" />
+                              <span className="line-clamp-2">
+                                {order.address}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        <TableCell>
+                          <Badge variant="outline" className="gap-1 rounded-md">
+                            <CreditCard className="size-3.5" />
+                            {getPaymentMethodLabel(order.paymentMethod)}
+                          </Badge>
+                        </TableCell>
+
+                        <TableCell className="min-w-60">
+                          <div className="space-y-1">
+                            {order.items.length > 0 ? (
+                              order.items.map((item) => (
+<div
+  key={item.id}
+  className="text-sm text-muted-foreground max-w-[200px] truncate"
+>
+  {item.product.name} × {item.quantity}
+</div>
+                              ))
+                            ) : (
+                              <span className="text-sm text-muted-foreground">
+                                لا توجد منتجات
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="font-semibold">
+                          {formatPrice(order.total)}
+                        </TableCell>
+
+                        <TableCell>
+                          <Badge
+                            variant={getStatusBadgeVariant(order.status)}
+                            className="rounded-md"
+                          >
+                            {getStatusLabel(order.status)}
+                          </Badge>
+                        </TableCell>
+
+                        <TableCell>
+                          <OrderStatusSelect
+                            orderId={order.id}
+                            storeId={store.id}
+                            currentStatus={order.status}
+                          />
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="flex items-center gap-1 whitespace-nowrap text-sm text-muted-foreground">
+                            <CalendarClock className="size-4" />
+                            {formatDate(order.createdAt)}
+                          </div>
+                        </TableCell>
+
+                        <TableCell>
+                          <Button
+                            asChild
+                            variant="default"
+                            size="sm"
+                            className="rounded-xl"
+                          >
+                            <Link href={`/dashboard/orders/${order.id}`}>
+                              <Eye className="ml-1 size-4" />
+                              تفاصيل
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center justify-between gap-4 rounded-22xl border bg-background px-4 py-4 sm:flex-row">
+              <p className="text-sm text-muted-foreground">
+                صفحة {currentPage} من {totalPages}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage <= 1}
+                  className="rounded-xl"
+                >
+                  <Link
+                    href={
+                      currentPage > 1
+                        ? `/dashboard/orders?page=${currentPage - 1}`
+                        : "#"
+                    }
+                  >
+                    <ChevronRight className="size-4 ml-1" />
+                    السابق
+                  </Link>
+                </Button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }).map((_, index) => {
+                    const page = index + 1;
+                    const isActive = page === currentPage;
+
+                    return (
+                      <Button
+                        key={page}
+                        asChild
+                        variant={isActive ? "default" : "outline"}
+                        size="sm"
+                        className="h-9 w-9 rounded-xl p-0"
+                      >
+                        <Link href={`/dashboard/orders?page=${page}`}>
+                          {page}
+                        </Link>
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage >= totalPages}
+                  className="rounded-xl"
+                >
+                  <Link
+                    href={
+                      currentPage < totalPages
+                        ? `/dashboard/orders?page=${currentPage + 1}`
+                        : "#"
+                    }
+                  >
+                    التالي
+                    <ChevronLeft className="mr-1 size-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </>
       )}
     </div>
   );

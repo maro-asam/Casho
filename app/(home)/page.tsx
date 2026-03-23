@@ -1,4 +1,4 @@
-import Header from "@/components/shared/header";
+import Header from "@/app/(merchant)/_components/shared/header";
 import HeroSection from "@/components/hero";
 import LogosTicker from "@/components/LogosTicker";
 import HowItWorks from "@/components/HowItWorks";
@@ -6,7 +6,7 @@ import CTA from "@/components/CTA";
 import Pricing from "@/components/Pricing";
 import Features from "@/components/Features";
 import FAQ from "@/components/FAQ";
-import Footer from "@/components/shared/footer";
+import Footer from "@/app/(merchant)/_components/shared/footer";
 
 const HomeRoute = () => {
   return (

@@ -12,7 +12,7 @@ export default async function DashboardLayout({
 }) {
   return (
     <div className="max-w-screen-2xl mx-auto">
-      <main className="">{children}</main>
+      <main className="px-4 sm:px-5 md:px-6 lg:px-8">{children}</main>
     </div>
   );
 }

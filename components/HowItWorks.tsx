@@ -1,69 +1,52 @@
-import { Store, Link as LinkIcon, ShoppingCart } from "lucide-react";
-
-const steps = [
-  {
-    icon: Store,
-    title: "أنشئ متجرك",
-    description:
-      "سجل وأنشئ متجرك في دقائق، وأضف المنتجات والصور والأسعار بكل سهولة.",
-  },
-  {
-    icon: LinkIcon,
-    title: "احصل على رابط متجرك",
-    description:
-      "هيكون ليك رابط خاص بمتجرك تقدر تشاركه مع العملاء على السوشيال ميديا.",
-  },
-  {
-    icon: ShoppingCart,
-    title: "استقبل الطلبات",
-    description:
-      "العملاء يطلبوا المنتجات مباشرة من المتجر وتوصلك الطلبات جاهزة للتأكيد.",
-  },
-];
+import { HOW_IT_WORKS_CONTENT, HOW_IT_WORKS_STEPS } from "@/constants";
 
 const HowItWorks = () => {
   return (
-    <section className="w-full py-24">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Title */}
-        <div className="mb-20 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold">
-            ازاي تبدأ في <span className="text-primary">3</span> خطوات بس
+    <section className="w-full py-15">
+      <div className="mx-auto px-6">
+        <div className="mx-auto mb-16 max-w-3xl text-center">
+          <span className="inline-flex items-center rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+            {HOW_IT_WORKS_CONTENT.badge}
+          </span>
+
+          <h2 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight md:text-5xl">
+            {HOW_IT_WORKS_CONTENT.title.before}{" "}
+            <span className="text-primary">
+              {HOW_IT_WORKS_CONTENT.title.highlight}
+            </span>{" "}
+            {HOW_IT_WORKS_CONTENT.title.after}
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            منصة بسيطة تخليك تبدأ البيع أونلاين بدون تعقيد
+
+          <p className="mt-5 text-base leading-8 text-muted-foreground md:text-lg">
+            {HOW_IT_WORKS_CONTENT.description}
           </p>
         </div>
 
-        {/* Steps */}
-        <div className="relative grid gap-10 md:grid-cols-3">
-          
-          {/* الخط الرابط */}
-          <div className="pointer-events-none absolute left-0 right-0 top-10 hidden h-px bg-primary md:block" />
+        <div className="relative grid gap-10 md:grid-cols-3 md:gap-8">
+          <div className="pointer-events-none absolute left-[16.66%] right-[16.66%] top-9 hidden h-px bg-border md:block" />
 
-          {steps.map((step, index) => {
+          {HOW_IT_WORKS_STEPS.map((step) => {
             const Icon = step.icon;
 
             return (
-              <div key={index} className="relative text-center">
-                
-                {/* الرقم */}
-                <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full border bg-background text-sm text-primary border-primary font-bold">
-                  {index + 1}
+              <div key={step.id} className="group relative text-center">
+                <div className="relative z-10 mx-auto mb-6 flex size-18 items-center justify-center rounded-full bg-background">
+                  <div className="absolute inset-0 rounded-full border border-primary/15 bg-primary/5" />
+                  <div className="relative flex size-14 items-center justify-center rounded-full border border-primary/20 bg-background shadow-sm">
+                    <Icon className="size-6 text-primary" />
+                  </div>
                 </div>
 
-                <div className="rounded-2xl border bg-background p-8 transition hover:-translate-y-1 hover:shadow-md">
-                  
-                  {/* icon */}
-                  <div className="mb-5 flex justify-center">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
+                <div className="mx-auto max-w-sm">
+                  <div className="mb-3 text-sm font-semibold tracking-[0.2em] text-primary/80">
+                    {step.id}
                   </div>
 
-                  <h3 className="mb-3 text-lg font-semibold">{step.title}</h3>
+                  <h3 className="text-xl font-bold tracking-tight">
+                    {step.title}
+                  </h3>
 
-                  <p className="text-sm leading-7 text-muted-foreground">
+                  <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-[15px]">
                     {step.description}
                   </p>
                 </div>

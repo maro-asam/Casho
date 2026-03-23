@@ -37,7 +37,7 @@ const LoginRoute = () => {
       <div className="grid min-h-screen lg:grid-cols-2">
         <div className="hidden lg:flex flex-col justify-between bg-primary px-10 py-10 text-primary-foreground">
           <Link href="/" className="flex items-center gap-3 text-lg font-semibold">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+            <div className="flex h-11 w-11 items-center justify-center rounded-22xl bg-white/10">
               <Store className="h-5 w-5" />
             </div>
             كُشــــك

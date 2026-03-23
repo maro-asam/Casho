@@ -1,10 +1,21 @@
 import { prisma } from "@/lib/prisma";
-import { GetGuestSessionId } from "./guest.actions";
+import { EnsureGuestSessionId, GetGuestSessionId } from "./guest.actions";
 import { cookies } from "next/headers";
 
 export async function MustSession() {
+  const guestSessionId = await EnsureGuestSessionId();
+
+  return {
+    guestSessionId,
+  };
+}
+
+export async function ReadSession() {
   const guestSessionId = await GetGuestSessionId();
-  return { guestSessionId };
+
+  return {
+    guestSessionId,
+  };
 }
 
 export async function MustOwnStore(storeId: string, userId: string) {

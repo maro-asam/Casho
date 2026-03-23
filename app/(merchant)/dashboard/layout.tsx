@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
-import DashboardSidebar from "../_components/DashboardSidebar";
+import DashboardShell from "../_components/main/DashboardShell";
 
 export const metadata: Metadata = {
   title: {
-    default: "كٌشــك | لوحة تحكم التاجر",
+    default: "كُشــك | لوحة تحكم التاجر",
     template: "كُشــك | %s",
   },
   description:
@@ -34,21 +34,18 @@ export default async function DashboardLayout({
   children: ReactNode;
 }) {
   const userId = await requireAuth();
+
   const store = await prisma.store.findFirst({
     where: { userId },
+    select: {
+      name: true,
+      slug: true,
+    },
   });
 
   if (!store) {
     redirect("/");
   }
 
-  return (
-    <div className="min-h-screen flex">
-      <div className="w-64 h-screen sticky top-0">
-        <DashboardSidebar store={store} />
-      </div>
-
-      <main className="flex-1 p-6 overflow-y-auto">{children}</main>
-    </div>
-  );
+  return <DashboardShell store={store}>{children}</DashboardShell>;
 }

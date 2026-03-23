@@ -109,15 +109,26 @@ export async function DeleteCategoryAction(
   };
 }
 
-export async function GetCategoriesAction(storeId: string) {
-  const userId = await requireAuth();
-  await MustOwnStore(storeId, userId);
-
-  const categories = await prisma.category.findMany({
-    where: { storeId },
-    orderBy: { createdAt: "desc" },
-    select: { id: true, name: true, slug: true, createdAt: true },
+export async function GetStoreCategoriesAction(storeId: string) {
+  const store = await prisma.store.findFirst({
+    where: {
+      id: storeId,
+      subscriptionStatus: "active",
+    },
+    select: { id: true },
   });
 
-  return { categories };
+  if (!store) return [];
+
+  const categories = await prisma.category.findMany({
+    where: { storeId: store.id },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  });
+
+  return categories;
 }
