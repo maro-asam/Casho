@@ -21,7 +21,7 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={cn("font-sans", inter.variable)}
+      className={cn( inter.className, "font-sans", inter.variable)}
       style={{ scrollBehavior: "smooth" }}
     >
       <body
