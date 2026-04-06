@@ -6,12 +6,13 @@
 
 import "./globals.css";
 import type { Metadata } from "next";
-import { Cairo, Geist, Manrope } from "next/font/google";
+import { Cairo, Manrope } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/theme/theme-provider";
 
-const manrope = Manrope({subsets:['latin'],variable:'--font-sans'});
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-sans" });
 
 const cairoFont = Cairo({
   subsets: ["arabic"],
@@ -28,24 +29,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={cn(cairoFont.className, "font-sans", manrope.variable)}>
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Alyamama:wght@100..900&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html
+      lang="ar"
+      dir="rtl"
+      className={cn(cairoFont.className, "font-sans", manrope.variable)}
+      suppressHydrationWarning
+    >
       <body
         className={`antialiased mx-auto `}
         cz-shortcut-listen="true"
         smooth-scroll="true"
       >
-        <main>
-          <NextTopLoader />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main>
+            <NextTopLoader />
 
-          {children}
-          <Toaster theme="light" dir="rtl" richColors position="top-center" />
-        </main>
+            {children}
+            <Toaster theme="light" dir="rtl" richColors position="top-center" />
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -44,7 +44,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
 
   return (
     <div className="max-w-2xl mx-auto" dir="rtl">
-      <Card className="rounded-lg shadow-sm">
+      <Card className="rounded-md shadow-sm">
         <CardHeader className="space-y-2">
           <CardTitle className="text-xl">بيانات البانر</CardTitle>
           <CardDescription className="leading-6">
@@ -53,7 +53,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+          <div className="rounded-md border bg-muted/40 p-4 text-sm text-muted-foreground">
             <div className="flex items-start gap-2">
               <Info className="mt-0.5 size-4 shrink-0" />
               <p className="leading-6">
@@ -71,7 +71,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
                 name="title"
                 required
                 placeholder="مثال: تخفيضات الصيف"
-                className="rounded-lg"
+                className="rounded-md"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
@@ -84,7 +84,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
                 name="image"
                 required
                 placeholder="https://example.com/banner.jpg"
-                className="rounded-lg"
+                className="rounded-md"
                 dir="ltr"
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
@@ -94,7 +94,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
             <div className="flex justify-end">
               <Button
                 type="submit"
-                className="rounded-lg sm:min-w-40"
+                className="rounded-md sm:min-w-40"
                 disabled={isDisabled}
               >
                 {isPending ? "جاري الإنشاء..." : "إنشاء البانر"}

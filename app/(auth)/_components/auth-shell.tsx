@@ -31,14 +31,14 @@ export function AuthShell({
             href="/"
             className="flex items-center gap-3 text-lg font-semibold"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+            <div className="flex h-11 w-11 items-center justify-center rounded-md bg-white/10">
               <Store className="h-5 w-5" />
             </div>
             كــاشو
           </Link>
 
           <div className="max-w-md space-y-6">
-            <span className="inline-flex rounded-full border border-white/15 px-4 py-1 text-sm text-white/80">
+            <span className="inline-flex rounded-md border border-white/15 px-4 py-1 text-sm text-white/80">
               {badge}
             </span>
 

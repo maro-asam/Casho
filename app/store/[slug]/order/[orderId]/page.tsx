@@ -119,9 +119,9 @@ export default async function OrderDetailsPage({
   if (!order) {
     return (
       <div className="wrapper py-16" dir="rtl">
-        <Card className="mx-auto max-w-xl rounded-lg border-dashed">
+        <Card className="mx-auto max-w-xl rounded-md border-dashed">
           <CardContent className="flex min-h-70 flex-col items-center justify-center gap-4 text-center">
-            <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+            <div className="flex size-16 items-center justify-center rounded-md bg-muted">
               <Package className="size-7 text-muted-foreground" />
             </div>
 
@@ -132,7 +132,7 @@ export default async function OrderDetailsPage({
               </p>
             </div>
 
-            <Button asChild className="rounded-lg">
+            <Button asChild className="rounded-md">
               <Link href={`/store/${slug}`}>العودة إلى المتجر</Link>
             </Button>
           </CardContent>
@@ -160,7 +160,7 @@ export default async function OrderDetailsPage({
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+                  <div className="flex size-14 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm">
                     <CheckCircle2 className="size-7" />
                   </div>
 
@@ -173,7 +173,7 @@ export default async function OrderDetailsPage({
                       <Badge
                         variant="outline"
                         className={cn(
-                          "rounded-full px-3 py-1",
+                          "rounded-md px-3 py-1",
                           statusMeta.badgeClass,
                         )}
                       >
@@ -189,14 +189,14 @@ export default async function OrderDetailsPage({
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 md:min-w-75 md:grid-cols-1">
-                  <div className="rounded-lg border bg-background/80 p-4 backdrop-blur">
+                  <div className="rounded-md border bg-background/80 p-4 backdrop-blur">
                     <p className="mb-1 text-sm text-muted-foreground">
                       رقم الطلب
                     </p>
                     <p className="font-mono text-sm break-all">{order.id}</p>
                   </div>
 
-                  <div className="rounded-lg border bg-background/80 p-4 backdrop-blur">
+                  <div className="rounded-md border bg-background/80 p-4 backdrop-blur">
                     <p className="mb-1 text-sm text-muted-foreground">
                       تاريخ الطلب
                     </p>
@@ -209,7 +209,7 @@ export default async function OrderDetailsPage({
                 </div>
               </div>
 
-              <div className="rounded-lg border bg-background/70 p-4 md:p-5">
+              <div className="rounded-md border bg-background/70 p-4 md:p-5">
                 <div className="grid gap-4 md:grid-cols-4">
                   {ORDER_STEPS.map((step, index) => {
                     const stepNumber = index + 1;
@@ -221,7 +221,7 @@ export default async function OrderDetailsPage({
                         <div className="flex items-center gap-3">
                           <div
                             className={cn(
-                              "flex size-10 shrink-0 items-center justify-center rounded-full border",
+                              "flex size-10 shrink-0 items-center justify-center rounded-md border",
                               isDone
                                 ? "border-primary bg-primary text-primary-foreground"
                                 : "border-muted-foreground/20 bg-muted text-muted-foreground",
@@ -278,7 +278,7 @@ export default async function OrderDetailsPage({
 
               <CardContent className="space-y-5">
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-lg border bg-muted/40 p-4">
+                  <div className="rounded-md border bg-muted/40 p-4">
                     <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                       <Store className="size-4" />
                       المتجر
@@ -286,7 +286,7 @@ export default async function OrderDetailsPage({
                     <div className="font-semibold">{order.store.name}</div>
                   </div>
 
-                  <div className="rounded-lg border bg-muted/40 p-4">
+                  <div className="rounded-md border bg-muted/40 p-4">
                     <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                       <Receipt className="size-4" />
                       عدد المنتجات
@@ -306,7 +306,7 @@ export default async function OrderDetailsPage({
 
                       <div className="grid gap-3 sm:grid-cols-2">
                         {safeOrder.fullName && (
-                          <div className="rounded-lg border p-4">
+                          <div className="rounded-md border p-4">
                             <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                               <UserRound className="size-4" />
                               الاسم
@@ -316,7 +316,7 @@ export default async function OrderDetailsPage({
                         )}
 
                         {safeOrder.phone && (
-                          <div className="rounded-lg border p-4">
+                          <div className="rounded-md border p-4">
                             <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                               <Phone className="size-4" />
                               رقم الموبايل
@@ -328,7 +328,7 @@ export default async function OrderDetailsPage({
                         )}
 
                         {safeOrder.address && (
-                          <div className="rounded-lg border p-4 sm:col-span-2">
+                          <div className="rounded-md border p-4 sm:col-span-2">
                             <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                               <MapPinHouse className="size-4" />
                               عنوان التوصيل
@@ -351,10 +351,10 @@ export default async function OrderDetailsPage({
                   {order.items.map((it) => (
                     <div
                       key={it.id}
-                      className="flex items-center justify-between gap-4 rounded-lg border bg-background p-4 transition-colors hover:bg-muted/30"
+                      className="flex items-center justify-between gap-4 rounded-md border bg-background p-4 transition-colors hover:bg-muted/30"
                     >
                       <div className="flex min-w-0 items-start gap-3">
-                        <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                           <Package className="size-5" />
                         </div>
 
@@ -393,7 +393,7 @@ export default async function OrderDetailsPage({
 
               <CardContent className="space-y-4">
                 {safeOrder.paymentMethod && (
-                  <div className="rounded-lg border bg-muted/40 p-4">
+                  <div className="rounded-md border bg-muted/40 p-4">
                     <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                       <Wallet className="size-4" />
                       طريقة الدفع
@@ -402,14 +402,14 @@ export default async function OrderDetailsPage({
                   </div>
                 )}
 
-                <div className="rounded-lg border bg-muted/40 p-4">
+                <div className="rounded-md border bg-muted/40 p-4">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">عدد المنتجات</span>
                     <span className="font-semibold">{order.items.length}</span>
                   </div>
                 </div>
 
-                <div className="rounded-lg border bg-primary/5 p-4">
+                <div className="rounded-md border bg-primary/5 p-4">
                   <div className="mb-2 text-sm text-muted-foreground">
                     الإجمالي النهائي
                   </div>
@@ -418,19 +418,19 @@ export default async function OrderDetailsPage({
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-dashed p-4 text-sm leading-6 text-muted-foreground">
+                <div className="rounded-md border border-dashed p-4 text-sm leading-6 text-muted-foreground">
                   احتفظ برقم الطلب لمتابعة الحالة بسهولة عند التواصل مع المتجر.
                 </div>
 
                 <div className="flex flex-col gap-3 pt-2">
-                  <Button asChild className="h-11 rounded-lg">
+                  <Button asChild className="h-11 rounded-md">
                     <Link href={`/store/${slug}`}>العودة إلى المتجر</Link>
                   </Button>
 
                   <Button
                     asChild
                     variant="outline"
-                    className="h-11 rounded-lg bg-transparent"
+                    className="h-11 rounded-md bg-transparent"
                   >
                     <Link
                       href={`/store/${slug}`}

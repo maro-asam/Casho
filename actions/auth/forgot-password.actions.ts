@@ -6,13 +6,16 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
 } from "@/validations/auth.schema";
-import { generatePasswordResetToken, hashPasswordResetToken } from "@/helpers/password-reset";
+import {
+  generatePasswordResetToken,
+  hashPasswordResetToken,
+} from "@/helpers/password-reset";
+import { sendPasswordResetEmail } from "@/helpers/send-reset-email";
 
 type ForgotPasswordState = {
   success?: boolean;
   message?: string;
   error?: string;
-  resetLink?: string;
   fieldErrors?: {
     email?: string;
   };
@@ -41,6 +44,7 @@ export async function ForgotPasswordAction(
 
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors;
+
     return {
       error: "يرجى مراجعة البيانات",
       fieldErrors: {
@@ -56,21 +60,23 @@ export async function ForgotPasswordAction(
     select: { id: true, email: true },
   });
 
-  // نفس الرسالة سواء الإيميل موجود أو لا
+  // نفس الرسالة دائمًا سواء موجود أو لا
+  const genericMessage =
+    "لو البريد الإلكتروني موجود، هتلاقي رسالة لإعادة تعيين كلمة المرور.";
+
   if (!user) {
     return {
       success: true,
-      message: "لو البريد الإلكتروني موجود، هتلاقي رابط استرجاع كلمة المرور.",
+      message: genericMessage,
     };
   }
 
-  // امسح أي توكنات قديمة للمستخدم
   await prisma.passwordResetToken.deleteMany({
     where: { userId: user.id },
   });
 
   const { rawToken, tokenHash } = generatePasswordResetToken();
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 30); // 30 دقيقة
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 30);
 
   await prisma.passwordResetToken.create({
     data: {
@@ -82,12 +88,12 @@ export async function ForgotPasswordAction(
 
   const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${rawToken}`;
 
-  // حالياً بنرجعه عشان تستخدمه لحد ما توصل خدمة الإيميل
-  // بعدين تقدر تبعته بالإيميل بدل ما يظهر في الواجهة
+  await sendPasswordResetEmail(user.email, resetLink);
+
+  // ممنوع ترجّع اللينك للواجهة
   return {
     success: true,
-    message: "تم إنشاء رابط إعادة تعيين كلمة المرور.",
-    resetLink,
+    message: genericMessage,
   };
 }
 
@@ -105,6 +111,7 @@ export async function ResetPasswordAction(
 
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors;
+
     return {
       error: "يرجى مراجعة البيانات",
       fieldErrors: {
@@ -116,7 +123,6 @@ export async function ResetPasswordAction(
   }
 
   const { token, password } = parsed.data;
-
   const tokenHash = hashPasswordResetToken(token);
 
   const resetRecord = await prisma.passwordResetToken.findUnique({
@@ -154,7 +160,6 @@ export async function ResetPasswordAction(
       where: { tokenHash },
     });
 
-    // اختياري: تسجيل خروج كل الأجهزة القديمة
     await tx.session.deleteMany({
       where: { userId: resetRecord.userId },
     });

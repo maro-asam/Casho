@@ -4,27 +4,33 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BanknoteArrowUp,
+  ChartNoAxesCombined,
   ChevronLeft,
   ChevronRight,
+  CirclePercent,
   Coins,
   CreditCard,
-  ExternalLink,
   ImageIcon,
   Layers,
   LayoutDashboard,
   Menu,
   Package,
-  ServerCog,
+  ScreenShare,
+  Send,
   Settings,
+  Ship,
   ShoppingCart,
   Store,
   Tag,
+  Truck,
   X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/LogoutBtn";
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/theme/ModeToggle";
 
 interface DashboardShellProps {
   store: {
@@ -34,6 +40,14 @@ interface DashboardShellProps {
   children: React.ReactNode;
 }
 
+type DashboardLink = {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  disabled?: boolean;
+  badge?: string;
+};
+
 export default function DashboardShell({
   store,
   children,
@@ -41,10 +55,9 @@ export default function DashboardShell({
   const pathname = usePathname();
 
   const [isOpen, setIsOpen] = useState(false);
-
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const links = [
+  const links: DashboardLink[] = [
     {
       name: "نظرة عامة",
       href: "/dashboard",
@@ -71,9 +84,19 @@ export default function DashboardShell({
       icon: ImageIcon,
     },
     {
-      name: "الرصيد و الاشتراك",
+      name: "أكواد الخصم",
+      href: "/dashboard/coupons",
+      icon: CirclePercent,
+    },
+    {
+      name: "ادارة الرصيد",
       href: "/dashboard/balance",
-      icon: Coins,
+      icon: BanknoteArrowUp,
+    },
+    {
+      name: "تغيير الخطة",
+      href: "/dashboard/change-plan",
+      icon: ChartNoAxesCombined,
     },
     {
       name: "خدمات اضافية",
@@ -81,9 +104,30 @@ export default function DashboardShell({
       icon: Layers,
     },
     {
+      name: "ربط المتجر مع تيليجرام",
+      href: "/dashboard/telegram",
+      icon: Send,
+    },
+    {
       name: "بوابات الدفع",
       href: "/dashboard/payment-gateways",
       icon: CreditCard,
+      disabled: true,
+      badge: "قريبًا",
+    },
+    {
+      name: "الحملات التسويقية",
+      href: "/dashboard/marketing-campaigns",
+      icon: ScreenShare,
+      disabled: true,
+      badge: "قريبًا",
+    },
+    {
+      name: "شركات الشحن",
+      href: "/dashboard/shipping-companies",
+      icon: Truck,
+      disabled: true,
+      badge: "قريبًا",
     },
   ];
 
@@ -101,7 +145,6 @@ export default function DashboardShell({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile Topbar */}
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur md:hidden">
         <Button
           variant="outline"
@@ -122,7 +165,6 @@ export default function DashboardShell({
       </header>
 
       <div className="flex min-h-[calc(100vh-4rem)] md:min-h-screen">
-        {/* Mobile Overlay */}
         <div
           onClick={() => setIsOpen(false)}
           className={cn(
@@ -133,7 +175,6 @@ export default function DashboardShell({
           )}
         />
 
-        {/* Sidebar */}
         <aside
           className={cn(
             "fixed right-0 top-0 z-50 h-screen border-l border-border/60 bg-background text-secondary-foreground shadow-xl transition-all duration-300",
@@ -144,7 +185,6 @@ export default function DashboardShell({
             isCollapsed ? "md:w-20" : "md:w-64",
           )}
         >
-          {/* Mobile Sidebar Header */}
           <div className="mb-4 flex items-center justify-between md:hidden">
             <Link
               href="/dashboard"
@@ -164,7 +204,6 @@ export default function DashboardShell({
             </Button>
           </div>
 
-          {/* Desktop Brand + Collapse Button */}
           <div className="hidden md:block">
             <div
               className={cn(
@@ -181,38 +220,71 @@ export default function DashboardShell({
                 </Link>
               )}
 
-              <Button
-                variant="default"
-                size="icon"
-                onClick={() => setIsCollapsed((prev) => !prev)}
-                aria-label={isCollapsed ? "توسيع القائمة" : "تصغير القائمة"}
-                className=""
-              >
-                {isCollapsed ? (
-                  <ChevronLeft className="size-3.5" />
-                ) : (
-                  <ChevronRight className="size-3.5" />
-                )}
-              </Button>
+              <div className="space-x-2 space-y-2">
+                <ModeToggle />
+                <Button
+                  variant="default"
+                  size="icon"
+                  onClick={() => setIsCollapsed((prev) => !prev)}
+                  aria-label={isCollapsed ? "توسيع القائمة" : "تصغير القائمة"}
+                >
+                  {isCollapsed ? (
+                    <ChevronLeft className="size-3.5" />
+                  ) : (
+                    <ChevronRight className="size-3.5" />
+                  )}
+                </Button>
+              </div>
             </div>
 
             <hr className="my-4" />
           </div>
 
-          {/* Mobile Divider */}
           <div className="md:hidden">
             <hr className="my-3" />
           </div>
 
-          {/* Nav */}
           <nav className="flex flex-col gap-1">
             {links.map((link) => {
               const isActive =
-                link.href === "/dashboard"
+                !link.disabled &&
+                (link.href === "/dashboard"
                   ? pathname === "/dashboard"
-                  : pathname.startsWith(link.href);
+                  : pathname.startsWith(link.href));
 
               const Icon = link.icon;
+
+              if (link.disabled) {
+                return (
+                  <Button
+                    key={link.href}
+                    disabled
+                    variant={`ghost`}
+                    title={
+                      isCollapsed ? `${link.name} - ${link.badge}` : undefined
+                    }
+                    className={cn(
+                      "flex h-11 w-full",
+                      isCollapsed
+                        ? "justify-center px-0"
+                        : "justify-start gap-3 px-3",
+                    )}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+
+                    {!isCollapsed && (
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="truncate">{link.name}</span>
+                        {link.badge && (
+                          <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-medium text-primary">
+                            {link.badge}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </Button>
+                );
+              }
 
               return (
                 <Button
@@ -239,7 +311,6 @@ export default function DashboardShell({
             })}
           </nav>
 
-          {/* Bottom Actions */}
           <div className="mt-auto flex flex-col gap-2 pt-6">
             <hr />
             <Button
@@ -268,7 +339,6 @@ export default function DashboardShell({
           </div>
         </aside>
 
-        {/* Main Content */}
         <main className="max-w-375 mx-auto flex-1 p-3 md:p-4">{children}</main>
       </div>
     </div>

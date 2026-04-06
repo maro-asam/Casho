@@ -15,13 +15,19 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
 
   async function handleSubmit(formData: FormData) {
     const name = formData.get("name");
+    const image = formData.get("image");
+
     if (typeof name !== "string") {
       toast.error("اسم التصنيف غير صالح");
       return;
     }
 
     startTransition(async () => {
-      const result = await CreateCategoryAction(storeId, name);
+      const result = await CreateCategoryAction(
+        storeId,
+        name,
+        typeof image === "string" ? image : undefined,
+      );
 
       if (result?.error) {
         toast.error(result.error);
@@ -29,7 +35,6 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
       }
 
       toast.success("تم إنشاء التصنيف بنجاح");
-
       router.push("/dashboard/categories");
       router.refresh();
     });
@@ -44,11 +49,22 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
           name="name"
           required
           placeholder="مثال: ملابس رجالي"
-          className="h-11 rounded-lg"
+          className="h-11"
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full rounded-lg">
+      <div className="space-y-2">
+        <Label htmlFor="image">لينك الصورة</Label>
+        <Input
+          id="image"
+          name="image"
+          type="url"
+          placeholder="https://example.com/category.jpg"
+          className="h-11"
+        />
+      </div>
+
+      <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? "جاري الإنشاء..." : "إنشاء التصنيف"}
       </Button>
     </form>

@@ -75,9 +75,9 @@ const MerchantProductsRoute = async ({
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-lg border-dashed">
+        <Card className="rounded-md border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-muted">
               <Store className="size-6 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
@@ -142,9 +142,9 @@ const MerchantProductsRoute = async ({
       />
 
       {totalProducts === 0 ? (
-        <Card className="rounded-lg border-dashed shadow-sm">
+        <Card className="rounded-md border-dashed shadow-sm">
           <CardContent className="flex min-h-90 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-md bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
@@ -154,7 +154,7 @@ const MerchantProductsRoute = async ({
               منتجاتك بشكل أفضل.
             </p>
 
-            <Button asChild className="mt-6 rounded-lg">
+            <Button asChild className="mt-6 rounded-md">
               <Link href="/dashboard/products/new">
                 <Plus className="ms-2 size-4" />
                 إضافة أول منتج
@@ -164,7 +164,7 @@ const MerchantProductsRoute = async ({
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden rounded-lg shadow-sm">
+          <Card className="overflow-hidden rounded-md shadow-sm">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>
@@ -189,7 +189,7 @@ const MerchantProductsRoute = async ({
                       >
                         <TableCell className="py-4">
                           <div className="flex min-w-65 items-center gap-3">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
                               {product.image ? (
                                 <Image
                                   width={100}
@@ -273,7 +273,7 @@ const MerchantProductsRoute = async ({
                               asChild
                               variant="secondary"
                               size="sm"
-                              className="rounded-lg"
+                              className="rounded-md"
                             >
                               <Link
                                 href={`/dashboard/products/${product.id}/edit`}
@@ -294,7 +294,7 @@ const MerchantProductsRoute = async ({
                                 type="submit"
                                 variant="destructive"
                                 size="sm"
-                                className="rounded-lg"
+                                className="rounded-md"
                               >
                                 <Trash2 className="ms-1 size-4" />
                                 حذف
@@ -312,7 +312,7 @@ const MerchantProductsRoute = async ({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex flex-col gap-3 rounded-lg border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-md border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 الصفحة{" "}
                 <span className="font-medium text-foreground">{safePage}</span>{" "}
@@ -326,7 +326,7 @@ const MerchantProductsRoute = async ({
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-lg"
+                  className="rounded-md"
                   disabled={safePage <= 1}
                 >
                   <Link
@@ -352,7 +352,7 @@ const MerchantProductsRoute = async ({
                         asChild
                         variant={isActive ? "default" : "outline"}
                         size="icon"
-                        className="rounded-lg"
+                        className="rounded-md"
                       >
                         <Link href={`/dashboard/products?page=${page}`}>
                           {page}
@@ -365,7 +365,7 @@ const MerchantProductsRoute = async ({
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-lg"
+                  className="rounded-md"
                   disabled={safePage >= totalPages}
                 >
                   <Link

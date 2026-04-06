@@ -1,6 +1,9 @@
 "use client";
 
-import { afterItems, beforeItems } from "@/constants/welcome/beforeAfter.constants";
+import {
+  afterItems,
+  beforeItems,
+} from "@/constants/welcome/beforeAfter.constants";
 import { motion } from "framer-motion";
 import { ArrowLeftRight } from "lucide-react";
 
@@ -20,13 +23,13 @@ export default function BeforeAfterSection() {
           transition={transition}
           className="mx-auto max-w-3xl text-center"
         >
-          <span className="inline-flex rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="inline-flex rounded-md border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
             قبل / بعد
           </span>
 
           <h2 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl md:text-5xl">
             الفرق بين البيع التقليدي
-            <span className="block bg-linear-to-l from-primary via-blue-500 to-primary bg-clip-text text-transparent">
+            <span className="block bg-linear-to-l from-primary via-sky-500 to-primary bg-clip-text text-transparent">
               والبيع عن طريق كاشو
             </span>
           </h2>
@@ -43,7 +46,7 @@ export default function BeforeAfterSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
-            className="rounded-lg border border-red-200 bg-red-50/70 p-6 sm:p-7"
+            className="rounded-md border border-red-500/20 bg-background/70 p-6 sm:p-7"
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
@@ -53,7 +56,7 @@ export default function BeforeAfterSection() {
                 </h3>
               </div>
 
-              <span className="rounded-full border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-500">
+              <span className="rounded-md border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-500">
                 عشوائية وتعب
               </span>
             </div>
@@ -65,10 +68,10 @@ export default function BeforeAfterSection() {
                 return (
                   <div
                     key={index}
-                    className="rounded-lg border border-red-100 bg-white/80 p-4 shadow-sm"
+                    className="rounded-md border border-red-500/20 bg-card/80 p-4 shadow-sm"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-red-500/20 text-red-500">
                         <Icon className="size-4.5" />
                       </div>
 
@@ -86,19 +89,19 @@ export default function BeforeAfterSection() {
               })}
             </div>
 
-            <div className="mt-6 rounded-lg border border-red-100 bg-white/80 p-4 shadow-sm">
+            <div className="mt-6 rounded-md border border-red-500/20 bg-background/80 p-4 shadow-sm">
               <div className="space-y-3">
-                <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+                <div className="rounded-md border border-red-500/20 bg-red-500/5 p-3">
                   <p className="text-sm text-red-700">
                     &quot;ممكن تفاصيل المنتج؟&quot;
                   </p>
                 </div>
-                <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+                <div className="rounded-md border border-red-500/20 bg-red-500/5 p-3">
                   <p className="text-sm text-red-700">
                     &quot;عايز أطلب، ابعتلي السعر والمقاس&quot;
                   </p>
                 </div>
-                <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+                <div className="rounded-md border border-red-500/20 bg-red-500/5 p-3">
                   <p className="text-sm text-red-700">
                     &quot;العنوان: ... واسم المنتج كان إيه؟&quot;
                   </p>
@@ -114,7 +117,7 @@ export default function BeforeAfterSection() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="hidden items-center justify-center lg:flex"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-primary/15 bg-primary/5 text-primary shadow-sm">
+            <div className="flex h-16 w-16 items-center justify-center rounded-md border border-primary/15 bg-primary/5 text-primary shadow-sm">
               <ArrowLeftRight className="size-6" />
             </div>
           </motion.div>
@@ -124,7 +127,7 @@ export default function BeforeAfterSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={transition}
-            className="rounded-lg border border-primary/15 bg-primary/[0.035] p-6 sm:p-7"
+            className="rounded-md border border-primary/15 bg-primary/[0.035] p-6 sm:p-7"
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
@@ -134,7 +137,7 @@ export default function BeforeAfterSection() {
                 </h3>
               </div>
 
-              <span className="rounded-full border border-primary/15 bg-white px-3 py-1 text-xs font-medium text-primary shadow-sm">
+              <span className="rounded-md border border-primary/15 bg-primary/10 px-3 py-1 text-xs font-medium text-primary shadow-sm">
                 تنظيم وسرعة
               </span>
             </div>
@@ -146,10 +149,10 @@ export default function BeforeAfterSection() {
                 return (
                   <div
                     key={index}
-                    className="rounded-lg border border-border bg-card p-4 shadow-sm"
+                    className="rounded-md border border-primary/20 bg-card p-4 shadow-sm"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                         <Icon className="size-4.5" />
                       </div>
 
@@ -167,7 +170,7 @@ export default function BeforeAfterSection() {
               })}
             </div>
 
-            <div className="mt-6 rounded-lg border border-border bg-card p-4 shadow-sm">
+            <div className="mt-6 rounded-md border border-border bg-card p-4 shadow-sm">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs text-muted-foreground">معاينة الطلب</p>
@@ -176,13 +179,13 @@ export default function BeforeAfterSection() {
                   </h4>
                 </div>
 
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                <span className="rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                   جديد
                 </span>
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="rounded-md border border-border bg-muted/40 p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-medium text-foreground">تيشيرت أسود</p>
@@ -197,14 +200,14 @@ export default function BeforeAfterSection() {
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="rounded-md border border-border bg-muted/40 p-3">
                     <p className="text-xs text-muted-foreground">العميل</p>
                     <p className="mt-1 text-sm font-medium text-foreground">
                       أحمد محمود
                     </p>
                   </div>
 
-                  <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="rounded-md border border-border bg-muted/40 p-3">
                     <p className="text-xs text-muted-foreground">الدفع</p>
                     <p className="mt-1 text-sm font-medium text-foreground">
                       فودافون كاش

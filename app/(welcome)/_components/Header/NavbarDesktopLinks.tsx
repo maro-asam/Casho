@@ -51,13 +51,13 @@ export default function NavbarDesktopLinks() {
         <motion.div key={link.name} variants={itemVariants}>
           <Link
             href={link.href}
-            className="group relative inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-foreground/80 transition-colors duration-300 hover:text-primary"
+            className="group relative inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-medium text-foreground/80 transition-colors duration-300 hover:text-primary"
           >
             <span className="relative z-10">{link.name}</span>
 
-            <span className="absolute inset-0 rounded-lg bg-primary/0 transition-colors duration-300 group-hover:bg-primary/5" />
+            <span className="absolute inset-0 rounded-md bg-primary/0 transition-colors duration-300 group-hover:bg-primary/5" />
 
-            <span className="absolute bottom-1 right-4 h-0.5 w-0 rounded-full bg-primary transition-all duration-300 group-hover:w-[calc(100%-2rem)]" />
+            <span className="absolute bottom-1 right-4 h-0.5 w-0 rounded-md bg-primary transition-all duration-300 group-hover:w-[calc(100%-2rem)]" />
           </Link>
         </motion.div>
       ))}

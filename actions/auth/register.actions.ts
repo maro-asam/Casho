@@ -9,6 +9,33 @@ import { getFieldErrors } from "@/lib/zod";
 import { normalizeStoreSlug } from "@/lib/store/slug";
 import { createUserSession } from "@/lib/auth/session";
 
+async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
+  const existingStore = await tx.store.findUnique({
+    where: { slug: baseSlug },
+    select: { id: true },
+  });
+
+  if (!existingStore) {
+    return baseSlug;
+  }
+
+  for (let i = 0; i < 10; i++) {
+    const random = Math.random().toString(36).slice(2, 6);
+    const candidate = `${baseSlug}-${random}`;
+
+    const candidateExists = await tx.store.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    });
+
+    if (!candidateExists) {
+      return candidate;
+    }
+  }
+
+  return `${baseSlug}-${crypto.randomUUID().slice(0, 6)}`;
+}
+
 export async function RegisterAction(
   _prevState: RegisterState | null,
   formData: FormData,
@@ -81,14 +108,9 @@ export async function RegisterAction(
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const created = await prisma.$transaction(async (tx) => {
-      const existingStore = await tx.store.findFirst({
-        where: { slug: baseSlug },
-        select: { id: true },
-      });
-
-      const slug = existingStore
-        ? `${baseSlug}-${crypto.randomUUID().slice(0, 6)}`
-        : baseSlug;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const slug = await getAvailableSlug(tx, baseSlug);
 
       const user = await tx.user.create({
         data: {

@@ -25,9 +25,9 @@ export default async function BannersPage() {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-lg border-dashed">
+        <Card className="rounded-md border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-muted">
               <ImageIcon className="size-6 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
@@ -61,9 +61,9 @@ export default async function BannersPage() {
       />
 
       {banners.length === 0 ? (
-        <Card className="rounded-lg border-dashed shadow-sm">
+        <Card className="rounded-md border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-md bg-muted">
               <ImageIcon className="size-7 text-muted-foreground" />
             </div>
 
@@ -73,7 +73,7 @@ export default async function BannersPage() {
               وجذاب داخل متجرك.
             </p>
 
-            <Button asChild className="mt-6 rounded-lg">
+            <Button asChild className="mt-6 rounded-md">
               <Link href="/dashboard/banners/new">
                 <Plus className="me-2 size-4" />
                 إضافة أول بانر
@@ -86,7 +86,7 @@ export default async function BannersPage() {
           {banners.map((banner, index) => (
             <Card
               key={banner.id}
-              className="overflow-hidden rounded-lg border bg-background shadow-sm transition hover:shadow-md"
+              className="p-0 overflow-hidden rounded-md border bg-background shadow-sm transition hover:shadow-md"
             >
               <div className="relative aspect-16/8 w-full overflow-hidden">
                 <Image
@@ -132,7 +132,7 @@ export default async function BannersPage() {
                   <Button
                     type="submit"
                     variant="destructive"
-                    className="w-full rounded-lg"
+                    className="w-full rounded-md"
                   >
                     حذف البانر
                   </Button>

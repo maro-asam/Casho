@@ -60,6 +60,7 @@ export default function RequestServiceDialog({
   useEffect(() => {
     if (state.success) {
       toast.success(state.message || "تم إرسال الطلب");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpen(false);
     } else if (state.message && !state.success && !state.errors) {
       toast.error(state.message);
@@ -71,7 +72,7 @@ export default function RequestServiceDialog({
       <DialogTrigger asChild>
         <Button
           className={
-            triggerClassName ?? "h-11 w-full rounded-lg text-sm font-medium"
+            triggerClassName ?? "h-11 w-full rounded-md text-sm font-medium"
           }
         >
           اطلب الخدمة
@@ -171,7 +172,7 @@ export default function RequestServiceDialog({
           <Button
             type="submit"
             disabled={isPending}
-            className="h-11 w-full rounded-lg"
+            className="h-11 w-full rounded-md"
           >
             {isPending ? (
               <>

@@ -64,7 +64,7 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
               </>
             ) : (
               <>
-                <div className="mt-4 rounded-lg border p-3">
+                <div className="mt-4 rounded-md border p-3">
                   <p className="font-semibold">{storeName || "الحساب"}</p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>

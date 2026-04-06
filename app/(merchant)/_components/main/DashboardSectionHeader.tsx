@@ -3,6 +3,7 @@ import { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 type DashboardSectionHeaderProps = {
   icon: LucideIcon;
@@ -22,10 +23,10 @@ export default function DashboardSectionHeader({
   actionHref,
 }: DashboardSectionHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-lg border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+    <Card className="flex flex-col gap-4 p-6 shadow-sm md:flex-row md:items-center md:justify-between">
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
             <Icon className="size-5" />
           </div>
 
@@ -42,10 +43,10 @@ export default function DashboardSectionHeader({
       </div>
 
       {actionLabel && actionHref && (
-        <Button asChild className="rounded-lg">
+        <Button asChild className="rounded-md">
           <Link href={actionHref}>{actionLabel}</Link>
         </Button>
       )}
-    </div>
+    </Card>
   );
 }

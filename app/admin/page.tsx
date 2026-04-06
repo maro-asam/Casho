@@ -133,8 +133,8 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-xs text-muted-foreground">
-          <span className="inline-block size-2 rounded-full bg-emerald-500" />
+        <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-xs text-muted-foreground">
+          <span className="inline-block size-2 rounded-md bg-emerald-500" />
           بيانات مباشرة من قاعدة البيانات
         </div>
       </section>
@@ -160,7 +160,7 @@ export default async function AdminDashboardPage() {
 
                 <div
                   className={cn(
-                    "flex size-12 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-105",
+                    "flex size-12 items-center justify-center rounded-md transition-transform duration-200 group-hover:scale-105",
                     item.iconWrap,
                   )}
                 >
@@ -194,7 +194,7 @@ export default async function AdminDashboardPage() {
 
             <Link
               href="/admin/stores"
-              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition hover:bg-muted"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition hover:bg-muted"
             >
               عرض الكل
               <ArrowUpRight className="size-4" />
@@ -203,7 +203,7 @@ export default async function AdminDashboardPage() {
 
           <CardContent className="space-y-3">
             {data.latestStores.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-8 text-center">
+              <div className="rounded-md border border-dashed p-8 text-center">
                 <p className="text-sm text-muted-foreground">
                   لا توجد متاجر حتى الآن.
                 </p>
@@ -213,10 +213,10 @@ export default async function AdminDashboardPage() {
                 <Link
                   key={store.id}
                   href={`/admin/stores/${store.id}`}
-                  className="group flex flex-col gap-4 rounded-lg border border-border/60 bg-background p-4 transition-all duration-200 hover:border-primary/20 hover:bg-muted/30 hover:shadow-sm md:flex-row md:items-center md:justify-between"
+                  className="group flex flex-col gap-4 rounded-md border border-border/60 bg-background p-4 transition-all duration-200 hover:border-primary/20 hover:bg-muted/30 hover:shadow-sm md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted">
                       <Building2 className="size-5 text-muted-foreground" />
                     </div>
 
@@ -225,7 +225,7 @@ export default async function AdminDashboardPage() {
                         <h3 className="font-semibold">{store.name}</h3>
                         <Badge
                           className={cn(
-                            "rounded-full border font-medium",
+                            "rounded-md border font-medium",
                             statusClasses(store.subscriptionStatus),
                           )}
                           variant="outline"
@@ -245,11 +245,11 @@ export default async function AdminDashboardPage() {
                   </div>
 
                   <div className="flex items-center justify-between gap-3 md:justify-end">
-                    <div className="rounded-lg bg-muted px-3 py-2 text-sm font-medium">
+                    <div className="rounded-md bg-muted px-3 py-2 text-sm font-medium">
                       {formatPrice(store.balance)}
                     </div>
 
-                    <div className="flex size-9 items-center justify-center rounded-lg border transition group-hover:bg-background">
+                    <div className="flex size-9 items-center justify-center rounded-md border transition group-hover:bg-background">
                       <ArrowUpRight className="size-4" />
                     </div>
                   </div>

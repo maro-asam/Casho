@@ -110,11 +110,7 @@ export default function CreateProductForm({
 
         <div className="space-y-2">
           <Label htmlFor="brand">البراند</Label>
-          <Input
-            id="brand"
-            name="brand"
-            placeholder="مثال: Nike أو Samsung"
-          />
+          <Input id="brand" name="brand" placeholder="مثال: Nike أو Samsung" />
         </div>
 
         <div className="space-y-2">
@@ -182,11 +178,7 @@ export default function CreateProductForm({
               افصل بينهم بفاصلة
             </span>
           </Label>
-          <Input
-            id="sizes"
-            name="sizes"
-            placeholder="S, M, L, XL"
-          />
+          <Input id="sizes" name="sizes" placeholder="S, M, L, XL" />
         </div>
 
         <div className="space-y-2">
@@ -196,11 +188,7 @@ export default function CreateProductForm({
               افصل بينهم بفاصلة
             </span>
           </Label>
-          <Input
-            id="colors"
-            name="colors"
-            placeholder="أسود, أبيض, أزرق"
-          />
+          <Input id="colors" name="colors" placeholder="أسود, أبيض, أزرق" />
         </div>
 
         <div className="space-y-2 md:col-span-2">
@@ -237,7 +225,7 @@ export default function CreateProductForm({
         <div className="space-y-3 md:col-span-2">
           <Label>معاينة الصورة</Label>
 
-          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted/30">
+          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-md border border-dashed bg-muted/30">
             {imagePreview ? (
               <div className="relative h-65 w-full">
                 <Image
@@ -250,7 +238,7 @@ export default function CreateProductForm({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
-                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-background">
+                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-md bg-background">
                   <ImageIcon className="size-6" />
                 </div>
                 <p className="text-sm font-medium">لا توجد صورة للمعاينة</p>
@@ -263,7 +251,7 @@ export default function CreateProductForm({
         </div>
       </div>
 
-      <Button type="submit" className="rounded-lg" disabled={isPending}>
+      <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? (
           <>
             <Loader2 className="me-2 size-4 animate-spin" />

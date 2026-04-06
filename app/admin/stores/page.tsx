@@ -99,7 +99,7 @@ export default async function AdminStoresPage() {
             stores.map((store) => (
               <div
                 key={store.id}
-                className="flex flex-col gap-4 rounded-lg border p-4 md:flex-row md:items-center md:justify-between"
+                className="flex flex-col gap-4 rounded-md border p-4 md:flex-row md:items-center md:justify-between"
               >
                 <div>
                   <h3 className="font-semibold text-lg">{store.name}</h3>
@@ -120,7 +120,7 @@ export default async function AdminStoresPage() {
                     {formatPrice(store.balance)}
                   </Badge>
 
-                  <Button asChild className="rounded-lg">
+                  <Button asChild className="rounded-md">
                     <Link href={`/admin/stores/${store.slug}`}>
                       <Eye className="ms-2 size-4" />
                       عرض

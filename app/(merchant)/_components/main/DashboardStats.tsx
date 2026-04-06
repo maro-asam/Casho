@@ -35,7 +35,7 @@ function formatPercentageChange(value: number) {
 }
 
 const DashboardStats = async () => {
-const userId = await requireUserId();
+  const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -338,7 +338,7 @@ const userId = await requireUserId();
         return (
           <Card
             key={stat.title}
-            className="group overflow-hidden border border-border/60 bg-background transition-all duration-300"
+            className="group overflow-hidden border border-border/60 transition-all duration-300"
           >
             <CardContent className="p-5">
               <div className="mb-6 flex items-start justify-between gap-4">
@@ -352,7 +352,7 @@ const userId = await requireUserId();
                 </div>
 
                 <div
-                  className={`flex size-11 items-center justify-center rounded-lg ${stat.iconWrap}`}
+                  className={`flex size-11 items-center justify-center rounded-md ${stat.iconWrap}`}
                 >
                   <Icon className={`size-5 ${stat.iconColor}`} />
                 </div>
@@ -360,7 +360,7 @@ const userId = await requireUserId();
 
               <div className="flex items-center justify-between gap-3">
                 <div
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ${
+                  className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold ${
                     isPositive
                       ? stat.trendPositive
                       : "bg-rose-500/10 text-rose-600"

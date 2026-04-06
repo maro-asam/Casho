@@ -135,7 +135,7 @@ export default async function AdminTopupRequestsPage() {
               <CardDescription>طلبات معلقة</CardDescription>
               <CardTitle className="text-2xl">{pendingCount}</CardTitle>
             </div>
-            <div className="flex size-11 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+            <div className="flex size-11 items-center justify-center rounded-md bg-amber-500/10 text-amber-600">
               <Clock3 className="size-5" />
             </div>
           </CardHeader>
@@ -147,7 +147,7 @@ export default async function AdminTopupRequestsPage() {
               <CardDescription>تمت الموافقة</CardDescription>
               <CardTitle className="text-2xl">{approvedCount}</CardTitle>
             </div>
-            <div className="flex size-11 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+            <div className="flex size-11 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600">
               <CheckCircle2 className="size-5" />
             </div>
           </CardHeader>
@@ -159,7 +159,7 @@ export default async function AdminTopupRequestsPage() {
               <CardDescription>مرفوضة</CardDescription>
               <CardTitle className="text-2xl">{rejectedCount}</CardTitle>
             </div>
-            <div className="flex size-11 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
+            <div className="flex size-11 items-center justify-center rounded-md bg-rose-500/10 text-rose-600">
               <XCircle className="size-5" />
             </div>
           </CardHeader>
@@ -176,7 +176,7 @@ export default async function AdminTopupRequestsPage() {
 
         <CardContent>
           {requests.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border/60 p-8 text-center">
+            <div className="rounded-md border border-dashed border-border/60 p-8 text-center">
               <p className="text-sm text-muted-foreground">
                 لا توجد طلبات شحن حتى الآن.
               </p>
@@ -190,24 +190,24 @@ export default async function AdminTopupRequestsPage() {
                 return (
                   <div
                     key={request.id}
-                    className="rounded-lg border border-border/60 p-4"
+                    className="rounded-md border border-border/60 p-4"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge
-                            className={`rounded-full px-3 py-1 ${getStatusClass(
+                            className={`rounded-md px-3 py-1 ${getStatusClass(
                               request.status,
                             )}`}
                           >
                             {getStatusLabel(request.status)}
                           </Badge>
 
-                          <Badge variant="outline" className="rounded-full">
+                          <Badge variant="outline" className="rounded-md">
                             {getMethodLabel(request.method)}
                           </Badge>
 
-                          <Badge variant="secondary" className="rounded-full">
+                          <Badge variant="secondary" className="rounded-md">
                             {formatPrice(request.amount)}
                           </Badge>
                         </div>
@@ -228,7 +228,7 @@ export default async function AdminTopupRequestsPage() {
                         </div>
 
                         <div className="grid gap-3 md:grid-cols-2">
-                          <div className="rounded-lg bg-muted/40 p-3">
+                          <div className="rounded-md bg-muted/40 p-3">
                             <p className="mb-1 text-xs text-muted-foreground">
                               رقم التحويل / المرجع
                             </p>
@@ -237,7 +237,7 @@ export default async function AdminTopupRequestsPage() {
                             </p>
                           </div>
 
-                          <div className="rounded-lg bg-muted/40 p-3">
+                          <div className="rounded-md bg-muted/40 p-3">
                             <p className="mb-1 text-xs text-muted-foreground">
                               ملاحظة التاجر
                             </p>
@@ -249,7 +249,7 @@ export default async function AdminTopupRequestsPage() {
                       </div>
 
                       <div className="flex w-full flex-col gap-2 lg:w-auto lg:min-w-55">
-                        <Button asChild variant="outline" className="rounded-lg">
+                        <Button asChild variant="outline" className="rounded-md">
                           <Link href={`/admin/stores/${request.store.slug}`}>
                             <Eye className="ms-2 size-4" />
                             عرض المتجر
@@ -257,7 +257,7 @@ export default async function AdminTopupRequestsPage() {
                         </Button>
 
                         {request.receiptImage && (
-                          <Button asChild variant="outline" className="rounded-lg">
+                          <Button asChild variant="outline" className="rounded-md">
                             <a
                               href={request.receiptImage}
                               target="_blank"
@@ -276,7 +276,7 @@ export default async function AdminTopupRequestsPage() {
                                 await approveTopupRequestAction(request.id);
                               }}
                             >
-                              <Button className="w-full rounded-lg">
+                              <Button className="w-full rounded-md">
                                 <CheckCircle2 className="ms-2 size-4" />
                                 اعتماد الطلب
                               </Button>
@@ -290,7 +290,7 @@ export default async function AdminTopupRequestsPage() {
                             >
                               <Button
                                 variant="destructive"
-                                className="w-full rounded-lg"
+                                className="w-full rounded-md"
                               >
                                 <XCircle className="ms-2 size-4" />
                                 رفض الطلب

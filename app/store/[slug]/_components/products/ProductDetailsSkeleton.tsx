@@ -13,7 +13,7 @@ export default function ProductDetailsSkeleton() {
         {/* Breadcrumb */}
         <div className="mb-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <Button variant="ghost" size="sm" className="gap-2" disabled>
-            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-4 rounded-md" />
             <Skeleton className="h-4 w-24" />
           </Button>
 
@@ -33,8 +33,8 @@ export default function ProductDetailsSkeleton() {
           <div className="order-2 space-y-6 xl:order-2">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <Skeleton className="h-8 w-28 rounded-full" />
-                <Skeleton className="h-8 w-24 rounded-full" />
+                <Skeleton className="h-8 w-28 rounded-md" />
+                <Skeleton className="h-8 w-24 rounded-md" />
               </div>
 
               <div className="space-y-3">
@@ -48,7 +48,7 @@ export default function ProductDetailsSkeleton() {
             <Separator />
 
             <div className="grid gap-4">
-              <Card className="rounded-lg shadow-sm">
+              <Card className="rounded-md shadow-sm">
                 <CardHeader className="pb-3">
                   <Skeleton className="h-5 w-32" />
                 </CardHeader>
@@ -66,12 +66,12 @@ export default function ProductDetailsSkeleton() {
 
                   <div className="flex items-center justify-between border-b pb-3">
                     <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <Skeleton className="h-6 w-20 rounded-md" />
                   </div>
 
                   <div className="flex items-center justify-between border-b pb-3">
                     <Skeleton className="h-4 w-12" />
-                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-6 w-16 rounded-md" />
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -82,7 +82,7 @@ export default function ProductDetailsSkeleton() {
               </Card>
             </div>
 
-            <Card className="rounded-lg border-primary/10 bg-muted/30 shadow-sm">
+            <Card className="rounded-md border-primary/10 bg-muted/30 shadow-sm">
               <CardContent className="p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-2">
@@ -91,8 +91,8 @@ export default function ProductDetailsSkeleton() {
                   </div>
 
                   <div className="flex flex-wrap gap-3">
-                    <Skeleton className="h-11 w-36 rounded-lg" />
-                    <Skeleton className="h-11 w-36 rounded-lg" />
+                    <Skeleton className="h-11 w-36 rounded-md" />
+                    <Skeleton className="h-11 w-36 rounded-md" />
                   </div>
                 </div>
               </CardContent>
@@ -100,10 +100,10 @@ export default function ProductDetailsSkeleton() {
           </div>
 
           {/* Image */}
-          <Card className="order-1 h-fit overflow-hidden rounded-lg border-border/60 shadow-sm xl:order-1">
+          <Card className="order-1 h-fit overflow-hidden rounded-md border-border/60 shadow-sm xl:order-1">
             <CardContent>
-              <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted/30">
-                <Skeleton className="h-full w-full rounded-lg" />
+              <div className="relative aspect-square w-full overflow-hidden rounded-md bg-muted/30">
+                <Skeleton className="h-full w-full rounded-md" />
               </div>
             </CardContent>
           </Card>
@@ -117,14 +117,14 @@ export default function ProductDetailsSkeleton() {
               <Skeleton className="h-4 w-56" />
             </div>
 
-            <Skeleton className="h-10 w-24 rounded-lg" />
+            <Skeleton className="h-10 w-24 rounded-md" />
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <Card
                 key={index}
-                className="group overflow-hidden rounded-lg border-border/60 shadow-sm"
+                className="group overflow-hidden rounded-md border-border/60 shadow-sm"
               >
                 <CardContent className="p-0">
                   <div className="relative aspect-square overflow-hidden bg-muted/30">
@@ -135,7 +135,7 @@ export default function ProductDetailsSkeleton() {
                 <CardHeader className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-6 w-14 rounded-full" />
+                    <Skeleton className="h-6 w-14 rounded-md" />
                   </div>
 
                   <Skeleton className="h-4 w-full" />
@@ -144,7 +144,7 @@ export default function ProductDetailsSkeleton() {
 
                 <CardFooter className="flex items-center justify-between">
                   <Skeleton className="h-6 w-20" />
-                  <Skeleton className="h-9 w-24 rounded-lg" />
+                  <Skeleton className="h-9 w-24 rounded-md" />
                 </CardFooter>
               </Card>
             ))}

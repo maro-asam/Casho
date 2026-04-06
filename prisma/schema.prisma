@@ -72,10 +72,13 @@ model Store {
   visits     Visit[]
 
   balanceTransactions BalanceTransaction[]
+  topupRequests       TopupRequest[]
+  serviceRequests     ServiceRequest[]
 
-  createdAt       DateTime         @default(now())
-  topupRequests   TopupRequest[]
-  serviceRequests ServiceRequest[]
+  coupons        Coupon[]
+  appliedCoupons AppliedCoupon[]
+
+  createdAt DateTime @default(now())
 
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -122,6 +125,7 @@ model Category {
   id        String    @id @default(uuid())
   name      String
   slug      String
+  image     String?
   storeId   String
   store     Store     @relation(fields: [storeId], references: [id])
   products  Product[]
@@ -201,6 +205,47 @@ model CartItem {
   @@unique([guestSessionId, productId])
 }
 
+model Coupon {
+  id          String     @id @default(uuid())
+  code        String
+  type        CouponType
+  value       Float
+  isActive    Boolean    @default(true)
+  startsAt    DateTime?
+  expiresAt   DateTime?
+  usageLimit  Int?
+  usedCount   Int        @default(0)
+  minSubtotal Float?
+  maxDiscount Float?
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  appliedCoupons AppliedCoupon[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, code])
+  @@index([storeId, code, isActive])
+}
+
+model AppliedCoupon {
+  id             String @id @default(uuid())
+  guestSessionId String
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  couponId String
+  coupon   Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([guestSessionId, storeId])
+  @@index([couponId])
+}
+
 model Order {
   id String @id @default(uuid())
 
@@ -214,7 +259,10 @@ model Order {
 
   subtotal Int
   shipping Int @default(0)
+  discount Int @default(0)
   total    Int
+
+  couponCode String?
 
   fullName String
   phone    String
@@ -259,6 +307,11 @@ model BalanceTransaction {
   createdAt DateTime @default(now())
 
   @@index([storeId, createdAt])
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
 }
 
 enum OrderStatus {

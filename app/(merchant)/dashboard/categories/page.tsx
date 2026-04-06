@@ -1,16 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  FolderOpen,
-  Plus,
-  Tag,
-  ChevronRight,
-  ChevronLeft,
-} from "lucide-react";
+import { FolderOpen, Plus, Tag, ChevronRight, ChevronLeft } from "lucide-react";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import DeleteCategoryButton from "./_components/DeleteCategoryButton";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
@@ -38,9 +33,9 @@ export default async function CategoriesPage({
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-lg border-dashed">
+        <Card className="border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-muted">
               <FolderOpen className="size-6 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
@@ -65,11 +60,16 @@ export default async function CategoriesPage({
     orderBy: { createdAt: "desc" },
     skip: (safePage - 1) * PAGE_SIZE,
     take: PAGE_SIZE,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      image: true,
+    },
   });
 
   return (
     <div className="space-y-6 p-6" dir="rtl">
-      {/* Header */}
       <DashboardSectionHeader
         icon={Tag}
         title="التصنيفات"
@@ -84,11 +84,10 @@ export default async function CategoriesPage({
         actionHref="/dashboard/categories/new"
       />
 
-      {/* Content */}
       {categories.length === 0 ? (
-        <Card className="rounded-lg border-dashed shadow-sm">
+        <Card className="border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-md bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
@@ -98,7 +97,7 @@ export default async function CategoriesPage({
               العملاء داخل المتجر.
             </p>
 
-            <Button asChild className="mt-6 rounded-lg">
+            <Button asChild className="mt-6">
               <Link href="/dashboard/categories/new">
                 <Plus className="me-2 size-4" />
                 إضافة أول تصنيف
@@ -112,12 +111,24 @@ export default async function CategoriesPage({
             {categories.map((cat, index) => (
               <Card
                 key={cat.id}
-                className="rounded-lg border bg-background shadow-sm transition hover:shadow-md"
+                className="border bg-background shadow-sm transition hover:shadow-md"
               >
                 <CardContent className="flex h-full flex-col justify-between gap-4 p-5">
                   <div className="flex min-w-0 items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Tag className="size-5" />
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+                      {cat.image ? (
+                        <Image
+                          src={cat.image}
+                          alt={cat.name}
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-primary">
+                          <Tag className="size-5" />
+                        </div>
+                      )}
                     </div>
 
                     <div className="min-w-0 space-y-2">
@@ -125,7 +136,7 @@ export default async function CategoriesPage({
                         <h3 className="truncate text-base font-semibold">
                           {cat.name}
                         </h3>
-                        <Badge variant="secondary" className="rounded-md">
+                        <Badge variant="secondary">
                           #{(safePage - 1) * PAGE_SIZE + index + 1}
                         </Badge>
                       </div>
@@ -134,9 +145,7 @@ export default async function CategoriesPage({
                         <span className="truncate rounded-md bg-muted px-2 py-1 font-mono text-xs">
                           {cat.slug}
                         </span>
-                        <Badge variant="outline" className="rounded-md">
-                          Slug
-                        </Badge>
+                        <Badge variant="outline">Slug</Badge>
                       </div>
                     </div>
                   </div>
@@ -152,9 +161,8 @@ export default async function CategoriesPage({
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex flex-col gap-3 rounded-lg border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 الصفحة{" "}
                 <span className="font-medium text-foreground">{safePage}</span>{" "}
@@ -168,7 +176,6 @@ export default async function CategoriesPage({
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-lg"
                   disabled={safePage <= 1}
                 >
                   <Link
@@ -194,7 +201,6 @@ export default async function CategoriesPage({
                         asChild
                         variant={isActive ? "default" : "outline"}
                         size="icon"
-                        className="rounded-lg"
                       >
                         <Link href={`/dashboard/categories?page=${page}`}>
                           {page}
@@ -207,7 +213,6 @@ export default async function CategoriesPage({
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-lg"
                   disabled={safePage >= totalPages}
                 >
                   <Link

@@ -36,7 +36,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
     <TableRow className="transition-colors hover:bg-muted/30">
       <TableCell className="py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
             {product.image ? (
               // لو هتستخدم next/image بدل img ابقى بدله
               <Image
@@ -97,7 +97,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
 
       <TableCell>
         <div className="flex flex-wrap items-center justify-start gap-2">
-          <Button asChild variant="secondary" size="sm" className="rounded-lg">
+          <Button asChild variant="secondary" size="sm" className="rounded-md">
             <Link href={`/dashboard/products/${product.id}/edit`}>
               <Edit className="me-2 size-4" />
               تعديل
@@ -115,7 +115,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
               type="submit"
               variant="destructive"
               size="sm"
-              className="rounded-lg"
+              className="rounded-md"
             >
               <Trash2 className="me-2 size-4" />
               حذف

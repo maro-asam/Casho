@@ -7,6 +7,7 @@ import { MustOwnStore, MustSession } from "../auth/auth-helpers.actions";
 import { revalidatePath } from "next/cache";
 import { OrderStatus } from "@/lib/generated/prisma/enums";
 import { requireUserId } from "../auth/require-user-id.actions";
+import { calculateCouponDiscount } from "@/helpers/coupon";
 
 export async function CreateOrderAction(
   storeSlug: string,
@@ -28,10 +29,45 @@ export async function CreateOrderAction(
 
   if (!store) throw new Error("Store not found");
 
-  const cartItems = await prisma.cartItem.findMany({
-    where: { guestSessionId, storeId: store.id },
-    include: { product: { select: { id: true, price: true, name: true } } },
-  });
+  const [cartItems, appliedCoupon] = await Promise.all([
+    prisma.cartItem.findMany({
+      where: { guestSessionId, storeId: store.id },
+      include: {
+        product: {
+          select: {
+            id: true,
+            price: true,
+            name: true,
+          },
+        },
+      },
+    }),
+    prisma.appliedCoupon.findUnique({
+      where: {
+        guestSessionId_storeId: {
+          guestSessionId,
+          storeId: store.id,
+        },
+      },
+      include: {
+        coupon: {
+          select: {
+            id: true,
+            code: true,
+            type: true,
+            value: true,
+            isActive: true,
+            startsAt: true,
+            expiresAt: true,
+            minSubtotal: true,
+            maxDiscount: true,
+            usageLimit: true,
+            usedCount: true,
+          },
+        },
+      },
+    }),
+  ]);
 
   if (cartItems.length === 0) throw new Error("Cart is empty");
 
@@ -41,7 +77,39 @@ export async function CreateOrderAction(
   }, 0);
 
   const shipping = 0;
-  const total = subtotal + shipping;
+
+  let discount = 0;
+  let couponIdToUse: string | null = null;
+  let couponCodeToUse: string | null = null;
+
+  if (appliedCoupon?.coupon) {
+    const coupon = appliedCoupon.coupon;
+    const now = new Date();
+
+    const startsOk = !coupon.startsAt || coupon.startsAt <= now;
+    const expiresOk = !coupon.expiresAt || coupon.expiresAt >= now;
+    const usageOk =
+      typeof coupon.usageLimit !== "number" ||
+      coupon.usedCount < coupon.usageLimit;
+
+    if (coupon.isActive && startsOk && expiresOk && usageOk) {
+      const calculatedDiscount = calculateCouponDiscount(subtotal / 100, {
+        type: coupon.type,
+        value: coupon.value,
+        minSubtotal: coupon.minSubtotal,
+        maxDiscount: coupon.maxDiscount,
+      });
+
+      discount = Math.round(calculatedDiscount * 100);
+
+      if (discount > 0) {
+        couponIdToUse = coupon.id;
+        couponCodeToUse = coupon.code;
+      }
+    }
+  }
+
+  const total = Math.max(0, subtotal + shipping - discount);
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -54,7 +122,9 @@ export async function CreateOrderAction(
 
         subtotal,
         shipping,
+        discount,
         total,
+        couponCode: couponCodeToUse,
 
         fullName: data.fullName,
         phone: data.phone,
@@ -71,13 +141,35 @@ export async function CreateOrderAction(
       select: { id: true },
     });
 
+    if (couponIdToUse) {
+      await tx.coupon.update({
+        where: { id: couponIdToUse },
+        data: {
+          usedCount: {
+            increment: 1,
+          },
+        },
+      });
+    }
+
+    await tx.appliedCoupon.deleteMany({
+      where: {
+        guestSessionId,
+        storeId: store.id,
+      },
+    });
+
     await tx.cartItem.deleteMany({
       where: { guestSessionId, storeId: store.id },
     });
 
     return created;
   });
+
   revalidatePath(`/dashboard/orders`);
+  revalidatePath(`/store/${store.slug}`);
+  revalidatePath(`/store/${store.slug}/cart`);
+
   redirect(`/store/${store.slug}/order/${order.id}`);
 }
 
@@ -96,7 +188,9 @@ export async function GetOrdersAction(storeId: string) {
       paymentMethod: true,
       subtotal: true,
       shipping: true,
+      discount: true,
       total: true,
+      couponCode: true,
       status: true,
       createdAt: true,
       items: {

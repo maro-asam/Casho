@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -9,19 +9,27 @@ import {
   Image as ImageLucide,
   Phone,
   FileText,
+  Store as StoreIcon,
+  CheckCircle2,
+  XCircle,
+  Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 
 import {
   UpdateStoreSettingsAction,
   type StoreSettingsFormState,
 } from "@/actions/store/settings.actions";
+import {
+  CheckStoreNameAvailabilityAction,
+  type StoreNameAvailabilityResult,
+} from "@/actions/store/check-store-name.actions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
 
 type Props = {
   store: {
@@ -36,7 +44,7 @@ type Props = {
       primaryColor: string | null;
       secondaryColor: string | null;
       announcementText: string | null;
-      description: string | null; // ✅ الجديد
+      description: string | null;
       whatsappNumber: string | null;
       tiktok: string | null;
       instagram: string | null;
@@ -59,18 +67,176 @@ export default function StoreSettingsForm({ store }: Props) {
     initialState,
   );
 
+  const [storeName, setStoreName] = useState(store.name);
+  const [storeNameStatus, setStoreNameStatus] =
+    useState<StoreNameAvailabilityResult | null>({
+      success: true,
+      available: true,
+      normalizedSlug: store.slug,
+      suggestedSlug: store.slug,
+      message: "ده اسم متجرك الحالي",
+    });
+  const [isCheckingStoreName, setIsCheckingStoreName] = useState(false);
+
+  const requestIdRef = useRef(0);
+
   useEffect(() => {
     if (!state.message) return;
 
-    if (state.success) toast.success(state.message);
-    else toast.error(state.message);
+    if (state.success) {
+      toast.success(state.message);
+    } else {
+      toast.error(state.message);
+    }
   }, [state]);
+
+  useEffect(() => {
+    const value = storeName.trim();
+
+    if (!value || value.length < 2) {
+      setStoreNameStatus(null);
+      setIsCheckingStoreName(false);
+      return;
+    }
+
+    if (value === store.name.trim()) {
+      setStoreNameStatus({
+        success: true,
+        available: true,
+        normalizedSlug: store.slug,
+        suggestedSlug: store.slug,
+        message: "ده اسم متجرك الحالي",
+      });
+      setIsCheckingStoreName(false);
+      return;
+    }
+
+    setIsCheckingStoreName(true);
+    const currentRequestId = ++requestIdRef.current;
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await CheckStoreNameAvailabilityAction(store.id, value);
+
+        if (requestIdRef.current !== currentRequestId) return;
+
+        setStoreNameStatus(result);
+      } catch (error) {
+        console.error(error);
+
+        if (requestIdRef.current !== currentRequestId) return;
+
+        setStoreNameStatus(null);
+      } finally {
+        if (requestIdRef.current === currentRequestId) {
+          setIsCheckingStoreName(false);
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [store.id, store.name, store.slug, storeName]);
 
   const settings = store.settings;
 
   return (
     <form action={formAction} className="space-y-8" dir="rtl">
-      {/* ================= الصور ================= */}
+      <input type="hidden" name="storeId" value={store.id} />
+
+      <section className="space-y-5">
+        <div className="flex items-center gap-2">
+          <StoreIcon className="size-4 text-primary" />
+          <h3 className="text-base font-semibold">بيانات المتجر</h3>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="storeName">اسم المتجر</Label>
+          <Input
+            id="storeName"
+            name="storeName"
+            value={storeName}
+            onChange={(e) => setStoreName(e.target.value)}
+            placeholder="اكتب اسم متجرك"
+          />
+
+          {state.errors?.storeName && (
+            <p className="text-sm text-destructive">
+              {state.errors.storeName[0]}
+            </p>
+          )}
+
+          {(isCheckingStoreName || storeNameStatus) && (
+            <div className="rounded-xl border bg-muted/40 p-4">
+              {isCheckingStoreName ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>جارٍ فحص اسم المتجر...</span>
+                </div>
+              ) : storeNameStatus ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    {storeNameStatus.available ? (
+                      <>
+                        <CheckCircle2 className="size-4 text-green-600" />
+                        <span className="font-medium">
+                          {storeNameStatus.message}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="size-4 text-amber-600" />
+                        <span className="font-medium">
+                          {storeNameStatus.message}
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="space-y-1 text-sm">
+                    <p className="text-muted-foreground">رابط المتجر هيبقى:</p>
+                    <div
+                      dir="ltr"
+                      className="rounded-lg border bg-background px-3 py-2 font-medium"
+                    >
+                      {(storeNameStatus.suggestedSlug || store.slug)}.casho.store
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 text-sm">
+                    <p className="text-muted-foreground">
+                      الاسم بعد التحويل للرابط:
+                    </p>
+                    <div
+                      dir="ltr"
+                      className="rounded-lg border bg-background px-3 py-2"
+                    >
+                      {storeNameStatus.normalizedSlug || store.slug}
+                    </div>
+                  </div>
+
+                  {!storeNameStatus.available && (
+                    <div className="flex items-start gap-2 rounded-lg border border-dashed bg-background px-3 py-2 text-sm">
+                      <Sparkles className="mt-0.5 size-4 text-primary" />
+                      <p className="text-muted-foreground">
+                        الاسم ده متاخد، والبديل المتاح:
+                        <span
+                          className="mx-1 font-semibold text-foreground"
+                          dir="ltr"
+                        >
+                          {storeNameStatus.suggestedSlug}
+                        </span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <Separator />
+
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <ImageLucide className="size-4 text-primary" />
@@ -78,7 +244,6 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {/* logo */}
           <div className="space-y-2">
             <Label htmlFor="logo">رابط اللوجو</Label>
             <Input
@@ -95,7 +260,7 @@ export default function StoreSettingsForm({ store }: Props) {
             )}
 
             {settings?.logo && (
-              <div className="rounded-lg border p-3">
+              <div className="rounded-md border p-3">
                 <p className="mb-2 text-sm text-muted-foreground">
                   معاينة اللوجو
                 </p>
@@ -104,13 +269,12 @@ export default function StoreSettingsForm({ store }: Props) {
                   height={1000}
                   src={settings.logo}
                   alt="Logo Preview"
-                  className="h-20 w-20 rounded-lg object-cover border"
+                  className="h-20 w-20 rounded-md border object-cover"
                 />
               </div>
             )}
           </div>
 
-          {/* cover */}
           <div className="space-y-2">
             <Label htmlFor="coverImage">رابط صورة الغلاف</Label>
             <Input
@@ -133,7 +297,6 @@ export default function StoreSettingsForm({ store }: Props) {
 
       <Separator />
 
-      {/* ================= وصف المتجر + الإعلان ================= */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <FileText className="size-4 text-primary" />
@@ -141,7 +304,6 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {/* وصف المتجر */}
           <div className="space-y-2">
             <Label htmlFor="description">وصف المتجر</Label>
             <Textarea
@@ -158,7 +320,6 @@ export default function StoreSettingsForm({ store }: Props) {
             )}
           </div>
 
-          {/* النص العلوي */}
           <div className="space-y-2">
             <Label htmlFor="announcementText">النص العلوي</Label>
             <Textarea
@@ -179,7 +340,6 @@ export default function StoreSettingsForm({ store }: Props) {
 
       <Separator />
 
-      {/* ================= الألوان ================= */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <Palette className="size-4 text-primary" />
@@ -187,7 +347,6 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {/* primary */}
           <div className="space-y-2">
             <Label htmlFor="primaryColor">اللون الأساسي</Label>
             <div className="flex items-center gap-3">
@@ -206,15 +365,14 @@ export default function StoreSettingsForm({ store }: Props) {
                 onChange={(e) => {
                   const input = document.getElementById(
                     "primaryColor",
-                  ) as HTMLInputElement;
-                  input.value = e.target.value;
+                  ) as HTMLInputElement | null;
+                  if (input) input.value = e.target.value;
                 }}
                 className="h-10 w-14 cursor-pointer rounded-md border"
               />
             </div>
           </div>
 
-          {/* secondary */}
           <div className="space-y-2">
             <Label htmlFor="secondaryColor">اللون الثانوي</Label>
             <div className="flex items-center gap-3">
@@ -233,8 +391,8 @@ export default function StoreSettingsForm({ store }: Props) {
                 onChange={(e) => {
                   const input = document.getElementById(
                     "secondaryColor",
-                  ) as HTMLInputElement;
-                  input.value = e.target.value;
+                  ) as HTMLInputElement | null;
+                  if (input) input.value = e.target.value;
                 }}
                 className="h-10 w-14 cursor-pointer rounded-md border"
               />
@@ -243,10 +401,8 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
       </section>
 
-
       <Separator />
 
-      {/* ================= التواصل ================= */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <Phone className="size-4 text-primary" />
@@ -254,25 +410,37 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Input name="whatsappNumber" placeholder="201001234567" />
-          <Input name="instagram" placeholder="Instagram link" />
-          <Input name="facebook" placeholder="Facebook link" />
-          <Input name="tiktok" placeholder="Tiktok link" />
+          <Input
+            name="whatsappNumber"
+            placeholder="201001234567"
+            defaultValue={settings?.whatsappNumber ?? ""}
+          />
+          <Input
+            name="instagram"
+            placeholder="Instagram link"
+            defaultValue={settings?.instagram ?? ""}
+          />
+          <Input
+            name="facebook"
+            placeholder="Facebook link"
+            defaultValue={settings?.facebook ?? ""}
+          />
+          <Input
+            name="tiktok"
+            placeholder="Tiktok link"
+            defaultValue={settings?.tiktok ?? ""}
+          />
           <Input
             name="email"
             placeholder="your-email@example.com"
             className="md:col-span-2"
+            defaultValue={settings?.email ?? ""}
           />
         </div>
       </section>
 
-      {/* ================= submit ================= */}
       <div className="flex justify-start">
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="min-w-45 gap-2 rounded-lg"
-        >
+        <Button type="submit" disabled={isPending} className="min-w-45 gap-2">
           {isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" />

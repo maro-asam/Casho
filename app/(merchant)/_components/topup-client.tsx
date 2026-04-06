@@ -50,9 +50,7 @@ const paymentMethods = [
 
 const TopupClient = ({ storeId }: { storeId: string }) => {
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<TopupMethod>(
-    TopupMethod.INSTAPAY
-  );
+  const [method, setMethod] = useState<TopupMethod>(TopupMethod.INSTAPAY);
   const [transferRef, setTransferRef] = useState("");
   const [note, setNote] = useState("");
 
@@ -150,7 +148,7 @@ const TopupClient = ({ storeId }: { storeId: string }) => {
                   return (
                     <div
                       key={m.id}
-                      className="flex items-center gap-3 border p-3 rounded-lg"
+                      className="flex items-center gap-3 border p-3 rounded-md"
                     >
                       <RadioGroupItem value={m.id} />
                       <Icon className="size-4" />
@@ -162,7 +160,7 @@ const TopupClient = ({ storeId }: { storeId: string }) => {
             </div>
 
             <div>
-              <Label>رقم العملية</Label>
+              <Label>(اختياري) رقم العملية</Label>
               <Input
                 value={transferRef}
                 onChange={(e) => setTransferRef(e.target.value)}
@@ -170,18 +168,14 @@ const TopupClient = ({ storeId }: { storeId: string }) => {
             </div>
 
             <div>
-              <Label>ملاحظات</Label>
+              <Label>ملاحظات (اختياري)</Label>
               <Textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="w-full"
-            >
+            <Button type="submit" disabled={isPending} className="w-full">
               {isPending ? "جاري الإرسال..." : "إرسال الطلب"}
             </Button>
           </form>

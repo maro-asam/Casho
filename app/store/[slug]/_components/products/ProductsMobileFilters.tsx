@@ -36,7 +36,7 @@ const ProductsMobileFilters = ({ categories, currentQuery }: Props) => {
     <div className="lg:hidden">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" className="rounded-lg">
+          <Button variant="outline" className="rounded-md">
             <SlidersHorizontal className="size-4" />
             الفلاتر
           </Button>
@@ -83,7 +83,7 @@ const ProductsMobileFilters = ({ categories, currentQuery }: Props) => {
               maxDefault={currentQuery.maxPrice}
             />
 
-            <div className="flex items-center gap-2 rounded-lg border px-3 py-3">
+            <div className="flex items-center gap-2 rounded-md border px-3 py-3">
               <Checkbox
                 id="featured-mobile"
                 name="featured"

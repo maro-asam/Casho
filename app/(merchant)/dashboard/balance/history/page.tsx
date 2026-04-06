@@ -183,7 +183,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
         <div className="mx-auto p-4 md:p-6">
           <Card className="border-border/60 shadow-sm">
             <CardContent className="flex min-h-72 flex-col items-center justify-center gap-4 p-8 text-center">
-              <div className="flex size-14 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="flex size-14 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Wallet className="size-6" />
               </div>
 
@@ -194,7 +194,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                 </p>
               </div>
 
-              <Button asChild className="rounded-lg">
+              <Button asChild className="rounded-md">
                 <Link href="/dashboard">الرجوع للداشبورد</Link>
               </Button>
             </CardContent>
@@ -293,17 +293,17 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
   return (
     <div className="min-h-[calc(100vh-120px)] bg-background" dir="rtl">
       <div className="mx-auto flex w-full flex-col gap-6 p-4 md:p-6">
-        <div className="flex flex-col gap-4 rounded-lg border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 rounded-md border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <Badge
                 variant="outline"
-                className="rounded-full px-3 py-1 text-xs font-medium"
+                className="rounded-md px-3 py-1 text-xs font-medium"
               >
                 سجل الرصيد
               </Badge>
 
-              <Badge className="rounded-full bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
+              <Badge className="rounded-md bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
                 {store.name}
               </Badge>
             </div>
@@ -318,13 +318,13 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button asChild className="rounded-lg">
+            <Button asChild className="rounded-md">
               <Link href={`/dashboard/balance/topup?storeId=${store.id}`}>
                 شحن رصيد
               </Link>
             </Button>
 
-            <Button asChild variant="outline" className="rounded-lg">
+            <Button asChild variant="outline" className="rounded-md">
               <Link
                 href={buildExportUrl({
                   type: selectedType,
@@ -394,7 +394,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                     key={tab.label}
                     asChild
                     variant={isActive ? "default" : "outline"}
-                    className="rounded-lg"
+                    className="rounded-md"
                   >
                     <Link
                       href={buildHistoryUrl({
@@ -430,7 +430,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                   name="q"
                   defaultValue={searchQuery}
                   placeholder="ابحث في الملاحظات..."
-                  className="rounded-lg pe-10"
+                  className="rounded-md pe-10"
                 />
               </div>
 
@@ -440,7 +440,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                   name="from"
                   type="date"
                   defaultValue={fromDate}
-                  className="rounded-lg pe-10"
+                  className="rounded-md pe-10"
                 />
               </div>
 
@@ -450,13 +450,13 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                   name="to"
                   type="date"
                   defaultValue={toDate}
-                  className="rounded-lg pe-10"
+                  className="rounded-md pe-10"
                 />
               </div>
 
               <input type="hidden" name="type" value={selectedType} />
 
-              <Button type="submit" className="rounded-lg">
+              <Button type="submit" className="rounded-md">
                 <Filter className="ms-2 size-4" />
                 تطبيق
               </Button>
@@ -477,8 +477,8 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
 
           <CardContent>
             {transactions.length === 0 ? (
-              <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 p-6 text-center">
-                <div className="flex size-12 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border/70 p-6 text-center">
+                <div className="flex size-12 items-center justify-center rounded-md bg-muted text-muted-foreground">
                   <Wallet className="size-5" />
                 </div>
 
@@ -491,7 +491,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
               </div>
             ) : (
               <>
-                <div className="overflow-hidden rounded-lg border border-border/60">
+                <div className="overflow-hidden rounded-md border border-border/60">
                   <div className="hidden grid-cols-[1.2fr_0.9fr_1fr_1.2fr_1fr_1fr] items-center border-b bg-muted/40 px-4 py-3 text-sm font-medium text-muted-foreground lg:grid">
                     <div>النوع</div>
                     <div>المبلغ</div>
@@ -513,7 +513,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                           className="grid gap-4 px-4 py-4 lg:grid-cols-[1.2fr_0.9fr_1fr_1.2fr_1fr_1fr] lg:items-center"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                            <div className="flex size-10 items-center justify-center rounded-md bg-muted">
                               <Icon className={`size-4 ${styles.iconClass}`} />
                             </div>
 
@@ -524,7 +524,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
 
                               <Badge
                                 variant="outline"
-                                className={`w-fit rounded-full ${styles.badgeClass}`}
+                                className={`w-fit rounded-md ${styles.badgeClass}`}
                               >
                                 {transaction.type}
                               </Badge>
@@ -573,7 +573,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
 
                   <div className="flex items-center gap-2">
                     {currentPage > 1 ? (
-                      <Button asChild variant="outline" className="rounded-lg">
+                      <Button asChild variant="outline" className="rounded-md">
                         <Link
                           href={buildHistoryUrl({
                             type: selectedType,
@@ -590,7 +590,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                     ) : (
                       <Button
                         variant="outline"
-                        className="rounded-lg"
+                        className="rounded-md"
                         disabled
                       >
                         <ChevronRight className="ms-2 size-4" />
@@ -598,12 +598,12 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                       </Button>
                     )}
 
-                    <div className="rounded-lg border border-border/60 px-4 py-2 text-sm">
+                    <div className="rounded-md border border-border/60 px-4 py-2 text-sm">
                       {currentPage} / {totalPages}
                     </div>
 
                     {currentPage < totalPages ? (
-                      <Button asChild variant="outline" className="rounded-lg">
+                      <Button asChild variant="outline" className="rounded-md">
                         <Link
                           href={buildHistoryUrl({
                             type: selectedType,
@@ -620,7 +620,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                     ) : (
                       <Button
                         variant="outline"
-                        className="rounded-lg"
+                        className="rounded-md"
                         disabled
                       >
                         التالي

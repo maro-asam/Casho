@@ -30,7 +30,7 @@ export default function DeleteCategoryButton({
       <Button
         type="submit"
         variant="destructive"
-        className="rounded-lg"
+        className="rounded-md"
         disabled={pending}
       >
         <Trash2 className="me-2 size-4" />

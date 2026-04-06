@@ -25,6 +25,11 @@ export default async function AdminLayout({
       href: "/admin/topup-requests",
       icon: "wallet",
     },
+    {
+      title: "طلبات الخدمات",
+      href: "/admin/service-requests",
+      icon: "briefcase",
+    },
   ] as const;
 
   return (
@@ -40,8 +45,8 @@ export default async function AdminLayout({
             <AdminSidebarNav links={links} />
 
             <div className="mt-auto pt-6">
-              <div className="rounded-lg border p-3 text-xs text-muted-foreground">
-                إدارة المتاجر والاشتراكات وطلبات الشحن
+              <div className="rounded-md border p-3 text-xs text-muted-foreground">
+                إدارة المتاجر والاشتراكات وطلبات الشحن والخدمات
               </div>
             </div>
           </div>
@@ -52,9 +57,7 @@ export default async function AdminLayout({
             <h1 className="text-lg font-semibold">Dashboard</h1>
           </div>
 
-          <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
-            {children}
-          </div>
+          <div className="mx-auto w-full max-w-375 p-4 md:p-6">{children}</div>
         </main>
       </div>
     </div>

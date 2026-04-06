@@ -24,7 +24,7 @@ const ProductsPagination = ({
   }
 
   return (
-    <div className="flex flex-col items-center justify-between gap-4 rounded-lg border bg-card p-4 shadow-sm sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-4 rounded-md border bg-card p-4 shadow-sm sm:flex-row">
       <p className="text-sm text-muted-foreground">
         الصفحة {currentPage} من {totalPages}
       </p>

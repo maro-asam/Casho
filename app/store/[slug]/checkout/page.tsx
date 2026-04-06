@@ -55,7 +55,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 space-y-8">
           <div className="space-y-6 text-right">
-            <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
+            <div className="inline-flex items-center rounded-md border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
               اتمام الطلب
             </div>
 
@@ -71,8 +71,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
             </div>
 
             {/* <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-lg border bg-background p-4 shadow-sm">
-                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="rounded-md border bg-background p-4 shadow-sm">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <Truck className="size-5" />
                 </div>
                 <h3 className="mb-1 font-semibold">توصيل سريع</h3>
@@ -81,8 +81,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
                 </p>
               </div>
 
-              <div className="rounded-lg border bg-background p-4 shadow-sm">
-                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="rounded-md border bg-background p-4 shadow-sm">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <WalletCards className="size-5" />
                 </div>
                 <h3 className="mb-1 font-semibold">دفع مناسب</h3>
@@ -93,7 +93,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
             </div> */}
           </div>
 
-          <div className="mx-auto w-full max-w-2xl rounded-lg border bg-linear-to-b from-background to-muted/30 p-5 shadow-sm md:p-6">
+          <div className="mx-auto w-full max-w-2xl rounded-md border bg-linear-to-b from-background to-muted/30 p-5 shadow-sm md:p-6">
             <CheckoutForm
               paymentMethods={PAYMENT_METHODS}
               action={handleCreateOrder}
