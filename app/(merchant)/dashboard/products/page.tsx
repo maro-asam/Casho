@@ -17,7 +17,6 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
-import { requireAuth } from "@/actions/auth/require.actions";
 import { DeleteProductAction } from "@/actions/products/products.actions";
 import { prisma } from "@/lib/prisma";
 
@@ -34,6 +33,7 @@ import {
 } from "@/components/ui/table";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import Image from "next/image";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export const metadata: Metadata = {
   title: "المنتجات",
@@ -59,7 +59,7 @@ type MerchantProductsRouteProps = {
 const MerchantProductsRoute = async ({
   searchParams,
 }: MerchantProductsRouteProps) => {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const resolvedSearchParams = await searchParams;
 
   const currentPage = Math.max(Number(resolvedSearchParams?.page || "1"), 1);
@@ -75,7 +75,7 @@ const MerchantProductsRoute = async ({
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-22xl border-dashed">
+        <Card className="rounded-xl border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
               <Store className="size-6 text-muted-foreground" />
@@ -142,7 +142,7 @@ const MerchantProductsRoute = async ({
       />
 
       {totalProducts === 0 ? (
-        <Card className="rounded-22xl border-dashed shadow-sm">
+        <Card className="rounded-xl border-dashed shadow-sm">
           <CardContent className="flex min-h-90 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
@@ -164,7 +164,7 @@ const MerchantProductsRoute = async ({
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden rounded-22xl shadow-sm">
+          <Card className="overflow-hidden rounded-xl shadow-sm">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>
@@ -312,7 +312,7 @@ const MerchantProductsRoute = async ({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex flex-col gap-3 rounded-22xl border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-xl border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 الصفحة{" "}
                 <span className="font-medium text-foreground">{safePage}</span>{" "}

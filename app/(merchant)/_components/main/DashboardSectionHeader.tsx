@@ -22,7 +22,7 @@ export default function DashboardSectionHeader({
   actionHref,
 }: DashboardSectionHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-22xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-4 rounded-xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">

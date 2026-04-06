@@ -3,7 +3,6 @@ import { Metadata } from "next";
 import { FilePenLine } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/actions/auth/require.actions";
 
 import EditProductForm from "@/app/(merchant)/_components/products/EditProductForm";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
@@ -15,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export const metadata: Metadata = {
   title: "تعديل المنتج",
@@ -28,7 +28,7 @@ export default async function EditProductPage({
   params,
 }: EditProductPageProps) {
   const { productId } = await params;
-  const userId = await requireAuth();
+  const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -51,14 +51,23 @@ export default async function EditProductPage({
       id: true,
       name: true,
       slug: true,
+      description: true,
       price: true,
+      compareAtPrice: true,
       image: true,
+      images: true,
+      brand: true,
+      stock: true,
+      sizes: true,
+      colors: true,
+      tags: true,
+      weight: true,
       isActive: true,
       isFeatured: true,
+      hasVariants: true,
       categoryId: true,
     },
   });
-
   if (!product) {
     redirect("/dashboard/products");
   }
@@ -86,9 +95,9 @@ export default async function EditProductPage({
       />
 
       <div className="mx-auto w-full max-w-3xl">
-        <Card className="rounded-22xl shadow-sm">
+        <Card className="rounded-xl shadow-sm">
           <CardHeader className="space-y-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-22xl bg-primary/10 text-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <FilePenLine className="size-6" />
             </div>
 

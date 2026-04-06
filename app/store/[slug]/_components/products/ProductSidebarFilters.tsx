@@ -153,7 +153,7 @@ const ProductsSidebarFilters = ({
           </div>
         </form>
 
-        <div className="rounded-22xl border bg-muted/40 p-4">
+        <div className="rounded-xl border bg-muted/40 p-4">
           <div className="mb-2 flex items-center gap-2 font-medium">
             <Tag className="size-4" />
             نصيحة

@@ -11,7 +11,7 @@ import Link from "next/link";
 
 const QuickActions = () => {
   return (
-    <Card className="rounded-22xl">
+    <Card className="rounded-xl">
       <CardHeader>
         <CardTitle className="text-primary">إجراءات سريعة</CardTitle>
         <CardDescription>أهم الاختصارات لإدارة المتجر</CardDescription>

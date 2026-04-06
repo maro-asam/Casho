@@ -67,7 +67,7 @@ type RecentOrdersProps = {
 
 const RecentOrders = ({ store }: RecentOrdersProps) => {
   return (
-    <Card className="rounded-22xl lg:col-span-2">
+    <Card className="rounded-xl lg:col-span-2">
       <CardHeader>
         <CardTitle className="text-primary">آخر الطلبات</CardTitle>
         <CardDescription>آخر 5 طلبات دخلت على المتجر</CardDescription>

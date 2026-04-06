@@ -23,8 +23,6 @@ type ProductCardProps = {
   storeSlug: string;
 };
 
-
-
 const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
   return (
     <Card
@@ -88,6 +86,8 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
           </p>
 
           <AddToCartButton
+            size="sm"
+            variant="outline"
             storeSlug={storeSlug}
             productId={product.id}
           />

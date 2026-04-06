@@ -1,12 +1,21 @@
+/* eslint-disable @next/next/no-page-custom-font */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+
+// ! Author : Maro Asam
+
 import "./globals.css";
 import type { Metadata } from "next";
-import { Cairo, Inter } from "next/font/google";
+import { Cairo, Geist } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/theme/theme-provider";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
+const cairoFont = Cairo({
+  subsets: ["arabic"],
+});
 
 export const metadata: Metadata = {
   title: "كـــاشو",
@@ -19,30 +28,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ar"
-      dir="rtl"
-      className={cn(inter.className, inter.className, "font-sans", inter.variable)}
-      style={{ scrollBehavior: "smooth" }}
-    >
+    <html lang="ar" dir="rtl" className={cn(cairoFont.className, "font-sans", geist.variable)}>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Alyamama:wght@100..900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
-        className={` antialiased  mx-auto`}
+        className={`antialiased mx-auto `}
         cz-shortcut-listen="true"
         smooth-scroll="true"
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main>
-            <NextTopLoader />
+        <main>
+          <NextTopLoader />
 
-            {children}
-            <Toaster theme="light" dir="rtl" richColors position="top-center" />
-          </main>
-        </ThemeProvider>
+          {children}
+          <Toaster theme="light" dir="rtl" richColors position="top-center" />
+        </main>
       </body>
     </html>
   );

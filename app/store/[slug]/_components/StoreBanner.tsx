@@ -140,7 +140,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
             {sideBanners.map((banner) => (
               <div
                 key={banner.id}
-                className="group relative h-42.5 w-full overflow-hidden rounded-22xl sm:h-47.5 lg:h-52.5"
+                className="group relative h-42.5 w-full overflow-hidden rounded-xl sm:h-47.5 lg:h-52.5"
               >
                 <Image
                   src={banner.image || "/placeholder-banner.jpg"}

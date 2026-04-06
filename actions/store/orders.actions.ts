@@ -2,11 +2,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import type { PaymentMethodKey } from "@/constants/payment-methods";
+import type { PaymentMethodKey } from "@/constants/welcome/payment-methods";
 import { MustOwnStore, MustSession } from "../auth/auth-helpers.actions";
-import { requireAuth } from "../auth/require.actions";
 import { revalidatePath } from "next/cache";
 import { OrderStatus } from "@/lib/generated/prisma/enums";
+import { requireUserId } from "../auth/require-user-id.actions";
 
 export async function CreateOrderAction(
   storeSlug: string,
@@ -82,7 +82,7 @@ export async function CreateOrderAction(
 }
 
 export async function GetOrdersAction(storeId: string) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   await MustOwnStore(storeId, userId);
 
   return prisma.order.findMany({
@@ -122,7 +122,7 @@ export async function UpdateOrderStatusAction(
   storeId: string,
   status: OrderStatus,
 ) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const store = await MustOwnStore(storeId, userId);
 
   const order = await prisma.order.findFirst({

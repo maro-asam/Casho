@@ -1,12 +1,14 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/lib/auth/session";
 
 export async function requireAuth() {
-  const sessionToken = (await cookies()).get("sessionToken")?.value;
+  const session = await getCurrentSession();
 
-  if (!sessionToken) redirect("/login");
+  if (!session?.user) {
+    redirect("/login");
+  }
 
-  return sessionToken;
+  return session.user;
 }

@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/actions/auth/require.actions";
-import { DeleteCategoryAction } from "@/actions/admin/categories.actions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,12 +8,12 @@ import {
   FolderOpen,
   Plus,
   Tag,
-  Trash2,
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import DeleteCategoryButton from "./_components/DeleteCategoryButton";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 type CategoriesPageProps = {
   searchParams?: Promise<{
@@ -28,7 +26,7 @@ const PAGE_SIZE = 6;
 export default async function CategoriesPage({
   searchParams,
 }: CategoriesPageProps) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const resolvedSearchParams = await searchParams;
   const currentPage = Math.max(Number(resolvedSearchParams?.page || "1"), 1);
 
@@ -40,8 +38,8 @@ export default async function CategoriesPage({
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-22xl border-dashed">
-          <CardContent className="flex min-h-[220px] flex-col items-center justify-center text-center">
+        <Card className="rounded-xl border-dashed">
+          <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
               <FolderOpen className="size-6 text-muted-foreground" />
             </div>
@@ -88,7 +86,7 @@ export default async function CategoriesPage({
 
       {/* Content */}
       {categories.length === 0 ? (
-        <Card className="rounded-22xl border-dashed shadow-sm">
+        <Card className="rounded-xl border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
@@ -114,7 +112,7 @@ export default async function CategoriesPage({
             {categories.map((cat, index) => (
               <Card
                 key={cat.id}
-                className="rounded-22xl border bg-background shadow-sm transition hover:shadow-md"
+                className="rounded-xl border bg-background shadow-sm transition hover:shadow-md"
               >
                 <CardContent className="flex h-full flex-col justify-between gap-4 p-5">
                   <div className="flex min-w-0 items-start gap-4">
@@ -156,7 +154,7 @@ export default async function CategoriesPage({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex flex-col gap-3 rounded-22xl border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-xl border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 الصفحة{" "}
                 <span className="font-medium text-foreground">{safePage}</span>{" "}

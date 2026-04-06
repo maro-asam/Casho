@@ -3,7 +3,7 @@ import CheckoutForm from "@/app/store/[slug]/_components/CheckoutForm";
 import {
   PAYMENT_METHODS,
   type PaymentMethodKey,
-} from "@/constants/payment-methods";
+} from "@/constants/welcome/payment-methods";
 
 type CheckoutPageProps = {
   params: Promise<{ slug: string }>;
@@ -71,7 +71,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
             </div>
 
             {/* <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-22xl border bg-background p-4 shadow-sm">
+              <div className="rounded-xl border bg-background p-4 shadow-sm">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Truck className="size-5" />
                 </div>
@@ -81,7 +81,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
                 </p>
               </div>
 
-              <div className="rounded-22xl border bg-background p-4 shadow-sm">
+              <div className="rounded-xl border bg-background p-4 shadow-sm">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <WalletCards className="size-5" />
                 </div>

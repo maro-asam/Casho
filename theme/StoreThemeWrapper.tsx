@@ -10,7 +10,7 @@ export default function StoreThemeWrapper({
   secondaryColor,
 }: StoreThemeWrapperProps) {
   const style = {
-    "--primary": primaryColor || "oklch(49.107% 0.24121 264.248)",
+    "--primary": primaryColor || "#2563eb",
     "--secondary": secondaryColor || "oklch(0.9276 0.0058 264.5313)",
   } as React.CSSProperties;
 

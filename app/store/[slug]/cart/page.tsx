@@ -129,7 +129,7 @@ export default async function CartPage({
                     <CardContent className="p-0">
                       <div className="flex flex-col gap-5 p-4 sm:p-5 lg:flex-row lg:items-center">
                         {/* Product Image */}
-                        <div className="relative h-28 w-full overflow-hidden rounded-22xl bg-muted sm:h-32 lg:h-28 lg:w-32">
+                        <div className="relative h-28 w-full overflow-hidden rounded-xl bg-muted sm:h-32 lg:h-28 lg:w-32">
                           {item.product.image ? (
                             <Image
                               src={item.product.image}
@@ -290,12 +290,12 @@ export default async function CartPage({
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Input
                         placeholder="مثال: MARO10"
-                        className="h-12 rounded-22xl bg-background"
+                        className="h-12 rounded-xl bg-background"
                       />
                       <Button
                         type="button"
                         variant="secondary"
-                        className="h-12 rounded-22xl px-6"
+                        className="h-12 rounded-xl px-6"
                       >
                         <BadgePercent className="size-4" />
                         تطبيق
@@ -330,7 +330,7 @@ export default async function CartPage({
                     </div>
                   </div>
 
-                  <div className="rounded-22xl bg-muted/30 p-4">
+                  <div className="rounded-xl bg-muted/30 p-4">
                     <div className="flex items-center justify-between">
                       <span className="text-base font-semibold">الإجمالي</span>
                       <span className="text-3xl font-extrabold tracking-tight text-primary">
@@ -339,7 +339,7 @@ export default async function CartPage({
                     </div>
                   </div>
 
-                  <Button asChild size="lg" className="h-12 w-full rounded-22xl">
+                  <Button asChild size="lg" className="h-12 w-full rounded-xl">
                     <Link href={`/store/${slug}/checkout`}>
                       المتابعة لإتمام الشراء
                     </Link>
@@ -348,12 +348,12 @@ export default async function CartPage({
                   <Button
                     asChild
                     variant="outline"
-                    className="h-12 w-full rounded-22xl"
+                    className="h-12 w-full rounded-xl"
                   >
                     <Link href={`/store/${slug}`}>إضافة منتجات أخرى</Link>
                   </Button>
 
-                  <div className="rounded-22xl border bg-muted/25 p-4">
+                  <div className="rounded-xl border bg-muted/25 p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <ShieldCheck className="size-4 text-primary" />
                       <p className="font-semibold">معلومة مهمة</p>

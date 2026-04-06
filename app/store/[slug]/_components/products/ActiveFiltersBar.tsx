@@ -22,7 +22,7 @@ const ActiveFiltersBar = ({ storeSlug, currentQuery, categories }: Props) => {
   );
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-22xl border bg-card p-4 shadow-sm">
+    <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-4 shadow-sm">
       <span className="text-sm font-medium text-muted-foreground">
         الفلاتر المفعلة:
       </span>

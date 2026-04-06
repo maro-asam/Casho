@@ -18,6 +18,8 @@ import StoreBanner from "./_components/StoreBanner";
 import StoreCategories from "./_components/StoreCategories";
 import FeaturedProducts from "./_components/products/FeaturedProducts";
 import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSectionHeader";
+import { TrackVisitAction } from "@/actions/admin/visitors-tracker.actions";
+import { SubscriptionStatus } from "@/lib/generated/prisma/browser";
 
 type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
@@ -46,7 +48,7 @@ export async function generateMetadata({
   return {
     title: store.name,
     description:
-      store.subscriptionStatus === "active"
+      store.subscriptionStatus === SubscriptionStatus.ACTIVE
         ? `تصفح منتجات متجر ${store.name} وأضف ما يعجبك إلى السلة`
         : `متجر ${store.name} غير مفعل حالياً`,
   };
@@ -115,12 +117,15 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== "active") {
+  // تسجيل الزيارة
+  void TrackVisitAction(store.id);
+  
+  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center" dir="rtl">
-        <Card className="w-full max-w-lg rounded-22xl shadow-sm">
+        <Card className="w-full max-w-lg rounded-xl shadow-sm">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-22xl bg-muted">
+            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-xl bg-muted">
               <StoreIcon className="size-7 text-muted-foreground" />
             </div>
             <CardTitle className="text-2xl">هذا المتجر غير مُفعّل</CardTitle>
@@ -149,9 +154,9 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
         <StoreCategories categories={store.categories} storeSlug={store.slug} />
 
         {store.products.length === 0 ? (
-          <Card className="rounded-22xl border-dashed shadow-sm">
+          <Card className="rounded-xl border-dashed shadow-sm">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="mb-4 flex size-14 items-center justify-center rounded-22xl bg-muted">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-muted">
                 <PackageOpen className="size-7 text-muted-foreground" />
               </div>
 

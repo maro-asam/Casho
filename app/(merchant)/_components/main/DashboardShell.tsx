@@ -4,15 +4,22 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  ShoppingCart,
-  Package,
+  ChevronLeft,
+  ChevronRight,
+  Coins,
+  CreditCard,
+  ExternalLink,
   ImageIcon,
+  Layers,
+  LayoutDashboard,
   Menu,
-  X,
+  Package,
+  ServerCog,
+  Settings,
+  ShoppingCart,
   Store,
   Tag,
-  Settings2,
+  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -32,7 +39,10 @@ export default function DashboardShell({
   children,
 }: DashboardShellProps) {
   const pathname = usePathname();
+
   const [isOpen, setIsOpen] = useState(false);
+
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const links = [
     {
@@ -60,9 +70,22 @@ export default function DashboardShell({
       href: "/dashboard/banners",
       icon: ImageIcon,
     },
+    {
+      name: "الرصيد و الاشتراك",
+      href: "/dashboard/balance",
+      icon: Coins,
+    },
+    {
+      name: "خدمات اضافية",
+      href: "/dashboard/services",
+      icon: Layers,
+    },
+    {
+      name: "بوابات الدفع",
+      href: "/dashboard/payment-gateways",
+      icon: CreditCard,
+    },
   ];
-
-  useEffect(() => {}, [pathname]);
 
   useEffect(() => {
     if (isOpen) {
@@ -94,12 +117,12 @@ export default function DashboardShell({
           className="flex items-center gap-2 font-bold text-primary"
         >
           <Store className="h-5 w-5" />
-          <span className="max-w-45 truncate text-base">{store.name}</span>
+          <span className="max-w-[180px] truncate text-base">{store.name}</span>
         </Link>
       </header>
 
       <div className="flex min-h-[calc(100vh-4rem)] md:min-h-screen">
-        {/* Overlay - Mobile */}
+        {/* Mobile Overlay */}
         <div
           onClick={() => setIsOpen(false)}
           className={cn(
@@ -113,16 +136,19 @@ export default function DashboardShell({
         {/* Sidebar */}
         <aside
           className={cn(
-            "fixed right-0 top-0 z-50 h-screen w-[85%] max-w-72 border-l bg-secondary p-4 text-secondary-foreground shadow-xl transition-transform duration-300 md:sticky md:top-0 md:z-30 md:w-64 md:max-w-none md:translate-x-0 md:border-l md:shadow-none",
+            "fixed right-0 top-0 z-50 h-screen border-l border-border/60 bg-background text-secondary-foreground shadow-xl transition-all duration-300",
+            "md:sticky md:top-0 md:z-30 md:flex md:flex-col md:shadow-none",
+            "px-4 py-6",
             isOpen ? "translate-x-0" : "translate-x-full",
-            "md:flex md:flex-col",
+            "w-[85%] max-w-72 md:translate-x-0",
+            isCollapsed ? "md:w-20" : "md:w-64",
           )}
         >
           {/* Mobile Sidebar Header */}
           <div className="mb-4 flex items-center justify-between md:hidden">
             <Link
               href="/dashboard"
-              className="text-xl font-bold text-primary"
+              className="text-2xl font-bold text-primary"
               onClick={() => setIsOpen(false)}
             >
               {store.name}
@@ -138,20 +164,48 @@ export default function DashboardShell({
             </Button>
           </div>
 
-          {/* Desktop Brand */}
+          {/* Desktop Brand + Collapse Button */}
           <div className="hidden md:block">
-            <h2 className="py-3 text-center text-3xl font-bold text-primary">
-              <Link href="/dashboard">{store.name}</Link>
-            </h2>
-            <hr className="my-3" />
+            <div
+              className={cn(
+                "flex items-center",
+                isCollapsed ? "justify-center" : "justify-between",
+              )}
+            >
+              {!isCollapsed && (
+                <Link
+                  href="/dashboard"
+                  className="truncate text-xl font-bold text-primary"
+                >
+                  {store.name}
+                </Link>
+              )}
+
+              <Button
+                variant="default"
+                size="icon"
+                onClick={() => setIsCollapsed((prev) => !prev)}
+                aria-label={isCollapsed ? "توسيع القائمة" : "تصغير القائمة"}
+                className=""
+              >
+                {isCollapsed ? (
+                  <ChevronLeft className="size-3.5" />
+                ) : (
+                  <ChevronRight className="size-3.5" />
+                )}
+              </Button>
+            </div>
+
+            <hr className="my-4" />
           </div>
 
-          {/* Mobile Brand Divider */}
+          {/* Mobile Divider */}
           <div className="md:hidden">
             <hr className="my-3" />
           </div>
 
-          <nav className="flex flex-col gap-3">
+          {/* Nav */}
+          <nav className="flex flex-col gap-1">
             {links.map((link) => {
               const isActive =
                 link.href === "/dashboard"
@@ -164,43 +218,58 @@ export default function DashboardShell({
                 <Button
                   key={link.href}
                   asChild
-                  variant={isActive ? "default" : "outline"}
+                  variant={isActive ? "default" : "ghost"}
                   className={cn(
-                    "w-full justify-start gap-3 text-sm",
-                    "h-11 ",
+                    "h-11 w-full",
+                    isCollapsed
+                      ? "justify-center px-0"
+                      : "justify-start gap-3 px-3",
                   )}
+                  onClick={() => setIsOpen(false)}
                 >
-                  <Link href={link.href}>
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{link.name}</span>
+                  <Link
+                    href={link.href}
+                    title={isCollapsed ? link.name : undefined}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    {!isCollapsed && <span>{link.name}</span>}
                   </Link>
                 </Button>
               );
             })}
           </nav>
 
-          <div className="mt-auto pt-6 flex flex-col gap-2">
+          {/* Bottom Actions */}
+          <div className="mt-auto flex flex-col gap-2 pt-6">
+            <hr />
             <Button
               asChild
-              variant="outline"
-              className="h-11 w-full justify-start gap-3 "
+              variant="ghost"
+              className={cn(
+                "h-11 w-full",
+                isCollapsed
+                  ? "justify-center px-0"
+                  : "justify-start gap-3 px-3",
+              )}
+              onClick={() => setIsOpen(false)}
             >
-              <Link href="/dashboard/settings">
-                <Settings2 className="h-4 w-4 shrink-0" />
-                <span>إعدادات المتجر</span>
+              <Link
+                href="/dashboard/settings"
+                title={isCollapsed ? "إعدادات المتجر" : undefined}
+              >
+                <Settings className="h-5 w-5 shrink-0" />
+                {!isCollapsed && <span>إعدادات المتجر</span>}
               </Link>
             </Button>
 
-            <LogoutButton />
+            <div className={cn(isCollapsed && "flex justify-center")}>
+              <LogoutButton collapsed={isCollapsed} />
+            </div>
           </div>
         </aside>
 
-        {/* Desktop spacer */}
-
         {/* Main Content */}
-        <main className="min-w-0 flex-1 p-4 sm:p-5 md:p-6 lg:p-8">
-          {children}
-        </main>
+        <main className="max-w-375 mx-auto flex-1 p-3 md:p-4">{children}</main>
       </div>
     </div>
   );

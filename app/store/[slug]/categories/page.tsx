@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
 
 export default async function StoreCategoriesPage({
   params,
@@ -26,7 +27,7 @@ export default async function StoreCategoriesPage({
 
   const { store, categories } = data;
 
-  if (store.subscriptionStatus !== "active") {
+  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div
         className="wrapper min-h-[70vh] flex items-center justify-center py-10"
@@ -79,7 +80,7 @@ export default async function StoreCategoriesPage({
             </div>
           </div>
 
-          <Button asChild variant="outline" className="rounded-22xl">
+          <Button asChild variant="outline" className="rounded-xl">
             <Link href={`/store/${store.slug}`}>
               <ArrowRight className="size-4" />
               الرجوع للمتجر
@@ -112,7 +113,7 @@ export default async function StoreCategoriesPage({
               </p>
             </div>
 
-            <Button asChild className="rounded-22xl">
+            <Button asChild className="rounded-xl">
               <Link href={`/store/${store.slug}`}>
                 <ArrowRight className="size-4" />
                 العودة للمتجر
@@ -135,7 +136,7 @@ export default async function StoreCategoriesPage({
 
                     <div className="relative space-y-5">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex size-14 items-center justify-center rounded-22xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+                        <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
                           <FolderOpen className="size-7" />
                         </div>
 

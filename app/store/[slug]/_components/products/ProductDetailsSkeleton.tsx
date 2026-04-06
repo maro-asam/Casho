@@ -48,7 +48,7 @@ export default function ProductDetailsSkeleton() {
             <Separator />
 
             <div className="grid gap-4">
-              <Card className="rounded-22xl shadow-sm">
+              <Card className="rounded-xl shadow-sm">
                 <CardHeader className="pb-3">
                   <Skeleton className="h-5 w-32" />
                 </CardHeader>
@@ -102,8 +102,8 @@ export default function ProductDetailsSkeleton() {
           {/* Image */}
           <Card className="order-1 h-fit overflow-hidden rounded-3xl border-border/60 shadow-sm xl:order-1">
             <CardContent>
-              <div className="relative aspect-square w-full overflow-hidden rounded-22xl bg-muted/30">
-                <Skeleton className="h-full w-full rounded-22xl" />
+              <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/30">
+                <Skeleton className="h-full w-full rounded-xl" />
               </div>
             </CardContent>
           </Card>

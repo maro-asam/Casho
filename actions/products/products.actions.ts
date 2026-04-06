@@ -5,26 +5,72 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { transliterate } from "@/lib/utils";
 import { redirect } from "next/navigation";
-import { requireAuth } from "../auth/require.actions";
+import { requireUserId } from "../auth/require-user-id.actions";
 
 type ProductFormState = {
   success: boolean;
   message: string;
 };
 
+function normalizeOptional(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  return text.length ? text : null;
+}
+
+function parseOptionalNumber(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) return null;
+
+  const num = Number(text);
+  return Number.isNaN(num) ? null : num;
+}
+
+function parseRequiredNumber(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  const num = Number(text);
+  return Number.isNaN(num) ? null : num;
+}
+
+function parseCommaSeparated(value: FormDataEntryValue | null) {
+  return String(value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export async function CreateProductAction(
   _prevState: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
 
   try {
-    const name = (formData.get("name") as string)?.trim();
-    const price = Number(formData.get("price"));
-    const image = (formData.get("image") as string)?.trim() || null;
-    const categoryId = (formData.get("categoryId") as string)?.trim();
+    const name = String(formData.get("name") ?? "").trim();
+    const price = parseRequiredNumber(formData.get("price"));
+    const categoryId = String(formData.get("categoryId") ?? "").trim();
+
+    const description = normalizeOptional(formData.get("description"));
+    let compareAtPrice = parseOptionalNumber(formData.get("compareAtPrice"));
+
+    const image =
+      normalizeOptional(formData.get("image")) ??
+      "/images/product-placeholder.png";
+
+    const images = parseCommaSeparated(formData.get("images"));
+    const brand = normalizeOptional(formData.get("brand"));
+
+    const stockValue = String(formData.get("stock") ?? "").trim();
+    const stock = stockValue ? Number(stockValue) : 0;
+
+    const sizes = parseCommaSeparated(formData.get("sizes"));
+    const colors = parseCommaSeparated(formData.get("colors"));
+    const tags = parseCommaSeparated(formData.get("tags"));
+
+    const weight = parseOptionalNumber(formData.get("weight"));
+
     const isActive = formData.get("isActive") === "on";
     const isFeatured = formData.get("isFeatured") === "on";
+    const hasVariants = formData.get("hasVariants") === "on";
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -39,12 +85,24 @@ export async function CreateProductAction(
       return { success: false, message: "اسم المنتج مطلوب" };
     }
 
-    if (!Number.isFinite(price) || price <= 0) {
+    if (price === null || price <= 0) {
       return { success: false, message: "السعر غير صالح" };
     }
 
     if (!categoryId) {
       return { success: false, message: "يجب اختيار تصنيف" };
+    }
+
+    if (!Number.isInteger(stock) || stock < 0) {
+      return { success: false, message: "المخزون غير صالح" };
+    }
+
+    if (weight !== null && weight < 0) {
+      return { success: false, message: "الوزن غير صالح" };
+    }
+
+    if (compareAtPrice !== null && compareAtPrice <= price) {
+      compareAtPrice = null;
     }
 
     const category = await prisma.category.findFirst({
@@ -56,20 +114,29 @@ export async function CreateProductAction(
       return { success: false, message: "التصنيف غير صالح" };
     }
 
-    const baseSlug = transliterate(name);
-    const safeBaseSlug = baseSlug || "product";
-    const slug = `${safeBaseSlug}-${crypto.randomUUID().slice(0, 6)}`;
+    const baseSlug = transliterate(name) || "product";
+    const slug = `${baseSlug}-${crypto.randomUUID().slice(0, 6)}`;
 
     await prisma.product.create({
       data: {
         name,
-        price,
-        image,
         slug,
-        storeId: store.id,
-        categoryId: category.id,
+        description,
+        price,
+        compareAtPrice,
+        image,
+        images,
+        brand,
+        stock,
+        sizes,
+        colors,
+        tags,
+        weight,
         isActive,
         isFeatured,
+        hasVariants,
+        storeId: store.id,
+        categoryId: category.id,
       },
     });
   } catch (error) {
@@ -87,18 +154,35 @@ export async function UpdateProductAction(
   _prevState: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
+  const userId = await requireUserId();
+
   try {
-    const name = (formData.get("name") as string)?.trim();
-    const price = Number(formData.get("price"));
-    const image = (formData.get("image") as string)?.trim() || null;
-    const categoryId = (formData.get("categoryId") as string)?.trim();
+    const name = String(formData.get("name") ?? "").trim();
+    const price = parseRequiredNumber(formData.get("price"));
+    const categoryId = String(formData.get("categoryId") ?? "").trim();
+
+    const description = normalizeOptional(formData.get("description"));
+    let compareAtPrice = parseOptionalNumber(formData.get("compareAtPrice"));
+
+    const image =
+      normalizeOptional(formData.get("image")) ??
+      "/images/product-placeholder.png";
+
+    const images = parseCommaSeparated(formData.get("images"));
+    const brand = normalizeOptional(formData.get("brand"));
+
+    const stockValue = String(formData.get("stock") ?? "").trim();
+    const stock = stockValue ? Number(stockValue) : 0;
+
+    const sizes = parseCommaSeparated(formData.get("sizes"));
+    const colors = parseCommaSeparated(formData.get("colors"));
+    const tags = parseCommaSeparated(formData.get("tags"));
+
+    const weight = parseOptionalNumber(formData.get("weight"));
+
     const isActive = formData.get("isActive") === "on";
     const isFeatured = formData.get("isFeatured") === "on";
-
-    const userId = (await cookies()).get("sessionToken")?.value;
-    if (!userId) {
-      return { success: false, message: "يجب تسجيل الدخول أولًا" };
-    }
+    const hasVariants = formData.get("hasVariants") === "on";
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -113,7 +197,7 @@ export async function UpdateProductAction(
       return { success: false, message: "اسم المنتج مطلوب" };
     }
 
-    if (!Number.isFinite(price) || price <= 0) {
+    if (price === null || price <= 0) {
       return { success: false, message: "السعر غير صالح" };
     }
 
@@ -121,8 +205,23 @@ export async function UpdateProductAction(
       return { success: false, message: "يجب اختيار تصنيف" };
     }
 
+    if (!Number.isInteger(stock) || stock < 0) {
+      return { success: false, message: "المخزون غير صالح" };
+    }
+
+    if (weight !== null && weight < 0) {
+      return { success: false, message: "الوزن غير صالح" };
+    }
+
+    if (compareAtPrice !== null && compareAtPrice <= price) {
+      compareAtPrice = null;
+    }
+
     const category = await prisma.category.findFirst({
-      where: { id: categoryId, storeId: store.id },
+      where: {
+        id: categoryId,
+        storeId: store.id,
+      },
       select: { id: true },
     });
 
@@ -147,10 +246,10 @@ export async function UpdateProductAction(
 
     let nextSlug = product.slug;
 
-    const normalizedName = transliterate(name);
+    const normalizedName = transliterate(name) || "product";
     const currentSlugBase = product.slug.split("-").slice(0, -1).join("-");
 
-    if (normalizedName && normalizedName !== currentSlugBase) {
+    if (normalizedName !== currentSlugBase) {
       nextSlug = `${normalizedName}-${crypto.randomUUID().slice(0, 6)}`;
     }
 
@@ -158,12 +257,22 @@ export async function UpdateProductAction(
       where: { id: product.id },
       data: {
         name,
+        slug: nextSlug,
+        description,
         price,
+        compareAtPrice,
         image,
-        categoryId: category.id,
+        images,
+        brand,
+        stock,
+        sizes,
+        colors,
+        tags,
+        weight,
         isActive,
         isFeatured,
-        slug: nextSlug,
+        hasVariants,
+        categoryId: category.id,
       },
     });
   } catch (error) {
@@ -174,20 +283,23 @@ export async function UpdateProductAction(
   revalidatePath("/dashboard/products");
   revalidatePath(`/dashboard/products/${productId}/edit`);
   revalidatePath("/dashboard");
-
   redirect("/dashboard/products");
 }
 
 export async function DeleteProductAction(productId: string) {
   const userId = (await cookies()).get("sessionToken")?.value;
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
 
   const store = await prisma.store.findFirst({
     where: { userId },
     select: { id: true },
   });
 
-  if (!store) throw new Error("Store not found");
+  if (!store) {
+    throw new Error("Store not found");
+  }
 
   const product = await prisma.product.findFirst({
     where: {
@@ -197,7 +309,9 @@ export async function DeleteProductAction(productId: string) {
     select: { id: true },
   });
 
-  if (!product) throw new Error("Product not found");
+  if (!product) {
+    throw new Error("Product not found");
+  }
 
   await prisma.product.delete({
     where: { id: product.id },

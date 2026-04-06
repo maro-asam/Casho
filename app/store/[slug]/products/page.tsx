@@ -16,6 +16,7 @@ import EmptyProductsState from "../_components/products/EmptyProductsState";
 import ProductsPagination from "../_components/products/ProductsPagination";
 import ProductsSidebarFilters from "../_components/products/ProductSidebarFilters";
 import ProductsMobileFilters from "../_components/products/ProductsMobileFilters";
+import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
 
 type StoreProductsRouteProps = {
   params: Promise<{ slug: string }>;
@@ -90,7 +91,7 @@ export default async function StoreProductsRoute({
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== "active") {
+  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div
         dir="rtl"

@@ -13,7 +13,6 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
-import { requireAuth } from "@/actions/auth/require.actions";
 import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@/lib/generated/prisma/enums";
 
@@ -30,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export const metadata: Metadata = {
   title: "الطلبات",
@@ -99,7 +99,7 @@ type OrdersRouteProps = {
 };
 
 const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const resolvedSearchParams = await searchParams;
 
   const currentPage = Math.max(1, Number(resolvedSearchParams?.page) || 1);
@@ -113,7 +113,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-22xl border-dashed">
+        <Card className="rounded-xl border-dashed border-border/60">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
               <Store className="size-6 text-muted-foreground" />
@@ -171,10 +171,12 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
             <span className="font-semibold text-foreground">{store.name}</span>
           </>
         }
+        actionLabel="تصدير CSV"
+        actionHref="/api/export/orders"
       />
 
       {orders.length === 0 ? (
-        <Card className="rounded-22xl border-dashed shadow-sm">
+        <Card className="rounded-xl border-dashed border-border/60 shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
@@ -189,7 +191,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
         </Card>
       ) : (
         <>
-          <Card className="rounded-22xl shadow-sm">
+          <Card className="rounded-xl shadow-sm">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>
@@ -248,12 +250,12 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
                           <div className="space-y-1">
                             {order.items.length > 0 ? (
                               order.items.map((item) => (
-<div
-  key={item.id}
-  className="text-sm text-muted-foreground max-w-[200px] truncate"
->
-  {item.product.name} × {item.quantity}
-</div>
+                                <div
+                                  key={item.id}
+                                  className="text-sm text-muted-foreground max-w-50 truncate"
+                                >
+                                  {item.product.name} × {item.quantity}
+                                </div>
                               ))
                             ) : (
                               <span className="text-sm text-muted-foreground">
@@ -313,7 +315,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
           </Card>
 
           {totalPages > 1 && (
-            <div className="flex flex-col items-center justify-between gap-4 rounded-22xl border bg-background px-4 py-4 sm:flex-row">
+            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-border/60 bg-background px-4 py-4 sm:flex-row">
               <p className="text-sm text-muted-foreground">
                 صفحة {currentPage} من {totalPages}
               </p>

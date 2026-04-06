@@ -1,23 +1,103 @@
-import { requireAuth } from "@/actions/auth/require.actions";
-import { ActivateStoreAction } from "@/actions/store/stores.actions";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, Store, XCircle } from "lucide-react";
+
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+
 import DashboardStats from "../_components/main/DashboardStats";
-import RecentOrders from "../_components/main/RecentOrders";
-import QuickActions from "../_components/main/QuickActions";
-import StarterGuideCard from "../_components/main/StarterGuideCard";
+import DashboardCharts from "../_components/main/DashboardCharts";
+
+import CopyStoreLinkBtn from "../_components/CopyStoreLinkBtn";
+import ActivateStoreButton from "../_components/ActivateStoreBtn";
+import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import StarterGuideBar from "../_components/main/StarterGuideCard";
+
+type ChartOrder = {
+  createdAt: Date;
+  total: number;
+};
+
+type ChartVisit = {
+  createdAt: Date;
+};
+
+function getLast7DaysData(orders: ChartOrder[], visits: ChartVisit[]) {
+  const today = new Date();
+
+  const days = Array.from({ length: 7 }).map((_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (6 - index));
+    date.setHours(0, 0, 0, 0);
+
+    const key = date.toISOString().split("T")[0];
+
+    return {
+      key,
+      name: new Intl.DateTimeFormat("ar-EG", {
+        weekday: "short",
+      }).format(date),
+      revenue: 0,
+      orders: 0,
+      visits: 0,
+    };
+  });
+
+  const map = new Map(days.map((day) => [day.key, day]));
+
+  for (const order of orders) {
+    const key = order.createdAt.toISOString().split("T")[0];
+    const existing = map.get(key);
+
+    if (existing) {
+      existing.revenue += order.total;
+      existing.orders += 1;
+    }
+  }
+
+  for (const visit of visits) {
+    const key = visit.createdAt.toISOString().split("T")[0];
+    const existing = map.get(key);
+
+    if (existing) {
+      existing.visits += 1;
+    }
+  }
+
+  return days.map(({ name, revenue, orders, visits }) => ({
+    name,
+    revenue,
+    orders,
+    visits,
+  }));
+}
+
+function getTodayDate() {
+  return new Intl.DateTimeFormat("ar-EG", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+}
 
 const MerchantDashboardRoute = async () => {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
     include: {
       products: {
+        select: {
+          id: true,
+        },
+      },
+      categories: {
+        select: {
+          id: true,
+        },
+      },
+      banners: {
         select: {
           id: true,
         },
@@ -40,11 +120,19 @@ const MerchantDashboardRoute = async () => {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-22xl">
-          <CardContent className="p-6 text-center">
-            <p className="text-lg font-medium">لا يوجد متجر حاليًا</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              أنشئ متجرك الأول علشان تبدأ البيع
+        <Card className="overflow-hidden rounded-[28px] border border-border/60 shadow-sm">
+          <CardContent className="flex min-h-105 flex-col items-center justify-center p-8 text-center">
+            <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary/10">
+              <Store className="size-8 text-primary" />
+            </div>
+
+            <h2 className="text-2xl font-bold tracking-tight">
+              لا يوجد متجر حاليًا
+            </h2>
+
+            <p className="mt-3 max-w-md text-sm leading-7 text-muted-foreground">
+              يبدو أنك لم تنشئ متجرًا بعد. ابدأ بإنشاء متجرك الأول لتضيف منتجاتك
+              وتستقبل الطلبات بسهولة.
             </p>
           </CardContent>
         </Card>
@@ -52,65 +140,145 @@ const MerchantDashboardRoute = async () => {
     );
   }
 
-  const isActive = store.subscriptionStatus === "active";
+  const isActive = store.subscriptionStatus === SubscriptionStatus.ACTIVE;
 
-  const shouldShowStarterGuide =
-    store.products.length === 0 || store.orders.length < 1;
+  const starterSteps = [
+    {
+      id: "balance",
+      title: "أضف رصيد",
+      href: "/dashboard/balance",
+      completed: isActive,
+      icon: "wallet" as const,
+    },
+    {
+      id: "category",
+      title: "أضف تصنيف",
+      href: "/dashboard/categories",
+      completed: store.categories.length > 0,
+      icon: "category" as const,
+    },
+    {
+      id: "banner",
+      title: "أضف بانر",
+      href: "/dashboard/banners",
+      completed: store.banners.length > 0,
+      icon: "banner" as const,
+    },
+    {
+      id: "product",
+      title: "أول منتج",
+      href: "/dashboard/products/new",
+      completed: store.products.length > 0,
+      icon: "product" as const,
+    },
+  ];
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const chartOrders = await prisma.order.findMany({
+    where: {
+      storeId: store.id,
+      createdAt: {
+        gte: sevenDaysAgo,
+      },
+    },
+    select: {
+      createdAt: true,
+      total: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  const chartVisits = await prisma.visit.findMany({
+    where: {
+      storeId: store.id,
+      createdAt: {
+        gte: sevenDaysAgo,
+      },
+    },
+    select: {
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  const chartData = getLast7DaysData(chartOrders, chartVisits);
+
+  const storeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/store/${store.slug}`;
 
   return (
-    <div className="space-y-6 p-6" dir="rtl">
-      {/* Header */}
-      <div className="flex flex-col gap-4 rounded-22xl border bg-background p-6 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold">
-              لوحة تحكم <span className="text-primary">{store.name}</span>
-            </h1>
+    <div className="space-y-6 p-4">
+      <Card className="relative overflow-hidden border border-border/60 bg-card">
+        <div className="pointer-events-none absolute inset-0" />
 
-            <Badge variant={isActive ? "default" : "destructive"}>
-              {isActive ? "نشط" : "غير نشط"}
-            </Badge>
+        <CardContent className="relative">
+          <div className="flex flex-col items-start justify-between gap-5 md:flex-row">
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="rounded-full border-0 bg-primary/10 p-3 text-xs font-medium text-primary hover:bg-primary/10">
+                  لوحة التحكم
+                </Badge>
+
+                <Badge className="rounded-full border-0 bg-amber-700/10 p-3 text-xs font-medium text-amber-700 hover:bg-primary/10">
+                  {getTodayDate()}
+                </Badge>
+
+                <Badge
+                  className={`rounded-full p-3 text-xs font-medium ${
+                    isActive
+                      ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
+                      : "bg-red-500/10 text-red-600 hover:bg-red-500/10"
+                  }`}
+                >
+                  {isActive ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <CheckCircle2 className="size-3.5" />
+                      المتجر نشط
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5">
+                      <XCircle className="size-3.5" />
+                      المتجر غير نشط
+                    </span>
+                  )}
+                </Badge>
+              </div>
+
+              <div className="space-y-3">
+                <h1 className="text-xl font-bold tracking-tight md:text-3xl xl:text-4xl">
+                  أهلاً بيك في{" "}
+                  <span className="text-primary">{store.name}</span>
+                </h1>
+
+                <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+                  تابع أداء متجرك، راقب الطلبات، وشوف الأرباح بشكل واضح ومنظم من
+                  مكان واحد.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {!isActive && <ActivateStoreButton />}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <CopyStoreLinkBtn storeUrl={storeUrl} />
+            </div>
           </div>
+        </CardContent>
+      </Card>
 
-          <p className="text-sm text-muted-foreground">
-            رابط المتجر: /store/{store.slug}
-          </p>
-        </div>
+      <StarterGuideBar steps={starterSteps} />
 
-        <div className="flex flex-wrap gap-3">
-          {!isActive && (
-            <form
-              action={async () => {
-                "use server";
-                await ActivateStoreAction();
-              }}
-            >
-              <Button type="submit" className="rounded-xl">
-                تفعيل المتجر
-              </Button>
-            </form>
-          )}
-
-          <Link href={`/store/${store.slug}`} target="_blank">
-            <Button variant="default" className="rounded-xl">
-              <ExternalLink className="me-2 size-4" />
-              زيارة المتجر
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Starter Guide */}
-      {shouldShowStarterGuide && <StarterGuideCard />}
-
-      {/* Stats */}
       <DashboardStats />
 
-      {/* Main Content */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <RecentOrders store={store} />
-        <QuickActions />
-      </div>
+      <DashboardCharts data={chartData} />
     </div>
   );
 };

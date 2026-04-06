@@ -42,6 +42,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           logo: true,
           primaryColor: true,
           secondaryColor: true,
+          announcementText: true,
         },
       },
     },
@@ -51,7 +52,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
 
   const { items } = await GetCartItemsAction(slug);
 
-  const primaryColor = store.settings?.primaryColor || "#6366f1";
+  const primaryColor = store.settings?.primaryColor || "#2563eb";
   const secondaryColor = store.settings?.secondaryColor || "#f3f4f6";
 
   const storeThemeStyle = {
@@ -75,6 +76,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         storeSlug={store.slug}
         logo={store.settings?.logo}
         cartCount={items.length}
+        announcementText={store.settings?.announcementText}
       />
 
       <main className="flex-1">{children}</main>

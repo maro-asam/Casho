@@ -10,9 +10,22 @@ import { AddToCartAction } from "@/actions/store/cart.actions";
 type AddToCartButtonProps = {
   storeSlug: string;
   productId: string;
+  size: "sm" | "default" | "lg";
+  variant:
+    | "default"
+    | "outline"
+    | "link"
+    | "secondary"
+    | "ghost"
+    | "destructive";
 };
 
-const AddToCartButton = ({ storeSlug, productId }: AddToCartButtonProps) => {
+const AddToCartButton = ({
+  storeSlug,
+  productId,
+  size,
+  variant,
+}: AddToCartButtonProps) => {
   const [isPending, startTransition] = useTransition();
 
   const handleAddToCart = () => {
@@ -34,8 +47,8 @@ const AddToCartButton = ({ storeSlug, productId }: AddToCartButtonProps) => {
 
   return (
     <Button
-      size="sm"
-      variant="outline"
+      size={size}
+      variant={variant}
       onClick={handleAddToCart}
       disabled={isPending}
     >

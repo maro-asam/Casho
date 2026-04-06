@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -62,14 +63,69 @@ export default function CreateProductForm({
           <Input id="name" name="name" placeholder="مثال: تيشيرت أسود" />
         </div>
 
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="description">وصف المنتج</Label>
+          <Textarea
+            id="description"
+            name="description"
+            placeholder="اكتب وصف مختصر وواضح للمنتج..."
+            className="min-h-28 resize-none"
+          />
+        </div>
+
         <div className="space-y-2">
-          <Label htmlFor="price">السعر</Label>
+          <Label htmlFor="price">السعر الحالي</Label>
           <Input
             id="price"
             name="price"
             type="number"
             step="0.01"
+            min="0"
             placeholder="مثال: 299.99"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="compareAtPrice">السعر قبل الخصم</Label>
+          <Input
+            id="compareAtPrice"
+            name="compareAtPrice"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="مثال: 399.99"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="stock">المخزون</Label>
+          <Input
+            id="stock"
+            name="stock"
+            type="number"
+            min="0"
+            placeholder="مثال: 15"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="brand">البراند</Label>
+          <Input
+            id="brand"
+            name="brand"
+            placeholder="مثال: Nike أو Samsung"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="weight">الوزن (اختياري)</Label>
+          <Input
+            id="weight"
+            name="weight"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="مثال: 0.5"
           />
         </div>
 
@@ -94,7 +150,7 @@ export default function CreateProductForm({
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="image">رابط الصورة</Label>
+          <Label htmlFor="image">رابط الصورة الأساسية</Label>
           <Input
             id="image"
             name="image"
@@ -105,7 +161,63 @@ export default function CreateProductForm({
           />
         </div>
 
-        <div className="flex items-center gap-6 md:col-span-2">
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="images">
+            روابط صور إضافية
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة ,
+            </span>
+          </Label>
+          <Input
+            id="images"
+            name="images"
+            placeholder="https://img1.jpg, https://img2.jpg, https://img3.jpg"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="sizes">
+            المقاسات
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة
+            </span>
+          </Label>
+          <Input
+            id="sizes"
+            name="sizes"
+            placeholder="S, M, L, XL"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="colors">
+            الألوان
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة
+            </span>
+          </Label>
+          <Input
+            id="colors"
+            name="colors"
+            placeholder="أسود, أبيض, أزرق"
+          />
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="tags">
+            Tags
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة
+            </span>
+          </Label>
+          <Input
+            id="tags"
+            name="tags"
+            placeholder="صيفي, جديد, الأكثر مبيعًا"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-6 md:col-span-2">
           <div className="flex items-center gap-2">
             <Checkbox id="isActive" name="isActive" defaultChecked />
             <Label htmlFor="isActive">نشط</Label>
@@ -115,12 +227,17 @@ export default function CreateProductForm({
             <Checkbox id="isFeatured" name="isFeatured" />
             <Label htmlFor="isFeatured">مميز</Label>
           </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox id="hasVariants" name="hasVariants" />
+            <Label htmlFor="hasVariants">المنتج له خيارات متعددة</Label>
+          </div>
         </div>
 
         <div className="space-y-3 md:col-span-2">
           <Label>معاينة الصورة</Label>
 
-          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-22xl border border-dashed bg-muted/30">
+          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-xl border border-dashed bg-muted/30">
             {imagePreview ? (
               <div className="relative h-65 w-full">
                 <Image

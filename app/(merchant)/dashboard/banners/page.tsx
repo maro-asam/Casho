@@ -3,7 +3,6 @@ import Image from "next/image";
 import { ImageIcon, Plus } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/actions/auth/require.actions";
 import {
   DeleteBannerAction,
   GetBannersAction,
@@ -13,9 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export default async function BannersPage() {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -25,7 +25,7 @@ export default async function BannersPage() {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-22xl border-dashed">
+        <Card className="rounded-xl border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
               <ImageIcon className="size-6 text-muted-foreground" />
@@ -61,7 +61,7 @@ export default async function BannersPage() {
       />
 
       {banners.length === 0 ? (
-        <Card className="rounded-22xl border-dashed shadow-sm">
+        <Card className="rounded-xl border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
               <ImageIcon className="size-7 text-muted-foreground" />
@@ -86,7 +86,7 @@ export default async function BannersPage() {
           {banners.map((banner, index) => (
             <Card
               key={banner.id}
-              className="overflow-hidden rounded-22xl border bg-background shadow-sm transition hover:shadow-md"
+              className="overflow-hidden rounded-xl border bg-background shadow-sm transition hover:shadow-md"
             >
               <div className="relative aspect-16/8 w-full overflow-hidden">
                 <Image

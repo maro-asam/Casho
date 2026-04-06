@@ -1,13 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "../auth/require.actions";
 import { MustOwnStore } from "../auth/auth-helpers.actions";
 import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/utils";
+import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { requireUserId } from "../auth/require-user-id.actions";
 
 export async function CreateCategoryAction(storeId: string, name: string) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const store = await MustOwnStore(storeId, userId);
 
   const baseSlug = slugify(name);
@@ -47,7 +48,7 @@ export async function UpdateCategoryAction(
   storeId: string,
   name: string,
 ) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const store = await MustOwnStore(storeId, userId);
 
   const category = await prisma.category.findFirst({
@@ -86,7 +87,7 @@ export async function DeleteCategoryAction(
   categoryId: string,
   storeId: string,
 ) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const store = await MustOwnStore(storeId, userId);
 
   await prisma.$transaction(async (tx) => {
@@ -113,7 +114,7 @@ export async function GetStoreCategoriesAction(storeId: string) {
   const store = await prisma.store.findFirst({
     where: {
       id: storeId,
-      subscriptionStatus: "active",
+      subscriptionStatus: SubscriptionStatus.ACTIVE,
     },
     select: { id: true },
   });

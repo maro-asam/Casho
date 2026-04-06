@@ -1,7 +1,7 @@
 "use server";
 
 import { MustOwnStore } from "../auth/auth-helpers.actions";
-import { requireAuth } from "../auth/require.actions";
+import { requireUserId } from "../auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -10,7 +10,7 @@ export async function CreateBannerAction(
   title: string,
   image: string,
 ) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const store = await MustOwnStore(storeId, userId);
 
   await prisma.banner.create({
@@ -48,7 +48,7 @@ export async function GetBannersAction(storeId: string) {
 }
 
 export async function DeleteBannerAction(bannerId: string, storeId: string) {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
   const store = await MustOwnStore(storeId, userId);
 
   await prisma.banner.delete({

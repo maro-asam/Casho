@@ -44,7 +44,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
 
   return (
     <div className="max-w-2xl mx-auto" dir="rtl">
-      <Card className="rounded-22xl shadow-sm">
+      <Card className="rounded-xl shadow-sm">
         <CardHeader className="space-y-2">
           <CardTitle className="text-xl">بيانات البانر</CardTitle>
           <CardDescription className="leading-6">

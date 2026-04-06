@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Phone, MapPin, Mail, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
 
 type StoreContactRouteProps = {
   params: Promise<{ slug: string }>;
@@ -21,18 +22,18 @@ export default async function StoreContactRoute({
       slug: true,
       subscriptionStatus: true,
       // ضيفهم بعدين في الموديل لو مش موجودين
-      phone: true,
-      email: true,
-      address: true,
+      // phone: true,
+      // email: true,
+      // address: true,
     },
   });
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== "active") {
+  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div className="min-h-screen flex items-center justify-center" dir="rtl">
-        <div className="border rounded-22xl p-10 text-center">
+        <div className="border rounded-xl p-10 text-center">
           <h1 className="text-2xl font-bold mb-4">المتجر غير مفعل</h1>
           <p className="text-gray-500">
             لازم صاحب المتجر يفعل الاشتراك الأول
@@ -66,18 +67,18 @@ export default async function StoreContactRoute({
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Contact Info */}
-        <div className="border rounded-22xl p-6 space-y-5 bg-background">
+        <div className="border rounded-xl p-6 space-y-5 bg-background">
           <h2 className="text-xl font-semibold">بيانات التواصل</h2>
 
           <div className="space-y-4 text-muted-foreground">
-            {store.phone && (
+            {/* {store.phone && (
               <div className="flex items-center gap-3">
                 <Phone className="text-primary" />
                 <span>{store.phone}</span>
               </div>
-            )}
+            )} */}
 
-            {store.email && (
+            {/* {store.email && (
               <div className="flex items-center gap-3">
                 <Mail className="text-primary" />
                 <span>{store.email}</span>
@@ -89,18 +90,18 @@ export default async function StoreContactRoute({
                 <MapPin className="text-primary" />
                 <span>{store.address}</span>
               </div>
-            )}
+            )} */}
 
-            {!store.phone && !store.email && !store.address && (
+            {/* {!store.phone && !store.email && !store.address && (
               <p>لا توجد بيانات تواصل حالياً</p>
-            )}
+            )} */}
           </div>
         </div>
 
         {/* Contact Form */}
         <form
           action="#"
-          className="border rounded-22xl p-6 space-y-4 bg-background"
+          className="border rounded-xl p-6 space-y-4 bg-background"
         >
           <h2 className="text-xl font-semibold">ابعتلنا رسالة</h2>
 

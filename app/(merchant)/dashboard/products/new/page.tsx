@@ -4,7 +4,6 @@ import Link from "next/link";
 import { FolderOpen, PackagePlus, Plus } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/actions/auth/require.actions";
 
 import CreateProductForm from "@/app/(merchant)/_components/products/CreateProductForm";
 
@@ -17,13 +16,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export const metadata: Metadata = {
   title: "إضافة منتج جديد",
 };
 
 export default async function CreateNewProductPage() {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -52,7 +52,7 @@ export default async function CreateNewProductPage() {
       />
 
       {categories.length === 0 ? (
-        <Card className="rounded-22xl border-dashed shadow-sm">
+        <Card className="rounded-xl border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
@@ -74,9 +74,9 @@ export default async function CreateNewProductPage() {
         </Card>
       ) : (
         <div className="mx-auto w-full max-w-3xl">
-          <Card className="rounded-22xl shadow-sm">
+          <Card className="rounded-xl shadow-sm">
             <CardHeader className="space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-22xl bg-primary/10 text-primary">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <PackagePlus className="size-6" />
               </div>
 

@@ -7,8 +7,8 @@ import {
   Save,
   Palette,
   Image as ImageLucide,
-  MessageSquareText,
   Phone,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -36,9 +36,12 @@ type Props = {
       primaryColor: string | null;
       secondaryColor: string | null;
       announcementText: string | null;
+      description: string | null; // ✅ الجديد
       whatsappNumber: string | null;
+      tiktok: string | null;
       instagram: string | null;
       facebook: string | null;
+      email: string | null;
       createdAt: Date;
       updatedAt: Date;
     } | null;
@@ -59,17 +62,15 @@ export default function StoreSettingsForm({ store }: Props) {
   useEffect(() => {
     if (!state.message) return;
 
-    if (state.success) {
-      toast.success(state.message);
-    } else {
-      toast.error(state.message);
-    }
+    if (state.success) toast.success(state.message);
+    else toast.error(state.message);
   }, [state]);
 
   const settings = store.settings;
 
   return (
     <form action={formAction} className="space-y-8" dir="rtl">
+      {/* ================= الصور ================= */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <ImageLucide className="size-4 text-primary" />
@@ -77,6 +78,7 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
+          {/* logo */}
           <div className="space-y-2">
             <Label htmlFor="logo">رابط اللوجو</Label>
             <Input
@@ -87,11 +89,12 @@ export default function StoreSettingsForm({ store }: Props) {
               dir="ltr"
               className="text-left"
             />
+
             {state.errors?.logo && (
               <p className="text-sm text-destructive">{state.errors.logo[0]}</p>
             )}
 
-            {settings?.logo ? (
+            {settings?.logo && (
               <div className="rounded-xl border p-3">
                 <p className="mb-2 text-sm text-muted-foreground">
                   معاينة اللوجو
@@ -104,9 +107,10 @@ export default function StoreSettingsForm({ store }: Props) {
                   className="h-20 w-20 rounded-lg object-cover border"
                 />
               </div>
-            ) : null}
+            )}
           </div>
 
+          {/* cover */}
           <div className="space-y-2">
             <Label htmlFor="coverImage">رابط صورة الغلاف</Label>
             <Input
@@ -117,6 +121,7 @@ export default function StoreSettingsForm({ store }: Props) {
               dir="ltr"
               className="text-left"
             />
+
             {state.errors?.coverImage && (
               <p className="text-sm text-destructive">
                 {state.errors.coverImage[0]}
@@ -128,6 +133,53 @@ export default function StoreSettingsForm({ store }: Props) {
 
       <Separator />
 
+      {/* ================= وصف المتجر + الإعلان ================= */}
+      <section className="space-y-5">
+        <div className="flex items-center gap-2">
+          <FileText className="size-4 text-primary" />
+          <h3 className="text-base font-semibold">محتوى المتجر</h3>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          {/* وصف المتجر */}
+          <div className="space-y-2">
+            <Label htmlFor="description">وصف المتجر</Label>
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="مثال: متجر متخصص في بيع الملابس الكاجوال بأفضل جودة وسعر"
+              defaultValue={settings?.description ?? ""}
+              className="min-h-28 resize-none"
+            />
+            {state.errors?.description && (
+              <p className="text-sm text-destructive">
+                {state.errors.description[0]}
+              </p>
+            )}
+          </div>
+
+          {/* النص العلوي */}
+          <div className="space-y-2">
+            <Label htmlFor="announcementText">النص العلوي</Label>
+            <Textarea
+              id="announcementText"
+              name="announcementText"
+              placeholder="مثال: شحن مجاني للطلبات فوق 500 جنيه"
+              defaultValue={settings?.announcementText ?? ""}
+              className="min-h-28 resize-none"
+            />
+            {state.errors?.announcementText && (
+              <p className="text-sm text-destructive">
+                {state.errors.announcementText[0]}
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* ================= الألوان ================= */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <Palette className="size-4 text-primary" />
@@ -135,6 +187,7 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
+          {/* primary */}
           <div className="space-y-2">
             <Label htmlFor="primaryColor">اللون الأساسي</Label>
             <div className="flex items-center gap-3">
@@ -146,25 +199,22 @@ export default function StoreSettingsForm({ store }: Props) {
                 dir="ltr"
                 className="text-left"
               />
+
               <input
                 type="color"
                 defaultValue={settings?.primaryColor ?? "#000000"}
                 onChange={(e) => {
                   const input = document.getElementById(
                     "primaryColor",
-                  ) as HTMLInputElement | null;
-                  if (input) input.value = e.target.value;
+                  ) as HTMLInputElement;
+                  input.value = e.target.value;
                 }}
-                className="h-10 w-14 cursor-pointer rounded-md border bg-background p-1"
+                className="h-10 w-14 cursor-pointer rounded-md border"
               />
             </div>
-            {state.errors?.primaryColor && (
-              <p className="text-sm text-destructive">
-                {state.errors.primaryColor[0]}
-              </p>
-            )}
           </div>
 
+          {/* secondary */}
           <div className="space-y-2">
             <Label htmlFor="secondaryColor">اللون الثانوي</Label>
             <div className="flex items-center gap-3">
@@ -176,54 +226,27 @@ export default function StoreSettingsForm({ store }: Props) {
                 dir="ltr"
                 className="text-left"
               />
+
               <input
                 type="color"
                 defaultValue={settings?.secondaryColor ?? "#ffffff"}
                 onChange={(e) => {
                   const input = document.getElementById(
                     "secondaryColor",
-                  ) as HTMLInputElement | null;
-                  if (input) input.value = e.target.value;
+                  ) as HTMLInputElement;
+                  input.value = e.target.value;
                 }}
-                className="h-10 w-14 cursor-pointer rounded-md border bg-background p-1"
+                className="h-10 w-14 cursor-pointer rounded-md border"
               />
             </div>
-            {state.errors?.secondaryColor && (
-              <p className="text-sm text-destructive">
-                {state.errors.secondaryColor[0]}
-              </p>
-            )}
           </div>
         </div>
       </section>
 
-      <Separator />
-
-      <section className="space-y-5">
-        <div className="flex items-center gap-2">
-          <MessageSquareText className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">الإعلان العلوي</h3>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="announcementText">نص الإعلان</Label>
-          <Textarea
-            id="announcementText"
-            name="announcementText"
-            placeholder="مثال: شحن مجاني للطلبات فوق 500 جنيه"
-            defaultValue={settings?.announcementText ?? ""}
-            className="min-h-27.5 resize-none"
-          />
-          {state.errors?.announcementText && (
-            <p className="text-sm text-destructive">
-              {state.errors.announcementText[0]}
-            </p>
-          )}
-        </div>
-      </section>
 
       <Separator />
 
+      {/* ================= التواصل ================= */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <Phone className="size-4 text-primary" />
@@ -231,59 +254,19 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="whatsappNumber">رقم واتساب</Label>
-            <Input
-              id="whatsappNumber"
-              name="whatsappNumber"
-              placeholder="201001234567"
-              defaultValue={settings?.whatsappNumber ?? ""}
-              dir="ltr"
-              className="text-left"
-            />
-            {state.errors?.whatsappNumber && (
-              <p className="text-sm text-destructive">
-                {state.errors.whatsappNumber[0]}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="instagram">رابط إنستجرام</Label>
-            <Input
-              id="instagram"
-              name="instagram"
-              placeholder="https://instagram.com/your-store"
-              defaultValue={settings?.instagram ?? ""}
-              dir="ltr"
-              className="text-left"
-            />
-            {state.errors?.instagram && (
-              <p className="text-sm text-destructive">
-                {state.errors.instagram[0]}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="facebook">رابط فيسبوك</Label>
-            <Input
-              id="facebook"
-              name="facebook"
-              placeholder="https://facebook.com/your-store"
-              defaultValue={settings?.facebook ?? ""}
-              dir="ltr"
-              className="text-left"
-            />
-            {state.errors?.facebook && (
-              <p className="text-sm text-destructive">
-                {state.errors.facebook[0]}
-              </p>
-            )}
-          </div>
+          <Input name="whatsappNumber" placeholder="201001234567" />
+          <Input name="instagram" placeholder="Instagram link" />
+          <Input name="facebook" placeholder="Facebook link" />
+          <Input name="tiktok" placeholder="Tiktok link" />
+          <Input
+            name="email"
+            placeholder="your-email@example.com"
+            className="md:col-span-2"
+          />
         </div>
       </section>
 
+      {/* ================= submit ================= */}
       <div className="flex justify-start">
         <Button
           type="submit"
@@ -293,7 +276,7 @@ export default function StoreSettingsForm({ store }: Props) {
           {isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              جاري حفظ الإعدادات...
+              جاري الحفظ...
             </>
           ) : (
             <>

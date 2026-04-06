@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import { useActionState, useEffect, useMemo, useState } from "react";
-import { Loader2, Save, ImageIcon, Star, Eye } from "lucide-react";
+import {
+  Loader2,
+  Save,
+  ImageIcon,
+  Star,
+  Eye,
+  Layers3,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { UpdateProductAction } from "@/actions/products/products.actions";
@@ -11,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -29,10 +37,27 @@ type Product = {
   id: string;
   name: string;
   slug: string;
+  description: string | null;
+
   price: number;
+  compareAtPrice: number | null;
+
   image: string | null;
+  images: string[];
+
+  brand: string | null;
+  stock: number;
+
+  sizes: string[];
+  colors: string[];
+  tags: string[];
+
+  weight: number | null;
+
   isActive: boolean;
   isFeatured: boolean;
+  hasVariants: boolean;
+
   categoryId: string;
 };
 
@@ -53,9 +78,10 @@ const initialState: FormState = {
 
 export default function EditProductForm({ product, categories }: Props) {
   const updateAction = UpdateProductAction.bind(null, product.id);
+
   const [state, formAction, isPending] = useActionState(
     updateAction,
-    initialState
+    initialState,
   );
 
   const [imageValue, setImageValue] = useState(product.image || "");
@@ -86,8 +112,19 @@ export default function EditProductForm({ product, categories }: Props) {
           />
         </div>
 
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="description">وصف المنتج</Label>
+          <Textarea
+            id="description"
+            name="description"
+            placeholder="اكتب وصف واضح ومختصر للمنتج..."
+            defaultValue={product.description || ""}
+            className="min-h-28 resize-none rounded-xl"
+          />
+        </div>
+
         <div className="space-y-2">
-          <Label htmlFor="price">السعر</Label>
+          <Label htmlFor="price">السعر الحالي</Label>
           <Input
             id="price"
             name="price"
@@ -97,6 +134,59 @@ export default function EditProductForm({ product, categories }: Props) {
             placeholder="مثال: 299"
             defaultValue={product.price}
             required
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="compareAtPrice">السعر قبل الخصم</Label>
+          <Input
+            id="compareAtPrice"
+            name="compareAtPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="مثال: 399"
+            defaultValue={product.compareAtPrice ?? ""}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="stock">المخزون</Label>
+          <Input
+            id="stock"
+            name="stock"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="مثال: 15"
+            defaultValue={product.stock}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="brand">البراند</Label>
+          <Input
+            id="brand"
+            name="brand"
+            placeholder="مثال: Nike أو Samsung"
+            defaultValue={product.brand || ""}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="weight">الوزن</Label>
+          <Input
+            id="weight"
+            name="weight"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="مثال: 0.5"
+            defaultValue={product.weight ?? ""}
             className="rounded-xl"
           />
         </div>
@@ -118,7 +208,7 @@ export default function EditProductForm({ product, categories }: Props) {
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="image">رابط صورة المنتج</Label>
+          <Label htmlFor="image">رابط الصورة الأساسية</Label>
           <Input
             id="image"
             name="image"
@@ -128,9 +218,73 @@ export default function EditProductForm({ product, categories }: Props) {
             className="rounded-xl"
           />
         </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="images">
+            روابط صور إضافية
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة
+            </span>
+          </Label>
+          <Input
+            id="images"
+            name="images"
+            placeholder="https://img1.jpg, https://img2.jpg"
+            defaultValue={product.images.join(", ")}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="sizes">
+            المقاسات
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة
+            </span>
+          </Label>
+          <Input
+            id="sizes"
+            name="sizes"
+            placeholder="S, M, L, XL"
+            defaultValue={product.sizes.join(", ")}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="colors">
+            الألوان
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة
+            </span>
+          </Label>
+          <Input
+            id="colors"
+            name="colors"
+            placeholder="أسود, أبيض, أزرق"
+            defaultValue={product.colors.join(", ")}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="tags">
+            Tags
+            <span className="ms-2 text-xs text-muted-foreground">
+              افصل بينهم بفاصلة
+            </span>
+          </Label>
+          <Input
+            id="tags"
+            name="tags"
+            placeholder="جديد, الأكثر مبيعًا, صيفي"
+            defaultValue={product.tags.join(", ")}
+            className="rounded-xl"
+          />
+        </div>
       </div>
 
-      <Card className="rounded-22xl border-dashed">
+      <Card className="rounded-xl border-dashed">
         <CardContent className="p-4">
           <div className="mb-3 flex items-center gap-2">
             <ImageIcon className="size-4 text-muted-foreground" />
@@ -138,7 +292,7 @@ export default function EditProductForm({ product, categories }: Props) {
           </div>
 
           {previewImage ? (
-            <div className="relative overflow-hidden rounded-22xl border bg-muted/30">
+            <div className="relative overflow-hidden rounded-xl border bg-muted/30">
               <div className="relative aspect-video w-full">
                 <Image
                   src={previewImage}
@@ -150,15 +304,15 @@ export default function EditProductForm({ product, categories }: Props) {
               </div>
             </div>
           ) : (
-            <div className="flex min-h-48 items-center justify-center rounded-22xl border border-dashed bg-muted/20 text-sm text-muted-foreground">
+            <div className="flex min-h-48 items-center justify-center rounded-xl border border-dashed bg-muted/20 text-sm text-muted-foreground">
               لا توجد صورة للمعاينة
             </div>
           )}
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="flex items-start gap-3 rounded-22xl border p-4 cursor-pointer">
+      <div className="grid gap-4 md:grid-cols-3">
+        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
           <Checkbox
             name="isActive"
             defaultChecked={product.isActive}
@@ -175,7 +329,7 @@ export default function EditProductForm({ product, categories }: Props) {
           </div>
         </label>
 
-        <label className="flex items-start gap-3 rounded-22xl border p-4 cursor-pointer">
+        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
           <Checkbox
             name="isFeatured"
             defaultChecked={product.isFeatured}
@@ -188,6 +342,23 @@ export default function EditProductForm({ product, categories }: Props) {
             </div>
             <p className="text-sm text-muted-foreground">
               استخدمها لإبراز المنتجات المهمة أو الأكثر مبيعًا.
+            </p>
+          </div>
+        </label>
+
+        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
+          <Checkbox
+            name="hasVariants"
+            defaultChecked={product.hasVariants}
+            className="mt-1"
+          />
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 font-medium">
+              <Layers3 className="size-4" />
+              له خيارات متعددة
+            </div>
+            <p className="text-sm text-muted-foreground">
+              فعّلها لو المنتج له مقاسات أو ألوان أو نسخ مختلفة.
             </p>
           </div>
         </label>

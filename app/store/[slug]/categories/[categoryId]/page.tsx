@@ -12,6 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
 
 type PageProps = {
   params: Promise<{
@@ -43,7 +44,7 @@ export default async function CategoryProducts({ params }: PageProps) {
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== "active") {
+  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div
         className="wrapper min-h-[70vh] flex items-center justify-center"

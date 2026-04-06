@@ -33,7 +33,7 @@ const StoreCategories = ({ categories, storeSlug }: StoreCategoriesProps) => {
             key={category.id}
             href={`/store/${storeSlug}/category/${category.slug}`}
           >
-            <Card className="group flex h-27.5 cursor-pointer flex-col items-center justify-center gap-2 rounded-22xl border transition hover:-translate-y-1 hover:shadow-md">
+            <Card className="group flex h-27.5 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border transition hover:-translate-y-1 hover:shadow-md">
               <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
                 <FolderOpen className="size-5 text-muted-foreground" />
               </div>

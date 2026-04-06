@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/actions/auth/require.actions";
 
 import {
   Card,
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import StoreSettingsForm from "../../_components/StoreSettingsForm";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export const metadata: Metadata = {
   title: "إعدادات المتجر",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsRoute() {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -42,7 +42,7 @@ export default async function SettingsRoute() {
   if (!store) {
     return (
       <div dir="rtl" className="p-6">
-        <Card className="rounded-22xl border-dashed">
+        <Card className="rounded-xl border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center gap-3 text-center">
             <Store className="size-12 text-muted-foreground" />
             <div>
@@ -71,7 +71,7 @@ export default async function SettingsRoute() {
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="rounded-22xl shadow-sm lg:col-span-2">
+        <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl text-primary font-bold">
               تخصيص المتجر
@@ -86,7 +86,7 @@ export default async function SettingsRoute() {
         </Card>
 
         <div className="space-y-4">
-          <Card className="rounded-22xl shadow-sm bg-primary/10">
+          <Card className="rounded-xl shadow-sm bg-primary/10">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-primary">
                 <Palette className="size-4" />
@@ -99,7 +99,7 @@ export default async function SettingsRoute() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-22xl shadow-sm bg-orange-600/10">
+          <Card className="rounded-xl shadow-sm bg-orange-600/10">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base text-orange-600">
                 <ImageIcon className="size-4" />
@@ -112,7 +112,7 @@ export default async function SettingsRoute() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-22xl shadow-sm text-green-600 bg-green-600/10">
+          <Card className="rounded-xl shadow-sm text-green-600 bg-green-600/10">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Megaphone className="size-4" />
@@ -124,7 +124,7 @@ export default async function SettingsRoute() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-22xl shadow-sm text-red-600 bg-red-600/10">
+          <Card className="rounded-xl shadow-sm text-red-600 bg-red-600/10">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Phone className="size-4" />

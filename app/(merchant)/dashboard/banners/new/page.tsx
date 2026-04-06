@@ -1,13 +1,12 @@
-import { requireAuth } from "@/actions/auth/require.actions";
 import { prisma } from "@/lib/prisma";
 import { ImageIcon } from "lucide-react";
 
 import DashboardSectionHeader from "../../../_components/main/DashboardSectionHeader";
-import { Card, CardContent } from "@/components/ui/card";
 import NewBannerForm from "@/app/(merchant)/_components/NewBannerForm";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export default async function NewBannerRoute() {
-  const userId = await requireAuth();
+  const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
