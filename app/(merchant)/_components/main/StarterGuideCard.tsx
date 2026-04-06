@@ -54,7 +54,7 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
   return (
     <div
       dir="rtl"
-      className="flex h-auto min-h-15 flex-col gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3"
+      className="flex h-auto min-h-15 flex-col gap-3 rounded-lg border border-border/60 bg-background px-4 py-3"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -109,7 +109,7 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
 
       {nextStep ? (
         <div className="flex justify-start">
-          <Button asChild size="sm" className="rounded-xl">
+          <Button asChild size="sm" className="rounded-lg">
             <Link href={nextStep.href}>
               كمّل
               <ChevronLeft className="size-4" />

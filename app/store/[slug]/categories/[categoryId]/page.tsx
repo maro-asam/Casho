@@ -50,7 +50,7 @@ export default async function CategoryProducts({ params }: PageProps) {
         className="wrapper min-h-[70vh] flex items-center justify-center"
         dir="rtl"
       >
-        <Card className="p-10 text-center rounded-3xl">
+        <Card className="p-10 text-center rounded-lg">
           <h1 className="text-xl font-bold mb-2">المتجر غير مفعل</h1>
           <p className="text-sm text-muted-foreground mb-5">
             لا يمكن عرض المنتجات حاليًا
@@ -99,7 +99,7 @@ export default async function CategoryProducts({ params }: PageProps) {
           </p>
         </div>
 
-        <Button asChild variant="outline" className="rounded-xl">
+        <Button asChild variant="outline" className="rounded-lg">
           <Link href={`/store/${store.slug}`}>
             <ArrowRight className="size-4" />
             الرجوع للمتجر
@@ -109,7 +109,7 @@ export default async function CategoryProducts({ params }: PageProps) {
 
       {/* EMPTY */}
       {category.products.length === 0 ? (
-        <Card className="rounded-3xl border-dashed">
+        <Card className="rounded-lg border-dashed">
           <CardContent className="flex min-h-[300px] flex-col items-center justify-center text-center p-10 space-y-4">
             <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Package className="size-8" />
@@ -141,7 +141,7 @@ export default async function CategoryProducts({ params }: PageProps) {
               href={`/store/${store.slug}/products/${product.slug}`}
               className="group"
             >
-              <Card className="overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:shadow-xl">
+              <Card className="overflow-hidden rounded-lg transition-all hover:-translate-y-1 hover:shadow-xl">
                 <CardContent className="p-0">
                   {/* IMAGE */}
                   <div className="relative aspect-square overflow-hidden">

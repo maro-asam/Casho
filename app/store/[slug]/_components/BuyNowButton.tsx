@@ -40,7 +40,7 @@ const BuyNowButton = ({ storeSlug, productId }: BuyNowButtonProps) => {
       type="button"
       variant="secondary"
       size="lg"
-      className="rounded-xl"
+      className="rounded-lg"
       onClick={handleBuyNow}
       disabled={isPending}
     >

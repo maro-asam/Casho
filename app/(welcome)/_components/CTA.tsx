@@ -49,7 +49,7 @@ export default function CTASection() {
                 <Button
                   asChild
                   size="lg"
-                  className="h-12 rounded-xl px-8 text-sm font-medium shadow-sm"
+                  className="h-12 rounded-lg px-8 text-sm font-medium shadow-sm"
                 >
                   <Link href="/signup">
                     ابدأ دلوقتي
@@ -61,7 +61,7 @@ export default function CTASection() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-12 rounded-xl border-border bg-white px-8 text-sm font-medium"
+                  className="h-12 rounded-lg border-border bg-white px-8 text-sm font-medium"
                 >
                   <Link href="#pricing">شوف الأسعار</Link>
                 </Button>
@@ -86,7 +86,7 @@ export default function CTASection() {
             {/* side card */}
             <div className="mx-auto w-full max-w-md">
               <div className="rounded-[28px] border border-primary/15 bg-white p-5 shadow-sm">
-                <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] p-5">
+                <div className="rounded-lg border border-primary/15 bg-primary/[0.04] p-5">
                   <p className="text-sm font-medium text-muted-foreground">
                     متبقي من عرض البداية
                   </p>
@@ -101,7 +101,7 @@ export default function CTASection() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl border border-primary/15 bg-white px-4 py-2 text-sm font-medium text-primary">
+                    <div className="rounded-lg border border-primary/15 bg-white px-4 py-2 text-sm font-medium text-primary">
                       سعر خاص
                     </div>
                   </div>
@@ -122,7 +122,7 @@ export default function CTASection() {
                   </p>
                 </div>
 
-                <div className="mt-4 rounded-2xl border border-border bg-muted/40 p-4">
+                <div className="mt-4 rounded-lg border border-border bg-muted/40 p-4">
                   <p className="text-sm text-foreground">
                     مناسب لو أنت بتبيع من إنستجرام، واتساب، أو صفحات السوشيال
                     وعايز طريقة أرتب وأسهل لاستقبال الطلبات.

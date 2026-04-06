@@ -71,7 +71,7 @@ export default function RequestServiceDialog({
       <DialogTrigger asChild>
         <Button
           className={
-            triggerClassName ?? "h-11 w-full rounded-2xl text-sm font-medium"
+            triggerClassName ?? "h-11 w-full rounded-lg text-sm font-medium"
           }
         >
           اطلب الخدمة
@@ -171,7 +171,7 @@ export default function RequestServiceDialog({
           <Button
             type="submit"
             disabled={isPending}
-            className="h-11 w-full rounded-2xl"
+            className="h-11 w-full rounded-lg"
           >
             {isPending ? (
               <>

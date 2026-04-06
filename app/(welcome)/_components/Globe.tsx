@@ -126,7 +126,7 @@ export default function NetworkGlobe() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="absolute -right-8 top-8 hidden rounded-2xl border bg-background/85 px-4 py-3 shadow-xl backdrop-blur md:block"
+          className="absolute -right-8 top-8 hidden rounded-lg border bg-background/85 px-4 py-3 shadow-xl backdrop-blur md:block"
         >
           <p className="text-xs text-muted-foreground">طلبات شغالة</p>
           <p className="mt-1 text-sm font-semibold">عميل جديد اشترى الآن</p>
@@ -136,7 +136,7 @@ export default function NetworkGlobe() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="absolute -left-10 top-20 hidden rounded-2xl border bg-background/85 px-4 py-3 shadow-xl backdrop-blur md:block"
+          className="absolute -left-10 top-20 hidden rounded-lg border bg-background/85 px-4 py-3 shadow-xl backdrop-blur md:block"
         >
           <p className="text-xs text-muted-foreground">انتشار أسرع</p>
           <p className="mt-1 text-sm font-semibold">متجرك يوصل أكتر</p>
@@ -146,7 +146,7 @@ export default function NetworkGlobe() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="absolute bottom-3 left-1/2 hidden -translate-x-1/2 rounded-2xl border bg-background/85 px-4 py-3 shadow-xl backdrop-blur md:block"
+          className="absolute bottom-3 left-1/2 hidden -translate-x-1/2 rounded-lg border bg-background/85 px-4 py-3 shadow-xl backdrop-blur md:block"
         >
           <p className="text-xs text-muted-foreground">إدارة أسهل</p>
           <p className="mt-1 text-sm font-semibold">كل طلباتك في مكان واحد</p>

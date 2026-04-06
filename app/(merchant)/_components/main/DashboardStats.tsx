@@ -352,7 +352,7 @@ const userId = await requireUserId();
                 </div>
 
                 <div
-                  className={`flex size-11 items-center justify-center rounded-2xl ${stat.iconWrap}`}
+                  className={`flex size-11 items-center justify-center rounded-lg ${stat.iconWrap}`}
                 >
                   <Icon className={`size-5 ${stat.iconColor}`} />
                 </div>

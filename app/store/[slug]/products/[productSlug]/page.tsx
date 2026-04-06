@@ -199,7 +199,7 @@ export default async function ProductDetailsRoute({
             <Separator />
 
             <div className="grid gap-4">
-              <Card className="rounded-xl shadow-sm">
+              <Card className="rounded-lg shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Package className="size-4 text-primary" />
@@ -340,7 +340,7 @@ export default async function ProductDetailsRoute({
                     />
                   </>
                 ) : (
-                  <Button size="lg" disabled className="rounded-xl">
+                  <Button size="lg" disabled className="rounded-lg">
                     غير متوفر حاليًا
                   </Button>
                 )}
@@ -358,7 +358,7 @@ export default async function ProductDetailsRoute({
               </p>
             </div>
 
-            <Button asChild variant="outline" className="rounded-xl">
+            <Button asChild variant="outline" className="rounded-lg">
               <Link
                 href={`/store/${store.slug}/categories/${product.category.slug}`}
               >
@@ -368,7 +368,7 @@ export default async function ProductDetailsRoute({
           </div>
 
           {relatedProducts.length === 0 ? (
-            <Card className="rounded-3xl border-dashed shadow-sm">
+            <Card className="rounded-lg border-dashed shadow-sm">
               <CardContent className="flex min-h-45 flex-col items-center justify-center gap-3 p-6 text-center">
                 <Package className="size-10 text-muted-foreground" />
                 <div className="space-y-1">

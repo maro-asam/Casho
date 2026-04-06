@@ -166,11 +166,11 @@ function ServiceCard({
   return (
     <Card
       dir="rtl"
-      className="group h-full rounded-3xl border-border/70 bg-background shadow-sm transition-all"
+      className="group h-full rounded-lg border-border/70 bg-background shadow-sm transition-all"
     >
       <CardHeader className="space-y-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Icon className="size-5" />
           </div>
 
@@ -200,7 +200,7 @@ function ServiceCard({
       </CardHeader>
 
       <CardContent className="space-y-5">
-        <div className="grid grid-cols-1 gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 rounded-lg border border-border/60 bg-muted/30 p-4 sm:grid-cols-2">
           <div className="space-y-1 text-right">
             <p className="text-xs text-muted-foreground">السعر</p>
             <p className="font-semibold">{service.price}</p>
@@ -252,7 +252,7 @@ function SectionHeader({
   return (
     <div
       dir="rtl"
-      className="mb-6 flex flex-col gap-4 rounded-3xl border border-border/60 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
+      className="mb-6 flex flex-col gap-4 rounded-lg border border-border/60 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
     >
       <div className="text-right">
         <h2 className="text-2xl font-bold text-primary">{title}</h2>
@@ -261,7 +261,7 @@ function SectionHeader({
         </p>
       </div>
 
-      <div className="flex size-14 shrink-0 items-center justify-center self-end rounded-2xl bg-primary/10 text-primary md:self-auto">
+      <div className="flex size-14 shrink-0 items-center justify-center self-end rounded-lg bg-primary/10 text-primary md:self-auto">
         <Icon className="size-6" />
       </div>
     </div>
@@ -350,7 +350,7 @@ const ServicesRoute = () => {
               </p>
             </div>
 
-            <Button size="lg" className="h-12 rounded-2xl px-6">
+            <Button size="lg" className="h-12 rounded-lg px-6">
               اطلب خدمة مخصصة
               <ArrowUpLeft className="ms-2 size-4" />
             </Button>

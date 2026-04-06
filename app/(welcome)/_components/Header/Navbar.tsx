@@ -35,7 +35,7 @@ const Navbar = async () => {
             {/* Logo */}
             <div className="flex items-center gap-3">
               <Link href="/" className="group flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15 transition-all duration-300 group-hover:scale-[1.03] group-hover:bg-primary/15">
+                <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15 transition-all duration-300 group-hover:scale-[1.03] group-hover:bg-primary/15">
                   <Image
                     src="/logo.svg"
                     width={55}
@@ -90,7 +90,7 @@ const Navbar = async () => {
 
                   <DropdownMenuContent
                     align="start"
-                    className="w-64 rounded-2xl border-border/60 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
+                    className="w-64 rounded-lg border-border/60 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
                   >
                     <div className="px-2 py-2 text-right">
                       <p className="text-sm font-bold">
@@ -105,7 +105,7 @@ const Navbar = async () => {
 
                     <DropdownMenuItem
                       asChild
-                      className="cursor-pointer rounded-xl"
+                      className="cursor-pointer rounded-lg"
                     >
                       <Link
                         href="/dashboard"
@@ -119,7 +119,7 @@ const Navbar = async () => {
                     {store?.slug && (
                       <DropdownMenuItem
                         asChild
-                        className="cursor-pointer rounded-xl"
+                        className="cursor-pointer rounded-lg"
                       >
                         <Link
                           href={`/store/${store.slug}`}
@@ -136,7 +136,7 @@ const Navbar = async () => {
                     <form action={LogoutAction}>
                       <button
                         type="submit"
-                        className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-sm outline-none transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm outline-none transition-colors hover:bg-destructive/10 hover:text-destructive"
                       >
                         <span>تسجيل الخروج</span>
                         <LogOut className="size-4" />
@@ -148,7 +148,7 @@ const Navbar = async () => {
                 <div className="space-x-1">
                   <Button
                     asChild
-                    className="h-11 rounded-xl px-5 text-sm font-bold shadow-md shadow-primary/20 transition-all duration-300 "
+                    className="h-11 rounded-lg px-5 text-sm font-bold shadow-md shadow-primary/20 transition-all duration-300 "
                   >
                     <Link href="/register" className="group">
                       ابدأ دلوقتي

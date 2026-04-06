@@ -52,7 +52,7 @@ export default async function CreateNewProductPage() {
       />
 
       {categories.length === 0 ? (
-        <Card className="rounded-xl border-dashed shadow-sm">
+        <Card className="rounded-lg border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
@@ -64,7 +64,7 @@ export default async function CreateNewProductPage() {
               المنتج بالقسم المناسب داخل متجرك.
             </p>
 
-            <Button asChild className="mt-6 rounded-xl">
+            <Button asChild className="mt-6 rounded-lg">
               <Link href="/dashboard/categories/new">
                 <Plus className="me-2 size-4" />
                 إضافة تصنيف جديد
@@ -74,9 +74,9 @@ export default async function CreateNewProductPage() {
         </Card>
       ) : (
         <div className="mx-auto w-full max-w-3xl">
-          <Card className="rounded-xl shadow-sm">
+          <Card className="rounded-lg shadow-sm">
             <CardHeader className="space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <PackagePlus className="size-6" />
               </div>
 

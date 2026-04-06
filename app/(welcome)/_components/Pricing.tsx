@@ -43,7 +43,7 @@ export default function PricingSection() {
               viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.5, delay: index * 0.08 }}
               className={[
-                "relative rounded-3xl border p-6 md:p-7 transition-all",
+                "relative rounded-lg border p-6 md:p-7 transition-all",
                 plan.highlighted
                   ? "border-primary/25 bg-card shadow-xl shadow-primary/10"
                   : "border-border bg-card/70",
@@ -111,7 +111,7 @@ export default function PricingSection() {
                   size="lg"
                   variant={plan.highlighted ? "default" : "outline"}
                   disabled={plan.locked}
-                  className="mt-8 h-12 w-full rounded-xl text-sm font-medium"
+                  className="mt-8 h-12 w-full rounded-lg text-sm font-medium"
                 >
                   {plan.locked ? (
                     <span>قريبًا</span>

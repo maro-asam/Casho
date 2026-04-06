@@ -44,7 +44,7 @@ export default function StatsSection() {
           {stats.map((item, index) => (
             <div
               key={index}
-              className="group relative overflow-hidden rounded-3xl border border-zinc/10 bg-zinc/[0.03] p-6 backdrop-blur-sm transition duration-300 hover:border-primary/30 hover:bg-zinc/[0.05]"
+              className="group relative overflow-hidden rounded-lg border border-zinc/10 bg-zinc/[0.03] p-6 backdrop-blur-sm transition duration-300 hover:border-primary/30 hover:bg-zinc/[0.05]"
             >
               <div className="absolute inset-0 bg-linear-to-b from-zinc/[0.04] to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
 

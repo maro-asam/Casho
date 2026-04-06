@@ -95,7 +95,7 @@ export default function StoreSettingsForm({ store }: Props) {
             )}
 
             {settings?.logo && (
-              <div className="rounded-xl border p-3">
+              <div className="rounded-lg border p-3">
                 <p className="mb-2 text-sm text-muted-foreground">
                   معاينة اللوجو
                 </p>
@@ -271,7 +271,7 @@ export default function StoreSettingsForm({ store }: Props) {
         <Button
           type="submit"
           disabled={isPending}
-          className="min-w-45 gap-2 rounded-xl"
+          className="min-w-45 gap-2 rounded-lg"
         >
           {isPending ? (
             <>

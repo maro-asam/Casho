@@ -237,7 +237,7 @@ export default function CreateProductForm({
         <div className="space-y-3 md:col-span-2">
           <Label>معاينة الصورة</Label>
 
-          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-xl border border-dashed bg-muted/30">
+          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted/30">
             {imagePreview ? (
               <div className="relative h-65 w-full">
                 <Image
@@ -263,7 +263,7 @@ export default function CreateProductForm({
         </div>
       </div>
 
-      <Button type="submit" className="rounded-xl" disabled={isPending}>
+      <Button type="submit" className="rounded-lg" disabled={isPending}>
         {isPending ? (
           <>
             <Loader2 className="me-2 size-4 animate-spin" />

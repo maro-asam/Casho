@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Instagram, Mail, Phone, Store } from "lucide-react";
+import { Mail, Phone, Store } from "lucide-react";
 
 const footerLinks = {
   product: [
@@ -22,10 +22,10 @@ const footerLinks = {
     { name: "01000000000", href: "tel:01000000000", icon: Phone },
     { name: "hello@casho.store", href: "mailto:hello@casho.store", icon: Mail },
   ],
-  social: [
-    { name: "Facebook", href: "#", icon: Facebook },
-    { name: "Instagram", href: "#", icon: Instagram },
-  ],
+  // social: [
+  //   { name: "Facebook", href: "#", icon: Facebook },
+  //   { name: "Instagram", href: "#", icon: Instagram },
+  // ],
 };
 
 export default function Footer() {
@@ -35,7 +35,7 @@ export default function Footer() {
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Store className="size-5" />
               </div>
 
@@ -53,18 +53,18 @@ export default function Footer() {
             </p>
 
             <div className="mt-6 flex items-center gap-3">
-              {footerLinks.social.map((item) => {
+              {/* {footerLinks.social.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="flex size-10 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
+                    className="flex size-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
                   >
                     <Icon className="size-4.5" />
                   </Link>
                 );
-              })}
+              })} */}
             </div>
           </div>
 

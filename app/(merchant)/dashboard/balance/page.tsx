@@ -179,7 +179,7 @@ const BalanceRoute = async () => {
         <div className="mx-auto p-4 md:p-6">
           <Card className=" border-border/60 shadow-sm">
             <CardContent className="flex min-h-75 flex-col items-center justify-center gap-4 p-8 text-center">
-              <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex size-14 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Wallet className="size-6" />
               </div>
               <div className="space-y-2">
@@ -208,7 +208,7 @@ const BalanceRoute = async () => {
   return (
     <div className="min-h-[calc(100vh-120px)] bg-background" dir="rtl">
       <div className="mx-auto flex w-full flex-col gap-6 p-4 md:p-6">
-        <div className="rounded-xl flex flex-col gap-4  border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
+        <div className="rounded-lg flex flex-col gap-4  border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <Badge
@@ -238,7 +238,7 @@ const BalanceRoute = async () => {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button asChild className="rounded-2xl">
+            <Button asChild className="rounded-lg">
               <Link href={`/dashboard/balance/topup?storeId=${store.id}`}>
                 <Plus className="ms-2 size-4" />
                 شحن رصيد
@@ -266,7 +266,7 @@ const BalanceRoute = async () => {
                 </CardTitle>
               </div>
 
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Wallet className="size-5" />
               </div>
             </CardHeader>
@@ -287,7 +287,7 @@ const BalanceRoute = async () => {
                 </CardTitle>
               </div>
 
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <BadgeDollarSign className="size-5" />
               </div>
             </CardHeader>
@@ -308,7 +308,7 @@ const BalanceRoute = async () => {
                 </CardTitle>
               </div>
 
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <CalendarClock className="size-5" />
               </div>
             </CardHeader>
@@ -334,7 +334,7 @@ const BalanceRoute = async () => {
               </div>
 
               <div
-                className={`flex size-11 items-center justify-center rounded-2xl ${
+                className={`flex size-11 items-center justify-center rounded-lg ${
                   enoughForRenewal
                     ? "bg-emerald-500/10 text-emerald-600"
                     : "bg-amber-500/10 text-amber-600"
@@ -369,21 +369,21 @@ const BalanceRoute = async () => {
 
             <CardContent className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     اسم المتجر
                   </p>
                   <p className="font-semibold">{store.name}</p>
                 </div>
 
-                <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     حالة الاشتراك
                   </p>
                   <p className="font-semibold">{statusLabel}</p>
                 </div>
 
-                <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     التجديد التلقائي
                   </p>
@@ -392,7 +392,7 @@ const BalanceRoute = async () => {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     المبلغ المطلوب للتجديد
                   </p>
@@ -401,7 +401,7 @@ const BalanceRoute = async () => {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 sm:col-span-2">
+                <div className="rounded-lg border border-border/60 bg-muted/30 p-4 sm:col-span-2">
                   <p className="mb-1 text-sm text-muted-foreground">
                     نهاية فترة السماح
                   </p>
@@ -411,7 +411,7 @@ const BalanceRoute = async () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-dashed border-border/70 bg-background p-4">
+              <div className="rounded-lg border border-dashed border-border/70 bg-background p-4">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <span className="text-sm font-medium">
                     جاهزية الرصيد للتجديد
@@ -450,7 +450,7 @@ const BalanceRoute = async () => {
             <CardContent className="space-y-3">
               <Button
                 asChild
-                className="h-12 w-full justify-between rounded-2xl"
+                className="h-12 w-full justify-between rounded-lg"
               >
                 <Link href="/dashboard/balance/topup">
                   <span>شحن رصيد جديد</span>
@@ -461,7 +461,7 @@ const BalanceRoute = async () => {
               <Button
                 asChild
                 variant="outline"
-                className="h-12 w-full justify-between rounded-2xl"
+                className="h-12 w-full justify-between rounded-lg"
               >
                 <Link href="/dashboard/balance/renew">
                   <span>تجديد الاشتراك الآن</span>
@@ -472,7 +472,7 @@ const BalanceRoute = async () => {
               <Button
                 asChild
                 variant="outline"
-                className="h-12 w-full justify-between rounded-2xl"
+                className="h-12 w-full justify-between rounded-lg"
               >
                 <Link href={`/store/${store.slug}`}>
                   <span>فتح المتجر</span>
@@ -480,7 +480,7 @@ const BalanceRoute = async () => {
                 </Link>
               </Button>
 
-              <div className="rounded-2xl border border-amber-200 bg-amber-500/5 p-4">
+              <div className="rounded-lg border border-amber-200 bg-amber-500/5 p-4">
                 <p className="mb-1 text-sm font-semibold text-amber-700 dark:text-amber-400">
                   تنبيه
                 </p>
@@ -502,15 +502,15 @@ const BalanceRoute = async () => {
               </CardDescription>
             </div>
 
-            <Button asChild variant="outline" className="rounded-2xl">
+            <Button asChild variant="outline" className="rounded-lg">
               <Link href="/dashboard/balance/history">عرض الكل</Link>
             </Button>
           </CardHeader>
 
           <CardContent>
             {store.balanceTransactions.length === 0 ? (
-              <div className="flex min-h-55 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 p-6 text-center">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+              <div className="flex min-h-55 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 p-6 text-center">
+                <div className="flex size-12 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                   <Wallet className="size-5" />
                 </div>
                 <div className="space-y-1">
@@ -521,7 +521,7 @@ const BalanceRoute = async () => {
                 </div>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-border/60">
+              <div className="overflow-hidden rounded-lg border border-border/60">
                 <div className="hidden grid-cols-[1.3fr_1fr_1fr_2fr] items-center border-b bg-muted/40 px-4 py-3 text-sm font-medium text-muted-foreground md:grid">
                   <div>النوع</div>
                   <div>المبلغ</div>
@@ -541,7 +541,7 @@ const BalanceRoute = async () => {
                         className="grid gap-3 px-4 py-4 md:grid-cols-[1.3fr_1fr_1fr_2fr] md:items-center"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex size-10 items-center justify-center rounded-2xl bg-muted">
+                          <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
                             <Icon className={`size-4 ${styles.iconClass}`} />
                           </div>
 

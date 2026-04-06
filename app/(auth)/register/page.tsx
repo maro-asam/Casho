@@ -134,14 +134,14 @@ export default function RegisterRoute() {
               transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
               className="mb-8 items-center text-center"
             >
-              <div className="mb-6 flex w-full size-16 items-center justify-center rounded-2xl">
+              <div className="mb-6 flex w-full size-16 items-center justify-center rounded-lg">
                 <Link href="/">
                   <Image
                     src="/logo.svg"
                     alt="Casho"
                     width={80}
                     height={80}
-                    className="h-14 w-14 rounded-2xl"
+                    className="h-14 w-14 rounded-lg"
                     priority
                   />
                 </Link>

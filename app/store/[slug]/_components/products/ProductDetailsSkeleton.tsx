@@ -48,7 +48,7 @@ export default function ProductDetailsSkeleton() {
             <Separator />
 
             <div className="grid gap-4">
-              <Card className="rounded-xl shadow-sm">
+              <Card className="rounded-lg shadow-sm">
                 <CardHeader className="pb-3">
                   <Skeleton className="h-5 w-32" />
                 </CardHeader>
@@ -82,7 +82,7 @@ export default function ProductDetailsSkeleton() {
               </Card>
             </div>
 
-            <Card className="rounded-3xl border-primary/10 bg-muted/30 shadow-sm">
+            <Card className="rounded-lg border-primary/10 bg-muted/30 shadow-sm">
               <CardContent className="p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-2">
@@ -91,8 +91,8 @@ export default function ProductDetailsSkeleton() {
                   </div>
 
                   <div className="flex flex-wrap gap-3">
-                    <Skeleton className="h-11 w-36 rounded-xl" />
-                    <Skeleton className="h-11 w-36 rounded-xl" />
+                    <Skeleton className="h-11 w-36 rounded-lg" />
+                    <Skeleton className="h-11 w-36 rounded-lg" />
                   </div>
                 </div>
               </CardContent>
@@ -100,10 +100,10 @@ export default function ProductDetailsSkeleton() {
           </div>
 
           {/* Image */}
-          <Card className="order-1 h-fit overflow-hidden rounded-3xl border-border/60 shadow-sm xl:order-1">
+          <Card className="order-1 h-fit overflow-hidden rounded-lg border-border/60 shadow-sm xl:order-1">
             <CardContent>
-              <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/30">
-                <Skeleton className="h-full w-full rounded-xl" />
+              <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted/30">
+                <Skeleton className="h-full w-full rounded-lg" />
               </div>
             </CardContent>
           </Card>
@@ -117,14 +117,14 @@ export default function ProductDetailsSkeleton() {
               <Skeleton className="h-4 w-56" />
             </div>
 
-            <Skeleton className="h-10 w-24 rounded-xl" />
+            <Skeleton className="h-10 w-24 rounded-lg" />
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <Card
                 key={index}
-                className="group overflow-hidden rounded-3xl border-border/60 shadow-sm"
+                className="group overflow-hidden rounded-lg border-border/60 shadow-sm"
               >
                 <CardContent className="p-0">
                   <div className="relative aspect-square overflow-hidden bg-muted/30">
@@ -144,7 +144,7 @@ export default function ProductDetailsSkeleton() {
 
                 <CardFooter className="flex items-center justify-between">
                   <Skeleton className="h-6 w-20" />
-                  <Skeleton className="h-9 w-24 rounded-xl" />
+                  <Skeleton className="h-9 w-24 rounded-lg" />
                 </CardFooter>
               </Card>
             ))}

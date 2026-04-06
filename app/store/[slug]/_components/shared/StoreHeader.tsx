@@ -132,7 +132,7 @@ export default function StoreFrontHeader({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="دور على منتج..."
-                    className="h-11 rounded-xl border bg-background pl-12 pr-11 text-sm shadow-none"
+                    className="h-11 rounded-lg border bg-background pl-12 pr-11 text-sm shadow-none"
                   />
 
                   <Search className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -150,7 +150,7 @@ export default function StoreFrontHeader({
                   <Button
                     type="submit"
                     size="sm"
-                    className="absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-xl px-4"
+                    className="absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-lg px-4"
                     disabled={isPending}
                   >
                     بحث
@@ -161,21 +161,21 @@ export default function StoreFrontHeader({
               <nav className="hidden items-center gap-1 lg:flex">
                 <Link
                   href={`/store/${storeSlug}/products`}
-                  className="rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-muted"
+                  className="rounded-lg px-4 py-2 text-sm font-medium transition hover:bg-muted"
                 >
                   كل المنتجات
                 </Link>
 
                 <Link
                   href={`/store/${storeSlug}/categories`}
-                  className="rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-muted"
+                  className="rounded-lg px-4 py-2 text-sm font-medium transition hover:bg-muted"
                 >
                   التصنيفات
                 </Link>
 
                 <Link
                   href={`/store/${storeSlug}/about`}
-                  className="rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-muted"
+                  className="rounded-lg px-4 py-2 text-sm font-medium transition hover:bg-muted"
                 >
                   عن المتجر
                 </Link>
@@ -185,7 +185,7 @@ export default function StoreFrontHeader({
                 <Button
                   asChild
                   variant="outline"
-                  className="relative h-11 rounded-xl px-4"
+                  className="relative h-11 rounded-lg px-4"
                 >
                   <Link
                     href={`/store/${storeSlug}/cart`}
@@ -206,7 +206,7 @@ export default function StoreFrontHeader({
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-11 w-11 rounded-xl"
+                        className="h-11 w-11 rounded-lg"
                       >
                         <Menu className="h-5 w-5" />
                         <span className="sr-only">فتح القائمة</span>
@@ -222,9 +222,9 @@ export default function StoreFrontHeader({
                         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
                           <Link
                             href={`/store/${storeSlug}`}
-                            className="flex items-center gap-3 rounded-xl border bg-card p-3 transition hover:bg-muted/40"
+                            className="flex items-center gap-3 rounded-lg border bg-card p-3 transition hover:bg-muted/40"
                           >
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-muted">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
                               {logo ? (
                                 <Image
                                   src={logo}
@@ -247,7 +247,7 @@ export default function StoreFrontHeader({
                           </Link>
 
                           {hasAnnouncement && (
-                            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm">
+                            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
                               <div className="mb-1 flex items-center gap-2 font-semibold text-primary">
                                 <Megaphone className="h-4 w-4" />
                                 إعلان
@@ -263,13 +263,13 @@ export default function StoreFrontHeader({
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
                               placeholder="دور على منتج..."
-                              className="h-11 rounded-xl pl-12 pr-11"
+                              className="h-11 rounded-lg pl-12 pr-11"
                             />
                             <Search className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <Button
                               type="submit"
                               size="sm"
-                              className="absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-xl px-4"
+                              className="absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-lg px-4"
                               disabled={isPending}
                             >
                               بحث
@@ -282,7 +282,7 @@ export default function StoreFrontHeader({
                             <SheetClose asChild>
                               <Link
                                 href={`/store/${storeSlug}/products`}
-                                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
+                                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <PackageSearch className="h-4 w-4 text-primary" />
                                 كل المنتجات
@@ -292,7 +292,7 @@ export default function StoreFrontHeader({
                             <SheetClose asChild>
                               <Link
                                 href={`/store/${storeSlug}/categories`}
-                                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
+                                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <LayoutGrid className="h-4 w-4 text-primary" />
                                 التصنيفات
@@ -302,7 +302,7 @@ export default function StoreFrontHeader({
                             <SheetClose asChild>
                               <Link
                                 href={`/store/${storeSlug}/about`}
-                                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
+                                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <Info className="h-4 w-4 text-primary" />
                                 عن المتجر
@@ -312,7 +312,7 @@ export default function StoreFrontHeader({
                             <SheetClose asChild>
                               <Link
                                 href={`/store/${storeSlug}/contact`}
-                                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
+                                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <Phone className="h-4 w-4 text-primary" />
                                 تواصل معنا
@@ -323,7 +323,7 @@ export default function StoreFrontHeader({
 
                         <div className="border-t p-5">
                           <SheetClose asChild>
-                            <Button asChild className="h-11 w-full rounded-xl">
+                            <Button asChild className="h-11 w-full rounded-lg">
                               <Link
                                 href={`/store/${storeSlug}/cart`}
                                 className="flex items-center justify-center gap-2"
@@ -350,7 +350,7 @@ export default function StoreFrontHeader({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="دور على منتج..."
-                  className="h-11 rounded-xl pl-12 pr-11"
+                  className="h-11 rounded-lg pl-12 pr-11"
                 />
                 <Search className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
@@ -367,7 +367,7 @@ export default function StoreFrontHeader({
                 <Button
                   type="submit"
                   size="sm"
-                  className="absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-xl px-4"
+                  className="absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-lg px-4"
                   disabled={isPending}
                 >
                   بحث

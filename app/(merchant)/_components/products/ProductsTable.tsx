@@ -24,7 +24,7 @@ type Product = {
 
 export default function ProductsTable({ products }: { products: Product[] }) {
   return (
-    <Card className="overflow-hidden rounded-xl border shadow-sm">
+    <Card className="overflow-hidden rounded-lg border shadow-sm">
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>

@@ -44,11 +44,11 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
           name="name"
           required
           placeholder="مثال: ملابس رجالي"
-          className="h-11 rounded-xl"
+          className="h-11 rounded-lg"
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full rounded-xl">
+      <Button type="submit" disabled={isPending} className="w-full rounded-lg">
         {isPending ? "جاري الإنشاء..." : "إنشاء التصنيف"}
       </Button>
     </form>

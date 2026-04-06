@@ -40,7 +40,7 @@ export default async function AdminLayout({
             <AdminSidebarNav links={links} />
 
             <div className="mt-auto pt-6">
-              <div className="rounded-xl border p-3 text-xs text-muted-foreground">
+              <div className="rounded-lg border p-3 text-xs text-muted-foreground">
                 إدارة المتاجر والاشتراكات وطلبات الشحن
               </div>
             </div>

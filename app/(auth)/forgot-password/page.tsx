@@ -18,7 +18,7 @@ export default function ForgotPasswordRoute() {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <div className="w-full rounded-3xl border bg-card p-6 shadow-sm sm:p-8">
+        <div className="w-full rounded-lg border bg-card p-6 shadow-sm sm:p-8">
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold">نسيت كلمة المرور؟</h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -46,13 +46,13 @@ export default function ForgotPasswordRoute() {
             </div>
 
             {state?.error ? (
-              <div className="rounded-2xl border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {state.error}
               </div>
             ) : null}
 
             {state?.success ? (
-              <div className="space-y-3 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-3 text-sm">
+              <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3 text-sm">
                 <p className="text-foreground">{state.message}</p>
 
                 {state.resetLink ? (
@@ -60,7 +60,7 @@ export default function ForgotPasswordRoute() {
                     <p className="text-muted-foreground">
                       ده لينك تجريبي لحد ما توصل خدمة الإيميل:
                     </p>
-                    <div className="overflow-x-auto rounded-xl border bg-background p-3 text-xs">
+                    <div className="overflow-x-auto rounded-lg border bg-background p-3 text-xs">
                       <code>{state.resetLink}</code>
                     </div>
                     <a
@@ -76,7 +76,7 @@ export default function ForgotPasswordRoute() {
 
             <Button
               type="submit"
-              className="h-11 w-full rounded-2xl"
+              className="h-11 w-full rounded-lg"
               disabled={isPending}
             >
               {isPending ? "جاري الإرسال..." : "إرسال رابط الاسترجاع"}

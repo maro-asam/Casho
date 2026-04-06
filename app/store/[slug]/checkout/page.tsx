@@ -71,8 +71,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
             </div>
 
             {/* <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-xl border bg-background p-4 shadow-sm">
-                <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <div className="rounded-lg border bg-background p-4 shadow-sm">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Truck className="size-5" />
                 </div>
                 <h3 className="mb-1 font-semibold">توصيل سريع</h3>
@@ -81,8 +81,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
                 </p>
               </div>
 
-              <div className="rounded-xl border bg-background p-4 shadow-sm">
-                <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <div className="rounded-lg border bg-background p-4 shadow-sm">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <WalletCards className="size-5" />
                 </div>
                 <h3 className="mb-1 font-semibold">دفع مناسب</h3>
@@ -93,7 +93,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
             </div> */}
           </div>
 
-          <div className="mx-auto w-full max-w-2xl rounded-3xl border bg-linear-to-b from-background to-muted/30 p-5 shadow-sm md:p-6">
+          <div className="mx-auto w-full max-w-2xl rounded-lg border bg-linear-to-b from-background to-muted/30 p-5 shadow-sm md:p-6">
             <CheckoutForm
               paymentMethods={PAYMENT_METHODS}
               action={handleCreateOrder}

@@ -33,7 +33,7 @@ const Header = async () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="flex items-center justify-between p-6">
         <Link href="/" className="flex items-center gap-3 text-3xl font-black">
-          {/* <div className="flex items-center justify-center rounded-xl bg-primary/10 p-3 text-primary">
+          {/* <div className="flex items-center justify-center rounded-lg bg-primary/10 p-3 text-primary">
             <Store className="h-7 w-7" />
           </div> */}
           <Image
@@ -65,13 +65,13 @@ const Header = async () => {
         <div className="hidden items-center gap-2 md:flex">
           {!user ? (
             <>
-              <Button className="rounded-xl" asChild>
+              <Button className="rounded-lg" asChild>
                 <Link href="/register" className="flex items-center gap-2">
                   ابدأ متجرك دلوقتي <Store />
                 </Link>
               </Button>
 
-              <Button className="rounded-xl" variant="outline" asChild>
+              <Button className="rounded-lg" variant="outline" asChild>
                 <Link href="/login" className="flex items-center gap-2">
                   تسجيل الدخول <LogIn />
                 </Link>
@@ -80,7 +80,7 @@ const Header = async () => {
           ) : (
             <DropdownMenu dir="rtl" modal={false}>
               <DropdownMenuTrigger asChild className="w-full">
-                <Button variant="outline" className="rounded-xl">
+                <Button variant="outline" className="rounded-lg">
                   {storeName || user.email} <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>

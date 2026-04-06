@@ -28,7 +28,7 @@ function SubmitButton() {
       type="submit"
       size="lg"
       disabled={pending}
-      className="h-12 w-full rounded-xl text-base font-semibold"
+      className="h-12 w-full rounded-lg text-base font-semibold"
     >
       {pending ? (
         <>
@@ -83,7 +83,7 @@ export default function CheckoutForm({
               name="fullName"
               placeholder="مثال: محمد أحمد علي"
               required
-              className="h-12 rounded-xl pr-10 text-right"
+              className="h-12 rounded-lg pr-10 text-right"
             />
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function CheckoutForm({
               inputMode="tel"
               placeholder="مثال: 01012345678"
               required
-              className="h-12 rounded-xl pr-10 text-right"
+              className="h-12 rounded-lg pr-10 text-right"
             />
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function CheckoutForm({
               placeholder="المحافظة - المنطقة - الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"
               rows={5}
               required
-              className="rounded-xl pr-10 text-right leading-7"
+              className="rounded-lg pr-10 text-right leading-7"
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function CheckoutForm({
                 type="button"
                 onClick={() => setPaymentMethod(method.key)}
                 className={cn(
-                  "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-right transition-all",
+                  "flex w-full items-center justify-between rounded-lg border px-4 py-3 text-right transition-all",
                   "hover:border-primary/40 hover:bg-primary/5",
                   isActive
                     ? "border-primary bg-primary/5 ring-1 ring-primary/20"
@@ -153,7 +153,7 @@ export default function CheckoutForm({
                 <div className="flex items-center gap-3">
                   <div
                     className={cn(
-                      "flex size-10 items-center justify-center rounded-xl",
+                      "flex size-10 items-center justify-center rounded-lg",
                       isActive
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground",
@@ -186,7 +186,7 @@ export default function CheckoutForm({
         </div>
       </div>
 
-      <div className="rounded-xl border bg-muted/40 p-4">
+      <div className="rounded-lg border bg-muted/40 p-4">
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
             <CheckCircle2 className="size-4" />

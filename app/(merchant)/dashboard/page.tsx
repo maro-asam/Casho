@@ -122,7 +122,7 @@ const MerchantDashboardRoute = async () => {
       <div className="p-6" dir="rtl">
         <Card className="overflow-hidden rounded-[28px] border border-border/60 shadow-sm">
           <CardContent className="flex min-h-105 flex-col items-center justify-center p-8 text-center">
-            <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary/10">
+            <div className="mb-4 flex size-16 items-center justify-center rounded-lg bg-primary/10">
               <Store className="size-8 text-primary" />
             </div>
 

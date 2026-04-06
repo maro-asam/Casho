@@ -11,7 +11,7 @@ import Link from "next/link";
 
 const QuickActions = () => {
   return (
-    <Card className="rounded-xl">
+    <Card className="rounded-lg">
       <CardHeader>
         <CardTitle className="text-primary">إجراءات سريعة</CardTitle>
         <CardDescription>أهم الاختصارات لإدارة المتجر</CardDescription>
@@ -19,26 +19,26 @@ const QuickActions = () => {
 
       <CardContent className="space-y-3">
         <Link href="/dashboard/products/new" className="block">
-          <Button className="w-full justify-between rounded-xl">
+          <Button className="w-full justify-between rounded-lg">
             <span>إضافة منتج</span>
             <Plus className="size-4" />
           </Button>
         </Link>
 
         <Link href="/dashboard/products" className="block">
-          <Button variant="outline" className="w-full rounded-xl">
+          <Button variant="outline" className="w-full rounded-lg">
             إدارة المنتجات
           </Button>
         </Link>
 
         <Link href="/dashboard/orders" className="block">
-          <Button variant="outline" className="w-full rounded-xl">
+          <Button variant="outline" className="w-full rounded-lg">
             إدارة الطلبات
           </Button>
         </Link>
 
         <Link href="/dashboard/settings" className="block">
-          <Button variant="outline" className="w-full rounded-xl">
+          <Button variant="outline" className="w-full rounded-lg">
             إعدادات المتجر
           </Button>
         </Link>

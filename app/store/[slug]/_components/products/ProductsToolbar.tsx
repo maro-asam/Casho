@@ -9,7 +9,7 @@ type Props = {
 
 const ProductsToolbar = ({ currentQuery }: Props) => {
   return (
-    <div className="rounded-3xl border bg-card p-4 shadow-sm">
+    <div className="rounded-lg border bg-card p-4 shadow-sm">
       <form className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

@@ -150,7 +150,7 @@ const TopupClient = ({ storeId }: { storeId: string }) => {
                   return (
                     <div
                       key={m.id}
-                      className="flex items-center gap-3 border p-3 rounded-xl"
+                      className="flex items-center gap-3 border p-3 rounded-lg"
                     >
                       <RadioGroupItem value={m.id} />
                       <Icon className="size-4" />

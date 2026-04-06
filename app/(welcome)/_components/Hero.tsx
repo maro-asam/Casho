@@ -113,7 +113,7 @@ export default function HeroSection() {
           <div className="absolute inset-x-10 bottom-0 h-24 rounded-full bg-primary/10 blur-3xl" />
 
           <div className="relative overflow-hidden rounded-[32px] border border-border/70 bg-background/80 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.12)] backdrop-blur-xl md:p-6">
-            <div className="mb-5 flex items-center justify-between rounded-2xl border border-border/60 bg-background/70 px-4 py-3">
+            <div className="mb-5 flex items-center justify-between rounded-lg border border-border/60 bg-background/70 px-4 py-3">
               <div className="text-right">
                 <p className="text-sm font-semibold text-foreground">
                   {HERO_CONTENT.dashboard.title}
@@ -134,10 +134,10 @@ export default function HeroSection() {
                 <div className="grid gap-4 sm:grid-cols-3">
                   <motion.div
                     whileHover={{ y: -2 }}
-                    className="rounded-2xl border border-border/60 bg-background/85 p-4 text-right"
+                    className="rounded-lg border border-border/60 bg-background/85 p-4 text-right"
                   >
                     <div className="mb-3 flex items-center justify-between">
-                      <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                      <div className="rounded-lg bg-primary/10 p-2 text-primary">
                         <Wallet className="size-4" />
                       </div>
                       <span className="text-xs text-emerald-600">
@@ -154,10 +154,10 @@ export default function HeroSection() {
 
                   <motion.div
                     whileHover={{ y: -2 }}
-                    className="rounded-2xl border border-border/60 bg-background/85 p-4 text-right"
+                    className="rounded-lg border border-border/60 bg-background/85 p-4 text-right"
                   >
                     <div className="mb-3 flex items-center justify-between">
-                      <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                      <div className="rounded-lg bg-primary/10 p-2 text-primary">
                         <ShoppingCart className="size-4" />
                       </div>
                       <span className="text-xs text-muted-foreground">
@@ -174,10 +174,10 @@ export default function HeroSection() {
 
                   <motion.div
                     whileHover={{ y: -2 }}
-                    className="rounded-2xl border border-border/60 bg-background/85 p-4 text-right"
+                    className="rounded-lg border border-border/60 bg-background/85 p-4 text-right"
                   >
                     <div className="mb-3 flex items-center justify-between">
-                      <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                      <div className="rounded-lg bg-primary/10 p-2 text-primary">
                         <TrendingUp className="size-4" />
                       </div>
                       <span className="text-xs text-emerald-600">
@@ -193,7 +193,7 @@ export default function HeroSection() {
                   </motion.div>
                 </div>
 
-                <div className="rounded-3xl border border-border/60 bg-background/85 p-5 text-right">
+                <div className="rounded-lg border border-border/60 bg-background/85 p-5 text-right">
                   <div className="mb-5 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-semibold">
@@ -234,7 +234,7 @@ export default function HeroSection() {
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-3xl border border-border/60 bg-background/85 p-5 text-right">
+                <div className="rounded-lg border border-border/60 bg-background/85 p-5 text-right">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-semibold">
@@ -258,10 +258,10 @@ export default function HeroSection() {
                         initial={{ opacity: 0, x: 18 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.45, delay: 0.15 * index }}
-                        className="flex items-center justify-between rounded-2xl border border-border/50 bg-background/80 p-3"
+                        className="flex items-center justify-between rounded-lg border border-border/50 bg-background/80 p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                          <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <Package className="size-4" />
                           </div>
                           <div className="text-right">
@@ -290,9 +290,9 @@ export default function HeroSection() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="rounded-3xl border border-primary/15 bg-primary/5 p-5 text-right"
+                  className="rounded-lg border border-primary/15 bg-primary/5 p-5 text-right"
                 >
-                  <div className="mb-3 inline-flex rounded-2xl bg-primary/10 p-2 text-primary">
+                  <div className="mb-3 inline-flex rounded-lg bg-primary/10 p-2 text-primary">
                     <PackageCheck className="size-4" />
                   </div>
                   <p className="text-sm font-semibold">
@@ -301,7 +301,7 @@ export default function HeroSection() {
                   <p className="mt-1 text-xs leading-6 text-muted-foreground">
                     {HERO_CONTENT.alertCard.description}
                   </p>
-                  <div className="mt-4 flex items-center justify-between rounded-2xl border border-border/50 bg-background/70 px-3 py-2 text-xs">
+                  <div className="mt-4 flex items-center justify-between rounded-lg border border-border/50 bg-background/70 px-3 py-2 text-xs">
                     <span className="text-muted-foreground">
                       {HERO_CONTENT.alertCard.product}
                     </span>
@@ -327,10 +327,10 @@ export default function HeroSection() {
                 delay: 0.9,
               },
             }}
-            className="absolute -right-2 top-8 hidden w-55 rounded-2xl border border-border/70 bg-background/85 p-3 shadow-xl backdrop-blur-xl md:block lg:-right-11"
+            className="absolute -right-2 top-8 hidden w-55 rounded-lg border border-border/70 bg-background/85 p-3 shadow-xl backdrop-blur-xl md:block lg:-right-11"
           >
             <div className="flex items-start gap-3 text-right">
-              <div className="rounded-xl bg-primary/10 p-2 text-primary">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
                 <ShoppingCart className="size-4" />
               </div>
               <div>
@@ -357,10 +357,10 @@ export default function HeroSection() {
                 delay: 1.1,
               },
             }}
-            className="absolute -left-2 bottom-10 hidden w-55 rounded-2xl border border-border/70 bg-background/85 p-3 shadow-xl backdrop-blur-xl md:block lg:-left-11"
+            className="absolute -left-2 bottom-10 hidden w-55 rounded-lg border border-border/70 bg-background/85 p-3 shadow-xl backdrop-blur-xl md:block lg:-left-11"
           >
             <div className="flex items-start gap-3 text-right">
-              <div className="rounded-xl bg-primary/10 p-2 text-primary">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
                 <Wallet className="size-4" />
               </div>
               <div>

@@ -6,7 +6,7 @@ import { PAYMENT_LOGOS } from "@/constants/welcome/paymentLogos.constants";
 
 export default function PaymentMethodsSection() {
   return (
-    <section className="p-8 border border-primary/15 rounded-2xl relative overflow-hidden">
+    <section className="p-8 border border-primary/15 rounded-lg relative overflow-hidden">
       <div className="">
         {/* Logos */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-6">
@@ -17,7 +17,7 @@ export default function PaymentMethodsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               viewport={{ once: true }}
-              className="group flex items-center justify-center rounded-2xl border bg-transparent backdrop-blur-md p-3 hover:shadow-md transition-all"
+              className="group flex items-center justify-center rounded-lg border bg-transparent backdrop-blur-md p-3 hover:shadow-md transition-all"
             >
               <Image
                 src={logo.src}

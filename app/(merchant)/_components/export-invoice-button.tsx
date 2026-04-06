@@ -405,7 +405,7 @@ export default function ExportInvoiceButton({
   };
 
   return (
-    <Button onClick={handleExportInvoice} className="rounded-xl">
+    <Button onClick={handleExportInvoice} className="rounded-lg">
       <FileDown className="ms-2 h-4 w-4" />
       تصدير فاتورة
     </Button>

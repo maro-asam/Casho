@@ -113,7 +113,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-xl border-dashed border-border/60">
+        <Card className="rounded-lg border-dashed border-border/60">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
               <Store className="size-6 text-muted-foreground" />
@@ -176,7 +176,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
       />
 
       {orders.length === 0 ? (
-        <Card className="rounded-xl border-dashed border-border/60 shadow-sm">
+        <Card className="rounded-lg border-dashed border-border/60 shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
@@ -191,7 +191,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
         </Card>
       ) : (
         <>
-          <Card className="rounded-xl shadow-sm">
+          <Card className="rounded-lg shadow-sm">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>
@@ -298,7 +298,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
                             asChild
                             variant="default"
                             size="sm"
-                            className="rounded-xl"
+                            className="rounded-lg"
                           >
                             <Link href={`/dashboard/orders/${order.id}`}>
                               <Eye className="ml-1 size-4" />
@@ -315,7 +315,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
           </Card>
 
           {totalPages > 1 && (
-            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-border/60 bg-background px-4 py-4 sm:flex-row">
+            <div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-border/60 bg-background px-4 py-4 sm:flex-row">
               <p className="text-sm text-muted-foreground">
                 صفحة {currentPage} من {totalPages}
               </p>
@@ -326,7 +326,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
                   variant="outline"
                   size="sm"
                   disabled={currentPage <= 1}
-                  className="rounded-xl"
+                  className="rounded-lg"
                 >
                   <Link
                     href={
@@ -351,7 +351,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
                         asChild
                         variant={isActive ? "default" : "outline"}
                         size="sm"
-                        className="h-9 w-9 rounded-xl p-0"
+                        className="h-9 w-9 rounded-lg p-0"
                       >
                         <Link href={`/dashboard/orders?page=${page}`}>
                           {page}
@@ -366,7 +366,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
                   variant="outline"
                   size="sm"
                   disabled={currentPage >= totalPages}
-                  className="rounded-xl"
+                  className="rounded-lg"
                 >
                   <Link
                     href={
