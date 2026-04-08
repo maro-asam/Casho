@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Metadata } from "next";
 import { PackageOpen, Store as StoreIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,34 +24,6 @@ type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({
-  params,
-}: StoreHomeRouteProps): Promise<Metadata> {
-  const { slug } = await params;
-
-  const store = await prisma.store.findFirst({
-    where: { slug },
-    select: {
-      name: true,
-      subscriptionStatus: true,
-    },
-  });
-
-  if (!store) {
-    return {
-      title: "المتجر غير موجود",
-      description: "تعذر العثور على هذا المتجر",
-    };
-  }
-
-  return {
-    title: store.name,
-    description:
-      store.subscriptionStatus === SubscriptionStatus.ACTIVE
-        ? `تصفح منتجات متجر ${store.name} وأضف ما يعجبك إلى السلة`
-        : `متجر ${store.name} غير مفعل حالياً`,
-  };
-}
 
 export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   const { slug } = await params;
@@ -125,9 +96,9 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center" dir="rtl">
-        <Card className="w-full max-w-lg rounded-md shadow-sm">
+        <Card className="w-full max-w-lg rounded-lg shadow-sm">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-md bg-muted">
+            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-lg bg-muted">
               <StoreIcon className="size-7 text-muted-foreground" />
             </div>
             <CardTitle className="text-2xl">هذا المتجر غير مُفعّل</CardTitle>
@@ -156,9 +127,9 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
         <StoreCategories categories={store.categories} storeSlug={store.slug} />
 
         {store.products.length === 0 ? (
-          <Card className="rounded-md border-dashed shadow-sm">
+          <Card className="rounded-lg border-dashed shadow-sm">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="mb-4 flex size-14 items-center justify-center rounded-md bg-muted">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-lg bg-muted">
                 <PackageOpen className="size-7 text-muted-foreground" />
               </div>
 

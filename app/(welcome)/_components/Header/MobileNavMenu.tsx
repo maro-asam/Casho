@@ -93,7 +93,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
         variant="outline"
         size="icon"
         onClick={() => setOpen(true)}
-        className="size-11 rounded-md border-border/60 bg-background/80 backdrop-blur-md"
+        className="size-11 rounded-lg border-border/60 bg-background/80 backdrop-blur-md"
         aria-label="فتح القائمة"
       >
         <Menu className="size-5" />
@@ -112,7 +112,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
             />
 
             <motion.div
-              className="fixed inset-x-4 top-4 z-90 origin-top rounded-md border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-2xl"
+              className="fixed inset-x-4 top-4 z-90 origin-top rounded-lg border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-2xl"
               // @ts-expect-error
               variants={panelVariants}
               initial="hidden"
@@ -128,7 +128,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => setOpen(false)}
-                  className="size-10 rounded-md"
+                  className="size-10 rounded-lg"
                   aria-label="إغلاق القائمة"
                 >
                   <X className="size-5" />
@@ -139,7 +139,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3"
                 >
-                  <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/15">
+                  <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
                     <Store className="size-5" />
                   </div>
 
@@ -158,7 +158,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                 <motion.div
                   // @ts-expect-error
                   variants={itemVariants}
-                  className="mb-4 rounded-md border border-primary/10 bg-primary/5 p-3"
+                  className="mb-4 rounded-lg border border-primary/10 bg-primary/5 p-3"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="text-right">
@@ -170,7 +170,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                       </p>
                     </div>
 
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Sparkles className="size-4" />
                     </div>
                   </div>
@@ -187,7 +187,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                     key={link.name}
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className="group flex items-center justify-between rounded-md px-4 py-3 text-sm font-medium text-foreground/85 transition-colors hover:bg-primary/5 hover:text-primary"
+                    className="group flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-foreground/85 transition-colors hover:bg-primary/5 hover:text-primary"
                   >
                     <span>{link.name}</span>
                     <ChevronLeft className="size-4 text-muted-foreground transition-transform group-hover:-translate-x-1 group-hover:text-primary" />
@@ -211,7 +211,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                     <Link href="/dashboard" onClick={() => setOpen(false)}>
                       <Button
                         variant="outline"
-                        className="h-12 w-full justify-between rounded-md border-border/60 bg-background"
+                        className="h-12 w-full justify-between rounded-lg border-border/60 bg-background"
                       >
                         <LayoutDashboard className="size-4" />
                         <span>لوحة التحكم</span>
@@ -225,7 +225,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                       >
                         <Button
                           variant="outline"
-                          className="h-12 w-full justify-between rounded-md border-border/60 bg-background"
+                          className="h-12 w-full justify-between rounded-lg border-border/60 bg-background"
                         >
                           <Store className="size-4" />
                           <span>عرض المتجر</span>
@@ -237,7 +237,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                       <Button
                         type="submit"
                         variant="ghost"
-                        className="h-12 w-full justify-between rounded-md text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        className="h-12 w-full justify-between rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive"
                       >
                         <LogOut className="size-4" />
                         <span>تسجيل الخروج</span>
@@ -246,7 +246,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                   </>
                 ) : (
                   <Link href="/register" onClick={() => setOpen(false)}>
-                    <Button className="h-12 w-full justify-center rounded-md text-sm font-bold shadow-md shadow-primary/20">
+                    <Button className="h-12 w-full justify-center rounded-lg text-sm font-bold shadow-md shadow-primary/20">
                       ابدأ دلوقتي
                       <Store className="ms-2 size-4" />
                     </Button>

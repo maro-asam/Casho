@@ -39,7 +39,6 @@ import DashboardSectionHeader from "../../_components/main/DashboardSectionHeade
 
 export const metadata: Metadata = {
   title: "الكوبونات",
-  description: "إدارة كوبونات الخصم الخاصة بمتجرك",
 };
 
 const PAGE_SIZE = 6;
@@ -86,9 +85,9 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
   if (!store) {
     return (
       <div className="space-y-6 p-6" dir="rtl">
-        <Card className="rounded-md border-dashed">
+        <Card className="rounded-lg border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-muted">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
               <Store className="size-6 text-muted-foreground" />
             </div>
 
@@ -154,9 +153,9 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
       />
 
       {totalCoupons === 0 ? (
-        <Card className="rounded-md border-dashed shadow-sm">
+        <Card className="rounded-lg border-dashed shadow-sm">
           <CardContent className="flex min-h-90 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-md bg-muted">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
@@ -166,7 +165,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
               وتزود المبيعات.
             </p>
 
-            <Button asChild className="mt-6 rounded-md">
+            <Button asChild className="mt-6 rounded-lg">
               <Link href="/dashboard/coupons/new">
                 <Plus className="ms-2 size-4" />
                 إضافة أول كوبون
@@ -176,7 +175,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden rounded-md shadow-sm">
+          <Card className="overflow-hidden rounded-lg shadow-sm">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>
@@ -208,7 +207,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                         >
                           <TableCell className="py-4">
                             <div className="flex min-w-32 items-center gap-2">
-                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border bg-muted">
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border bg-muted">
                                 <BadgePercent className="size-5 text-primary" />
                               </div>
 
@@ -227,7 +226,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                             {coupon.type === "PERCENTAGE" ? (
                               <Badge
                                 variant="outline"
-                                className="gap-1 whitespace-nowrap rounded-md"
+                                className="gap-1 whitespace-nowrap rounded-lg"
                               >
                                 <Percent className="size-3.5" />
                                 نسبة مئوية
@@ -235,7 +234,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                             ) : (
                               <Badge
                                 variant="outline"
-                                className="gap-1 whitespace-nowrap rounded-md"
+                                className="gap-1 whitespace-nowrap rounded-lg"
                               >
                                 <CircleDollarSign className="size-3.5" />
                                 خصم ثابت
@@ -291,21 +290,21 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
 
                           <TableCell>
                             {coupon.isActive && !isExpired ? (
-                              <Badge className="gap-1 whitespace-nowrap rounded-md">
+                              <Badge className="gap-1 whitespace-nowrap rounded-lg">
                                 <ShieldCheck className="size-3.5" />
                                 نشط
                               </Badge>
                             ) : isExpired ? (
                               <Badge
                                 variant="secondary"
-                                className="whitespace-nowrap rounded-md"
+                                className="whitespace-nowrap rounded-lg"
                               >
                                 منتهي
                               </Badge>
                             ) : (
                               <Badge
                                 variant="secondary"
-                                className="whitespace-nowrap rounded-md"
+                                className="whitespace-nowrap rounded-lg"
                               >
                                 غير نشط
                               </Badge>
@@ -325,7 +324,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                                   type="submit"
                                   variant="outline"
                                   size="sm"
-                                  className="rounded-md"
+                                  className="rounded-lg"
                                 >
                                   {coupon.isActive ? (
                                     <MoveRight className="ms-1 size-4" />
@@ -347,7 +346,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                                   type="submit"
                                   variant="destructive"
                                   size="sm"
-                                  className="rounded-md"
+                                  className="rounded-lg"
                                 >
                                   <Trash2 className="ms-1 size-4" />
                                   حذف
@@ -365,7 +364,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
           </Card>
 
           {totalPages > 1 && (
-            <div className="flex flex-col gap-3 rounded-md border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-lg border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 الصفحة{" "}
                 <span className="font-medium text-foreground">{safePage}</span>{" "}
@@ -379,7 +378,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-md"
+                  className="rounded-lg"
                   disabled={safePage <= 1}
                 >
                   <Link
@@ -405,7 +404,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                         asChild
                         variant={isActive ? "default" : "outline"}
                         size="icon"
-                        className="rounded-md"
+                        className="rounded-lg"
                       >
                         <Link href={`/dashboard/coupons?page=${page}`}>
                           {page}
@@ -418,7 +417,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-md"
+                  className="rounded-lg"
                   disabled={safePage >= totalPages}
                 >
                   <Link

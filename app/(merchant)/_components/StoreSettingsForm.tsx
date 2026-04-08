@@ -36,6 +36,7 @@ type Props = {
     id: string;
     name: string;
     slug: string;
+    poweredByRemovalEnabled: boolean;
     settings: {
       id: string;
       storeId: string;
@@ -196,9 +197,9 @@ export default function StoreSettingsForm({ store }: Props) {
                     <p className="text-muted-foreground">رابط المتجر هيبقى:</p>
                     <div
                       dir="ltr"
-                      className="rounded-lg border bg-background px-3 py-2 font-medium"
+                      className="rounded-lg border bg-primary/10 px-3 py-2 font-medium"
                     >
-                      {(storeNameStatus.suggestedSlug || store.slug)}.casho.store
+                      <span className="text-primary text-lg">{storeNameStatus.suggestedSlug || store.slug}</span>.casho.store
                     </div>
                   </div>
 
@@ -208,7 +209,7 @@ export default function StoreSettingsForm({ store }: Props) {
                     </p>
                     <div
                       dir="ltr"
-                      className="rounded-lg border bg-background px-3 py-2"
+                      className="rounded-lg border bg-primary/10 px-3 py-2"
                     >
                       {storeNameStatus.normalizedSlug || store.slug}
                     </div>
@@ -260,7 +261,7 @@ export default function StoreSettingsForm({ store }: Props) {
             )}
 
             {settings?.logo && (
-              <div className="rounded-md border p-3">
+              <div className="rounded-lg border p-3">
                 <p className="mb-2 text-sm text-muted-foreground">
                   معاينة اللوجو
                 </p>
@@ -269,7 +270,7 @@ export default function StoreSettingsForm({ store }: Props) {
                   height={1000}
                   src={settings.logo}
                   alt="Logo Preview"
-                  className="h-20 w-20 rounded-md border object-cover"
+                  className="h-20 w-20 rounded-lg border object-cover"
                 />
               </div>
             )}
@@ -303,7 +304,7 @@ export default function StoreSettingsForm({ store }: Props) {
           <h3 className="text-base font-semibold">محتوى المتجر</h3>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2 w-full">
           <div className="space-y-2">
             <Label htmlFor="description">وصف المتجر</Label>
             <Textarea
@@ -368,7 +369,7 @@ export default function StoreSettingsForm({ store }: Props) {
                   ) as HTMLInputElement | null;
                   if (input) input.value = e.target.value;
                 }}
-                className="h-10 w-14 cursor-pointer rounded-md border"
+                className="h-10 w-14 cursor-pointer rounded-lg border"
               />
             </div>
           </div>
@@ -394,7 +395,7 @@ export default function StoreSettingsForm({ store }: Props) {
                   ) as HTMLInputElement | null;
                   if (input) input.value = e.target.value;
                 }}
-                className="h-10 w-14 cursor-pointer rounded-md border"
+                className="h-10 w-14 cursor-pointer rounded-lg border"
               />
             </div>
           </div>

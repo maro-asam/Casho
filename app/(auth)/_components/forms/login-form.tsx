@@ -64,7 +64,7 @@ export function LoginForm({
                       alt="Casho"
                       width={50}
                       height={50}
-                      className="object-contain rounded-md"
+                      className="object-contain rounded-lg"
                     />
                   </div>
 

@@ -56,7 +56,7 @@ model Store {
   autoRenew          Boolean            @default(true)
 
   balance      Int @default(0)
-  monthlyPrice Int @default(49900)
+  monthlyPrice Int @default(29900)
 
   paymentMethods String[] @default([])
 
@@ -78,6 +78,9 @@ model Store {
   coupons        Coupon[]
   appliedCoupons AppliedCoupon[]
 
+  showPoweredByCasho      Boolean @default(true)
+  poweredByRemovalEnabled Boolean @default(false)
+
   createdAt DateTime @default(now())
 
   @@index([subscriptionStatus])
@@ -90,18 +93,27 @@ model StoreSettings {
   storeId String @unique
   store   Store  @relation(fields: [storeId], references: [id])
 
-  logo             String?
-  coverImage       String?
-  primaryColor     String?
-  secondaryColor   String?
+  logo           String?
+  coverImage     String?
+  primaryColor   String?
+  secondaryColor String?
+  navbarVariant  String  @default("default")
+
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[]
+  ogTitle        String?
+  ogDescription  String?
+  ogImage        String?
+  isIndexed      Boolean  @default(true)
+
   announcementText String?
   description      String?
   email            String?
-
-  whatsappNumber String?
-  instagram      String?
-  facebook       String?
-  tiktok         String?
+  whatsappNumber   String?
+  instagram        String?
+  facebook         String?
+  tiktok           String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -388,6 +400,10 @@ model ServiceRequest {
 
   status ServiceRequestStatus @default(PENDING)
 
+  adminNote   String?
+  handledAt   DateTime?
+  handledById String?
+
   storeId String?
   store   Store?  @relation(fields: [storeId], references: [id], onDelete: SetNull)
 
@@ -396,4 +412,5 @@ model ServiceRequest {
 
   @@index([status, createdAt])
   @@index([storeId, createdAt])
+  @@index([serviceId, status])
 }

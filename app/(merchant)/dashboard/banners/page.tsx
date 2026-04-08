@@ -13,6 +13,11 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "إدارة البانرز",
+};
 
 export default async function BannersPage() {
   const userId = await requireUserId();
@@ -25,9 +30,9 @@ export default async function BannersPage() {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-md border-dashed">
+        <Card className="rounded-lg border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-muted">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
               <ImageIcon className="size-6 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
@@ -48,7 +53,7 @@ export default async function BannersPage() {
     <div className="space-y-6 p-6" dir="rtl">
       <DashboardSectionHeader
         icon={ImageIcon}
-        title="البانرز"
+        title="إدارة البانرز"
         badge={totalBanners}
         description={
           <>
@@ -61,9 +66,9 @@ export default async function BannersPage() {
       />
 
       {banners.length === 0 ? (
-        <Card className="rounded-md border-dashed shadow-sm">
+        <Card className="rounded-lg border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-md bg-muted">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
               <ImageIcon className="size-7 text-muted-foreground" />
             </div>
 
@@ -73,7 +78,7 @@ export default async function BannersPage() {
               وجذاب داخل متجرك.
             </p>
 
-            <Button asChild className="mt-6 rounded-md">
+            <Button asChild className="mt-6 rounded-lg">
               <Link href="/dashboard/banners/new">
                 <Plus className="me-2 size-4" />
                 إضافة أول بانر
@@ -86,7 +91,7 @@ export default async function BannersPage() {
           {banners.map((banner, index) => (
             <Card
               key={banner.id}
-              className="p-0 overflow-hidden rounded-md border bg-background shadow-sm transition hover:shadow-md"
+              className="p-0 overflow-hidden rounded-lg border bg-background shadow-sm transition hover:shadow-md"
             >
               <div className="relative aspect-16/8 w-full overflow-hidden">
                 <Image
@@ -104,16 +109,16 @@ export default async function BannersPage() {
                       <h3 className="truncate text-base font-semibold">
                         {banner.title}
                       </h3>
-                      <Badge variant="secondary" className="rounded-md">
+                      <Badge variant="secondary" className="rounded-lg">
                         #{index + 1}
                       </Badge>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                      <span className="truncate rounded-md bg-muted px-2 py-1 font-mono text-xs">
+                      <span className="truncate rounded-lg bg-muted px-2 py-1 font-mono text-xs">
                         Banner
                       </span>
-                      <Badge variant="outline" className="rounded-md">
+                      <Badge variant="outline" className="rounded-lg">
                         صورة عرض
                       </Badge>
                     </div>
@@ -132,7 +137,7 @@ export default async function BannersPage() {
                   <Button
                     type="submit"
                     variant="destructive"
-                    className="w-full rounded-md"
+                    className="w-full rounded-lg"
                   >
                     حذف البانر
                   </Button>

@@ -15,7 +15,7 @@
 
   /* 💣 الأزرق الأساسي */
   --primary: #1447e6;
-  --primary-foreground: oklch(0.97 0.014 254.605);
+  --primary-foreground: oklch(0.97 0.014 254.604);
 
   /* neutral */
   --secondary: oklch(0.967 0.001 286.374);
@@ -74,7 +74,7 @@
   --foreground: oklch(0.141 0.005 285.823);
 }
 .dark {
-    --radius: 0.625rem;
+  --radius: 0.625rem;
 
   --background: oklch(18.856% 0.00807 285.57);
   --foreground: oklch(0.985 0 2);
@@ -166,7 +166,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-cairo);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
@@ -183,7 +183,7 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-cairo);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
@@ -226,4 +226,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

@@ -36,7 +36,7 @@ const ProductsMobileFilters = ({ categories, currentQuery }: Props) => {
     <div className="lg:hidden">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" className="rounded-md">
+          <Button variant="outline" className="rounded-lg">
             <SlidersHorizontal className="size-4" />
             الفلاتر
           </Button>
@@ -67,7 +67,7 @@ const ProductsMobileFilters = ({ categories, currentQuery }: Props) => {
                 id="category-mobile"
                 name="category"
                 defaultValue={currentQuery.category}
-                className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none"
+                className="flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none"
               >
                 <option value="">كل التصنيفات</option>
                 {categories.map((category) => (
@@ -83,7 +83,7 @@ const ProductsMobileFilters = ({ categories, currentQuery }: Props) => {
               maxDefault={currentQuery.maxPrice}
             />
 
-            <div className="flex items-center gap-2 rounded-md border px-3 py-3">
+            <div className="flex items-center gap-2 rounded-lg border px-3 py-3">
               <Checkbox
                 id="featured-mobile"
                 name="featured"
@@ -99,7 +99,7 @@ const ProductsMobileFilters = ({ categories, currentQuery }: Props) => {
                 id="sort-mobile"
                 name="sort"
                 defaultValue={currentQuery.sort}
-                className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none"
+                className="flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none"
               >
                 <option value="newest">الأحدث أولًا</option>
                 <option value="oldest">الأقدم أولًا</option>

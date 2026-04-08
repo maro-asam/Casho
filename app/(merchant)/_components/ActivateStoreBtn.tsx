@@ -34,7 +34,7 @@ export default function ActivateStoreButton() {
       onClick={handleActivate}
       disabled={isPending}
       size="lg"
-      className="h-11 rounded-md px-6 shadow-sm"
+      className="h-11 rounded-lg px-6 shadow-sm"
     >
       <Rocket className="ms-2 size-4" />
       {isPending ? "جاري التفعيل..." : "تفعيل المتجر"}

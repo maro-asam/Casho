@@ -33,9 +33,9 @@ const StoreCategories = ({ categories, storeSlug }: StoreCategoriesProps) => {
             key={category.id}
             href={`/store/${storeSlug}/category/${category.slug}`}
           >
-            <Card>
-              <div className="group flex h-20 cursor-pointer items-center justify-start gap-2 rounded-md border transition hover:-translate-y-1 hover:shadow-md p-2">
-                <div className="relative flex h-full w-20 p-2 items-center justify-center overflow-hidden rounded-md bg-muted">
+            <Card className="p-0">
+              <div className="group flex h-22 cursor-pointer items-center justify-start gap-2 rounded-lg transition  p-2">
+                <div className="relative flex h-full w-22  items-center justify-center overflow-hidden rounded-lg">
                   {category.image ? (
                     <Image
                       src={category.image}
@@ -48,7 +48,7 @@ const StoreCategories = ({ categories, storeSlug }: StoreCategoriesProps) => {
                   )}
                 </div>
 
-                <span className="line-clamp-2 text-center text-md font-medium">
+                <span className="line-clamp-2 text-center text-lg font-bold ">
                   {category.name}
                 </span>
               </div>

@@ -1,5 +1,6 @@
 "use server";
 
+import { sendTelegramMessage } from "@/lib/notifications/telegram";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -99,6 +100,21 @@ export async function CreateServiceRequestAction(
         storeId,
       },
     });
+
+    await sendTelegramMessage(`
+🚀 تم استلام طلب خدمة جديد
+
+📌 تفاصيل الطلب:
+• الخدمة: ${serviceTitle}
+• الاسم: ${fullName}
+• الهاتف: ${phone}
+• الواتساب: ${whatsapp ?? "غير مضاف"}
+• رابط المتجر: ${storeLink ?? "غير مضاف"}
+• ملاحظات: ${notes ?? "لا يوجد"}
+
+🧭 لوحة المتابعة:
+https://yourdomain.com/admin/service-requests
+`);
 
     revalidatePath("/dashboard/services");
 

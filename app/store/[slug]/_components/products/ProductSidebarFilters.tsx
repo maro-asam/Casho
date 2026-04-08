@@ -35,7 +35,7 @@ const ProductsSidebarFilters = ({
   currentQuery,
 }: Props) => {
   return (
-    <Card className="rounded-md border shadow-sm">
+    <Card className="rounded-lg border shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Filter className="size-5" />
@@ -66,7 +66,7 @@ const ProductsSidebarFilters = ({
                   category: "",
                   page: 1,
                 })}
-                className={`block rounded-md border px-4 py-3 text-sm transition ${
+                className={`block rounded-lg border px-4 py-3 text-sm transition ${
                   !currentQuery.category
                     ? "border-primary bg-primary/5 text-primary"
                     : "hover:bg-muted/50"
@@ -83,7 +83,7 @@ const ProductsSidebarFilters = ({
                     category: category.slug,
                     page: 1,
                   })}
-                  className={`flex items-center justify-between rounded-md border px-4 py-3 text-sm transition ${
+                  className={`flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition ${
                     currentQuery.category === category.slug
                       ? "border-primary bg-primary/5 text-primary"
                       : "hover:bg-muted/50"
@@ -106,7 +106,7 @@ const ProductsSidebarFilters = ({
           <div className="space-y-3">
             <Label>خيارات إضافية</Label>
 
-            <div className="flex items-center gap-2 rounded-md border px-3 py-3">
+            <div className="flex items-center gap-2 rounded-lg border px-3 py-3">
               <Checkbox
                 id="featured"
                 name="featured"
@@ -131,7 +131,7 @@ const ProductsSidebarFilters = ({
               id="sort"
               name="sort"
               defaultValue={currentQuery.sort}
-              className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none"
+              className="flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none"
             >
               <option value="newest">الأحدث أولًا</option>
               <option value="oldest">الأقدم أولًا</option>
@@ -153,7 +153,7 @@ const ProductsSidebarFilters = ({
           </div>
         </form>
 
-        <div className="rounded-md border bg-muted/40 p-4">
+        <div className="rounded-lg border bg-muted/40 p-4">
           <div className="mb-2 flex items-center gap-2 font-medium">
             <Tag className="size-4" />
             نصيحة

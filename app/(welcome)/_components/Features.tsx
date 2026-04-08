@@ -15,7 +15,7 @@ export default function CashoFeaturesSection() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-flex rounded-md border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="inline-flex rounded-lg border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
             المميزات
           </span>
 
@@ -38,13 +38,13 @@ export default function CashoFeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.55 }}
-            className="relative overflow-hidden rounded-md border border-border bg-card p-6 lg:col-span-2"
+            className="relative overflow-hidden rounded-lg border border-border bg-card p-6 lg:col-span-2"
           >
             <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-primary/8 to-transparent" />
 
             <div className="relative">
               <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <PackageCheck className="size-5" />
                 </div>
                 <div>
@@ -60,7 +60,7 @@ export default function CashoFeaturesSection() {
                 عشان تراجع وتتابع بسرعة.
               </p>
 
-              <div className="mt-6 rounded-md border border-border bg-background p-4 shadow-sm">
+              <div className="mt-6 rounded-lg border border-border bg-background p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
                   <div>
                     <p className="text-sm text-muted-foreground">طلب جديد</p>
@@ -69,13 +69,13 @@ export default function CashoFeaturesSection() {
                     </h4>
                   </div>
 
-                  <span className="rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                  <span className="rounded-lg bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                     جديد
                   </span>
                 </div>
 
                 <div className="space-y-3 py-4">
-                  <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-3">
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
                     <div>
                       <p className="font-medium text-foreground">تيشيرت أسود</p>
                       <p className="text-sm text-muted-foreground">الكمية: 2</p>
@@ -85,7 +85,7 @@ export default function CashoFeaturesSection() {
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-3">
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
                     <div>
                       <p className="font-medium text-foreground">شنطة بيج</p>
                       <p className="text-sm text-muted-foreground">الكمية: 1</p>
@@ -97,14 +97,14 @@ export default function CashoFeaturesSection() {
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-md border border-border bg-card px-4 py-3">
+                  <div className="rounded-lg border border-border bg-card px-4 py-3">
                     <p className="text-xs text-muted-foreground">العميل</p>
                     <p className="mt-1 font-medium text-foreground">
                       أحمد محمود
                     </p>
                   </div>
 
-                  <div className="rounded-md border border-border bg-card px-4 py-3">
+                  <div className="rounded-lg border border-border bg-card px-4 py-3">
                     <p className="text-xs text-muted-foreground">الدفع</p>
                     <p className="mt-1 font-medium text-foreground">
                       فودافون كاش
@@ -126,9 +126,9 @@ export default function CashoFeaturesSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.45, delay: index * 0.08 }}
-                  className="rounded-md border border-border bg-card p-6 transition-opacity hover:opacity-95"
+                  className="rounded-lg border border-border bg-card p-6 transition-opacity hover:opacity-95"
                 >
-                  <div className="flex size-11 items-center justify-center rounded-md bg-primary/10 text-primary">
+                  <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Icon className="size-5" />
                   </div>
 
@@ -148,10 +148,10 @@ export default function CashoFeaturesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.45, delay: 0.2 }}
-              className="rounded-md border border-border bg-card p-6 sm:col-span-2"
+              className="rounded-lg border border-border bg-card p-6 sm:col-span-2"
             >
               <div className="flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <BarChart3 className="size-5" />
                 </div>
                 <h3 className="text-lg font-bold text-foreground">
@@ -165,21 +165,21 @@ export default function CashoFeaturesSection() {
               </p>
 
               <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <div className="rounded-md border border-border bg-background p-4">
+                <div className="rounded-lg border border-border bg-background p-4">
                   <p className="text-sm text-muted-foreground">طلبات جديدة</p>
                   <p className="mt-2 text-2xl font-extrabold text-foreground">
                     +128
                   </p>
                 </div>
 
-                <div className="rounded-md border border-border bg-background p-4">
+                <div className="rounded-lg border border-border bg-background p-4">
                   <p className="text-sm text-muted-foreground">منتجات</p>
                   <p className="mt-2 text-2xl font-extrabold text-foreground">
                     42
                   </p>
                 </div>
 
-                <div className="rounded-md border border-border bg-background p-4">
+                <div className="rounded-lg border border-border bg-background p-4">
                   <p className="text-sm text-muted-foreground">طرق دفع</p>
                   <p className="mt-2 text-2xl font-extrabold text-foreground">
                     4

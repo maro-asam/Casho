@@ -13,6 +13,11 @@ import {
 } from "@/components/ui/card";
 import CreateCategoryForm from "../_components/CreateCategoryForm";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "إضافة تصنيف جديد",
+};
 
 export default async function NewCategoryPage() {
   const userId = await requireUserId();
@@ -25,9 +30,9 @@ export default async function NewCategoryPage() {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-md border-dashed">
+        <Card className="rounded-lg border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-md bg-muted">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
               <FolderPlus className="size-6 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
@@ -43,10 +48,10 @@ export default async function NewCategoryPage() {
   return (
     <div className="space-y-6 p-6" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col gap-4 rounded-md border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 rounded-lg border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Tag className="size-5" />
             </div>
 
@@ -64,7 +69,7 @@ export default async function NewCategoryPage() {
           </div>
         </div>
 
-        <Button asChild variant="outline" className="rounded-md">
+        <Button asChild variant="outline" className="rounded-lg">
           <Link href="/dashboard/categories">
             <ArrowRight className="me-2 size-4" />
             الرجوع للتصنيفات
@@ -74,9 +79,9 @@ export default async function NewCategoryPage() {
 
       {/* Form Card */}
       <div className="mx-auto w-full max-w-2xl">
-        <Card className="rounded-md shadow-sm">
+        <Card className="rounded-lg shadow-sm">
           <CardHeader className="space-y-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <FolderPlus className="size-6" />
             </div>
 

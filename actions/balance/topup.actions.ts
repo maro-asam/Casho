@@ -74,14 +74,24 @@ export async function CreateTopupRequestAction({
       },
     });
 
+    const methodLabels: Record<string, string> = {
+      INSTAPAY: "إنستا باي",
+      VODAFONE_CASH: "فودافون كاش",
+      BANK_TRANSFARE: "تحويل بنكي",
+      orange_cash: "أورنج كاش",
+      etisalat_cash: "اتصالات كاش",
+    };
+
     await sendTelegramMessage(`
-💵 مارو باشا في طلب شحن جديد
+💵 طلب شحن جديد على Casho
 
-المتجر: ${store.name}
-المبلغ: ${amount / 100} جنيه
-الطريقة: ${method}
+🏪 المتجر: ${store.name}
+💰 المبلغ: ${amount / 100} جنيه
+💳 طريقة الدفع: ${methodLabels[method] ?? method}
+🧾 رقم المرجع: ${transferRef ?? "غير مضاف"}
+📝 ملاحظات: ${note ?? "لا يوجد"}
 
-ادخل:
+📂 راجع الطلب:
 https://yourdomain.com/admin/topup-requests
 `);
 

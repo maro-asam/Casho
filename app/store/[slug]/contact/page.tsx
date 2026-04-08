@@ -33,7 +33,7 @@ export default async function StoreContactRoute({
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div className="min-h-screen flex items-center justify-center" dir="rtl">
-        <div className="border rounded-md p-10 text-center">
+        <div className="border rounded-lg p-10 text-center">
           <h1 className="text-2xl font-bold mb-4">المتجر غير مفعل</h1>
           <p className="text-gray-500">
             لازم صاحب المتجر يفعل الاشتراك الأول
@@ -67,7 +67,7 @@ export default async function StoreContactRoute({
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Contact Info */}
-        <div className="border rounded-md p-6 space-y-5 bg-background">
+        <div className="border rounded-lg p-6 space-y-5 bg-background">
           <h2 className="text-xl font-semibold">بيانات التواصل</h2>
 
           <div className="space-y-4 text-muted-foreground">
@@ -101,7 +101,7 @@ export default async function StoreContactRoute({
         {/* Contact Form */}
         <form
           action="#"
-          className="border rounded-md p-6 space-y-4 bg-background"
+          className="border rounded-lg p-6 space-y-4 bg-background"
         >
           <h2 className="text-xl font-semibold">ابعتلنا رسالة</h2>
 
@@ -109,7 +109,7 @@ export default async function StoreContactRoute({
             type="text"
             name="name"
             placeholder="اسمك"
-            className="w-full border rounded-md px-4 py-3 outline-none focus:border-primary"
+            className="w-full border rounded-lg px-4 py-3 outline-none focus:border-primary"
             required
           />
 
@@ -117,7 +117,7 @@ export default async function StoreContactRoute({
             type="email"
             name="email"
             placeholder="ايميلك"
-            className="w-full border rounded-md px-4 py-3 outline-none focus:border-primary"
+            className="w-full border rounded-lg px-4 py-3 outline-none focus:border-primary"
             required
           />
 
@@ -125,13 +125,13 @@ export default async function StoreContactRoute({
             name="message"
             placeholder="اكتب رسالتك هنا..."
             rows={4}
-            className="w-full border rounded-md px-4 py-3 outline-none focus:border-primary"
+            className="w-full border rounded-lg px-4 py-3 outline-none focus:border-primary"
             required
           />
 
           <button
             type="submit"
-            className="w-full bg-primary text-white py-3 rounded-md font-medium hover:opacity-90 transition"
+            className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:opacity-90 transition"
           >
             ارسال الرسالة
           </button>

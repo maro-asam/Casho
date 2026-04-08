@@ -36,13 +36,15 @@ export default async function SettingsRoute() {
       name: true,
       slug: true,
       settings: true,
+      showPoweredByCasho: true,
+      poweredByRemovalEnabled: true,
     },
   });
 
   if (!store) {
     return (
       <div dir="rtl" className="p-6">
-        <Card className="rounded-md border-dashed">
+        <Card className="rounded-lg border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center gap-3 text-center">
             <Store className="size-12 text-muted-foreground" />
             <div>
@@ -71,7 +73,7 @@ export default async function SettingsRoute() {
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="rounded-md shadow-sm lg:col-span-2">
+        <Card className="rounded-lg shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl text-primary font-bold">
               تخصيص المتجر
@@ -86,7 +88,7 @@ export default async function SettingsRoute() {
         </Card>
 
         <div className="space-y-4">
-          <Card className="rounded-md shadow-sm bg-primary/10">
+          <Card className="rounded-lg shadow-sm bg-primary/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-primary">
                 <Palette className="size-4" />
@@ -99,7 +101,7 @@ export default async function SettingsRoute() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-md shadow-sm bg-orange-600/10">
+          <Card className="rounded-lg shadow-sm bg-orange-600/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base text-orange-600">
                 <ImageIcon className="size-4" />
@@ -112,7 +114,7 @@ export default async function SettingsRoute() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-md shadow-sm text-green-600 bg-green-600/10">
+          <Card className="rounded-lg shadow-sm text-green-600 bg-green-600/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Megaphone className="size-4" />
@@ -124,7 +126,7 @@ export default async function SettingsRoute() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-md shadow-sm text-red-600 bg-red-600/10">
+          <Card className="rounded-lg shadow-sm text-red-600 bg-red-600/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Phone className="size-4" />

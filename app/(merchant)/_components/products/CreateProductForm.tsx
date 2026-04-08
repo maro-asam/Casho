@@ -225,7 +225,7 @@ export default function CreateProductForm({
         <div className="space-y-3 md:col-span-2">
           <Label>معاينة الصورة</Label>
 
-          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-md border border-dashed bg-muted/30">
+          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted/30">
             {imagePreview ? (
               <div className="relative h-65 w-full">
                 <Image
@@ -238,7 +238,7 @@ export default function CreateProductForm({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
-                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-md bg-background">
+                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-lg bg-background">
                   <ImageIcon className="size-6" />
                 </div>
                 <p className="text-sm font-medium">لا توجد صورة للمعاينة</p>

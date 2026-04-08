@@ -1,74 +1,147 @@
 import Link from "next/link";
-import { Store, Package, FolderOpen, Home } from "lucide-react";
+import {
+  Store,
+  Package,
+  FolderOpen,
+  Home,
+  ExternalLink,
+  Sparkles,
+  ShieldCheck,
+  ShoppingBag,
+} from "lucide-react";
+
+import CashoLogo from "@/components/common/CashoLogo";
 
 type StoreFooterProps = {
   storeName: string;
   storeSlug: string;
+  showPoweredByCasho?: boolean;
 };
 
-const StoreFooter = ({ storeName, storeSlug }: StoreFooterProps) => {
+const StoreFooter = ({
+  storeName,
+  storeSlug,
+  showPoweredByCasho = true,
+}: StoreFooterProps) => {
+  const quickLinks = [
+    {
+      title: "الصفحة الرئيسية",
+      href: `/store/${storeSlug}`,
+      icon: Home,
+    },
+    {
+      title: "كل المنتجات",
+      href: `/store/${storeSlug}/products`,
+      icon: Package,
+    },
+    {
+      title: "التصنيفات",
+      href: `/store/${storeSlug}/categories`,
+      icon: FolderOpen,
+    },
+  ];
+
   return (
-    <footer className="border-t bg-muted/30 mt-16" dir="rtl">
+    <footer className="mt-16 border-t " dir="rtl">
       <div className="container mx-auto px-4 py-10 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {/* المتجر */}
-          <div className="space-y-3">
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
-              <Store className="size-5 text-primary" />
-              {storeName}
-            </h3>
+        <div className="overflow-hidden rounded-3xl border bg-background shadow-sm">
+          <div className="border-b bg-linear-to-l from-primary/5 via-transparent to-primary/10 px-6 py-8 md:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+              <div className="space-y-4 lg:col-span-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Store className="size-5" />
+                  </div>
 
-            <p className="text-sm text-muted-foreground leading-6">
-              متجر إلكتروني لعرض المنتجات وطلبها بسهولة. تصفح المنتجات واختر ما
-              يناسبك.
-            </p>
-          </div>
+                  <div>
+                    <h3 className="text-xl font-bold tracking-tight">
+                      {storeName}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      متجر إلكتروني لعرض المنتجات وطلبها بسهولة
+                    </p>
+                  </div>
+                </div>
 
-          {/* روابط سريعة */}
-          <div className="space-y-3">
-            <h4 className="font-semibold">روابط سريعة</h4>
+                <p className="max-w-md text-sm leading-7 text-muted-foreground">
+                  تصفح المنتجات، شوف التصنيفات، واطلب اللي يناسبك من خلال تجربة
+                  شراء بسيطة وواضحة وسريعة.
+                </p>
 
-            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-              <Link
-                href={`/store/${storeSlug}`}
-                className="flex items-center gap-2 hover:text-primary"
-              >
-                <Home className="size-4" />
-                الصفحة الرئيسية
-              </Link>
+                <div className="flex flex-wrap gap-2">
+                  <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-2 text-xs text-muted-foreground">
+                    <ShoppingBag className="size-3.5 text-primary" />
+                    طلب بسهولة
+                  </div>
 
-              <Link
-                href={`/store/${storeSlug}/products`}
-                className="flex items-center gap-2 hover:text-primary"
-              >
-                <Package className="size-4" />
-                كل المنتجات
-              </Link>
+                  <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-2 text-xs text-muted-foreground">
+                    <ShieldCheck className="size-3.5 text-primary" />
+                    تجربة منظمة
+                  </div>
 
-              <Link
-                href={`/store/${storeSlug}/categories`}
-                className="flex items-center gap-2 hover:text-primary"
-              >
-                <FolderOpen className="size-4" />
-                التصنيفات
-              </Link>
+                  <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-2 text-xs text-muted-foreground">
+                    <Sparkles className="size-3.5 text-primary" />
+                    متجر حديث
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 lg:col-span-3">
+                <h4 className="font-semibold">روابط سريعة</h4>
+
+                <div className="flex flex-col gap-2">
+                  {quickLinks.map((link) => {
+                    const Icon = link.icon;
+
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="flex items-center justify-between rounded-2xl border px-4 py-3 text-sm text-muted-foreground transition hover:border-primary/20 hover:bg-primary/5 hover:text-primary"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Icon className="size-4" />
+                          {link.title}
+                        </span>
+
+                        <ExternalLink className="size-4" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-4 lg:col-span-4">
+                <h4 className="font-semibold">عن المتجر</h4>
+
+                <div className="rounded-2xl border bg-muted/20 p-4">
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    جميع المنتجات المعروضة في هذا المتجر يتم توفيرها من قبل صاحب
+                    المتجر مباشرة، والمنصة مسؤولة عن تشغيل المتجر وتقديم تجربة
+                    شراء منظمة.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* معلومات */}
-          <div className="space-y-3">
-            <h4 className="font-semibold">عن المتجر</h4>
-
-            <p className="text-sm text-muted-foreground leading-6">
-              جميع المنتجات المعروضة في هذا المتجر يتم توفيرها من قبل صاحب
-              المتجر مباشرة.
+          <div className="flex flex-col gap-4 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-8">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} {storeName}. جميع الحقوق محفوظة.
             </p>
-          </div>
-        </div>
 
-        {/* copyright */}
-        <div className="mt-10 border-t pt-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} منصة كشك للمتاجر الالكترونية. جميع الحقوق محفوظة.
+            {showPoweredByCasho ? (
+              <Link
+                href="/"
+                className="inline-flex items-center gap-3 rounded-lg border bg-card px-4 py-2.5 text-sm transition hover:border-primary/20 hover:bg-primary/5"
+              >
+                <span className="text-muted-foreground">
+                  يتم التشغيل بواسطة
+                </span>
+                <CashoLogo withSubTitle={false} />
+              </Link>
+            ) : null}
+          </div>
         </div>
       </div>
     </footer>

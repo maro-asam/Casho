@@ -67,7 +67,7 @@ type RecentOrdersProps = {
 
 const RecentOrders = ({ store }: RecentOrdersProps) => {
   return (
-    <Card className="rounded-md lg:col-span-2">
+    <Card className="rounded-lg lg:col-span-2">
       <CardHeader>
         <CardTitle className="text-primary">آخر الطلبات</CardTitle>
         <CardDescription>آخر 5 طلبات دخلت على المتجر</CardDescription>
@@ -75,7 +75,7 @@ const RecentOrders = ({ store }: RecentOrdersProps) => {
 
       <CardContent>
         {store.orders.length === 0 ? (
-          <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground">
+          <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
             لا توجد طلبات حتى الآن
           </div>
         ) : (
@@ -89,7 +89,7 @@ const RecentOrders = ({ store }: RecentOrdersProps) => {
               return (
                 <div
                   key={order.id}
-                  className="flex flex-col gap-3 rounded-md border p-4 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border p-4 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="space-y-1">
                     <p className="font-semibold">{order.fullName}</p>

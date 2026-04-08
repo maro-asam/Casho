@@ -36,7 +36,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
     <TableRow className="transition-colors hover:bg-muted/30">
       <TableCell className="py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
             {product.image ? (
               // لو هتستخدم next/image بدل img ابقى بدله
               <Image
@@ -65,7 +65,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
       </TableCell>
 
       <TableCell>
-        <Badge variant="outline" className="rounded-md">
+        <Badge variant="outline" className="rounded-lg">
           {product.category.name}
         </Badge>
       </TableCell>
@@ -76,9 +76,9 @@ export default function ProductTableRow({ product }: { product: Product }) {
 
       <TableCell>
         {product.isActive ? (
-          <Badge className="rounded-md">نشط</Badge>
+          <Badge className="rounded-lg">نشط</Badge>
         ) : (
-          <Badge variant="secondary" className="rounded-md">
+          <Badge variant="secondary" className="rounded-lg">
             غير نشط
           </Badge>
         )}
@@ -86,7 +86,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
 
       <TableCell>
         {product.isFeatured ? (
-          <Badge variant="outline" className="gap-1 rounded-md">
+          <Badge variant="outline" className="gap-1 rounded-lg">
             <Star className="size-3.5" />
             مميز
           </Badge>
@@ -97,7 +97,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
 
       <TableCell>
         <div className="flex flex-wrap items-center justify-start gap-2">
-          <Button asChild variant="secondary" size="sm" className="rounded-md">
+          <Button asChild variant="secondary" size="sm" className="rounded-lg">
             <Link href={`/dashboard/products/${product.id}/edit`}>
               <Edit className="me-2 size-4" />
               تعديل
@@ -115,7 +115,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
               type="submit"
               variant="destructive"
               size="sm"
-              className="rounded-md"
+              className="rounded-lg"
             >
               <Trash2 className="me-2 size-4" />
               حذف

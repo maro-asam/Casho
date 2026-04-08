@@ -19,8 +19,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { TOPUP_METHODS } from "@/constants/topup";
-import BalanceTopupForm from "@/app/(merchant)/_components/BalanceTopupForm";
+import BalanceTopupForm from "@/app/(merchant)/dashboard/balance/_components/BalanceTopupForm";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "شحن الرصيد",
+};
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("ar-EG", {
@@ -75,7 +80,7 @@ export default async function BalanceTopupRoute() {
       <div className="min-h-[calc(100vh-120px)] p-4 md:p-6" dir="rtl">
         <Card className="border-border/60 shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center gap-4 text-center">
-            <div className="flex size-14 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <div className="flex size-14 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Wallet className="size-6" />
             </div>
             <div className="space-y-2">
@@ -85,7 +90,7 @@ export default async function BalanceTopupRoute() {
               </p>
             </div>
 
-            <Button asChild className="rounded-md">
+            <Button asChild className="rounded-lg">
               <Link href="/dashboard">
                 <ArrowRight className="ms-2 size-4" />
                 الرجوع للداشبورد
@@ -100,13 +105,13 @@ export default async function BalanceTopupRoute() {
   return (
     <div className="min-h-[calc(100vh-120px)] bg-background p-4 md:p-6" dir="rtl">
       <div className="mx-auto flex w-full flex-col gap-6">
-        <div className="flex flex-col gap-4 rounded-md border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 rounded-lg border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="rounded-md px-3 py-1">
+              <Badge variant="outline" className="rounded-lg px-3 py-1">
                 شحن الرصيد
               </Badge>
-              <Badge className="rounded-md bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
+              <Badge className="rounded-lg bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
                 {store.name}
               </Badge>
             </div>
@@ -168,10 +173,10 @@ export default async function BalanceTopupRoute() {
                   return (
                     <div
                       key={item.value}
-                      className="rounded-md border border-border/60 bg-muted/30 p-4"
+                      className="rounded-lg border border-border/60 bg-muted/30 p-4"
                     >
                       <div className="mb-2 flex items-center gap-3">
-                        <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                           <Icon className="size-4" />
                         </div>
                         <div>
@@ -197,7 +202,7 @@ export default async function BalanceTopupRoute() {
 
               <CardContent>
                 {store.topupRequests.length === 0 ? (
-                  <div className="rounded-md border border-dashed border-border/70 p-6 text-center">
+                  <div className="rounded-lg border border-dashed border-border/70 p-6 text-center">
                     <p className="font-medium">لا توجد طلبات شحن بعد</p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       أول طلب شحن هتعمله هيظهر هنا.
@@ -208,7 +213,7 @@ export default async function BalanceTopupRoute() {
                     {store.topupRequests.map((request) => (
                       <div
                         key={request.id}
-                        className="rounded-md border border-border/60 p-4"
+                        className="rounded-lg border border-border/60 p-4"
                       >
                         <div className="mb-2 flex items-center justify-between gap-3">
                           <p className="font-semibold">

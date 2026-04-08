@@ -5,7 +5,6 @@ import NewCouponForm from "@/app/(merchant)/_components/NewCouponForm";
 
 export const metadata: Metadata = {
   title: "إضافة كوبون جديد",
-  description: "إنشاء كوبون خصم جديد لمتجرك",
 };
 
 const NewCouponPage = () => {

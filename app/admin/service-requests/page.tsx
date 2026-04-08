@@ -20,8 +20,10 @@ import {
   Clock3,
   ListChecks,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import ServiceRequestStatusSelect from "../_components/ServiceRequestStatusSelect";
+import PoweredByCashoRequestActions from "../_components/PoweredByCashoRequestActions";
 
 const PAGE_SIZE = 10;
 
@@ -114,6 +116,8 @@ export default async function AdminServiceRequestsPage({
             id: true,
             name: true,
             slug: true,
+            showPoweredByCasho: true,
+            poweredByRemovalEnabled: true,
           },
         },
       },
@@ -202,7 +206,7 @@ export default async function AdminServiceRequestsPage({
           ) : (
             <>
               <div className="hidden overflow-x-auto lg:block">
-                <table className="w-full min-w-[1150px] text-sm">
+                <table className="w-full min-w-[1350px] text-sm">
                   <thead>
                     <tr className="border-b bg-muted/30 text-right">
                       <th className="px-4 py-3 font-medium">الخدمة</th>
@@ -210,6 +214,7 @@ export default async function AdminServiceRequestsPage({
                       <th className="px-4 py-3 font-medium">المتجر</th>
                       <th className="px-4 py-3 font-medium">الحالة</th>
                       <th className="px-4 py-3 font-medium">الملاحظات</th>
+                      <th className="px-4 py-3 font-medium">الإجراء الخاص</th>
                       <th className="px-4 py-3 font-medium">التاريخ</th>
                     </tr>
                   </thead>
@@ -222,10 +227,11 @@ export default async function AdminServiceRequestsPage({
                       >
                         <td className="px-4 py-4 align-top">
                           <div className="space-y-1 text-right">
-                            <p className="font-semibold">{request.serviceTitle}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {request.serviceId}
-                            </p>
+                            <div className="flex items-center justify-end gap-2">
+                              <p className="font-semibold">
+                                {request.serviceTitle}
+                              </p>
+                            </div>
                           </div>
                         </td>
 
@@ -262,13 +268,31 @@ export default async function AdminServiceRequestsPage({
                         <td className="px-4 py-4 align-top">
                           <div className="space-y-2 text-right">
                             {request.store ? (
-                              <Link
-                                href={`/admin/stores/${request.store.slug}`}
-                                className="inline-flex items-center gap-1.5 font-medium hover:underline"
-                              >
-                                <Store className="size-4" />
-                                {request.store.name}
-                              </Link>
+                              <>
+                                <Link
+                                  href={`/admin/stores/${request.store.slug}`}
+                                  className="inline-flex items-center gap-1.5 font-medium hover:underline"
+                                >
+                                  <Store className="size-4" />
+                                  {request.store.name}
+                                </Link>
+
+                                <div className="flex flex-wrap justify-end gap-2">
+                                  <span className="rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+                                    Powered by:{" "}
+                                    {request.store.showPoweredByCasho
+                                      ? "ظاهر"
+                                      : "مخفي"}
+                                  </span>
+
+                                  <span className="rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+                                    الخدمة:{" "}
+                                    {request.store.poweredByRemovalEnabled
+                                      ? "مفعلة"
+                                      : "غير مفعلة"}
+                                  </span>
+                                </div>
+                              </>
                             ) : (
                               <span className="text-muted-foreground">—</span>
                             )}
@@ -300,6 +324,20 @@ export default async function AdminServiceRequestsPage({
                           </div>
                         </td>
 
+                        <td className="px-4 py-4 align-top">
+                          {request.serviceId === "remove_powered_by_casho" &&
+                          request.status !== "COMPLETED" &&
+                          request.status !== "CANCELED" ? (
+                            <PoweredByCashoRequestActions
+                              requestId={request.id}
+                            />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              لا يوجد
+                            </span>
+                          )}
+                        </td>
+
                         <td className="px-4 py-4 align-top text-right text-muted-foreground">
                           {new Intl.DateTimeFormat("ar-EG", {
                             dateStyle: "medium",
@@ -325,7 +363,9 @@ export default async function AdminServiceRequestsPage({
                       />
 
                       <div className="text-right">
-                        <h3 className="font-semibold">{request.serviceTitle}</h3>
+                        <h3 className="font-semibold">
+                          {request.serviceTitle}
+                        </h3>
                         <p className="text-xs text-muted-foreground">
                           {request.serviceId}
                         </p>
@@ -374,6 +414,22 @@ export default async function AdminServiceRequestsPage({
                         )}
                       </div>
 
+                      {request.store ? (
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <span className="rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+                            Powered by:{" "}
+                            {request.store.showPoweredByCasho ? "ظاهر" : "مخفي"}
+                          </span>
+
+                          <span className="rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+                            الخدمة:{" "}
+                            {request.store.poweredByRemovalEnabled
+                              ? "مفعلة"
+                              : "غير مفعلة"}
+                          </span>
+                        </div>
+                      ) : null}
+
                       {request.storeLink ? (
                         <div>
                           <p className="text-xs text-muted-foreground">
@@ -391,11 +447,19 @@ export default async function AdminServiceRequestsPage({
                       ) : null}
 
                       <div>
-                        <p className="text-xs text-muted-foreground">الملاحظات</p>
+                        <p className="text-xs text-muted-foreground">
+                          الملاحظات
+                        </p>
                         <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
                           {request.notes || "—"}
                         </p>
                       </div>
+
+                      {request.serviceId === "remove_powered_by_casho" &&
+                      request.status !== "COMPLETED" &&
+                      request.status !== "CANCELED" ? (
+                        <PoweredByCashoRequestActions requestId={request.id} />
+                      ) : null}
 
                       <div>
                         <p className="text-xs text-muted-foreground">التاريخ</p>
@@ -427,7 +491,9 @@ export default async function AdminServiceRequestsPage({
                       href={createPageHref(Math.max(1, safeCurrentPage - 1))}
                       aria-disabled={safeCurrentPage <= 1}
                       className={
-                        safeCurrentPage <= 1 ? "pointer-events-none opacity-50" : ""
+                        safeCurrentPage <= 1
+                          ? "pointer-events-none opacity-50"
+                          : ""
                       }
                     >
                       <ChevronRight className="size-4" />
@@ -442,7 +508,9 @@ export default async function AdminServiceRequestsPage({
                     return (
                       <div key={page} className="flex items-center gap-2">
                         {showDots ? (
-                          <span className="px-1 text-muted-foreground">...</span>
+                          <span className="px-1 text-muted-foreground">
+                            ...
+                          </span>
                         ) : null}
 
                         <Button

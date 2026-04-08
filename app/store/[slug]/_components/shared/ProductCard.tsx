@@ -13,6 +13,7 @@ type ProductCardProps = {
     name: string;
     slug: string;
     price: number;
+    compareAtPrice?: number;
     image: string;
     isFeatured?: boolean;
     category?: {
@@ -24,6 +25,15 @@ type ProductCardProps = {
 };
 
 const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
+  const hasDiscount =
+    !!product.compareAtPrice && product.compareAtPrice > product.price;
+
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((product.compareAtPrice! - product.price) / product.compareAtPrice!) *
+          100,
+      )
+    : 0;
   return (
     <Card
       dir="rtl"
@@ -43,20 +53,33 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
             />
 
             <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-all duration-300 group-hover:opacity-100">
-              <div className="flex items-center gap-2 rounded-md bg-background/95 px-4 py-2 text-sm font-medium text-foreground shadow-md">
+              <div className="flex items-center gap-2 rounded-lg bg-background/95 px-4 py-2 text-sm font-medium text-foreground shadow-md">
                 <Eye className="size-4" />
                 عرض المنتج
               </div>
+
+              {hasDiscount && (
+                <Badge className="rounded-lg px-3 py-1">
+                  خصم {discountPercentage}%
+                </Badge>
+              )}
             </div>
           </div>
         </Link>
 
         <button
           type="button"
-          className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-md bg-background/95 shadow-sm"
+          className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-lg bg-background/95 shadow-sm"
         >
           <Heart className="size-4" />
         </button>
+
+        {/* 🔥 SALE Badge */}
+        {hasDiscount && (
+          <Badge className="z-100 absolute left-3 top-3 bg-red-500 text-white">
+            -{discountPercentage}%
+          </Badge>
+        )}
 
         {product.isFeatured && (
           <Badge className="absolute right-3 top-3 z-10 flex items-center gap-1 p-3">

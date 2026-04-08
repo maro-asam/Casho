@@ -25,7 +25,10 @@ export async function updateServiceRequestStatusAction(
   await requireAdmin();
 
   const requestId = formData.get("requestId")?.toString().trim();
-  const status = formData.get("status")?.toString().trim() as ServiceRequestStatus;
+  const status = formData
+    .get("status")
+    ?.toString()
+    .trim() as ServiceRequestStatus;
 
   if (!requestId) {
     return {
@@ -60,4 +63,82 @@ export async function updateServiceRequestStatusAction(
   return {
     success: true,
   };
+}
+
+export async function ApproveRemovePoweredByRequestAction(requestId: string) {
+  const admin = await requireAdmin();
+
+  const request = await prisma.serviceRequest.findUnique({
+    where: { id: requestId },
+    select: {
+      id: true,
+      serviceId: true,
+      storeId: true,
+      status: true,
+    },
+  });
+
+  if (!request) {
+    throw new Error("الطلب غير موجود");
+  }
+
+  if (!request.storeId) {
+    throw new Error("الطلب غير مربوط بمتجر");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.serviceRequest.update({
+      where: { id: request.id },
+      data: {
+        status: "COMPLETED",
+        handledAt: new Date(),
+        handledById: admin.id,
+        adminNote: "تمت الموافقة على إزالة Powered by Casho",
+      },
+    });
+
+    if (request.serviceId === "remove_powered_by_casho") {
+      await tx.store.update({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        where: { id: request.storeId },
+        data: {
+          poweredByRemovalEnabled: true,
+          showPoweredByCasho: false,
+        },
+      });
+    }
+  });
+
+  revalidatePath("/admin/service-requests");
+  revalidatePath("/admin/stores");
+  revalidatePath("/dashboard");
+}
+
+export async function RejectRemovePoweredByRequestAction(
+  requestId: string,
+  adminNote?: string,
+) {
+  const admin = await requireAdmin();
+
+  const request = await prisma.serviceRequest.findUnique({
+    where: { id: requestId },
+    select: { id: true },
+  });
+
+  if (!request) {
+    throw new Error("الطلب غير موجود");
+  }
+
+  await prisma.serviceRequest.update({
+    where: { id: request.id },
+    data: {
+      status: "CANCELED",
+      handledAt: new Date(),
+      handledById: admin.id,
+      adminNote: adminNote || "تم رفض الطلب",
+    },
+  });
+
+  revalidatePath("/admin/service-requests");
 }

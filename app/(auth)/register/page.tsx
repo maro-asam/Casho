@@ -192,7 +192,7 @@ export default function RegisterRoute() {
                     width={56}
                     height={56}
                     priority
-                    className="rounded-md"
+                    className="rounded-lg"
                   />
                 </Link>
 
@@ -218,7 +218,7 @@ export default function RegisterRoute() {
                       <div className="flex items-center gap-2">
                         <div
                           className={[
-                            "flex size-10 items-center justify-center rounded-md border bg-background transition-colors",
+                            "flex size-10 items-center justify-center rounded-lg border bg-background transition-colors",
                             isDone
                               ? "border-primary bg-primary text-primary-foreground"
                               : isActive
@@ -528,7 +528,7 @@ export default function RegisterRoute() {
 
             <div className="absolute inset-0 bg-linear-to-tr from-black/10 via-transparent to-primary/10" />
 
-            <div className="absolute bottom-6 left-6 right-6 rounded-md border border-card/20 bg-card/70 p-4 backdrop-blur-md">
+            <div className="absolute bottom-6 left-6 right-6 rounded-lg border border-card/20 bg-card/70 p-4 backdrop-blur-md">
               <p className="text-sm font-semibold text-foreground">
                 افتح متجرك وابدأ البيع بشكل منظم
               </p>

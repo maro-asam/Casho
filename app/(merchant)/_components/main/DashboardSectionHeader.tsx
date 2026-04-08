@@ -26,14 +26,14 @@ export default function DashboardSectionHeader({
     <Card className="flex flex-col gap-4 p-6 shadow-sm md:flex-row md:items-center md:justify-between">
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Icon className="size-5" />
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
 
           {badge !== undefined && (
-            <Badge variant="secondary" className="rounded-md px-3 py-1">
+            <Badge variant="secondary" className="rounded-lg px-3 py-1">
               {badge}
             </Badge>
           )}
@@ -43,7 +43,7 @@ export default function DashboardSectionHeader({
       </div>
 
       {actionLabel && actionHref && (
-        <Button asChild className="rounded-md">
+        <Button asChild className="rounded-lg">
           <Link href={actionHref}>{actionLabel}</Link>
         </Button>
       )}
