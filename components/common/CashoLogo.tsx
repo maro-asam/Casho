@@ -18,7 +18,7 @@ const CashoLogo = ({
     <div className={cn("flex items-center gap-2", className)}>
       <div
         className={cn(
-          "flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground ",
+          "flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground ",
           iconClassName,
         )}
       >
@@ -27,7 +27,7 @@ const CashoLogo = ({
           alt="Casho Logo"
           width={36}
           height={36}
-          className="rounded-lg"
+          className="rounded-xl"
         />
       </div>
 

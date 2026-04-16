@@ -13,11 +13,11 @@ export default function NotFound() {
             <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-primary/5" />
 
             <div className="relative flex flex-col items-center px-6 py-14 text-center sm:px-10">
-              <div className="mb-6 flex size-20 items-center justify-center rounded-lg bg-primary/10 ring-8 ring-primary/5">
+              <div className="mb-6 flex size-20 items-center justify-center rounded-xl bg-primary/10 ring-8 ring-primary/5">
                 <SearchX className="size-10 text-primary" />
               </div>
 
-              <div className="mb-3 inline-flex items-center rounded-lg border border-border/60 bg-muted/50 px-4 py-1 text-sm font-medium text-muted-foreground">
+              <div className="mb-3 inline-flex items-center rounded-xl border border-border/60 bg-muted/50 px-4 py-1 text-sm font-medium text-muted-foreground">
                 Error 404
               </div>
 
@@ -62,8 +62,8 @@ export default function NotFound() {
                 </div>
               </div>
 
-              <div className="pointer-events-none absolute -left-16 top-10 h-32 w-32 rounded-lg bg-primary/10 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-lg bg-primary/10 blur-3xl" />
+              <div className="pointer-events-none absolute -left-16 top-10 h-32 w-32 rounded-xl bg-primary/10 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-xl bg-primary/10 blur-3xl" />
             </div>
           </CardContent>
         </Card>

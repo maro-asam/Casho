@@ -352,7 +352,7 @@ const DashboardStats = async () => {
                 </div>
 
                 <div
-                  className={`flex size-11 items-center justify-center rounded-lg ${stat.iconWrap}`}
+                  className={`flex size-11 items-center justify-center rounded-xl ${stat.iconWrap}`}
                 >
                   <Icon className={`size-5 ${stat.iconColor}`} />
                 </div>
@@ -360,7 +360,7 @@ const DashboardStats = async () => {
 
               <div className="flex items-center justify-between gap-3">
                 <div
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold ${
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-semibold ${
                     isPositive
                       ? stat.trendPositive
                       : "bg-rose-500/10 text-rose-600"

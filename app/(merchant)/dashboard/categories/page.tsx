@@ -41,7 +41,7 @@ export default async function CategoriesPage({
       <div className="p-6" dir="rtl">
         <Card className="border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
               <FolderOpen className="size-6 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
@@ -93,7 +93,7 @@ export default async function CategoriesPage({
       {categories.length === 0 ? (
         <Card className="border-dashed shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
@@ -121,7 +121,7 @@ export default async function CategoriesPage({
               >
                 <CardContent className="flex h-full flex-col justify-between gap-4 p-5">
                   <div className="flex min-w-0 items-start gap-4">
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted">
                       {cat.image ? (
                         <Image
                           src={cat.image}
@@ -148,7 +148,7 @@ export default async function CategoriesPage({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                        <span className="truncate rounded-lg bg-muted px-2 py-1 font-mono text-xs">
+                        <span className="truncate rounded-xl bg-muted px-2 py-1 font-mono text-xs">
                           {cat.slug}
                         </span>
                         <Badge variant="outline">Slug</Badge>

@@ -23,6 +23,7 @@ import Image from "next/image";
 import MobileNavMenu from "./MobileNavMenu";
 import AnimatedNavbarShell from "./AnimatedNavbarShell";
 import NavbarDesktopLinks from "./NavbarDesktopLinks";
+import { ModeToggle } from "@/theme/ModeToggle";
 
 const Navbar = async () => {
   const user = await getCurrentUser();
@@ -42,7 +43,7 @@ const Navbar = async () => {
                     width={55}
                     height={55}
                     alt="Casho logo"
-                    className="rounded-lg"
+                    className="rounded-xl"
                   />
                 </div>
 
@@ -68,10 +69,10 @@ const Navbar = async () => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="h-11 rounded-lg border-border/10 px-3 transition-all duration-300"
+                      className="h-11 rounded-xl border-border/10 px-3 transition-all duration-300"
                     >
                       <div className="flex items-center gap-2">
-                        <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary transition-transform duration-300">
+                        <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300">
                           <StoreIcon className="size-4" />
                         </div>
 
@@ -91,7 +92,7 @@ const Navbar = async () => {
 
                   <DropdownMenuContent
                     align="start"
-                    className="w-64 rounded-lg border-border/60 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
+                    className="w-64 rounded-xl border-border/60 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
                   >
                     <div className="px-2 py-2 text-right">
                       <p className="text-sm font-bold">
@@ -106,7 +107,7 @@ const Navbar = async () => {
 
                     <DropdownMenuItem
                       asChild
-                      className="cursor-pointer rounded-lg"
+                      className="cursor-pointer rounded-xl"
                     >
                       <Link
                         href="/dashboard"
@@ -120,7 +121,7 @@ const Navbar = async () => {
                     {store?.slug && (
                       <DropdownMenuItem
                         asChild
-                        className="cursor-pointer rounded-lg"
+                        className="cursor-pointer rounded-xl"
                       >
                         <Link
                           href={`/store/${store.slug}`}
@@ -137,7 +138,7 @@ const Navbar = async () => {
                     <form action={LogoutAction}>
                       <button
                         type="submit"
-                        className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm outline-none transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-sm outline-none transition-colors hover:bg-destructive/10 hover:text-destructive"
                       >
                         <span>تسجيل الخروج</span>
                         <LogOut className="size-4" />
@@ -146,10 +147,11 @@ const Navbar = async () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <div className="space-x-1">
+                <div className="flex items-center gap-1">
+                  <ModeToggle />
                   <Button
                     asChild
-                    className="h-11 rounded-lg px-5 text-sm font-bold shadow-md shadow-primary/20 transition-all duration-300 "
+                    className="h-11 rounded-xl px-5 text-sm font-bold shadow-md shadow-primary/20 transition-all duration-300 "
                   >
                     <Link href="/register" className="group">
                       ابدأ دلوقتي
@@ -160,7 +162,7 @@ const Navbar = async () => {
                   <Button
                     asChild
                     variant={`outline`}
-                    className="h-11 rounded-lg px-5 text-sm transition-all duration-300 "
+                    className="h-11 rounded-xl px-5 text-sm transition-all duration-300 "
                   >
                     <Link href="/login" className="group">
                       تسجيل دخول

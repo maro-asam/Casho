@@ -166,21 +166,21 @@ function ServiceCard({
   return (
     <Card
       dir="rtl"
-      className="group h-full rounded-lg border-border/70 bg-background shadow-sm transition-all"
+      className="group h-full rounded-xl border-border/70 bg-background shadow-sm transition-all"
     >
       <CardHeader className="space-y-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Icon className="size-5" />
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
             {service.popular && (
-              <Badge className="rounded-lg px-3 py-1 text-xs">
+              <Badge className="rounded-xl px-3 py-1 text-xs">
                 الأكثر طلبًا
               </Badge>
             )}
-            <Badge variant="secondary" className="rounded-lg px-3 py-1 text-xs">
+            <Badge variant="secondary" className="rounded-xl px-3 py-1 text-xs">
               خدمة إضافية
             </Badge>
           </div>
@@ -197,7 +197,7 @@ function ServiceCard({
       </CardHeader>
 
       <CardContent className="space-y-5">
-        <div className="grid grid-cols-1 gap-3 rounded-lg border border-border/60 bg-muted/30 p-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-2">
           <div className="space-y-1 text-right">
             <p className="text-xs text-muted-foreground">السعر</p>
             <p className="font-semibold">{service.price}</p>
@@ -250,7 +250,7 @@ function SectionHeader({
   return (
     <div
       dir="rtl"
-      className="mb-6 flex flex-col gap-4 rounded-lg border border-border/60 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
+      className="mb-6 flex flex-col gap-4 rounded-xl border border-border/60 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
     >
       <div className="text-right">
         <h2 className="text-2xl font-bold text-primary">{title}</h2>
@@ -259,7 +259,7 @@ function SectionHeader({
         </p>
       </div>
 
-      <div className="flex size-14 shrink-0 items-center justify-center self-end rounded-lg bg-primary/10 text-primary md:self-auto">
+      <div className="flex size-14 shrink-0 items-center justify-center self-end rounded-xl bg-primary/10 text-primary md:self-auto">
         <Icon className="size-6" />
       </div>
     </div>
@@ -269,9 +269,9 @@ function SectionHeader({
 const ServicesRoute = () => {
   return (
     <main className="wrapper py-3" dir="rtl">
-      <section className="relative overflow-hidden rounded-lg border border-border/80 px-6 py-8 shadow-sm md:px-10 ">
+      <section className="relative overflow-hidden rounded-xl border border-border/80 px-6 py-8 shadow-sm md:px-10 ">
         <div className="relative mx-auto max-w-4xl text-center">
-          {/* <Badge className="mb-4 rounded-lg px-4 py-3 text-sm">
+          {/* <Badge className="mb-4 rounded-xl px-4 py-3 text-sm">
             <Sparkles className="size-4" />
             خدمات إضافية تساعدك تبيع أكتر
           </Badge> */}
@@ -348,7 +348,7 @@ const ServicesRoute = () => {
               </p>
             </div>
 
-            <Button size="lg" className="h-12 rounded-lg px-6">
+            <Button size="lg" className="h-12 rounded-xl px-6">
               اطلب خدمة مخصصة
               <ArrowUpLeft className="ms-2 size-4" />
             </Button>

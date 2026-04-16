@@ -146,26 +146,26 @@ export default async function ProductDetailsRoute({
           <div className="order-2 space-y-6 xl:order-2">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="secondary" className="rounded-lg px-3 py-1">
+                <Badge variant="secondary" className="rounded-xl px-3 py-1">
                   <FolderOpen className="ml-1 size-4" />
                   {product.category.name}
                 </Badge>
 
                 {product.isFeatured && (
-                  <Badge className="rounded-lg px-3 py-1">
+                  <Badge className="rounded-xl px-3 py-1">
                     <Star className="ml-1 size-4" />
                     منتج مميز
                   </Badge>
                 )}
 
                 {hasDiscount && (
-                  <Badge className="rounded-lg px-3 py-1">
+                  <Badge className="rounded-xl px-3 py-1">
                     خصم {discountPercentage}%
                   </Badge>
                 )}
 
                 {product.brand && (
-                  <Badge variant="outline" className="rounded-lg px-3 py-1">
+                  <Badge variant="outline" className="rounded-xl px-3 py-1">
                     {product.brand}
                   </Badge>
                 )}
@@ -199,7 +199,7 @@ export default async function ProductDetailsRoute({
             <Separator />
 
             <div className="grid gap-4">
-              <Card className="rounded-lg shadow-sm">
+              <Card className="rounded-xl shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Package className="size-4 text-primary" />
@@ -277,7 +277,7 @@ export default async function ProductDetailsRoute({
                           <Badge
                             key={size}
                             variant="outline"
-                            className="rounded-lg"
+                            className="rounded-xl"
                           >
                             {size}
                           </Badge>
@@ -294,7 +294,7 @@ export default async function ProductDetailsRoute({
                           <Badge
                             key={color}
                             variant="outline"
-                            className="rounded-lg"
+                            className="rounded-xl"
                           >
                             {color}
                           </Badge>
@@ -340,7 +340,7 @@ export default async function ProductDetailsRoute({
                     />
                   </>
                 ) : (
-                  <Button size="lg" disabled className="rounded-lg">
+                  <Button size="lg" disabled className="rounded-xl">
                     غير متوفر حاليًا
                   </Button>
                 )}
@@ -358,7 +358,7 @@ export default async function ProductDetailsRoute({
               </p>
             </div>
 
-            <Button asChild variant="outline" className="rounded-lg">
+            <Button asChild variant="outline" className="rounded-xl">
               <Link
                 href={`/store/${store.slug}/categories/${product.category.slug}`}
               >
@@ -368,7 +368,7 @@ export default async function ProductDetailsRoute({
           </div>
 
           {relatedProducts.length === 0 ? (
-            <Card className="rounded-lg border-dashed shadow-sm">
+            <Card className="rounded-xl border-dashed shadow-sm">
               <CardContent className="flex min-h-45 flex-col items-center justify-center gap-3 p-6 text-center">
                 <Package className="size-10 text-muted-foreground" />
                 <div className="space-y-1">

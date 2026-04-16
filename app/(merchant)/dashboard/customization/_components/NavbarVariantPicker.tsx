@@ -75,19 +75,19 @@ export default function NavbarVariantPicker({
                     </p>
                   </div>
 
-                  <div className="rounded-lg border bg-muted/30 p-3">
+                  <div className="rounded-xl border bg-muted/30 p-3">
                     {item.value === "default" && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <div className="h-8 w-16 rounded-lg bg-primary/20" />
+                          <div className="h-8 w-16 rounded-xl bg-primary/20" />
                           <div className="flex gap-2">
                             <div className="h-3 w-12 rounded bg-foreground/10" />
                             <div className="h-3 w-12 rounded bg-foreground/10" />
                             <div className="h-3 w-12 rounded bg-foreground/10" />
                           </div>
-                          <div className="h-8 w-10 rounded-lg bg-foreground/10" />
+                          <div className="h-8 w-10 rounded-xl bg-foreground/10" />
                         </div>
-                        <div className="h-8 rounded-lg bg-foreground/5" />
+                        <div className="h-8 rounded-xl bg-foreground/5" />
                       </div>
                     )}
 
@@ -99,19 +99,19 @@ export default function NavbarVariantPicker({
                             <div className="h-3 w-10 rounded bg-foreground/10" />
                           </div>
                           <div className="mx-auto h-8 w-8 rounded-full bg-primary/20" />
-                          <div className="mr-auto h-8 w-16 rounded-lg bg-foreground/10" />
+                          <div className="mr-auto h-8 w-16 rounded-xl bg-foreground/10" />
                         </div>
-                        <div className="h-8 rounded-lg bg-foreground/5" />
+                        <div className="h-8 rounded-xl bg-foreground/5" />
                       </div>
                     )}
 
                     {item.value === "compact" && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-lg bg-foreground/10" />
-                          <div className="h-8 w-8 rounded-lg bg-primary/20" />
-                          <div className="h-8 flex-1 rounded-lg bg-foreground/5" />
-                          <div className="h-8 w-14 rounded-lg bg-foreground/10" />
+                          <div className="h-8 w-8 rounded-xl bg-foreground/10" />
+                          <div className="h-8 w-8 rounded-xl bg-primary/20" />
+                          <div className="h-8 flex-1 rounded-xl bg-foreground/5" />
+                          <div className="h-8 w-14 rounded-xl bg-foreground/10" />
                         </div>
                       </div>
                     )}

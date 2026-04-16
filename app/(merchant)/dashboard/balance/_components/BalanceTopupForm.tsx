@@ -127,7 +127,7 @@ export default function BalanceTopupForm({
                   key={item.value}
                   type="button"
                   onClick={() => setSelectedMethod(item.value)}
-                  className={`rounded-lg border p-4 text-right transition-all ${
+                  className={`rounded-xl border p-4 text-right transition-all ${
                     isActive
                       ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                       : "border-border/60 hover:border-primary/40 hover:bg-muted/40"
@@ -156,7 +156,7 @@ export default function BalanceTopupForm({
                 key={preset}
                 type="button"
                 variant="outline"
-                className="rounded-lg"
+                className="rounded-xl"
                 onClick={() => handlePresetClick(preset)}
               >
                 {formatPrice(preset)}
@@ -172,7 +172,7 @@ export default function BalanceTopupForm({
               value={amountInput}
               onChange={(e) => setAmountInput(e.target.value)}
               placeholder="اكتب المبلغ بالجنيه"
-              className="h-12 rounded-lg"
+              className="h-12 rounded-xl"
             />
             <p className="text-sm text-muted-foreground">
               الحد الأدنى للشحن 10 جنيه.
@@ -190,7 +190,7 @@ export default function BalanceTopupForm({
               value={transferRef}
               onChange={(e) => setTransferRef(e.target.value)}
               placeholder="مثال: TXN123456"
-              className="h-12 rounded-lg"
+              className="h-12 rounded-xl"
             />
           </div>
 
@@ -201,7 +201,7 @@ export default function BalanceTopupForm({
               value={receiptImage}
               onChange={(e) => setReceiptImage(e.target.value)}
               placeholder="https://..."
-              className="h-12 rounded-lg"
+              className="h-12 rounded-xl"
             />
           </div>
         </div>
@@ -213,12 +213,12 @@ export default function BalanceTopupForm({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="مثال: تم التحويل من رقم 010..."
-            className="min-h-[120px] rounded-lg"
+            className="min-h-[120px] rounded-xl"
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
+          <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
             <div className="mb-2 flex items-center gap-2">
               <Wallet className="size-4 text-primary" />
               <p className="text-sm text-muted-foreground">
@@ -228,7 +228,7 @@ export default function BalanceTopupForm({
             <p className="text-lg font-bold">{formatPrice(amountInPiasters)}</p>
           </div>
 
-          <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
+          <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
             <div className="mb-2 flex items-center gap-2">
               <Receipt className="size-4 text-primary" />
               <p className="text-sm text-muted-foreground">
@@ -240,7 +240,7 @@ export default function BalanceTopupForm({
             </p>
           </div>
 
-          <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
+          <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
             <div className="mb-2 flex items-center gap-2">
               <Receipt className="size-4 text-primary" />
               <p className="text-sm text-muted-foreground">
@@ -252,7 +252,7 @@ export default function BalanceTopupForm({
         </div>
 
         {selectedMethodData && (
-          <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4">
+          <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4">
             <p className="mb-1 font-semibold">تعليمات التحويل</p>
             <p className="text-sm leading-6 text-muted-foreground">
               {selectedMethodData.instructions}
@@ -265,7 +265,7 @@ export default function BalanceTopupForm({
             type="button"
             onClick={handleSubmit}
             disabled={isPending}
-            className="h-12 flex-1 rounded-lg"
+            className="h-12 flex-1 rounded-xl"
           >
             {isPending ? (
               <>
@@ -280,7 +280,7 @@ export default function BalanceTopupForm({
           <Button
             type="button"
             variant="outline"
-            className="h-12 rounded-lg"
+            className="h-12 rounded-xl"
             onClick={() => router.push("/dashboard/balance")}
             disabled={isPending}
           >

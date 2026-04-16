@@ -23,9 +23,9 @@ export default function ProductGallery({
 
   return (
     <div className="order-1 space-y-4 xl:order-1">
-      <div className="h-fit overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
+      <div className="h-fit overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
         <div className="p-4">
-          <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted/30">
+          <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/30">
             <Image
               src={selectedImage}
               alt={productName}
@@ -47,7 +47,7 @@ export default function ProductGallery({
                 key={`${img}-${index}`}
                 type="button"
                 onClick={() => setSelectedImage(img)}
-                className={`relative h-28 w-28 overflow-hidden rounded-lg border bg-muted/30 transition cursor-pointer ${
+                className={`relative h-28 w-28 overflow-hidden rounded-xl border bg-muted/30 transition cursor-pointer ${
                   isActive
                     ? "ring-1 ring-primary border-primary"
                     : "opacity-70 hover:opacity-100"

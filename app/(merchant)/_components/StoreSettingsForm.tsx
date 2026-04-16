@@ -197,7 +197,7 @@ export default function StoreSettingsForm({ store }: Props) {
                     <p className="text-muted-foreground">رابط المتجر هيبقى:</p>
                     <div
                       dir="ltr"
-                      className="rounded-lg border bg-primary/10 px-3 py-2 font-medium"
+                      className="rounded-xl border bg-primary/10 px-3 py-2 font-medium"
                     >
                       <span className="text-primary text-lg">{storeNameStatus.suggestedSlug || store.slug}</span>.casho.store
                     </div>
@@ -209,14 +209,14 @@ export default function StoreSettingsForm({ store }: Props) {
                     </p>
                     <div
                       dir="ltr"
-                      className="rounded-lg border bg-primary/10 px-3 py-2"
+                      className="rounded-xl border bg-primary/10 px-3 py-2"
                     >
                       {storeNameStatus.normalizedSlug || store.slug}
                     </div>
                   </div>
 
                   {!storeNameStatus.available && (
-                    <div className="flex items-start gap-2 rounded-lg border border-dashed bg-background px-3 py-2 text-sm">
+                    <div className="flex items-start gap-2 rounded-xl border border-dashed bg-background px-3 py-2 text-sm">
                       <Sparkles className="mt-0.5 size-4 text-primary" />
                       <p className="text-muted-foreground">
                         الاسم ده متاخد، والبديل المتاح:
@@ -261,7 +261,7 @@ export default function StoreSettingsForm({ store }: Props) {
             )}
 
             {settings?.logo && (
-              <div className="rounded-lg border p-3">
+              <div className="rounded-xl border p-3">
                 <p className="mb-2 text-sm text-muted-foreground">
                   معاينة اللوجو
                 </p>
@@ -270,7 +270,7 @@ export default function StoreSettingsForm({ store }: Props) {
                   height={1000}
                   src={settings.logo}
                   alt="Logo Preview"
-                  className="h-20 w-20 rounded-lg border object-cover"
+                  className="h-20 w-20 rounded-xl border object-cover"
                 />
               </div>
             )}
@@ -369,7 +369,7 @@ export default function StoreSettingsForm({ store }: Props) {
                   ) as HTMLInputElement | null;
                   if (input) input.value = e.target.value;
                 }}
-                className="h-10 w-14 cursor-pointer rounded-lg border"
+                className="h-10 w-14 cursor-pointer rounded-xl border"
               />
             </div>
           </div>
@@ -395,7 +395,7 @@ export default function StoreSettingsForm({ store }: Props) {
                   ) as HTMLInputElement | null;
                   if (input) input.value = e.target.value;
                 }}
-                className="h-10 w-14 cursor-pointer rounded-lg border"
+                className="h-10 w-14 cursor-pointer rounded-xl border"
               />
             </div>
           </div>

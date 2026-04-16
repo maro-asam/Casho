@@ -51,7 +51,7 @@ export default function NewCouponForm() {
   }, [state, router]);
 
   return (
-    <Card className="rounded-lg shadow-sm">
+    <Card className="rounded-xl shadow-sm">
       <CardContent className="p-6">
         <form action={formAction} className="space-y-6">
           <FieldGroup className="grid gap-5 md:grid-cols-2">

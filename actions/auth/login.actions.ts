@@ -55,7 +55,7 @@ export async function LoginAction(
 
     return {
       success: true,
-      message: "تم تسجيل الدخول بنجاح",
+      message: "تم تسجيل الدخول بنجاح جاري التحويل...",
     };
   } catch (error) {
     console.error("LoginAction error:", error);

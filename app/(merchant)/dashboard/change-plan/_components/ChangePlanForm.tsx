@@ -172,7 +172,7 @@ export default function ChangePlanForm({
                       </CardTitle>
                     </div>
 
-                    <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="size-5" />
                     </div>
                   </div>
@@ -207,21 +207,21 @@ export default function ChangePlanForm({
 
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="rounded-xl border bg-muted/30 p-4">
                 <p className="mb-1 text-sm text-muted-foreground">
                   الباقة الحالية
                 </p>
                 <p className="font-semibold">{currentPlanLabel}</p>
               </div>
 
-              <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="rounded-xl border bg-muted/30 p-4">
                 <p className="mb-1 text-sm text-muted-foreground">
                   الباقة الجديدة
                 </p>
                 <p className="font-semibold">{selectedPlanObject.title}</p>
               </div>
 
-              <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="rounded-xl border bg-muted/30 p-4">
                 <p className="mb-1 text-sm text-muted-foreground">
                   السعر الحالي
                 </p>
@@ -230,7 +230,7 @@ export default function ChangePlanForm({
                 </p>
               </div>
 
-              <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="rounded-xl border bg-muted/30 p-4">
                 <p className="mb-1 text-sm text-muted-foreground">
                   السعر بعد التغيير
                 </p>
@@ -240,7 +240,7 @@ export default function ChangePlanForm({
               </div>
             </div>
 
-            <div className="rounded-lg border border-dashed p-4">
+            <div className="rounded-xl border border-dashed p-4">
               <p className="text-sm leading-6 text-muted-foreground">
                 {priceDifference === 0
                   ? "أنت مختار نفس الباقة الحالية، ومفيش فرق في السعر."
@@ -250,7 +250,7 @@ export default function ChangePlanForm({
               </p>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="flex items-center justify-between rounded-xl border p-4">
               <div className="space-y-1">
                 <Label htmlFor="autoRenew" className="text-sm font-medium">
                   التجديد التلقائي
@@ -275,14 +275,14 @@ export default function ChangePlanForm({
           </CardHeader>
 
           <CardContent className="space-y-4">
-            <div className="rounded-lg border bg-muted/30 p-4">
+            <div className="rounded-xl border bg-muted/30 p-4">
               <p className="mb-1 text-sm text-muted-foreground">
                 الرصيد الحالي
               </p>
               <p className="font-semibold">{formatPrice(currentBalance)}</p>
             </div>
 
-            <div className="rounded-lg border bg-muted/30 p-4">
+            <div className="rounded-xl border bg-muted/30 p-4">
               <p className="mb-1 text-sm text-muted-foreground">
                 المطلوب للتجديد القادم
               </p>
@@ -293,7 +293,7 @@ export default function ChangePlanForm({
 
             <div
               className={cn(
-                "rounded-lg border p-4 text-sm",
+                "rounded-xl border p-4 text-sm",
                 enoughForRenewal
                   ? "border-emerald-200 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                   : "border-amber-200 bg-amber-500/10 text-amber-700 dark:text-amber-400",

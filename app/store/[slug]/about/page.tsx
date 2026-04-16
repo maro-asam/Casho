@@ -57,7 +57,7 @@ export default async function AboutStoreRoute({
         className="min-h-screen flex items-center justify-center px-4"
         dir="rtl"
       >
-        <Card className="w-full max-w-md rounded-lg border-border/60 shadow-sm">
+        <Card className="w-full max-w-md rounded-xl border-border/60 shadow-sm">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">المتجر غير مفعل</CardTitle>
             <CardDescription>
@@ -122,7 +122,7 @@ export default async function AboutStoreRoute({
             </h1>
           </div>
 
-          <Button asChild variant="outline" className="rounded-lg">
+          <Button asChild variant="outline" className="rounded-xl">
             <Link
               href={`/store/${store.slug}`}
               className="flex items-center gap-2"
@@ -134,7 +134,7 @@ export default async function AboutStoreRoute({
         </div>
 
         {/* hero */}
-        <section className="relative overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
+        <section className="relative overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
           <div className="absolute inset-0 " />
 
           {settings?.coverImage ? (
@@ -154,7 +154,7 @@ export default async function AboutStoreRoute({
 
           <div className="relative px-5 md:px-8 pb-6">
             <div className="-mt-12 md:-mt-14 flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
-              <div className="relative size-24 md:size-28 overflow-hidden rounded-lg border-4 border-background bg-muted shadow-md">
+              <div className="relative size-24 md:size-28 overflow-hidden rounded-xl border-4 border-background bg-muted shadow-md">
                 {settings?.logo ? (
                   <Image
                     src={settings.logo}
@@ -174,7 +174,7 @@ export default async function AboutStoreRoute({
                   <h2 className="text-2xl md:text-3xl text-white font-bold">
                     {store.name}
                   </h2>
-                  <Badge variant="secondary" className="rounded-lg px-3 py-1">
+                  <Badge variant="secondary" className="rounded-xl px-3 py-1">
                     متجر نشط
                   </Badge>
                 </div>
@@ -184,7 +184,7 @@ export default async function AboutStoreRoute({
                 </p>
 
                 {settings?.announcementText && (
-                  <div className="inline-flex max-w-full items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2 text-sm text-primary">
+                  <div className="inline-flex max-w-full items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2 text-sm text-primary">
                     <Megaphone className="size-4 shrink-0" />
                     <span className="truncate md:whitespace-normal">
                       {settings.announcementText}
@@ -198,9 +198,9 @@ export default async function AboutStoreRoute({
 
         {/* stats */}
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Card className="rounded-lg border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Package className="size-5 text-primary" />
               </div>
               <div>
@@ -210,9 +210,9 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Store className="size-5 text-primary" />
               </div>
               <div>
@@ -222,9 +222,9 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Megaphone className="size-5 text-primary" />
               </div>
               <div>
@@ -234,9 +234,9 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Palette className="size-5 text-primary" />
               </div>
               <div>
@@ -249,7 +249,7 @@ export default async function AboutStoreRoute({
 
         {/* content grid */}
         <section className="grid gap-6 lg:grid-cols-1">
-          {/* <Card className="lg:col-span-2 rounded-lg border-border/60 shadow-sm">
+          {/* <Card className="lg:col-span-2 rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>نبذة عن المتجر</CardTitle>
               <CardDescription>
@@ -262,9 +262,9 @@ export default async function AboutStoreRoute({
               {settings?.primaryColor || settings?.secondaryColor ? (
                 <div className="flex flex-wrap gap-3 pt-2">
                   {settings?.primaryColor && (
-                    <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                    <div className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
                       <span
-                        className="size-4 rounded-lg border"
+                        className="size-4 rounded-xl border"
                         style={{ backgroundColor: settings.primaryColor }}
                       />
                       اللون الأساسي: {settings.primaryColor}
@@ -272,9 +272,9 @@ export default async function AboutStoreRoute({
                   )}
 
                   {settings?.secondaryColor && (
-                    <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                    <div className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
                       <span
-                        className="size-4 rounded-lg border"
+                        className="size-4 rounded-xl border"
                         style={{ backgroundColor: settings.secondaryColor }}
                       />
                       اللون الثانوي: {settings.secondaryColor}
@@ -285,7 +285,7 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card> */}
 
-          <Card className="rounded-lg border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>تواصل مع المتجر</CardTitle>
               <CardDescription>
@@ -301,10 +301,10 @@ export default async function AboutStoreRoute({
                       key={item.label}
                       href={item.href!}
                       target="_blank"
-                      className="flex items-center justify-between gap-3 rounded-lg border px-4 py-3 transition hover:bg-muted/50"
+                      className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition hover:bg-muted/50"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
                           <Icon className="size-4 text-primary" />
                         </div>
                         <div className="min-w-0">
@@ -320,7 +320,7 @@ export default async function AboutStoreRoute({
                   );
                 })
               ) : (
-                <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
                   لسه مفيش بيانات تواصل مضافة للمتجر.
                 </div>
               )}

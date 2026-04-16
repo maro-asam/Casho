@@ -35,7 +35,7 @@ export default function Footer() {
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Store className="size-5" />
               </div>
 
@@ -59,7 +59,7 @@ export default function Footer() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="flex size-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
+                    className="flex size-10 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
                   >
                     <Icon className="size-4.5" />
                   </Link>

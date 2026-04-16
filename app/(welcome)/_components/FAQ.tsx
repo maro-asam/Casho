@@ -23,7 +23,7 @@ export default function FAQSection() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-flex items-center gap-2 rounded-lg border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
             <HelpCircle className="size-4" />
             الأسئلة الشائعة
           </span>
@@ -46,14 +46,14 @@ export default function FAQSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.55 }}
-          className="mx-auto mt-14 max-w-4xl rounded-lg border border-border bg-card p-3 sm:p-4 md:p-5"
+          className="mx-auto mt-14 max-w-4xl rounded-xl border border-border bg-card p-3 sm:p-4 md:p-5"
         >
           <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="overflow-hidden rounded-lg border border-border bg-background px-5"
+                className="overflow-hidden rounded-xl border border-border bg-background px-5"
               >
                 <AccordionTrigger className="text-right text-base font-semibold leading-7 text-foreground hover:no-underline">
                   {faq.question}

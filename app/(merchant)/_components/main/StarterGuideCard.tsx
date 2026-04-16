@@ -102,7 +102,7 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
                     key={step.id}
                     href={step.href}
                     className={cn(
-                      "group border px-3 py-3 transition rounded-lg",
+                      "group border px-3 py-3 transition rounded-xl",
                       step.completed
                         ? "border-emerald-200 bg-background/70"
                         : isNext
@@ -113,7 +113,7 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
                     <div className="flex items-start gap-3">
                       <div
                         className={cn(
-                          "flex size-9 shrink-0 items-center justify-center border rounded-lg",
+                          "flex size-9 shrink-0 items-center justify-center border rounded-xl",
                           step.completed
                             ? "border-emerald-200 bg-emerald-100 dark:bg-background text-emerald-700"
                             : isNext

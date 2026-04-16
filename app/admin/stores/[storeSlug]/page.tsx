@@ -171,7 +171,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
   return (
     <div className="space-y-6" dir="rtl">
       {/* HEADER */}
-      <div className="rounded-lg border p-6">
+      <div className="rounded-xl border p-6">
         <h1 className="text-3xl font-bold">{store.name}</h1>
         <p className="text-sm text-muted-foreground">{store.user.email}</p>
         <p className="text-sm text-muted-foreground">Slug: {store.slug}</p>

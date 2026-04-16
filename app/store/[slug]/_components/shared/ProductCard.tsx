@@ -53,13 +53,13 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
             />
 
             <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-all duration-300 group-hover:opacity-100">
-              <div className="flex items-center gap-2 rounded-lg bg-background/95 px-4 py-2 text-sm font-medium text-foreground shadow-md">
+              <div className="flex items-center gap-2 rounded-xl bg-background/95 px-4 py-2 text-sm font-medium text-foreground shadow-md">
                 <Eye className="size-4" />
                 عرض المنتج
               </div>
 
               {hasDiscount && (
-                <Badge className="rounded-lg px-3 py-1">
+                <Badge className="rounded-xl px-3 py-1">
                   خصم {discountPercentage}%
                 </Badge>
               )}
@@ -69,7 +69,7 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
 
         <button
           type="button"
-          className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-lg bg-background/95 shadow-sm"
+          className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-xl bg-background/95 shadow-sm"
         >
           <Heart className="size-4" />
         </button>

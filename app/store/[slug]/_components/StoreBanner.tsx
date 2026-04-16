@@ -49,7 +49,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
 
         <Badge
           variant="default"
-          className="w-fit rounded-lg p-4 bg-primary/10 text-primary text-xs sm:text-sm"
+          className="w-fit rounded-xl p-4 bg-primary/10 text-primary text-xs sm:text-sm"
         >
           <Sparkles className="me-1 size-4" />
           عروض حصرية
@@ -72,7 +72,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
             <CarouselContent>
               {heroBanners.map((banner) => (
                 <CarouselItem key={banner.id}>
-                  <div className="relative h-55 w-full overflow-hidden rounded-lg sm:h-70 md:h-85 xl:h-105">
+                  <div className="relative h-55 w-full overflow-hidden rounded-xl sm:h-70 md:h-85 xl:h-105">
                     <Image
                       src={banner.image || "/placeholder-banner.jpg"}
                       alt={banner.title}
@@ -86,7 +86,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
                     <div className="absolute inset-0 flex items-end">
                       <div className="w-full p-4 sm:p-6 md:p-8 xl:p-10">
                         <div className="max-w-2xl space-y-3 text-white">
-                          <Badge className="rounded-lg bg-white/15 text-white hover:bg-white/15">
+                          <Badge className="rounded-xl bg-white/15 text-white hover:bg-white/15">
                             عرض خاص
                           </Badge>
 
@@ -103,7 +103,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
                             <Button
                               asChild
                               size="lg"
-                              className="rounded-lg px-5 sm:px-6"
+                              className="rounded-xl px-5 sm:px-6"
                             >
                               <Link
                                 href={`/store/${storeSlug}/categories`}
@@ -118,7 +118,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
                               asChild
                               size="lg"
                               variant="secondary"
-                              className="rounded-lg px-5 sm:px-6"
+                              className="rounded-xl px-5 sm:px-6"
                             >
                               <Link href={`/store/${storeSlug}`}>
                                 عرض المنتجات
@@ -140,7 +140,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
             {sideBanners.map((banner) => (
               <div
                 key={banner.id}
-                className="group relative h-42.5 w-full overflow-hidden rounded-lg sm:h-47.5 lg:h-52.5"
+                className="group relative h-42.5 w-full overflow-hidden rounded-xl sm:h-47.5 lg:h-52.5"
               >
                 <Image
                   src={banner.image || "/placeholder-banner.jpg"}
@@ -161,7 +161,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
                       asChild
                       size="sm"
                       variant="secondary"
-                      className="rounded-lg"
+                      className="rounded-xl"
                     >
                       <Link href={`/store/${storeSlug}/categories`}>
                         تسوق الآن

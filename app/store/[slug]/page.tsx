@@ -96,9 +96,9 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center" dir="rtl">
-        <Card className="w-full max-w-lg rounded-lg shadow-sm">
+        <Card className="w-full max-w-lg rounded-xl shadow-sm">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-lg bg-muted">
+            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-xl bg-muted">
               <StoreIcon className="size-7 text-muted-foreground" />
             </div>
             <CardTitle className="text-2xl">هذا المتجر غير مُفعّل</CardTitle>
@@ -127,9 +127,9 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
         <StoreCategories categories={store.categories} storeSlug={store.slug} />
 
         {store.products.length === 0 ? (
-          <Card className="rounded-lg border-dashed shadow-sm">
+          <Card className="rounded-xl border-dashed shadow-sm">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="mb-4 flex size-14 items-center justify-center rounded-lg bg-muted">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-muted">
                 <PackageOpen className="size-7 text-muted-foreground" />
               </div>
 

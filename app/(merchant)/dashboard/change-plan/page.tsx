@@ -94,7 +94,7 @@ export default async function ChangePlanRoute() {
       <div className="min-h-[calc(100vh-120px)] p-4 md:p-6" dir="rtl">
         <Card>
           <CardContent className="flex min-h-80 flex-col items-center justify-center gap-4 text-center">
-            <div className="flex size-14 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <ArrowRightLeft className="size-6" />
             </div>
 
@@ -185,7 +185,7 @@ export default async function ChangePlanRoute() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="rounded-xl border bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     حالة الاشتراك
                   </p>
@@ -194,7 +194,7 @@ export default async function ChangePlanRoute() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="rounded-xl border bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     نهاية الاشتراك
                   </p>
@@ -203,7 +203,7 @@ export default async function ChangePlanRoute() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="rounded-xl border bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     نهاية فترة السماح
                   </p>
@@ -212,7 +212,7 @@ export default async function ChangePlanRoute() {
                   </p>
                 </div>
 
-                <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="rounded-xl border bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     التجديد التلقائي
                   </p>
@@ -232,14 +232,14 @@ export default async function ChangePlanRoute() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="rounded-xl border bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     الرصيد الحالي
                   </p>
                   <p className="font-semibold">{formatPrice(store.balance)}</p>
                 </div>
 
-                <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="rounded-xl border bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     تكلفة التجديد الحالية
                   </p>
@@ -251,8 +251,8 @@ export default async function ChangePlanRoute() {
                 <div
                   className={
                     enoughForCurrentRenewal
-                      ? "rounded-lg border border-emerald-200 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-400"
-                      : "rounded-lg border border-amber-200 bg-amber-500/10 p-4 text-amber-700 dark:text-amber-400"
+                      ? "rounded-xl border border-emerald-200 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-400"
+                      : "rounded-xl border border-amber-200 bg-amber-500/10 p-4 text-amber-700 dark:text-amber-400"
                   }
                 >
                   <div className="flex items-center gap-2">

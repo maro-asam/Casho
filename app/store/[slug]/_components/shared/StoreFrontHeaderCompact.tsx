@@ -61,22 +61,22 @@ export default function StoreFrontHeaderCompact({
 
                   <div className="space-y-2 px-5 py-5">
                     <SheetClose asChild>
-                      <Link href={`/store/${storeSlug}`} className="block rounded-lg px-3 py-3 hover:bg-muted">
+                      <Link href={`/store/${storeSlug}`} className="block rounded-xl px-3 py-3 hover:bg-muted">
                         الرئيسية
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Link href={`/store/${storeSlug}/products`} className="block rounded-lg px-3 py-3 hover:bg-muted">
+                      <Link href={`/store/${storeSlug}/products`} className="block rounded-xl px-3 py-3 hover:bg-muted">
                         كل المنتجات
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Link href={`/store/${storeSlug}/categories`} className="block rounded-lg px-3 py-3 hover:bg-muted">
+                      <Link href={`/store/${storeSlug}/categories`} className="block rounded-xl px-3 py-3 hover:bg-muted">
                         التصنيفات
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Link href={`/store/${storeSlug}/about`} className="block rounded-lg px-3 py-3 hover:bg-muted">
+                      <Link href={`/store/${storeSlug}/about`} className="block rounded-xl px-3 py-3 hover:bg-muted">
                         عن المتجر
                       </Link>
                     </SheetClose>
@@ -97,7 +97,7 @@ export default function StoreFrontHeaderCompact({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
                   <Store className="h-4 w-4 text-primary" />
                 </div>
               )}
@@ -135,13 +135,13 @@ export default function StoreFrontHeaderCompact({
           </form>
 
           <nav className="hidden items-center gap-1 xl:flex">
-            <Link href={`/store/${storeSlug}/products`} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
+            <Link href={`/store/${storeSlug}/products`} className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted">
               المنتجات
             </Link>
-            <Link href={`/store/${storeSlug}/categories`} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
+            <Link href={`/store/${storeSlug}/categories`} className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted">
               التصنيفات
             </Link>
-            <Link href={`/store/${storeSlug}/about`} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
+            <Link href={`/store/${storeSlug}/about`} className="rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted">
               عن المتجر
             </Link>
           </nav>
@@ -150,7 +150,7 @@ export default function StoreFrontHeaderCompact({
             <Link href={`/store/${storeSlug}/cart`} className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
               <span className="hidden sm:inline">العربة</span>
-              <span className="inline-flex min-w-5 items-center justify-center rounded-lg bg-primary px-1.5 text-[11px] font-bold text-white">
+              <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-bold text-white">
                 {cartCount}
               </span>
             </Link>

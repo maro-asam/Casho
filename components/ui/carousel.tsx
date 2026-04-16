@@ -185,7 +185,7 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation rounded-lg",
+        "absolute touch-manipulation rounded-xl",
         orientation === "horizontal"
           ? "top-1/2 -start-12 -translate-y-1/2"
           : "-top-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",
@@ -215,7 +215,7 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation rounded-lg",
+        "absolute touch-manipulation rounded-xl",
         orientation === "horizontal"
           ? "top-1/2 -end-12 -translate-y-1/2"
           : "-bottom-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",

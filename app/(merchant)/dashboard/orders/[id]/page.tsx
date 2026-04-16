@@ -147,7 +147,7 @@ export default async function OrderDetailsRoute({
   return (
     <div className="space-y-6 p-6" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col gap-4 rounded-lg border bg-linear-to-r from-primary/10 via-primary/5 to-transparent p-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl border bg-linear-to-r from-primary/10 via-primary/5 to-transparent p-5 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-primary">
             <Receipt className="h-5 w-5" />
@@ -192,7 +192,7 @@ export default async function OrderDetailsRoute({
             }}
           />
 
-          <Button asChild variant="outline" className="w-fit rounded-lg">
+          <Button asChild variant="outline" className="w-fit rounded-xl">
             <Link href="/dashboard/orders" className="flex items-center gap-2">
               <ArrowRight className="h-4 w-4" />
               رجوع للطلبات
@@ -203,9 +203,9 @@ export default async function OrderDetailsRoute({
 
       {/* Top Summary */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="rounded-lg border-primary/15 shadow-sm">
+        <Card className="rounded-xl border-primary/15 shadow-sm">
           <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Hash className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground">رقم الطلب</p>
@@ -213,9 +213,9 @@ export default async function OrderDetailsRoute({
           </CardContent>
         </Card>
 
-        <Card className="rounded-lg border-primary/15 shadow-sm">
+        <Card className="rounded-xl border-primary/15 shadow-sm">
           <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <ShoppingBag className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground">حالة الطلب</p>
@@ -227,9 +227,9 @@ export default async function OrderDetailsRoute({
           </CardContent>
         </Card>
 
-        <Card className="rounded-lg border-primary/15 shadow-sm">
+        <Card className="rounded-xl border-primary/15 shadow-sm">
           <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <CreditCard className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground">طريقة الدفع</p>
@@ -239,9 +239,9 @@ export default async function OrderDetailsRoute({
           </CardContent>
         </Card>
 
-        <Card className="rounded-lg border-primary/15 shadow-sm">
+        <Card className="rounded-xl border-primary/15 shadow-sm">
           <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <CircleDollarSign className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground">إجمالي الطلب</p>
@@ -254,7 +254,7 @@ export default async function OrderDetailsRoute({
 
       <div className="grid gap-6 xl:grid-cols-3">
         {/* Customer Info */}
-        <Card className="rounded-lg shadow-sm xl:col-span-2">
+        <Card className="rounded-xl shadow-sm xl:col-span-2">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-xl">
               <User className="h-5 w-5 text-primary" />
@@ -267,8 +267,8 @@ export default async function OrderDetailsRoute({
 
           <CardContent className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="flex items-start gap-3 rounded-lg border bg-primary/5 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="flex items-start gap-3 rounded-xl border bg-primary/5 p-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <User className="h-5 w-5" />
                 </div>
 
@@ -280,8 +280,8 @@ export default async function OrderDetailsRoute({
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 rounded-lg border bg-primary/5 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="flex items-start gap-3 rounded-xl border bg-primary/5 p-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Phone className="h-5 w-5" />
                 </div>
 
@@ -292,8 +292,8 @@ export default async function OrderDetailsRoute({
               </div>
             </div>
 
-            <div className="flex items-start gap-3 rounded-lg border bg-primary/5 p-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex items-start gap-3 rounded-xl border bg-primary/5 p-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <MapPin className="h-5 w-5" />
               </div>
 
@@ -308,7 +308,7 @@ export default async function OrderDetailsRoute({
         </Card>
 
         {/* Order Meta */}
-        <Card className="rounded-lg shadow-sm">
+        <Card className="rounded-xl shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-xl">
               <Package className="h-5 w-5 text-primary" />
@@ -318,7 +318,7 @@ export default async function OrderDetailsRoute({
           </CardHeader>
 
           <CardContent className="space-y-4">
-            <div className="rounded-lg border p-4">
+            <div className="rounded-xl border p-4">
               <div className="mb-2 flex items-center gap-2 text-primary">
                 <ShoppingBag className="h-4 w-4" />
                 <span className="text-sm font-medium">المتجر</span>
@@ -326,7 +326,7 @@ export default async function OrderDetailsRoute({
               <p className="font-semibold">{order.store.name}</p>
             </div>
 
-            <div className="rounded-lg border p-4">
+            <div className="rounded-xl border p-4">
               <div className="mb-2 flex items-center gap-2 text-primary">
                 <CalendarDays className="h-4 w-4" />
                 <span className="text-sm font-medium">تاريخ الطلب</span>
@@ -336,7 +336,7 @@ export default async function OrderDetailsRoute({
               </p>
             </div>
 
-            <div className="rounded-lg border p-4">
+            <div className="rounded-xl border p-4">
               <div className="mb-2 flex items-center gap-2 text-primary">
                 <CreditCard className="h-4 w-4" />
                 <span className="text-sm font-medium">طريقة الدفع</span>
@@ -346,7 +346,7 @@ export default async function OrderDetailsRoute({
               </p>
             </div>
 
-            <div className="rounded-lg border p-4">
+            <div className="rounded-xl border p-4">
               <div className="mb-2 flex items-center gap-2 text-primary">
                 <Package className="h-4 w-4" />
                 <span className="text-sm font-medium">عدد المنتجات</span>
@@ -358,7 +358,7 @@ export default async function OrderDetailsRoute({
       </div>
 
       {/* Products */}
-      <Card className="rounded-lg shadow-sm">
+      <Card className="rounded-xl shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-xl">
             <Package className="h-5 w-5 text-primary" />
@@ -369,7 +369,7 @@ export default async function OrderDetailsRoute({
 
         <CardContent className="space-y-4">
           {order.items.length === 0 ? (
-            <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+            <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
               لا توجد منتجات داخل هذا الطلب
             </div>
           ) : (
@@ -378,7 +378,7 @@ export default async function OrderDetailsRoute({
 
               return (
                 <div key={item.id}>
-                  <div className="flex flex-col gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/40 md:flex-row md:items-center md:justify-between">
+                  <div className="flex flex-col gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/40 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-2">
                       <h3 className="text-base font-bold text-foreground">
                         {item.product.name}
@@ -395,7 +395,7 @@ export default async function OrderDetailsRoute({
                       </p>
                     </div>
 
-                    <div className="rounded-lg bg-primary/5 px-4 py-3 text-right">
+                    <div className="rounded-xl bg-primary/5 px-4 py-3 text-right">
                       <p className="text-sm text-muted-foreground">الإجمالي</p>
                       <p className="text-lg font-bold text-primary">
                         {formatPrice(itemTotal)}
@@ -414,7 +414,7 @@ export default async function OrderDetailsRoute({
       </Card>
 
       {/* Financial Summary */}
-      <Card className="rounded-lg shadow-sm">
+      <Card className="rounded-xl shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-xl">
             <CircleDollarSign className="h-5 w-5 text-primary" />
@@ -424,21 +424,21 @@ export default async function OrderDetailsRoute({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center justify-between rounded-xl border p-4">
             <span className="text-muted-foreground">المجموع الفرعي</span>
             <span className="font-semibold text-foreground">
               {formatPrice(order.subtotal)}
             </span>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center justify-between rounded-xl border p-4">
             <span className="text-muted-foreground">الشحن</span>
             <span className="font-semibold text-foreground">
               {formatPrice(order.shipping)}
             </span>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 p-4">
+          <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-4">
             <span className="text-base font-bold text-foreground">
               الإجمالي النهائي
             </span>

@@ -247,10 +247,10 @@ export default function DashboardShell({
               </Button>
             </div>
 
-            <div className="mb-5 rounded-lg bg-primary/8 p-2">
+            <div className="mb-5 rounded-xl bg-primary/8 p-2">
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-right transition "
+                className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-right transition "
               >
                 <div className="flex size-10 items-center justify-center rounded-xl bg-white text-primary">
                   <Store className="size-4" />
@@ -308,7 +308,7 @@ export default function DashboardShell({
                             href={link.href}
                             onClick={() => setIsOpen(false)}
                             className={cn(
-                              "flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition",
+                              "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition",
                               active
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "text-zinc-700 dark:text-primary-foreground/70 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-primary-foreground",
@@ -327,13 +327,13 @@ export default function DashboardShell({
 
             <div className="mt-5 border-t border-white/10 ">
               <div className="space-y-2 ">
-                <div className="overflow-hidden rounded-lg bg-white/6 mt-2">
+                <div className="overflow-hidden rounded-xl bg-white/6 mt-2">
                   <ModeToggle />
                 </div>
                 <Link
                   href="/dashboard/settings"
                   className={cn(
-                    "flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition",
+                    "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition",
                     pathname.startsWith("/dashboard/settings")
                       ? "bg-white text-black "
                       : "text-black dark:text-primary-foreground/70 bg-black/6 dark:bg-white/7 hover:bg-white/7 dark:hover:text-primary-foreground",

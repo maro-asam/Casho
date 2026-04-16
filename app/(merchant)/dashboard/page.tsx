@@ -121,7 +121,7 @@ const MerchantDashboardRoute = async () => {
       <div className="p-6" dir="rtl">
         <Card className="overflow-hidden rounded-[28px] border border-border/60 shadow-sm">
           <CardContent className="flex min-h-105 flex-col items-center justify-center p-8 text-center">
-            <div className="mb-4 flex size-16 items-center justify-center rounded-lg bg-primary/10">
+            <div className="mb-4 flex size-16 items-center justify-center rounded-xl bg-primary/10">
               <Store className="size-8 text-primary" />
             </div>
 
@@ -220,16 +220,16 @@ const MerchantDashboardRoute = async () => {
           <div className="flex flex-col items-start justify-between gap-5 md:flex-row">
             <div className="space-y-5">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-lg border-0 bg-primary/10 p-3 text-xs font-medium text-primary hover:bg-primary/10">
+                <Badge className="rounded-xl border-0 bg-primary/10 p-3 text-xs font-medium text-primary hover:bg-primary/10">
                   لوحة التحكم
                 </Badge>
 
-                <Badge className="rounded-lg border-0 bg-amber-700/10 p-3 text-xs font-medium text-amber-700 hover:bg-primary/10">
+                <Badge className="rounded-xl border-0 bg-amber-700/10 p-3 text-xs font-medium text-amber-700 hover:bg-primary/10">
                   {getTodayDate()}
                 </Badge>
 
                 <Badge
-                  className={`rounded-lg p-3 text-xs font-medium ${
+                  className={`rounded-xl p-3 text-xs font-medium ${
                     isActive
                       ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
                       : "bg-red-500/10 text-red-600 hover:bg-red-500/10"

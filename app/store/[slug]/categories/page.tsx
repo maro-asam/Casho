@@ -33,9 +33,9 @@ export default async function StoreCategoriesPage({
         className="wrapper min-h-[70vh] flex items-center justify-center py-10"
         dir="rtl"
       >
-        <Card className="w-full max-w-xl rounded-lg border-destructive/20 bg-background shadow-sm">
+        <Card className="w-full max-w-xl rounded-xl border-destructive/20 bg-background shadow-sm">
           <CardContent className="flex flex-col items-center text-center p-10 space-y-5">
-            <div className="flex size-16 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+            <div className="flex size-16 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
               <ShieldAlert className="size-8" />
             </div>
 
@@ -46,7 +46,7 @@ export default async function StoreCategoriesPage({
               </p>
             </div>
 
-            <Button asChild variant="outline" className="rounded-lg">
+            <Button asChild variant="outline" className="rounded-xl">
               <Link href={`/store/${store.slug}`}>
                 <ArrowRight className="size-4" />
                 الرجوع للمتجر
@@ -60,12 +60,12 @@ export default async function StoreCategoriesPage({
 
   return (
     <div className="wrapper py-10 space-y-8" dir="rtl">
-      <section className="relative overflow-hidden rounded-lg border bg-background p-6 md:p-8">
+      <section className="relative overflow-hidden rounded-xl border bg-background p-6 md:p-8">
         <div className="absolute inset-0 bg-linear-to-l from-primary/10 via-transparent to-transparent pointer-events-none" />
 
         <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
-            <Badge variant="secondary" className="rounded-lg px-3 py-1">
+            <Badge variant="secondary" className="rounded-xl px-3 py-1">
               <StoreIcon className="size-4" />
               تصنيفات المتجر
             </Badge>
@@ -80,7 +80,7 @@ export default async function StoreCategoriesPage({
             </div>
           </div>
 
-          <Button asChild variant="outline" className="rounded-lg">
+          <Button asChild variant="outline" className="rounded-xl">
             <Link href={`/store/${store.slug}`}>
               <ArrowRight className="size-4" />
               الرجوع للمتجر
@@ -99,9 +99,9 @@ export default async function StoreCategoriesPage({
       </section>
 
       {categories.length === 0 ? (
-        <Card className="rounded-lg border-dashed">
+        <Card className="rounded-xl border-dashed">
           <CardContent className="flex min-h-70 flex-col items-center justify-center text-center p-10 space-y-4">
-            <div className="flex size-16 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex size-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <PackageSearch className="size-8" />
             </div>
 
@@ -113,7 +113,7 @@ export default async function StoreCategoriesPage({
               </p>
             </div>
 
-            <Button asChild className="rounded-lg">
+            <Button asChild className="rounded-xl">
               <Link href={`/store/${store.slug}`}>
                 <ArrowRight className="size-4" />
                 العودة للمتجر
@@ -129,20 +129,20 @@ export default async function StoreCategoriesPage({
               href={`/store/${store.slug}/products?category=${category.slug}`}
               className="group"
             >
-              <Card className="h-full overflow-hidden rounded-lg border bg-background transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl">
+              <Card className="h-full p-0 overflow-hidden rounded-xl border bg-background transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl">
                 <CardContent className="p-0">
                   <div className="relative overflow-hidden p-6">
                     <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
 
                     <div className="relative space-y-5">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex size-14 items-center justify-center rounded-lg bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+                        <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
                           <FolderOpen className="size-7" />
                         </div>
 
                         <Badge
                           variant="outline"
-                          className="rounded-lg text-xs px-3 py-1"
+                          className="rounded-xl text-xs px-3 py-1"
                         >
                           #{index + 1}
                         </Badge>

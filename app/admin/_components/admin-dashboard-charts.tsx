@@ -86,7 +86,7 @@ export default function AdminDashboardCharts({
 
         <CardContent>
           {monthlyAmountData.every((item) => item.amount === 0) ? (
-            <div className="flex h-[320px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+            <div className="flex h-[320px] items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">
               لا توجد بيانات كافية حاليًا
             </div>
           ) : (
@@ -140,7 +140,7 @@ export default function AdminDashboardCharts({
 
         <CardContent>
           {monthlyCountData.every((item) => item.count === 0) ? (
-            <div className="flex h-[320px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+            <div className="flex h-[320px] items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">
               لا توجد بيانات كافية حاليًا
             </div>
           ) : (
@@ -194,7 +194,7 @@ export default function AdminDashboardCharts({
 
         <CardContent>
           {statusBreakdown.every((item) => item.value === 0) ? (
-            <div className="flex h-[320px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+            <div className="flex h-[320px] items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">
               لا توجد بيانات كافية حاليًا
             </div>
           ) : (
@@ -245,7 +245,7 @@ export default function AdminDashboardCharts({
 
         <CardContent>
           {topStoresData.length === 0 ? (
-            <div className="flex h-[320px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+            <div className="flex h-[320px] items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">
               لا توجد بيانات كافية حاليًا
             </div>
           ) : (

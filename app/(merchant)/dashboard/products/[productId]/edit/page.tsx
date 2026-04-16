@@ -95,9 +95,9 @@ export default async function EditProductPage({
       />
 
       <div className="mx-auto w-full max-w-3xl">
-        <Card className="rounded-lg shadow-sm">
+        <Card className="rounded-xl shadow-sm">
           <CardHeader className="space-y-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <FilePenLine className="size-6" />
             </div>
 

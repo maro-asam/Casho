@@ -18,7 +18,7 @@ export default function PricingSection() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-flex items-center gap-2 rounded-lg border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
             الأسعار
           </span>
 
@@ -43,7 +43,7 @@ export default function PricingSection() {
               viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.5, delay: index * 0.08 }}
               className={[
-                "relative rounded-lg border p-6 md:p-7 transition-all",
+                "relative rounded-xl border p-6 md:p-7 transition-all",
                 plan.highlighted
                   ? "border-primary/25 bg-card shadow-xl shadow-primary/10"
                   : "border-border bg-card/70",
@@ -51,14 +51,14 @@ export default function PricingSection() {
               ].join(" ")}
             >
               {plan.highlighted && plan.badge ? (
-                <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary/20 bg-background px-4 py-1.5 text-xs font-medium text-primary shadow-sm">
+                <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-primary/20 bg-background px-4 py-1.5 text-xs font-medium text-primary shadow-sm">
                   {plan.badge}
                 </span>
               ) : null}
 
               {plan.locked ? (
                 <div className="absolute inset-x-0 top-4 z-10 flex justify-center">
-                  <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-background/90 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
+                  <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-background/90 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
                     <Lock className="size-3.5" />
                     قريبًا
                   </span>
@@ -91,7 +91,7 @@ export default function PricingSection() {
                   {plan.features.map((feature) => (
                     <div key={feature} className="flex items-start gap-3">
                       <div
-                        className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-lg ${
+                        className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-xl ${
                           plan.highlighted
                             ? "bg-primary/10 text-primary"
                             : "bg-muted text-muted-foreground"
@@ -111,7 +111,7 @@ export default function PricingSection() {
                   size="lg"
                   variant={plan.highlighted ? "default" : "outline"}
                   disabled={plan.locked}
-                  className="mt-8 h-12 w-full rounded-lg text-sm font-medium"
+                  className="mt-8 h-12 w-full rounded-xl text-sm font-medium"
                 >
                   {plan.locked ? (
                     <span>قريبًا</span>

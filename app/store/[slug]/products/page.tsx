@@ -97,7 +97,7 @@ export default async function StoreProductsRoute({
         dir="rtl"
         className="flex min-h-[60vh] items-center justify-center px-4"
       >
-        <div className="w-full max-w-xl rounded-lg border bg-card p-8 text-center shadow-sm">
+        <div className="w-full max-w-xl rounded-xl border bg-card p-8 text-center shadow-sm">
           <h1 className="mb-3 text-2xl font-bold">هذا المتجر غير مفعل</h1>
           <p className="text-muted-foreground">
             لا يمكن عرض المنتجات حاليًا لأن اشتراك المتجر غير نشط.

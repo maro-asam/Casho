@@ -108,7 +108,7 @@ export default function EditProductForm({ product, categories }: Props) {
             placeholder="مثال: تيشيرت أسود مطبوع"
             defaultValue={product.name}
             required
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -119,7 +119,7 @@ export default function EditProductForm({ product, categories }: Props) {
             name="description"
             placeholder="اكتب وصف واضح ومختصر للمنتج..."
             defaultValue={product.description || ""}
-            className="min-h-28 resize-none rounded-lg"
+            className="min-h-28 resize-none rounded-xl"
           />
         </div>
 
@@ -134,7 +134,7 @@ export default function EditProductForm({ product, categories }: Props) {
             placeholder="مثال: 299"
             defaultValue={product.price}
             required
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -148,7 +148,7 @@ export default function EditProductForm({ product, categories }: Props) {
             step="0.01"
             placeholder="مثال: 399"
             defaultValue={product.compareAtPrice ?? ""}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -162,7 +162,7 @@ export default function EditProductForm({ product, categories }: Props) {
             step="1"
             placeholder="مثال: 15"
             defaultValue={product.stock}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -173,7 +173,7 @@ export default function EditProductForm({ product, categories }: Props) {
             name="brand"
             placeholder="مثال: Nike أو Samsung"
             defaultValue={product.brand || ""}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -187,14 +187,14 @@ export default function EditProductForm({ product, categories }: Props) {
             step="0.01"
             placeholder="مثال: 0.5"
             defaultValue={product.weight ?? ""}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="categoryId">التصنيف</Label>
           <Select name="categoryId" defaultValue={product.categoryId}>
-            <SelectTrigger id="categoryId" className="w-full rounded-lg">
+            <SelectTrigger id="categoryId" className="w-full rounded-xl">
               <SelectValue placeholder="اختر تصنيف المنتج" />
             </SelectTrigger>
             <SelectContent>
@@ -215,7 +215,7 @@ export default function EditProductForm({ product, categories }: Props) {
             placeholder="https://example.com/image.jpg"
             defaultValue={product.image || ""}
             onChange={(e) => setImageValue(e.target.value)}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -231,7 +231,7 @@ export default function EditProductForm({ product, categories }: Props) {
             name="images"
             placeholder="https://img1.jpg, https://img2.jpg"
             defaultValue={product.images.join(", ")}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -247,7 +247,7 @@ export default function EditProductForm({ product, categories }: Props) {
             name="sizes"
             placeholder="S, M, L, XL"
             defaultValue={product.sizes.join(", ")}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -263,7 +263,7 @@ export default function EditProductForm({ product, categories }: Props) {
             name="colors"
             placeholder="أسود, أبيض, أزرق"
             defaultValue={product.colors.join(", ")}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
 
@@ -279,12 +279,12 @@ export default function EditProductForm({ product, categories }: Props) {
             name="tags"
             placeholder="جديد, الأكثر مبيعًا, صيفي"
             defaultValue={product.tags.join(", ")}
-            className="rounded-lg"
+            className="rounded-xl"
           />
         </div>
       </div>
 
-      <Card className="rounded-lg border-dashed">
+      <Card className="rounded-xl border-dashed">
         <CardContent className="p-4">
           <div className="mb-3 flex items-center gap-2">
             <ImageIcon className="size-4 text-muted-foreground" />
@@ -292,7 +292,7 @@ export default function EditProductForm({ product, categories }: Props) {
           </div>
 
           {previewImage ? (
-            <div className="relative overflow-hidden rounded-lg border bg-muted/30">
+            <div className="relative overflow-hidden rounded-xl border bg-muted/30">
               <div className="relative aspect-video w-full">
                 <Image
                   src={previewImage}
@@ -304,7 +304,7 @@ export default function EditProductForm({ product, categories }: Props) {
               </div>
             </div>
           ) : (
-            <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed bg-muted/20 text-sm text-muted-foreground">
+            <div className="flex min-h-48 items-center justify-center rounded-xl border border-dashed bg-muted/20 text-sm text-muted-foreground">
               لا توجد صورة للمعاينة
             </div>
           )}
@@ -312,7 +312,7 @@ export default function EditProductForm({ product, categories }: Props) {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <label className="flex items-start gap-3 rounded-lg border p-4 cursor-pointer">
+        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
           <Checkbox
             name="isActive"
             defaultChecked={product.isActive}
@@ -329,7 +329,7 @@ export default function EditProductForm({ product, categories }: Props) {
           </div>
         </label>
 
-        <label className="flex items-start gap-3 rounded-lg border p-4 cursor-pointer">
+        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
           <Checkbox
             name="isFeatured"
             defaultChecked={product.isFeatured}
@@ -346,7 +346,7 @@ export default function EditProductForm({ product, categories }: Props) {
           </div>
         </label>
 
-        <label className="flex items-start gap-3 rounded-lg border p-4 cursor-pointer">
+        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
           <Checkbox
             name="hasVariants"
             defaultChecked={product.hasVariants}
@@ -368,7 +368,7 @@ export default function EditProductForm({ product, categories }: Props) {
         <Button
           type="submit"
           disabled={isPending}
-          className="min-w-40 rounded-lg"
+          className="min-w-40 rounded-xl"
         >
           {isPending ? (
             <>

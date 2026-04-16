@@ -19,15 +19,15 @@ export default function CTASection() {
         >
           {/* background accents */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute right-[-60px] top-[-60px] h-40 w-40 rounded-lg bg-primary/10 blur-3xl" />
-            <div className="absolute left-[-40px] bottom-[-60px] h-36 w-36 rounded-lg bg-sky-500/10 blur-3xl" />
+            <div className="absolute right-[-60px] top-[-60px] h-40 w-40 rounded-xl bg-primary/10 blur-3xl" />
+            <div className="absolute left-[-40px] bottom-[-60px] h-36 w-36 rounded-xl bg-sky-500/10 blur-3xl" />
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-primary/30 to-transparent" />
           </div>
 
           <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_.85fr]">
             {/* content */}
             <div className="text-center lg:text-right">
-              <div className="inline-flex items-center gap-2 rounded-lg border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
+              <div className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
                 <Sparkles className="size-4" />
                 عرض الإطلاق شغال الآن
               </div>
@@ -49,7 +49,7 @@ export default function CTASection() {
                 <Button
                   asChild
                   size="lg"
-                  className="h-12 rounded-lg px-8 text-sm font-medium shadow-sm"
+                  className="h-12 rounded-xl px-8 text-sm font-medium shadow-sm"
                 >
                   <Link href="/signup">
                     ابدأ دلوقتي
@@ -61,7 +61,7 @@ export default function CTASection() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-12 rounded-lg border-border bg-card px-8 text-sm font-medium"
+                  className="h-12 rounded-xl border-border bg-card px-8 text-sm font-medium"
                 >
                   <Link href="#pricing">شوف الأسعار</Link>
                 </Button>
@@ -86,7 +86,7 @@ export default function CTASection() {
             {/* side card */}
             <div className="mx-auto w-full max-w-md">
               <div className="rounded-[28px] border border-primary/15 bg-card p-5 shadow-sm">
-                <div className="rounded-lg border border-primary/15 bg-primary/[0.04] p-5">
+                <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-5">
                   <p className="text-sm font-medium text-muted-foreground">
                     متبقي من عرض البداية
                   </p>
@@ -101,7 +101,7 @@ export default function CTASection() {
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-primary/15 bg-white px-4 py-2 text-sm font-medium text-primary">
+                    <div className="rounded-xl border border-primary/15 bg-white px-4 py-2 text-sm font-medium text-primary">
                       سعر خاص
                     </div>
                   </div>
@@ -112,8 +112,8 @@ export default function CTASection() {
                       <span className="font-medium text-foreground">66%</span>
                     </div>
 
-                    <div className="h-2.5 overflow-hidden rounded-lg bg-primary/10">
-                      <div className="h-full w-2/3 rounded-lg bg-primary" />
+                    <div className="h-2.5 overflow-hidden rounded-xl bg-primary/10">
+                      <div className="h-full w-2/3 rounded-xl bg-primary" />
                     </div>
                   </div>
 
@@ -122,7 +122,7 @@ export default function CTASection() {
                   </p>
                 </div>
 
-                <div className="mt-4 rounded-lg border border-border bg-muted/40 p-4">
+                <div className="mt-4 rounded-xl border border-border bg-muted/40 p-4">
                   <p className="text-sm text-foreground">
                     مناسب لو أنت بتبيع من إنستجرام، واتساب، أو صفحات السوشيال
                     وعايز طريقة أرتب وأسهل لاستقبال الطلبات.

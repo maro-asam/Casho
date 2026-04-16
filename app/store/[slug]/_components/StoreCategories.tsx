@@ -31,11 +31,11 @@ const StoreCategories = ({ categories, storeSlug }: StoreCategoriesProps) => {
         {categories.slice(0, 6).map((category) => (
           <Link
             key={category.id}
-            href={`/store/${storeSlug}/category/${category.slug}`}
+            href={`/store/${storeSlug}/products?category=${category.slug}`}
           >
             <Card className="p-0">
-              <div className="group flex h-22 cursor-pointer items-center justify-start gap-2 rounded-lg transition  p-2">
-                <div className="relative flex h-full w-22  items-center justify-center overflow-hidden rounded-lg">
+              <div className="group flex h-22 cursor-pointer items-center justify-start gap-2 rounded-xl transition  p-2">
+                <div className="relative flex h-full w-22  items-center justify-center overflow-hidden rounded-xl">
                   {category.image ? (
                     <Image
                       src={category.image}

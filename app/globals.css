@@ -7,7 +7,7 @@
 :root {
   font-family: var(--font-alyamama);
 
-  --card: #fbfbfb;
+  --card: #f1f1f1;
   --card-foreground: oklch(0.141 0.005 285.823);
 
   --popover: oklch(1 0 0);
@@ -18,7 +18,7 @@
   --primary-foreground: oklch(0.97 0.014 254.604);
 
   /* neutral */
-  --secondary: oklch(0.967 0.001 286.374);
+  --secondary: rgb(244, 244, 245);
   --secondary-foreground: oklch(0.21 0.006 285.885);
 
   --muted: #1449e610;
@@ -33,8 +33,8 @@
   --destructive-foreground: #ffffff;
 
   /* borders */
-  --border: oklch(88.837% 0.0001 271.152);
-  --input: oklch(0.92 0.004 286.33);
+  --border: oklch(82.656% 0.00009 271.152);
+  --input: oklch(0.92 0.004 286.35);
 
   --ring: oklch(0.705 0.015 286.067);
 
