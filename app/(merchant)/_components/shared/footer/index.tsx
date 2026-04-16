@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Facebook, Instagram, Linkedin, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import Image from "next/image";
 
 const footerLinks = {
@@ -20,9 +20,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
+  // { icon: Facebook, href: "#", label: "Facebook" },
+  // { icon: Instagram, href: "#", label: "Instagram" },
+  // { icon: Linkedin, href: "#", label: "LinkedIn" },
   { icon: Mail, href: "mailto:hello@marostore.com", label: "Email" },
 ];
 

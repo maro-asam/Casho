@@ -8,8 +8,6 @@ import {
   Megaphone,
   Mail,
   Phone,
-  Facebook,
-  Instagram,
   Store,
   Palette,
 } from "lucide-react";
@@ -86,18 +84,18 @@ export default async function AboutStoreRoute({
         : null,
       icon: Phone,
     },
-    {
-      label: "إنستجرام",
-      value: settings?.instagram,
-      href: settings?.instagram || null,
-      icon: Instagram,
-    },
-    {
-      label: "فيسبوك",
-      value: settings?.facebook,
-      href: settings?.facebook || null,
-      icon: Facebook,
-    },
+    // {
+    //   label: "إنستجرام",
+    //   value: settings?.instagram,
+    //   href: settings?.instagram || null,
+    //   icon: Instagram,
+    // },
+    // {
+    //   label: "فيسبوك",
+    //   value: settings?.facebook,
+    //   href: settings?.facebook || null,
+    //   icon: Facebook,
+    // },
     {
       label: "تيك توك",
       value: settings?.tiktok,
