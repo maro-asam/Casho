@@ -12,6 +12,7 @@ import CopyStoreLinkBtn from "../_components/CopyStoreLinkBtn";
 import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import StarterGuideBar from "../_components/main/StarterGuideCard";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 type ChartOrder = {
   createdAt: Date;
@@ -128,7 +129,7 @@ const MerchantDashboardRoute = async () => {
     return (
       <div className="p-6" dir="rtl">
         <Card className="overflow-hidden rounded-[28px] border border-border/20 shadow-sm">
-          <CardContent className="flex min-h-[420px] flex-col items-center justify-center p-8 text-center">
+          <CardContent className="flex min-h-105 flex-col items-center justify-center p-8 text-center">
             <div className="mb-4 flex size-16 items-center justify-center rounded-xl bg-primary/10">
               <Store className="size-8 text-primary" />
             </div>
@@ -217,8 +218,7 @@ const MerchantDashboardRoute = async () => {
 
   const chartData = getLast30DaysData(chartOrders, chartVisits);
 
-  const storeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/store/${store.slug}`;
-
+  const storeUrl = buildStoreUrl(store.slug);
   return (
     <div className="space-y-6 p-4">
       <Card className="relative overflow-hidden border border-border/20 bg-card">
@@ -259,7 +259,8 @@ const MerchantDashboardRoute = async () => {
 
               <div className="space-y-3">
                 <h1 className="text-xl font-bold tracking-tight md:text-3xl xl:text-4xl">
-                  أهلاً بيك في <span className="text-primary">{store.name}</span>
+                  أهلاً بيك في{" "}
+                  <span className="text-primary">{store.name}</span>
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
