@@ -107,7 +107,7 @@ export default function BalanceTopupForm({
   };
 
   return (
-    <Card className="border-border/60 shadow-sm">
+    <Card className="border-border/20 shadow-sm">
       <CardHeader>
         <CardTitle className="text-lg">بيانات طلب الشحن</CardTitle>
         <CardDescription>
@@ -130,7 +130,7 @@ export default function BalanceTopupForm({
                   className={`rounded-xl border p-4 text-right transition-all ${
                     isActive
                       ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border/60 hover:border-primary/40 hover:bg-muted/40"
+                      : "border-border/20 hover:border-primary/40 hover:bg-muted/40"
                   }`}
                 >
                   <div className="mb-2 flex items-center justify-between gap-2">
@@ -218,7 +218,7 @@ export default function BalanceTopupForm({
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+          <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
             <div className="mb-2 flex items-center gap-2">
               <Wallet className="size-4 text-primary" />
               <p className="text-sm text-muted-foreground">
@@ -228,7 +228,7 @@ export default function BalanceTopupForm({
             <p className="text-lg font-bold">{formatPrice(amountInPiasters)}</p>
           </div>
 
-          <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+          <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
             <div className="mb-2 flex items-center gap-2">
               <Receipt className="size-4 text-primary" />
               <p className="text-sm text-muted-foreground">
@@ -240,7 +240,7 @@ export default function BalanceTopupForm({
             </p>
           </div>
 
-          <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+          <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
             <div className="mb-2 flex items-center gap-2">
               <Receipt className="size-4 text-primary" />
               <p className="text-sm text-muted-foreground">

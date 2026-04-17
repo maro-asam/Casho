@@ -10,12 +10,12 @@ import {
 } from "@/lib/products-query";
 import ProductCard from "@/app/store/[slug]/_components/shared/ProductCard";
 
-import ProductsToolbar from "../_components/products/ProductsToolbar";
-import ActiveFiltersBar from "../_components/products/ActiveFiltersBar";
-import EmptyProductsState from "../_components/products/EmptyProductsState";
-import ProductsPagination from "../_components/products/ProductsPagination";
-import ProductsSidebarFilters from "../_components/products/ProductSidebarFilters";
-import ProductsMobileFilters from "../_components/products/ProductsMobileFilters";
+import ProductsToolbar from "./_components/ProductsToolbar";
+import ActiveFiltersBar from "./_components/ActiveFiltersBar";
+import EmptyProductsState from "./_components/EmptyProductsState";
+import ProductsPagination from "./_components/ProductsPagination";
+import ProductsSidebarFilters from "./_components/ProductSidebarFilters";
+import ProductsMobileFilters from "./_components/ProductsMobileFilters";
 import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
 
 type StoreProductsRouteProps = {

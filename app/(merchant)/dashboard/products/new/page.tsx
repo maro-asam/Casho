@@ -5,7 +5,7 @@ import { FolderOpen, PackagePlus, Plus } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
-import CreateProductForm from "@/app/(merchant)/_components/products/CreateProductForm";
+import CreateProductForm from "@/app/(merchant)/dashboard/products/_components/CreateProductForm";
 
 import { Button } from "@/components/ui/button";
 import {

@@ -146,7 +146,7 @@ export default async function AdminDashboardPage() {
           return (
             <Card
               key={item.title}
-              className="group rounded-[24px] border-border/60 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              className="group rounded-[24px] border-border/20 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
             >
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
                 <div className="space-y-1">
@@ -185,7 +185,7 @@ export default async function AdminDashboardPage() {
       />
 
       <section className="grid gap-4 ">
-        <Card className="rounded-[28px] border-border/60 shadow-sm">
+        <Card className="rounded-[28px] border-border/20 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
             <div className="space-y-1">
               <CardTitle className="text-xl">أحدث المتاجر</CardTitle>
@@ -213,7 +213,7 @@ export default async function AdminDashboardPage() {
                 <Link
                   key={store.id}
                   href={`/admin/stores/${store.id}`}
-                  className="group flex flex-col gap-4 rounded-xl border border-border/60 bg-background p-4 transition-all duration-200 hover:border-primary/20 hover:bg-muted/30 hover:shadow-sm md:flex-row md:items-center md:justify-between"
+                  className="group flex flex-col gap-4 rounded-xl border border-border/20 bg-background p-4 transition-all duration-200 hover:border-primary/20 hover:bg-muted/30 hover:shadow-sm md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted">

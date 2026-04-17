@@ -129,7 +129,7 @@ export default async function AdminTopupRequestsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/20 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardDescription>طلبات معلقة</CardDescription>
@@ -141,7 +141,7 @@ export default async function AdminTopupRequestsPage() {
           </CardHeader>
         </Card>
 
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/20 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardDescription>تمت الموافقة</CardDescription>
@@ -153,7 +153,7 @@ export default async function AdminTopupRequestsPage() {
           </CardHeader>
         </Card>
 
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/20 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardDescription>مرفوضة</CardDescription>
@@ -166,7 +166,7 @@ export default async function AdminTopupRequestsPage() {
         </Card>
       </div>
 
-      <Card className="border-border/60 shadow-sm">
+      <Card className="border-border/20 shadow-sm">
         <CardHeader>
           <CardTitle>كل الطلبات</CardTitle>
           <CardDescription>
@@ -176,7 +176,7 @@ export default async function AdminTopupRequestsPage() {
 
         <CardContent>
           {requests.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/60 p-8 text-center">
+            <div className="rounded-xl border border-dashed border-border/20 p-8 text-center">
               <p className="text-sm text-muted-foreground">
                 لا توجد طلبات شحن حتى الآن.
               </p>
@@ -190,7 +190,7 @@ export default async function AdminTopupRequestsPage() {
                 return (
                   <div
                     key={request.id}
-                    className="rounded-xl border border-border/60 p-4"
+                    className="rounded-xl border border-border/20 p-4"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-3">

@@ -1,8 +1,8 @@
-import type { StoreFrontHeaderProps } from "./store-header.types";
+import type { StoreNavbarVariant } from "@/constants/store-navbar";
+import type { StoreFrontHeaderProps } from "../shared/store-header.types";
 import StoreFrontHeaderDefault from "./StoreFrontHeaderDefault";
 import StoreFrontHeaderCentered from "./StoreFrontHeaderCentered";
 import StoreFrontHeaderCompact from "./StoreFrontHeaderCompact";
-import { StoreNavbarVariant } from "@/constants/store-navbar";
 
 type Props = StoreFrontHeaderProps & {
   variant?: StoreNavbarVariant | null;

@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { Menu, Search, ShoppingCart, Store, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import type { StoreFrontHeaderProps } from "./store-header.types";
+import type { StoreFrontHeaderProps } from "../shared/store-header.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

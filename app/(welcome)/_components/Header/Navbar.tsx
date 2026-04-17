@@ -92,7 +92,7 @@ const Navbar = async () => {
 
                   <DropdownMenuContent
                     align="start"
-                    className="w-64 rounded-xl border-border/60 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
+                    className="w-64 rounded-xl border-border/20 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
                   >
                     <div className="px-2 py-2 text-right">
                       <p className="text-sm font-bold">

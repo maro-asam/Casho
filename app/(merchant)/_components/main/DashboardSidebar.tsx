@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { LogoutButton } from "@/components/LogoutBtn";
+import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
 
 interface Props {
   store: {

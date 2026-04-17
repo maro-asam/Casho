@@ -14,8 +14,8 @@ import {
 import ProductCard from "@/app/store/[slug]/_components/shared/ProductCard";
 
 import StoreBanner from "./_components/StoreBanner";
-import StoreCategories from "./_components/StoreCategories";
-import FeaturedProducts from "./_components/products/FeaturedProducts";
+import StoreCategories from "./categories/_components/StoreCategories";
+import FeaturedProducts from "./products/_components/FeaturedProducts";
 import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSectionHeader";
 import { TrackVisitAction } from "@/actions/admin/visitors-tracker.actions";
 import { SubscriptionStatus } from "@/lib/generated/prisma/browser";

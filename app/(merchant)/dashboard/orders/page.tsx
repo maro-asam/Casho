@@ -19,7 +19,7 @@ import { OrderStatus } from "@/lib/generated/prisma/enums";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import { OrderStatusSelect } from "../../_components/order-status-select";
+import { OrderStatusSelect } from "./_components/order-status-select";
 import {
   Table,
   TableBody,
@@ -113,7 +113,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="rounded-xl border-dashed border-border/60">
+        <Card className="rounded-xl border-dashed border-border/20">
           <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
               <Store className="size-6 text-muted-foreground" />
@@ -176,7 +176,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
       />
 
       {orders.length === 0 ? (
-        <Card className="rounded-xl border-dashed border-border/60 shadow-sm">
+        <Card className="rounded-xl border-dashed border-border/20 shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
               <FolderOpen className="size-7 text-muted-foreground" />
@@ -315,7 +315,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
           </Card>
 
           {totalPages > 1 && (
-            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-border/60 bg-background px-4 py-4 sm:flex-row">
+            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-border/20 bg-background px-4 py-4 sm:flex-row">
               <p className="text-sm text-muted-foreground">
                 صفحة {currentPage} من {totalPages}
               </p>

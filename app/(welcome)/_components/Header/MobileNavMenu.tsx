@@ -93,7 +93,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
         variant="outline"
         size="icon"
         onClick={() => setOpen(true)}
-        className="size-11 rounded-xl border-border/60 bg-background/80 backdrop-blur-md"
+        className="size-11 rounded-xl border-border/20 bg-background/80 backdrop-blur-md"
         aria-label="فتح القائمة"
       >
         <Menu className="size-5" />
@@ -112,7 +112,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
             />
 
             <motion.div
-              className="fixed inset-x-4 top-4 z-90 origin-top rounded-xl border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-2xl"
+              className="fixed inset-x-4 top-4 z-90 origin-top rounded-xl border border-border/20 bg-background/95 p-4 shadow-2xl backdrop-blur-2xl"
               // @ts-expect-error
               variants={panelVariants}
               initial="hidden"
@@ -211,7 +211,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                     <Link href="/dashboard" onClick={() => setOpen(false)}>
                       <Button
                         variant="outline"
-                        className="h-12 w-full justify-between rounded-xl border-border/60 bg-background"
+                        className="h-12 w-full justify-between rounded-xl border-border/20 bg-background"
                       >
                         <LayoutDashboard className="size-4" />
                         <span>لوحة التحكم</span>
@@ -225,7 +225,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                       >
                         <Button
                           variant="outline"
-                          className="h-12 w-full justify-between rounded-xl border-border/60 bg-background"
+                          className="h-12 w-full justify-between rounded-xl border-border/20 bg-background"
                         >
                           <Store className="size-4" />
                           <span>عرض المتجر</span>

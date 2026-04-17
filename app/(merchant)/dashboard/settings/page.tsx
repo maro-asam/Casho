@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import StoreSettingsForm from "../../_components/StoreSettingsForm";
+import StoreSettingsForm from "./_components/StoreSettingsForm";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export const metadata: Metadata = {

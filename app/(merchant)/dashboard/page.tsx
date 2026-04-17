@@ -22,12 +22,13 @@ type ChartVisit = {
   createdAt: Date;
 };
 
-function getLast7DaysData(orders: ChartOrder[], visits: ChartVisit[]) {
+function getLast30DaysData(orders: ChartOrder[], visits: ChartVisit[]) {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const days = Array.from({ length: 7 }).map((_, index) => {
+  const days = Array.from({ length: 30 }).map((_, index) => {
     const date = new Date(today);
-    date.setDate(today.getDate() - (6 - index));
+    date.setDate(today.getDate() - (29 - index));
     date.setHours(0, 0, 0, 0);
 
     const key = date.toISOString().split("T")[0];
@@ -35,7 +36,8 @@ function getLast7DaysData(orders: ChartOrder[], visits: ChartVisit[]) {
     return {
       key,
       name: new Intl.DateTimeFormat("ar-EG", {
-        weekday: "short",
+        day: "numeric",
+        month: "short",
       }).format(date),
       revenue: 0,
       orders: 0,
@@ -46,7 +48,10 @@ function getLast7DaysData(orders: ChartOrder[], visits: ChartVisit[]) {
   const map = new Map(days.map((day) => [day.key, day]));
 
   for (const order of orders) {
-    const key = order.createdAt.toISOString().split("T")[0];
+    const orderDate = new Date(order.createdAt);
+    orderDate.setHours(0, 0, 0, 0);
+
+    const key = orderDate.toISOString().split("T")[0];
     const existing = map.get(key);
 
     if (existing) {
@@ -56,7 +61,10 @@ function getLast7DaysData(orders: ChartOrder[], visits: ChartVisit[]) {
   }
 
   for (const visit of visits) {
-    const key = visit.createdAt.toISOString().split("T")[0];
+    const visitDate = new Date(visit.createdAt);
+    visitDate.setHours(0, 0, 0, 0);
+
+    const key = visitDate.toISOString().split("T")[0];
     const existing = map.get(key);
 
     if (existing) {
@@ -119,8 +127,8 @@ const MerchantDashboardRoute = async () => {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="overflow-hidden rounded-[28px] border border-border/60 shadow-sm">
-          <CardContent className="flex min-h-105 flex-col items-center justify-center p-8 text-center">
+        <Card className="overflow-hidden rounded-[28px] border border-border/20 shadow-sm">
+          <CardContent className="flex min-h-[420px] flex-col items-center justify-center p-8 text-center">
             <div className="mb-4 flex size-16 items-center justify-center rounded-xl bg-primary/10">
               <Store className="size-8 text-primary" />
             </div>
@@ -172,15 +180,15 @@ const MerchantDashboardRoute = async () => {
     },
   ];
 
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  sevenDaysAgo.setHours(0, 0, 0, 0);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+  thirtyDaysAgo.setHours(0, 0, 0, 0);
 
   const chartOrders = await prisma.order.findMany({
     where: {
       storeId: store.id,
       createdAt: {
-        gte: sevenDaysAgo,
+        gte: thirtyDaysAgo,
       },
     },
     select: {
@@ -196,7 +204,7 @@ const MerchantDashboardRoute = async () => {
     where: {
       storeId: store.id,
       createdAt: {
-        gte: sevenDaysAgo,
+        gte: thirtyDaysAgo,
       },
     },
     select: {
@@ -207,13 +215,13 @@ const MerchantDashboardRoute = async () => {
     },
   });
 
-  const chartData = getLast7DaysData(chartOrders, chartVisits);
+  const chartData = getLast30DaysData(chartOrders, chartVisits);
 
   const storeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/store/${store.slug}`;
 
   return (
     <div className="space-y-6 p-4">
-      <Card className="relative overflow-hidden border border-border/60 bg-card">
+      <Card className="relative overflow-hidden border border-border/20 bg-card">
         <div className="pointer-events-none absolute inset-0" />
 
         <CardContent className="relative">
@@ -224,7 +232,7 @@ const MerchantDashboardRoute = async () => {
                   لوحة التحكم
                 </Badge>
 
-                <Badge className="rounded-xl border-0 bg-amber-700/10 p-3 text-xs font-medium text-amber-700 hover:bg-primary/10">
+                <Badge className="rounded-xl border-0 bg-amber-700/10 p-3 text-xs font-medium text-amber-700 hover:bg-amber-700/10">
                   {getTodayDate()}
                 </Badge>
 
@@ -251,8 +259,7 @@ const MerchantDashboardRoute = async () => {
 
               <div className="space-y-3">
                 <h1 className="text-xl font-bold tracking-tight md:text-3xl xl:text-4xl">
-                  أهلاً بيك في{" "}
-                  <span className="text-primary">{store.name}</span>
+                  أهلاً بيك في <span className="text-primary">{store.name}</span>
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
@@ -260,10 +267,6 @@ const MerchantDashboardRoute = async () => {
                   مكان واحد.
                 </p>
               </div>
-
-              {/* <div className="flex flex-wrap items-center gap-3">
-                {!isActive && <ActivateStoreButton />}
-              </div> */}
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

@@ -29,7 +29,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Metadata } from "next";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import ExportInvoiceButton from "@/app/(merchant)/_components/export-invoice-button";
+import ExportInvoiceButton from "@/app/(merchant)/dashboard/orders/_components/export-invoice-button";
 
 export const metadata: Metadata = {
   title: "تفاصيل الطلب",

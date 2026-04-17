@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { LogoutButton } from "@/components/LogoutBtn";
+import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/theme/ModeToggle";
 
@@ -328,7 +328,7 @@ export default function DashboardShell({
             <div className="mt-5 border-t border-white/10 ">
               <div className="space-y-2 ">
                 <div className="overflow-hidden rounded-xl bg-white/6 mt-2">
-                  <ModeToggle />
+                  <ModeToggle className="w-full" />
                 </div>
                 <Link
                   href="/dashboard/settings"

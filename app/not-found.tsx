@@ -8,7 +8,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-2xl">
-        <Card className="overflow-hidden border-border/60 bg-background shadow-sm p-0">
+        <Card className="overflow-hidden border-border/20 bg-background shadow-sm p-0">
           <CardContent className="relative p-0">
             <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-primary/5" />
 
@@ -17,7 +17,7 @@ export default function NotFound() {
                 <SearchX className="size-10 text-primary" />
               </div>
 
-              <div className="mb-3 inline-flex items-center rounded-xl border border-border/60 bg-muted/50 px-4 py-1 text-sm font-medium text-muted-foreground">
+              <div className="mb-3 inline-flex items-center rounded-xl border border-border/20 bg-muted/50 px-4 py-1 text-sm font-medium text-muted-foreground">
                 Error 404
               </div>
 
@@ -40,21 +40,21 @@ export default function NotFound() {
               </div>
 
               <div className="mt-10 grid w-full max-w-lg grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className=" border border-border/60 bg-muted/30 p-4">
+                <div className=" border border-border/20 bg-muted/30 p-4">
                   <p className="text-sm font-semibold">الرابط غلط</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     تأكد من كتابة الرابط بشكل صحيح
                   </p>
                 </div>
 
-                <div className=" border border-border/60 bg-muted/30 p-4">
+                <div className=" border border-border/20 bg-muted/30 p-4">
                   <p className="text-sm font-semibold">الصفحة اتحذفت</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     ممكن المحتوى ما بقاش متاح دلوقتي
                   </p>
                 </div>
 
-                <div className=" border border-border/60 bg-muted/30 p-4">
+                <div className=" border border-border/20 bg-muted/30 p-4">
                   <p className="text-sm font-semibold">تم نقلها</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     أحيانًا الصفحات بيتغير مسارها

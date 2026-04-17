@@ -133,7 +133,7 @@ export default function RenewSubscriptionModal({
       </DialogTrigger>
 
       <DialogContent className="overflow-hidden p-0 sm:max-w-xl" dir="rtl">
-        <div className="border-b border-border/60 bg-muted/30 px-6 py-5">
+        <div className="border-b border-border/20 bg-muted/30 px-6 py-5">
           <DialogHeader className="text-right">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -159,19 +159,19 @@ export default function RenewSubscriptionModal({
 
         <div className="space-y-4 px-6 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-border/60 bg-background p-4">
+            <div className="rounded-xl border border-border/20 bg-background p-4">
               <p className="mb-1 text-sm text-muted-foreground">الرصيد الحالي</p>
               <p className="text-lg font-bold">{formatPrice(balance)}</p>
             </div>
 
-            <div className="rounded-xl border border-border/60 bg-background p-4">
+            <div className="rounded-xl border border-border/20 bg-background p-4">
               <p className="mb-1 text-sm text-muted-foreground">قيمة التجديد الشهري</p>
               <p className="text-lg font-bold">{formatPrice(monthlyPrice)}</p>
             </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-border/60 bg-background p-4">
+            <div className="rounded-xl border border-border/20 bg-background p-4">
               <div className="mb-2 flex items-center gap-2">
                 <CalendarClock className="size-4 text-primary" />
                 <p className="text-sm font-medium">نهاية الاشتراك الحالية</p>
@@ -181,7 +181,7 @@ export default function RenewSubscriptionModal({
               </p>
             </div>
 
-            <div className="rounded-xl border border-border/60 bg-background p-4">
+            <div className="rounded-xl border border-border/20 bg-background p-4">
               <div className="mb-2 flex items-center gap-2">
                 <CalendarClock className="size-4 text-primary" />
                 <p className="text-sm font-medium">نهاية فترة السماح</p>
@@ -224,7 +224,7 @@ export default function RenewSubscriptionModal({
             </div>
           )}
 
-          <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+          <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Wallet className="size-4" />
@@ -242,7 +242,7 @@ export default function RenewSubscriptionModal({
           </div>
         </div>
 
-        <DialogFooter className="flex-col-reverse gap-2 border-t border-border/60 px-6 py-4 sm:flex-row sm:justify-start">
+        <DialogFooter className="flex-col-reverse gap-2 border-t border-border/20 px-6 py-4 sm:flex-row sm:justify-start">
           {enoughForRenewal ? (
             <Button
               onClick={handleRenew}

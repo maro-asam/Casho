@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import RequestServiceDialog from "../../_components/RequestServiceDialog";
+import RequestServiceDialog from "./_components/RequestServiceDialog";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -197,7 +197,7 @@ function ServiceCard({
       </CardHeader>
 
       <CardContent className="space-y-5">
-        <div className="grid grid-cols-1 gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 rounded-xl border border-border/20 bg-muted/30 p-4 sm:grid-cols-2">
           <div className="space-y-1 text-right">
             <p className="text-xs text-muted-foreground">السعر</p>
             <p className="font-semibold">{service.price}</p>
@@ -250,7 +250,7 @@ function SectionHeader({
   return (
     <div
       dir="rtl"
-      className="mb-6 flex flex-col gap-4 rounded-xl border border-border/60 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
+      className="mb-6 flex flex-col gap-4 rounded-xl border border-border/20 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
     >
       <div className="text-right">
         <h2 className="text-2xl font-bold text-primary">{title}</h2>
@@ -337,7 +337,7 @@ const ServicesRoute = () => {
       <section className="mt-12">
         <Card
           dir="rtl"
-          className="rounded-[28px] border-border/60 bg-primary/5 shadow-sm"
+          className="rounded-[28px] border-border/20 bg-primary/5 shadow-sm"
         >
           <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between md:p-8">
             <div className="text-right">

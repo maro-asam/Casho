@@ -4,7 +4,7 @@ import { FilePenLine } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
-import EditProductForm from "@/app/(merchant)/_components/products/EditProductForm";
+import EditProductForm from "@/app/(merchant)/dashboard/products/_components/EditProductForm";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 
 import {

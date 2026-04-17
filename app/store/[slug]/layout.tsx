@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
 import { GetCartItemsAction } from "@/actions/store/cart.actions";
-import StoreFrontHeader from "./_components/shared/StoreHeader";
+import StoreFrontHeader from "./_components/NAVBARS/StoreHeader";
 import StoreFooter from "./_components/shared/StoreFooter";
 
 type LayoutProps = {

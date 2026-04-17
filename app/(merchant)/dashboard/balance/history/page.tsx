@@ -186,7 +186,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
     return (
       <div className="min-h-[calc(100vh-120px)]" dir="rtl">
         <div className="mx-auto p-4 md:p-6">
-          <Card className="border-border/60 shadow-sm">
+          <Card className="border-border/20 shadow-sm">
             <CardContent className="flex min-h-72 flex-col items-center justify-center gap-4 p-8 text-center">
               <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Wallet className="size-6" />
@@ -298,7 +298,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
   return (
     <div className="min-h-[calc(100vh-120px)] bg-background" dir="rtl">
       <div className="mx-auto flex w-full flex-col gap-6 p-4 md:p-6">
-        <div className="flex flex-col gap-4 rounded-xl border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 rounded-xl border border-border/20 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <Badge
@@ -346,7 +346,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
-          <Card className="border-border/60 shadow-sm">
+          <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>الرصيد الحالي</CardDescription>
               <CardTitle className="text-2xl font-bold">
@@ -355,7 +355,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
             </CardHeader>
           </Card>
 
-          <Card className="border-border/60 shadow-sm">
+          <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>إجمالي الشحن</CardDescription>
               <CardTitle className="text-2xl font-bold text-emerald-600">
@@ -364,7 +364,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
             </CardHeader>
           </Card>
 
-          <Card className="border-border/60 shadow-sm">
+          <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>إجمالي الخصومات</CardDescription>
               <CardTitle className="text-2xl font-bold text-rose-600">
@@ -373,7 +373,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
             </CardHeader>
           </Card>
 
-          <Card className="border-border/60 shadow-sm">
+          <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>إجمالي الاسترجاع</CardDescription>
               <CardTitle className="text-2xl font-bold text-violet-600">
@@ -383,7 +383,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           </Card>
         </div>
 
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/20 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">الأنواع</CardTitle>
             <CardDescription>فلترة سريعة حسب نوع الحركة.</CardDescription>
@@ -419,7 +419,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/20 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">بحث وفلترة</CardTitle>
             <CardDescription>
@@ -469,7 +469,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/20 shadow-sm">
           <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle className="text-lg">كل الحركات</CardTitle>
@@ -496,7 +496,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
               </div>
             ) : (
               <>
-                <div className="overflow-hidden rounded-xl border border-border/60">
+                <div className="overflow-hidden rounded-xl border border-border/20">
                   <div className="hidden grid-cols-[1.2fr_0.9fr_1fr_1.2fr_1fr_1fr] items-center border-b bg-muted/40 px-4 py-3 text-sm font-medium text-muted-foreground lg:grid">
                     <div>النوع</div>
                     <div>المبلغ</div>
@@ -599,7 +599,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
                       </Button>
                     )}
 
-                    <div className="rounded-xl border border-border/60 px-4 py-2 text-sm">
+                    <div className="rounded-xl border border-border/20 px-4 py-2 text-sm">
                       {currentPage} / {totalPages}
                     </div>
 

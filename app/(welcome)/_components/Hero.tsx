@@ -107,7 +107,7 @@ export default function HeroSection() {
           <div className="absolute inset-x-10 bottom-0 h-24 rounded-xl bg-primary/10 blur-3xl" />
 
           <div className="relative overflow-hidden rounded-[32px] border border-border/70 bg-background/80 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.12)] backdrop-blur-xl md:p-6">
-            <div className="mb-5 flex items-center justify-between rounded-xl border border-border/60 bg-background/70 px-4 py-3">
+            <div className="mb-5 flex items-center justify-between rounded-xl border border-border/20 bg-background/70 px-4 py-3">
               <div className="text-right">
                 <p className="text-sm font-semibold text-foreground">
                   {HERO_CONTENT.dashboard.title}
@@ -128,7 +128,7 @@ export default function HeroSection() {
                 <div className="grid gap-4 sm:grid-cols-3">
                   <motion.div
                     whileHover={{ y: -2 }}
-                    className="rounded-xl border border-border/60 bg-background/85 p-4 text-right"
+                    className="rounded-xl border border-border/20 bg-background/85 p-4 text-right"
                   >
                     <div className="mb-3 flex items-center justify-between">
                       <div className="rounded-xl bg-primary/10 p-2 text-primary">
@@ -148,7 +148,7 @@ export default function HeroSection() {
 
                   <motion.div
                     whileHover={{ y: -2 }}
-                    className="rounded-xl border border-border/60 bg-background/85 p-4 text-right"
+                    className="rounded-xl border border-border/20 bg-background/85 p-4 text-right"
                   >
                     <div className="mb-3 flex items-center justify-between">
                       <div className="rounded-xl bg-primary/10 p-2 text-primary">
@@ -168,7 +168,7 @@ export default function HeroSection() {
 
                   <motion.div
                     whileHover={{ y: -2 }}
-                    className="rounded-xl border border-border/60 bg-background/85 p-4 text-right"
+                    className="rounded-xl border border-border/20 bg-background/85 p-4 text-right"
                   >
                     <div className="mb-3 flex items-center justify-between">
                       <div className="rounded-xl bg-primary/10 p-2 text-primary">
@@ -187,7 +187,7 @@ export default function HeroSection() {
                   </motion.div>
                 </div>
 
-                <div className="rounded-xl border border-border/60 bg-background/85 p-5 text-right">
+                <div className="rounded-xl border border-border/20 bg-background/85 p-5 text-right">
                   <div className="mb-5 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-semibold">
@@ -228,7 +228,7 @@ export default function HeroSection() {
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-xl border border-border/60 bg-background/85 p-5 text-right">
+                <div className="rounded-xl border border-border/20 bg-background/85 p-5 text-right">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-semibold">

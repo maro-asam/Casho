@@ -100,7 +100,7 @@ export default function ProductDetailsSkeleton() {
           </div>
 
           {/* Image */}
-          <Card className="order-1 h-fit overflow-hidden rounded-xl border-border/60 shadow-sm xl:order-1">
+          <Card className="order-1 h-fit overflow-hidden rounded-xl border-border/20 shadow-sm xl:order-1">
             <CardContent>
               <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/30">
                 <Skeleton className="h-full w-full rounded-xl" />
@@ -124,7 +124,7 @@ export default function ProductDetailsSkeleton() {
             {Array.from({ length: 4 }).map((_, index) => (
               <Card
                 key={index}
-                className="group overflow-hidden rounded-xl border-border/60 shadow-sm"
+                className="group overflow-hidden rounded-xl border-border/20 shadow-sm"
               >
                 <CardContent className="p-0">
                   <div className="relative aspect-square overflow-hidden bg-muted/30">

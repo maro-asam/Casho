@@ -4,7 +4,7 @@ import { Heart, Sparkles, Eye } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "../../../../../components/ui/badge";
-import AddToCartButton from "./AddToCartButton";
+import AddToCartButton from "../../cart/_components/AddToCartButton";
 import { formatPrice } from "@/lib/utils";
 
 type ProductCardProps = {
@@ -37,7 +37,7 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
   return (
     <Card
       dir="rtl"
-      className="group overflow-hidden border border-border/60 bg-background py-0 gap-5"
+      className="group overflow-hidden border border-border/20 bg-background py-0 gap-5"
     >
       <div className="relative">
         <Link

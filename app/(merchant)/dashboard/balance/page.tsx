@@ -182,7 +182,7 @@ const BalanceRoute = async () => {
     return (
       <div className="min-h-[calc(100vh-120px)]" dir="rtl">
         <div className="mx-auto p-4 md:p-6">
-          <Card className=" border-border/60 shadow-sm">
+          <Card className=" border-border/20 shadow-sm">
             <CardContent className="flex min-h-75 flex-col items-center justify-center gap-4 p-8 text-center">
               <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Wallet className="size-6" />
@@ -262,7 +262,7 @@ const BalanceRoute = async () => {
         </Card>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Card className=" border-border/60 shadow-sm">
+          <Card className=" border-border/20 shadow-sm">
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
               <div className="space-y-1">
                 <CardDescription>الرصيد الحالي</CardDescription>
@@ -283,7 +283,7 @@ const BalanceRoute = async () => {
             </CardContent>
           </Card>
 
-          <Card className=" border-border/60 shadow-sm">
+          <Card className=" border-border/20 shadow-sm">
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
               <div className="space-y-1">
                 <CardDescription>سعر التجديد الشهري</CardDescription>
@@ -304,7 +304,7 @@ const BalanceRoute = async () => {
             </CardContent>
           </Card>
 
-          <Card className=" border-border/60 shadow-sm">
+          <Card className=" border-border/20 shadow-sm">
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
               <div className="space-y-1">
                 <CardDescription>التجديد القادم</CardDescription>
@@ -327,7 +327,7 @@ const BalanceRoute = async () => {
             </CardContent>
           </Card>
 
-          <Card className=" border-border/60 shadow-sm">
+          <Card className=" border-border/20 shadow-sm">
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
               <div className="space-y-1">
                 <CardDescription>بعد التجديد القادم</CardDescription>
@@ -364,7 +364,7 @@ const BalanceRoute = async () => {
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-          <Card className=" border-border/60 shadow-sm">
+          <Card className=" border-border/20 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">ملخص الاشتراك</CardTitle>
               <CardDescription>
@@ -374,21 +374,21 @@ const BalanceRoute = async () => {
 
             <CardContent className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     اسم المتجر
                   </p>
                   <p className="font-semibold">{store.name}</p>
                 </div>
 
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     حالة الاشتراك
                   </p>
                   <p className="font-semibold">{statusLabel}</p>
                 </div>
 
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     التجديد التلقائي
                   </p>
@@ -397,7 +397,7 @@ const BalanceRoute = async () => {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
                     المبلغ المطلوب للتجديد
                   </p>
@@ -406,7 +406,7 @@ const BalanceRoute = async () => {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-4 sm:col-span-2">
+                <div className="rounded-xl border border-border/20 bg-muted/30 p-4 sm:col-span-2">
                   <p className="mb-1 text-sm text-muted-foreground">
                     نهاية فترة السماح
                   </p>
@@ -444,7 +444,7 @@ const BalanceRoute = async () => {
             </CardContent>
           </Card>
 
-          <Card className=" border-border/60 shadow-sm">
+          <Card className=" border-border/20 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">إجراءات سريعة</CardTitle>
               <CardDescription>
@@ -498,7 +498,7 @@ const BalanceRoute = async () => {
           </Card>
         </div>
 
-        <Card className=" border-border/60 shadow-sm">
+        <Card className=" border-border/20 shadow-sm">
           <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle className="text-lg">آخر الحركات المالية</CardTitle>
@@ -526,7 +526,7 @@ const BalanceRoute = async () => {
                 </div>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-xl border border-border/60">
+              <div className="overflow-hidden rounded-xl border border-border/20">
                 <div className="hidden grid-cols-[1.3fr_1fr_1fr_2fr] items-center border-b bg-muted/40 px-4 py-3 text-sm font-medium text-muted-foreground md:grid">
                   <div>النوع</div>
                   <div>المبلغ</div>

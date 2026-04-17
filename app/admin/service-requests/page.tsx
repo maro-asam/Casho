@@ -62,7 +62,7 @@ function StatCard({
   hint: string;
 }) {
   return (
-    <Card className="border-border/60 shadow-sm">
+    <Card className="border-border/20 shadow-sm">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 text-right">
@@ -174,7 +174,7 @@ export default async function AdminServiceRequestsPage({
         />
       </div>
 
-      <Card className="border-border/60 shadow-sm">
+      <Card className="border-border/20 shadow-sm">
         <CardHeader className="gap-2">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1 text-right">

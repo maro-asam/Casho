@@ -2,14 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { ImageIcon } from "lucide-react";
 
 import DashboardSectionHeader from "../../../_components/main/DashboardSectionHeader";
-import NewBannerForm from "@/app/(merchant)/_components/NewBannerForm";
+import NewBannerForm from "@/app/(merchant)/dashboard/banners/_components/NewBannerForm";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "إضافة بانر جديد",
 };
-  
+
 export default async function NewBannerRoute() {
   const userId = await requireUserId();
 

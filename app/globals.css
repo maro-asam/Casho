@@ -7,7 +7,7 @@
 :root {
   font-family: var(--font-alyamama);
 
-  --card: #f1f1f1;
+  --card: #f6f6f6;
   --card-foreground: oklch(0.141 0.005 285.823);
 
   --popover: oklch(1 0 0);
@@ -18,7 +18,7 @@
   --primary-foreground: oklch(0.97 0.014 254.604);
 
   /* neutral */
-  --secondary: rgb(244, 244, 245);
+  --secondary: #f6f6f6;
   --secondary-foreground: oklch(0.21 0.006 285.885);
 
   --muted: #1449e610;

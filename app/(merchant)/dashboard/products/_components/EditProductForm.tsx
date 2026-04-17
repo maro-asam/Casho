@@ -9,6 +9,8 @@ import {
   Star,
   Eye,
   Layers3,
+  Upload,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -84,8 +86,33 @@ export default function EditProductForm({ product, categories }: Props) {
     initialState,
   );
 
+  const [categoryId, setCategoryId] = useState(product.categoryId);
+
+  // الصورة الأساسية
+  const [imageInputMode, setImageInputMode] = useState<"link" | "upload">(
+    product.image ? "link" : "upload",
+  );
   const [imageValue, setImageValue] = useState(product.image || "");
+  const [isUploadingMainImage, setIsUploadingMainImage] = useState(false);
+
+  // الصور الإضافية
+  const initialManualAdditionalImages = useMemo(
+    () => product.images.join(", "),
+    [product.images],
+  );
+  const [manualAdditionalImages, setManualAdditionalImages] = useState(
+    initialManualAdditionalImages,
+  );
+  const [uploadedAdditionalImages, setUploadedAdditionalImages] = useState<
+    string[]
+  >([]);
+  const [isUploadingAdditionalImages, setIsUploadingAdditionalImages] =
+    useState(false);
+
   const previewImage = useMemo(() => imageValue.trim(), [imageValue]);
+
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
   useEffect(() => {
     if (!state.message) return;
@@ -96,6 +123,92 @@ export default function EditProductForm({ product, categories }: Props) {
       toast.error(state.message);
     }
   }, [state]);
+
+  const mergedAdditionalImages = useMemo(() => {
+    const manual = manualAdditionalImages
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return [...manual, ...uploadedAdditionalImages];
+  }, [manualAdditionalImages, uploadedAdditionalImages]);
+
+  async function uploadToCloudinary(file: File) {
+    if (!cloudName || !uploadPreset) {
+      throw new Error(
+        "Cloudinary envs are missing. Add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
+      );
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+    formData.append("folder", "casho/uploads/products");
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.secure_url) {
+      throw new Error(data?.error?.message || "فشل رفع الصورة");
+    }
+
+    return data.secure_url as string;
+  }
+
+  async function handleMainImageUpload(
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingMainImage(true);
+
+      const url = await uploadToCloudinary(file);
+      setImageValue(url);
+      setImageInputMode("upload");
+
+      toast.success("تم رفع الصورة الأساسية بنجاح");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "فشل رفع الصورة");
+    } finally {
+      setIsUploadingMainImage(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleAdditionalImagesUpload(
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    try {
+      setIsUploadingAdditionalImages(true);
+
+      const urls = await Promise.all(files.map((file) => uploadToCloudinary(file)));
+
+      setUploadedAdditionalImages((prev) => [...prev, ...urls]);
+
+      toast.success("تم رفع الصور الإضافية بنجاح");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "فشل رفع الصور");
+    } finally {
+      setIsUploadingAdditionalImages(false);
+      e.target.value = "";
+    }
+  }
+
+  function removeUploadedAdditionalImage(url: string) {
+    setUploadedAdditionalImages((prev) => prev.filter((item) => item !== url));
+  }
 
   return (
     <form action={formAction} className="space-y-6">
@@ -193,7 +306,7 @@ export default function EditProductForm({ product, categories }: Props) {
 
         <div className="space-y-2">
           <Label htmlFor="categoryId">التصنيف</Label>
-          <Select name="categoryId" defaultValue={product.categoryId}>
+          <Select value={categoryId} onValueChange={setCategoryId}>
             <SelectTrigger id="categoryId" className="w-full rounded-xl">
               <SelectValue placeholder="اختر تصنيف المنتج" />
             </SelectTrigger>
@@ -205,33 +318,164 @@ export default function EditProductForm({ product, categories }: Props) {
               ))}
             </SelectContent>
           </Select>
+          <input type="hidden" name="categoryId" value={categoryId} />
         </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="image">رابط الصورة الأساسية</Label>
-          <Input
-            id="image"
-            name="image"
-            placeholder="https://example.com/image.jpg"
-            defaultValue={product.image || ""}
-            onChange={(e) => setImageValue(e.target.value)}
-            className="rounded-xl"
-          />
+        <div className="space-y-3 md:col-span-2">
+          <Label>الصورة الأساسية</Label>
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant={imageInputMode === "link" ? "default" : "outline"}
+              onClick={() => setImageInputMode("link")}
+            >
+              إضافة برابط
+            </Button>
+
+            <Button
+              type="button"
+              variant={imageInputMode === "upload" ? "default" : "outline"}
+              onClick={() => setImageInputMode("upload")}
+            >
+            رفع صورة من علي الجهاز
+            </Button>
+          </div>
+
+          {imageInputMode === "link" ? (
+            <Input
+              id="image"
+              type="url"
+              placeholder="https://example.com/image.jpg"
+              value={imageValue}
+              onChange={(e) => setImageValue(e.target.value)}
+              className="rounded-xl"
+            />
+          ) : (
+            <div className="space-y-3">
+              <Label
+                htmlFor="main-image-upload"
+                className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 text-center transition hover:bg-muted/50"
+              >
+                {isUploadingMainImage ? (
+                  <>
+                    <Loader2 className="mb-2 size-5 animate-spin" />
+                    <span className="text-sm">جاري رفع الصورة...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mb-2 size-5" />
+                    <span className="text-sm font-medium">
+                      اضغط لرفع الصورة الأساسية
+                    </span>
+                    <span className="mt-1 text-xs text-muted-foreground">
+                      PNG, JPG, WEBP
+                    </span>
+                  </>
+                )}
+              </Label>
+
+              <Input
+                id="main-image-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleMainImageUpload}
+                disabled={isUploadingMainImage}
+              />
+            </div>
+          )}
+
+          <input type="hidden" name="image" value={imageValue} />
         </div>
 
-        <div className="space-y-2 md:col-span-2">
+        <div className="space-y-3 md:col-span-2">
           <Label htmlFor="images">
-            روابط صور إضافية
+            الصور الإضافية
             <span className="ms-2 text-xs text-muted-foreground">
-              افصل بينهم بفاصلة
+              تقدر تضيف روابط أو ترفع صور أو تستخدم الاتنين
             </span>
           </Label>
+
           <Input
             id="images"
-            name="images"
             placeholder="https://img1.jpg, https://img2.jpg"
-            defaultValue={product.images.join(", ")}
+            value={manualAdditionalImages}
+            onChange={(e) => setManualAdditionalImages(e.target.value)}
             className="rounded-xl"
+          />
+
+          <div className="space-y-3">
+            <Label
+              htmlFor="additional-images-upload"
+              className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 text-center transition hover:bg-muted/50"
+            >
+              {isUploadingAdditionalImages ? (
+                <>
+                  <Loader2 className="mb-2 size-5 animate-spin" />
+                  <span className="text-sm">جاري رفع الصور...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="mb-2 size-5" />
+                  <span className="text-sm font-medium">
+                    اضغط لرفع صور إضافية
+                  </span>
+                  <span className="mt-1 text-xs text-muted-foreground">
+                    تقدر تختار أكتر من صورة
+                  </span>
+                </>
+              )}
+            </Label>
+
+            <Input
+              id="additional-images-upload"
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleAdditionalImagesUpload}
+              disabled={isUploadingAdditionalImages}
+            />
+          </div>
+
+          {mergedAdditionalImages.length > 0 && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {mergedAdditionalImages.map((url, index) => (
+                <div
+                  key={`${url}-${index}`}
+                  className="relative overflow-hidden rounded-xl border bg-background"
+                >
+                  <div className="relative h-36 w-full">
+                    <Image
+                      src={url}
+                      alt={`صورة إضافية ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+
+                  {uploadedAdditionalImages.includes(url) && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute left-2 top-2 size-8 rounded-full"
+                      onClick={() => removeUploadedAdditionalImage(url)}
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <input
+            type="hidden"
+            name="images"
+            value={mergedAdditionalImages.join(", ")}
           />
         </div>
 
@@ -312,7 +556,7 @@ export default function EditProductForm({ product, categories }: Props) {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4">
           <Checkbox
             name="isActive"
             defaultChecked={product.isActive}
@@ -329,7 +573,7 @@ export default function EditProductForm({ product, categories }: Props) {
           </div>
         </label>
 
-        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4">
           <Checkbox
             name="isFeatured"
             defaultChecked={product.isFeatured}
@@ -346,7 +590,7 @@ export default function EditProductForm({ product, categories }: Props) {
           </div>
         </label>
 
-        <label className="flex items-start gap-3 rounded-xl border p-4 cursor-pointer">
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4">
           <Checkbox
             name="hasVariants"
             defaultChecked={product.hasVariants}
@@ -367,7 +611,9 @@ export default function EditProductForm({ product, categories }: Props) {
       <div className="flex justify-start">
         <Button
           type="submit"
-          disabled={isPending}
+          disabled={
+            isPending || isUploadingMainImage || isUploadingAdditionalImages
+          }
           className="min-w-40 rounded-xl"
         >
           {isPending ? (

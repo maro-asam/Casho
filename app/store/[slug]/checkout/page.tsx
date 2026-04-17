@@ -1,5 +1,5 @@
 import { CreateOrderAction } from "@/actions/store/orders.actions";
-import CheckoutForm from "@/app/store/[slug]/_components/CheckoutForm";
+import CheckoutForm from "@/app/store/[slug]/checkout/_components/CheckoutForm";
 import {
   PAYMENT_METHODS,
   type PaymentMethodKey,

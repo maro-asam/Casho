@@ -23,7 +23,7 @@ export default function ProductGallery({
 
   return (
     <div className="order-1 space-y-4 xl:order-1">
-      <div className="h-fit overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
+      <div className="h-fit overflow-hidden rounded-xl border border-border/20 bg-card shadow-sm">
         <div className="p-4">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/30">
             <Image

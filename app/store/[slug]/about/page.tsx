@@ -57,7 +57,7 @@ export default async function AboutStoreRoute({
         className="min-h-screen flex items-center justify-center px-4"
         dir="rtl"
       >
-        <Card className="w-full max-w-md rounded-xl border-border/60 shadow-sm">
+        <Card className="w-full max-w-md rounded-xl border-border/20 shadow-sm">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">المتجر غير مفعل</CardTitle>
             <CardDescription>
@@ -134,7 +134,7 @@ export default async function AboutStoreRoute({
         </div>
 
         {/* hero */}
-        <section className="relative overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
+        <section className="relative overflow-hidden rounded-xl border border-border/20 bg-card shadow-sm">
           <div className="absolute inset-0 " />
 
           {settings?.coverImage ? (
@@ -198,7 +198,7 @@ export default async function AboutStoreRoute({
 
         {/* stats */}
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Card className="rounded-xl border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/20 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Package className="size-5 text-primary" />
@@ -210,7 +210,7 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/20 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Store className="size-5 text-primary" />
@@ -222,7 +222,7 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/20 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Megaphone className="size-5 text-primary" />
@@ -234,7 +234,7 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/20 shadow-sm">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
                 <Palette className="size-5 text-primary" />
@@ -249,7 +249,7 @@ export default async function AboutStoreRoute({
 
         {/* content grid */}
         <section className="grid gap-6 lg:grid-cols-1">
-          {/* <Card className="lg:col-span-2 rounded-xl border-border/60 shadow-sm">
+          {/* <Card className="lg:col-span-2 rounded-xl border-border/20 shadow-sm">
             <CardHeader>
               <CardTitle>نبذة عن المتجر</CardTitle>
               <CardDescription>
@@ -285,7 +285,7 @@ export default async function AboutStoreRoute({
             </CardContent>
           </Card> */}
 
-          <Card className="rounded-xl border-border/60 shadow-sm">
+          <Card className="rounded-xl border-border/20 shadow-sm">
             <CardHeader>
               <CardTitle>تواصل مع المتجر</CardTitle>
               <CardDescription>

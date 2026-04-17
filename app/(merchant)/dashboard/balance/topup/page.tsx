@@ -78,7 +78,7 @@ export default async function BalanceTopupRoute() {
   if (!store) {
     return (
       <div className="min-h-[calc(100vh-120px)] p-4 md:p-6" dir="rtl">
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/20 shadow-sm">
           <CardContent className="flex min-h-80 flex-col items-center justify-center gap-4 text-center">
             <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Wallet className="size-6" />
@@ -105,7 +105,7 @@ export default async function BalanceTopupRoute() {
   return (
     <div className="min-h-[calc(100vh-120px)] bg-background p-4 md:p-6" dir="rtl">
       <div className="mx-auto flex w-full flex-col gap-6">
-        <div className="flex flex-col gap-4 rounded-xl border border-border/60 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 rounded-xl border border-border/20 bg-card/60 p-6 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/50 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline" className="rounded-xl px-3 py-1">
@@ -127,7 +127,7 @@ export default async function BalanceTopupRoute() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Card className="min-w-45 border-border/60 shadow-none">
+            <Card className="min-w-45 border-border/20 shadow-none">
               <CardContent className="p-4">
                 <p className="mb-1 text-sm text-muted-foreground">
                   الرصيد الحالي
@@ -136,7 +136,7 @@ export default async function BalanceTopupRoute() {
               </CardContent>
             </Card>
 
-            <Card className="min-w-45 border-border/60 shadow-none">
+            <Card className="min-w-45 border-border/20 shadow-none">
               <CardContent className="p-4">
                 <p className="mb-1 text-sm text-muted-foreground">
                   الاشتراك الشهري
@@ -157,7 +157,7 @@ export default async function BalanceTopupRoute() {
           />
 
           <div className="space-y-6">
-            <Card className="border-border/60 shadow-sm">
+            <Card className="border-border/20 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg">طرق الشحن المتاحة</CardTitle>
                 <CardDescription>
@@ -173,7 +173,7 @@ export default async function BalanceTopupRoute() {
                   return (
                     <div
                       key={item.value}
-                      className="rounded-xl border border-border/60 bg-muted/30 p-4"
+                      className="rounded-xl border border-border/20 bg-muted/30 p-4"
                     >
                       <div className="mb-2 flex items-center gap-3">
                         <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -192,7 +192,7 @@ export default async function BalanceTopupRoute() {
               </CardContent>
             </Card>
 
-            <Card className="border-border/60 shadow-sm">
+            <Card className="border-border/20 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg">آخر طلبات الشحن</CardTitle>
                 <CardDescription>
@@ -213,7 +213,7 @@ export default async function BalanceTopupRoute() {
                     {store.topupRequests.map((request) => (
                       <div
                         key={request.id}
-                        className="rounded-xl border border-border/60 p-4"
+                        className="rounded-xl border border-border/20 p-4"
                       >
                         <div className="mb-2 flex items-center justify-between gap-3">
                           <p className="font-semibold">

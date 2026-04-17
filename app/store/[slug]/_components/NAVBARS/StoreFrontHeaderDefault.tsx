@@ -29,7 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import type { StoreFrontHeaderProps } from "./store-header.types";
+import type { StoreFrontHeaderProps } from "../shared/store-header.types";
 import { ModeToggle } from "@/theme/ModeToggle";
 
 export default function StoreFrontHeaderDefault({

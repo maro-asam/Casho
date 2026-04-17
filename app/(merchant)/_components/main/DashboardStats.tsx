@@ -45,7 +45,7 @@ const DashboardStats = async () => {
   if (!store) {
     return (
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-5">
-        <Card className="overflow-hidden rounded-[28px] border border-border/60 bg-background shadow-sm 2xl:col-span-5">
+        <Card className="overflow-hidden rounded-[28px] border border-border/20 bg-background shadow-sm 2xl:col-span-5">
           <CardContent className="flex h-40 items-center justify-center p-6 text-center">
             <div className="space-y-2">
               <p className="text-lg font-bold text-foreground">
@@ -338,7 +338,7 @@ const DashboardStats = async () => {
         return (
           <Card
             key={stat.title}
-            className="group overflow-hidden border border-border/60 transition-all duration-300"
+            className="group overflow-hidden border border-border/20 transition-all duration-300"
           >
             <CardContent className="p-5">
               <div className="mb-6 flex items-start justify-between gap-4">

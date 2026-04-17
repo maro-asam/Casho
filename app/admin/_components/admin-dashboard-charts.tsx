@@ -76,7 +76,7 @@ export default function AdminDashboardCharts({
 
   return (
     <section className="grid gap-4 xl:grid-cols-2">
-      <Card className="rounded-[28px] border-border/60 shadow-sm">
+      <Card className="rounded-[28px] border-border/20 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl">قيمة الشحنات المعتمدة</CardTitle>
           <CardDescription>
@@ -130,7 +130,7 @@ export default function AdminDashboardCharts({
         </CardContent>
       </Card>
 
-      <Card className="rounded-[28px] border-border/60 shadow-sm">
+      <Card className="rounded-[28px] border-border/20 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl">عدد الشحنات المعتمدة</CardTitle>
           <CardDescription>
@@ -184,7 +184,7 @@ export default function AdminDashboardCharts({
         </CardContent>
       </Card>
 
-      <Card className="rounded-[28px] border-border/60 shadow-sm">
+      <Card className="rounded-[28px] border-border/20 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl">حالة المتاجر</CardTitle>
           <CardDescription>
@@ -233,7 +233,7 @@ export default function AdminDashboardCharts({
         </CardContent>
       </Card>
 
-      <Card className="rounded-[28px] border-border/60 shadow-sm">
+      <Card className="rounded-[28px] border-border/20 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl">
             أعلى المتاجر في الشحن المعتمد

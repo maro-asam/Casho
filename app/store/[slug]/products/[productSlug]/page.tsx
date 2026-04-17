@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ProductCard from "../../_components/shared/ProductCard";
 import { formatPrice } from "@/lib/utils";
-import ProductGallery from "../../_components/products/ProductGallery";
-import AddToCartButton from "../../_components/shared/AddToCartButton";
-import BuyNowButton from "../../_components/BuyNowButton";
+import ProductGallery from "../_components/ProductGallery";
+import AddToCartButton from "../../cart/_components/AddToCartButton";
+import BuyNowButton from "../../cart/_components/BuyNowButton";
 import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
 
 export const dynamic = "force-dynamic";
@@ -208,7 +208,7 @@ export default async function ProductDetailsRoute({
                 </CardHeader>
 
                 <CardContent className="space-y-4 text-sm">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                  <div className="flex items-center justify-between border-b border-border/20 pb-3">
                     <span className="text-muted-foreground">السعر الحالي</span>
                     <span className="font-bold text-foreground">
                       {formatPrice(product.price)}
@@ -216,7 +216,7 @@ export default async function ProductDetailsRoute({
                   </div>
 
                   {hasDiscount && product.compareAtPrice && (
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="flex items-center justify-between border-b border-border/20 pb-3">
                       <span className="text-muted-foreground">
                         السعر قبل الخصم
                       </span>
@@ -226,7 +226,7 @@ export default async function ProductDetailsRoute({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                  <div className="flex items-center justify-between border-b border-border/20 pb-3">
                     <span className="text-muted-foreground">التصنيف</span>
                     <span className="font-medium text-foreground">
                       {product.category.name}
@@ -234,7 +234,7 @@ export default async function ProductDetailsRoute({
                   </div>
 
                   {product.brand && (
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="flex items-center justify-between border-b border-border/20 pb-3">
                       <span className="text-muted-foreground">البراند</span>
                       <span className="font-medium text-foreground">
                         {product.brand}
@@ -242,7 +242,7 @@ export default async function ProductDetailsRoute({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                  <div className="flex items-center justify-between border-b border-border/20 pb-3">
                     <span className="text-muted-foreground">المخزون</span>
                     <Badge
                       variant={product.stock > 0 ? "default" : "secondary"}
@@ -253,7 +253,7 @@ export default async function ProductDetailsRoute({
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                  <div className="flex items-center justify-between border-b border-border/20 pb-3">
                     <span className="text-muted-foreground">مميز</span>
                     <Badge variant={product.isFeatured ? "default" : "outline"}>
                       {product.isFeatured ? "نعم" : "لا"}
@@ -261,7 +261,7 @@ export default async function ProductDetailsRoute({
                   </div>
 
                   {product.weight !== null && (
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="flex items-center justify-between border-b border-border/20 pb-3">
                       <span className="text-muted-foreground">الوزن</span>
                       <span className="font-medium text-foreground">
                         {product.weight} كجم
@@ -270,7 +270,7 @@ export default async function ProductDetailsRoute({
                   )}
 
                   {product.sizes.length > 0 && (
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="flex items-center justify-between border-b border-border/20 pb-3">
                       <span className="text-muted-foreground">المقاسات</span>
                       <div className="flex flex-wrap gap-2">
                         {product.sizes.map((size) => (
