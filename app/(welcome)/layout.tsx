@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8 overflow-x-hidden">
       <Navbar />
       <div className="absolute inset-0 -z-10 ">
         <div className="absolute left-1/2 -top-25 h-70 w-155 -translate-x-1/2 rounded-xl bg-primary/30 dark:bg-primary/10 blur-[110px]" />
