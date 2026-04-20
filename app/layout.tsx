@@ -63,7 +63,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className={`antialiased mx-auto `}
+        className={`antialiased mx-auto overflow-x-hidden`}
         cz-shortcut-listen="true"
         smooth-scroll="true"
       >
