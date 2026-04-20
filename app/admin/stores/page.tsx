@@ -14,7 +14,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("ar-EG", {

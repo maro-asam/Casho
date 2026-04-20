@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { OrderStatus } from "@/lib/generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 
 function getStatusLabel(status: OrderStatus) {
   switch (status) {

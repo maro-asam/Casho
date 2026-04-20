@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType } from "@/lib/generated/prisma/enums";
+import { BalanceTransactionType } from "@prisma/client";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

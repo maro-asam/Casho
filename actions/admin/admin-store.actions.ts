@@ -15,7 +15,7 @@ import {
 import {
   BalanceTransactionType,
   SubscriptionStatus,
-} from "@/lib/generated/prisma/enums";
+} from "@prisma/client";
 
 type ActionResult = {
   success: boolean;

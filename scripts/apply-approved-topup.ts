@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import {
   BalanceTransactionType,
   TopupRequestStatus,
-} from "@/lib/generated/prisma/enums";
+} from "@prisma/client";
 
 async function main() {
   const requestId = process.argv[2];

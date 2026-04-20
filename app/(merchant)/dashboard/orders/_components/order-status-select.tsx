@@ -20,7 +20,7 @@ import {
   CommandList,
   CommandEmpty,
 } from "@/components/ui/command";
-import { OrderStatus } from "@/lib/generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 
 const orderStatuses: { value: OrderStatus; label: string }[] = [
   { value: "PENDING", label: "معلق" },

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { ServiceRequestStatus } from "@/lib/generated/prisma/enums";
+import { ServiceRequestStatus } from "@prisma/client";
 
 type UpdateServiceRequestStatusState = {
   success?: boolean;

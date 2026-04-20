@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@/lib/generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";

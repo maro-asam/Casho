@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 import { requireUserId } from "../auth/require-user-id.actions";
 
 export async function ActivateStoreAction() {

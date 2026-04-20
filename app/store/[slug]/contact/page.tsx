@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Phone, MapPin, Mail, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 
 type StoreContactRouteProps = {
   params: Promise<{ slug: string }>;

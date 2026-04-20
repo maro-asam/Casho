@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import {
   TopupMethod,
   TopupRequestStatus,
-} from "@/lib/generated/prisma/enums";
+} from "@prisma/client";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import {
   approveTopupRequestAction,

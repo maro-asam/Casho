@@ -8,7 +8,7 @@ import {
 
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

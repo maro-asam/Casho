@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getAdminDashboardData } from "@/actions/admin/admin-dashboard.actions";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import AdminDashboardCharts from "./_components/admin-dashboard-charts";
 

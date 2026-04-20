@@ -6,7 +6,7 @@ import { Check, Loader2, Receipt, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 import { CreateTopupRequestAction } from "@/actions/balance/topup.actions";
-import { TopupMethod } from "@/lib/generated/prisma/enums";
+import { TopupMethod } from "@prisma/client";
 
 import { Button } from "@/components/ui/button";
 import {

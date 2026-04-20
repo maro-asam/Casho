@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType } from "@/lib/generated/prisma/enums";
+import { BalanceTransactionType } from "@prisma/client";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 function getTransactionLabel(type: BalanceTransactionType) {

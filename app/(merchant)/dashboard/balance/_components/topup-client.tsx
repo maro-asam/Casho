@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { CreateTopupRequestAction } from "@/actions/balance/topup.actions";
-import { TopupMethod } from "@/lib/generated/prisma/enums";
+import { TopupMethod } from "@prisma/client";
 
 const quickAmounts = [10000, 25000, 50000, 100000];
 

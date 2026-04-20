@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 import { RenewStoreSubscriptionAction } from "@/actions/subscription/subscription.actions";
 
 type RenewSubscriptionModalProps = {

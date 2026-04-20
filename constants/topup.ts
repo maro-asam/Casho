@@ -1,4 +1,4 @@
-import { TopupMethod } from "@/lib/generated/prisma/enums";
+import { TopupMethod } from "@prisma/client";
 
 export const TOPUP_METHODS = [
   {

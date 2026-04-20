@@ -14,7 +14,7 @@ import {
 import {
   BalanceTransactionType,
   SubscriptionStatus,
-} from "@/lib/generated/prisma/enums";
+} from "@prisma/client";
 import { addMonths } from "date-fns";
 import { requireUserId } from "../auth/require-user-id.actions";
 

@@ -8,7 +8,7 @@ import {
   BalanceTransactionType,
   SubscriptionStatus,
   TopupRequestStatus,
-} from "@/lib/generated/prisma/enums";
+} from "@prisma/client";
 
 import { Button } from "@/components/ui/button";
 import {

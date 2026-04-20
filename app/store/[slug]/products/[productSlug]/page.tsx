@@ -12,7 +12,7 @@ import { formatPrice } from "@/lib/utils";
 import ProductGallery from "../_components/ProductGallery";
 import AddToCartButton from "../../cart/_components/AddToCartButton";
 import BuyNowButton from "../../cart/_components/BuyNowButton";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 

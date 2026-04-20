@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { MustOwnStore } from "../auth/auth-helpers.actions";
 import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/utils";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 import { requireUserId } from "../auth/require-user-id.actions";
 
 function normalizeImage(value?: string | null) {

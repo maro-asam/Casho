@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import type { PaymentMethodKey } from "@/constants/welcome/payment-methods";
 import { MustOwnStore, MustSession } from "../auth/auth-helpers.actions";
 import { revalidatePath } from "next/cache";
-import { OrderStatus } from "@/lib/generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
 

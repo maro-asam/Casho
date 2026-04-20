@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType, TopupRequestStatus } from "@/lib/generated/prisma/enums";
+import { BalanceTransactionType, TopupRequestStatus } from "@prisma/client";
 import { requireAdmin } from "./admin-guard.actions";
 import { TryRenewStoreSubscriptionAction } from "../subscription/subscription.actions";
 

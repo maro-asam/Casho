@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { SubscriptionStatus, BalanceTransactionType } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus, BalanceTransactionType } from "@prisma/client";
 
 function startOfMonth(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), 1);

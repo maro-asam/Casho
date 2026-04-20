@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType } from "@/lib/generated/prisma/enums";
+import { BalanceTransactionType } from "@prisma/client";
 
 async function main() {
   const storeId = "f3899151-daa5-4870-9e37-e53e9cb2aab1";

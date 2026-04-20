@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType } from "@/lib/generated/prisma/enums";
+import { BalanceTransactionType } from "@prisma/client";
 
 type ApplyBalanceChangeInput = {
   storeId: string;

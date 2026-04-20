@@ -17,7 +17,7 @@ import { prisma } from "@/lib/prisma";
 import {
   BalanceTransactionType,
   SubscriptionStatus,
-} from "@/lib/generated/prisma/enums";
+} from "@prisma/client";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 import { Badge } from "@/components/ui/badge";

@@ -6,7 +6,7 @@ import {
   TopupMethod,
   TopupRequestStatus,
   BalanceTransactionType,
-} from "@/lib/generated/prisma/enums";
+} from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { applyBalanceChange } from "@/lib/balance";
 import { requireUserId } from "../auth/require-user-id.actions";

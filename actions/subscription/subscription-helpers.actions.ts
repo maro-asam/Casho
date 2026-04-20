@@ -1,4 +1,4 @@
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export async function canStoreUsePlatform(storeId: string) {

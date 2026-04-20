@@ -16,7 +16,7 @@ import EmptyProductsState from "./_components/EmptyProductsState";
 import ProductsPagination from "./_components/ProductsPagination";
 import ProductsSidebarFilters from "./_components/ProductSidebarFilters";
 import ProductsMobileFilters from "./_components/ProductsMobileFilters";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 
 type StoreProductsRouteProps = {
   params: Promise<{ slug: string }>;

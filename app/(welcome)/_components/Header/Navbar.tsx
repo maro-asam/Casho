@@ -65,87 +65,90 @@ const Navbar = async () => {
             {/* Desktop actions */}
             <div className="hidden items-center gap-2 md:flex">
               {user ? (
-                <DropdownMenu dir="rtl" modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="h-11 rounded-xl border-border/10 px-3 transition-all duration-300"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300">
-                          <StoreIcon className="size-4" />
-                        </div>
-
-                        <div className="hidden text-right sm:block">
-                          <p className="max-w-35 truncate text-sm font-semibold">
-                            {store?.name || "حسابي"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {user.email}
-                          </p>
-                        </div>
-
-                        <ChevronDown className="size-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent
-                    align="start"
-                    className="w-64 rounded-xl border-border/20 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
-                  >
-                    <div className="px-2 py-2 text-right">
-                      <p className="text-sm font-bold">
-                        {store?.name || "حسابي"}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      asChild
-                      className="cursor-pointer rounded-xl"
-                    >
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center justify-between"
+                <div>
+                  <DropdownMenu dir="rtl" modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="h-11 rounded-xl border-border/10 px-3 transition-all duration-300"
                       >
-                        <span>لوحة التحكم</span>
-                        <LayoutDashboard className="size-4" />
-                      </Link>
-                    </DropdownMenuItem>
+                        <div className="flex items-center gap-2">
+                          <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300">
+                            <StoreIcon className="size-4" />
+                          </div>
 
-                    {store?.slug && (
+                          <div className="hidden text-right sm:block">
+                            <p className="max-w-35 truncate text-sm font-semibold">
+                              {store?.name || "حسابي"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {user.email}
+                            </p>
+                          </div>
+
+                          <ChevronDown className="size-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent
+                      align="start"
+                      className="w-64 rounded-xl border-border/20 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
+                    >
+                      <div className="px-2 py-2 text-right">
+                        <p className="text-sm font-bold">
+                          {store?.name || "حسابي"}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+
+                      <DropdownMenuSeparator />
+
                       <DropdownMenuItem
                         asChild
                         className="cursor-pointer rounded-xl"
                       >
                         <Link
-                          href={`/store/${store.slug}`}
+                          href="/dashboard"
                           className="flex items-center justify-between"
                         >
-                          <span>عرض المتجر</span>
-                          <Store className="size-4" />
+                          <span>لوحة التحكم</span>
+                          <LayoutDashboard className="size-4" />
                         </Link>
                       </DropdownMenuItem>
-                    )}
 
-                    <DropdownMenuSeparator />
+                      {store?.slug && (
+                        <DropdownMenuItem
+                          asChild
+                          className="cursor-pointer rounded-xl"
+                        >
+                          <Link
+                            href={`/store/${store.slug}`}
+                            className="flex items-center justify-between"
+                          >
+                            <span>عرض المتجر</span>
+                            <Store className="size-4" />
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
 
-                    <form action={LogoutAction}>
-                      <button
-                        type="submit"
-                        className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-sm outline-none transition-colors hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <span>تسجيل الخروج</span>
-                        <LogOut className="size-4" />
-                      </button>
-                    </form>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DropdownMenuSeparator />
+
+                      <form action={LogoutAction}>
+                        <button
+                          type="submit"
+                          className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-sm outline-none transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <span>تسجيل الخروج</span>
+                          <LogOut className="size-4" />
+                        </button>
+                      </form>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <ModeToggle />
+                </div>
               ) : (
                 <div className="flex items-center gap-1">
                   <ModeToggle />

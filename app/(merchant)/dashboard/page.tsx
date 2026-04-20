@@ -9,7 +9,7 @@ import DashboardStats from "../_components/main/DashboardStats";
 import DashboardCharts from "../_components/main/DashboardCharts";
 
 import CopyStoreLinkBtn from "../_components/CopyStoreLinkBtn";
-import { SubscriptionStatus } from "@/lib/generated/prisma/enums";
+import { SubscriptionStatus } from "@prisma/client";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import StarterGuideBar from "../_components/main/StarterGuideCard";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
