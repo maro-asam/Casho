@@ -18,7 +18,7 @@ import StoreCategories from "./categories/_components/StoreCategories";
 import FeaturedProducts from "./products/_components/FeaturedProducts";
 import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSectionHeader";
 import { TrackVisitAction } from "@/actions/admin/visitors-tracker.actions";
-import { SubscriptionStatus } from "@/lib/generated/prisma/browser";
+import { SubscriptionStatus } from "@prisma/client";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 type StoreHomeRouteProps = {

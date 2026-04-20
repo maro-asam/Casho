@@ -1,4 +1,4 @@
-import { BalanceTransactionType, SubscriptionStatus } from "./generated/prisma/enums";
+import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
 
 export const DEFAULT_GRACE_PERIOD_DAYS = 3;
 
@@ -83,7 +83,10 @@ export function formatMoneyFromPiasters(value: number) {
   }).format(value / 100);
 }
 
-export const BALANCE_TRANSACTION_LABELS: Record<BalanceTransactionType, string> = {
+export const BALANCE_TRANSACTION_LABELS: Record<
+  BalanceTransactionType,
+  string
+> = {
   TOPUP: "شحن رصيد",
   SUBSCRIPTION_CHARGE: "خصم اشتراك",
   BONUS: "رصيد إضافي",
