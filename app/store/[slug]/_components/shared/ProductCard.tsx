@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "../../../../../components/ui/badge";
 import AddToCartButton from "../../cart/_components/AddToCartButton";
 import { formatPrice } from "@/lib/utils";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 type ProductCardProps = {
   product: {
@@ -41,7 +42,7 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
     >
       <div className="relative">
         <Link
-          href={`/store/${storeSlug}/products/${product.slug}`}
+          href={buildStoreUrl(storeSlug, `/products/${product.slug}`)}
           className="block"
         >
           <div className="relative aspect-square w-full overflow-hidden">
@@ -91,7 +92,7 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
 
       <CardContent className="space-y-3 p-4">
         <Link
-          href={`/store/${storeSlug}/products/${product.slug}`}
+          href={buildStoreUrl(storeSlug, `/products/${product.slug}`)}
           className="line-clamp-1 text-base font-semibold text-foreground hover:text-primary"
         >
           {product.name}

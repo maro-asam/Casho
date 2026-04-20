@@ -33,6 +33,7 @@ type RenewSubscriptionModalProps = {
   subscriptionStatus: SubscriptionStatus;
   subscriptionEndsAt: Date | string | null;
   gracePeriodEndsAt: Date | string | null;
+  className?: string;
 };
 
 function formatPrice(value: number) {
@@ -63,6 +64,7 @@ export default function RenewSubscriptionModal({
   subscriptionStatus,
   subscriptionEndsAt,
   gracePeriodEndsAt,
+  className,
 }: RenewSubscriptionModalProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -126,7 +128,7 @@ export default function RenewSubscriptionModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="" variant={`outline`}>
+        <Button className={className} variant={`outline`}>
           تجديد الاشتراك
           <RefreshCcw className="ms-2 size-4" />
         </Button>
@@ -160,12 +162,16 @@ export default function RenewSubscriptionModal({
         <div className="space-y-4 px-6 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-border/20 bg-background p-4">
-              <p className="mb-1 text-sm text-muted-foreground">الرصيد الحالي</p>
+              <p className="mb-1 text-sm text-muted-foreground">
+                الرصيد الحالي
+              </p>
               <p className="text-lg font-bold">{formatPrice(balance)}</p>
             </div>
 
             <div className="rounded-xl border border-border/20 bg-background p-4">
-              <p className="mb-1 text-sm text-muted-foreground">قيمة التجديد الشهري</p>
+              <p className="mb-1 text-sm text-muted-foreground">
+                قيمة التجديد الشهري
+              </p>
               <p className="text-lg font-bold">{formatPrice(monthlyPrice)}</p>
             </div>
           </div>
@@ -233,9 +239,9 @@ export default function RenewSubscriptionModal({
               <div className="space-y-1">
                 <p className="font-medium">معلومة مهمة</p>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  عند تأكيد العملية، هيتم خصم قيمة الاشتراك من رصيد المتجر فورًا،
-                  وتفعيل الاشتراك أو تمديده لمدة شهر جديد، مع تسجيل العملية في
-                  سجل الحركات.
+                  عند تأكيد العملية، هيتم خصم قيمة الاشتراك من رصيد المتجر
+                  فورًا، وتفعيل الاشتراك أو تمديده لمدة شهر جديد، مع تسجيل
+                  العملية في سجل الحركات.
                 </p>
               </div>
             </div>

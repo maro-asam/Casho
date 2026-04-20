@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { FolderOpen } from "lucide-react";
 import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSectionHeader";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 type Category = {
   id: string;
@@ -23,7 +24,7 @@ const StoreCategories = ({ categories, storeSlug }: StoreCategoriesProps) => {
     <section className="mb-10 space-y-5" dir="rtl">
       <StoreSectionHeader
         btn="كل التصنيفات"
-        href={`/store/${storeSlug}/categories`}
+        href={buildStoreUrl(storeSlug, "/categories")}
         title="التصنيفات"
       />
 
@@ -31,7 +32,10 @@ const StoreCategories = ({ categories, storeSlug }: StoreCategoriesProps) => {
         {categories.slice(0, 6).map((category) => (
           <Link
             key={category.id}
-            href={`/store/${storeSlug}/products?category=${category.slug}`}
+            href={buildStoreUrl(
+              storeSlug,
+              `products?category=${category.slug}`,
+            )}
           >
             <Card className="p-0">
               <div className="group flex h-22 cursor-pointer items-center justify-start gap-2 rounded-xl transition  p-2">

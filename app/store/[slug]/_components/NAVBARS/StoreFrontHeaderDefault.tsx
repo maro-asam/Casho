@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { StoreFrontHeaderProps } from "../shared/store-header.types";
 import { ModeToggle } from "@/theme/ModeToggle";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 export default function StoreFrontHeaderDefault({
   storeName,
@@ -50,9 +51,16 @@ export default function StoreFrontHeaderDefault({
     e.preventDefault();
 
     const q = search.trim();
-    const url = q
-      ? `/store/${storeSlug}/products?search=${encodeURIComponent(q)}`
-      : `/store/${storeSlug}/products`;
+    const params = new URLSearchParams();
+
+    if (q) {
+      params.set("search", q);
+    }
+
+    const url = buildStoreUrl(
+      storeSlug,
+      `/products${params.toString() ? `?${params.toString()}` : ""}`,
+    );
 
     startTransition(() => {
       router.push(url);
@@ -94,7 +102,7 @@ export default function StoreFrontHeaderDefault({
               )}
             >
               <Link
-                href={`/store/${storeSlug}`}
+                href={buildStoreUrl(storeSlug)}
                 className="group flex min-w-0 items-center gap-2"
               >
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden">
@@ -154,21 +162,21 @@ export default function StoreFrontHeaderDefault({
 
               <nav className="hidden items-center gap-1 lg:flex">
                 <Link
-                  href={`/store/${storeSlug}/products`}
+                  href={buildStoreUrl(storeSlug, "/products")}
                   className="rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-muted"
                 >
                   كل المنتجات
                 </Link>
 
                 <Link
-                  href={`/store/${storeSlug}/categories`}
+                  href={buildStoreUrl(storeSlug, "/categories")}
                   className="rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-muted"
                 >
                   التصنيفات
                 </Link>
 
                 <Link
-                  href={`/store/${storeSlug}/about`}
+                  href={buildStoreUrl(storeSlug, "/about")}
                   className="rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-muted"
                 >
                   عن المتجر
@@ -183,7 +191,7 @@ export default function StoreFrontHeaderDefault({
                     className="relative h-11 px-4"
                   >
                     <Link
-                      href={`/store/${storeSlug}/cart`}
+                      href={buildStoreUrl(storeSlug, "/cart")}
                       className="flex items-center gap-2"
                     >
                       <ShoppingCart className="h-4 w-4" />
@@ -220,7 +228,7 @@ export default function StoreFrontHeaderDefault({
 
                         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
                           <Link
-                            href={`/store/${storeSlug}`}
+                            href={buildStoreUrl(storeSlug)}
                             className="flex items-center gap-3 rounded-xl border bg-card p-3 transition hover:bg-muted/40"
                           >
                             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-muted">
@@ -270,7 +278,7 @@ export default function StoreFrontHeaderDefault({
                             <Button
                               type="submit"
                               size="sm"
-                              className="absolute left-1 top-1/2 h-9 -translate-y-1/2 px-4"
+                              className="absolute left-1 top-1/2 h-9 -translate-y-1/2 px-4 rounded-xl"
                               disabled={isPending}
                             >
                               بحث
@@ -282,7 +290,7 @@ export default function StoreFrontHeaderDefault({
                           <div className="space-y-2">
                             <SheetClose asChild>
                               <Link
-                                href={`/store/${storeSlug}/products`}
+                                href={buildStoreUrl(storeSlug, "products")}
                                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <PackageSearch className="h-4 w-4 text-primary" />
@@ -292,7 +300,7 @@ export default function StoreFrontHeaderDefault({
 
                             <SheetClose asChild>
                               <Link
-                                href={`/store/${storeSlug}/categories`}
+                                href={buildStoreUrl(storeSlug, "categories")}
                                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <LayoutGrid className="h-4 w-4 text-primary" />
@@ -302,7 +310,7 @@ export default function StoreFrontHeaderDefault({
 
                             <SheetClose asChild>
                               <Link
-                                href={`/store/${storeSlug}/about`}
+                                href={buildStoreUrl(storeSlug, "about")}
                                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <Info className="h-4 w-4 text-primary" />
@@ -312,7 +320,7 @@ export default function StoreFrontHeaderDefault({
 
                             <SheetClose asChild>
                               <Link
-                                href={`/store/${storeSlug}/contact`}
+                                href={buildStoreUrl(storeSlug, "contact")}
                                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition hover:bg-muted"
                               >
                                 <Phone className="h-4 w-4 text-primary" />
@@ -326,7 +334,7 @@ export default function StoreFrontHeaderDefault({
                           <SheetClose asChild>
                             <Button asChild className="h-11 w-full">
                               <Link
-                                href={`/store/${storeSlug}/cart`}
+                                href={buildStoreUrl(storeSlug, "cart")}
                                 className="flex items-center justify-center gap-2"
                               >
                                 <ShoppingCart className="h-4 w-4" />

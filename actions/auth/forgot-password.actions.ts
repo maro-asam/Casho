@@ -60,7 +60,6 @@ export async function ForgotPasswordAction(
     select: { id: true, email: true },
   });
 
-  // نفس الرسالة دائمًا سواء موجود أو لا
   const genericMessage =
     "لو البريد الإلكتروني موجود، هتلاقي رسالة لإعادة تعيين كلمة المرور.";
 
@@ -90,7 +89,6 @@ export async function ForgotPasswordAction(
 
   await sendPasswordResetEmail(user.email, resetLink);
 
-  // ممنوع ترجّع اللينك للواجهة
   return {
     success: true,
     message: genericMessage,

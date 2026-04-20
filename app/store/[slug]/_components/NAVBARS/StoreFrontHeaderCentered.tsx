@@ -13,6 +13,8 @@ import {
   Phone,
   X,
   Megaphone,
+  House,
+  PanelTop,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -26,7 +28,94 @@ import {
   SheetTitle,
   SheetTrigger,
   SheetClose,
+  SheetDescription,
 } from "@/components/ui/sheet";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/theme/ModeToggle";
+
+const navLinks = (storeSlug: string) => [
+  {
+    href: buildStoreUrl(storeSlug),
+    label: "الرئيسية",
+    icon: House,
+  },
+  {
+    href: buildStoreUrl(storeSlug, "products"),
+    label: "المنتجات",
+    icon: PanelTop,
+  },
+  {
+    href: buildStoreUrl(storeSlug, "categories"),
+    label: "التصنيفات",
+    icon: LayoutGrid,
+  },
+  {
+    href: buildStoreUrl(storeSlug, "about"),
+    label: "عن المتجر",
+    icon: Info,
+  },
+  {
+    href: buildStoreUrl(storeSlug, "contact"),
+    label: "تواصل معنا",
+    icon: Phone,
+  },
+];
+
+type NavSheetButtonProps = {
+  storeSlug: string;
+  className?: string;
+};
+
+function NavSheetButton({ storeSlug, className }: NavSheetButtonProps) {
+  const links = navLinks(storeSlug);
+
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          className={cn("h-11 w-11 shrink-0 rounded-xl", className)}
+          aria-label="فتح القائمة"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      </SheetTrigger>
+
+      <SheetContent side="right" className="w-80 p-0" dir="rtl">
+        <div className="flex h-full flex-col">
+          <SheetHeader className="border-b px-5 py-4 text-right">
+            <SheetTitle className="text-right">القائمة</SheetTitle>
+            <SheetDescription className="text-right">
+              تنقل سريع بين صفحات المتجر
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 space-y-2 px-5 py-5">
+            {links.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <SheetClose asChild key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-3 rounded-xl border border-transparent px-3 py-3 text-sm font-medium transition hover:border-border hover:bg-muted"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span>{item.label}</span>
+                  </Link>
+                </SheetClose>
+              );
+            })}
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
 
 export default function StoreFrontHeaderCentered({
   storeName,
@@ -46,17 +135,27 @@ export default function StoreFrontHeaderCentered({
     e.preventDefault();
 
     const q = search.trim();
+    const params = new URLSearchParams();
+
+    if (q) {
+      params.set("search", q);
+    }
+
+    const url = buildStoreUrl(
+      storeSlug,
+      `/products${params.toString() ? `?${params.toString()}` : ""}`,
+    );
+
     startTransition(() => {
-      router.push(
-        q
-          ? `/store/${storeSlug}/products?search=${encodeURIComponent(q)}`
-          : `/store/${storeSlug}/products`,
-      );
+      router.push(url);
     });
   };
 
   return (
-    <div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur" dir="rtl">
+    <div
+      className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur"
+      dir="rtl"
+    >
       {hasAnnouncement && (
         <div className="bg-primary/10 text-primary">
           <div className="wrapper">
@@ -80,33 +179,17 @@ export default function StoreFrontHeaderCentered({
       )}
 
       <div className="wrapper py-3">
-        <div className="hidden lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-6">
-          <nav className="flex items-center gap-1">
-            <Link
-              href={`/store/${storeSlug}`}
-              className="rounded-xl px-3 py-2 text-sm font-medium transition hover:bg-muted"
-            >
-              الرئيسية
-            </Link>
-            <Link
-              href={`/store/${storeSlug}/products`}
-              className="rounded-xl px-3 py-2 text-sm font-medium transition hover:bg-muted"
-            >
-              المنتجات
-            </Link>
-            <Link
-              href={`/store/${storeSlug}/categories`}
-              className="rounded-xl px-3 py-2 text-sm font-medium transition hover:bg-muted"
-            >
-              التصنيفات
-            </Link>
-          </nav>
+        <div className="hidden lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-4">
+          <div className="flex items-center gap-2">
+            <NavSheetButton storeSlug={storeSlug} />
+            <ModeToggle />
+          </div>
 
           <Link
-            href={`/store/${storeSlug}`}
-            className="flex items-center justify-center gap-3"
+            href={buildStoreUrl(storeSlug)}
+            className="flex min-w-0 items-center justify-center gap-3"
           >
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden">
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl">
               {logo ? (
                 <Image
                   src={logo}
@@ -123,7 +206,7 @@ export default function StoreFrontHeaderCentered({
             </div>
 
             <div className="text-center">
-              <p className="text-base font-extrabold">{storeName}</p>
+              <p className="truncate text-base font-extrabold">{storeName}</p>
             </div>
           </Link>
 
@@ -138,8 +221,11 @@ export default function StoreFrontHeaderCentered({
               <Search className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </form>
 
-            <Button asChild variant="outline" className="h-11 px-4">
-              <Link href={`/store/${storeSlug}/cart`} className="flex items-center gap-2">
+            <Button asChild variant="outline" className="h-11 px-4 rounded-xl">
+              <Link
+                href={buildStoreUrl(storeSlug, "cart")}
+                className="flex items-center gap-2"
+              >
                 <ShoppingCart className="h-4 w-4" />
                 <span>العربة</span>
                 <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-bold text-white">
@@ -151,57 +237,13 @@ export default function StoreFrontHeaderCentered({
         </div>
 
         <div className="flex items-center justify-between gap-3 lg:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="h-11 w-11">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
+          <NavSheetButton storeSlug={storeSlug} />
 
-            <SheetContent side="right" className="w-80 p-0" dir="rtl">
-              <div className="flex h-full flex-col">
-                <SheetHeader className="border-b px-5 py-4">
-                  <SheetTitle className="text-right">القائمة</SheetTitle>
-                </SheetHeader>
-
-                <div className="space-y-2 px-5 py-5">
-                  <SheetClose asChild>
-                    <Link href={`/store/${storeSlug}`} className="flex items-center gap-3 rounded-xl px-3 py-3 hover:bg-muted">
-                      <Store className="h-4 w-4 text-primary" />
-                      الرئيسية
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href={`/store/${storeSlug}/products`} className="flex items-center gap-3 rounded-xl px-3 py-3 hover:bg-muted">
-                      <Search className="h-4 w-4 text-primary" />
-                      المنتجات
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href={`/store/${storeSlug}/categories`} className="flex items-center gap-3 rounded-xl px-3 py-3 hover:bg-muted">
-                      <LayoutGrid className="h-4 w-4 text-primary" />
-                      التصنيفات
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href={`/store/${storeSlug}/about`} className="flex items-center gap-3 rounded-xl px-3 py-3 hover:bg-muted">
-                      <Info className="h-4 w-4 text-primary" />
-                      عن المتجر
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href={`/store/${storeSlug}/contact`} className="flex items-center gap-3 rounded-xl px-3 py-3 hover:bg-muted">
-                      <Phone className="h-4 w-4 text-primary" />
-                      تواصل معنا
-                    </Link>
-                  </SheetClose>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          <Link href={`/store/${storeSlug}`} className="flex min-w-0 items-center gap-2">
-            <div className="flex h-12 w-12 items-center justify-center overflow-hidden">
+          <Link
+            href={buildStoreUrl(storeSlug)}
+            className="flex min-w-0 items-center gap-2"
+          >
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl">
               {logo ? (
                 <Image
                   src={logo}
@@ -219,8 +261,11 @@ export default function StoreFrontHeaderCentered({
             <span className="truncate font-bold">{storeName}</span>
           </Link>
 
-          <Button asChild variant="outline" className="h-11 px-3">
-            <Link href={`/store/${storeSlug}/cart`} className="flex items-center gap-2">
+          <Button asChild variant="outline" className="h-11 px-3 rounded-xl">
+            <Link
+              href={buildStoreUrl(storeSlug, "cart")}
+              className="flex items-center gap-2"
+            >
               <ShoppingCart className="h-4 w-4" />
               <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-bold text-white">
                 {cartCount}

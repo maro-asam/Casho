@@ -22,8 +22,7 @@ export default function ForgotPasswordRoute() {
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold">نسيت كلمة المرور؟</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              اكتب البريد الإلكتروني المرتبط بحسابك، وهنجهز لك رابط تغيير
-              الباسورد.
+              اكتب البريد الإلكتروني المرتبط بحسابك، وهنبعت لك رابط تغيير الباسورد.
             </p>
           </div>
 
@@ -52,14 +51,8 @@ export default function ForgotPasswordRoute() {
             ) : null}
 
             {state?.success ? (
-              <div className="space-y-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-3 text-sm">
+              <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-3 text-sm">
                 <p className="text-foreground">{state.message}</p>
-
-                {state?.success ? (
-                  <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-3 text-sm">
-                    <p className="text-foreground">{state.message}</p>
-                  </div>
-                ) : null}
               </div>
             ) : null}
 

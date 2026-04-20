@@ -92,7 +92,7 @@ export async function CreateTopupRequestAction({
 📝 ملاحظات: ${note ?? "لا يوجد"}
 
 📂 راجع الطلب:
-https://yourdomain.com/admin/topup-requests
+${process.env.NEXT_PUBLIC_APP_URL}/admin/topup-requests
 `);
 
     revalidatePath("/dashboard/balance");

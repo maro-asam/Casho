@@ -19,11 +19,11 @@ import FeaturedProducts from "./products/_components/FeaturedProducts";
 import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSectionHeader";
 import { TrackVisitAction } from "@/actions/admin/visitors-tracker.actions";
 import { SubscriptionStatus } from "@/lib/generated/prisma/browser";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
 };
-
 
 export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   const { slug } = await params;
@@ -143,7 +143,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
 
               <div className="mt-6">
                 <Button asChild variant="outline">
-                  <Link href={`/store/${store.slug}/categories`}>
+                  <Link href={buildStoreUrl(store.slug, "/categories")}>
                     عرض التصنيفات
                   </Link>
                 </Button>
@@ -155,7 +155,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
             <StoreSectionHeader
               title="شاهد المزيد"
               btn="كل المنتجات"
-              href={`/store/${store.slug}/products`}
+              href={buildStoreUrl(store.slug, "/products")}
             />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
