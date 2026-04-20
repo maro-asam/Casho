@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "casho.store";
+const ROOT_DOMAIN = process.env.ROOT_DOMAIN || "casho.store";
 
 const RESERVED_SUBDOMAINS = new Set(["www", "app", "casho"]);
 
 function getHost(req: NextRequest) {
   const forwardedHost = req.headers.get("x-forwarded-host");
-  return (forwardedHost || req.headers.get("host") || "").split(":")[0];
+  return (forwardedHost || req.headers.get("host") || "")
+    .split(":")[0]
+    .toLowerCase();
 }
 
 function isStaticAsset(pathname: string) {
@@ -22,16 +24,20 @@ function isStaticAsset(pathname: string) {
 function getSubdomain(host: string) {
   if (!host) return null;
 
-  // local dev
-  if (host === "localhost") return null;
+  // local
+  if (host === "localhost" || host === "127.0.0.1") {
+    return null;
+  }
 
   if (host.endsWith(".localhost")) {
     const subdomain = host.replace(".localhost", "");
     return subdomain || null;
   }
 
-  // production
-  if (host === ROOT_DOMAIN) return null;
+  // production main domains
+  if (host === ROOT_DOMAIN || host === `www.${ROOT_DOMAIN}`) {
+    return null;
+  }
 
   if (host.endsWith(`.${ROOT_DOMAIN}`)) {
     const subdomain = host.replace(`.${ROOT_DOMAIN}`, "");
@@ -46,14 +52,14 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("sessionToken");
   const host = getHost(req);
 
+  if (isStaticAsset(pathname)) {
+    return NextResponse.next();
+  }
+
   if (!token && pathname.startsWith("/dashboard")) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
-  }
-
-  if (isStaticAsset(pathname)) {
-    return NextResponse.next();
   }
 
   const subdomain = getSubdomain(host);
@@ -65,12 +71,11 @@ export function middleware(req: NextRequest) {
   ) {
     const url = req.nextUrl.clone();
 
-    if (pathname === "/") {
-      url.pathname = `/store/${subdomain}`;
-      return NextResponse.rewrite(url);
-    }
+    url.pathname =
+      pathname === "/"
+        ? `/store/${subdomain}`
+        : `/store/${subdomain}${pathname}`;
 
-    url.pathname = `/store/${subdomain}${pathname}`;
     return NextResponse.rewrite(url);
   }
 
