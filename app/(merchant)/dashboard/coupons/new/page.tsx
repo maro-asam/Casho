@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const NewCouponPage = () => {
   return (
-    <div className="space-y-6 p-6" dir="rtl">
+    <div className="space-y-6" dir="rtl">
       <DashboardSectionHeader
         icon={TicketPercent}
         title="إضافة كوبون جديد"

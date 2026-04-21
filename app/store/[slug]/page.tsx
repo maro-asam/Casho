@@ -90,7 +90,6 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
 
   if (!store) return notFound();
 
-  // تسجيل الزيارة
   void TrackVisitAction(store.id);
 
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {

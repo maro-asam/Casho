@@ -173,7 +173,7 @@ export default async function BalanceTopupRoute() {
 
   if (!store) {
     return (
-      <div className="min-h-[calc(100vh-120px)] p-4 md:p-6" dir="rtl">
+      <div className="min-h-[calc(100vh-120px)]" dir="rtl">
         <Card className="border-border/60 shadow-sm">
           <CardContent className="flex min-h-[340px] flex-col items-center justify-center gap-4 p-8 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">

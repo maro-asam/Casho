@@ -39,7 +39,7 @@ export default async function CreateNewProductPage() {
   });
 
   return (
-    <div className="space-y-6 p-6" dir="rtl">
+    <div className="space-y-6" dir="rtl">
       <DashboardSectionHeader
         icon={PackagePlus}
         title="إضافة منتج جديد"

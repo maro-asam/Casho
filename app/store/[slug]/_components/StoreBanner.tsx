@@ -40,7 +40,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
 
   return (
     <section className="mb-8 w-full" dir="rtl">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-row items-center justify-between">
         <div>
           <h2 className="text-xl font-bold tracking-tight md:text-2xl text-primary">
             أفضل العروض
@@ -72,7 +72,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
             <CarouselContent>
               {heroBanners.map((banner) => (
                 <CarouselItem key={banner.id}>
-                  <div className="relative h-55 w-full overflow-hidden rounded-xl sm:h-70 md:h-85 xl:h-105">
+                  <div className="relative h-80 w-full overflow-hidden rounded-xl sm:h-70 md:h-96 xl:h-105">
                     <Image
                       src={banner.image || "/placeholder-banner.jpg"}
                       alt={banner.title}

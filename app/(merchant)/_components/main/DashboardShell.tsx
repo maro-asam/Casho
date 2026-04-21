@@ -347,8 +347,8 @@ export default function DashboardShell({
         </aside>
 
         <div className="w-full min-w-0">
-          <main className="p-3 md:p-5 lg:p-6">
-            <div className="mx-auto min-h-[calc(100vh-2rem)] max-w-350">
+          <main className="">
+            <div className="mx-auto min-h-[calc(100vh-2rem)] max-w-350 p-5 lg:p-6">
               {children}
             </div>
           </main>

@@ -160,7 +160,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
   const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
 
   return (
-    <div className="space-y-6 p-6" dir="rtl">
+    <div className="space-y-6 " dir="rtl">
       <DashboardSectionHeader
         icon={ShoppingCart}
         title="الطلبات"

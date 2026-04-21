@@ -220,7 +220,7 @@ const MerchantDashboardRoute = async () => {
 
   const storeUrl = buildStoreUrl(store.slug);
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-6 ">
       <Card className="relative overflow-hidden border border-border/60">
         <div className="pointer-events-none absolute inset-0" />
 

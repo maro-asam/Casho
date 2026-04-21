@@ -46,7 +46,7 @@ export default async function NewCategoryPage() {
   }
 
   return (
-    <div className="space-y-6 p-6" dir="rtl">
+    <div className="space-y-6" dir="rtl">
       {/* Header */}
       <div className="flex flex-col gap-4 rounded-xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">

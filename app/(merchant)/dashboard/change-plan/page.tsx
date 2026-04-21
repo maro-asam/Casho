@@ -91,7 +91,7 @@ export default async function ChangePlanRoute() {
 
   if (!store) {
     return (
-      <div className="min-h-[calc(100vh-120px)] p-4 md:p-6" dir="rtl">
+      <div className="min-h-[calc(100vh-120px)] " dir="rtl">
         <Card>
           <CardContent className="flex min-h-80 flex-col items-center justify-center gap-4 text-center">
             <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">

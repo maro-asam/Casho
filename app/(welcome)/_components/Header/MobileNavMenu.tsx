@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/theme/ModeToggle";
 
 type MobileNavMenuProps = {
   user: {
@@ -88,7 +89,9 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
   }, [open]);
 
   return (
-    <>
+    <div className="flex items-center gap-1">
+      <ModeToggle className="" />
+
       <Button
         variant="outline"
         size="icon"
@@ -245,18 +248,20 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                     </form>
                   </>
                 ) : (
-                  <Link href="/register" onClick={() => setOpen(false)}>
-                    <Button className="h-12 w-full justify-center rounded-xl text-sm font-bold shadow-md shadow-primary/20">
-                      ابدأ دلوقتي
-                      <Store className="ms-2 size-4" />
-                    </Button>
-                  </Link>
+                  <div>
+                    <Link href="/register" onClick={() => setOpen(false)}>
+                      <Button className="h-12 w-full justify-center rounded-xl text-sm font-bold shadow-md shadow-primary/20">
+                        ابدأ دلوقتي
+                        <Store className="ms-2 size-4" />
+                      </Button>
+                    </Link>
+                  </div>
                 )}
               </motion.div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

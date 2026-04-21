@@ -42,7 +42,7 @@ const ProductsMobileFilters = ({ categories, currentQuery }: Props) => {
           </Button>
         </SheetTrigger>
 
-        <SheetContent side="right" className="w-full max-w-md overflow-y-auto">
+        <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-4">
           <SheetHeader className="text-right">
             <SheetTitle>فلترة المنتجات</SheetTitle>
             <SheetDescription>

@@ -43,7 +43,7 @@ export default async function SettingsRoute() {
 
   if (!store) {
     return (
-      <div dir="rtl" className="p-6">
+      <div dir="rtl" >
         <Card className="rounded-xl border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center gap-3 text-center">
             <Store className="size-12 text-muted-foreground" />
@@ -60,7 +60,7 @@ export default async function SettingsRoute() {
   }
 
   return (
-    <div dir="rtl" className="space-y-6 p-6">
+    <div dir="rtl" className="space-y-6">
       <DashboardSectionHeader
         icon={Settings2}
         title="إعدادات المتجر"

@@ -50,7 +50,7 @@ export default async function BannersPage() {
   const totalBanners = banners.length;
 
   return (
-    <div className="space-y-6 p-6" dir="rtl">
+    <div className="space-y-6 " dir="rtl">
       <DashboardSectionHeader
         icon={ImageIcon}
         title="إدارة البانرز"

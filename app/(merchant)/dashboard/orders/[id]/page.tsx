@@ -145,7 +145,7 @@ export default async function OrderDetailsRoute({
   }
 
   return (
-    <div className="space-y-6 p-6" dir="rtl">
+    <div className="space-y-6 " dir="rtl">
       {/* Header */}
       <div className="flex flex-col gap-4 rounded-xl border bg-linear-to-r from-primary/10 via-primary/5 to-transparent p-5 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
