@@ -2,7 +2,7 @@
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
-const ADMIN_EMAILS = ["marolinkedin@gmail.com"];
+const ADMIN_EMAILS = ["marolinkedin@gmail.com", "cashostore0@gmail.com"];
 
 export async function requireAdmin() {
   const userId = await requireUserId();
