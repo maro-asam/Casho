@@ -19,8 +19,12 @@ const footerLinks = {
     { name: "الشروط والأحكام", href: "#" },
   ],
   contact: [
-    { name: "01000000000", href: "tel:01000000000", icon: Phone },
-    { name: "hello@casho.store", href: "mailto:hello@casho.store", icon: Mail },
+    { name: "01014344053", href: "tel:01014344053", icon: Phone },
+    {
+      name: "cashostore0@gmail.com",
+      href: "mailto:cashostore0@gmail.com",
+      icon: Mail,
+    },
   ],
   // social: [
   //   { name: "Facebook", href: "#", icon: Facebook },
