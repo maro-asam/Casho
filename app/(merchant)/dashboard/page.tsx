@@ -1,4 +1,4 @@
-import { CheckCircle2, Store, XCircle } from "lucide-react";
+import { CheckCircle2, Headset, LifeBuoy, Store, XCircle } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
@@ -13,6 +13,8 @@ import { SubscriptionStatus } from "@prisma/client";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import StarterGuideBar from "../_components/main/StarterGuideCard";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type ChartOrder = {
   createdAt: Date;
@@ -272,6 +274,13 @@ const MerchantDashboardRoute = async () => {
 
             <div className="flex flex-wrap items-center gap-3">
               <CopyStoreLinkBtn storeUrl={storeUrl} />
+
+              <Button asChild variant="default">
+                <Link href="/dashboard/support">
+                  <Headset />
+                  اطلب الدعم
+                </Link>
+              </Button>
             </div>
           </div>
         </CardContent>

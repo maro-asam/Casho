@@ -17,6 +17,7 @@ model User {
   orders              Order[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+  supportRequests     SupportRequest[]
 }
 
 model Session {
@@ -80,7 +81,8 @@ model Store {
   showPoweredByCasho      Boolean @default(true)
   poweredByRemovalEnabled Boolean @default(false)
 
-  createdAt DateTime @default(now())
+  createdAt       DateTime         @default(now())
+  supportRequests SupportRequest[]
 
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -412,4 +414,31 @@ model ServiceRequest {
   @@index([status, createdAt])
   @@index([storeId, createdAt])
   @@index([serviceId, status])
+}
+
+enum SupportRequestStatus {
+  PENDING
+  OPENED
+  RESOLVED
+  CLOSED
+}
+
+model SupportRequest {
+  id String @id @default(uuid())
+
+  title   String
+  message String
+
+  status SupportRequestStatus @default(PENDING)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  storeId String?
+  store   Store?  @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
 }

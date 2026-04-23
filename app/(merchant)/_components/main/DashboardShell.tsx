@@ -8,6 +8,7 @@ import {
   ChartNoAxesCombined,
   CirclePercent,
   CreditCard,
+  Headset,
   ImageIcon,
   Layers,
   LayoutDashboard,
@@ -122,6 +123,17 @@ export default function DashboardShell({
             name: "خدمات اضافية",
             href: "/dashboard/services",
             icon: Layers,
+          },
+        ],
+      },
+
+      {
+        title: "SUPPORT",
+        links: [
+          {
+            name: "مركز المساعدة",
+            href: "/dashboard/support",
+            icon: Headset,
           },
         ],
       },

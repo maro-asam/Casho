@@ -30,12 +30,17 @@ export default async function AdminLayout({
       href: "/admin/service-requests",
       icon: "briefcase",
     },
+    {
+      title: "طلبات الدعم",
+      href: "/admin/support-requests",
+      icon: "briefcase",
+    },
   ] as const;
 
   return (
     <div className="min-h-screen bg-muted/40" dir="rtl">
       <div className="grid min-h-screen lg:grid-cols-[260px_1fr]">
-        <aside className="border-l bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <aside className="border-l bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
           <div className="flex h-full flex-col p-4">
             <div className="mb-8 px-2">
               <h2 className="text-lg font-bold tracking-tight">CASHO Admin</h2>
