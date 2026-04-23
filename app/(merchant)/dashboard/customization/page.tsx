@@ -4,11 +4,13 @@ import NavbarVariantPicker from "./_components/NavbarVariantPicker";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import { PaintRoller } from "lucide-react";
 import { Metadata } from "next";
+import { Separator } from "@/components/ui/separator";
+import StoreColorsSection from "./_components/StoreColorsSection";
 
 export const metadata: Metadata = {
   title: "تخصيص المتجر",
 };
-  
+
 export default async function CustomziationRoute() {
   const userId = await requireUserId();
 
@@ -19,6 +21,8 @@ export default async function CustomziationRoute() {
       settings: {
         select: {
           navbarVariant: true,
+          primaryColor: true,
+          secondaryColor: true,
         },
       },
     },
@@ -42,6 +46,8 @@ export default async function CustomziationRoute() {
         }
       />
 
+      <StoreColorsSection store={store} />
+      <Separator />
       <NavbarVariantPicker
         storeId={store.id}
         currentVariant={
