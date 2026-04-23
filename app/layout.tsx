@@ -93,7 +93,7 @@ export const metadata: Metadata = {
     title: "كاشو | أنشئ متجرك الإلكتروني في دقائق",
     description:
       "منصة عربية تساعدك تعمل متجرك الإلكتروني وتبدأ البيع أونلاين بسهولة.",
-    images: ["/logo.svg"],
+    images: ["/og-image.png"],
     creator: "@casho",
   },
 
