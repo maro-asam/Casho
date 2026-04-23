@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import {
   Loader2,
   Save,
-  Palette,
   Image as ImageLucide,
   Phone,
   FileText,
@@ -199,7 +198,10 @@ export default function StoreSettingsForm({ store }: Props) {
                       dir="ltr"
                       className="rounded-xl border bg-primary/10 px-3 py-2 font-medium"
                     >
-                      <span className="text-primary text-lg">{storeNameStatus.suggestedSlug || store.slug}</span>.casho.store
+                      <span className="text-primary text-lg">
+                        {storeNameStatus.suggestedSlug || store.slug}
+                      </span>
+                      .casho.store
                     </div>
                   </div>
 
@@ -340,8 +342,6 @@ export default function StoreSettingsForm({ store }: Props) {
       </section>
 
       <Separator />
-
-
 
       <section className="space-y-5">
         <div className="flex items-center gap-2">
