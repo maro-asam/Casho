@@ -132,7 +132,7 @@ const StoreFooter = ({
 
             {showPoweredByCasho ? (
               <Link
-                href="/"
+                href="https://casho.store"
                 className="inline-flex items-center gap-3 rounded-xl border bg-card px-4 py-2.5 text-sm transition hover:border-primary/20 hover:bg-primary/5"
               >
                 <span className="text-muted-foreground">

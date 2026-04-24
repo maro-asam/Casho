@@ -442,3 +442,91 @@ model SupportRequest {
 
   @@index([status, createdAt])
 }
+
+model BlogCategory {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  color     String?
+  createdAt DateTime @default(now())
+
+  posts BlogPost[]
+}
+
+model BlogPost {
+  id String @id @default(uuid())
+
+  title String
+  slug  String @unique
+
+  excerpt String?
+  content String  @db.Text
+
+  coverImage String?
+  gallery    String[] @default([])
+
+  authorName String @default("Casho Team")
+
+  status BlogStatus @default(DRAFT)
+
+  featured Boolean @default(false)
+
+  readTime Int? // بالدقائق
+
+  views Int @default(0)
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  categoryId String?
+  category   BlogCategory? @relation(fields: [categoryId], references: [id])
+
+  tags BlogPostTag[]
+
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[]
+  blogViews      BlogView[]
+
+  @@index([status, publishedAt])
+  @@index([featured])
+}
+
+model BlogTag {
+  id   String @id @default(uuid())
+  name String
+  slug String @unique
+
+  posts BlogPostTag[]
+}
+
+model BlogPostTag {
+  postId String
+  tagId  String
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+}
+
+model BlogView {
+  id String @id @default(uuid())
+
+  postId String
+  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  ip        String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}

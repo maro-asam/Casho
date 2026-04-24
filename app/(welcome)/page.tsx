@@ -1,6 +1,3 @@
-"use client";
-
-
 import HeroSection from "./_components/Hero";
 import PaymentMethodsSection from "./_components/PaymentMethodsSection";
 import FeaturesSection from "./_components/Features";
@@ -9,39 +6,12 @@ import BeforeAfterSection from "./_components/BeforeAfter";
 import PricingSection from "./_components/Pricing";
 import FAQSection from "./_components/FAQ";
 import CTASection from "./_components/CTA";
+import BlogSection from "./_components/BlogSection";
+import LenisProvider from "./_components/LenisProvider";
 
-import { ReactLenis } from "lenis/react";
-import type { LenisRef } from "lenis/react";
-import { useEffect, useRef } from "react";
-
-const Page = () => {
-  const lenisRef = useRef<LenisRef>(null);
-
-  useEffect(() => {
-    let rafId: number;
-
-    const update = (time: number) => {
-      lenisRef.current?.lenis?.raf(time);
-      rafId = requestAnimationFrame(update);
-    };
-
-    rafId = requestAnimationFrame(update);
-
-    return () => cancelAnimationFrame(rafId);
-  }, []);
-
+export default function Page() {
   return (
-    <>
-      <ReactLenis
-        root
-        ref={lenisRef}
-        options={{
-          autoRaf: false,
-          smoothWheel: true,
-          lerp: 0.08,
-        }}
-      />
-
+    <LenisProvider>
       <div className="mt-10 flex flex-col gap-20">
         <HeroSection />
         <PaymentMethodsSection />
@@ -49,11 +19,10 @@ const Page = () => {
         <BeforeAfterSection />
         <FeaturesSection />
         <PricingSection />
+        <BlogSection />
         <CTASection />
         <FAQSection />
       </div>
-    </>
+    </LenisProvider>
   );
-};
-
-export default Page;
+}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BanknoteArrowUp,
+  BookOpen,
   ChartNoAxesCombined,
   CirclePercent,
   CreditCard,
@@ -89,16 +90,16 @@ export default function DashboardShell({
             href: "/dashboard/banners",
             icon: ImageIcon,
           },
-        ],
-      },
-      {
-        title: "STORE",
-        links: [
           {
             name: "الكوبونات",
             href: "/dashboard/coupons",
             icon: CirclePercent,
           },
+        ],
+      },
+      {
+        title: "STORE",
+        links: [
           {
             name: "ادارة الرصيد",
             href: "/dashboard/balance",
@@ -130,6 +131,11 @@ export default function DashboardShell({
       {
         title: "SUPPORT",
         links: [
+          {
+            name: "المدونة",
+            href: "/dashboard/blog",
+            icon: BookOpen,
+          },
           {
             name: "مركز المساعدة",
             href: "/dashboard/support",
