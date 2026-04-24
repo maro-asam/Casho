@@ -116,7 +116,7 @@ export default function PricingSection() {
                   {plan.locked ? (
                     <span>قريبًا</span>
                   ) : (
-                    <Link href="/signup">ابدأ دلوقتي</Link>
+                    <Link href="/register">ابدأ دلوقتي</Link>
                   )}
                 </Button>
               </div>
