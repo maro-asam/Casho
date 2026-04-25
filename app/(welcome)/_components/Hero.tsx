@@ -41,7 +41,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.08 }}
-          className="mt-6 max-w-5xl text-4xl font-extrabold leading-normal tracking-tight sm:text-5xl lg:text-6xl"
+          className="mt-6 max-w-6xl text-4xl font-extrabold leading-normal tracking-tight sm:text-5xl lg:text-6xl"
         >
           {HERO_CONTENT.title}
           <span className="mt-2 block bg-linear-to-l from-primary via-sky-500 to-primary bg-clip-text text-transparent">

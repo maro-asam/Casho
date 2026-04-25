@@ -54,7 +54,7 @@ export default async function BlogSection() {
                 className="group overflow-hidden rounded-xl border border-border bg-card"
               >
                 <Link href={`/blog/${post.slug}`}>
-                  <div className="relative h-52 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden">
                     <Image
                       src={post.coverImage || "/login.jpg"}
                       alt={post.title}

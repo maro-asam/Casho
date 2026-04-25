@@ -5,13 +5,13 @@
 
 import "./globals.css";
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Alexandria } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/theme/theme-provider";
 
-const cairoFont = Cairo({
+const cairoFont = Alexandria({
   subsets: ["arabic"],
   variable: "--font-cairo",
 });
