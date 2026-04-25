@@ -236,3 +236,118 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+@layer components {
+  .blog-content {
+    direction: rtl;
+    text-align: right;
+    max-width: 800px;
+    margin-inline: auto;
+    font-size: 18px;
+    line-height: 2;
+    color: var(--foreground);
+  }
+
+  .blog-content h1 {
+    font-size: 40px;
+    line-height: 1.4;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: var(--foreground);
+  }
+
+  .blog-content h2 {
+    font-size: 28px;
+    line-height: 1.5;
+    font-weight: 800;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    color: var(--foreground);
+  }
+
+  .blog-content h3 {
+    font-size: 22px;
+    line-height: 1.5;
+    font-weight: 700;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    color: var(--foreground);
+  }
+
+  .blog-content p {
+    margin-bottom: 20px;
+    color: var(--foreground);
+  }
+
+  .blog-content ul,
+  .blog-content ol {
+    margin: 20px 0;
+    padding-right: 28px;
+  }
+
+  .blog-content ul {
+    list-style: disc;
+  }
+
+  .blog-content ol {
+    list-style: decimal;
+  }
+
+  .blog-content li {
+    margin-bottom: 10px;
+    line-height: 2;
+  }
+
+  .blog-content blockquote {
+    margin: 24px 0;
+    padding: 16px 20px;
+    border-right: 4px solid var(--primary);
+    background: var(--muted);
+    border-left: none;
+    border-radius: 12px;
+    color: var(--foreground);
+  }
+
+  .blog-content strong {
+    font-weight: 800;
+    color: var(--foreground);
+  }
+
+  .blog-content hr {
+    margin: 40px 0;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .blog-content a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .blog-content code {
+    background: var(--muted);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.9em;
+  }
+
+  .blog-content pre {
+    background: #111827;
+    color: white;
+    padding: 20px;
+    border-radius: 16px;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+    margin: 24px 0;
+  }
+
+  .blog-content img {
+    width: 100%;
+    border-radius: 20px;
+    margin: 32px 0;
+    border: 1px solid var(--border);
+  }
+}

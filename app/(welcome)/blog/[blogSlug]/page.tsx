@@ -10,6 +10,8 @@ import {
   BookOpen,
   ChevronLeft,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type BlogDetailsRouteProps = {
   params: Promise<{
@@ -61,7 +63,7 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
 
   return (
     <main className="py-10 md:py-14 lg:py-20">
-      <div className=" ">
+      <div className="mx-auto  px-4">
         {/* Breadcrumb */}
 
         <div className="mb-8 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -88,7 +90,7 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
             {post.category?.name || "عام"}
           </span>
 
-          <h1 className="mt-5 text-3xl text-primary font-extrabold leading-tight tracking-tight md:text-5xl">
+          <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-primary md:text-5xl">
             {post.title}
           </h1>
 
@@ -126,18 +128,93 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
 
         {/* Content */}
 
-        <article className="prose prose-lg mt-12 max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-8 prose-a:text-primary">
-          <div
-            dangerouslySetInnerHTML={{
-              __html:
-                post.content || "<p>لا يوجد محتوى متاح لهذا المقال حالياً.</p>",
+        <article dir="rtl" className="mx-auto mt-12 max-w-6xl text-right">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h1: ({ children }) => (
+                <h1 className="mb-6 text-4xl font-extrabold leading-tight text-foreground">
+                  {children}
+                </h1>
+              ),
+
+              h2: ({ children }) => (
+                <h2 className="mb-4 mt-12 text-2xl font-extrabold leading-snug text-foreground md:text-3xl">
+                  {children}
+                </h2>
+              ),
+
+              h3: ({ children }) => (
+                <h3 className="mb-3 mt-8 text-xl font-bold leading-snug text-foreground md:text-2xl">
+                  {children}
+                </h3>
+              ),
+
+              p: ({ children }) => (
+                <p className="mb-5 text-lg leading-9 text-muted-foreground">
+                  {children}
+                </p>
+              ),
+
+              ul: ({ children }) => (
+                <ul className="mb-6 list-disc space-y-2 pr-6 text-lg leading-9 text-muted-foreground">
+                  {children}
+                </ul>
+              ),
+
+              ol: ({ children }) => (
+                <ol className="mb-6 list-decimal space-y-2 pr-6 text-lg leading-9 text-muted-foreground">
+                  {children}
+                </ol>
+              ),
+
+              li: ({ children }) => <li className="pr-1">{children}</li>,
+
+              blockquote: ({ children }) => (
+                <blockquote className="my-6 rounded-2xl border-r-4 border-primary bg-primary/5 px-5 py-4 text-lg leading-9 text-foreground">
+                  {children}
+                </blockquote>
+              ),
+
+              strong: ({ children }) => (
+                <strong className="font-extrabold text-foreground">
+                  {children}
+                </strong>
+              ),
+
+              a: ({ href, children }) => (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary underline underline-offset-4"
+                >
+                  {children}
+                </a>
+              ),
+
+              hr: () => <hr className="my-10 border-border" />,
+
+              code: ({ children }) => (
+                <code className="rounded-md bg-muted px-2 py-1 text-sm text-foreground">
+                  {children}
+                </code>
+              ),
+
+              pre: ({ children }) => (
+                <pre className="my-6 overflow-x-auto rounded-2xl bg-zinc-950 p-5 text-left text-sm leading-7 text-white">
+                  {children}
+                </pre>
+              ),
             }}
-          />
+          >
+            {post.content}
+          </ReactMarkdown>
         </article>
 
         {/* CTA */}
 
-        <div className="mt-14 rounded-3xl border bg-card p-8 text-center">
+        <div className="mx-auto mt-14 rounded-3xl border bg-card p-8 text-center">
           <h3 className="text-2xl font-bold text-foreground">
             جاهز تبدأ متجرك؟
           </h3>

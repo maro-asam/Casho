@@ -1,14 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { BlogStatus } from "@prisma/client";
-import {
-  ImagePlus,
-  Loader2,
-  Save,
-  Sparkles,
-} from "lucide-react";
+import { ImagePlus, Loader2, Save, Sparkles } from "lucide-react";
 
 import { createBlogPostAction } from "@/actions/blog/blog.actions";
 
@@ -33,90 +29,72 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
+  ssr: false,
+});
+
 const CreateBlogRoute = () => {
   const router = useRouter();
 
-  const [isPending, startTransition] =
-    useTransition();
+  const [isPending, startTransition] = useTransition();
 
-  const [title, setTitle] =
-    useState("");
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [content, setContent] = useState("");
+  const [coverImage, setCoverImage] = useState("");
 
-  const [slug, setSlug] =
-    useState("");
+  const [seoTitle, setSeoTitle] = useState("");
+  const [seoDescription, setSeoDescription] = useState("");
+  const [seoKeywords, setSeoKeywords] = useState("");
 
-  const [excerpt, setExcerpt] =
-    useState("");
+  const [featured, setFeatured] = useState(false);
 
-  const [content, setContent] =
-    useState("");
-
-  const [coverImage, setCoverImage] =
-    useState("");
-
-  const [seoTitle, setSeoTitle] =
-    useState("");
-
-  const [
-    seoDescription,
-    setSeoDescription,
-  ] = useState("");
-
-  const [seoKeywords, setSeoKeywords] =
-    useState("");
-
-  const [featured, setFeatured] =
-    useState(false);
-
-  const [status, setStatus] =
-    useState<BlogStatus>(
-      BlogStatus.DRAFT
-    );
+  const [status, setStatus] = useState<BlogStatus>(BlogStatus.DRAFT);
 
   const handleSubmit = () => {
+    if (!title.trim()) {
+      alert("اكتب عنوان المقال");
+      return;
+    }
+
+    if (!slug.trim()) {
+      alert("اكتب slug للمقال");
+      return;
+    }
+
+    if (!content.trim()) {
+      alert("اكتب محتوى المقال");
+      return;
+    }
+
     startTransition(async () => {
-      const result =
-        await createBlogPostAction({
-          title,
-          slug,
-          excerpt:
-            excerpt || undefined,
-          content,
-          coverImage:
-            coverImage ||
-            undefined,
+      const result = await createBlogPostAction({
+        title: title.trim(),
+        slug: slug.trim(),
+        excerpt: excerpt.trim() || undefined,
+        content,
+        coverImage: coverImage.trim() || undefined,
 
-          seoTitle:
-            seoTitle ||
-            undefined,
+        seoTitle: seoTitle.trim() || undefined,
+        seoDescription: seoDescription.trim() || undefined,
 
-          seoDescription:
-            seoDescription ||
-            undefined,
+        seoKeywords: seoKeywords
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
 
-          seoKeywords:
-            seoKeywords
-              .split(",")
-              .map((item) =>
-                item.trim()
-              )
-              .filter(Boolean),
-
-          featured,
-          status,
-          gallery: [],
-          tags: [],
-        });
+        featured,
+        status,
+        gallery: [],
+        tags: [],
+      });
 
       if (result.success) {
-        router.push(
-          "/admin/blog"
-        );
+        router.push("/admin/blog");
         router.refresh();
       } else {
-        alert(
-          result.message
-        );
+        alert(result.message);
       }
     });
   };
@@ -127,31 +105,19 @@ const CreateBlogRoute = () => {
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            إنشاء مقال جديد
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">إنشاء مقال جديد</h1>
 
           <p className="text-muted-foreground">
-            أضف مقال جديد
-            للمدونة الخاصة
-            بـ Casho
+            أضف مقال جديد للمدونة الخاصة بـ Casho
           </p>
         </div>
 
-        <Button
-          onClick={
-            handleSubmit
-          }
-          disabled={
-            isPending
-          }
-        >
+        <Button onClick={handleSubmit} disabled={isPending}>
           {isPending ? (
             <Loader2 className="me-2 size-4 animate-spin" />
           ) : (
             <Save className="me-2 size-4" />
           )}
-
           حفظ المقال
         </Button>
       </div>
@@ -162,59 +128,56 @@ const CreateBlogRoute = () => {
         <div className="space-y-6 lg:col-span-2">
           <Card className="rounded-xl">
             <CardHeader>
-              <CardTitle>
-                بيانات المقال
-              </CardTitle>
+              <CardTitle>بيانات المقال</CardTitle>
 
-              <CardDescription>
-                العنوان
-                والمحتوى
-                الأساسي
-              </CardDescription>
+              <CardDescription>العنوان والمحتوى الأساسي</CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-5">
               <Input
                 value={title}
-                onChange={(e) =>
-                  setTitle(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="عنوان المقال"
               />
 
               <Input
                 value={slug}
-                onChange={(e) =>
-                  setSlug(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setSlug(e.target.value)}
                 placeholder="slug"
               />
 
               <Textarea
                 rows={4}
                 value={excerpt}
-                onChange={(e) =>
-                  setExcerpt(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setExcerpt(e.target.value)}
                 placeholder="وصف مختصر"
               />
 
-              <Textarea
-                rows={18}
-                value={content}
-                onChange={(e) =>
-                  setContent(
-                    e.target.value
-                  )
-                }
-                placeholder="محتوى المقال"
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">محتوى المقال</label>
+
+                <div
+                  data-color-mode="light"
+                  className="overflow-hidden rounded-xl border"
+                >
+                  <MDEditor
+                    value={content}
+                    onChange={(value) => setContent(value || "")}
+                    height={520}
+                    preview="edit"
+                    visibleDragbar={false}
+                    textareaProps={{
+                      placeholder: "اكتب محتوى المقال هنا...",
+                      dir: "rtl",
+                    }}
+                  />
+                </div>
+
+                <p className="text-xs leading-6 text-muted-foreground">
+                  تقدر تستخدم Markdown زي: ## عنوان، **نص عريض**، - نقاط،
+                  وروابط.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -229,36 +192,20 @@ const CreateBlogRoute = () => {
             <CardContent className="space-y-5">
               <Input
                 value={seoTitle}
-                onChange={(e) =>
-                  setSeoTitle(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setSeoTitle(e.target.value)}
                 placeholder="SEO Title"
               />
 
               <Textarea
                 rows={4}
-                value={
-                  seoDescription
-                }
-                onChange={(e) =>
-                  setSeoDescription(
-                    e.target.value
-                  )
-                }
+                value={seoDescription}
+                onChange={(e) => setSeoDescription(e.target.value)}
                 placeholder="SEO Description"
               />
 
               <Input
-                value={
-                  seoKeywords
-                }
-                onChange={(e) =>
-                  setSeoKeywords(
-                    e.target.value
-                  )
-                }
+                value={seoKeywords}
+                onChange={(e) => setSeoKeywords(e.target.value)}
                 placeholder="keyword1, keyword2"
               />
             </CardContent>
@@ -270,60 +217,34 @@ const CreateBlogRoute = () => {
         <div className="space-y-6">
           <Card className="rounded-xl">
             <CardHeader>
-              <CardTitle>
-                النشر
-              </CardTitle>
+              <CardTitle>النشر</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-5">
               <Select
                 value={status}
-                onValueChange={(
-                  value
-                ) =>
-                  setStatus(
-                    value as BlogStatus
-                  )
-                }
+                onValueChange={(value) => setStatus(value as BlogStatus)}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="DRAFT">
-                    مسودة
-                  </SelectItem>
+                  <SelectItem value={BlogStatus.DRAFT}>مسودة</SelectItem>
 
-                  <SelectItem value="PUBLISHED">
-                    منشور
-                  </SelectItem>
+                  <SelectItem value={BlogStatus.PUBLISHED}>منشور</SelectItem>
 
-                  <SelectItem value="ARCHIVED">
-                    مؤرشف
-                  </SelectItem>
+                  <SelectItem value={BlogStatus.ARCHIVED}>مؤرشف</SelectItem>
                 </SelectContent>
               </Select>
 
               <div className="flex items-center gap-3">
                 <Checkbox
-                  checked={
-                    featured
-                  }
-                  onCheckedChange={(
-                    value
-                  ) =>
-                    setFeatured(
-                      Boolean(
-                        value
-                      )
-                    )
-                  }
+                  checked={featured}
+                  onCheckedChange={(value) => setFeatured(Boolean(value))}
                 />
 
-                <label className="text-sm font-medium">
-                  مقال مميز
-                </label>
+                <label className="text-sm font-medium">مقال مميز</label>
               </div>
             </CardContent>
           </Card>
@@ -338,22 +259,14 @@ const CreateBlogRoute = () => {
 
             <CardContent className="space-y-4">
               <Input
-                value={
-                  coverImage
-                }
-                onChange={(e) =>
-                  setCoverImage(
-                    e.target.value
-                  )
-                }
+                value={coverImage}
+                onChange={(e) => setCoverImage(e.target.value)}
                 placeholder="رابط الصورة"
               />
 
               {coverImage ? (
                 <img
-                  src={
-                    coverImage
-                  }
+                  src={coverImage}
                   alt="preview"
                   className="h-44 w-full rounded-xl border object-cover"
                 />
@@ -363,29 +276,14 @@ const CreateBlogRoute = () => {
 
           <Card className="rounded-xl">
             <CardHeader>
-              <CardTitle>
-                ملاحظات
-              </CardTitle>
+              <CardTitle>ملاحظات</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
-              <p>
-                • يمكنك حفظه
-                كمسودة
-              </p>
-              <p>
-                • المقال
-                المنشور يظهر
-                مباشرة
-              </p>
-              <p>
-                • استخدم صورة
-                جذابة
-              </p>
-              <p>
-                • اجعل العنوان
-                قوي
-              </p>
+              <p>• يمكنك حفظه كمسودة</p>
+              <p>• المقال المنشور يظهر مباشرة</p>
+              <p>• استخدم صورة جذابة</p>
+              <p>• اجعل العنوان قوي</p>
             </CardContent>
           </Card>
         </div>
