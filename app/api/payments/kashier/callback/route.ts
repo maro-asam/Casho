@@ -60,16 +60,17 @@ function buildOrderUrl(input: {
   orderId: string;
   payment: "success" | "failed" | "invalid";
 }) {
-  const url = new URL(
-    `/store/${input.storeSlug}/order/${input.orderId}`,
-    getAppUrl(input.req),
-  );
+  const pathname =
+    input.payment === "success"
+      ? `/store/${input.storeSlug}/order/${input.orderId}/success`
+      : `/store/${input.storeSlug}/order/${input.orderId}`;
+
+  const url = new URL(pathname, getAppUrl(input.req));
 
   url.searchParams.set("payment", input.payment);
 
   return url;
 }
-
 function buildHomeUrl(req: NextRequest, reason: string) {
   const url = new URL("/", getAppUrl(req));
   url.searchParams.set("payment", reason);
