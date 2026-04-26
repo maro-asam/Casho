@@ -111,6 +111,11 @@ export default function DashboardShell({
             icon: ChartNoAxesCombined,
           },
           {
+            name: "بوابات الدفع",
+            href: "/dashboard/payment-methods",
+            icon: CreditCard,
+          },
+          {
             name: "تخصيص المتجر",
             href: "/dashboard/customization",
             icon: PaintRoller,
@@ -120,6 +125,7 @@ export default function DashboardShell({
             href: "/dashboard/seo",
             icon: Rocket,
           },
+
           {
             name: "خدمات اضافية",
             href: "/dashboard/services",

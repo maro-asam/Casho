@@ -3,18 +3,18 @@ import { OrderStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
+import { decryptSecret } from "@/lib/secrets";
 import {
   isKashierPaid,
   kashierAmountToPiasters,
-  verifyKashierCallbackSignature,
-} from "@/lib/kashier";
+  verifyMerchantKashierCallbackSignature,
+} from "@/lib/kashier-merchant";
+import { verifyKashierCallbackSignature as verifyGlobalKashierCallbackSignature } from "@/lib/kashier";
 
 async function extractParams(req: NextRequest) {
   const params = new URLSearchParams(req.nextUrl.searchParams);
 
-  if (req.method !== "POST") {
-    return params;
-  }
+  if (req.method !== "POST") return params;
 
   const contentType = req.headers.get("content-type") || "";
 
@@ -26,7 +26,7 @@ async function extractParams(req: NextRequest) {
 
     if (body) {
       for (const [key, value] of Object.entries(body)) {
-        if (typeof value !== "undefined" && value !== null) {
+        if (value !== undefined && value !== null) {
           params.set(key, String(value));
         }
       }
@@ -46,35 +46,64 @@ async function extractParams(req: NextRequest) {
   return params;
 }
 
+function getAppUrl(req: NextRequest) {
+  return (
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    req.nextUrl.origin
+  ).replace(/\/$/, "");
+}
+
 function buildOrderUrl(input: {
   req: NextRequest;
   storeSlug: string;
   orderId: string;
   payment: "success" | "failed" | "invalid";
 }) {
-  // @ts-expect-error nextUrl doesn't have origin
-  const appUrl = process.env.APP_URL || req.nextUrl.origin;
-
   const url = new URL(
     `/store/${input.storeSlug}/order/${input.orderId}`,
-    appUrl,
+    getAppUrl(input.req),
   );
+
   url.searchParams.set("payment", input.payment);
 
   return url;
 }
 
+function buildHomeUrl(req: NextRequest, reason: string) {
+  const url = new URL("/", getAppUrl(req));
+  url.searchParams.set("payment", reason);
+  return url;
+}
+
+async function isValidKashierSignature(input: {
+  params: URLSearchParams;
+  encryptedApiKey?: string | null;
+}) {
+  if (input.encryptedApiKey) {
+    try {
+      const paymentApiKey = decryptSecret(input.encryptedApiKey);
+
+      return verifyMerchantKashierCallbackSignature(
+        input.params,
+        paymentApiKey,
+      );
+    } catch (error) {
+      console.error("Could not decrypt Kashier API key", error);
+      return false;
+    }
+  }
+
+  return verifyGlobalKashierCallbackSignature(input.params);
+}
+
 async function handleKashierCallback(req: NextRequest) {
   const params = await extractParams(req);
 
-  const merchantOrderId =
-    params.get("merchantOrderId") || params.get("orderId");
+  const merchantOrderId = params.get("merchantOrderId");
 
   if (!merchantOrderId) {
-    const url = new URL("/", process.env.APP_URL || req.nextUrl.origin);
-    url.searchParams.set("payment", "missing-order");
-
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(buildHomeUrl(req, "missing-order"));
   }
 
   const order = await prisma.order.findUnique({
@@ -86,16 +115,18 @@ async function handleKashierCallback(req: NextRequest) {
       store: {
         select: {
           slug: true,
+          storePaymentSettings: {
+            select: {
+              kashierApiKeyEncrypted: true,
+            },
+          },
         },
       },
     },
   });
 
   if (!order) {
-    const url = new URL("/", process.env.APP_URL || req.nextUrl.origin);
-    url.searchParams.set("payment", "order-not-found");
-
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(buildHomeUrl(req, "order-not-found"));
   }
 
   const invalidUrl = buildOrderUrl({
@@ -105,7 +136,10 @@ async function handleKashierCallback(req: NextRequest) {
     payment: "invalid",
   });
 
-  const isValidSignature = verifyKashierCallbackSignature(params);
+  const isValidSignature = await isValidKashierSignature({
+    params,
+    encryptedApiKey: order.store.storePaymentSettings?.kashierApiKeyEncrypted,
+  });
 
   if (!isValidSignature) {
     console.error("Invalid Kashier signature", {
@@ -130,17 +164,39 @@ async function handleKashierCallback(req: NextRequest) {
 
   const paid = isKashierPaid(params);
 
+  const paymentStatus =
+    params.get("paymentStatus") ||
+    params.get("status") ||
+    (paid ? "PAID" : "FAILED");
+
+  const paymentReference =
+    params.get("transactionId") ||
+    params.get("orderReference") ||
+    params.get("merchantOrderId") ||
+    params.get("orderId");
+
   if (paid && order.status !== OrderStatus.PAID) {
     await prisma.order.update({
       where: { id: order.id },
       data: {
         status: OrderStatus.PAID,
+        paymentStatus,
+        paymentReference,
+        paidAt: new Date(),
       },
     });
-
-    revalidatePath("/dashboard/orders");
-    revalidatePath(`/store/${order.store.slug}/order/${order.id}`);
+  } else if (!paid) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        paymentStatus,
+        paymentReference,
+      },
+    });
   }
+
+  revalidatePath("/dashboard/orders");
+  revalidatePath(`/store/${order.store.slug}/order/${order.id}`);
 
   return NextResponse.redirect(
     buildOrderUrl({

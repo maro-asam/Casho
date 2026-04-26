@@ -81,8 +81,9 @@ model Store {
   showPoweredByCasho      Boolean @default(true)
   poweredByRemovalEnabled Boolean @default(false)
 
-  createdAt       DateTime         @default(now())
-  supportRequests SupportRequest[]
+  createdAt            DateTime              @default(now())
+  supportRequests      SupportRequest[]
+  storePaymentSettings StorePaymentSettings?
 
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -281,6 +282,11 @@ model Order {
   phone    String
   address  String
 
+  paymentProvider  String?
+  paymentStatus    String?
+  paymentReference String?
+  paidAt           DateTime?
+
   createdAt DateTime @default(now())
 
   items  OrderItem[]
@@ -301,6 +307,40 @@ model OrderItem {
   quantity Int
 
   createdAt DateTime @default(now())
+}
+
+enum KashierMode {
+  TEST
+  LIVE
+}
+
+model StorePaymentSettings {
+  id      String @id @default(uuid())
+  storeId String @unique
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  cashOnDeliveryEnabled Boolean @default(true)
+
+  vodafoneCashEnabled Boolean @default(false)
+  vodafoneCashNumber  String?
+
+  instapayEnabled Boolean @default(false)
+  instapayAddress String?
+
+  bankTransferEnabled Boolean @default(false)
+  bankTransferDetails String?
+
+  kashierEnabled         Boolean     @default(false)
+  kashierMode            KashierMode @default(TEST)
+  kashierMerchantId      String?
+  kashierApiKeyEncrypted String?
+  kashierApiKeyHint      String?
+  kashierAllowedMethods  String[]    @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([kashierEnabled])
 }
 
 model BalanceTransaction {
