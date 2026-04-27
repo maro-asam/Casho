@@ -171,7 +171,7 @@ export default async function AboutStoreRoute({
 
               <div className="flex-1 space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-2xl md:text-3xl text-white font-bold">
+                  <h2 className="text-2xl md:text-3xl text-white font-semibold">
                     {store.name}
                   </h2>
                   <Badge variant="secondary" className="rounded-xl px-3 py-1">
@@ -205,7 +205,7 @@ export default async function AboutStoreRoute({
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">عدد المنتجات</p>
-                <p className="text-2xl font-bold">{store._count.products}</p>
+                <p className="text-2xl font-semibold">{store._count.products}</p>
               </div>
             </CardContent>
           </Card>
@@ -217,7 +217,7 @@ export default async function AboutStoreRoute({
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">عدد الأقسام</p>
-                <p className="text-2xl font-bold">{store._count.categories}</p>
+                <p className="text-2xl font-semibold">{store._count.categories}</p>
               </div>
             </CardContent>
           </Card>
@@ -229,7 +229,7 @@ export default async function AboutStoreRoute({
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">البانرات</p>
-                <p className="text-2xl font-bold">{store._count.banners}</p>
+                <p className="text-2xl font-semibold">{store._count.banners}</p>
               </div>
             </CardContent>
           </Card>
@@ -241,7 +241,7 @@ export default async function AboutStoreRoute({
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">الحالة</p>
-                <p className="text-lg font-bold">مفعل</p>
+                <p className="text-lg font-semibold">مفعل</p>
               </div>
             </CardContent>
           </Card>

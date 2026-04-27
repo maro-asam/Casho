@@ -193,7 +193,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
               </div>
 
               <div className="space-y-2">
-                <h1 className="text-2xl font-bold">لا يوجد متجر بعد</h1>
+                <h1 className="text-2xl font-semibold">لا يوجد متجر بعد</h1>
                 <p className="max-w-md text-sm leading-6 text-muted-foreground">
                   أنشئ متجرك أولًا عشان تقدر تتابع سجل الرصيد والحركات المالية.
                 </p>
@@ -313,7 +313,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
               </Badge>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
               سجل الحركات المالية
             </h1>
 
@@ -349,7 +349,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>الرصيد الحالي</CardDescription>
-              <CardTitle className="text-2xl font-bold">
+              <CardTitle className="text-2xl font-semibold">
                 {formatPrice(store.balance)}
               </CardTitle>
             </CardHeader>
@@ -358,7 +358,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>إجمالي الشحن</CardDescription>
-              <CardTitle className="text-2xl font-bold text-emerald-600">
+              <CardTitle className="text-2xl font-semibold text-emerald-600">
                 {formatPrice(totalTopups)}
               </CardTitle>
             </CardHeader>
@@ -367,7 +367,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>إجمالي الخصومات</CardDescription>
-              <CardTitle className="text-2xl font-bold text-rose-600">
+              <CardTitle className="text-2xl font-semibold text-rose-600">
                 {formatPrice(totalCharges)}
               </CardTitle>
             </CardHeader>
@@ -376,7 +376,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
           <Card className="border-border/20 shadow-sm">
             <CardHeader className="pb-3">
               <CardDescription>إجمالي الاسترجاع</CardDescription>
-              <CardTitle className="text-2xl font-bold text-violet-600">
+              <CardTitle className="text-2xl font-semibold text-violet-600">
                 {formatPrice(totalRefunds)}
               </CardTitle>
             </CardHeader>

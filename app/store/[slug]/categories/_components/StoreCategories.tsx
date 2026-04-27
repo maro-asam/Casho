@@ -52,7 +52,7 @@ const StoreCategories = ({ categories, storeSlug }: StoreCategoriesProps) => {
                   )}
                 </div>
 
-                <span className="line-clamp-2 text-center text-lg font-bold ">
+                <span className="line-clamp-2 text-center text-lg font-semibold ">
                   {category.name}
                 </span>
               </div>

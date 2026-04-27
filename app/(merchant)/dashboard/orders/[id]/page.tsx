@@ -154,7 +154,7 @@ export default async function OrderDetailsRoute({
             <span className="text-sm font-semibold">إدارة الطلبات</span>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
             تفاصيل الطلب
           </h1>
 
@@ -209,7 +209,7 @@ export default async function OrderDetailsRoute({
               <Hash className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground">رقم الطلب</p>
-            <p className="mt-2 text-lg font-bold ">#{order.id.slice(0, 8)}</p>
+            <p className="mt-2 text-lg font-semibold ">#{order.id.slice(0, 8)}</p>
           </CardContent>
         </Card>
 
@@ -233,7 +233,7 @@ export default async function OrderDetailsRoute({
               <CreditCard className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground">طريقة الدفع</p>
-            <p className="mt-2 text-lg font-bold text-foreground">
+            <p className="mt-2 text-lg font-semibold text-foreground">
               {getPaymentMethodLabel(order.paymentMethod)}
             </p>
           </CardContent>
@@ -245,7 +245,7 @@ export default async function OrderDetailsRoute({
               <CircleDollarSign className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground">إجمالي الطلب</p>
-            <p className="mt-2 text-lg font-bold ">
+            <p className="mt-2 text-lg font-semibold ">
               {formatPrice(order.total)}
             </p>
           </CardContent>
@@ -380,7 +380,7 @@ export default async function OrderDetailsRoute({
                 <div key={item.id}>
                   <div className="flex flex-col gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/40 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-2">
-                      <h3 className="text-base font-bold text-foreground">
+                      <h3 className="text-base font-semibold text-foreground">
                         {item.product.name}
                       </h3>
 
@@ -397,7 +397,7 @@ export default async function OrderDetailsRoute({
 
                     <div className="rounded-xl bg-primary/5 px-4 py-3 text-right">
                       <p className="text-sm text-muted-foreground">الإجمالي</p>
-                      <p className="text-lg font-bold text-primary">
+                      <p className="text-lg font-semibold text-primary">
                         {formatPrice(itemTotal)}
                       </p>
                     </div>
@@ -439,7 +439,7 @@ export default async function OrderDetailsRoute({
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-4">
-            <span className="text-base font-bold text-foreground">
+            <span className="text-base font-semibold text-foreground">
               الإجمالي النهائي
             </span>
             <span className="text-lg font-extrabold text-primary">

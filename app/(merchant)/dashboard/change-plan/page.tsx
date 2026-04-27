@@ -99,7 +99,7 @@ export default async function ChangePlanRoute() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold">لا يوجد متجر بعد</h1>
+              <h1 className="text-2xl font-semibold">لا يوجد متجر بعد</h1>
               <p className="text-sm text-muted-foreground">
                 لازم يكون عندك متجر أولًا عشان تقدر تغيّر الباقة.
               </p>
@@ -133,7 +133,7 @@ export default async function ChangePlanRoute() {
                 </Badge>
               </div>
 
-              <h1 className="text-2xl font-bold md:text-3xl">تغيير الباقة</h1>
+              <h1 className="text-2xl font-semibold md:text-3xl">تغيير الباقة</h1>
 
               <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
                 اختار الباقة المناسبة لمتجرك، وحدد هل التجديد التلقائي يفضل شغال
@@ -147,7 +147,7 @@ export default async function ChangePlanRoute() {
                   <p className="mb-1 text-sm text-muted-foreground">
                     الباقة الحالية
                   </p>
-                  <p className="text-xl font-bold">{currentPlan}</p>
+                  <p className="text-xl font-semibold">{currentPlan}</p>
                 </CardContent>
               </Card>
 
@@ -156,7 +156,7 @@ export default async function ChangePlanRoute() {
                   <p className="mb-1 text-sm text-muted-foreground">
                     السعر الشهري الحالي
                   </p>
-                  <p className="text-xl font-bold">
+                  <p className="text-xl font-semibold">
                     {formatPrice(store.monthlyPrice)}
                   </p>
                 </CardContent>

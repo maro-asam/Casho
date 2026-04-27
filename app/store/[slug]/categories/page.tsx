@@ -40,7 +40,7 @@ export default async function StoreCategoriesPage({
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold">المتجر غير مفعل حاليًا</h1>
+              <h1 className="text-2xl font-semibold">المتجر غير مفعل حاليًا</h1>
               <p className="text-sm text-muted-foreground leading-7">
                 لا يمكن عرض التصنيفات لأن اشتراك المتجر غير نشط في الوقت الحالي.
               </p>
@@ -71,7 +71,7 @@ export default async function StoreCategoriesPage({
             </Badge>
 
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+              <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
                 تصفح تصنيفات {store.name}
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">

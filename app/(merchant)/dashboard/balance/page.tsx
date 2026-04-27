@@ -190,7 +190,7 @@ function QuickStatCard({
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
         <div className="space-y-1">
           <CardDescription>{title}</CardDescription>
-          <CardTitle className="text-xl font-bold md:text-2xl">
+          <CardTitle className="text-xl font-semibold md:text-2xl">
             {value}
           </CardTitle>
         </div>
@@ -270,7 +270,7 @@ const BalanceRoute = async () => {
               </div>
 
               <div className="space-y-2">
-                <h1 className="text-2xl font-bold">لا يوجد متجر بعد</h1>
+                <h1 className="text-2xl font-semibold">لا يوجد متجر بعد</h1>
                 <p className="max-w-md text-sm leading-6 text-muted-foreground">
                   أنشئ متجرك أولًا عشان تقدر تتابع الرصيد، الاشتراك، وسجل
                   الحركات المالية.
@@ -320,7 +320,7 @@ const BalanceRoute = async () => {
               </div>
 
               <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                   تابع رصيد متجرك بسهولة
                 </h1>
                 <p className="text-sm leading-6 text-muted-foreground">
@@ -356,7 +356,7 @@ const BalanceRoute = async () => {
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">الرصيد الحالي</p>
-                  <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
                     {formatPrice(store.balance)}
                   </h2>
                   <p className="text-sm leading-6 text-muted-foreground">

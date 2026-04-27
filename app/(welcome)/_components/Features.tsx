@@ -19,9 +19,9 @@ export default function CashoFeaturesSection() {
             المميزات
           </span>
 
-          <h2 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-foreground md:text-4xl">
+          <h2 className="mt-5 text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
             كل اللي محتاجه عشان تبيع أونلاين
-            <span className="mt-2 block bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
+            <span className="mt-4 block font-semibold bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
               من غير لخبطة ولا تعقيد
             </span>
           </h2>
@@ -49,7 +49,7 @@ export default function CashoFeaturesSection() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">إدارة الطلبات</p>
-                  <h3 className="text-xl font-bold text-foreground">
+                  <h3 className="text-xl font-semibold text-foreground">
                     شوف الطلبات بشكل واضح
                   </h3>
                 </div>
@@ -132,7 +132,7 @@ export default function CashoFeaturesSection() {
                     <Icon className="size-5" />
                   </div>
 
-                  <h3 className="mt-5 text-lg font-bold text-foreground">
+                  <h3 className="mt-5 text-lg font-semibold text-foreground">
                     {feature.title}
                   </h3>
 
@@ -154,7 +154,7 @@ export default function CashoFeaturesSection() {
                 <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <BarChart3 className="size-5" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground">
+                <h3 className="text-lg font-semibold text-foreground">
                   نظرة سريعة على شغلك
                 </h3>
               </div>

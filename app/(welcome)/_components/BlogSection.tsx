@@ -28,9 +28,9 @@ export default async function BlogSection() {
             المدونة
           </span>
 
-          <h2 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-foreground md:text-4xl">
+          <h2 className="mt-5 text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
             مقالات تساعدك تكبر شغلك
-            <span className="mt-2 block bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
+            <span className="mt-4 font-semibold block bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
               وتبيع أذكى أونلاين
             </span>
           </h2>
@@ -80,7 +80,7 @@ export default async function BlogSection() {
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-bold leading-8 text-foreground transition group-hover:text-primary">
+                    <h3 className="text-lg font-semibold leading-8 text-foreground transition group-hover:text-primary">
                       {post.title}
                     </h3>
 

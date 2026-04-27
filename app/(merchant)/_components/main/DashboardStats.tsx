@@ -48,7 +48,7 @@ const DashboardStats = async () => {
         <Card className="overflow-hidden rounded-[28px] border border-border/20 bg-background shadow-sm 2xl:col-span-5">
           <CardContent className="flex h-40 items-center justify-center p-6 text-center">
             <div className="space-y-2">
-              <p className="text-lg font-bold text-foreground">
+              <p className="text-lg font-semibold text-foreground">
                 لا يوجد متجر بعد
               </p>
               <p className="text-sm text-muted-foreground">
@@ -346,7 +346,7 @@ const DashboardStats = async () => {
                   <p className="text-sm font-medium text-muted-foreground">
                     {stat.title}
                   </p>
-                  <h3 className="text-2xl font-bold tracking-tight text-foreground xl:text-3xl">
+                  <h3 className="text-2xl font-semibold tracking-tight text-foreground xl:text-3xl">
                     {stat.value}
                   </h3>
                 </div>

@@ -324,7 +324,7 @@ export default async function OrderDetailsPage({
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold">لم يتم العثور على الطلب</h2>
+              <h2 className="text-2xl font-semibold">لم يتم العثور على الطلب</h2>
               <p className="text-sm leading-6 text-muted-foreground">
                 يبدو أن الطلب غير موجود أو لا تملك صلاحية عرض تفاصيله.
               </p>
@@ -353,7 +353,7 @@ export default async function OrderDetailsPage({
               </div>
 
               <div className="space-y-1">
-                <h2 className="font-bold">{paymentBanner.title}</h2>
+                <h2 className="font-semibold">{paymentBanner.title}</h2>
                 <p className="text-sm leading-6 opacity-90">
                   {paymentBanner.description}
                 </p>
@@ -572,7 +572,7 @@ export default async function OrderDetailsPage({
                         <p className="text-sm text-muted-foreground">
                           الإجمالي
                         </p>
-                        <p className="text-sm font-bold md:text-base">
+                        <p className="text-sm font-semibold md:text-base">
                           {formatEGPFromCents(it.quantity * it.price)}
                         </p>
                       </div>

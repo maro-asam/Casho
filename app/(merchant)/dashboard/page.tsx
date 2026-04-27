@@ -1,4 +1,4 @@
-import { CheckCircle2, Headset, LifeBuoy, Store, XCircle } from "lucide-react";
+import { CheckCircle2, Headset, Store, XCircle } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
@@ -136,7 +136,7 @@ const MerchantDashboardRoute = async () => {
               <Store className="size-8 text-primary" />
             </div>
 
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-semibold tracking-tight">
               لا يوجد متجر حاليًا
             </h2>
 
@@ -260,9 +260,9 @@ const MerchantDashboardRoute = async () => {
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-xl font-bold tracking-tight md:text-3xl xl:text-4xl">
-                  أهلاً بيك في{" "}
-                  <span className="text-primary">{store.name}</span>
+                <h1 className="text-xl tracking-tight md:text-3xl xl:text-4xl">
+                  أهلاً بيك في متجرك{" "}
+                  <span className="text-primary font-semibold">{store.name}</span>
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-muted-foreground">

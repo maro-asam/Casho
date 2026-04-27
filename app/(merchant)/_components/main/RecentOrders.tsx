@@ -106,7 +106,7 @@ const RecentOrders = ({ store }: RecentOrdersProps) => {
                       {getStatusLabel(order.status)}
                     </Badge>
 
-                    <p className="font-bold">{formatPrice(order.total)}</p>
+                    <p className="font-semibold">{formatPrice(order.total)}</p>
                   </div>
                 </div>
               );

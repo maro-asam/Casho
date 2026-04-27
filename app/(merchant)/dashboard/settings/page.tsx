@@ -48,7 +48,7 @@ export default async function SettingsRoute() {
           <CardContent className="flex min-h-55 flex-col items-center justify-center gap-3 text-center">
             <Store className="size-12 text-muted-foreground" />
             <div>
-              <h2 className="text-xl font-bold">لا يوجد متجر</h2>
+              <h2 className="text-xl font-semibold">لا يوجد متجر</h2>
               <p className="text-sm text-muted-foreground">
                 يجب إنشاء متجر أولًا قبل تعديل الإعدادات.
               </p>
@@ -75,7 +75,7 @@ export default async function SettingsRoute() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-xl text-primary font-bold">
+            <CardTitle className="text-xl text-primary font-semibold">
               تخصيص المتجر
             </CardTitle>
             <CardDescription>

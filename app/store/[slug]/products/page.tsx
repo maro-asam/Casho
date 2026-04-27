@@ -98,7 +98,7 @@ export default async function StoreProductsRoute({
         className="flex min-h-[60vh] items-center justify-center px-4"
       >
         <div className="w-full max-w-xl rounded-xl border bg-card p-8 text-center shadow-sm">
-          <h1 className="mb-3 text-2xl font-bold">هذا المتجر غير مفعل</h1>
+          <h1 className="mb-3 text-2xl font-semibold">هذا المتجر غير مفعل</h1>
           <p className="text-muted-foreground">
             لا يمكن عرض المنتجات حاليًا لأن اشتراك المتجر غير نشط.
           </p>
@@ -225,7 +225,7 @@ export default async function StoreProductsRoute({
 
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="space-y-5">
-          <h1 className="text-3xl font-bold md:text-4xl">
+          <h1 className="text-3xl font-semibold md:text-4xl">
             كل منتجات <span className="text-primary">{store.name}</span>
           </h1>
           <p className="text-muted-foreground">

@@ -95,7 +95,7 @@ const TopupClient = ({ storeId }: { storeId: string }) => {
     <div className="p-6 space-y-6" dir="rtl">
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">شحن الرصيد</h1>
+        <h1 className="text-2xl font-semibold">شحن الرصيد</h1>
 
         <Button asChild variant="outline">
           <Link href="/dashboard/balance">

@@ -63,7 +63,7 @@ const AdminBlogsListRoute = async () => {
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">إدارة المقالات</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">إدارة المقالات</h1>
 
           <p className="text-muted-foreground">
             إدارة مقالات المدونة الخاصة بـ Casho

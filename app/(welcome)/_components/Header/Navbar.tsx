@@ -49,7 +49,7 @@ const Navbar = async () => {
 
                 <div className="flex flex-col leading-none">
                   <span className="text-xl font-extrabold">
-                    <span className="text-primary">C</span>ASHO
+                    <span className="text-primary font-extrabold">C</span>ASHO
                   </span>
                   <span className="text-xs text-muted-foreground">
                     <span className="text-primary">كاشو</span> منصتك للبيع
@@ -96,7 +96,7 @@ const Navbar = async () => {
                       className="w-64 rounded-xl border-border/20 bg-background/95 p-2 shadow-xl backdrop-blur-xl"
                     >
                       <div className="px-2 py-2 text-right">
-                        <p className="text-sm font-bold">
+                        <p className="text-sm font-semibold">
                           {store?.name || "حسابي"}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
@@ -154,7 +154,7 @@ const Navbar = async () => {
                   <ModeToggle />
                   <Button
                     asChild
-                    className="h-11 rounded-xl px-5 text-sm font-bold shadow-md shadow-primary/20 transition-all duration-300 "
+                    className="h-11 rounded-xl px-5 text-sm font-semibold shadow-md shadow-primary/20 transition-all duration-300 "
                   >
                     <Link href="/register" className="group">
                       ابدأ دلوقتي

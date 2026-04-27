@@ -69,7 +69,7 @@ export function LoginForm({
                   </div>
 
                   <div className="space-y-1.5">
-                    <h1 className="text-3xl font-bold tracking-tight">
+                    <h1 className="text-3xl font-semibold tracking-tight">
                       أهلاً بيك 👋
                     </h1>
                     <p className="text-sm leading-6 text-muted-foreground">

@@ -9,7 +9,7 @@ export default function ResetPasswordPage() {
           <div className="mx-auto flex min-h-screen max-w-md items-center px-4">
             <div className="w-full rounded-xl border bg-card p-6 shadow-sm sm:p-8">
               <div className="mb-6 text-center">
-                <h1 className="text-2xl font-bold">تغيير كلمة المرور</h1>
+                <h1 className="text-2xl font-semibold">تغيير كلمة المرور</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
                   جاري تحميل الصفحة...
                 </p>

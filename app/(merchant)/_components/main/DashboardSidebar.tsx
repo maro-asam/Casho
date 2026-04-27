@@ -55,7 +55,7 @@ export default function DashboardSidebar({ store }: Props) {
 
   return (
     <aside className="w-64 h-full bg-secondary text-secondary-foreground p-4 border-l-2 flex flex-col">
-      <h2 className="py-3 text-3xl text-primary font-bold text-center">
+      <h2 className="py-3 text-3xl text-primary font-semibold text-center">
         <Link href="/dashboard">{store.name}</Link>
       </h2>
 

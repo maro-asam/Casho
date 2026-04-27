@@ -64,7 +64,7 @@ export default function CheckoutForm({
   return (
     <form action={action} className="space-y-6" dir="rtl">
       <div className="space-y-2 text-right">
-        <h2 className="text-2xl font-bold">بيانات الطلب</h2>
+        <h2 className="text-2xl font-semibold">بيانات الطلب</h2>
         <p className="text-sm leading-6 text-muted-foreground">
           املأ البيانات التالية بدقة عشان نقدر نأكد الطلب ونسلمه بدون أي تأخير.
         </p>

@@ -196,7 +196,7 @@ export default function RegisterRoute() {
                   />
                 </Link>
 
-                <h1 className="text-3xl font-bold tracking-tight">
+                <h1 className="text-3xl font-semibold tracking-tight">
                   أنشئ متجرك
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
@@ -487,7 +487,7 @@ export default function RegisterRoute() {
                         <CheckCircle2 className="size-10 text-primary" />
                       </motion.div>
 
-                      <h3 className="text-2xl font-bold">تم إنشاء حسابك 🎉</h3>
+                      <h3 className="text-2xl font-semibold">تم إنشاء حسابك 🎉</h3>
                       <p className="text-sm text-muted-foreground">
                         جاري تحويلك للوحة التحكم...
                       </p>

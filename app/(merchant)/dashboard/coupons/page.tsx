@@ -91,7 +91,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
               <Store className="size-6 text-muted-foreground" />
             </div>
 
-            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
+            <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               لازم يكون عندك متجر أولًا علشان تقدر تنشئ وتدير كوبونات الخصم.
             </p>
@@ -159,7 +159,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
-            <h2 className="text-xl font-bold">لا توجد كوبونات بعد</h2>
+            <h2 className="text-xl font-semibold">لا توجد كوبونات بعد</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               ابدأ بإضافة أول كوبون خصم لمتجرك علشان تشجع العملاء على الشراء
               وتزود المبيعات.

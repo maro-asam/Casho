@@ -44,7 +44,7 @@ export default async function CategoriesPage({
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
               <FolderOpen className="size-6 text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
+            <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               يجب إنشاء متجر أولًا حتى تتمكن من إدارة التصنيفات وإضافة المنتجات.
             </p>
@@ -97,7 +97,7 @@ export default async function CategoriesPage({
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
-            <h2 className="text-xl font-bold">لا توجد تصنيفات بعد</h2>
+            <h2 className="text-xl font-semibold">لا توجد تصنيفات بعد</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               ابدأ بإضافة أول تصنيف لتنظيم منتجاتك بشكل أفضل وتسهيل التصفح على
               العملاء داخل المتجر.

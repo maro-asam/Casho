@@ -54,7 +54,7 @@ const StoreFooter = ({
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-bold tracking-tight">
+                    <h3 className="text-xl font-semibold tracking-tight">
                       {storeName}
                     </h3>
                     <p className="text-sm text-muted-foreground">

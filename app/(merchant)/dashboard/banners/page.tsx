@@ -35,7 +35,7 @@ export default async function BannersPage() {
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
               <ImageIcon className="size-6 text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
+            <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               يجب إنشاء متجر أولًا حتى تتمكن من إدارة البانرز وعرض العروض
               والإعلانات داخل متجرك.
@@ -72,7 +72,7 @@ export default async function BannersPage() {
               <ImageIcon className="size-7 text-muted-foreground" />
             </div>
 
-            <h2 className="text-xl font-bold">لا توجد بانرز بعد</h2>
+            <h2 className="text-xl font-semibold">لا توجد بانرز بعد</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               أضف أول بانر لعرض العروض أو الإعلانات أو الرسائل المهمة بشكل واضح
               وجذاب داخل متجرك.

@@ -42,7 +42,7 @@ export default function SupportForm() {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">إرسال طلب دعم</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">إرسال طلب دعم</h1>
 
           <p className="text-sm leading-7 text-muted-foreground">
             اشرح المشكلة أو الطلب الذي تحتاجه وسيقوم فريق Casho بمراجعته في أسرع

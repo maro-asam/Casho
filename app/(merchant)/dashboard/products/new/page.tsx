@@ -58,7 +58,7 @@ export default async function CreateNewProductPage() {
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
-            <h2 className="text-xl font-bold">لا توجد تصنيفات بعد</h2>
+            <h2 className="text-xl font-semibold">لا توجد تصنيفات بعد</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               لازم تضيف تصنيف واحد على الأقل قبل إنشاء منتج جديد، عشان تقدر تربط
               المنتج بالقسم المناسب داخل متجرك.

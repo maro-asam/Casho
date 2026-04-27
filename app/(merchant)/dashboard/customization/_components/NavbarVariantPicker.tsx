@@ -40,7 +40,7 @@ export default function NavbarVariantPicker({
     <Card dir="rtl">
       <CardContent className="space-y-4">
         <div>
-          <h3 className="text-lg font-bold">اختار شكل الـ Navbar</h3>
+          <h3 className="text-lg font-semibold">اختار شكل الـ Navbar</h3>
           <p className="text-sm text-muted-foreground">
             التاجر يقدر يبدّل بين 3 أشكال مختلفة للنافبار
           </p>
@@ -69,7 +69,7 @@ export default function NavbarVariantPicker({
 
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-bold">{item.label}</h4>
+                    <h4 className="font-semibold">{item.label}</h4>
                     <p className="text-sm text-muted-foreground">
                       {item.description}
                     </p>

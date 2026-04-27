@@ -145,7 +145,7 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
               ),
 
               h3: ({ children }) => (
-                <h3 className="mb-3 mt-8 text-xl font-bold leading-snug text-foreground md:text-2xl">
+                <h3 className="mb-3 mt-8 text-xl font-semibold leading-snug text-foreground md:text-2xl">
                   {children}
                 </h3>
               ),
@@ -215,7 +215,7 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
         {/* CTA */}
 
         <div className="mx-auto mt-14 rounded-3xl border bg-card p-8 text-center">
-          <h3 className="text-2xl font-bold text-foreground">
+          <h3 className="text-2xl font-semibold text-foreground">
             جاهز تبدأ متجرك؟
           </h3>
 
@@ -236,7 +236,7 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
 
         {relatedPosts.length > 0 && (
           <section className="mt-16">
-            <h2 className="text-2xl font-bold text-foreground">
+            <h2 className="text-2xl font-semibold text-foreground">
               مقالات قد تهمك
             </h2>
 
@@ -257,7 +257,7 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
                   </div>
 
                   <div className="p-5">
-                    <h3 className="line-clamp-2 font-bold transition group-hover:text-primary">
+                    <h3 className="line-clamp-2 font-semibold transition group-hover:text-primary">
                       {item.title}
                     </h3>
 

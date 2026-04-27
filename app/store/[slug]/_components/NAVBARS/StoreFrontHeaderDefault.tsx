@@ -122,7 +122,7 @@ export default function StoreFrontHeaderDefault({
                 </div>
 
                 <div className="min-w-0 hidden sm:block">
-                  <h1 className="truncate text-base font-bold text-primary md:text-lg">
+                  <h1 className="truncate text-base font-semibold text-primary md:text-lg">
                     {storeName}
                   </h1>
                 </div>
@@ -197,7 +197,7 @@ export default function StoreFrontHeaderDefault({
                       <ShoppingCart className="h-4 w-4" />
                       <span className="hidden sm:inline">العربة</span>
 
-                      <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-bold text-white">
+                      <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-semibold text-white">
                         {cartCount}
                       </span>
                     </Link>
@@ -249,7 +249,7 @@ export default function StoreFrontHeaderDefault({
                               <p className="text-xs text-muted-foreground">
                                 اهلا بيك في
                               </p>
-                              <h3 className="truncate font-bold">
+                              <h3 className="truncate font-semibold">
                                 {storeName}
                               </h3>
                             </div>
@@ -339,7 +339,7 @@ export default function StoreFrontHeaderDefault({
                               >
                                 <ShoppingCart className="h-4 w-4" />
                                 عرض العربة
-                                <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-white px-1.5 text-[11px] font-bold text-primary">
+                                <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-white px-1.5 text-[11px] font-semibold text-primary">
                                   {cartCount}
                                 </span>
                               </Link>

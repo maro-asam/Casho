@@ -43,7 +43,7 @@ export default async function AdminLayout({
         <aside className="border-l bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
           <div className="flex h-full flex-col p-4">
             <div className="mb-8 px-2">
-              <h2 className="text-lg font-bold tracking-tight">CASHO Admin</h2>
+              <h2 className="text-lg font-semibold tracking-tight">CASHO Admin</h2>
               <p className="text-xs text-muted-foreground">إدارة المنصة</p>
             </div>
 

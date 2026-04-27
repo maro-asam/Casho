@@ -2,13 +2,7 @@ import { stats } from "@/constants/welcome/stats.constants";
 
 export default function StatsSection() {
   return (
-    <section className="relative overflow-hidden py-10 md:py-14 lg:py-20">
-      {/* background glow */}
-      <div className="absolute inset-0">
-        <div className="absolute right-1/2 top-0 h-72 w-72 translate-x-1/2 rounded-xl bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 h-64 w-64 rounded-xl bg-primary/5 blur-3xl" />
-      </div>
-
+    <section className="relative overflow-hidden py-10">
       {/* subtle grid */}
       <div
         className="absolute inset-0 opacity-[0.03]"
@@ -21,21 +15,21 @@ export default function StatsSection() {
         }}
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+      <div className="relative mx-auto px-4">
+        <div className="mx-auto max-w-3xl text-center flex flex-col items-center gap-2">
           <span className="inline-flex rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
             أرقام كــاشو
           </span>
 
-          <h2 className="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-zinc">
+          <h2 className="text-3xl md:text-4xl leading-tight tracking-tight text-zinc">
             أرقام بتثبت إن البيع أونلاين
-            <span className="block bg-linear-to-l from-zinc via-zinc to-primary bg-clip-text text-transparent">
+            <span className="mt-4 font-semibold block bg-linear-to-l from-sky-500 via-sky-500 to-primary bg-clip-text text-transparent">
               لازم يكون أسهل
             </span>
           </h2>
 
-          <p className="mt-5 text-base leading-8 text-zinc/60 ">
-            كاشو بتساعدك تطلق متجرك، تستقبل الطلبات، وتبيع لعملائك في مصر بطريقة
+          <p className="mt-5 text-base leading-8 text-muted-foreground  ">
+            كاشو بيساعدك تطلق متجرك، تستقبل الطلبات، وتبيع لعملائك في مصر بطريقة
             أبسط وأسرع ومن غير تعقيد تقني.
           </p>
         </div>
@@ -53,11 +47,11 @@ export default function StatsSection() {
                   {item.value}
                 </div>
 
-                <div className="mt-3 text-base font-semibold text-zinc/90">
+                <div className="mt-3 text-base font-medium text-zinc/90">
                   {item.title}
                 </div>
 
-                <p className="mt-2 text-sm leading-7 text-zinc/50">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   {item.description}
                 </p>
               </div>

@@ -42,7 +42,7 @@ export function AuthShell({
               {badge}
             </span>
 
-            <h1 className="text-4xl font-bold leading-tight">{title}</h1>
+            <h1 className="text-4xl font-semibold leading-tight">{title}</h1>
 
             <p className="text-base leading-8 text-primary-foreground/80">
               {description}

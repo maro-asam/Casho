@@ -42,7 +42,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
     <section className="mb-8 w-full" dir="rtl">
       <div className="mb-4 flex flex-row items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight md:text-2xl text-primary">
+          <h2 className="text-xl font-semibold tracking-tight md:text-2xl text-primary">
             أفضل العروض
           </h2>
         </div>
@@ -153,7 +153,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
 
                 <div className="absolute inset-0 flex items-end p-4">
                   <div className="space-y-2 text-white">
-                    <h4 className="line-clamp-2 text-sm font-bold leading-6 sm:text-base">
+                    <h4 className="line-clamp-2 text-sm font-semibold leading-6 sm:text-base">
                       {banner.title}
                     </h4>
 

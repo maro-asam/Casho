@@ -5,11 +5,13 @@
 
 import "./globals.css";
 import type { Metadata } from "next";
-import { Alexandria } from "next/font/google";
+import { Alexandria, Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/theme/theme-provider";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const cairoFont = Alexandria({
   subsets: ["arabic"],
@@ -109,7 +111,7 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={cn(cairoFont.className)}
+      className={cn(cairoFont.className, "font-sans", inter.variable)}
       suppressHydrationWarning
     >
       <body

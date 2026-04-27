@@ -149,7 +149,7 @@ export default function RenewSubscriptionModal({
               </div>
             </div>
 
-            <DialogTitle className="text-xl font-bold">
+            <DialogTitle className="text-xl font-semibold">
               تجديد اشتراك المتجر
             </DialogTitle>
 
@@ -165,14 +165,14 @@ export default function RenewSubscriptionModal({
               <p className="mb-1 text-sm text-muted-foreground">
                 الرصيد الحالي
               </p>
-              <p className="text-lg font-bold">{formatPrice(balance)}</p>
+              <p className="text-lg font-semibold">{formatPrice(balance)}</p>
             </div>
 
             <div className="rounded-xl border border-border/20 bg-background p-4">
               <p className="mb-1 text-sm text-muted-foreground">
                 قيمة التجديد الشهري
               </p>
-              <p className="text-lg font-bold">{formatPrice(monthlyPrice)}</p>
+              <p className="text-lg font-semibold">{formatPrice(monthlyPrice)}</p>
             </div>
           </div>
 
@@ -209,7 +209,7 @@ export default function RenewSubscriptionModal({
                 بعد خصم قيمة الاشتراك، الرصيد المتبقي هيكون:
               </p>
 
-              <p className="mt-2 text-xl font-bold text-emerald-700 dark:text-emerald-400">
+              <p className="mt-2 text-xl font-semibold text-emerald-700 dark:text-emerald-400">
                 {formatPrice(remainingAfterRenewal)}
               </p>
             </div>
@@ -224,7 +224,7 @@ export default function RenewSubscriptionModal({
                 محتاج تشحن رصيد إضافي بقيمة:
               </p>
 
-              <p className="mt-2 text-xl font-bold text-amber-700 dark:text-amber-400">
+              <p className="mt-2 text-xl font-semibold text-amber-700 dark:text-amber-400">
                 {formatPrice(shortage)}
               </p>
             </div>

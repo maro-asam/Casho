@@ -67,7 +67,7 @@ function StatCard({
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 text-right">
             <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold tracking-tight">{value}</p>
+            <p className="text-3xl font-semibold tracking-tight">{value}</p>
             <p className="text-xs text-muted-foreground">{hint}</p>
           </div>
 
@@ -132,7 +132,7 @@ export default async function AdminServiceRequestsPage({
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col gap-3 rounded-2xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="space-y-1 text-right">
-          <h1 className="text-2xl font-bold tracking-tight">طلبات الخدمات</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">طلبات الخدمات</h1>
           <p className="text-sm text-muted-foreground">
             راقب كل الطلبات اللي جاية من صفحة الخدمات بشكل منظم وواضح
           </p>

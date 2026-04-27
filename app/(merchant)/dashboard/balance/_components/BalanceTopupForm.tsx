@@ -225,7 +225,7 @@ export default function BalanceTopupForm({
                 المبلغ اللي هيتشحن
               </p>
             </div>
-            <p className="text-lg font-bold">{formatPrice(amountInPiasters)}</p>
+            <p className="text-lg font-semibold">{formatPrice(amountInPiasters)}</p>
           </div>
 
           <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
@@ -235,7 +235,7 @@ export default function BalanceTopupForm({
                 الرصيد بعد الموافقة
               </p>
             </div>
-            <p className="text-lg font-bold">
+            <p className="text-lg font-semibold">
               {formatPrice(balanceAfterApprove)}
             </p>
           </div>
@@ -247,7 +247,7 @@ export default function BalanceTopupForm({
                 عدد مرات التجديد الممكنة
               </p>
             </div>
-            <p className="text-lg font-bold">{renewalsCovered}</p>
+            <p className="text-lg font-semibold">{renewalsCovered}</p>
           </div>
         </div>
 

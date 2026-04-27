@@ -187,7 +187,7 @@ function ServiceCard({
         </div>
 
         <div className="space-y-2 text-right">
-          <CardTitle className="text-xl font-bold leading-8">
+          <CardTitle className="text-xl font-semibold leading-8">
             {service.title}
           </CardTitle>
           <CardDescription className="text-right text-sm leading-7 text-muted-foreground">
@@ -253,7 +253,7 @@ function SectionHeader({
       className="mb-6 flex flex-col gap-4 rounded-xl border border-border/20 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
     >
       <div className="text-right">
-        <h2 className="text-2xl font-bold text-primary">{title}</h2>
+        <h2 className="text-2xl font-semibold text-primary">{title}</h2>
         <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
           {description}
         </p>
@@ -341,7 +341,7 @@ const ServicesRoute = () => {
         >
           <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between md:p-8">
             <div className="text-right">
-              <h3 className="text-2xl font-bold">عايز خدمة مخصصة؟</h3>
+              <h3 className="text-2xl font-semibold">عايز خدمة مخصصة؟</h3>
               <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
                 لو محتاج خدمة مش موجودة فوق، زي إدارة إعلانات، تجهيز كامل
                 للمتجر، أو باكدج مخصوص ليك، ابعت طلبك وهنراجع أنسب حل ليك.

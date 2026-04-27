@@ -228,7 +228,7 @@ export default function StoreFrontHeaderCentered({
               >
                 <ShoppingCart className="h-4 w-4" />
                 <span>العربة</span>
-                <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-bold text-white">
+                <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-semibold text-white">
                   {cartCount}
                 </span>
               </Link>
@@ -258,7 +258,7 @@ export default function StoreFrontHeaderCentered({
                 </div>
               )}
             </div>
-            <span className="truncate font-bold">{storeName}</span>
+            <span className="truncate font-semibold">{storeName}</span>
           </Link>
 
           <Button asChild variant="outline" className="h-11 px-3 rounded-xl">
@@ -267,7 +267,7 @@ export default function StoreFrontHeaderCentered({
               className="flex items-center gap-2"
             >
               <ShoppingCart className="h-4 w-4" />
-              <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-bold text-white">
+              <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-semibold text-white">
                 {cartCount}
               </span>
             </Link>

@@ -52,7 +52,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
       <div className="mb-8 space-y-2 text-right">
         <p className="text-sm font-semibold text-primary">Checkout</p>
-        <h1 className="text-3xl font-bold tracking-tight">اتمام الطلب</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">اتمام الطلب</h1>
         <p className="text-muted-foreground">
           اكتب بياناتك بشكل صحيح، واختر طريقة الدفع المناسبة للمتجر.
         </p>

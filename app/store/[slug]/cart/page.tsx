@@ -67,7 +67,7 @@ export default async function CartPage({
               <span className="text-sm">سلة المشتريات</span>
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-primary">
+            <h1 className="text-3xl font-semibold tracking-tight text-primary">
               مراجعة الطلب
             </h1>
 
@@ -98,7 +98,7 @@ export default async function CartPage({
                 <ShoppingBag className="size-10 text-primary" />
               </div>
 
-              <h2 className="mb-2 text-2xl font-bold">السلة فاضية</h2>
+              <h2 className="mb-2 text-2xl font-semibold">السلة فاضية</h2>
 
               <p className="mb-6 max-w-md text-sm leading-6 text-muted-foreground">
                 لسه ما ضفتش أي منتجات. ابدأ التصفح واختار المنتجات اللي تناسبك
@@ -141,7 +141,7 @@ export default async function CartPage({
                         <div className="min-w-0 flex-1 space-y-2">
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="space-y-1">
-                              <h3 className="line-clamp-1 text-lg font-bold">
+                              <h3 className="line-clamp-1 text-lg font-semibold">
                                 {item.product.name}
                               </h3>
 
@@ -188,7 +188,7 @@ export default async function CartPage({
                                   </Button>
                                 </form>
 
-                                <span className="min-w-10 text-center text-sm font-bold">
+                                <span className="min-w-10 text-center text-sm font-semibold">
                                   {item.quantity}
                                 </span>
 
@@ -269,7 +269,7 @@ export default async function CartPage({
                         <TicketPercent className="size-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-bold">كوبون الخصم</p>
+                        <p className="font-semibold">كوبون الخصم</p>
                         <p className="text-xs text-muted-foreground">
                           اكتب الكوبون واضغط تطبيق
                         </p>
@@ -297,7 +297,7 @@ export default async function CartPage({
                       <div className="space-y-3">
                         <div className="flex items-center justify-between rounded-xl border bg-background px-3 py-3">
                           <div>
-                            <p className="text-sm font-bold">
+                            <p className="text-sm font-semibold">
                               الكوبون المطبق: {appliedCoupon.coupon.code}
                             </p>
                             <p className="text-xs text-muted-foreground">

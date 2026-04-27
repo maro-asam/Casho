@@ -128,7 +128,7 @@ export default function StoreFrontHeaderCompact({
                 </div>
               )}
             </div>
-            <span className="truncate text-sm font-bold md:text-base">
+            <span className="truncate text-sm font-semibold md:text-base">
               {storeName}
             </span>
           </Link>
@@ -193,7 +193,7 @@ export default function StoreFrontHeaderCompact({
             >
               <ShoppingCart className="h-4 w-4" />
               <span className="hidden sm:inline">العربة</span>
-              <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-bold text-white">
+              <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-primary px-1.5 text-[11px] font-semibold text-white">
                 {cartCount}
               </span>
             </Link>

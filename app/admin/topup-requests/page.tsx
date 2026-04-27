@@ -122,7 +122,7 @@ export default async function AdminTopupRequestsPage() {
   return (
     <div className="space-y-6" dir="rtl">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">طلبات الشحن</h1>
+        <h1 className="text-3xl font-semibold">طلبات الشحن</h1>
         <p className="text-sm text-muted-foreground">
           راجع طلبات شحن التجار واعتمد أو ارفض الطلبات من مكان واحد.
         </p>

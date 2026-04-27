@@ -48,7 +48,7 @@ function NoStoreFound() {
             <Store className="size-6 text-muted-foreground" />
           </div>
 
-          <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
+          <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
 
           <p className="mt-2 max-w-md text-sm leading-7 text-muted-foreground">
             يجب إنشاء متجر أولًا حتى تتمكن من الوصول إلى مركز المساعدة وإرسال

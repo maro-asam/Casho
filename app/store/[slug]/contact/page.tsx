@@ -34,7 +34,7 @@ export default async function StoreContactRoute({
     return (
       <div className="min-h-screen flex items-center justify-center" dir="rtl">
         <div className="border rounded-xl p-10 text-center">
-          <h1 className="text-2xl font-bold mb-4">المتجر غير مفعل</h1>
+          <h1 className="text-2xl font-semibold mb-4">المتجر غير مفعل</h1>
           <p className="text-gray-500">
             لازم صاحب المتجر يفعل الاشتراك الأول
           </p>
@@ -48,7 +48,7 @@ export default async function StoreContactRoute({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-3xl font-semibold mb-2">
             تواصل مع {store.name}
           </h1>
           <p className="text-muted-foreground">

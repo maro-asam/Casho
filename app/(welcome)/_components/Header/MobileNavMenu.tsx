@@ -165,7 +165,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="text-right">
-                      <p className="text-sm font-bold">
+                      <p className="text-sm font-semibold">
                         {user.storeName || "حسابي"}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground break-all">
@@ -250,7 +250,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                 ) : (
                   <div>
                     <Link href="/register" onClick={() => setOpen(false)}>
-                      <Button className="h-12 w-full justify-center rounded-xl text-sm font-bold shadow-md shadow-primary/20">
+                      <Button className="h-12 w-full justify-center rounded-xl text-sm font-semibold shadow-md shadow-primary/20">
                         ابدأ دلوقتي
                         <Store className="ms-2 size-4" />
                       </Button>

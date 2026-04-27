@@ -125,7 +125,7 @@ const BlogRoute = async () => {
                       </span>
                     </div>
 
-                    <h2 className="text-lg font-bold leading-8 text-foreground transition group-hover:text-primary">
+                    <h2 className="text-lg font-semibold leading-8 text-foreground transition group-hover:text-primary">
                       {post.title}
                     </h2>
 
@@ -150,7 +150,7 @@ const BlogRoute = async () => {
         <div className="mt-16 rounded-2xl border bg-card p-8 text-center">
           <FolderOpen className="mx-auto size-8 text-primary" />
 
-          <h3 className="mt-4 text-2xl font-bold">ابدأ متجرك الآن</h3>
+          <h3 className="mt-4 text-2xl font-semibold">ابدأ متجرك الآن</h3>
 
           <p className="mt-3 text-muted-foreground">
             طبّق النصائح دي مباشرة على متجرك وابدأ البيع بشكل احترافي.

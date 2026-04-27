@@ -105,7 +105,7 @@ const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
         )}
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-lg font-bold text-primary">
+          <p className="text-lg font-semibold text-primary">
             {formatPrice(product.price)}
           </p>
 

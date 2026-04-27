@@ -20,7 +20,7 @@ export default function ForgotPasswordRoute() {
       <div className="mx-auto flex min-h-screen max-w-md items-center px-4">
         <div className="w-full rounded-xl border bg-card p-6 shadow-sm sm:p-8">
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold">نسيت كلمة المرور؟</h1>
+            <h1 className="text-2xl font-semibold">نسيت كلمة المرور؟</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               اكتب البريد الإلكتروني المرتبط بحسابك، وهنبعت لك رابط تغيير الباسورد.
             </p>

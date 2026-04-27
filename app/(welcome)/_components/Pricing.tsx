@@ -22,9 +22,9 @@ export default function PricingSection() {
             الأسعار
           </span>
 
-          <h2 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-foreground md:text-4xl">
+          <h2 className="mt-5 text-3xl  leading-tight tracking-tight text-foreground md:text-4xl">
             ابدأ دلوقتي بسعر مناسب
-            <span className="mt-2 block bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
+            <span className="mt-2 block font-semibold bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
               قبل ما العرض الحالي يخلص
             </span>
           </h2>
@@ -69,7 +69,7 @@ export default function PricingSection() {
                 className={plan.locked ? "pointer-events-none select-none" : ""}
               >
                 <div className="text-center">
-                  <h3 className="text-xl font-bold text-foreground">
+                  <h3 className="text-xl font-semibold text-foreground">
                     {plan.name}
                   </h3>
 

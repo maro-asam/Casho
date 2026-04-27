@@ -51,7 +51,7 @@ export default async function CategoryProducts({ params }: PageProps) {
         dir="rtl"
       >
         <Card className="p-10 text-center rounded-xl">
-          <h1 className="text-xl font-bold mb-2">المتجر غير مفعل</h1>
+          <h1 className="text-xl font-semibold mb-2">المتجر غير مفعل</h1>
           <p className="text-sm text-muted-foreground mb-5">
             لا يمكن عرض المنتجات حاليًا
           </p>
@@ -92,7 +92,7 @@ export default async function CategoryProducts({ params }: PageProps) {
             تصنيف
           </Badge>
 
-          <h1 className="text-3xl font-bold">{category.name}</h1>
+          <h1 className="text-3xl font-semibold">{category.name}</h1>
 
           <p className="text-sm text-muted-foreground">
             متجر: {store.name} • عدد المنتجات: {category.products.length}
@@ -163,7 +163,7 @@ export default async function CategoryProducts({ params }: PageProps) {
                     </h3>
 
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-primary">
+                      <span className="font-semibold text-primary">
                         {formatPrice(product.price)}
                       </span>
 

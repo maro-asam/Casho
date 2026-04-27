@@ -118,7 +118,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
               <Store className="size-6 text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
+            <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               يجب إنشاء متجر أولًا حتى تتمكن من متابعة الطلبات وإدارتها.
             </p>
@@ -182,7 +182,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
-            <h2 className="text-xl font-bold">لا توجد طلبات حتى الآن</h2>
+            <h2 className="text-xl font-semibold">لا توجد طلبات حتى الآن</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               لما العملاء يبدأوا يطلبوا من المتجر، الطلبات هتظهر هنا وتقدر تتابع
               حالتها بسهولة.

@@ -76,7 +76,7 @@ export default async function AdminStoresPage() {
   return (
     <div className="space-y-6" dir="rtl">
       <div>
-        <h1 className="text-3xl font-bold">كل المتاجر</h1>
+        <h1 className="text-3xl font-semibold">كل المتاجر</h1>
         <p className="text-sm text-muted-foreground">
           إدارة كل المتاجر في المنصة
         </p>

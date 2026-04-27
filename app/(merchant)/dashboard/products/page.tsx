@@ -80,7 +80,7 @@ const MerchantProductsRoute = async ({
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
               <Store className="size-6 text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
+            <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               يجب إنشاء متجر أولًا حتى تتمكن من إدارة المنتجات وإضافتها.
             </p>
@@ -148,7 +148,7 @@ const MerchantProductsRoute = async ({
               <FolderOpen className="size-7 text-muted-foreground" />
             </div>
 
-            <h2 className="text-xl font-bold">لا توجد منتجات بعد</h2>
+            <h2 className="text-xl font-semibold">لا توجد منتجات بعد</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               ابدأ بإضافة أول منتج داخل متجرك ليظهر للعملاء وتبدأ في إدارة
               منتجاتك بشكل أفضل.

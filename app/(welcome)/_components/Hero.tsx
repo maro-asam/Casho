@@ -41,10 +41,10 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.08 }}
-          className="mt-6 max-w-6xl text-4xl font-extrabold leading-normal tracking-tight sm:text-5xl lg:text-6xl"
+          className="mt-6 max-w-6xl text-2xl leading-normal tracking-tight sm:text-5xl lg:text-6xl"
         >
           {HERO_CONTENT.title}
-          <span className="mt-2 block bg-linear-to-l from-primary via-sky-500 to-primary bg-clip-text text-transparent">
+          <span className="mt-2 block bg-linear-to-l from-primary via-sky-500 to-primary bg-clip-text text-transparent font-semibold">
             {HERO_CONTENT.highlight}
           </span>
         </motion.h1>
@@ -53,7 +53,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.16 }}
-          className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground"
+          className="mt-6 max-w-2xl text-base leading-8 font-light text-muted-foreground"
         >
           {HERO_CONTENT.description}
         </motion.p>
@@ -67,7 +67,7 @@ export default function HeroSection() {
           <Button size="lg" asChild>
             <Link
               href={HERO_CONTENT.cta.primary.href}
-              className="flex items-center gap-2 px-10 font-bold"
+              className="flex items-center gap-2 px-10 font-semibold"
             >
               <span className="relative z-10">
                 {HERO_CONTENT.cta.primary.label}
@@ -141,7 +141,7 @@ export default function HeroSection() {
                     <p className="text-xs text-muted-foreground">
                       {HERO_CONTENT.dashboard.salesTitle}
                     </p>
-                    <p className="mt-1 text-xl font-bold">
+                    <p className="mt-1 text-xl font-semibold">
                       {HERO_CONTENT.dashboard.salesValue}
                     </p>
                   </motion.div>
@@ -161,7 +161,7 @@ export default function HeroSection() {
                     <p className="text-xs text-muted-foreground">
                       {HERO_CONTENT.dashboard.ordersTitle}
                     </p>
-                    <p className="mt-1 text-xl font-bold">
+                    <p className="mt-1 text-xl font-semibold">
                       {HERO_CONTENT.dashboard.ordersValue}
                     </p>
                   </motion.div>
@@ -181,7 +181,7 @@ export default function HeroSection() {
                     <p className="text-xs text-muted-foreground">
                       {HERO_CONTENT.dashboard.conversionTitle}
                     </p>
-                    <p className="mt-1 text-xl font-bold">
+                    <p className="mt-1 text-xl font-semibold">
                       {HERO_CONTENT.dashboard.conversionValue}
                     </p>
                   </motion.div>

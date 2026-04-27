@@ -27,9 +27,9 @@ export default function BeforeAfterSection() {
             قبل / بعد
           </span>
 
-          <h2 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl md:text-5xl">
+          <h2 className="text-3xl md:text-4xl leading-tight text-foreground ">
             الفرق بين البيع التقليدي
-            <span className="block bg-linear-to-l from-primary via-sky-500 to-primary bg-clip-text text-transparent">
+            <span className="block bg-linear-to-l mt-4 font-semibold from-primary via-sky-500 to-primary bg-clip-text text-transparent">
               والبيع عن طريق كاشو
             </span>
           </h2>
@@ -51,7 +51,7 @@ export default function BeforeAfterSection() {
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-red-500/80">Before</p>
-                <h3 className="mt-1 text-2xl font-bold text-red-600">
+                <h3 className="mt-1 text-2xl font-semibold text-red-600">
                   قبل Casho
                 </h3>
               </div>
@@ -132,7 +132,7 @@ export default function BeforeAfterSection() {
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-primary/80">After</p>
-                <h3 className="mt-1 text-2xl font-bold text-foreground">
+                <h3 className="mt-1 text-2xl font-semibold text-foreground">
                   بعد Casho
                 </h3>
               </div>

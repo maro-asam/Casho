@@ -95,7 +95,7 @@ export default async function OrderSuccessPage({
                 <Package className="size-4" />
                 عدد المنتجات
               </div>
-              <p className="font-bold">{order.items.length}</p>
+              <p className="font-semibold">{order.items.length}</p>
             </div>
 
             <div className="rounded-2xl border bg-primary/5 p-4">

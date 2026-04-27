@@ -74,7 +74,7 @@ export default function Footer() {
 
           <div className="grid gap-8 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
             <div>
-              <h3 className="text-sm font-bold text-foreground">المنتج</h3>
+              <h3 className="text-sm font-semibold text-foreground">المنتج</h3>
               <div className="mt-4 space-y-3">
                 {footerLinks.product.map((link) => (
                   <Link
@@ -89,7 +89,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-foreground">الشركة</h3>
+              <h3 className="text-sm font-semibold text-foreground">الشركة</h3>
               <div className="mt-4 space-y-3">
                 {footerLinks.company.map((link) => (
                   <Link
@@ -104,7 +104,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-foreground">القانوني</h3>
+              <h3 className="text-sm font-semibold text-foreground">القانوني</h3>
               <div className="mt-4 space-y-3">
                 {footerLinks.legal.map((link) => (
                   <Link
@@ -119,7 +119,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-foreground">تواصل معانا</h3>
+              <h3 className="text-sm font-semibold text-foreground">تواصل معانا</h3>
               <div className="mt-4 space-y-3">
                 {footerLinks.contact.map((item) => {
                   const Icon = item.icon;

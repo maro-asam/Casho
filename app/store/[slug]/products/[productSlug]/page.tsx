@@ -172,7 +172,7 @@ export default async function ProductDetailsRoute({
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-3xl font-bold leading-normal tracking-tight md:text-4xl">
+                <h1 className="text-3xl font-semibold leading-normal tracking-tight md:text-4xl">
                   {product.name}
                 </h1>
 
@@ -210,7 +210,7 @@ export default async function ProductDetailsRoute({
                 <CardContent className="space-y-4 text-sm">
                   <div className="flex items-center justify-between border-b border-border/20 pb-3">
                     <span className="text-muted-foreground">السعر الحالي</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {formatPrice(product.price)}
                     </span>
                   </div>
@@ -352,7 +352,7 @@ export default async function ProductDetailsRoute({
         <section className="mt-14 space-y-6">
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold md:text-3xl">منتجات مشابهة</h2>
+              <h2 className="text-2xl font-semibold md:text-3xl">منتجات مشابهة</h2>
               <p className="text-sm text-muted-foreground">
                 منتجات من نفس التصنيف قد تعجبك أيضًا
               </p>

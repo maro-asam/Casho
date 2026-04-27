@@ -124,7 +124,7 @@ function StatCard({
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold tracking-tight">{value}</p>
+            <p className="text-2xl font-semibold tracking-tight">{value}</p>
             <p className="text-sm leading-6 text-muted-foreground">
               {description}
             </p>
@@ -181,7 +181,7 @@ export default async function BalanceTopupRoute() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold">لا يوجد متجر بعد</h1>
+              <h1 className="text-2xl font-semibold">لا يوجد متجر بعد</h1>
               <p className="text-sm leading-6 text-muted-foreground">
                 لازم يكون عندك متجر أولًا عشان تقدر تبعت طلب شحن رصيد.
               </p>
@@ -219,7 +219,7 @@ export default async function BalanceTopupRoute() {
               </div>
 
               <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                   أضف رصيد لمتجرك
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -380,7 +380,7 @@ export default async function BalanceTopupRoute() {
                         className="rounded-2xl border border-border/60 p-4"
                       >
                         <div className="mb-3 flex items-center justify-between gap-3">
-                          <p className="text-lg font-bold">
+                          <p className="text-lg font-semibold">
                             {formatPrice(request.amount)}
                           </p>
 
