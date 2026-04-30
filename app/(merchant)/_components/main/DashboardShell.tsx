@@ -7,6 +7,7 @@ import {
   BanknoteArrowUp,
   BookOpen,
   ChartNoAxesCombined,
+  ChartPie,
   CirclePercent,
   CreditCard,
   Headset,
@@ -95,6 +96,11 @@ export default function DashboardShell({
             href: "/dashboard/coupons",
             icon: CirclePercent,
           },
+          {
+            name: "التقارير",
+            href: "/dashboard/reports",
+            icon: ChartPie,
+          }
         ],
       },
       {
@@ -159,13 +165,7 @@ export default function DashboardShell({
             disabled: true,
             badge: "Soon",
           },
-          {
-            name: "بوابات الدفع",
-            href: "/dashboard/payment-gateways",
-            icon: CreditCard,
-            disabled: true,
-            badge: "Soon",
-          },
+
           {
             name: "الحملات التسويقية",
             href: "/dashboard/marketing-campaigns",

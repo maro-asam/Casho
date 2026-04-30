@@ -50,11 +50,19 @@ export async function CreateOrderAction(
 
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
+
     select: {
       id: true,
       slug: true,
       name: true,
       paymentMethods: true,
+
+      settings: {
+        select: {
+          shippingPrice: true,
+        },
+      },
+
       storePaymentSettings: {
         select: {
           cashOnDeliveryEnabled: true,
@@ -130,7 +138,7 @@ export async function CreateOrderAction(
     return acc + priceInCents * item.quantity;
   }, 0);
 
-  const shipping = 0;
+  const shipping = (store.settings?.shippingPrice ?? 0) * 100;
   let discount = 0;
   let couponIdToUse: string | null = null;
   let couponCodeToUse: string | null = null;

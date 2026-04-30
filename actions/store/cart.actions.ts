@@ -234,6 +234,11 @@ export async function GetCartItemsAction(storeSlug: string) {
       id: true,
       slug: true,
       name: true,
+      settings: {
+        select: {
+          shippingPrice: true,
+        },
+      },
     },
   });
 
@@ -300,7 +305,7 @@ export async function GetCartItemsAction(storeSlug: string) {
     return acc + item.product.price * item.quantity;
   }, 0);
 
-  const shipping = items.length > 0 ? 0 : 0;
+  const shipping = items.length > 0 ? (store.settings?.shippingPrice ?? 0) : 0;
 
   let discount = 0;
   let validCoupon: typeof appliedCoupon = null;

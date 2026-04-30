@@ -96,7 +96,8 @@ export default function RegisterRoute() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [slugStatus, setSlugStatus] = useState<StoreSlugAvailabilityState | null>(null);
+  const [slugStatus, setSlugStatus] =
+    useState<StoreSlugAvailabilityState | null>(null);
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
   const requestIdRef = useRef(0);
@@ -106,8 +107,7 @@ export default function RegisterRoute() {
   }, [password, confirmPassword]);
 
   const isStepOneValid =
-    storeName.trim().length >= 2 &&
-    !!slugStatus?.suggestedSlug;
+    storeName.trim().length >= 2 && !!slugStatus?.suggestedSlug;
 
   const isStepTwoValid =
     email.trim().length > 0 &&
@@ -126,7 +126,7 @@ export default function RegisterRoute() {
       setStep(3);
 
       const timer = setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/dashboard/change-plan?onboarding=1");
         router.refresh();
       }, 1200);
 
@@ -311,7 +311,10 @@ export default function RegisterRoute() {
                                 <p className="text-muted-foreground">
                                   رابط المتجر هيبقى:
                                 </p>
-                                <div className="rounded-xl border bg-background px-3 py-2 font-medium" dir="ltr">
+                                <div
+                                  className="rounded-xl border bg-background px-3 py-2 font-medium"
+                                  dir="ltr"
+                                >
                                   {slugStatus.suggestedSlug}.casho.store
                                 </div>
                               </div>
@@ -321,7 +324,10 @@ export default function RegisterRoute() {
                                   <p className="text-muted-foreground">
                                     الاسم بعد التحويل للرابط:
                                   </p>
-                                  <div className="rounded-xl border bg-background px-3 py-2" dir="ltr">
+                                  <div
+                                    className="rounded-xl border bg-background px-3 py-2"
+                                    dir="ltr"
+                                  >
                                     {slugStatus.normalizedSlug}
                                   </div>
                                 </div>
@@ -332,7 +338,10 @@ export default function RegisterRoute() {
                                   <Sparkles className="mt-0.5 size-4 text-primary" />
                                   <p className="text-muted-foreground">
                                     متاح لك الاسم البديل ده بدلًا منه:
-                                    <span className="mx-1 font-semibold text-foreground" dir="ltr">
+                                    <span
+                                      className="mx-1 font-semibold text-foreground"
+                                      dir="ltr"
+                                    >
                                       {slugStatus.suggestedSlug}
                                     </span>
                                   </p>
@@ -460,7 +469,9 @@ export default function RegisterRoute() {
 
                         <Button
                           type="submit"
-                          disabled={!isStepTwoValid || isPending || isCheckingSlug}
+                          disabled={
+                            !isStepTwoValid || isPending || isCheckingSlug
+                          }
                           className="flex-1"
                         >
                           {isPending ? "جاري الإنشاء..." : "ابدأ متجرك"}
@@ -487,7 +498,9 @@ export default function RegisterRoute() {
                         <CheckCircle2 className="size-10 text-primary" />
                       </motion.div>
 
-                      <h3 className="text-2xl font-semibold">تم إنشاء حسابك 🎉</h3>
+                      <h3 className="text-2xl font-semibold">
+                        تم إنشاء حسابك 🎉
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         جاري تحويلك للوحة التحكم...
                       </p>

@@ -14,11 +14,23 @@ const settingsSchema = z.object({
     .trim()
     .min(2, "اسم المتجر لازم يكون حرفين على الأقل")
     .max(60, "اسم المتجر كبير جدًا"),
+
   logo: z.string().trim().optional(),
   coverImage: z.string().trim().optional(),
   primaryColor: z.string().trim().optional(),
   secondaryColor: z.string().trim().optional(),
-  announcementText: z.string().trim().max(300, "النص العلوي طويل جدًا").optional(),
+
+  shippingPrice: z.coerce
+    .number("سعر الشحن لازم يكون رقم")
+    .int("سعر الشحن لازم يكون رقم صحيح")
+    .min(0, "سعر الشحن لا يمكن يكون أقل من صفر")
+    .max(100000, "سعر الشحن كبير جدًا"),
+
+  announcementText: z
+    .string()
+    .trim()
+    .max(300, "النص العلوي طويل جدًا")
+    .optional(),
   description: z.string().trim().max(1000, "وصف المتجر طويل جدًا").optional(),
   whatsappNumber: z.string().trim().max(30, "رقم الواتساب غير صالح").optional(),
   tiktok: z.string().trim().max(255, "رابط تيك توك غير صالح").optional(),
@@ -43,6 +55,7 @@ export type StoreSettingsFormState = {
     coverImage?: string[];
     primaryColor?: string[];
     secondaryColor?: string[];
+    shippingPrice?: string[];
     announcementText?: string[];
     description?: string[];
     whatsappNumber?: string[];
@@ -60,7 +73,10 @@ function emptyToNull(value?: string) {
 }
 
 async function getAvailableStoreSlug(
-  tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
+  tx: Omit<
+    typeof prisma,
+    "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+  >,
   storeId: string,
   baseSlug: string,
 ) {
@@ -72,9 +88,7 @@ async function getAvailableStoreSlug(
     select: { id: true },
   });
 
-  if (!existingBase) {
-    return baseSlug;
-  }
+  if (!existingBase) return baseSlug;
 
   for (let i = 0; i < 10; i++) {
     const random = Math.random().toString(36).slice(2, 6);
@@ -88,9 +102,7 @@ async function getAvailableStoreSlug(
       select: { id: true },
     });
 
-    if (!exists) {
-      return candidate;
-    }
+    if (!exists) return candidate;
   }
 
   return `${baseSlug}-${crypto.randomUUID().slice(0, 6)}`;
@@ -106,10 +118,14 @@ export async function UpdateStoreSettingsAction(
     const rawData = {
       storeId: formData.get("storeId")?.toString() ?? "",
       storeName: formData.get("storeName")?.toString() ?? "",
+
       logo: formData.get("logo")?.toString() ?? "",
       coverImage: formData.get("coverImage")?.toString() ?? "",
       primaryColor: formData.get("primaryColor")?.toString() ?? "",
       secondaryColor: formData.get("secondaryColor")?.toString() ?? "",
+
+      shippingPrice: formData.get("shippingPrice")?.toString() ?? "0",
+
       announcementText: formData.get("announcementText")?.toString() ?? "",
       description: formData.get("description")?.toString() ?? "",
       whatsappNumber: formData.get("whatsappNumber")?.toString() ?? "",
@@ -122,12 +138,10 @@ export async function UpdateStoreSettingsAction(
     const parsed = settingsSchema.safeParse(rawData);
 
     if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-
       return {
         success: false,
         message: "يرجى مراجعة البيانات",
-        errors: fieldErrors,
+        errors: parsed.error.flatten().fieldErrors,
       };
     }
 
@@ -138,6 +152,7 @@ export async function UpdateStoreSettingsAction(
       coverImage,
       primaryColor,
       secondaryColor,
+      shippingPrice,
       announcementText,
       description,
       whatsappNumber,
@@ -178,13 +193,13 @@ export async function UpdateStoreSettingsAction(
       };
     }
 
+    let nextSlug = store.slug;
+
     await prisma.$transaction(async (tx) => {
-      const nextSlug = await getAvailableStoreSlug(tx, store.id, normalizedSlug);
+      nextSlug = await getAvailableStoreSlug(tx, store.id, normalizedSlug);
 
       await tx.store.update({
-        where: {
-          id: store.id,
-        },
+        where: { id: store.id },
         data: {
           name: storeName.trim(),
           slug: nextSlug,
@@ -192,14 +207,15 @@ export async function UpdateStoreSettingsAction(
       });
 
       await tx.storeSettings.upsert({
-        where: {
-          storeId: store.id,
-        },
+        where: { storeId: store.id },
         update: {
           logo: emptyToNull(logo),
           coverImage: emptyToNull(coverImage),
           primaryColor: emptyToNull(primaryColor),
           secondaryColor: emptyToNull(secondaryColor),
+
+          shippingPrice,
+
           announcementText: emptyToNull(announcementText),
           description: emptyToNull(description),
           whatsappNumber: emptyToNull(whatsappNumber),
@@ -214,6 +230,9 @@ export async function UpdateStoreSettingsAction(
           coverImage: emptyToNull(coverImage),
           primaryColor: emptyToNull(primaryColor),
           secondaryColor: emptyToNull(secondaryColor),
+
+          shippingPrice,
+
           announcementText: emptyToNull(announcementText),
           description: emptyToNull(description),
           whatsappNumber: emptyToNull(whatsappNumber),
@@ -227,7 +246,7 @@ export async function UpdateStoreSettingsAction(
 
     revalidatePath("/dashboard/settings");
     revalidatePath("/dashboard");
-    revalidatePath(`/store/${store.slug}`);
+    revalidatePath(`/store/${nextSlug}`);
 
     return {
       success: true,

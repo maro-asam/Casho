@@ -55,9 +55,9 @@ model Store {
   gracePeriodEndsAt  DateTime?
   autoRenew          Boolean            @default(true)
 
-  balance      Int @default(0)
-  monthlyPrice Int @default(29900)
-
+  balance        Int      @default(0)
+  monthlyPrice   Int      @default(29900)
+  planSelected   Boolean  @default(false)
   paymentMethods String[] @default([])
 
   userId String
@@ -100,6 +100,7 @@ model StoreSettings {
   primaryColor   String?
   secondaryColor String?
   navbarVariant  String  @default("default")
+  shippingPrice  Int     @default(0)
 
   seoTitle       String?
   seoDescription String?

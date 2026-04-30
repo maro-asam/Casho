@@ -43,6 +43,7 @@ type Props = {
       coverImage: string | null;
       primaryColor: string | null;
       secondaryColor: string | null;
+      shippingPrice: number;
       announcementText: string | null;
       description: string | null;
       whatsappNumber: string | null;
@@ -341,6 +342,39 @@ export default function StoreSettingsForm({ store }: Props) {
         </div>
       </section>
 
+      <Separator />
+
+      <section className="space-y-5">
+        <div className="flex items-center gap-2">
+          <FileText className="size-4 text-primary" />
+          <h3 className="text-base font-semibold">الشحن</h3>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="shippingPrice">سعر الشحن</Label>
+            <Input
+              id="shippingPrice"
+              name="shippingPrice"
+              type="number"
+              min={0}
+              step={1}
+              placeholder="مثال: 50"
+              defaultValue={settings?.shippingPrice ?? 0}
+            />
+
+            {state.errors?.shippingPrice && (
+              <p className="text-sm text-destructive">
+                {state.errors.shippingPrice[0]}
+              </p>
+            )}
+
+            <p className="text-sm text-muted-foreground">
+              السعر اللي هيتضاف تلقائيًا على إجمالي الطلب.
+            </p>
+          </div>
+        </div>
+      </section>
       <Separator />
 
       <section className="space-y-5">

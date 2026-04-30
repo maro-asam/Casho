@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
-import { Check, Loader2, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { Check, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import {
   type PlanKey,
   type ChangePlanFormState,
 } from "@/actions/subscription/change-plan.actions";
+import { useRouter } from "next/navigation";
 
 type PlanItem = {
   key: PlanKey;
@@ -31,6 +32,7 @@ type ChangePlanFormProps = {
   currentMonthlyPrice: number;
   currentBalance: number;
   autoRenew: boolean;
+  isOnboarding?: boolean;
 };
 
 function formatPrice(value: number) {
@@ -45,31 +47,15 @@ const plans: PlanItem[] = [
   {
     key: "STARTER",
     title: "باقة البداية",
-    description: "مناسبة لو لسه بتبدأ وعايز أقل تكلفة شهرية.",
+    description: "الباقة الأساسية لتشغيل متجرك على كاشو.",
     price: 29900,
     icon: ShieldCheck,
-    features: ["متجر إلكتروني كامل", "إدارة منتجات وطلبات", "لوحة تحكم سهلة"],
-  },
-  {
-    key: "GROWTH",
-    title: "باقة النمو",
-    description: "أفضل اختيار لأغلب التجار ودي الباقة المتوازنة.",
-    price: 49900,
-    icon: Sparkles,
     recommended: true,
     features: [
-      "كل مميزات Starter",
-      "مناسبة للنمو المستمر",
-      "أفضل قيمة مقابل السعر",
+      "متجر إلكتروني كامل",
+      "إدارة المنتجات والطلبات",
+      "لوحة تحكم سهلة",
     ],
-  },
-  {
-    key: "PRO",
-    title: "باقة الاحتراف",
-    description: "للمتاجر اللي عايزة مرونة أعلى وتجهيز للتوسع.",
-    price: 99900,
-    icon: Zap,
-    features: ["كل مميزات Growth", "جاهزة للتوسع", "أنسب للمتاجر الجادة"],
   },
 ];
 
@@ -89,7 +75,9 @@ export default function ChangePlanForm({
   currentMonthlyPrice,
   currentBalance,
   autoRenew,
+  isOnboarding = false,
 }: ChangePlanFormProps) {
+  const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>(currentPlan);
   const [autoRenewEnabled, setAutoRenewEnabled] = useState(autoRenew);
 
@@ -103,10 +91,15 @@ export default function ChangePlanForm({
 
     if (state.success) {
       toast.success(state.message);
+
+      if (isOnboarding) {
+        router.replace("/dashboard");
+        router.refresh();
+      }
     } else {
       toast.error(state.message);
     }
-  }, [state]);
+  }, [state, isOnboarding, router]);
 
   const selectedPlanObject = useMemo(() => {
     return plans.find((plan) => plan.key === selectedPlan) ?? plans[1];
@@ -308,7 +301,10 @@ export default function ChangePlanForm({
               type="submit"
               className="w-full"
               disabled={
-                isPending || (isCurrentPlan && autoRenewEnabled === autoRenew)
+                isPending ||
+                (!isOnboarding &&
+                  isCurrentPlan &&
+                  autoRenewEnabled === autoRenew)
               }
             >
               {isPending ? (
@@ -316,6 +312,8 @@ export default function ChangePlanForm({
                   <Loader2 className="ms-2 size-4 animate-spin" />
                   جاري حفظ التغييرات...
                 </>
+              ) : isOnboarding ? (
+                "اختيار الباقة والدخول للداشبورد"
               ) : (
                 "حفظ التغييرات"
               )}

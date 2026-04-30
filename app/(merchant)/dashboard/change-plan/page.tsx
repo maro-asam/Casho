@@ -68,7 +68,17 @@ function getPlanKeyFromPrice(
   return "CUSTOM";
 }
 
-export default async function ChangePlanRoute() {
+type SearchParams = {
+  onboarding?: string | string[];
+};
+
+export default async function ChangePlanRoute({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams> | SearchParams;
+}) {
+  const params = await Promise.resolve(searchParams);
+
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -83,11 +93,14 @@ export default async function ChangePlanRoute() {
       subscriptionStatus: true,
       subscriptionEndsAt: true,
       gracePeriodEndsAt: true,
+      planSelected: true,
     },
     orderBy: {
       createdAt: "asc",
     },
   });
+
+  const isOnboarding = params?.onboarding === "1" || !store?.planSelected;
 
   if (!store) {
     return (
@@ -133,11 +146,14 @@ export default async function ChangePlanRoute() {
                 </Badge>
               </div>
 
-              <h1 className="text-2xl font-semibold md:text-3xl">تغيير الباقة</h1>
+              <h1 className="text-2xl font-semibold md:text-3xl">
+                {isOnboarding ? "اختيار الباقة" : "تغيير الباقة"}
+              </h1>
 
               <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                اختار الباقة المناسبة لمتجرك، وحدد هل التجديد التلقائي يفضل شغال
-                ولا لا. التغيير هنا بيأثر على التجديد القادم، مش خصم فوري.
+                {isOnboarding
+                  ? "اختار الباقة المناسبة لمتجرك عشان تكمل إعداد الحساب. الاختيار هنا مش خصم فوري."
+                  : "اختار الباقة المناسبة لمتجرك، وحدد هل التجديد التلقائي يفضل شغال ولا لا. التغيير هنا بيأثر على التجديد القادم، مش خصم فوري."}
               </p>
             </div>
 
@@ -172,6 +188,7 @@ export default async function ChangePlanRoute() {
               currentMonthlyPrice={store.monthlyPrice}
               currentBalance={store.balance}
               autoRenew={store.autoRenew}
+              isOnboarding={isOnboarding}
             />
           </div>
 

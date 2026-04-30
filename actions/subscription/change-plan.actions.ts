@@ -67,6 +67,7 @@ export async function UpdateStorePlanAction(
       data: {
         monthlyPrice: PLAN_PRICES[plan],
         autoRenew,
+        planSelected: true,
       },
     });
 
