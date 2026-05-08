@@ -8,6 +8,7 @@ import { registerSchema } from "@/validations/auth.schema";
 import { getFieldErrors } from "@/lib/zod";
 import { normalizeStoreSlug } from "@/lib/store/slug";
 import { createUserSession } from "@/lib/auth/session";
+import { TrackStoreRegistrationAction } from "@/actions/tracking/meta-registration-events.actions";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -126,6 +127,16 @@ export async function RegisterAction(
         },
         select: {
           id: true,
+          email: true,
+          phone_number: true,
+          stores: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+            take: 1,
+          },
         },
       });
 
@@ -134,16 +145,28 @@ export async function RegisterAction(
 
     await createUserSession(created.id);
 
+    const createdStore = created.stores[0];
+
+    if (createdStore) {
+      await TrackStoreRegistrationAction({
+        storeId: createdStore.id,
+        storeSlug: createdStore.slug,
+        storeName: createdStore.name,
+        userEmail: created.email,
+        userPhone: created.phone_number,
+        userName: storeName.trim(),
+      });
+    }
+
     return {
       success: true,
       message: "تم إنشاء الحساب والمتجر بنجاح",
     };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("RegisterAction error:", error);
 
-    const message =
-      typeof error?.message === "string" ? error.message : "";
+    const message = typeof error?.message === "string" ? error.message : "";
 
     if (
       message.includes("Unique constraint failed") ||

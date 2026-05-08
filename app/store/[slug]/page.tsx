@@ -20,6 +20,7 @@ import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSecti
 import { TrackVisitAction } from "@/actions/admin/visitors-tracker.actions";
 import { SubscriptionStatus } from "@prisma/client";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
 
 type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
@@ -113,6 +114,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
+      <StoreVisitTracker storeId={store.id} />
       <div className="py-6">
         <StoreBanner banners={store.banners} storeSlug={store.slug} />
 

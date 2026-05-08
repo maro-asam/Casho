@@ -10,8 +10,9 @@ import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/theme/theme-provider";
+import { MetaPixel } from "@/components/meta/meta-pixel";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const cairoFont = Alexandria({
   subsets: ["arabic"],
@@ -119,6 +120,8 @@ export default function RootLayout({
         cz-shortcut-listen="true"
         smooth-scroll="true"
       >
+        <MetaPixel />
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

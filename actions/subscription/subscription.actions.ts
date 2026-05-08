@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 
 import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
+import { TrackPurchaseAction } from "@/actions/tracking/meta-order-events.actions";
 import { revalidatePath } from "next/cache";
 import {
   addDays,
@@ -11,10 +12,7 @@ import {
   getNextSubscriptionEndDate,
   normalizeBalanceAmount,
 } from "@/lib/subscriptions";
-import {
-  BalanceTransactionType,
-  SubscriptionStatus,
-} from "@prisma/client";
+import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
 import { addMonths } from "date-fns";
 import { requireUserId } from "../auth/require-user-id.actions";
 
@@ -61,6 +59,43 @@ async function getOwnedStoreOrThrow(storeId: string) {
   }
 
   return store;
+}
+
+async function trackSubscriptionPurchase({
+  storeId,
+  storeSlug,
+  storeName,
+  monthlyPrice,
+}: {
+  storeId: string;
+  storeSlug: string;
+  storeName?: string | null;
+  monthlyPrice: number;
+}) {
+  try {
+    await TrackPurchaseAction({
+      orderId: `subscription_${Date.now()}`,
+      storeId,
+      storeSlug,
+
+      total: monthlyPrice,
+      currency: "EGP",
+
+      customerEmail: undefined,
+      customerPhone: undefined,
+      customerFirstName: storeName || undefined,
+
+      items: [
+        {
+          productId: "monthly_subscription",
+          quantity: 1,
+          price: monthlyPrice,
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("trackSubscriptionPurchase Error:", error);
+  }
 }
 
 export async function TopUpStoreBalanceAction({
@@ -223,7 +258,15 @@ export async function ActivateStoreSubscriptionAction(
       });
     });
 
+    await trackSubscriptionPurchase({
+      storeId: store.id,
+      storeSlug: store.slug,
+      storeName: store.name,
+      monthlyPrice: store.monthlyPrice,
+    });
+
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/subscription");
     revalidatePath(`/store/${store.slug}`);
 
     return {
@@ -297,7 +340,15 @@ export async function TryRenewStoreSubscriptionAction(
         });
       });
 
+      await trackSubscriptionPurchase({
+        storeId: store.id,
+        storeSlug: store.slug,
+        storeName: store.name,
+        monthlyPrice: store.monthlyPrice,
+      });
+
       revalidatePath("/dashboard");
+      revalidatePath("/dashboard/subscription");
       revalidatePath(`/store/${store.slug}`);
 
       return {
@@ -317,6 +368,7 @@ export async function TryRenewStoreSubscriptionAction(
     });
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/subscription");
     revalidatePath(`/store/${store.slug}`);
 
     return {
@@ -370,6 +422,7 @@ export async function RefreshStoreSubscriptionStatusAction(
       });
 
       revalidatePath("/dashboard");
+      revalidatePath("/dashboard/subscription");
       revalidatePath(`/store/${store.slug}`);
 
       return {
@@ -404,6 +457,7 @@ export async function CancelStoreSubscriptionAction(
     });
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/subscription");
     revalidatePath(`/store/${store.slug}`);
 
     return {
@@ -438,6 +492,7 @@ export async function ResumeStoreSubscriptionAutoRenewAction(
     });
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/subscription");
     revalidatePath(`/store/${store.slug}`);
 
     return {
@@ -466,6 +521,7 @@ export async function RenewStoreSubscriptionAction(
       select: {
         id: true,
         slug: true,
+        name: true,
         balance: true,
         monthlyPrice: true,
         subscriptionStatus: true,
@@ -490,8 +546,6 @@ export async function RenewStoreSubscriptionAction(
 
     const now = new Date();
 
-    // لو الاشتراك الحالي لسه شغال، هنمد من تاريخ النهاية الحالي
-    // غير كده هنبدأ من دلوقتي
     const baseDate =
       store.subscriptionEndsAt &&
       store.subscriptionEndsAt.getTime() > now.getTime()
@@ -524,6 +578,13 @@ export async function RenewStoreSubscriptionAction(
           note: "تجديد الاشتراك الشهري",
         },
       });
+    });
+
+    await trackSubscriptionPurchase({
+      storeId: store.id,
+      storeSlug: store.slug,
+      storeName: store.name,
+      monthlyPrice: store.monthlyPrice,
     });
 
     revalidatePath("/dashboard");
