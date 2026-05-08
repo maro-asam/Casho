@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -61,4 +62,20 @@ export function trackMetaPixelEvent(
   }
 
   window.fbq("track", eventName, data || {});
+}
+
+export function LandingPageTracker() {
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (trackedRef.current) return;
+
+    trackedRef.current = true;
+
+    trackMetaPixelEvent("PageView", {
+      page: "welcome",
+    });
+  }, []);
+
+  return null;
 }

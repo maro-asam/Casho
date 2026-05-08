@@ -17,7 +17,6 @@ import StoreBanner from "./_components/StoreBanner";
 import StoreCategories from "./categories/_components/StoreCategories";
 import FeaturedProducts from "./products/_components/FeaturedProducts";
 import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSectionHeader";
-import { TrackVisitAction } from "@/actions/admin/visitors-tracker.actions";
 import { SubscriptionStatus } from "@prisma/client";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
@@ -90,8 +89,6 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   });
 
   if (!store) return notFound();
-
-  void TrackVisitAction(store.id);
 
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
