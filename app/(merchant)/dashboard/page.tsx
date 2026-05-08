@@ -1,20 +1,19 @@
 import { CheckCircle2, Headset, Store, XCircle } from "lucide-react";
+import Link from "next/link";
+import { SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import DashboardStats from "../_components/main/DashboardStats";
 import DashboardCharts from "../_components/main/DashboardCharts";
-
 import CopyStoreLinkBtn from "../_components/CopyStoreLinkBtn";
-import { SubscriptionStatus } from "@prisma/client";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import StarterGuideBar from "../_components/main/StarterGuideCard";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 type ChartOrder = {
   createdAt: Date;
@@ -112,6 +111,27 @@ const MerchantDashboardRoute = async () => {
           id: true,
         },
       },
+      settings: {
+        select: {
+          shippingPrice: true,
+          seoTitle: true,
+          seoDescription: true,
+          seoKeywords: true,
+        },
+      },
+      storePaymentSettings: {
+        select: {
+          cashOnDeliveryEnabled: true,
+          vodafoneCashEnabled: true,
+          vodafoneCashNumber: true,
+          instapayEnabled: true,
+          instapayAddress: true,
+          bankTransferEnabled: true,
+          bankTransferDetails: true,
+          kashierEnabled: true,
+          kashierMerchantId: true,
+        },
+      },
       orders: {
         orderBy: { createdAt: "desc" },
         take: 5,
@@ -152,34 +172,92 @@ const MerchantDashboardRoute = async () => {
 
   const isActive = store.subscriptionStatus === SubscriptionStatus.ACTIVE;
 
+  const hasPaymentMethods =
+    store.paymentMethods.length > 0 ||
+    Boolean(store.storePaymentSettings?.cashOnDeliveryEnabled) ||
+    Boolean(
+      store.storePaymentSettings?.vodafoneCashEnabled &&
+        store.storePaymentSettings?.vodafoneCashNumber,
+    ) ||
+    Boolean(
+      store.storePaymentSettings?.instapayEnabled &&
+        store.storePaymentSettings?.instapayAddress,
+    ) ||
+    Boolean(
+      store.storePaymentSettings?.bankTransferEnabled &&
+        store.storePaymentSettings?.bankTransferDetails,
+    ) ||
+    Boolean(
+      store.storePaymentSettings?.kashierEnabled &&
+        store.storePaymentSettings?.kashierMerchantId,
+    );
+
+  const hasShippingPrice =
+    typeof store.settings?.shippingPrice === "number" &&
+    store.settings.shippingPrice > 0;
+
+  const hasSeoSettings = Boolean(
+    store.settings?.seoTitle?.trim() ||
+      store.settings?.seoDescription?.trim() ||
+      store.settings?.seoKeywords?.length,
+  );
+
   const starterSteps = [
     {
       id: "balance",
       title: "أضف رصيد",
+      description: "فعّل متجرك بإضافة رصيد أو اشتراك نشط.",
       href: "/dashboard/balance",
       completed: isActive,
       icon: "wallet" as const,
     },
     {
-      id: "category",
-      title: "أضف تصنيف",
+      id: "categories",
+      title: "أضف تصنيفاتك",
+      description: "قسّم منتجاتك لتسهيل التصفح على العملاء.",
       href: "/dashboard/categories",
       completed: store.categories.length > 0,
       icon: "category" as const,
     },
     {
-      id: "banner",
-      title: "أضف بانر",
+      id: "products",
+      title: "أضف منتجاتك",
+      description: "ابدأ بإضافة أول منتج بالصور والسعر والوصف.",
+      href: "/dashboard/products/new",
+      completed: store.products.length > 0,
+      icon: "product" as const,
+    },
+    {
+      id: "banners",
+      title: "أضف بانرز",
+      description: "اعرض العروض أو المنتجات المميزة في واجهة المتجر.",
       href: "/dashboard/banners",
       completed: store.banners.length > 0,
       icon: "banner" as const,
     },
     {
-      id: "product",
-      title: "أول منتج",
-      href: "/dashboard/products/new",
-      completed: store.products.length > 0,
-      icon: "product" as const,
+      id: "payment",
+      title: "أضف طرق الدفع",
+      description: "حدد طرق الدفع المتاحة لعملائك.",
+      href: "/dashboard/settings/payment",
+      completed: hasPaymentMethods,
+      icon: "payment" as const,
+    },
+    {
+      id: "shipping",
+      title: "أضف سعر الشحن",
+      description: "حدد تكلفة الشحن الافتراضية للطلبات.",
+      href: "/dashboard/settings",
+      completed: hasShippingPrice,
+      icon: "shipping" as const,
+    },
+    {
+      id: "seo",
+      title: "إعدادات الـ SEO",
+      description: "حسّن ظهور متجرك في محركات البحث والمشاركة.",
+      href: "/dashboard/settings/seo",
+      completed: hasSeoSettings,
+      icon: "seo" as const,
     },
   ];
 
@@ -221,8 +299,9 @@ const MerchantDashboardRoute = async () => {
   const chartData = getLast30DaysData(chartOrders, chartVisits);
 
   const storeUrl = buildStoreUrl(store.slug);
+
   return (
-    <div className="space-y-6 ">
+    <div className="space-y-6">
       <Card className="relative overflow-hidden border border-border/60">
         <div className="pointer-events-none absolute inset-0" />
 
@@ -262,7 +341,9 @@ const MerchantDashboardRoute = async () => {
               <div className="space-y-3">
                 <h1 className="text-xl tracking-tight md:text-3xl xl:text-4xl">
                   أهلاً بيك في متجرك{" "}
-                  <span className="text-primary font-semibold">{store.name}</span>
+                  <span className="font-semibold text-primary">
+                    {store.name}
+                  </span>
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-muted-foreground">

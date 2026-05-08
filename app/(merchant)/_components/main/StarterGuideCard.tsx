@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
+  BadgeCheck,
   Check,
   ChevronLeft,
   Circle,
+  CreditCard,
   FolderTree,
   ImageIcon,
   Package,
-  Rocket,
+  Search,
+  Settings2,
   Sparkles,
+  Truck,
   Wallet,
   X,
   type LucideIcon,
@@ -18,18 +22,23 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
-type StepIconName = "wallet" | "category" | "banner" | "product";
+type StepIconName =
+  | "wallet"
+  | "category"
+  | "product"
+  | "banner"
+  | "payment"
+  | "shipping"
+  | "seo";
 
 type Step = {
   id: string;
   title: string;
+  description?: string;
   href: string;
   completed: boolean;
   icon: StepIconName;
@@ -42,8 +51,11 @@ type StarterGuideBarProps = {
 const stepIcons: Record<StepIconName, LucideIcon> = {
   wallet: Wallet,
   category: FolderTree,
-  banner: ImageIcon,
   product: Package,
+  banner: ImageIcon,
+  payment: CreditCard,
+  shipping: Truck,
+  seo: Search,
 };
 
 export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
@@ -70,106 +82,119 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
 
   return (
     <section dir="rtl">
-      <Card className="overflow-hidden border-border/60 bg-linear-to-br from-background via-background to-primary/5 shadow-sm">
-        <CardContent className="p-0">
-          <div className="relative overflow-hidden border-b border-border/60 p-5 md:p-6">
-            <div className="absolute -inset-s-16 -top-16 size-40 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute -bottom-20 -inset-e-20 size-52 rounded-full bg-primary/10 blur-3xl" />
+      <Card className="relative overflow-hidden rounded-[28px] border border-border/60 bg-card shadow-sm p-0">
+        <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 -left-28 size-80 rounded-full bg-primary/10 blur-3xl" />
 
-            <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-              <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
-                    <Sparkles className="size-3.5" />
-                    دليل البداية
-                  </Badge>
-
-                  <Badge variant="outline" className="rounded-full px-3 py-1">
-                    {completedCount} من {totalSteps} مكتمل
-                  </Badge>
-                </div>
-
-                <div className="space-y-1.5">
-                  <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-                    جهّز متجرك وابدأ بيع أول طلب
-                  </h2>
-
-                  <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                    كمّل الإعدادات الأساسية بالترتيب عشان متجرك يبقى جاهز
-                    للبيع واستقبال الطلبات بدون تعقيد.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {nextStep && (
-                  <Button asChild className="rounded-full px-5">
-                    <Link href={nextStep.href}>
-                      كمل الخطوة التالية
-                      <ChevronLeft className="size-4" />
-                    </Link>
-                  </Button>
-                )}
+        <CardContent className="relative p-0">
+          <div className="grid gap-0 lg:grid-cols-[360px_1fr]">
+            <aside className="border-b border-border/60 bg-muted/25 p-5 md:p-6 lg:border-b-0 lg:border-l">
+              <div className="flex items-start justify-between gap-4">
+                <Badge className="h-9 gap-2 rounded-full bg-primary/10 px-3 text-primary hover:bg-primary/10">
+                  <Sparkles className="size-4" />
+                  دليل تجهيز المتجر
+                </Badge>
 
                 <Button
                   type="button"
                   size="icon"
                   variant="ghost"
-                  className="rounded-full"
+                  className="size-9 rounded-full"
                   onClick={() => setIsHidden(true)}
                   aria-label="إخفاء الدليل"
                 >
                   <X className="size-4" />
                 </Button>
               </div>
-            </div>
 
-            <div className="relative mt-6 flex items-center gap-3">
-              <Progress value={progress} className="h-2.5 flex-1" />
-              <span className="min-w-10 text-xs font-semibold text-primary">
-                {progress}%
-              </span>
-            </div>
-          </div>
+              <div className="mt-6 space-y-3">
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  جهّز متجرك للبيع
+                </h2>
 
-          <div className="p-4 md:p-6">
-            {nextStep && (
-              <Link
-                href={nextStep.href}
-                className="mb-4 flex items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition hover:bg-primary/10"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-                    <Rocket className="size-5" />
+                <p className="text-sm leading-7 text-muted-foreground">
+                  كمّل الخطوات الأساسية عشان متجرك يبقى جاهز لاستقبال الطلبات،
+                  الدفع، الشحن، والظهور بشكل أفضل في محركات البحث.
+                </p>
+              </div>
+
+              <div className="mt-6 rounded-3xl border bg-background/70 p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      نسبة الاكتمال
+                    </p>
+                    <p className="text-2xl font-semibold text-primary">
+                      {progress}%
+                    </p>
                   </div>
 
-                  <div>
-                    <p className="text-xs font-medium text-primary">
-                      الخطوة المطلوبة الآن
-                    </p>
-                    <p className="text-sm font-semibold">{nextStep.title}</p>
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <BadgeCheck className="size-6" />
                   </div>
                 </div>
 
-                <ChevronLeft className="size-5 text-primary" />
-              </Link>
-            )}
+                <Progress value={progress} className="h-2.5" />
 
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {steps.map((step, index) => {
-                const Icon = stepIcons[step.icon];
-                const isNextStep = nextStep?.id === step.id;
+                <p className="mt-3 text-xs text-muted-foreground">
+                  تم إكمال {completedCount} من {totalSteps} خطوات
+                </p>
+              </div>
 
-                return (
-                  <GuideStepCard
-                    key={step.id}
-                    step={step}
-                    index={index}
-                    Icon={Icon}
-                    isNextStep={isNextStep}
-                  />
-                );
-              })}
+              {nextStep && (
+                <Button asChild className="mt-5 h-11 w-full rounded-2xl">
+                  <Link href={nextStep.href}>
+                    كمل الخطوة التالية
+                    <ChevronLeft className="size-4" />
+                  </Link>
+                </Button>
+              )}
+            </aside>
+
+            <div className="p-4 md:p-6">
+              {nextStep && (
+                <Link
+                  href={nextStep.href}
+                  className="mb-4 flex items-center justify-between gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-4 transition hover:bg-primary/10"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+                      <Settings2 className="size-5" />
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-medium text-primary">
+                        المطلوب الآن
+                      </p>
+                      <p className="font-semibold">{nextStep.title}</p>
+                      {nextStep.description && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {nextStep.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <ChevronLeft className="size-5 text-primary" />
+                </Link>
+              )}
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {steps.map((step, index) => {
+                  const Icon = stepIcons[step.icon];
+                  const isNextStep = nextStep?.id === step.id;
+
+                  return (
+                    <GuideStepCard
+                      key={step.id}
+                      step={step}
+                      index={index}
+                      Icon={Icon}
+                      isNextStep={isNextStep}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -192,21 +217,25 @@ function GuideStepCard({ step, index, Icon, isNextStep }: GuideStepCardProps) {
     <Link
       href={step.href}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-card p-4 transition-all duration-200",
-        "hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md",
+        "group relative min-h-40 overflow-hidden rounded-3xl border bg-background p-4 transition-all duration-200",
+        "hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md",
         status === "completed" && "border-emerald-200 bg-emerald-500/5",
-        status === "next" && "border-primary/30 bg-primary/5 shadow-sm",
-        status === "pending" && "border-border/60",
+        status === "next" && "border-primary/35 bg-primary/5 shadow-sm",
+        status === "pending" && "border-border/70",
       )}
     >
-      {status === "next" && (
-        <div className="absolute inset-x-0 top-0 h-1 bg-primary" />
-      )}
+      <div
+        className={cn(
+          "absolute inset-x-5 top-0 h-1 rounded-b-full opacity-0 transition",
+          status === "completed" && "bg-emerald-500 opacity-100",
+          status === "next" && "bg-primary opacity-100",
+        )}
+      />
 
       <div className="flex items-start justify-between gap-3">
         <div
           className={cn(
-            "flex size-11 items-center justify-center rounded-2xl border transition",
+            "flex size-12 items-center justify-center rounded-2xl border transition",
             status === "completed" &&
               "border-emerald-200 bg-emerald-500/10 text-emerald-700",
             status === "next" && "border-primary/20 bg-primary/10 text-primary",
@@ -226,8 +255,7 @@ function GuideStepCard({ step, index, Icon, isNextStep }: GuideStepCardProps) {
         <span
           className={cn(
             "rounded-full px-2.5 py-1 text-[11px] font-medium",
-            status === "completed" &&
-              "bg-emerald-500/10 text-emerald-700",
+            status === "completed" && "bg-emerald-500/10 text-emerald-700",
             status === "next" && "bg-primary/10 text-primary",
             status === "pending" && "bg-muted text-muted-foreground",
           )}
@@ -240,11 +268,23 @@ function GuideStepCard({ step, index, Icon, isNextStep }: GuideStepCardProps) {
         </span>
       </div>
 
-      <div className="mt-4 space-y-1">
+      <div className="mt-5 space-y-2">
         <p className="text-xs text-muted-foreground">خطوة {index + 1}</p>
-        <h3 className="line-clamp-2 text-sm font-semibold leading-6">
+
+        <h3 className="line-clamp-2 text-base font-semibold leading-7">
           {step.title}
         </h3>
+
+        {step.description && (
+          <p className="line-clamp-2 text-xs leading-6 text-muted-foreground">
+            {step.description}
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition group-hover:opacity-100">
+        فتح الإعداد
+        <ChevronLeft className="size-3.5" />
       </div>
     </Link>
   );
