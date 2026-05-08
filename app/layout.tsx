@@ -11,6 +11,7 @@ import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/theme/theme-provider";
 import { MetaPixel } from "@/components/meta/meta-pixel";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -120,6 +121,7 @@ export default function RootLayout({
         cz-shortcut-listen="true"
         smooth-scroll="true"
       >
+        <Analytics />
         <MetaPixel />
 
         <ThemeProvider
