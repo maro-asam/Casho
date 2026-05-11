@@ -5,15 +5,13 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-
 import { prisma } from "@/lib/prisma";
 import { encryptSecret, maskSecret } from "@/lib/secrets";
-import { resolveEnabledPaymentMethodKeys } from "@/lib/payment-methods";
 import {
   PAYMENT_METHODS,
   KASHIER_ALLOWED_METHODS,
-  KashierAllowedMethod,
-  PaymentMethodKey,
+  type KashierAllowedMethod,
+  type PaymentMethodKey,
 } from "@/constants/welcome/payment-methods";
 
 const kashierAllowedMethodValues = [
@@ -22,34 +20,25 @@ const kashierAllowedMethodValues = [
   "bank_installments",
 ] as const;
 
+const paymentMethodKeys = PAYMENT_METHODS.map((method) => method.key) as [
+  PaymentMethodKey,
+  ...PaymentMethodKey[],
+];
+
+const manualPaymentMethodKeys = PAYMENT_METHODS.filter(
+  (method) => method.manual,
+).map((method) => method.key);
+
 const paymentMethodsSettingsSchema = z
   .object({
     storeId: z.string().min(1, "معرف المتجر مطلوب"),
 
-    cashOnDeliveryEnabled: z.boolean(),
+    enabledPaymentMethods: z
+      .array(z.enum(paymentMethodKeys))
+      .min(1, "فعّل طريقة دفع واحدة على الأقل"),
 
-    vodafoneCashEnabled: z.boolean(),
-    vodafoneCashNumber: z
-      .string()
-      .trim()
-      .max(30, "رقم فودافون كاش طويل جدًا")
-      .optional(),
+    manualPaymentDetails: z.record(z.string(), z.string()).default({}),
 
-    instapayEnabled: z.boolean(),
-    instapayAddress: z
-      .string()
-      .trim()
-      .max(120, "بيانات إنستا باي طويلة جدًا")
-      .optional(),
-
-    bankTransferEnabled: z.boolean(),
-    bankTransferDetails: z
-      .string()
-      .trim()
-      .max(1200, "بيانات التحويل البنكي طويلة جدًا")
-      .optional(),
-
-    kashierEnabled: z.boolean(),
     kashierMode: z.enum(["TEST", "LIVE"]),
     kashierMerchantId: z
       .string()
@@ -64,46 +53,9 @@ const paymentMethodsSettingsSchema = z
     kashierAllowedMethods: z.array(z.enum(kashierAllowedMethodValues)),
   })
   .superRefine((data, ctx) => {
-    const hasAnyMethod =
-      data.cashOnDeliveryEnabled ||
-      data.vodafoneCashEnabled ||
-      data.instapayEnabled ||
-      data.bankTransferEnabled ||
-      data.kashierEnabled;
+    const kashierSelected = data.enabledPaymentMethods.includes("kashier");
 
-    if (!hasAnyMethod) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["paymentMethods"],
-        message: "فعّل طريقة دفع واحدة على الأقل",
-      });
-    }
-
-    if (data.vodafoneCashEnabled && !data.vodafoneCashNumber?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["vodafoneCashNumber"],
-        message: "اكتب رقم فودافون كاش الذي سيظهر للعميل",
-      });
-    }
-
-    if (data.instapayEnabled && !data.instapayAddress?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["instapayAddress"],
-        message: "اكتب عنوان/رقم InstaPay الذي سيظهر للعميل",
-      });
-    }
-
-    if (data.bankTransferEnabled && !data.bankTransferDetails?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["bankTransferDetails"],
-        message: "اكتب بيانات الحساب البنكي التي ستظهر للعميل",
-      });
-    }
-
-    if (data.kashierEnabled && !data.kashierMerchantId?.trim()) {
+    if (kashierSelected && !data.kashierMerchantId?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["kashierMerchantId"],
@@ -111,12 +63,30 @@ const paymentMethodsSettingsSchema = z
       });
     }
 
-    if (data.kashierEnabled && data.kashierAllowedMethods.length === 0) {
+    if (kashierSelected && data.kashierAllowedMethods.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["kashierAllowedMethods"],
         message: "اختار طريقة واحدة على الأقل داخل Kashier",
       });
+    }
+
+    for (const methodKey of data.enabledPaymentMethods) {
+      if (!manualPaymentMethodKeys.includes(methodKey)) continue;
+
+      const value = data.manualPaymentDetails[methodKey]?.trim();
+
+      if (!value) {
+        const method = PAYMENT_METHODS.find((item) => item.key === methodKey);
+
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [`manual_${methodKey}`],
+          message: `اكتب بيانات التحويل الخاصة بـ ${
+            method?.label ?? methodKey
+          }`,
+        });
+      }
     }
   });
 
@@ -126,11 +96,15 @@ export type PaymentMethodsFormState = {
   errors?: Record<string, string[]>;
 };
 
+export type ManualPaymentDetails = Record<string, string>;
+
 export type PaymentMethodsSettingsData = {
   storeId: string;
   storeName: string;
   storeSlug: string;
+
   enabledPaymentMethods: PaymentMethodKey[];
+  manualPaymentDetails: ManualPaymentDetails;
 
   cashOnDeliveryEnabled: boolean;
 
@@ -154,35 +128,87 @@ function formString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-function formChecked(formData: FormData, key: string) {
-  return formData.get(key) === "on";
-}
-
 function emptyToNull(value?: string) {
   const trimmed = value?.trim() ?? "";
   return trimmed.length ? trimmed : null;
+}
+
+function isPaymentMethodKey(value: string): value is PaymentMethodKey {
+  return PAYMENT_METHODS.some((method) => method.key === value);
 }
 
 function isKashierAllowedMethod(value: string): value is KashierAllowedMethod {
   return KASHIER_ALLOWED_METHODS.some((method) => method.key === value);
 }
 
-function buildEnabledPaymentMethods(data: {
-  cashOnDeliveryEnabled: boolean;
-  vodafoneCashEnabled: boolean;
-  instapayEnabled: boolean;
-  bankTransferEnabled: boolean;
-  kashierEnabled: boolean;
-}) {
-  const methods: PaymentMethodKey[] = [];
+function getEnabledPaymentMethods(formData: FormData): PaymentMethodKey[] {
+  return formData
+    .getAll("enabledPaymentMethods")
+    .map(String)
+    .filter(isPaymentMethodKey);
+}
 
-  if (data.cashOnDeliveryEnabled) methods.push("cash_on_delivery");
-  if (data.vodafoneCashEnabled) methods.push("vodafone_cash");
-  if (data.instapayEnabled) methods.push("instapay");
-  if (data.bankTransferEnabled) methods.push("bank_transfer");
-  if (data.kashierEnabled) methods.push("kashier");
+function getManualPaymentDetails(formData: FormData): ManualPaymentDetails {
+  const details: ManualPaymentDetails = {};
 
-  return methods;
+  for (const method of PAYMENT_METHODS) {
+    if (!method.manual) continue;
+
+    const value = formString(formData, `manual_${method.key}`);
+
+    if (value) {
+      details[method.key] = value;
+    }
+  }
+
+  return details;
+}
+
+function normalizeManualPaymentDetails(value: unknown): ManualPaymentDetails {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  const details: ManualPaymentDetails = {};
+
+  for (const [key, rawValue] of Object.entries(value)) {
+    if (typeof rawValue === "string") {
+      details[key] = rawValue;
+    }
+  }
+
+  return details;
+}
+
+function normalizeEnabledPaymentMethods(
+  paymentMethods: string[] | null | undefined,
+): PaymentMethodKey[] {
+  const normalized = (paymentMethods ?? []).filter(isPaymentMethodKey);
+
+  if (normalized.length > 0) {
+    return normalized;
+  }
+
+  return ["cash_on_delivery"];
+}
+
+function getDefaultKashierAllowedMethods(
+  methods: string[] | null | undefined,
+): KashierAllowedMethod[] {
+  const normalized = (methods ?? []).filter(isKashierAllowedMethod);
+
+  if (normalized.length > 0) {
+    return normalized;
+  }
+
+  return ["card", "wallet"];
+}
+
+function getManualValue(
+  manualPaymentDetails: ManualPaymentDetails,
+  key: PaymentMethodKey,
+) {
+  return emptyToNull(manualPaymentDetails[key]);
 }
 
 export async function GetPaymentMethodsSettingsAction(): Promise<PaymentMethodsSettingsData> {
@@ -197,18 +223,24 @@ export async function GetPaymentMethodsSettingsAction(): Promise<PaymentMethodsS
       paymentMethods: true,
       storePaymentSettings: {
         select: {
+          enabledPaymentMethods: true,
+          manualPaymentDetails: true,
+
           cashOnDeliveryEnabled: true,
+
           vodafoneCashEnabled: true,
           vodafoneCashNumber: true,
+
           instapayEnabled: true,
           instapayAddress: true,
+
           bankTransferEnabled: true,
           bankTransferDetails: true,
+
           kashierEnabled: true,
           kashierMode: true,
           kashierMerchantId: true,
           kashierApiKeyHint: true,
-          kashierApiKeyEncrypted: true,
           kashierAllowedMethods: true,
         },
       },
@@ -221,42 +253,55 @@ export async function GetPaymentMethodsSettingsAction(): Promise<PaymentMethodsS
 
   const settings = store.storePaymentSettings;
 
-  const enabledPaymentMethods = resolveEnabledPaymentMethodKeys({
-    paymentMethods: store.paymentMethods,
-    paymentSettings: settings,
-  });
+  const enabledPaymentMethods = normalizeEnabledPaymentMethods(
+    settings?.enabledPaymentMethods?.length
+      ? settings.enabledPaymentMethods
+      : store.paymentMethods,
+  );
 
-  const kashierAllowedMethods = (settings?.kashierAllowedMethods?.length
-    ? settings.kashierAllowedMethods
-    : ["card", "wallet"]
-  ).filter(isKashierAllowedMethod);
+  const manualPaymentDetails = normalizeManualPaymentDetails(
+    settings?.manualPaymentDetails,
+  );
+
+  if (settings?.vodafoneCashNumber && !manualPaymentDetails.vodafone_cash) {
+    manualPaymentDetails.vodafone_cash = settings.vodafoneCashNumber;
+  }
+
+  if (settings?.instapayAddress && !manualPaymentDetails.instapay) {
+    manualPaymentDetails.instapay = settings.instapayAddress;
+  }
+
+  if (settings?.bankTransferDetails && !manualPaymentDetails.bank_transfer) {
+    manualPaymentDetails.bank_transfer = settings.bankTransferDetails;
+  }
+
+  const kashierAllowedMethods = getDefaultKashierAllowedMethods(
+    settings?.kashierAllowedMethods,
+  );
 
   return {
     storeId: store.id,
     storeName: store.name,
     storeSlug: store.slug,
+
     enabledPaymentMethods,
+    manualPaymentDetails,
 
-    cashOnDeliveryEnabled:
-      settings?.cashOnDeliveryEnabled ??
-      enabledPaymentMethods.includes("cash_on_delivery"),
+    cashOnDeliveryEnabled: enabledPaymentMethods.includes("cash_on_delivery"),
 
-    vodafoneCashEnabled:
-      settings?.vodafoneCashEnabled ??
-      enabledPaymentMethods.includes("vodafone_cash"),
-    vodafoneCashNumber: settings?.vodafoneCashNumber ?? "",
+    vodafoneCashEnabled: enabledPaymentMethods.includes("vodafone_cash"),
+    vodafoneCashNumber:
+      manualPaymentDetails.vodafone_cash ?? settings?.vodafoneCashNumber ?? "",
 
-    instapayEnabled:
-      settings?.instapayEnabled ?? enabledPaymentMethods.includes("instapay"),
-    instapayAddress: settings?.instapayAddress ?? "",
+    instapayEnabled: enabledPaymentMethods.includes("instapay"),
+    instapayAddress:
+      manualPaymentDetails.instapay ?? settings?.instapayAddress ?? "",
 
-    bankTransferEnabled:
-      settings?.bankTransferEnabled ??
-      enabledPaymentMethods.includes("bank_transfer"),
-    bankTransferDetails: settings?.bankTransferDetails ?? "",
+    bankTransferEnabled: enabledPaymentMethods.includes("bank_transfer"),
+    bankTransferDetails:
+      manualPaymentDetails.bank_transfer ?? settings?.bankTransferDetails ?? "",
 
-    kashierEnabled:
-      settings?.kashierEnabled ?? enabledPaymentMethods.includes("kashier"),
+    kashierEnabled: enabledPaymentMethods.includes("kashier"),
     kashierMode: settings?.kashierMode ?? "TEST",
     kashierMerchantId: settings?.kashierMerchantId ?? "",
     kashierApiKeyHint: settings?.kashierApiKeyHint ?? null,
@@ -271,14 +316,10 @@ export async function GetStoreCheckoutPaymentMethodsAction(storeSlug: string) {
       paymentMethods: true,
       storePaymentSettings: {
         select: {
-          cashOnDeliveryEnabled: true,
-          vodafoneCashEnabled: true,
-          instapayEnabled: true,
-          bankTransferEnabled: true,
+          enabledPaymentMethods: true,
           kashierEnabled: true,
           kashierMerchantId: true,
           kashierApiKeyEncrypted: true,
-          kashierAllowedMethods: true,
         },
       },
     },
@@ -286,12 +327,26 @@ export async function GetStoreCheckoutPaymentMethodsAction(storeSlug: string) {
 
   if (!store) return [];
 
-  const enabledKeys = resolveEnabledPaymentMethodKeys({
-    paymentMethods: store.paymentMethods,
-    paymentSettings: store.storePaymentSettings,
-  });
+  const enabledKeys = normalizeEnabledPaymentMethods(
+    store.storePaymentSettings?.enabledPaymentMethods?.length
+      ? store.storePaymentSettings.enabledPaymentMethods
+      : store.paymentMethods,
+  );
 
-  return PAYMENT_METHODS.filter((method) => enabledKeys.includes(method.key));
+  return PAYMENT_METHODS.filter((method) => {
+    if (!enabledKeys.includes(method.key)) return false;
+
+    if (method.key !== "kashier") return true;
+
+    return Boolean(
+      store.storePaymentSettings?.kashierEnabled &&
+      store.storePaymentSettings?.kashierMerchantId &&
+      store.storePaymentSettings?.kashierApiKeyEncrypted,
+    );
+  }).map((method) => ({
+    key: method.key,
+    label: method.label,
+  }));
 }
 
 export async function UpdatePaymentMethodsAction(
@@ -299,21 +354,14 @@ export async function UpdatePaymentMethodsAction(
   formData: FormData,
 ): Promise<PaymentMethodsFormState> {
   try {
+    const enabledPaymentMethods = getEnabledPaymentMethods(formData);
+    const manualPaymentDetails = getManualPaymentDetails(formData);
+
     const rawData = {
       storeId: formString(formData, "storeId"),
+      enabledPaymentMethods,
+      manualPaymentDetails,
 
-      cashOnDeliveryEnabled: formChecked(formData, "cashOnDeliveryEnabled"),
-
-      vodafoneCashEnabled: formChecked(formData, "vodafoneCashEnabled"),
-      vodafoneCashNumber: formString(formData, "vodafoneCashNumber"),
-
-      instapayEnabled: formChecked(formData, "instapayEnabled"),
-      instapayAddress: formString(formData, "instapayAddress"),
-
-      bankTransferEnabled: formChecked(formData, "bankTransferEnabled"),
-      bankTransferDetails: formString(formData, "bankTransferDetails"),
-
-      kashierEnabled: formChecked(formData, "kashierEnabled"),
       kashierMode: formString(formData, "kashierMode") || "TEST",
       kashierMerchantId: formString(formData, "kashierMerchantId"),
       kashierApiKey: formString(formData, "kashierApiKey"),
@@ -358,31 +406,19 @@ export async function UpdatePaymentMethodsAction(
       };
     }
 
+    const kashierEnabled = data.enabledPaymentMethods.includes("kashier");
+
     const hasExistingKashierApiKey = Boolean(
       store.storePaymentSettings?.kashierApiKeyEncrypted,
     );
 
-    if (
-      data.kashierEnabled &&
-      !data.kashierApiKey &&
-      !hasExistingKashierApiKey
-    ) {
+    if (kashierEnabled && !data.kashierApiKey && !hasExistingKashierApiKey) {
       return {
         success: false,
         message: "أضف Payment API Key أول مرة لتفعيل Kashier",
         errors: {
           kashierApiKey: ["Payment API Key مطلوب أول مرة لتفعيل Kashier"],
         },
-      };
-    }
-
-    const enabledPaymentMethods = buildEnabledPaymentMethods(data);
-
-    if (enabledPaymentMethods.length === 0) {
-      return {
-        success: false,
-        message: "فعّل طريقة دفع واحدة على الأقل",
-        errors: { paymentMethods: ["فعّل طريقة دفع واحدة على الأقل"] },
       };
     }
 
@@ -398,28 +434,44 @@ export async function UpdatePaymentMethodsAction(
       await tx.store.update({
         where: { id: store.id },
         data: {
-          paymentMethods: enabledPaymentMethods,
+          paymentMethods: data.enabledPaymentMethods,
         },
       });
 
       await tx.storePaymentSettings.upsert({
         where: { storeId: store.id },
         update: {
-          cashOnDeliveryEnabled: data.cashOnDeliveryEnabled,
+          enabledPaymentMethods: data.enabledPaymentMethods,
+          manualPaymentDetails: data.manualPaymentDetails,
 
-          vodafoneCashEnabled: data.vodafoneCashEnabled,
-          vodafoneCashNumber: emptyToNull(data.vodafoneCashNumber),
+          cashOnDeliveryEnabled:
+            data.enabledPaymentMethods.includes("cash_on_delivery"),
 
-          instapayEnabled: data.instapayEnabled,
-          instapayAddress: emptyToNull(data.instapayAddress),
+          vodafoneCashEnabled:
+            data.enabledPaymentMethods.includes("vodafone_cash"),
+          vodafoneCashNumber: getManualValue(
+            data.manualPaymentDetails,
+            "vodafone_cash",
+          ),
 
-          bankTransferEnabled: data.bankTransferEnabled,
-          bankTransferDetails: emptyToNull(data.bankTransferDetails),
+          instapayEnabled: data.enabledPaymentMethods.includes("instapay"),
+          instapayAddress: getManualValue(
+            data.manualPaymentDetails,
+            "instapay",
+          ),
 
-          kashierEnabled: data.kashierEnabled,
+          bankTransferEnabled:
+            data.enabledPaymentMethods.includes("bank_transfer"),
+          bankTransferDetails: getManualValue(
+            data.manualPaymentDetails,
+            "bank_transfer",
+          ),
+
+          kashierEnabled,
           kashierMode: data.kashierMode,
           kashierMerchantId: emptyToNull(data.kashierMerchantId),
           kashierAllowedMethods: data.kashierAllowedMethods,
+
           ...(encryptedApiKey
             ? {
                 kashierApiKeyEncrypted: encryptedApiKey,
@@ -430,18 +482,33 @@ export async function UpdatePaymentMethodsAction(
         create: {
           storeId: store.id,
 
-          cashOnDeliveryEnabled: data.cashOnDeliveryEnabled,
+          enabledPaymentMethods: data.enabledPaymentMethods,
+          manualPaymentDetails: data.manualPaymentDetails,
 
-          vodafoneCashEnabled: data.vodafoneCashEnabled,
-          vodafoneCashNumber: emptyToNull(data.vodafoneCashNumber),
+          cashOnDeliveryEnabled:
+            data.enabledPaymentMethods.includes("cash_on_delivery"),
 
-          instapayEnabled: data.instapayEnabled,
-          instapayAddress: emptyToNull(data.instapayAddress),
+          vodafoneCashEnabled:
+            data.enabledPaymentMethods.includes("vodafone_cash"),
+          vodafoneCashNumber: getManualValue(
+            data.manualPaymentDetails,
+            "vodafone_cash",
+          ),
 
-          bankTransferEnabled: data.bankTransferEnabled,
-          bankTransferDetails: emptyToNull(data.bankTransferDetails),
+          instapayEnabled: data.enabledPaymentMethods.includes("instapay"),
+          instapayAddress: getManualValue(
+            data.manualPaymentDetails,
+            "instapay",
+          ),
 
-          kashierEnabled: data.kashierEnabled,
+          bankTransferEnabled:
+            data.enabledPaymentMethods.includes("bank_transfer"),
+          bankTransferDetails: getManualValue(
+            data.manualPaymentDetails,
+            "bank_transfer",
+          ),
+
+          kashierEnabled,
           kashierMode: data.kashierMode,
           kashierMerchantId: emptyToNull(data.kashierMerchantId),
           kashierAllowedMethods: data.kashierAllowedMethods,

@@ -320,6 +320,9 @@ model StorePaymentSettings {
   storeId String @unique
   store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
+  enabledPaymentMethods String[] @default([])
+  manualPaymentDetails  Json?
+
   cashOnDeliveryEnabled Boolean @default(true)
 
   vodafoneCashEnabled Boolean @default(false)

@@ -1,0 +1,1 @@
+export * from "@/constants/welcome/payment-methods";

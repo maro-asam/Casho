@@ -7,37 +7,54 @@ type CheckoutPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+type CheckoutPaymentMethod = {
+  key: string;
+  label: string;
+};
+
 function isValidPaymentMethod(
   value: string,
-  enabledMethods: { key: string }[],
+  enabledMethods: CheckoutPaymentMethod[],
 ): value is PaymentMethodKey {
   return enabledMethods.some((method) => method.key === value);
 }
 
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const { slug } = await params;
+
   const paymentMethods = await GetStoreCheckoutPaymentMethodsAction(slug);
 
   async function handleCreateOrder(formData: FormData) {
     "use server";
 
-    const enabledPaymentMethods = await GetStoreCheckoutPaymentMethodsAction(slug);
+    const enabledPaymentMethods =
+      await GetStoreCheckoutPaymentMethodsAction(slug);
 
     const fullName = String(formData.get("fullName") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
     const address = String(formData.get("address") ?? "").trim();
+
     const defaultPaymentMethod =
       enabledPaymentMethods[0]?.key ?? "cash_on_delivery";
+
     const paymentMethodValue = String(
       formData.get("paymentMethod") ?? defaultPaymentMethod,
     ).trim();
 
-    if (!fullName) throw new Error("Full name is required");
-    if (!phone) throw new Error("Phone is required");
-    if (!address) throw new Error("Address is required");
+    if (!fullName) {
+      throw new Error("الاسم بالكامل مطلوب");
+    }
+
+    if (!phone) {
+      throw new Error("رقم الموبايل مطلوب");
+    }
+
+    if (!address) {
+      throw new Error("العنوان مطلوب");
+    }
 
     if (!isValidPaymentMethod(paymentMethodValue, enabledPaymentMethods)) {
-      throw new Error("Payment method is not available");
+      throw new Error("طريقة الدفع غير متاحة");
     }
 
     await CreateOrderAction(slug, {
@@ -52,19 +69,26 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
       <div className="mb-8 space-y-2 text-right">
         <p className="text-sm font-semibold text-primary">Checkout</p>
-        <h1 className="text-3xl font-semibold tracking-tight">اتمام الطلب</h1>
+
+        <h1 className="text-3xl font-semibold tracking-tight">إتمام الطلب</h1>
+
         <p className="text-muted-foreground">
           اكتب بياناتك بشكل صحيح، واختر طريقة الدفع المناسبة للمتجر.
         </p>
       </div>
 
       {paymentMethods.length > 0 ? (
-        <CheckoutForm paymentMethods={paymentMethods} action={handleCreateOrder} />
+        <CheckoutForm
+          paymentMethods={paymentMethods}
+          action={handleCreateOrder}
+        />
       ) : (
         <div className="rounded-2xl border bg-muted/40 p-6 text-right">
           <h2 className="text-lg font-semibold">لا توجد طرق دفع متاحة</h2>
+
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            صاحب المتجر لم يفعّل أي طريقة دفع حتى الآن. حاول لاحقًا أو تواصل مع المتجر.
+            صاحب المتجر لم يفعّل أي طريقة دفع حتى الآن. حاول لاحقًا أو تواصل مع
+            المتجر.
           </p>
         </div>
       )}

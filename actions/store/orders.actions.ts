@@ -9,12 +9,12 @@ import { MustOwnStore, MustSession } from "../auth/auth-helpers.actions";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
 import {
+  PAYMENT_METHODS,
   KASHIER_ALLOWED_METHODS,
   type KashierAllowedMethod,
   type PaymentMethodKey,
 } from "@/constants/welcome/payment-methods";
 import { createMerchantKashierHppUrl } from "@/lib/kashier-merchant";
-import { resolveEnabledPaymentMethodKeys } from "@/lib/payment-methods";
 import { decryptSecret } from "@/lib/secrets";
 
 const kashierAllowedMethodKeys = new Set<string>(
@@ -27,6 +27,22 @@ function getAppUrl() {
     process.env.NEXT_PUBLIC_APP_URL ||
     "http://localhost:3000"
   ).replace(/\/$/, "");
+}
+
+function isPaymentMethodKey(value: string): value is PaymentMethodKey {
+  return PAYMENT_METHODS.some((method) => method.key === value);
+}
+
+function normalizeEnabledPaymentMethods(
+  paymentMethods: string[] | null | undefined,
+): PaymentMethodKey[] {
+  const normalized = (paymentMethods ?? []).filter(isPaymentMethodKey);
+
+  if (normalized.length > 0) {
+    return normalized;
+  }
+
+  return ["cash_on_delivery"];
 }
 
 function toKashierAllowedMethods(methods: string[]) {
@@ -65,10 +81,13 @@ export async function CreateOrderAction(
 
       storePaymentSettings: {
         select: {
+          enabledPaymentMethods: true,
+
           cashOnDeliveryEnabled: true,
           vodafoneCashEnabled: true,
           instapayEnabled: true,
           bankTransferEnabled: true,
+
           kashierEnabled: true,
           kashierMode: true,
           kashierMerchantId: true,
@@ -81,10 +100,11 @@ export async function CreateOrderAction(
 
   if (!store) throw new Error("Store not found");
 
-  const enabledPaymentMethods = resolveEnabledPaymentMethodKeys({
-    paymentMethods: store.paymentMethods,
-    paymentSettings: store.storePaymentSettings,
-  });
+  const enabledPaymentMethods = normalizeEnabledPaymentMethods(
+    store.storePaymentSettings?.enabledPaymentMethods?.length
+      ? store.storePaymentSettings.enabledPaymentMethods
+      : store.paymentMethods,
+  );
 
   if (!enabledPaymentMethods.includes(data.paymentMethod)) {
     throw new Error("This payment method is not available for this store");

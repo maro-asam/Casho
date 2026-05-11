@@ -8,10 +8,7 @@ import {
 
 import { GetPaymentMethodsSettingsAction } from "@/actions/payment-methods/payment-methods.actions";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import PaymentMethodsForm from "./_components/PaymentMethodsForm";
 
@@ -22,12 +19,13 @@ export const metadata: Metadata = {
 export default async function PaymentMethodsPage() {
   const settings = await GetPaymentMethodsSettingsAction();
 
-  const activeManualMethods = [
-    settings.cashOnDeliveryEnabled,
-    settings.vodafoneCashEnabled,
-    settings.instapayEnabled,
-    settings.bankTransferEnabled,
-  ].filter(Boolean).length;
+  const activeManualMethods = settings.enabledPaymentMethods.filter(
+    (method) => method !== "kashier",
+  ).length;
+
+  const activeOnlineMethods = settings.enabledPaymentMethods.includes("kashier")
+    ? 1
+    : 0;
 
   return (
     <div className="min-h-[calc(100vh-120px)]" dir="rtl">
@@ -52,9 +50,10 @@ export default async function PaymentMethodsPage() {
                 <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                   ظبط طرق الدفع اللي هتظهر في متجرك
                 </h1>
+
                 <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                  فعّل الدفع عند الاستلام أو التحويلات اليدوية، واربط Kashier
-                  عشان العملاء يقدروا يدفعوا أونلاين من صفحة إتمام الطلب.
+                  فعّل وسائل الدفع العالمية، المصرية، والسعودية. الطرق اليدوية
+                  هتعرض بيانات التحويل للعميل بعد تأكيد الطلب.
                 </p>
               </div>
             </div>
@@ -70,9 +69,11 @@ export default async function PaymentMethodsPage() {
             <CardContent className="flex items-start justify-between gap-4 p-5">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">الطرق اليدوية</p>
+
                 <h2 className="text-2xl font-semibold">
                   {activeManualMethods}
                 </h2>
+
                 <p className="text-sm leading-6 text-muted-foreground">
                   طرق مفعلة في checkout.
                 </p>
@@ -88,9 +89,11 @@ export default async function PaymentMethodsPage() {
             <CardContent className="flex items-start justify-between gap-4 p-5">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">الدفع الأونلاين</p>
+
                 <h2 className="text-2xl font-semibold">
-                  {settings.kashierEnabled ? "مفعل" : "متوقف"}
+                  {activeOnlineMethods > 0 ? "مفعل" : "متوقف"}
                 </h2>
+
                 <p className="text-sm leading-6 text-muted-foreground">
                   ربط Kashier مع صفحة الدفع.
                 </p>
@@ -105,12 +108,16 @@ export default async function PaymentMethodsPage() {
           <Card className="border-border/60 shadow-sm">
             <CardContent className="flex items-start justify-between gap-4 p-5">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">وضع Kashier</p>
+                <p className="text-sm text-muted-foreground">
+                  عدد الطرق المفعلة
+                </p>
+
                 <h2 className="text-2xl font-semibold">
-                  {settings.kashierMode}
+                  {settings.enabledPaymentMethods.length}
                 </h2>
+
                 <p className="text-sm leading-6 text-muted-foreground">
-                  بيانات التاجر محفوظة بشكل آمن.
+                  وسائل دفع ظاهرة للعملاء.
                 </p>
               </div>
 
