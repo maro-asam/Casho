@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 
 import { SubscriptionStatus } from "@prisma/client";
-import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
+// import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
 import StoreThemeRenderer from "./_themes/StoreThemeRenderer";
 
 type StoreHomeRouteProps = {
@@ -29,6 +29,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       name: true,
       slug: true,
       subscriptionStatus: true,
+
       settings: {
         select: {
           themeId: true,
@@ -39,6 +40,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           secondaryColor: true,
         },
       },
+
       categories: {
         orderBy: {
           createdAt: "desc",
@@ -50,6 +52,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           image: true,
         },
       },
+
       banners: {
         where: {
           isActive: true,
@@ -61,8 +64,10 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           id: true,
           title: true,
           image: true,
+          isActive: true,
         },
       },
+
       products: {
         where: {
           isActive: true,
@@ -74,6 +79,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           id: true,
           name: true,
           slug: true,
+          description: true,
           price: true,
           compareAtPrice: true,
           image: true,

@@ -2,6 +2,8 @@ export type StoreThemeData = {
   id: string;
   name: string;
   slug: string;
+  subscriptionStatus: import("@prisma/client").SubscriptionStatus;
+
   settings: {
     themeId?: string | null;
     description?: string | null;
@@ -10,23 +12,26 @@ export type StoreThemeData = {
     primaryColor?: string | null;
     secondaryColor?: string | null;
   } | null;
+
   categories: {
     id: string;
     name: string;
     slug: string;
     image: string | null;
   }[];
+
   banners: {
-    isActive: unknown;
     id: string;
     title: string | null;
     image: string;
+    isActive: boolean;
   }[];
+
   products: {
-    description: import("react/jsx-runtime").JSX.Element;
     id: string;
     name: string;
     slug: string;
+    description: string | null;
     price: number;
     compareAtPrice: number | null;
     image: string | null;
