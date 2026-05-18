@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
   title: {
     default: "كاشو | أنشئ متجرك الإلكتروني في دقائق وابدأ البيع أونلاين",
-    template: "%s | كاشو",
+    template: "كاشو | %s",
   },
 
   description:

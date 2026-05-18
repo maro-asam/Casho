@@ -7,8 +7,8 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
 export const metadata: Metadata = {
   title: {
-    default: "كــاشو | لوحة تحكم التاجر",
-    template: "كــاشو | %s",
+    default: "لوحة تحكم التاجر",
+    template: "كاشو | %s",
   },
   description:
     "لوحة تحكم التاجر لإدارة الطلبات والمنتجات والتصنيفات وإعدادات المتجر بسهولة.",
