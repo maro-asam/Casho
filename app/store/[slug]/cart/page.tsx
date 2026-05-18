@@ -58,7 +58,7 @@ export default async function CartPage({
   const couponMessage = resolvedSearchParams?.couponMessage;
 
   return (
-    <div className="min-h-[calc(100vh-80px)] " dir="rtl">
+    <div className="min-h-[calc(100vh-80px)] max-w-screen-2xl mx-auto" dir="rtl">
       <div className="mx-auto w-full py-8">
         <div className="mb-8 flex flex-col gap-4 rounded-xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">

@@ -44,7 +44,7 @@ export default async function StoreContactRoute({
   }
 
   return (
-    <div className="wrapper py-12 space-y-10" dir="rtl">
+    <div className="wrapper py-12 space-y-10 max-w-screen-2xl mx-auto" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

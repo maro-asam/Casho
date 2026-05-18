@@ -61,7 +61,7 @@ export default async function OrderSuccessPage({
 
   return (
     <div
-      className="wrapper flex min-h-[80vh] items-center justify-center py-10"
+      className="wrapper flex min-h-[80vh] items-center justify-center py-10 max-w-screen-2xl mx-auto"
       dir="rtl"
     >
       <Card className="w-full max-w-2xl overflow-hidden rounded-[32px] border-0 shadow-sm">

@@ -111,7 +111,7 @@ export default async function AboutStoreRoute({
   ].filter((item) => item.value && item.href);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
+    <div dir="rtl" className="min-h-screen bg-background max-w-screen-2xl mx-auto">
       <div className="wrapper py-8 md:py-10 space-y-8">
         {/* top nav */}
         <div className="flex items-center justify-between gap-4">

@@ -83,7 +83,7 @@ export default async function CategoryProducts({ params }: PageProps) {
   if (!category) return notFound();
 
   return (
-    <div className="wrapper py-10 space-y-8" dir="rtl">
+    <div className="wrapper py-10 max-w-screen-2xl mx-auto space-y-8" dir="rtl">
       {/* HEADER */}
       <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
@@ -110,7 +110,7 @@ export default async function CategoryProducts({ params }: PageProps) {
       {/* EMPTY */}
       {category.products.length === 0 ? (
         <Card className="rounded-xl border-dashed">
-          <CardContent className="flex min-h-[300px] flex-col items-center justify-center text-center p-10 space-y-4">
+          <CardContent className="flex min-h-75 flex-col items-center justify-center text-center p-10 space-y-4">
             <div className="flex size-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Package className="size-8" />
             </div>

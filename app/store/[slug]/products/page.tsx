@@ -214,7 +214,7 @@ export default async function StoreProductsRoute({
     query.sort !== "newest";
 
   return (
-    <div dir="rtl" className="w-full py-6">
+    <div dir="rtl" className="w-full py-6 max-w-screen-2xl mx-auto">
       <div className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <Link href={`/store/${store.slug}`} className="hover:text-foreground">
           الرئيسية

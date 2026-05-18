@@ -1,17 +1,17 @@
 import { ReactNode, CSSProperties } from "react";
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
+import { prisma } from "@/lib/prisma";
 import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import StoreFrontHeader from "./_components/NAVBARS/StoreHeader";
 import StoreFooter from "./_components/shared/StoreFooter";
+import { getStoreTheme } from "@/constants/store-themes";
+import type { StoreNavbarVariant } from "@/constants/store-navbar";
 
 type LayoutProps = {
   children: ReactNode;
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ slug: string }>;
 };
 
 function getContrastColor(hex: string) {
@@ -62,9 +62,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  if (!slug) {
-    return {};
-  }
+  if (!slug) return {};
 
   const store = await prisma.store.findUnique({
     where: { slug },
@@ -86,17 +84,14 @@ export async function generateMetadata({
     },
   });
 
-  if (!store) {
-    return {};
-  }
+  if (!store) return {};
 
-  const title = store.settings?.seoTitle || `${store.name} | Casho`;
+  const title = store.settings?.seoTitle || store.name;
   const description =
     store.settings?.seoDescription ||
     `تصفح منتجات ${store.name} واطلب بسهولة من خلال المتجر الإلكتروني.`;
 
   const url = buildStoreUrl(store.slug);
-
   const image =
     getAbsoluteImageUrl(store.settings?.ogImage) ||
     getAbsoluteImageUrl(store.settings?.logo);
@@ -111,7 +106,6 @@ export async function generateMetadata({
       shortcut: image || "/favicon.ico",
       apple: image || "/favicon.ico",
     },
-
     keywords: store.settings?.seoKeywords ?? [],
     alternates: {
       canonical: url,
@@ -168,6 +162,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
       settings: {
         select: {
           logo: true,
+          themeId: true,
           primaryColor: true,
           secondaryColor: true,
           navbarVariant: true,
@@ -181,14 +176,33 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
 
   const { items } = await GetCartItemsAction(slug);
 
-  const primaryColor = store.settings?.primaryColor || "#2563eb";
-  const secondaryColor = store.settings?.secondaryColor || "#f3f4f6";
+  const cartCount = items.reduce((total, item) => total + item.quantity, 0);
+
+  const theme = getStoreTheme(store.settings?.themeId);
+
+  const primaryColor =
+    store.settings?.primaryColor || theme.tokens.primaryColor;
+  const secondaryColor =
+    store.settings?.secondaryColor || theme.tokens.secondaryColor;
+
+  const navbarVariant = (store.settings?.navbarVariant ||
+    theme.navbarVariant) as StoreNavbarVariant;
 
   const storeThemeStyle = {
     "--store-primary": primaryColor,
     "--store-primary-foreground": getContrastColor(primaryColor),
+
     "--store-secondary": secondaryColor,
     "--store-secondary-foreground": getContrastColor(secondaryColor),
+
+    "--store-background": theme.tokens.background,
+    "--store-surface": theme.tokens.surface,
+    "--store-card": theme.tokens.card,
+    "--store-muted": theme.tokens.muted,
+    "--store-border": theme.tokens.border,
+    "--store-radius": theme.tokens.radius,
+    "--store-hero-overlay": theme.tokens.heroOverlay,
+
     "--primary": "var(--store-primary)",
     "--primary-foreground": "var(--store-primary-foreground)",
     "--secondary": "var(--store-secondary)",
@@ -197,31 +211,27 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
 
   return (
     <div
+      dir="rtl"
       style={storeThemeStyle}
-      className="min-h-screen max-w-screen-2xl mx-auto flex flex-col bg-background text-foreground px-6"
+      className="min-h-screen text-foreground"
     >
       <StoreFrontHeader
         storeName={store.name}
         storeSlug={store.slug}
         logo={store.settings?.logo}
-        cartCount={items.length}
-        variant={
-          (store.settings?.navbarVariant as
-            | "default"
-            | "centered"
-            | "compact"
-            | null
-            | undefined) ?? "default"
-        }
+        cartCount={cartCount}
         announcementText={store.settings?.announcementText}
+        variant={navbarVariant}
       />
 
-      <main className="flex-1">{children}</main>
+      <main className="min-h-screen">{children}</main>
 
       <StoreFooter
         storeName={store.name}
         storeSlug={store.slug}
-        showPoweredByCasho={store.showPoweredByCasho}
+        showPoweredByCasho={
+          store.poweredByRemovalEnabled ? store.showPoweredByCasho : true
+        }
       />
     </div>
   );

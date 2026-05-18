@@ -142,7 +142,7 @@ export default async function ProductDetailsRoute({
           <span className="font-medium text-foreground">{product.name}</span>
         </div>
 
-        <div className="grid gap-8 xl:grid-cols-[1fr_800px]">
+        <div className="grid gap-8 xl:grid-cols-[1fr_800px] max-w-screen-2xl mx-auto">
           <div className="order-2 space-y-6 xl:order-2">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -352,7 +352,9 @@ export default async function ProductDetailsRoute({
         <section className="mt-14 space-y-6">
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <h2 className="text-2xl font-semibold md:text-3xl">منتجات مشابهة</h2>
+              <h2 className="text-2xl font-semibold md:text-3xl">
+                منتجات مشابهة
+              </h2>
               <p className="text-sm text-muted-foreground">
                 منتجات من نفس التصنيف قد تعجبك أيضًا
               </p>

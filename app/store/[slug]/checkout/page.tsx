@@ -66,7 +66,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10">
+    <main className="w-full  px-4 py-10 max-w-screen-2xl mx-auto">
       <div className="mb-8 space-y-2 text-right">
         <p className="text-sm font-semibold text-primary">Checkout</p>
 

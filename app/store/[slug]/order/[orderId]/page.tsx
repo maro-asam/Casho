@@ -316,7 +316,7 @@ export default async function OrderDetailsPage({
 
   if (!order) {
     return (
-      <div className="wrapper py-16" dir="rtl">
+      <div className="wrapper py-16 max-w-screen-2xl mx-auto" dir="rtl">
         <Card className="mx-auto max-w-xl rounded-xl border-dashed">
           <CardContent className="flex min-h-70 flex-col items-center justify-center gap-4 text-center">
             <div className="flex size-16 items-center justify-center rounded-xl bg-muted">
@@ -343,7 +343,7 @@ export default async function OrderDetailsPage({
   const paymentStatusMeta = getPaymentStatusLabel(order.paymentStatus);
 
   return (
-    <div className="wrapper py-6" dir="rtl">
+    <div className="wrapper py-6 max-w-screen-2xl mx-auto" dir="rtl">
       <div className="mx-auto max-w-7xl space-y-6">
         {paymentBanner ? (
           <Card className={cn("rounded-[28px] border", paymentBanner.className)}>

@@ -95,6 +95,7 @@ model StoreSettings {
   storeId String @unique
   store   Store  @relation(fields: [storeId], references: [id])
 
+  themeId        String  @default("classic")
   logo           String?
   coverImage     String?
   primaryColor   String?

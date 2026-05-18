@@ -100,7 +100,7 @@ export default function DashboardShell({
             name: "التقارير",
             href: "/dashboard/reports",
             icon: ChartPie,
-          }
+          },
         ],
       },
       {

@@ -226,7 +226,8 @@
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
 }
@@ -352,5 +353,15 @@
     border-radius: 20px;
     margin: 32px 0;
     border: 1px solid var(--border);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(50%);
   }
 }

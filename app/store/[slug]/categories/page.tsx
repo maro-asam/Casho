@@ -30,7 +30,7 @@ export default async function StoreCategoriesPage({
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
       <div
-        className="wrapper min-h-[70vh] flex items-center justify-center py-10"
+        className="wrapper min-h-[70vh] flex items-center justify-center py-10 max-w-screen-2xl mx-auto"
         dir="rtl"
       >
         <Card className="w-full max-w-xl rounded-xl border-destructive/20 bg-background shadow-sm">
@@ -59,7 +59,7 @@ export default async function StoreCategoriesPage({
   }
 
   return (
-    <div className="wrapper py-10 space-y-8" dir="rtl">
+    <div className="wrapper py-10 space-y-8 max-w-screen-2xl mx-auto" dir="rtl">
       <section className="relative overflow-hidden rounded-xl border bg-background p-6 md:p-8">
         <div className="absolute inset-0 bg-linear-to-l from-primary/10 via-transparent to-transparent pointer-events-none" />
 

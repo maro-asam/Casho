@@ -6,6 +6,8 @@ import { PaintRoller } from "lucide-react";
 import { Metadata } from "next";
 import { Separator } from "@/components/ui/separator";
 import StoreColorsSection from "./_components/StoreColorsSection";
+import ThemePicker from "./_components/ThemePicker";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "تخصيص المتجر",
@@ -23,6 +25,7 @@ export default async function CustomziationRoute() {
           navbarVariant: true,
           primaryColor: true,
           secondaryColor: true,
+          themeId: true,
         },
       },
     },
@@ -40,14 +43,30 @@ export default async function CustomziationRoute() {
         description={
           <>
             تخصيص متجرك بالشكل اللي يعجبك، من اختيار ألوان المتجر، لحد شكل
-            النافبار وحتى إضافة شعار المتجر. كل ده عشان تقدر تقدم تجربة فريدة
+            النافبار والثيم العام للمتجر. كل ده عشان تقدر تقدم تجربة فريدة
             لعملائك وتعكس هوية متجرك بشكل أفضل.
           </>
         }
       />
 
-      <StoreColorsSection store={store} />
+      <Card className="">
+        <CardContent className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold">ثيمات المتجر</h3>
+          </div>
+
+          <ThemePicker
+            storeId={store.id}
+            currentThemeId={store.settings?.themeId}
+          />
+        </CardContent>
+      </Card>
       <Separator />
+
+      <StoreColorsSection store={store} />
+
+      <Separator />
+
       <NavbarVariantPicker
         storeId={store.id}
         currentVariant={

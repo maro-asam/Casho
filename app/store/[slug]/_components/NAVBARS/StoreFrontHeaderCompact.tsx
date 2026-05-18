@@ -18,6 +18,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { ModeToggle } from "@/theme/ModeToggle";
 
 export default function StoreFrontHeaderCompact({
   storeName,
@@ -51,7 +52,7 @@ export default function StoreFrontHeaderCompact({
 
   return (
     <header
-      className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur"
+      className="max-w-screen-2xl mx-auto px-4 rounded-b-lg sticky top-0 z-50 border-b bg-background/95 backdrop-blur"
       dir="rtl"
     >
       <div className="wrapper py-3">
@@ -102,6 +103,10 @@ export default function StoreFrontHeaderCompact({
                       >
                         عن المتجر
                       </Link>
+                    </SheetClose>
+
+                    <SheetClose asChild>
+                      <ModeToggle className="w-full" />
                     </SheetClose>
                   </div>
                 </div>

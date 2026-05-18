@@ -69,9 +69,9 @@ export default function StoreFrontHeaderDefault({
 
   return (
     <>
-      <div className="sticky top-0 z-50" dir="rtl">
+      <div className="max-w-screen-2xl mx-auto sticky top-0 z-50" dir="rtl">
         {hasAnnouncement && (
-          <div className="bg-primary/10 rounded-bl-md rounded-br-md text-primary">
+          <div className="bg-primary/10 rounded-bl-md rounded-br-md text-primary ">
             <div className="wrapper">
               <div className="relative flex min-h-10 items-center justify-center px-10 py-2">
                 <div className="flex items-center gap-2 text-center text-sm font-medium">
@@ -92,7 +92,7 @@ export default function StoreFrontHeaderDefault({
           </div>
         )}
 
-        <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
+        <header className="border-b rounded-b-md px-3 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
           <div className="wrapper">
             <div
               className={cn(

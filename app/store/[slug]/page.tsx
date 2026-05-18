@@ -1,25 +1,17 @@
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PackageOpen, Store as StoreIcon } from "lucide-react";
+import { Store as StoreIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import ProductCard from "@/app/store/[slug]/_components/shared/ProductCard";
 
-import StoreBanner from "./_components/StoreBanner";
-import StoreCategories from "./categories/_components/StoreCategories";
-import FeaturedProducts from "./products/_components/FeaturedProducts";
-import StoreSectionHeader from "@/app/store/[slug]/_components/shared/StoreSectionHeader";
 import { SubscriptionStatus } from "@prisma/client";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
+import StoreThemeRenderer from "./_themes/StoreThemeRenderer";
 
 type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
@@ -37,6 +29,16 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       name: true,
       slug: true,
       subscriptionStatus: true,
+      settings: {
+        select: {
+          themeId: true,
+          description: true,
+          coverImage: true,
+          logo: true,
+          primaryColor: true,
+          secondaryColor: true,
+        },
+      },
       categories: {
         orderBy: {
           createdAt: "desc",
@@ -73,6 +75,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           name: true,
           slug: true,
           price: true,
+          compareAtPrice: true,
           image: true,
           isFeatured: true,
           isActive: true,
@@ -92,13 +95,18 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
 
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center" dir="rtl">
+      <div
+        className="flex min-h-[70vh] items-center justify-center px-4"
+        dir="rtl"
+      >
         <Card className="w-full max-w-lg rounded-xl shadow-sm">
           <CardHeader className="text-center">
             <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-xl bg-muted">
               <StoreIcon className="size-7 text-muted-foreground" />
             </div>
+
             <CardTitle className="text-2xl">هذا المتجر غير مُفعّل</CardTitle>
+
             <CardDescription className="text-sm leading-6">
               يحتاج صاحب المتجر إلى تفعيل الاشتراك حتى يظهر المتجر للزوار بشكل
               كامل.
@@ -110,64 +118,9 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      <StoreVisitTracker storeId={store.id} />
-      <div className="py-6">
-        <StoreBanner banners={store.banners} storeSlug={store.slug} />
-
-        <FeaturedProducts
-          storeSlug={store.slug}
-          products={store.products
-            .filter((product) => product.isFeatured && product.isActive)
-            .slice(0, 8)}
-        />
-
-        <StoreCategories categories={store.categories} storeSlug={store.slug} />
-
-        {store.products.length === 0 ? (
-          <Card className="rounded-xl border-dashed shadow-sm">
-            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-muted">
-                <PackageOpen className="size-7 text-muted-foreground" />
-              </div>
-
-              <h2 className="mb-2 text-xl font-semibold">
-                لا توجد منتجات متاحة حاليًا
-              </h2>
-              <p className="max-w-md text-sm leading-6 text-muted-foreground">
-                لم يتم إضافة منتجات نشطة إلى هذا المتجر بعد. يمكنك تصفح
-                التصنيفات لاحقًا أو العودة في وقت آخر.
-              </p>
-
-              <div className="mt-6">
-                <Button asChild variant="outline">
-                  <Link href={buildStoreUrl(store.slug, "/categories")}>
-                    عرض التصنيفات
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="flex flex-col gap-8">
-            <StoreSectionHeader
-              title="شاهد المزيد"
-              btn="كل المنتجات"
-              href={buildStoreUrl(store.slug, "/products")}
-            />
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {store.products.slice(0, 12).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  storeSlug={store.slug}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    <>
+      {/* <StoreVisitTracker storeId={store.id} /> */}
+      <StoreThemeRenderer themeId={store.settings?.themeId} store={store} />
+    </>
   );
 }
