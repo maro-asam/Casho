@@ -1,11 +1,17 @@
 import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
 
 export const DEFAULT_GRACE_PERIOD_DAYS = 3;
+export const FREE_TRIAL_DAYS = 30;
 
 export function addDays(date: Date, days: number) {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
+}
+
+export function getFreeTrialEndDate(fromDate?: Date) {
+  const base = fromDate ? new Date(fromDate) : new Date();
+  return addDays(base, FREE_TRIAL_DAYS);
 }
 
 export function isSubscriptionCurrentlyActive(params: {

@@ -1,6 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import type { RegisterState } from "./auth.types";
@@ -9,6 +10,7 @@ import { getFieldErrors } from "@/lib/zod";
 import { normalizeStoreSlug } from "@/lib/store/slug";
 import { createUserSession } from "@/lib/auth/session";
 import { TrackStoreRegistrationAction } from "@/actions/tracking/meta-registration-events.actions";
+import { getFreeTrialEndDate } from "@/lib/subscriptions";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -63,10 +65,7 @@ export async function RegisterAction(
   try {
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { email },
-          ...(phoneNumber ? [{ phone_number: phoneNumber }] : []),
-        ],
+        OR: [{ email }, ...(phoneNumber ? [{ phone_number: phoneNumber }] : [])],
       },
       select: {
         id: true,
@@ -107,6 +106,7 @@ export async function RegisterAction(
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const freeTrialEndsAt = getFreeTrialEndDate();
 
     const created = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -122,6 +122,14 @@ export async function RegisterAction(
             create: {
               name: storeName.trim(),
               slug,
+
+              subscriptionStatus: SubscriptionStatus.ACTIVE,
+              subscriptionEndsAt: freeTrialEndsAt,
+              gracePeriodEndsAt: null,
+
+              balance: 0,
+              autoRenew: true,
+              planSelected: false,
             },
           },
         },
@@ -160,7 +168,7 @@ export async function RegisterAction(
 
     return {
       success: true,
-      message: "تم إنشاء الحساب والمتجر بنجاح",
+      message: "تم إنشاء الحساب والمتجر بنجاح، وبدأت الفترة المجانية لمدة 30 يوم",
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
