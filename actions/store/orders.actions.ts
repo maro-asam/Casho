@@ -2,11 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { OrderStatus } from "@prisma/client";
-
+import { NotificationType, OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { MustOwnStore, MustSession } from "../auth/auth-helpers.actions";
-import { requireUserId } from "../auth/require-user-id.actions";
+import { MustOwnStore, MustSession } from "@/actions/auth/auth-helpers.actions";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
 import {
   PAYMENT_METHODS,
@@ -16,8 +15,13 @@ import {
 } from "@/constants/welcome/payment-methods";
 import { createMerchantKashierHppUrl } from "@/lib/kashier-merchant";
 import { decryptSecret } from "@/lib/secrets";
+import {
+  createNotification,
+  formatPiastersAsEgp,
+  orderStatusLabels,
+} from "@/lib/notifications/in-app";
 
-const kashierAllowedMethodKeys = new Set<string>(
+const kashierAllowedMethodKeys = new Set(
   KASHIER_ALLOWED_METHODS.map((method) => method.key),
 );
 
@@ -66,28 +70,23 @@ export async function CreateOrderAction(
 
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
-
     select: {
       id: true,
       slug: true,
       name: true,
       paymentMethods: true,
-
       settings: {
         select: {
           shippingPrice: true,
         },
       },
-
       storePaymentSettings: {
         select: {
           enabledPaymentMethods: true,
-
           cashOnDeliveryEnabled: true,
           vodafoneCashEnabled: true,
           instapayEnabled: true,
           bankTransferEnabled: true,
-
           kashierEnabled: true,
           kashierMode: true,
           kashierMerchantId: true,
@@ -123,7 +122,6 @@ export async function CreateOrderAction(
         },
       },
     }),
-
     prisma.appliedCoupon.findUnique({
       where: {
         guestSessionId_storeId: {
@@ -166,12 +164,10 @@ export async function CreateOrderAction(
   if (appliedCoupon?.coupon) {
     const coupon = appliedCoupon.coupon;
     const now = new Date();
-
     const startsOk = !coupon.startsAt || coupon.startsAt <= now;
     const expiresOk = !coupon.expiresAt || coupon.expiresAt >= now;
     const usageOk =
-      typeof coupon.usageLimit !== "number" ||
-      coupon.usedCount < coupon.usageLimit;
+      typeof coupon.usageLimit !== "number" || coupon.usedCount < coupon.usageLimit;
 
     if (coupon.isActive && startsOk && expiresOk && usageOk) {
       const calculatedDiscount = calculateCouponDiscount(subtotal / 100, {
@@ -198,8 +194,7 @@ export async function CreateOrderAction(
         guestSessionId,
         storeId: store.id,
         paymentMethod: data.paymentMethod,
-        paymentProvider:
-          data.paymentMethod === "kashier" ? "KASHIER" : "MANUAL",
+        paymentProvider: data.paymentMethod === "kashier" ? "KASHIER" : "MANUAL",
         paymentStatus: "PENDING",
         status: OrderStatus.PENDING,
         subtotal,
@@ -224,9 +219,7 @@ export async function CreateOrderAction(
     if (couponIdToUse) {
       await tx.coupon.update({
         where: { id: couponIdToUse },
-        data: {
-          usedCount: { increment: 1 },
-        },
+        data: { usedCount: { increment: 1 } },
       });
     }
 
@@ -244,7 +237,25 @@ export async function CreateOrderAction(
     return created;
   });
 
+  await createNotification({
+    storeId: store.id,
+    type: NotificationType.NEW_ORDER,
+    title: "طلب جديد وصل",
+    message: `وصلك طلب جديد من ${data.fullName} بقيمة ${formatPiastersAsEgp(total)}.`,
+    href: `/dashboard/orders?order=${order.id}`,
+    data: {
+      orderId: order.id,
+      storeId: store.id,
+      customerName: data.fullName,
+      customerPhone: data.phone,
+      paymentMethod: data.paymentMethod,
+      total,
+    },
+  });
+
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/notifications");
   revalidatePath(`/store/${store.slug}`);
   revalidatePath(`/store/${store.slug}/cart`);
   revalidatePath(`/store/${store.slug}/checkout`);
@@ -260,9 +271,7 @@ export async function CreateOrderAction(
       throw new Error("Kashier is not configured for this store");
     }
 
-    const allowedMethods = toKashierAllowedMethods(
-      settings.kashierAllowedMethods,
-    );
+    const allowedMethods = toKashierAllowedMethods(settings.kashierAllowedMethods);
 
     if (allowedMethods.length === 0) {
       throw new Error("No valid Kashier allowed methods configured");
@@ -346,11 +355,13 @@ export async function UpdateOrderStatusAction(
   const store = await MustOwnStore(storeId, userId);
 
   const order = await prisma.order.findFirst({
-    where: {
-      id: orderId,
-      storeId,
+    where: { id: orderId, storeId },
+    select: {
+      id: true,
+      status: true,
+      fullName: true,
+      total: true,
     },
-    select: { id: true },
   });
 
   if (!order) {
@@ -362,7 +373,25 @@ export async function UpdateOrderStatusAction(
     data: { status },
   });
 
+  if (order.status !== status) {
+    await createNotification({
+      storeId,
+      type: NotificationType.ORDER_STATUS_CHANGED,
+      title: "تم تحديث حالة الطلب",
+      message: `طلب ${order.fullName} أصبح ${orderStatusLabels[status] ?? status}.`,
+      href: `/dashboard/orders?order=${order.id}`,
+      data: {
+        orderId: order.id,
+        previousStatus: order.status,
+        status,
+        total: order.total,
+      },
+    });
+  }
+
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/notifications");
   revalidatePath(`/store/${store.slug}`);
 
   return { success: true };

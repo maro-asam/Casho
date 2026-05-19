@@ -1,16 +1,21 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
 import {
+  BalanceTransactionType,
+  NotificationType,
   TopupMethod,
   TopupRequestStatus,
-  BalanceTransactionType,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/prisma";
+import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
 import { applyBalanceChange } from "@/lib/balance";
-import { requireUserId } from "../auth/require-user-id.actions";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { sendTelegramMessage } from "@/lib/notifications/telegram";
+import {
+  createNotification,
+  formatPiastersAsEgp,
+} from "@/lib/notifications/in-app";
 
 type CreateTopupRequestInput = {
   storeId: string;
@@ -24,6 +29,12 @@ type CreateTopupRequestInput = {
 type ActionResult = {
   success: boolean;
   message: string;
+};
+
+const methodLabels: Record<TopupMethod, string> = {
+  INSTAPAY: "إنستا باي",
+  VODAFONE_CASH: "فودافون كاش",
+  BANK_TRANSFER: "تحويل بنكي",
 };
 
 function isValidTopupAmount(amount: number) {
@@ -40,7 +51,6 @@ export async function CreateTopupRequestAction({
 }: CreateTopupRequestInput): Promise<ActionResult> {
   try {
     const userId = await requireUserId();
-
     await MustOwnStore(storeId, userId);
 
     if (!isValidTopupAmount(amount)) {
@@ -62,7 +72,7 @@ export async function CreateTopupRequestAction({
       };
     }
 
-    await prisma.topupRequest.create({
+    const topupRequest = await prisma.topupRequest.create({
       data: {
         storeId,
         amount,
@@ -72,31 +82,36 @@ export async function CreateTopupRequestAction({
         transferRef: transferRef?.trim() || null,
         receiptImage: receiptImage?.trim() || null,
       },
+      select: { id: true },
     });
 
-    const methodLabels: Record<string, string> = {
-      INSTAPAY: "إنستا باي",
-      VODAFONE_CASH: "فودافون كاش",
-      BANK_TRANSFARE: "تحويل بنكي",
-      orange_cash: "أورنج كاش",
-      etisalat_cash: "اتصالات كاش",
-    };
+    await createNotification({
+      storeId,
+      type: NotificationType.TOPUP_REQUEST_CREATED,
+      title: "طلب شحن الرصيد اتبعت",
+      message: `طلب شحن بقيمة ${formatPiastersAsEgp(amount)} قيد المراجعة.`,
+      href: "/dashboard/balance",
+      data: {
+        topupRequestId: topupRequest.id,
+        amount,
+        method,
+      },
+    });
 
     await sendTelegramMessage(`
-💵 طلب شحن جديد على Casho
-
-🏪 المتجر: ${store.name}
-💰 المبلغ: ${amount / 100} جنيه
-💳 طريقة الدفع: ${methodLabels[method] ?? method}
-🧾 رقم المرجع: ${transferRef ?? "غير مضاف"}
-📝 ملاحظات: ${note ?? "لا يوجد"}
-
-📂 راجع الطلب:
-${process.env.NEXT_PUBLIC_APP_URL}/admin/topup-requests
+طلب شحن جديد على Casho
+المتجر: ${store.name}
+المبلغ: ${amount / 100} جنيه
+طريقة الدفع: ${methodLabels[method] ?? method}
+رقم المرجع: ${transferRef ?? "غير مضاف"}
+ملاحظات: ${note ?? "لا يوجد"}
+راجع الطلب: ${process.env.NEXT_PUBLIC_APP_URL}/admin/topup-requests
 `);
 
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");
     revalidatePath("/dashboard/balance/topup");
+    revalidatePath("/dashboard/notifications");
     revalidatePath("/admin/topup-requests");
 
     return {
@@ -105,7 +120,6 @@ ${process.env.NEXT_PUBLIC_APP_URL}/admin/topup-requests
     };
   } catch (error) {
     console.error("CreateTopupRequestAction Error:", error);
-
     return {
       success: false,
       message: "حدث خطأ أثناء إنشاء طلب الشحن",
@@ -150,13 +164,25 @@ export async function ApproveTopupRequestAction(
 
     await prisma.topupRequest.update({
       where: { id: request.id },
+      data: { status: TopupRequestStatus.APPROVED },
+    });
+
+    await createNotification({
+      storeId: request.storeId,
+      type: NotificationType.TOPUP_APPROVED,
+      title: "تمت الموافقة على شحن الرصيد",
+      message: `تمت إضافة ${formatPiastersAsEgp(request.amount)} لرصيد متجرك.`,
+      href: "/dashboard/balance",
       data: {
-        status: TopupRequestStatus.APPROVED,
+        topupRequestId: request.id,
+        amount: request.amount,
       },
     });
 
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");
     revalidatePath("/dashboard/balance/topup");
+    revalidatePath("/dashboard/notifications");
     revalidatePath("/admin/topup-requests");
 
     return {
@@ -165,7 +191,6 @@ export async function ApproveTopupRequestAction(
     };
   } catch (error) {
     console.error("ApproveTopupRequestAction Error:", error);
-
     return {
       success: false,
       message: "حدث خطأ أثناء الموافقة على طلب الشحن",
@@ -181,7 +206,9 @@ export async function RejectTopupRequestAction(
       where: { id: requestId },
       select: {
         id: true,
+        amount: true,
         status: true,
+        storeId: true,
       },
     });
 
@@ -201,13 +228,24 @@ export async function RejectTopupRequestAction(
 
     await prisma.topupRequest.update({
       where: { id: request.id },
+      data: { status: TopupRequestStatus.REJECTED },
+    });
+
+    await createNotification({
+      storeId: request.storeId,
+      type: NotificationType.TOPUP_REJECTED,
+      title: "تم رفض طلب شحن الرصيد",
+      message: `طلب شحن ${formatPiastersAsEgp(request.amount)} اترفض. راجع بيانات التحويل أو تواصل مع الدعم.`,
+      href: "/dashboard/balance",
       data: {
-        status: TopupRequestStatus.REJECTED,
+        topupRequestId: request.id,
+        amount: request.amount,
       },
     });
 
-    revalidatePath("/admin/topup-requests");
     revalidatePath("/dashboard/balance/topup");
+    revalidatePath("/dashboard/notifications");
+    revalidatePath("/admin/topup-requests");
 
     return {
       success: true,
@@ -215,7 +253,6 @@ export async function RejectTopupRequestAction(
     };
   } catch (error) {
     console.error("RejectTopupRequestAction Error:", error);
-
     return {
       success: false,
       message: "حدث خطأ أثناء رفض طلب الشحن",
@@ -266,9 +303,7 @@ export async function ApplyApprovedTopupRequestAction(
         type: BalanceTransactionType.TOPUP,
         reference: request.id,
       },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
 
     if (alreadyApplied) {
@@ -284,9 +319,7 @@ export async function ApplyApprovedTopupRequestAction(
     await prisma.$transaction(async (tx) => {
       await tx.store.update({
         where: { id: request.storeId },
-        data: {
-          balance: balanceAfter,
-        },
+        data: { balance: balanceAfter },
       });
 
       await tx.balanceTransaction.create({
@@ -302,9 +335,22 @@ export async function ApplyApprovedTopupRequestAction(
       });
     });
 
+    await createNotification({
+      storeId: request.storeId,
+      type: NotificationType.TOPUP_APPROVED,
+      title: "تمت إضافة الرصيد",
+      message: `تمت إضافة ${formatPiastersAsEgp(request.amount)} لرصيد متجرك.`,
+      href: "/dashboard/balance",
+      data: {
+        topupRequestId: request.id,
+        amount: request.amount,
+      },
+    });
+
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");
     revalidatePath("/dashboard/balance/topup");
+    revalidatePath("/dashboard/notifications");
     revalidatePath(`/store/${request.store.slug}`);
 
     return {
@@ -313,7 +359,6 @@ export async function ApplyApprovedTopupRequestAction(
     };
   } catch (error) {
     console.error("ApplyApprovedTopupRequestAction Error:", error);
-
     return {
       success: false,
       message: "حدث خطأ أثناء إضافة الرصيد",

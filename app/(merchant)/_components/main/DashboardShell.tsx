@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BanknoteArrowUp,
+  Bell,
   BookOpen,
   ChartNoAxesCombined,
-  ChartPie,
   CirclePercent,
   CreditCard,
   Headset,
@@ -29,24 +35,30 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
-import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/theme/ModeToggle";
+import { cn } from "@/lib/utils";
+import type { NotificationDTO } from "@/actions/notifications/notifications.actions";
+import NotificationsBell from "@/app/(merchant)/_components/notifications/NotificationsBell";
 
 interface DashboardShellProps {
   store: {
     name: string;
     slug: string;
   };
-  children: React.ReactNode;
+  initialNotifications: NotificationDTO[];
+  initialUnreadCount: number;
+  children: ReactNode;
 }
 
 type DashboardLink = {
   name: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   disabled?: boolean;
   badge?: string;
+  count?: number;
 };
 
 type NavSection = {
@@ -56,58 +68,51 @@ type NavSection = {
 
 export default function DashboardShell({
   store,
+  initialNotifications,
+  initialUnreadCount,
   children,
 }: DashboardShellProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
+  const storeInitials = useMemo(() => {
+    return store.name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  }, [store.name]);
+
   const sections: NavSection[] = useMemo(
     () => [
       {
-        title: "MAIN",
+        title: "الرئيسية",
         links: [
+          { name: "نظرة عامة", href: "/dashboard", icon: LayoutDashboard },
           {
-            name: "نظرة عامة",
-            href: "/dashboard",
-            icon: LayoutDashboard,
+            name: "الإشعارات",
+            href: "/dashboard/notifications",
+            icon: Bell,
+            count: initialUnreadCount,
           },
-          {
-            name: "الطلبات",
-            href: "/dashboard/orders",
-            icon: ShoppingCart,
-          },
-          {
-            name: "المنتجات",
-            href: "/dashboard/products",
-            icon: Package,
-          },
-          {
-            name: "التصنيفات",
-            href: "/dashboard/categories",
-            icon: Tag,
-          },
-          {
-            name: "البانر",
-            href: "/dashboard/banners",
-            icon: ImageIcon,
-          },
+          { name: "الطلبات", href: "/dashboard/orders", icon: ShoppingCart },
+          { name: "المنتجات", href: "/dashboard/products", icon: Package },
+          { name: "التصنيفات", href: "/dashboard/categories", icon: Tag },
+          { name: "البانر", href: "/dashboard/banners", icon: ImageIcon },
           {
             name: "الكوبونات",
             href: "/dashboard/coupons",
             icon: CirclePercent,
           },
-          {
-            name: "التقارير",
-            href: "/dashboard/reports",
-            icon: ChartPie,
-          },
         ],
       },
       {
-        title: "STORE",
+        title: "إدارة المتجر",
         links: [
           {
-            name: "ادارة الرصيد",
+            name: "إدارة الرصيد",
             href: "/dashboard/balance",
             icon: BanknoteArrowUp,
           },
@@ -117,46 +122,28 @@ export default function DashboardShell({
             icon: ChartNoAxesCombined,
           },
           {
-            name: "بوابات الدفع",
-            href: "/dashboard/payment-methods",
-            icon: CreditCard,
-          },
-          {
             name: "تخصيص المتجر",
             href: "/dashboard/customization",
             icon: PaintRoller,
           },
           {
-            name: "اعدادات SEO",
-            href: "/dashboard/seo",
-            icon: Rocket,
+            name: "بوابات الدفع",
+            href: "/dashboard/payment-methods",
+            icon: CreditCard,
           },
-
-          {
-            name: "خدمات اضافية",
-            href: "/dashboard/services",
-            icon: Layers,
-          },
+          { name: "إعدادات SEO", href: "/dashboard/seo", icon: Rocket },
+          { name: "خدمات إضافية", href: "/dashboard/services", icon: Layers },
         ],
       },
-
       {
-        title: "SUPPORT",
+        title: "المساعدة والمحتوى",
         links: [
-          {
-            name: "المدونة",
-            href: "/dashboard/blog",
-            icon: BookOpen,
-          },
-          {
-            name: "مركز المساعدة",
-            href: "/dashboard/support",
-            icon: Headset,
-          },
+          { name: "المدونة", href: "/dashboard/blog", icon: BookOpen },
+          { name: "مركز المساعدة", href: "/dashboard/support", icon: Headset },
         ],
       },
       {
-        title: "COMING SOON",
+        title: "قريبًا",
         links: [
           {
             name: "ربط تيليجرام",
@@ -165,7 +152,6 @@ export default function DashboardShell({
             disabled: true,
             badge: "Soon",
           },
-
           {
             name: "الحملات التسويقية",
             href: "/dashboard/marketing-campaigns",
@@ -183,15 +169,11 @@ export default function DashboardShell({
         ],
       },
     ],
-    [],
+    [initialUnreadCount],
   );
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "";
 
     return () => {
       document.body.style.overflow = "";
@@ -205,179 +187,244 @@ export default function DashboardShell({
 
   const isActive = (href: string, disabled?: boolean) => {
     if (disabled) return false;
-
     return href === "/dashboard"
       ? pathname === "/dashboard"
       : pathname.startsWith(href);
   };
 
-  return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:hidden">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsOpen(true)}
-          aria-label="فتح القائمة"
-          className="border-border bg-background"
-        >
-          <Menu className="size-5" />
-        </Button>
+  const sidebar = (
+    <div className="flex h-full flex-col bg-background">
+      <div className="relative overflow-hidden border-b px-4 py-4">
+        <div className="absolute inset-0 bg-linear-to-l from-primary/10 via-primary/5 to-transparent" />
 
-        <Link href="/dashboard" className="flex min-w-0 items-center gap-2">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Store className="size-4" />
-          </div>
-          <span className="max-w-44 truncate text-sm font-semibold">
-            {store.name}
-          </span>
-        </Link>
-      </header>
+        <div className="relative flex items-center justify-between gap-3">
+          <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
+            <span className="grid h-11 w-11 rounded-xl shrink-0 place-items-center  bg-primary text-sm font-black text-primary-foreground shadow-lg shadow-primary/20">
+              {storeInitials || <Store className="h-5 w-5" />}
+            </span>
 
-      <div className="flex min-h-[calc(100vh-4rem)] md:min-h-screen">
-        <div
-          onClick={() => setIsOpen(false)}
-          className={cn(
-            "fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden",
-            isOpen
-              ? "pointer-events-auto opacity-100"
-              : "pointer-events-none opacity-0",
-          )}
-        />
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-black leading-5 ">
+                {store.name}
+              </span>
+              <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                لوحة تحكم التاجر
+              </span>
+            </span>
+          </Link>
 
-        <aside
-          className={cn(
-            "fixed right-0 top-0 z-50 flex h-screen w-[85%] max-w-xs translate-x-full flex-col border-l bg-background text-foreground shadow-2xl transition-transform duration-300 md:sticky md:top-0 md:z-30 md:w-72 md:max-w-none md:translate-x-0 md:border-l md:border-border md:shadow-none",
-            isOpen && "translate-x-0",
-          )}
-        >
-          <div className="flex h-full flex-col px-4 pb-4 pt-5">
-            <div className="mb-5 flex items-center justify-between md:hidden">
-              <div className="flex min-w-0 items-center gap-2">
-                <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                  <Store className="size-4" />
-                </div>
-                <span className="truncate text-sm font-semibold">
-                  {store.name}
-                </span>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                aria-label="إغلاق القائمة"
-              >
-                <X className="size-5" />
-              </Button>
-            </div>
-
-            <div className="mb-5 rounded-2xl border bg-muted/40 p-2">
-              <div className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-right">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                  <Store className="size-4" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{store.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    Merchant Store
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-1">
-              <div className="space-y-6">
-                {sections.map((section) => (
-                  <div key={section.title}>
-                    <p className="mb-2 px-2 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                      {section.title}
-                    </p>
-
-                    <div className="space-y-1">
-                      {section.links.map((link) => {
-                        const Icon = link.icon;
-                        const active = isActive(link.href, link.disabled);
-
-                        if (link.disabled) {
-                          return (
-                            <div
-                              key={link.href}
-                              className="flex h-11 items-center justify-between rounded-xl px-3 text-muted-foreground opacity-60"
-                            >
-                              <div className="flex min-w-0 items-center gap-3">
-                                <Icon className="size-4 shrink-0" />
-                                <span className="truncate text-sm">
-                                  {link.name}
-                                </span>
-                              </div>
-
-                              {link.badge && (
-                                <span className="rounded-full border bg-muted px-2 py-0.5 text-[10px]">
-                                  {link.badge}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        }
-
-                        return (
-                          <Link
-                            key={link.href}
-                            href={link.href}
-                            onClick={() => setIsOpen(false)}
-                            className={cn(
-                              "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors",
-                              active
-                                ? "bg-primary text-primary-foreground shadow-sm"
-                                : "text-foreground hover:bg-muted",
-                            )}
-                          >
-                            <Icon className="size-4 shrink-0" />
-                            <span className="truncate">{link.name}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-5 border-t pt-4">
-              <div className="space-y-2">
-                <div className="overflow-hidden rounded-xl border bg-muted/40">
-                  <ModeToggle className="w-full" />
-                </div>
-
-                <Link
-                  href="/dashboard/settings"
-                  className={cn(
-                    "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors",
-                    pathname.startsWith("/dashboard/settings")
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted/40 text-foreground hover:bg-muted",
-                  )}
-                >
-                  <Settings className="size-4 shrink-0" />
-                  <span>إعدادات المتجر</span>
-                </Link>
-
-                <LogoutButton collapsed={false} />
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <div className="w-full min-w-0">
-          <main className="">
-            <div className="mx-auto min-h-[calc(100vh-2rem)] max-w-350 p-5 lg:p-6">
-              {children}
-            </div>
-          </main>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 shrink-0  md:hidden"
+            onClick={() => setIsOpen(false)}
+            aria-label="إغلاق القائمة"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
       </div>
+
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <div className="space-y-7">
+          {sections.map((section) => (
+            <div key={section.title} className="space-y-2">
+              <p className="px-3 text-[11px] font-black tracking-wide text-muted-foreground">
+                {section.title}
+              </p>
+
+              <div className="space-y-1">
+                {section.links.map((link) => {
+                  const Icon = link.icon;
+                  const active = isActive(link.href, link.disabled);
+
+                  if (link.disabled) {
+                    return (
+                      <div
+                        key={link.name}
+                        className="flex h-11 items-center gap-3  px-3 text-sm font-semibold text-muted-foreground opacity-70"
+                      >
+                        <span className="grid h-8 w-8 place-items-center  bg-muted">
+                          <Icon className="h-4 w-4" />
+                        </span>
+
+                        <span className="flex-1 truncate">{link.name}</span>
+
+                        {link.badge && (
+                          <Badge
+                            variant="secondary"
+                            className=" px-2 text-[10px]"
+                          >
+                            {link.badge}
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      className={cn(
+                        "group relative flex h-11 items-center gap-3 rounded-2xl px-3 text-sm font-bold transition-all duration-200",
+                        active
+                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                          : "text-foreground/80 hover:bg-muted hover:text-foreground",
+                      )}
+                    >
+                      {active && (
+                        <span className="absolute inset-y-2 right-0 w-1 rounded-l-full bg-primary-foreground/90" />
+                      )}
+
+                      <span
+                        className={cn(
+                          "grid h-8 w-8 place-items-center rounded-xl transition-colors",
+                          active
+                            ? "bg-primary-foreground/15"
+                            : "bg-muted text-muted-foreground group-hover:text-foreground",
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
+
+                      <span className="flex-1 truncate">{link.name}</span>
+
+                      {!!link.count && link.count > 0 && (
+                        <span
+                          className={cn(
+                            "grid min-w-5 place-items-center rounded-full px-1.5 text-[10px] font-black",
+                            active
+                              ? "bg-primary-foreground text-primary"
+                              : "bg-primary text-primary-foreground",
+                          )}
+                        >
+                          {link.count > 99 ? "99+" : link.count}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </nav>
+
+      <div className="border-t bg-muted/30 p-3">
+        <div className="rounded-3xl border bg-background p-2 shadow-sm">
+          <Button
+            asChild
+            variant="ghost"
+            className="h-11 w-full justify-start gap-3 font-bold"
+          >
+            <Link href="/dashboard/settings">
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-muted">
+                <Settings className="h-4 w-4" />
+              </span>
+              إعدادات المتجر
+            </Link>
+          </Button>
+
+          <div className="mt-1">
+            <LogoutButton />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      dir="rtl"
+      className="min-h-screen bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.08),transparent_32rem),linear-gradient(to_bottom,hsl(var(--muted)/0.45),hsl(var(--background)))]"
+    >
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur-xl md:hidden">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-10 w-10 "
+          onClick={() => setIsOpen(true)}
+          aria-label="فتح القائمة"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        <Link href="/dashboard" className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-black">
+            {store.name}
+          </span>
+          <span className="block text-xs text-muted-foreground">
+            لوحة التحكم
+          </span>
+        </Link>
+
+        <NotificationsBell
+          initialNotifications={initialNotifications}
+          initialUnreadCount={initialUnreadCount}
+        />
+        <ModeToggle />
+      </header>
+
+      <div
+        role="presentation"
+        onClick={() => setIsOpen(false)}
+        className={cn(
+          "fixed inset-0 z-40 bg-black/55 backdrop-blur-sm transition-opacity duration-300 md:hidden",
+          isOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0",
+        )}
+      />
+
+      <aside
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 w-72 border-l bg-background shadow-2xl shadow-black/10 transition-transform duration-300 md:translate-x-0 md:shadow-none",
+          isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0",
+        )}
+      >
+        {sidebar}
+      </aside>
+
+      <main className="min-h-screen md:pr-72">
+        <div className="sticky top-0 z-20 hidden h-16 items-center justify-between gap-4 border-b bg-background/80 px-6 backdrop-blur-xl md:flex">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-muted-foreground">
+              لوحة تحكم
+            </p>
+            <h1 className="truncate text-base font-black">{store.name}</h1>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <NotificationsBell
+              initialNotifications={initialNotifications}
+              initialUnreadCount={initialUnreadCount}
+            />
+            <ModeToggle />
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="h-10 gap-2  bg-background/70 font-bold"
+            >
+              <Link
+                href={`/store/${store.slug}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                زيارة المتجر
+                <Store className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="mx-auto w-full max-w-375 px-4 py-5 md:px-6 md:py-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

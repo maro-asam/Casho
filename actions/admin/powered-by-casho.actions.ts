@@ -1,16 +1,16 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { createNotification } from "@/lib/notifications/in-app";
 
 export async function ApproveRemovePoweredByRequestAction(requestId: string) {
   await requireAdmin();
 
   const request = await prisma.serviceRequest.findUnique({
-    where: {
-      id: requestId,
-    },
+    where: { id: requestId },
     select: {
       id: true,
       storeId: true,
@@ -39,9 +39,7 @@ export async function ApproveRemovePoweredByRequestAction(requestId: string) {
 
   await prisma.$transaction(async (tx) => {
     await tx.serviceRequest.update({
-      where: {
-        id: request.id,
-      },
+      where: { id: request.id },
       data: {
         status: "COMPLETED",
         handledAt: new Date(),
@@ -50,9 +48,7 @@ export async function ApproveRemovePoweredByRequestAction(requestId: string) {
     });
 
     await tx.store.update({
-      where: {
-        id: request.storeId!,
-      },
+      where: { id: request.storeId! },
       data: {
         poweredByRemovalEnabled: true,
         showPoweredByCasho: false,
@@ -60,10 +56,23 @@ export async function ApproveRemovePoweredByRequestAction(requestId: string) {
     });
   });
 
+  await createNotification({
+    storeId: request.storeId,
+    type: NotificationType.POWERED_BY_APPROVED,
+    title: "تمت الموافقة على إزالة Powered by Casho",
+    message: "تم تفعيل إزالة العلامة من متجرك بنجاح.",
+    href: "/dashboard/settings",
+    data: {
+      serviceRequestId: request.id,
+      serviceId: request.serviceId,
+    },
+  });
+
   revalidatePath("/admin/service-requests");
   revalidatePath(`/admin/stores/${request.store.slug}`);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/notifications");
   revalidatePath(`/store/${request.store.slug}`);
 }
 
@@ -71,11 +80,10 @@ export async function RejectRemovePoweredByRequestAction(requestId: string) {
   await requireAdmin();
 
   const request = await prisma.serviceRequest.findUnique({
-    where: {
-      id: requestId,
-    },
+    where: { id: requestId },
     select: {
       id: true,
+      storeId: true,
       serviceId: true,
       store: {
         select: {
@@ -94,9 +102,7 @@ export async function RejectRemovePoweredByRequestAction(requestId: string) {
   }
 
   await prisma.serviceRequest.update({
-    where: {
-      id: request.id,
-    },
+    where: { id: request.id },
     data: {
       status: "CANCELED",
       handledAt: new Date(),
@@ -104,7 +110,22 @@ export async function RejectRemovePoweredByRequestAction(requestId: string) {
     },
   });
 
+  if (request.storeId) {
+    await createNotification({
+      storeId: request.storeId,
+      type: NotificationType.POWERED_BY_REJECTED,
+      title: "تم رفض طلب إزالة Powered by Casho",
+      message: "تم رفض الطلب. تقدر تتواصل مع الدعم لو محتاج تفاصيل.",
+      href: "/dashboard/settings",
+      data: {
+        serviceRequestId: request.id,
+        serviceId: request.serviceId,
+      },
+    });
+  }
+
   revalidatePath("/admin/service-requests");
+  revalidatePath("/dashboard/notifications");
 
   if (request.store?.slug) {
     revalidatePath(`/admin/stores/${request.store.slug}`);

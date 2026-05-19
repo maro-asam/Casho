@@ -1,194 +1,74 @@
-# 💸 Casho — منصتك عشان تبيع صح مش في الشات
+# Casho In-App Notification System
 
-> بدل ما تغرق في شبر رسايل… خليك البرنس اللي بيديرها صح 👑
+دي implementation كاملة للـ in-app notifications في Casho:
 
-**Casho** هو SaaS بيخليك تعمل متجر إلكتروني في دقايق، تشاركه لينك بسيط، وتبدأ تستقبل أوردرات وتدير شغلك بشكل احترافي — من غير تعقيد.
+- Prisma `Notification` model + `NotificationType` enum.
+- Server Actions للقراءة، العدّ، تعليم مقروء، تعليم الكل، والحذف.
+- Helper آمن `createNotification` لا يكسّر الـ business flow لو الإشعار فشل.
+- Bell dropdown في Dashboard header + polling كل 30 ثانية.
+- صفحة كاملة `/dashboard/notifications` فيها filters وحذف/mark read.
+- Wiring جاهز في الأوردرات، طلبات الرصيد، الدعم، الخدمات، وقرارات الأدمن المهمة.
 
----
+## الملفات الجديدة / المستبدلة
 
-## 🚀 Features
-
-- 🛍️ إنشاء متجر في ثواني  
-- 🔗 لينك متجر جاهز للمشاركة  
-- 📦 إدارة المنتجات والتصنيفات  
-- 🧾 نظام أوردر كامل  
-- 💳 طرق دفع محلية (كاش / فودافون كاش / إنستا باي)  
-- 📊 Dashboard بإحصائيات بسيطة وواضحة  
-- 🎨 تخصيص شكل المتجر (Navbar - ألوان - بانرز)  
-- 🔔 إشعارات (Telegram قريبًا)  
-- 🔐 نظام Auth مخصص بدون NextAuth  
-- ⚡ Server Actions بدل API Routes  
-
----
-
-## 🧠 الفكرة
-
-Casho معمول مخصوص لـ:
-
-- الناس اللي بتبيع على فيسبوك / إنستجرام  
-- اللي تعبان من الرسايل الكتير  
-- اللي عايز يبقى عنده سيستم محترم بسرعة  
-
----
-
-## 🛠️ Tech Stack
-
-- **Framework:** Next.js 16 (App Router + Server Actions)  
-- **UI:** shadcn/ui + Tailwind CSS  
-- **Database:** PostgreSQL (Neon)  
-- **ORM:** Prisma  
-- **Auth:** Custom (Cookies + Server Actions)  
-- **Animations:** Framer Motion  
-- **State/UI:** React + useTransition + Sonner  
-
----
-
-## ⚙️ Getting Started
-
-### 1. Clone المشروع
+انسخ محتوى الفولدر ده فوق مشروع Casho بنفس المسارات:
 
 ```bash
-git clone https://github.com/your-username/casho.git
-cd casho
+# من داخل فولدر المشروع
+cp -R path/to/casho-notifications-system/* .
 ```
 
-### 2. Install dependencies
+أو افتح الملفات واحدة واحدة وانقل التعديلات لو عندك تغييرات محلية في نفس الملفات.
+
+## أوامر التشغيل
+
+بعد النسخ:
 
 ```bash
 npm install
-```
-
-### 3. Setup Environment Variables
-
-اعمل ملف `.env`:
-
-```env
-DATABASE_URL=your_database_url
-```
-
----
-
-### 4. Run Prisma
-
-```bash
 npx prisma generate
 npx prisma db push
-```
-
----
-
-### 5. Run المشروع
-
-```bash
 npm run dev
 ```
 
-افتح:
-```
-http://localhost:3000
-```
+لو بتستخدم migrations بدل `db push`:
 
----
-
-## 📁 Project Structure
-
-```
-app/
-  (merchant)/dashboard/
-  store/[slug]/
-actions/
-components/
-lib/
-  prisma/
-  auth/
-constants/
+```bash
+npx prisma migrate dev --name add_notifications
+npm run dev
 ```
 
----
+## أهم أماكن الربط
 
-## 🔐 Authentication Flow
+- `actions/store/orders.actions.ts`
+  - ينشئ Notification عند إنشاء أوردر جديد.
+  - ينشئ Notification عند تغيير حالة أوردر.
 
-- المستخدم بيعمل Register  
-- بيتخزن `user.id` في Cookie (sessionToken)  
-- كل request بيتحقق منه بـ helper  
-- مفيش NextAuth — كله custom  
+- `actions/balance/topup.actions.ts`
+  - إشعار عند إرسال طلب شحن.
+  - إشعار عند الموافقة / الرفض.
 
----
+- `actions/admin/admin-topup.actions.ts`
+  - إشعار للتاجر لما الأدمن يعتمد أو يرفض طلب الشحن.
 
-## 🛒 Store System
+- `actions/support/create-support.actions.ts`
+  - إشعار تأكيد للتاجر بعد إرسال طلب دعم.
 
-- كل تاجر عنده:
-  - Store خاص بيه  
-  - Products  
-  - Orders  
+- `actions/services/*`
+  - إشعارات طلبات الخدمات وطلب إزالة Powered by Casho.
 
-- المتجر بيظهر على:
-```
-/store/[slug]
-```
+- `actions/admin/service-requests.actions.ts`
+  - إشعار عند تحديث حالة طلب الخدمة.
 
----
+- `app/(merchant)/_components/main/DashboardShell.tsx`
+  - أضاف زر الإشعارات في الهيدر ورابط الإشعارات في القائمة.
 
-## 💳 Payment Methods
+- `app/(merchant)/dashboard/notifications/page.tsx`
+  - صفحة الإشعارات الكاملة.
 
-- Cash on Delivery  
-- Vodafone Cash  
-- InstaPay  
-- Bank Transfer  
+## ملاحظات مهمة
 
----
-
-## 📊 Dashboard
-
-- عدد الطلبات  
-- الأرباح  
-- المنتجات  
-- حالة الأوردرات  
-
----
-
-## 💡 Roadmap
-
-- [ ] Subdomain support (`store.casho.store`)  
-- [ ] Online Payments (Paymob)  
-- [ ] Telegram Integration  
-- [ ] Advanced Analytics  
-- [ ] Coupons System  
-- [ ] Mobile App  
-
----
-
-## 💰 Pricing Idea
-
-- أول 50 تاجر: 300 جنيه / شهر  
-- بعد كده: 499 جنيه / شهر  
-
----
-
-## 🧑‍💻 Author
-
-**Maro Asam**  
-Full Stack Developer — Builder of Casho  
-
----
-
-## 🤝 Contributing
-
-1. Fork المشروع  
-2. اعمل Feature Branch  
-3. اعمل Pull Request  
-
----
-
-## ⭐ Support
-
-لو المشروع عاجبك:
-- اعمله ⭐ على GitHub  
-- أو شاركه مع حد محتاجه  
-
----
-
-## 🧠 Philosophy
-
-> Casho مش مجرد متجر…  
-> ده انتقال من العشوائية للنظام 💥
+1. الإشعار لا يوقف الأوردر أو الشحن لو فشل. `createNotification` بيعمل catch وبيطبع error فقط.
+2. الإشعارات scoped حسب `userId` أو `storeId`، والـ Server Actions بتتأكد إن المستخدم الحالي يملك المتجر.
+3. الـ dropdown بيعمل polling كل 30 ثانية، كفاية جدًا للـ MVP. لو حبيت real-time بعدين، ممكن تبدله بـ SSE/WebSocket من غير تغيير الـ DB model.
+4. لو عندك TypeScript error بعد النسخ، شغل `npx prisma generate` الأول لأن `NotificationType` و`prisma.notification` مش هيظهروا غير بعد تحديث Prisma Client.

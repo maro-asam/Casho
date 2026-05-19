@@ -1,8 +1,10 @@
 "use server";
 
-import { sendTelegramMessage } from "@/lib/notifications/telegram";
-import { prisma } from "@/lib/prisma";
+import { NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { sendTelegramMessage } from "@/lib/notifications/telegram";
+import { createNotification } from "@/lib/notifications/in-app";
+import { prisma } from "@/lib/prisma";
 
 export type CreateServiceRequestState = {
   success: boolean;
@@ -52,33 +54,13 @@ export async function CreateServiceRequestAction(
 
     const errors: CreateServiceRequestState["errors"] = {};
 
-    if (!serviceId) {
-      errors.serviceId = ["الخدمة غير محددة"];
-    }
-
-    if (!serviceTitle) {
-      errors.serviceTitle = ["اسم الخدمة غير محدد"];
-    }
-
-    if (fullName.length < 2) {
-      errors.fullName = ["اكتب الاسم بشكل صحيح"];
-    }
-
-    if (!phone || !isValidPhone(phone)) {
-      errors.phone = ["اكتب رقم موبايل صحيح"];
-    }
-
-    if (whatsapp && !isValidPhone(whatsapp)) {
-      errors.whatsapp = ["رقم الواتساب غير صحيح"];
-    }
-
-    if (storeLink && !isValidUrl(storeLink)) {
-      errors.storeLink = ["لينك المتجر غير صحيح"];
-    }
-
-    if (notes && notes.length > 1000) {
-      errors.notes = ["الملاحظات طويلة جدًا"];
-    }
+    if (!serviceId) errors.serviceId = ["الخدمة غير محددة"];
+    if (!serviceTitle) errors.serviceTitle = ["اسم الخدمة غير محدد"];
+    if (fullName.length < 2) errors.fullName = ["اكتب الاسم بشكل صحيح"];
+    if (!phone || !isValidPhone(phone)) errors.phone = ["اكتب رقم موبايل صحيح"];
+    if (whatsapp && !isValidPhone(whatsapp)) errors.whatsapp = ["رقم الواتساب غير صحيح"];
+    if (storeLink && !isValidUrl(storeLink)) errors.storeLink = ["لينك المتجر غير صحيح"];
+    if (notes && notes.length > 1000) errors.notes = ["الملاحظات طويلة جدًا"];
 
     if (Object.keys(errors).length > 0) {
       return {
@@ -88,7 +70,7 @@ export async function CreateServiceRequestAction(
       };
     }
 
-    await prisma.serviceRequest.create({
+    const request = await prisma.serviceRequest.create({
       data: {
         serviceId,
         serviceTitle,
@@ -99,24 +81,40 @@ export async function CreateServiceRequestAction(
         notes,
         storeId,
       },
+      select: {
+        id: true,
+      },
     });
 
-    await sendTelegramMessage(`
-🚀 تم استلام طلب خدمة جديد
+    if (storeId) {
+      await createNotification({
+        storeId,
+        type: NotificationType.SERVICE_REQUEST_CREATED,
+        title: "تم إرسال طلب الخدمة",
+        message: `استلمنا طلب ${serviceTitle}. هنراجع التفاصيل ونتواصل معاك قريبًا.`,
+        href: "/dashboard/services",
+        data: {
+          serviceRequestId: request.id,
+          serviceId,
+          serviceTitle,
+        },
+      });
+    }
 
-📌 تفاصيل الطلب:
+    await sendTelegramMessage(`
+تم استلام طلب خدمة جديد
+تفاصيل الطلب:
 • الخدمة: ${serviceTitle}
 • الاسم: ${fullName}
 • الهاتف: ${phone}
 • الواتساب: ${whatsapp ?? "غير مضاف"}
 • رابط المتجر: ${storeLink ?? "غير مضاف"}
 • ملاحظات: ${notes ?? "لا يوجد"}
-
-🧭 لوحة المتابعة:
-https://yourdomain.com/admin/service-requests
+لوحة المتابعة: ${process.env.NEXT_PUBLIC_APP_URL ?? "https://yourdomain.com"}/admin/service-requests
 `);
 
     revalidatePath("/dashboard/services");
+    revalidatePath("/dashboard/notifications");
 
     return {
       success: true,
@@ -124,7 +122,6 @@ https://yourdomain.com/admin/service-requests
     };
   } catch (error) {
     console.error("CreateServiceRequestAction Error:", error);
-
     return {
       success: false,
       message: "حصل خطأ أثناء إرسال الطلب",

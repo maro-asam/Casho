@@ -6,7 +6,7 @@ export default function Loading() {
       role="status"
       aria-live="polite"
       aria-label="جاري التحميل"
-      className="flex min-h-screen w-full items-center justify-center bg-background px-6"
+      className="flex min-h-screen w-full items-center justify-center px-6"
     >
       <div className="relative flex h-24 w-24 items-center justify-center">
         <div className="absolute inset-0 animate-spin rounded-full border-4 border-muted border-t-primary" />

@@ -1,9 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { NotificationType, ServiceRequestStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { ServiceRequestStatus } from "@prisma/client";
+import {
+  createNotification,
+  serviceRequestStatusLabels,
+} from "@/lib/notifications/in-app";
 
 type UpdateServiceRequestStatusState = {
   success?: boolean;
@@ -25,32 +29,28 @@ export async function updateServiceRequestStatusAction(
   await requireAdmin();
 
   const requestId = formData.get("requestId")?.toString().trim();
-  const status = formData
-    .get("status")
-    ?.toString()
-    .trim() as ServiceRequestStatus;
+  const status = formData.get("status")?.toString().trim() as ServiceRequestStatus;
 
   if (!requestId) {
-    return {
-      error: "معرف الطلب غير موجود",
-    };
+    return { error: "معرف الطلب غير موجود" };
   }
 
   if (!allowedStatuses.includes(status)) {
-    return {
-      error: "الحالة غير صالحة",
-    };
+    return { error: "الحالة غير صالحة" };
   }
 
   const request = await prisma.serviceRequest.findUnique({
     where: { id: requestId },
-    select: { id: true },
+    select: {
+      id: true,
+      serviceTitle: true,
+      status: true,
+      storeId: true,
+    },
   });
 
   if (!request) {
-    return {
-      error: "الطلب غير موجود",
-    };
+    return { error: "الطلب غير موجود" };
   }
 
   await prisma.serviceRequest.update({
@@ -58,11 +58,26 @@ export async function updateServiceRequestStatusAction(
     data: { status },
   });
 
-  revalidatePath("/admin/service-requests");
+  if (request.storeId && request.status !== status) {
+    await createNotification({
+      storeId: request.storeId,
+      type: NotificationType.SERVICE_REQUEST_UPDATED,
+      title: "تحديث على طلب الخدمة",
+      message: `طلب ${request.serviceTitle} أصبح ${serviceRequestStatusLabels[status] ?? status}.`,
+      href: "/dashboard/services",
+      data: {
+        serviceRequestId: request.id,
+        previousStatus: request.status,
+        status,
+      },
+    });
+  }
 
-  return {
-    success: true,
-  };
+  revalidatePath("/admin/service-requests");
+  revalidatePath("/dashboard/services");
+  revalidatePath("/dashboard/notifications");
+
+  return { success: true };
 }
 
 export async function ApproveRemovePoweredByRequestAction(requestId: string) {
@@ -99,9 +114,7 @@ export async function ApproveRemovePoweredByRequestAction(requestId: string) {
 
     if (request.serviceId === "remove_powered_by_casho") {
       await tx.store.update({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        where: { id: request.storeId },
+        where: { id: request.storeId! },
         data: {
           poweredByRemovalEnabled: true,
           showPoweredByCasho: false,
@@ -110,9 +123,23 @@ export async function ApproveRemovePoweredByRequestAction(requestId: string) {
     }
   });
 
+  await createNotification({
+    storeId: request.storeId,
+    type: NotificationType.POWERED_BY_APPROVED,
+    title: "تمت الموافقة على إزالة Powered by Casho",
+    message: "تم تفعيل إزالة العلامة من متجرك بنجاح.",
+    href: "/dashboard/settings",
+    data: {
+      serviceRequestId: request.id,
+      serviceId: request.serviceId,
+    },
+  });
+
   revalidatePath("/admin/service-requests");
   revalidatePath("/admin/stores");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/notifications");
 }
 
 export async function RejectRemovePoweredByRequestAction(
@@ -123,7 +150,11 @@ export async function RejectRemovePoweredByRequestAction(
 
   const request = await prisma.serviceRequest.findUnique({
     where: { id: requestId },
-    select: { id: true },
+    select: {
+      id: true,
+      storeId: true,
+      serviceId: true,
+    },
   });
 
   if (!request) {
@@ -140,5 +171,20 @@ export async function RejectRemovePoweredByRequestAction(
     },
   });
 
+  if (request.storeId) {
+    await createNotification({
+      storeId: request.storeId,
+      type: NotificationType.POWERED_BY_REJECTED,
+      title: "تم رفض طلب إزالة Powered by Casho",
+      message: adminNote || "تم رفض الطلب. تقدر تتواصل مع الدعم لو محتاج تفاصيل.",
+      href: "/dashboard/settings",
+      data: {
+        serviceRequestId: request.id,
+        serviceId: request.serviceId,
+      },
+    });
+  }
+
   revalidatePath("/admin/service-requests");
+  revalidatePath("/dashboard/notifications");
 }

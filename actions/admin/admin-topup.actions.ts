@@ -1,11 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
+import {
+  BalanceTransactionType,
+  NotificationType,
+  TopupRequestStatus,
+} from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType, TopupRequestStatus } from "@prisma/client";
-import { requireAdmin } from "./admin-guard.actions";
-import { TryRenewStoreSubscriptionAction } from "../subscription/subscription.actions";
+import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { TryRenewStoreSubscriptionAction } from "@/actions/subscription/subscription.actions";
+import {
+  createNotification,
+  formatPiastersAsEgp,
+} from "@/lib/notifications/in-app";
 
 type ActionResult = {
   success: boolean;
@@ -57,9 +64,7 @@ export async function approveTopupRequestAction(
 
       await tx.store.update({
         where: { id: topupRequest.storeId },
-        data: {
-          balance: balanceAfter,
-        },
+        data: { balance: balanceAfter },
       });
 
       await tx.balanceTransaction.create({
@@ -78,14 +83,23 @@ export async function approveTopupRequestAction(
 
       await tx.topupRequest.update({
         where: { id: topupRequest.id },
-        data: {
-          status: TopupRequestStatus.APPROVED,
-        },
+        data: { status: TopupRequestStatus.APPROVED },
       });
     });
 
-    // محاولة تجديد الاشتراك تلقائيًا لو المتجر منتهي
     await TryRenewStoreSubscriptionAction(topupRequest.storeId);
+
+    await createNotification({
+      storeId: topupRequest.storeId,
+      type: NotificationType.TOPUP_APPROVED,
+      title: "تم اعتماد طلب الشحن",
+      message: `تمت إضافة ${formatPiastersAsEgp(topupRequest.amount)} لرصيد متجرك.`,
+      href: "/dashboard/balance",
+      data: {
+        topupRequestId: topupRequest.id,
+        amount: topupRequest.amount,
+      },
+    });
 
     revalidatePath("/admin");
     revalidatePath("/admin/topup-requests");
@@ -94,6 +108,7 @@ export async function approveTopupRequestAction(
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");
     revalidatePath("/dashboard/subscription");
+    revalidatePath("/dashboard/notifications");
 
     return {
       success: true,
@@ -101,7 +116,6 @@ export async function approveTopupRequestAction(
     };
   } catch (error) {
     console.error("approveTopupRequestAction Error:", error);
-
     return {
       success: false,
       message: "حدث خطأ أثناء اعتماد طلب الشحن",
@@ -119,6 +133,7 @@ export async function rejectTopupRequestAction(
       where: { id: topupRequestId },
       select: {
         id: true,
+        amount: true,
         status: true,
         storeId: true,
       },
@@ -140,8 +155,18 @@ export async function rejectTopupRequestAction(
 
     await prisma.topupRequest.update({
       where: { id: topupRequest.id },
+      data: { status: TopupRequestStatus.REJECTED },
+    });
+
+    await createNotification({
+      storeId: topupRequest.storeId,
+      type: NotificationType.TOPUP_REJECTED,
+      title: "تم رفض طلب الشحن",
+      message: `طلب شحن ${formatPiastersAsEgp(topupRequest.amount)} اترفض. راجع بيانات التحويل أو تواصل مع الدعم.`,
+      href: "/dashboard/balance",
       data: {
-        status: TopupRequestStatus.REJECTED,
+        topupRequestId: topupRequest.id,
+        amount: topupRequest.amount,
       },
     });
 
@@ -149,6 +174,7 @@ export async function rejectTopupRequestAction(
     revalidatePath("/admin/topup-requests");
     revalidatePath("/admin/stores");
     revalidatePath(`/admin/stores/${topupRequest.storeId}`);
+    revalidatePath("/dashboard/notifications");
 
     return {
       success: true,
@@ -156,7 +182,6 @@ export async function rejectTopupRequestAction(
     };
   } catch (error) {
     console.error("rejectTopupRequestAction Error:", error);
-
     return {
       success: false,
       message: "حدث خطأ أثناء رفض طلب الشحن",

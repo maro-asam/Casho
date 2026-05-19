@@ -18,6 +18,7 @@ model User {
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
   supportRequests     SupportRequest[]
+  notifications       Notification[]
 }
 
 model Session {
@@ -84,6 +85,7 @@ model Store {
   createdAt            DateTime              @default(now())
   supportRequests      SupportRequest[]
   storePaymentSettings StorePaymentSettings?
+  notifications        Notification[]
 
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -486,6 +488,46 @@ model SupportRequest {
   updatedAt DateTime @updatedAt
 
   @@index([status, createdAt])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  title     String
+  message   String
+  href      String?
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  storeId String?
+  store   Store?  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@index([storeId, readAt, createdAt])
+  @@index([type, createdAt])
+}
+
+enum NotificationType {
+  NEW_ORDER
+  ORDER_STATUS_CHANGED
+  TOPUP_REQUEST_CREATED
+  TOPUP_APPROVED
+  TOPUP_REJECTED
+  SERVICE_REQUEST_CREATED
+  SERVICE_REQUEST_UPDATED
+  SUPPORT_REQUEST_CREATED
+  POWERED_BY_APPROVED
+  POWERED_BY_REJECTED
+  SUBSCRIPTION_EXPIRING
+  SUBSCRIPTION_EXPIRED
+  STORE_ACTIVATED
+  STORE_PAST_DUE
+  SYSTEM
 }
 
 model BlogCategory {
