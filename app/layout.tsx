@@ -23,10 +23,7 @@ const cairoFont = Alexandria({
 export const metadata: Metadata = {
   metadataBase: new URL("https://casho.store"),
 
-  title: {
-    default: "كاشو | أنشئ متجرك الإلكتروني في دقائق وابدأ البيع أونلاين",
-    template: "كاشو | %s",
-  },
+  title: "كاشو | أنشئ متجرك الإلكتروني في دقائق وابدأ البيع أونلاين",
 
   description:
     "كاشو منصة عربية لإنشاء متجر إلكتروني احترافي في دقائق. استقبل الطلبات من رابط واحد، اعرض منتجاتك، وابدأ البيع أونلاين بسهولة بدون خبرة تقنية.",
