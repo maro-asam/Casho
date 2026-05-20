@@ -72,6 +72,7 @@ export async function CreateOrderAction(
     where: { slug: storeSlug },
     select: {
       id: true,
+      userId: true,
       slug: true,
       name: true,
       paymentMethods: true,
@@ -239,6 +240,7 @@ export async function CreateOrderAction(
 
   await createNotification({
     storeId: store.id,
+    userId: store.userId,
     type: NotificationType.NEW_ORDER,
     title: "طلب جديد وصل",
     message: `وصلك طلب جديد من ${data.fullName} بقيمة ${formatPiastersAsEgp(total)}.`,
@@ -376,6 +378,7 @@ export async function UpdateOrderStatusAction(
   if (order.status !== status) {
     await createNotification({
       storeId,
+      userId,
       type: NotificationType.ORDER_STATUS_CHANGED,
       title: "تم تحديث حالة الطلب",
       message: `طلب ${order.fullName} أصبح ${orderStatusLabels[status] ?? status}.`,

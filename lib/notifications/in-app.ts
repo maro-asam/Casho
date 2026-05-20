@@ -48,9 +48,20 @@ export async function createNotification(
   }
 
   try {
+    let resolvedUserId = input.userId ?? null;
+
+    if (!resolvedUserId && input.storeId) {
+      const storeOwner = await db.store.findUnique({
+        where: { id: input.storeId },
+        select: { userId: true },
+      });
+
+      resolvedUserId = storeOwner?.userId ?? null;
+    }
+
     return await db.notification.create({
       data: {
-        userId: input.userId ?? null,
+        userId: resolvedUserId,
         storeId: input.storeId ?? null,
         type: input.type,
         title: input.title,
@@ -65,7 +76,13 @@ export async function createNotification(
       },
     });
   } catch (error) {
-    console.error("createNotification Error:", error);
+    console.error("createNotification Error:", {
+      type: input.type,
+      userId: input.userId ?? null,
+      storeId: input.storeId ?? null,
+      error,
+    });
+
     return null;
   }
 }

@@ -9,12 +9,12 @@ export const TOPUP_METHODS = [
   {
     value: TopupMethod.INSTAPAY,
     label: "انستا باي",
-    instructions: "حوّل على: username@instapay",
+    instructions: "حوّل على: 01227984868",
   },
   {
     value: TopupMethod.BANK_TRANSFER,
     label: "تحويل بنكي",
-    instructions: "حوّل على الحساب البنكي المخصص للشحن",
+    instructions: "حوّل على الحساب البنكي : 1325001309133003032 - البنك الأهلي المصري",
   },
 ] as const;
 

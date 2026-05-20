@@ -98,17 +98,42 @@ export default function NotificationsBell({
   }, [unreadCount]);
 
   const refresh = useCallback(async () => {
-    const result = await GetNotificationsAction(10);
-    setNotifications(result.notifications);
-    setUnreadCount(result.unreadCount);
+    try {
+      const result = await GetNotificationsAction(10);
+
+      setNotifications(result.notifications);
+
+      setUnreadCount(result.unreadCount);
+    } catch (error) {
+      console.error("GetNotificationsAction Error:", error);
+    }
   }, []);
 
   useEffect(() => {
+    void refresh();
+
     const id = window.setInterval(() => {
       void refresh();
     }, pollEveryMs);
 
-    return () => window.clearInterval(id);
+    const handleFocus = () => {
+      void refresh();
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        void refresh();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [pollEveryMs, refresh]);
 
   function optimisticMarkAsRead(notificationId: string) {
