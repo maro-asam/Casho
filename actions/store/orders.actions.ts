@@ -51,7 +51,7 @@ function normalizeEnabledPaymentMethods(
 
 function toKashierAllowedMethods(methods: string[]) {
   return methods.filter((method): method is KashierAllowedMethod => {
-    return kashierAllowedMethodKeys.has(method);
+    return kashierAllowedMethodKeys.has(method as KashierAllowedMethod);
   });
 }
 
