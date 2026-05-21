@@ -1,23 +1,18 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
 import {
-  BadgeCheck,
-  Check,
-  ChevronLeft,
+  CheckCircle2,
   Circle,
   CreditCard,
-  FolderTree,
   ImageIcon,
   Package,
-  Search,
-  Settings2,
-  Sparkles,
+  Rocket,
+  Tag,
   Truck,
   Wallet,
   X,
-  type LucideIcon,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,265 +21,170 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
-type StepIconName =
-  | "wallet"
-  | "category"
-  | "product"
-  | "banner"
-  | "payment"
-  | "shipping"
-  | "seo";
+type GuideIcon = "wallet" | "category" | "product" | "banner" | "payment" | "shipping" | "seo";
 
-type Step = {
+export type StarterGuideStep = {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   href: string;
   completed: boolean;
-  icon: StepIconName;
+  icon: GuideIcon;
 };
 
 type StarterGuideBarProps = {
-  steps: Step[];
+  steps: StarterGuideStep[];
 };
 
-const stepIcons: Record<StepIconName, LucideIcon> = {
+const guideIcons = {
   wallet: Wallet,
-  category: FolderTree,
+  category: Tag,
   product: Package,
   banner: ImageIcon,
   payment: CreditCard,
   shipping: Truck,
-  seo: Search,
+  seo: Rocket,
 };
+
+const STORAGE_KEY = "casho-starter-guide-hidden";
 
 export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
   const [isHidden, setIsHidden] = useState(false);
 
-  const { completedCount, totalSteps, progress, nextStep } = useMemo(() => {
-    const completedCount = steps.filter((step) => step.completed).length;
-    const totalSteps = steps.length;
-    const progress = totalSteps
-      ? Math.round((completedCount / totalSteps) * 100)
-      : 0;
+  useEffect(() => {
+    setIsHidden(window.localStorage.getItem(STORAGE_KEY) === "true");
+  }, []);
 
-    return {
-      completedCount,
-      totalSteps,
-      progress,
-      nextStep: steps.find((step) => !step.completed) ?? null,
-    };
-  }, [steps]);
+  const completedCount = useMemo(
+    () => steps.filter((step) => step.completed).length,
+    [steps],
+  );
+  const progress = steps.length ? Math.round((completedCount / steps.length) * 100) : 0;
+  const nextStep = steps.find((step) => !step.completed);
+  const isComplete = progress >= 100;
 
-  if (isHidden || totalSteps === 0 || completedCount === totalSteps) {
-    return null;
-  }
+  const handleHide = () => {
+    window.localStorage.setItem(STORAGE_KEY, "true");
+    setIsHidden(true);
+  };
+
+  if (isHidden || !steps.length) return null;
 
   return (
-    <section dir="rtl">
-      <Card className="relative overflow-hidden rounded-[28px] border border-border/60 bg-card shadow-sm p-0">
-        <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-28 -left-28 size-80 rounded-full bg-primary/10 blur-3xl" />
-
-        <CardContent className="relative p-0">
-          <div className="grid gap-0 lg:grid-cols-[360px_1fr]">
-            <aside className="border-b border-border/60 bg-muted/25 p-5 md:p-6 lg:border-b-0 lg:border-l">
-              <div className="flex items-start justify-between gap-4">
-                <Badge className="h-9 gap-2 rounded-full bg-primary/10 px-3 text-primary hover:bg-primary/10">
-                  <Sparkles className="size-4" />
-                  دليل تجهيز المتجر
+    <Card className="relative overflow-hidden rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-bl from-primary/12 via-transparent to-transparent" />
+      <CardContent className="relative p-5 sm:p-6">
+        <div className="grid gap-6 xl:grid-cols-[0.9fr_1.4fr] xl:items-start">
+          <div className="space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-2">
+                <Badge className="rounded-full border-0 bg-primary/10 text-primary hover:bg-primary/10">
+                  Setup playbook
                 </Badge>
-
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="size-9 rounded-full"
-                  onClick={() => setIsHidden(true)}
-                  aria-label="إخفاء الدليل"
-                >
-                  <X className="size-4" />
-                </Button>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <h2 className="text-2xl font-semibold tracking-tight">
-                  جهّز متجرك للبيع
-                </h2>
-
-                <p className="text-sm leading-7 text-muted-foreground">
-                  كمّل الخطوات الأساسية عشان متجرك يبقى جاهز لاستقبال الطلبات،
-                  الدفع، الشحن، والظهور بشكل أفضل في محركات البحث.
-                </p>
-              </div>
-
-              <div className="mt-6 rounded-3xl border bg-background/70 p-4">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      نسبة الاكتمال
-                    </p>
-                    <p className="text-2xl font-semibold text-primary">
-                      {progress}%
-                    </p>
-                  </div>
-
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <BadgeCheck className="size-6" />
-                  </div>
+                <div className="space-y-2">
+                  <h2 className="text-xl font-bold tracking-tight md:text-2xl">
+                    جهّز متجرك كأنه SaaS محترف
+                  </h2>
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    خلّي كل أساسيات البيع جاهزة: منتجات، دفع، شحن، و SEO. أول ما تخلصهم هتبدأ تقيس كل حاجة من الداشبورد.
+                  </p>
                 </div>
-
-                <Progress value={progress} className="h-2.5" />
-
-                <p className="mt-3 text-xs text-muted-foreground">
-                  تم إكمال {completedCount} من {totalSteps} خطوات
-                </p>
               </div>
 
-              {nextStep && (
-                <Button asChild className="mt-5 h-11 w-full rounded-2xl">
-                  <Link href={nextStep.href}>
-                    كمل الخطوة التالية
-                    <ChevronLeft className="size-4" />
-                  </Link>
-                </Button>
-              )}
-            </aside>
-
-            <div className="p-4 md:p-6">
-              {nextStep && (
-                <Link
-                  href={nextStep.href}
-                  className="mb-4 flex items-center justify-between gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-4 transition hover:bg-primary/10"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-                      <Settings2 className="size-5" />
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-medium text-primary">
-                        المطلوب الآن
-                      </p>
-                      <p className="font-semibold">{nextStep.title}</p>
-                      {nextStep.description && (
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {nextStep.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <ChevronLeft className="size-5 text-primary" />
-                </Link>
-              )}
-
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                {steps.map((step, index) => {
-                  const Icon = stepIcons[step.icon];
-                  const isNextStep = nextStep?.id === step.id;
-
-                  return (
-                    <GuideStepCard
-                      key={step.id}
-                      step={step}
-                      index={index}
-                      Icon={Icon}
-                      isNextStep={isNextStep}
-                    />
-                  );
-                })}
-              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-9 shrink-0 rounded-2xl"
+                onClick={handleHide}
+                aria-label="إخفاء دليل البداية"
+              >
+                <X className="size-4" />
+              </Button>
             </div>
+
+            <div className="rounded-[1.5rem] border border-border/70 bg-muted/30 p-4">
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-bold">نسبة الجاهزية</p>
+                  <p className="text-xs text-muted-foreground">
+                    {completedCount} من {steps.length} خطوات مكتملة
+                  </p>
+                </div>
+                <span className="text-2xl font-bold text-primary">{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+
+            {nextStep && !isComplete ? (
+              <div className="flex flex-col gap-3 rounded-[1.5rem] border border-primary/20 bg-primary/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                    Next best action
+                  </p>
+                  <p className="text-sm font-bold">{nextStep.title}</p>
+                </div>
+                <Button asChild className="rounded-2xl font-bold">
+                  <Link href={nextStep.href}>ابدأ الخطوة</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="rounded-[1.5rem] border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                كله تمام. المتجر جاهز للتشغيل والمتابعة من لوحة التحكم.
+              </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </section>
+
+          <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+            {steps.map((step) => (
+              <GuideStepCard key={step.id} step={step} />
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-type GuideStepCardProps = {
-  step: Step;
-  index: number;
-  Icon: LucideIcon;
-  isNextStep: boolean;
-};
-
-function GuideStepCard({ step, index, Icon, isNextStep }: GuideStepCardProps) {
-  const status = step.completed ? "completed" : isNextStep ? "next" : "pending";
+function GuideStepCard({ step }: { step: StarterGuideStep }) {
+  const Icon = guideIcons[step.icon];
 
   return (
     <Link
       href={step.href}
       className={cn(
-        "group relative min-h-40 overflow-hidden rounded-3xl border bg-background p-4 transition-all duration-200",
-        "hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md",
-        status === "completed" && "border-emerald-200 bg-emerald-500/5",
-        status === "next" && "border-primary/35 bg-primary/5 shadow-sm",
-        status === "pending" && "border-border/70",
+        "group rounded-[1.5rem] border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        step.completed
+          ? "border-emerald-500/20 bg-emerald-500/10"
+          : "border-border/70 bg-background/75 hover:border-primary/30",
       )}
     >
-      <div
-        className={cn(
-          "absolute inset-x-5 top-0 h-1 rounded-b-full opacity-0 transition",
-          status === "completed" && "bg-emerald-500 opacity-100",
-          status === "next" && "bg-primary opacity-100",
-        )}
-      />
-
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className={cn(
-            "flex size-12 items-center justify-center rounded-2xl border transition",
-            status === "completed" &&
-              "border-emerald-200 bg-emerald-500/10 text-emerald-700",
-            status === "next" && "border-primary/20 bg-primary/10 text-primary",
-            status === "pending" &&
-              "border-border bg-muted/50 text-muted-foreground",
-          )}
-        >
-          {status === "completed" ? (
-            <Check className="size-5" />
-          ) : status === "pending" ? (
-            <Circle className="size-4" />
-          ) : (
-            <Icon className="size-5" />
-          )}
-        </div>
-
+      <div className="mb-4 flex items-start justify-between gap-3">
         <span
           className={cn(
-            "rounded-full px-2.5 py-1 text-[11px] font-medium",
-            status === "completed" && "bg-emerald-500/10 text-emerald-700",
-            status === "next" && "bg-primary/10 text-primary",
-            status === "pending" && "bg-muted text-muted-foreground",
+            "grid size-10 place-items-center rounded-2xl",
+            step.completed ? "bg-emerald-500/15 text-emerald-600" : "bg-primary/10 text-primary",
           )}
         >
-          {status === "completed"
-            ? "مكتملة"
-            : status === "next"
-              ? "ابدأ هنا"
-              : `خطوة ${index + 1}`}
+          <Icon className="size-5" />
+        </span>
+        <span
+          className={cn(
+            "grid size-7 place-items-center rounded-full",
+            step.completed
+              ? "bg-emerald-500 text-white"
+              : "border border-border/70 bg-muted text-muted-foreground",
+          )}
+        >
+          {step.completed ? <CheckCircle2 className="size-4" /> : <Circle className="size-3" />}
         </span>
       </div>
 
-      <div className="mt-5 space-y-2">
-        <p className="text-xs text-muted-foreground">خطوة {index + 1}</p>
-
-        <h3 className="line-clamp-2 text-base font-semibold leading-7">
-          {step.title}
-        </h3>
-
-        {step.description && (
-          <p className="line-clamp-2 text-xs leading-6 text-muted-foreground">
-            {step.description}
-          </p>
-        )}
-      </div>
-
-      <div className="mt-4 flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition group-hover:opacity-100">
-        فتح الإعداد
-        <ChevronLeft className="size-3.5" />
+      <div className="space-y-1.5">
+        <h3 className="text-sm font-bold tracking-tight text-foreground">{step.title}</h3>
+        <p className="line-clamp-2 text-xs leading-6 text-muted-foreground">
+          {step.description}
+        </p>
       </div>
     </Link>
   );

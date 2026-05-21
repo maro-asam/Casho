@@ -35,23 +35,23 @@ export default function BoldHome({ store }: StoreThemeProps) {
 
             <div className="relative z-10 w-full space-y-8">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-2 border border-(--store-primary) bg-(--store-primary) px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-(--store-primary-foreground)">
+                <span className="inline-flex items-center gap-2 border border-(--store-primary) bg-(--store-primary) px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-(--store-primary-foreground)">
                   <Flame className="size-4" />
                   Bold Store
                 </span>
 
-                <span className="inline-flex items-center gap-2 border px-4 py-2 text-xs font-black uppercase tracking-[0.22em]">
+                <span className="inline-flex items-center gap-2 border px-4 py-2 text-xs font-bold uppercase tracking-[0.22em]">
                   Fast Checkout
                   <Zap className="size-4 text-(--store-primary)" />
                 </span>
               </div>
 
               <div className="space-y-5">
-                <p className="text-sm font-black uppercase tracking-[0.35em] text-(--store-primary)">
+                <p className="text-sm font-bold uppercase tracking-[0.35em] text-(--store-primary)">
                   {store.slug}
                 </p>
 
-                <h1 className="max-w-5xl text-[4.7rem] font-black uppercase leading-[0.78] tracking-[-0.08em] sm:text-[7rem] lg:text-[8.5rem] xl:text-[10rem]">
+                <h1 className="max-w-5xl text-[4.7rem] font-bold uppercase leading-[0.78] tracking-[-0.08em] sm:text-[7rem] lg:text-[8.5rem] xl:text-[10rem]">
                   {store.name}
                 </h1>
 
@@ -63,29 +63,29 @@ export default function BoldHome({ store }: StoreThemeProps) {
 
               <div className="grid max-w-3xl border sm:grid-cols-3">
                 <div className="border-b p-5 sm:border-b-0 sm:border-l">
-                  <p className="text-4xl font-black">
+                  <p className="text-4xl font-bold">
                     {featuredProducts.length}
                   </p>
 
-                  <p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+                  <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
                     Featured
                   </p>
                 </div>
 
                 <div className="border-b p-5 sm:border-b-0 sm:border-l">
-                  <p className="text-4xl font-black">
+                  <p className="text-4xl font-bold">
                     {store.categories.length}
                   </p>
 
-                  <p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+                  <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
                     Categories
                   </p>
                 </div>
 
                 <div className="p-5">
-                  <p className="text-4xl font-black">{store.products.length}</p>
+                  <p className="text-4xl font-bold">{store.products.length}</p>
 
-                  <p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+                  <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
                     Products
                   </p>
                 </div>
@@ -95,7 +95,7 @@ export default function BoldHome({ store }: StoreThemeProps) {
                 <Button
                   asChild
                   size="lg"
-                  className="h-13 rounded-none px-8 text-base font-black"
+                  className="h-13 rounded-none px-8 text-base font-bold"
                 >
                   <Link href={buildStoreUrl(store.slug, "/products")}>
                     تسوق الآن
@@ -107,7 +107,7 @@ export default function BoldHome({ store }: StoreThemeProps) {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-13 rounded-none px-8 text-base font-black"
+                  className="h-13 rounded-none px-8 text-base font-bold"
                 >
                   <Link href={buildStoreUrl(store.slug, "/categories")}>
                     التصنيفات
@@ -128,7 +128,7 @@ export default function BoldHome({ store }: StoreThemeProps) {
         </div>
 
         <div className="w-full border-y bg-(--store-primary) py-3 text-(--store-primary-foreground)">
-          <div className="mx-auto flex w-full max-w-screen-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 text-center text-xs font-black uppercase tracking-[0.22em] sm:text-sm sm:tracking-[0.25em]">
+          <div className="mx-auto flex w-full max-w-screen-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 text-center text-xs font-bold uppercase tracking-[0.22em] sm:text-sm sm:tracking-[0.25em]">
             <span>New Arrivals</span>
             <span>•</span>
             <span>Fast Shopping</span>
@@ -145,11 +145,11 @@ export default function BoldHome({ store }: StoreThemeProps) {
           <Reveal className="border-b pb-16">
             <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-(--store-primary)">
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-(--store-primary)">
                   Browse
                 </p>
 
-                <h2 className="mt-2 text-5xl font-black uppercase tracking-[-0.06em] md:text-7xl">
+                <h2 className="mt-2 text-5xl font-bold uppercase tracking-[-0.06em] md:text-7xl">
                   التصنيفات
                 </h2>
               </div>
@@ -157,7 +157,7 @@ export default function BoldHome({ store }: StoreThemeProps) {
               <Button
                 asChild
                 variant="outline"
-                className="rounded-none font-black"
+                className="rounded-none font-bold"
               >
                 <Link href={buildStoreUrl(store.slug, "/categories")}>
                   كل التصنيفات
@@ -185,11 +185,11 @@ export default function BoldHome({ store }: StoreThemeProps) {
                 <BadgePercent className="size-7" />
               </div>
 
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-(--store-primary)">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-(--store-primary)">
                 Featured
               </p>
 
-              <h2 className="mt-3 text-5xl font-black uppercase leading-[0.9] tracking-[-0.06em]">
+              <h2 className="mt-3 text-5xl font-bold uppercase leading-[0.9] tracking-[-0.06em]">
                 مختارات قوية
               </h2>
 
@@ -198,7 +198,7 @@ export default function BoldHome({ store }: StoreThemeProps) {
                 البوتيك.
               </p>
 
-              <Button asChild className="mt-7 rounded-none font-black">
+              <Button asChild className="mt-7 rounded-none font-bold">
                 <Link href={buildStoreUrl(store.slug, "/products")}>
                   كل المنتجات
                   <ArrowLeft className="ms-2 size-4" />
@@ -227,16 +227,16 @@ export default function BoldHome({ store }: StoreThemeProps) {
           <Reveal className="pt-16">
             <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-(--store-primary)">
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-(--store-primary)">
                   Catalog
                 </p>
 
-                <h2 className="mt-2 text-5xl font-black uppercase tracking-[-0.06em] md:text-7xl">
+                <h2 className="mt-2 text-5xl font-bold uppercase tracking-[-0.06em] md:text-7xl">
                   كل المنتجات
                 </h2>
               </div>
 
-              <Button asChild className="rounded-none font-black">
+              <Button asChild className="rounded-none font-bold">
                 <Link href={buildStoreUrl(store.slug, "/products")}>
                   عرض الكل
                 </Link>

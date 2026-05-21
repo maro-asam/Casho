@@ -21,7 +21,7 @@ export default function NotFound() {
                 Error 404
               </div>
 
-              <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
                 الصفحة غير موجودة
               </h1>
 

@@ -77,13 +77,13 @@ export default function ThemeProductCard({
 
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 text-white">
             {product.category?.name && (
-              <p className="mb-1 line-clamp-1 text-xs font-black uppercase tracking-[0.2em] text-white/70">
+              <p className="mb-1 line-clamp-1 text-xs font-bold uppercase tracking-[0.2em] text-white/70">
                 {product.category.name}
               </p>
             )}
 
             <Link href={productHref}>
-              <h3 className="line-clamp-2 text-xl font-black leading-tight transition hover:text-[var(--store-secondary)]">
+              <h3 className="line-clamp-2 text-xl font-bold leading-tight transition hover:text-[var(--store-secondary)]">
                 {product.name}
               </h3>
             </Link>
@@ -93,12 +93,12 @@ export default function ThemeProductCard({
         <CardContent className="grid gap-px bg-border p-0">
           <div className="grid grid-cols-[1fr_auto] bg-card">
             <div className="p-4">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">
                 السعر
               </p>
 
               <div className="mt-1 flex flex-wrap items-baseline gap-2">
-                <p className="text-2xl font-black text-[var(--store-primary)]">
+                <p className="text-2xl font-bold text-[var(--store-primary)]">
                   {formatPrice(product.price)}
                 </p>
 
@@ -176,7 +176,7 @@ export default function ThemeProductCard({
           <CardContent className="flex flex-col justify-between border-s p-5">
             <div>
               <div className="mb-6 flex items-center justify-between gap-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.32em] text-muted-foreground">
+                <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-muted-foreground">
                   Product Story
                 </p>
 
@@ -184,13 +184,13 @@ export default function ThemeProductCard({
               </div>
 
               {product.category?.name && (
-                <p className="mb-3 line-clamp-1 text-xs font-black uppercase tracking-[0.25em] text-[var(--store-primary)]">
+                <p className="mb-3 line-clamp-1 text-xs font-bold uppercase tracking-[0.25em] text-[var(--store-primary)]">
                   {product.category.name}
                 </p>
               )}
 
               <Link href={productHref}>
-                <h3 className="line-clamp-3 text-2xl font-black uppercase leading-[0.95] tracking-[-0.04em] transition hover:text-[var(--store-primary)]">
+                <h3 className="line-clamp-3 text-2xl font-bold uppercase leading-[0.95] tracking-[-0.04em] transition hover:text-[var(--store-primary)]">
                   {product.name}
                 </h3>
               </Link>
@@ -198,12 +198,12 @@ export default function ThemeProductCard({
 
             <div className="mt-8 space-y-4">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-muted-foreground">
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
                   السعر
                 </p>
 
                 <div className="mt-2 flex flex-wrap items-baseline gap-2">
-                  <p className="text-2xl font-black text-[var(--store-primary)]">
+                  <p className="text-2xl font-bold text-[var(--store-primary)]">
                     {formatPrice(product.price)}
                   </p>
 

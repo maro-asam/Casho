@@ -48,11 +48,11 @@ export default function MagazineHome({ store }: StoreThemeProps) {
               <div className="animate-in fade-in slide-in-from-bottom-5 duration-700 delay-700">
                 <div className="mb-6 flex items-center justify-center gap-4">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--store-primary)]">
+                    <p className="text-xs font-bold uppercase tracking-[0.35em] text-[var(--store-primary)]">
                       Featured Products
                     </p>
 
-                    <h2 className="mt-2 text-3xl font-black leading-tight tracking-[-0.04em] sm:text-4xl">
+                    <h2 className="mt-2 text-3xl font-bold leading-tight tracking-[-0.04em] sm:text-4xl">
                       المنتجات المميزة
                     </h2>
                   </div>
@@ -93,22 +93,22 @@ export default function MagazineHome({ store }: StoreThemeProps) {
 
             <div className="grid overflow-hidden rounded-(--store-radius) border bg-card/70 shadow-sm backdrop-blur sm:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-1000">
               <div className="border-b p-5 sm:border-b-0 sm:border-l">
-                <p className="text-3xl font-black">{store.products.length}</p>
-                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
+                <p className="text-3xl font-bold">{store.products.length}</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
                   Products
                 </p>
               </div>
 
               <div className="border-b p-5 sm:border-b-0 sm:border-l">
-                <p className="text-3xl font-black">{store.categories.length}</p>
-                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
+                <p className="text-3xl font-bold">{store.categories.length}</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
                   Categories
                 </p>
               </div>
 
               <div className="p-5">
-                <p className="text-3xl font-black">{featuredProducts.length}</p>
-                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
+                <p className="text-3xl font-bold">{featuredProducts.length}</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
                   Featured
                 </p>
               </div>
@@ -118,7 +118,7 @@ export default function MagazineHome({ store }: StoreThemeProps) {
       </section>
 
       <div className="overflow-hidden border-b bg-card py-3">
-        <div className="flex w-max animate-[magazineMarquee_30s_linear_infinite] items-center gap-8 whitespace-nowrap px-4 text-xs font-black uppercase tracking-[0.28em] text-muted-foreground">
+        <div className="flex w-max animate-[magazineMarquee_30s_linear_infinite] items-center gap-8 whitespace-nowrap px-4 text-xs font-bold uppercase tracking-[0.28em] text-muted-foreground">
           <span>New Collection</span>
           <span>•</span>
           <span>{store.name}</span>
@@ -146,11 +146,11 @@ export default function MagazineHome({ store }: StoreThemeProps) {
           <Reveal className="border-b pb-16">
             <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--store-primary)]">
+                <p className="text-xs font-bold uppercase tracking-[0.35em] text-[var(--store-primary)]">
                   Collections
                 </p>
 
-                <h2 className="mt-2 text-4xl font-black leading-tight tracking-[-0.04em] md:text-6xl">
+                <h2 className="mt-2 text-4xl font-bold leading-tight tracking-[-0.04em] md:text-6xl">
                   تسوق حسب التصنيف
                 </h2>
 
@@ -162,7 +162,7 @@ export default function MagazineHome({ store }: StoreThemeProps) {
               <Button
                 asChild
                 variant="outline"
-                className="rounded-full font-black"
+                className="rounded-full font-bold"
               >
                 <Link href={buildStoreUrl(store.slug, "/categories")}>
                   كل التصنيفات
@@ -188,11 +188,11 @@ export default function MagazineHome({ store }: StoreThemeProps) {
           <Reveal className={cn("border-b py-16", !hasCategories && "pt-0")}>
             <div className="mb-8 grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--store-primary)]">
+                <p className="text-xs font-bold uppercase tracking-[0.35em] text-[var(--store-primary)]">
                   Editor Picks
                 </p>
 
-                <h2 className="mt-2 text-4xl font-black leading-tight tracking-[-0.04em] md:text-6xl">
+                <h2 className="mt-2 text-4xl font-bold leading-tight tracking-[-0.04em] md:text-6xl">
                   اختيارات مميزة
                 </h2>
 
@@ -201,7 +201,7 @@ export default function MagazineHome({ store }: StoreThemeProps) {
                 </p>
               </div>
 
-              <div className="hidden items-center gap-2 rounded-full border bg-card px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-muted-foreground shadow-sm md:inline-flex">
+              <div className="hidden items-center gap-2 rounded-full border bg-card px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground shadow-sm md:inline-flex">
                 <BadgePercent className="size-4 text-[var(--store-primary)]" />
                 Featured
               </div>
@@ -233,11 +233,11 @@ export default function MagazineHome({ store }: StoreThemeProps) {
           >
             <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--store-primary)]">
+                <p className="text-xs font-bold uppercase tracking-[0.35em] text-[var(--store-primary)]">
                   Catalog
                 </p>
 
-                <h2 className="mt-2 text-4xl font-black tracking-[-0.04em] md:text-6xl">
+                <h2 className="mt-2 text-4xl font-bold tracking-[-0.04em] md:text-6xl">
                   أحدث المنتجات
                 </h2>
 
@@ -246,7 +246,7 @@ export default function MagazineHome({ store }: StoreThemeProps) {
                 </p>
               </div>
 
-              <Button asChild className="rounded-full font-black">
+              <Button asChild className="rounded-full font-bold">
                 <Link href={buildStoreUrl(store.slug, "/products")}>
                   عرض الكل
                   <ArrowLeft className="ms-2 size-4" />
@@ -272,12 +272,12 @@ export default function MagazineHome({ store }: StoreThemeProps) {
             <div className="rounded-[var(--store-radius)] border bg-card p-6 shadow-sm sm:p-8 lg:p-10">
               <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">
                     <Star className="size-4 text-[var(--store-primary)]" />
                     Explore More
                   </div>
 
-                  <h2 className="text-3xl font-black leading-tight tracking-[-0.03em] md:text-5xl">
+                  <h2 className="text-3xl font-bold leading-tight tracking-[-0.03em] md:text-5xl">
                     لسه فيه منتجات أكتر مستنياك
                   </h2>
 
@@ -287,7 +287,7 @@ export default function MagazineHome({ store }: StoreThemeProps) {
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <Button asChild size="lg" className="rounded-full font-black">
+                  <Button asChild size="lg" className="rounded-full font-bold">
                     <Link href={buildStoreUrl(store.slug, "/products")}>
                       كل المنتجات
                       <Package className="me-2 size-5" />
@@ -299,7 +299,7 @@ export default function MagazineHome({ store }: StoreThemeProps) {
                       asChild
                       size="lg"
                       variant="outline"
-                      className="rounded-full font-black"
+                      className="rounded-full font-bold"
                     >
                       <Link href={buildStoreUrl(store.slug, "/categories")}>
                         التصنيفات

@@ -32,7 +32,7 @@ const CashoLogo = ({
       </div>
 
       <div className={cn("flex flex-col leading-none", textClassName)}>
-        <span className="text-sm font-black tracking-tight">Casho</span>
+        <span className="text-sm font-bold tracking-tight">Casho</span>
 
         {withSubTitle ? (
           <span className="text-[11px] text-muted-foreground">

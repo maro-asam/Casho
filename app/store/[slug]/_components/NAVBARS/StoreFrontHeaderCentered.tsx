@@ -155,7 +155,7 @@ export default function StoreFrontHeaderCentered({
   const isOverlay = isHomePage;
 
   const linkClassName = cn(
-    "text-xs font-black uppercase tracking-[0.28em] transition",
+    "text-xs font-bold uppercase tracking-[0.28em] transition",
     isOverlay
       ? "text-white/90 hover:text-white"
       : "text-foreground/80 hover:text-foreground",
@@ -215,7 +215,7 @@ export default function StoreFrontHeaderCentered({
           )}
         >
           <div className="relative mx-auto flex min-h-10 max-w-screen-2xl items-center justify-center px-12 py-2">
-            <div className="flex items-center gap-2 text-center text-[11px] font-black uppercase tracking-[0.35em]">
+            <div className="flex items-center gap-2 text-center text-[11px] font-bold uppercase tracking-[0.35em]">
               <Megaphone className="h-4 w-4" />
               <p className="line-clamp-1">{announcementText}</p>
             </div>
@@ -278,7 +278,7 @@ export default function StoreFrontHeaderCentered({
             ) : (
               <span
                 className={cn(
-                  "text-4xl font-black uppercase tracking-tight",
+                  "text-4xl font-bold uppercase tracking-tight",
                   isOverlay ? "text-white" : "text-foreground",
                 )}
               >
@@ -341,7 +341,7 @@ export default function StoreFrontHeaderCentered({
             ) : (
               <span
                 className={cn(
-                  "truncate text-2xl font-black uppercase",
+                  "truncate text-2xl font-bold uppercase",
                   isOverlay ? "text-white" : "text-foreground",
                 )}
               >
@@ -391,7 +391,7 @@ export default function StoreFrontHeaderCentered({
                 <ShoppingCart className="h-4 w-4" />
                 <span
                   className={cn(
-                    "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-black",
+                    "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold",
                     isOverlay
                       ? "bg-white text-black"
                       : "bg-primary text-primary-foreground",
@@ -442,7 +442,7 @@ export default function StoreFrontHeaderCentered({
                 type="submit"
                 size="sm"
                 className={cn(
-                  "absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-full px-4 font-black lg:rounded-sm",
+                  "absolute left-1 top-1/2 h-9 -translate-y-1/2 rounded-full px-4 font-bold lg:rounded-sm",
                   isOverlay
                     ? "bg-white text-black hover:bg-white/90"
                     : "bg-primary text-primary-foreground",

@@ -32,7 +32,7 @@ const Header = async () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="flex items-center justify-between p-6">
-        <Link href="/" className="flex items-center gap-3 text-3xl font-black">
+        <Link href="/" className="flex items-center gap-3 text-3xl font-bold">
           {/* <div className="flex items-center justify-center rounded-xl bg-primary/10 p-3 text-primary">
             <Store className="h-7 w-7" />
           </div> */}

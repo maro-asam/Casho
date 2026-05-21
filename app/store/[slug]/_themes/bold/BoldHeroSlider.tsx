@@ -135,19 +135,19 @@ export default function BoldHeroSlider({
 
       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/75 via-black/20 to-transparent" />
 
-      <div className="absolute right-5 top-5 border border-white/25 bg-black/35 px-4 py-2 text-xs font-black uppercase tracking-[0.35em] text-white backdrop-blur">
+      <div className="absolute right-5 top-5 border border-white/25 bg-black/35 px-4 py-2 text-xs font-bold uppercase tracking-[0.35em] text-white backdrop-blur">
         Casho Drop
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 border-t border-white/20 bg-black/45 p-5 text-white backdrop-blur">
         <div className="mx-auto flex max-w-2xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mb-2 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-(--store-secondary)">
+            <p className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-(--store-secondary)">
               <Sparkles className="size-4" />
               Highlight
             </p>
 
-            <h2 className="line-clamp-2 text-2xl font-black leading-tight">
+            <h2 className="line-clamp-2 text-2xl font-bold leading-tight">
               {heroProduct?.name || "منتجات مختارة بعناية"}
             </h2>
           </div>
@@ -155,7 +155,7 @@ export default function BoldHeroSlider({
           {heroProduct && (
             <Link
               href={buildStoreUrl(storeSlug, `/products/${heroProduct.slug}`)}
-              className="inline-flex shrink-0 items-center justify-center border border-white/30 px-5 py-3 text-sm font-black transition hover:bg-white hover:text-black"
+              className="inline-flex shrink-0 items-center justify-center border border-white/30 px-5 py-3 text-sm font-bold transition hover:bg-white hover:text-black"
             >
               عرض المنتج
               <ArrowLeft className="ms-2 size-4" />

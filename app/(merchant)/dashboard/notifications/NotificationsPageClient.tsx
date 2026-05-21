@@ -152,7 +152,7 @@ export default function NotificationsPageClient({
           <Badge variant="outline" className="w-fit">
             Notifications
           </Badge>
-          <h1 className="text-2xl font-black tracking-tight md:text-3xl">الإشعارات</h1>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">الإشعارات</h1>
           <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
             هنا هتلاقي الأوردرات الجديدة، تحديثات الرصيد، طلبات الدعم، وأي حاجة مهمة تخص متجرك.
           </p>
@@ -192,7 +192,7 @@ export default function NotificationsPageClient({
           )}
         >
           <p className="text-sm text-muted-foreground">كل الإشعارات</p>
-          <p className="mt-1 text-2xl font-black">{notifications.length}</p>
+          <p className="mt-1 text-2xl font-bold">{notifications.length}</p>
         </button>
         <button
           type="button"
@@ -203,7 +203,7 @@ export default function NotificationsPageClient({
           )}
         >
           <p className="text-sm text-muted-foreground">غير مقروء</p>
-          <p className="mt-1 text-2xl font-black">{unreadCount}</p>
+          <p className="mt-1 text-2xl font-bold">{unreadCount}</p>
         </button>
         <button
           type="button"
@@ -214,7 +214,7 @@ export default function NotificationsPageClient({
           )}
         >
           <p className="text-sm text-muted-foreground">مقروء</p>
-          <p className="mt-1 text-2xl font-black">
+          <p className="mt-1 text-2xl font-bold">
             {notifications.length - unreadCount}
           </p>
         </button>

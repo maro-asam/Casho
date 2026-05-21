@@ -19,11 +19,11 @@ export default function ThemeEmptyProducts({
           <PackageOpen className="size-8 text-muted-foreground" />
         </div>
 
-        <p className="mb-3 text-xs font-black uppercase tracking-[0.3em] text-[var(--store-primary)]">
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-[var(--store-primary)]">
           Empty Catalog
         </p>
 
-        <h2 className="text-2xl font-black tracking-[-0.03em] sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-[-0.03em] sm:text-3xl">
           لا توجد منتجات متاحة حاليًا
         </h2>
 
@@ -33,7 +33,7 @@ export default function ThemeEmptyProducts({
         </p>
 
         <div className="mt-7">
-          <Button asChild variant="outline" className="rounded-full font-black">
+          <Button asChild variant="outline" className="rounded-full font-bold">
             <Link href={buildStoreUrl(storeSlug, "/categories")}>
               عرض التصنيفات
               <Grid3X3 className="me-2 size-4" />

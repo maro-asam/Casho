@@ -110,11 +110,11 @@ export default function BoutiqueHeroSlider({ store }: BoutiqueHeroSliderProps) {
           key={activeSlide?.id || "empty-slide"}
           className="max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-700 text-white"
         >
-          <p className="mb-4 text-xs font-black uppercase tracking-[0.38em] text-white/80 md:text-sm">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.38em] text-white/80 md:text-sm">
             {store.name}
           </p>
 
-          <h1 className="text-5xl font-black uppercase leading-snug tracking-tight md:text-6xl ">
+          <h1 className="text-5xl font-bold uppercase leading-snug tracking-tight md:text-6xl ">
             {activeSlide?.title || "New Collection"}
           </h1>
 
@@ -127,7 +127,7 @@ export default function BoutiqueHeroSlider({ store }: BoutiqueHeroSliderProps) {
             <Button
               asChild
               size="lg"
-              className="bg-white px-8 font-black text-black hover:bg-white/90"
+              className="bg-white px-8 font-bold text-black hover:bg-white/90"
             >
               <Link href={buildStoreUrl(store.slug, "/products")}>
                 تسوق الآن
@@ -140,7 +140,7 @@ export default function BoutiqueHeroSlider({ store }: BoutiqueHeroSliderProps) {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-white bg-transparent px-8 font-black text-white hover:bg-white hover:text-black"
+                className="border-white bg-transparent px-8 font-bold text-white hover:bg-white hover:text-black"
               >
                 <Link href={buildStoreUrl(store.slug, "/categories")}>
                   التصنيفات
