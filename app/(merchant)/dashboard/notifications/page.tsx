@@ -11,12 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NotificationsPage() {
-  const { notifications, unreadCount } = await GetNotificationsAction(50);
+  const { notifications } = await GetNotificationsAction(50);
 
-  return (
-    <NotificationsPageClient
-      initialNotifications={notifications}
-      initialUnreadCount={unreadCount}
-    />
-  );
+  return <NotificationsPageClient initialNotifications={notifications} />;
 }

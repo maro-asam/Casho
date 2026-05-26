@@ -2,12 +2,9 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
+import { Check, Navigation } from "lucide-react";
 
-import {
-  STORE_NAVBAR_VARIANTS,
-  type StoreNavbarVariant,
-} from "@/constants/store-navbar";
+import { STORE_NAVBAR_VARIANTS, type StoreNavbarVariant } from "@/constants/store-navbar";
 import { cn } from "@/lib/utils";
 import { UpdateNavbarVariantAction } from "@/actions/settings/update-navbar-variant.actions";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +13,56 @@ type NavbarVariantPickerProps = {
   storeId: string;
   currentVariant?: StoreNavbarVariant | null;
 };
+
+function NavbarPreview({ variant }: { variant: StoreNavbarVariant }) {
+  if (variant === "default") {
+    return (
+      <div className="space-y-2 rounded-xl border bg-muted/30 p-3">
+        <div className="flex h-9 items-center justify-between rounded-lg bg-background px-3 shadow-sm">
+          <div className="h-4 w-12 rounded-md bg-primary/25" />
+          <div className="flex gap-2">
+            <div className="h-1.5 w-9 rounded-full bg-foreground/15" />
+            <div className="h-1.5 w-9 rounded-full bg-foreground/15" />
+            <div className="h-1.5 w-9 rounded-full bg-foreground/15" />
+          </div>
+          <div className="h-6 w-8 rounded-md bg-foreground/10" />
+        </div>
+        <div className="h-2 w-4/5 rounded-full bg-muted-foreground/10" />
+      </div>
+    );
+  }
+
+  if (variant === "centered") {
+    return (
+      <div className="space-y-2 rounded-xl border bg-muted/30 p-3">
+        <div className="flex h-9 items-center rounded-lg bg-background px-3 shadow-sm">
+          <div className="flex flex-1 gap-2">
+            <div className="h-1.5 w-9 rounded-full bg-foreground/15" />
+            <div className="h-1.5 w-9 rounded-full bg-foreground/15" />
+          </div>
+          <div className="mx-2 h-6 w-6 rounded-full bg-primary/25" />
+          <div className="flex flex-1 justify-end">
+            <div className="h-6 w-9 rounded-md bg-foreground/10" />
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <div className="h-2 w-1/2 rounded-full bg-muted-foreground/10" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border bg-muted/30 p-3">
+      <div className="flex h-8 items-center gap-2 rounded-lg bg-background px-2 shadow-sm">
+        <div className="h-5 w-5 rounded-md bg-primary/25" />
+        <div className="h-5 flex-1 rounded-md bg-foreground/8" />
+        <div className="h-5 w-5 rounded-md bg-foreground/10" />
+        <div className="h-5 w-5 rounded-md bg-foreground/10" />
+      </div>
+    </div>
+  );
+}
 
 export default function NavbarVariantPicker({
   storeId,
@@ -26,27 +73,29 @@ export default function NavbarVariantPicker({
   const handleChange = (variant: StoreNavbarVariant) => {
     startTransition(async () => {
       const result = await UpdateNavbarVariantAction({ storeId, variant });
-
-      if (!result.success) {
+      if (result.success) {
+        toast.success(result.message);
+      } else {
         toast.error(result.message);
-        return;
       }
-
-      toast.success(result.message);
     });
   };
 
   return (
     <Card dir="rtl">
-      <CardContent className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold">اختار شكل الـ Navbar</h3>
-          <p className="text-sm text-muted-foreground">
-            التاجر يقدر يبدّل بين 3 أشكال مختلفة للنافبار
-          </p>
+      <CardContent className="space-y-5">
+        {/* Section Header */}
+        <div className="flex items-center gap-3">
+          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+            <Navigation className="size-4" />
+          </div>
+          <div>
+            <h2 className="font-semibold">شكل القائمة العلوية</h2>
+            <p className="text-xs text-muted-foreground">اختر تصميم الـ Navbar المناسب لمتجرك</p>
+          </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {STORE_NAVBAR_VARIANTS.map((item) => {
             const isActive = currentVariant === item.value;
 
@@ -54,68 +103,33 @@ export default function NavbarVariantPicker({
               <button
                 key={item.value}
                 type="button"
-                onClick={() => handleChange(item.value)}
+                onClick={() => !isActive && handleChange(item.value)}
                 disabled={isPending}
                 className={cn(
-                  "relative overflow-hidden rounded-xl border bg-background p-4 text-right transition",
-                  isActive && "border-primary ring-2 ring-primary/20",
+                  "relative overflow-hidden rounded-2xl border p-4 text-right transition-all duration-200",
+                  "disabled:pointer-events-none disabled:opacity-60",
+                  isActive
+                    ? "border-primary bg-primary/5 shadow-sm ring-2 ring-primary/20"
+                    : "border-border bg-background hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md",
                 )}
               >
                 {isActive && (
-                  <div className="absolute left-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white">
-                    <Check className="h-3.5 w-3.5" />
+                  <div className="absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm">
+                    <Check className="h-3 w-3" />
                   </div>
                 )}
 
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-semibold">{item.label}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {item.description}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold">{item.label}</h4>
+                      {isActive && (
+                        <span className="text-[10px] font-medium text-primary">مُفعّل</span>
+                      )}
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>
                   </div>
-
-                  <div className="rounded-xl border bg-muted/30 p-3">
-                    {item.value === "default" && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="h-8 w-16 rounded-xl bg-primary/20" />
-                          <div className="flex gap-2">
-                            <div className="h-3 w-12 rounded bg-foreground/10" />
-                            <div className="h-3 w-12 rounded bg-foreground/10" />
-                            <div className="h-3 w-12 rounded bg-foreground/10" />
-                          </div>
-                          <div className="h-8 w-10 rounded-xl bg-foreground/10" />
-                        </div>
-                        <div className="h-8 rounded-xl bg-foreground/5" />
-                      </div>
-                    )}
-
-                    {item.value === "centered" && (
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-3 items-center gap-2">
-                          <div className="flex gap-2">
-                            <div className="h-3 w-10 rounded bg-foreground/10" />
-                            <div className="h-3 w-10 rounded bg-foreground/10" />
-                          </div>
-                          <div className="mx-auto h-8 w-8 rounded-full bg-primary/20" />
-                          <div className="mr-auto h-8 w-16 rounded-xl bg-foreground/10" />
-                        </div>
-                        <div className="h-8 rounded-xl bg-foreground/5" />
-                      </div>
-                    )}
-
-                    {item.value === "compact" && (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-xl bg-foreground/10" />
-                          <div className="h-8 w-8 rounded-xl bg-primary/20" />
-                          <div className="h-8 flex-1 rounded-xl bg-foreground/5" />
-                          <div className="h-8 w-14 rounded-xl bg-foreground/10" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <NavbarPreview variant={item.value} />
                 </div>
               </button>
             );

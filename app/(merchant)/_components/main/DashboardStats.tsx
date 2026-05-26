@@ -1,11 +1,13 @@
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import {
   CheckCircle2,
   Clock3,
   Eye,
+  MousePointerClick,
+  Receipt,
   ShoppingCart,
   TrendingDown,
   TrendingUp,
@@ -50,25 +52,22 @@ const DashboardStats = async () => {
 
   if (!store) {
     return (
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-5">
-        <Card className="overflow-hidden rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 2xl:col-span-5">
-          <CardContent className="flex h-40 items-center justify-center p-6 text-center">
-            <div className="space-y-2">
-              <p className="text-lg font-bold text-foreground">لا يوجد متجر بعد</p>
-              <p className="text-sm text-muted-foreground">
-                أنشئ متجرك الأول حتى تظهر الإحصائيات هنا.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+      <Card className="overflow-hidden ... border-border bg-background shadow-sm">
+        <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+          لا يوجد متجر بعد
+        </div>
+      </Card>
     );
   }
 
   const now = new Date();
   const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const startOfPreviousMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1,
+  );
   const endOfPreviousMonth = startOfCurrentMonth;
 
   const [
@@ -89,10 +88,7 @@ const DashboardStats = async () => {
     previousMonthVisits,
   ] = await Promise.all([
     prisma.order.aggregate({
-      where: {
-        storeId: store.id,
-        status: { in: [...profitableStatuses] },
-      },
+      where: { storeId: store.id, status: { in: [...profitableStatuses] } },
       _sum: { total: true },
     }),
     prisma.order.count({ where: { storeId: store.id } }),
@@ -173,61 +169,95 @@ const DashboardStats = async () => {
   const currentMonthRevenue = currentMonthRevenueResult._sum.total ?? 0;
   const previousMonthRevenue = previousMonthRevenueResult._sum.total ?? 0;
 
+  const aov = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+  const currentMonthAOV =
+    currentMonthOrders > 0
+      ? Math.round(currentMonthRevenue / currentMonthOrders)
+      : 0;
+  const previousMonthAOV =
+    previousMonthOrders > 0
+      ? Math.round(previousMonthRevenue / previousMonthOrders)
+      : 0;
+
+  const cvr = totalVisits > 0 ? (totalOrders / totalVisits) * 100 : 0;
+  const currentMonthCVR =
+    currentMonthVisits > 0
+      ? (currentMonthOrders / currentMonthVisits) * 100
+      : 0;
+  const previousMonthCVR =
+    previousMonthVisits > 0
+      ? (previousMonthOrders / previousMonthVisits) * 100
+      : 0;
+
   const stats = [
     {
       title: "الزيارات",
-      subtitle: "Traffic",
       value: formatNumber(totalVisits),
-      change: calculatePercentageChange(currentMonthVisits, previousMonthVisits),
-      note: "هذا الشهر مقارنة بالسابق",
+      change: calculatePercentageChange(
+        currentMonthVisits,
+        previousMonthVisits,
+      ),
       icon: Eye,
-      accent: "from-indigo-500/25 to-indigo-500/5",
-      iconClassName: "bg-indigo-500/10 text-indigo-600",
+      iconClassName: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
     },
     {
       title: "إجمالي الأرباح",
-      subtitle: "Revenue",
       value: formatPrice(totalRevenue),
-      change: calculatePercentageChange(currentMonthRevenue, previousMonthRevenue),
-      note: "الطلبات المدفوعة والمكتملة",
+      change: calculatePercentageChange(
+        currentMonthRevenue,
+        previousMonthRevenue,
+      ),
       icon: Wallet,
-      accent: "from-emerald-500/25 to-emerald-500/5",
-      iconClassName: "bg-emerald-500/10 text-emerald-600",
+      iconClassName: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    },
+    {
+      title: "متوسط الطلب",
+      value: formatPrice(aov),
+      change: calculatePercentageChange(currentMonthAOV, previousMonthAOV),
+      icon: Receipt,
+      iconClassName: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
+    },
+    {
+      title: "معدل التحويل",
+      value: `${cvr.toFixed(1)}%`,
+      change: calculatePercentageChange(currentMonthCVR, previousMonthCVR),
+      icon: MousePointerClick,
+      iconClassName: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
     },
     {
       title: "إجمالي الطلبات",
-      subtitle: "Orders",
       value: formatNumber(totalOrders),
-      change: calculatePercentageChange(currentMonthOrders, previousMonthOrders),
-      note: "كل حالات الطلبات",
+      change: calculatePercentageChange(
+        currentMonthOrders,
+        previousMonthOrders,
+      ),
       icon: ShoppingCart,
-      accent: "from-sky-500/25 to-sky-500/5",
-      iconClassName: "bg-sky-500/10 text-sky-600",
+      iconClassName: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
     },
     {
       title: "طلبات معلقة",
-      subtitle: "Pending",
       value: formatNumber(pendingOrders),
-      change: calculatePercentageChange(currentMonthPendingOrders, previousMonthPendingOrders),
-      note: "محتاجة متابعة تشغيلية",
+      change: calculatePercentageChange(
+        currentMonthPendingOrders,
+        previousMonthPendingOrders,
+      ),
       icon: Clock3,
-      accent: "from-amber-500/25 to-amber-500/5",
-      iconClassName: "bg-amber-500/10 text-amber-600",
+      iconClassName: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
     },
     {
       title: "طلبات مكتملة",
-      subtitle: "Fulfilled",
       value: formatNumber(completedOrders),
-      change: calculatePercentageChange(currentMonthCompletedOrders, previousMonthCompletedOrders),
-      note: "مؤشر جودة التسليم",
+      change: calculatePercentageChange(
+        currentMonthCompletedOrders,
+        previousMonthCompletedOrders,
+      ),
       icon: CheckCircle2,
-      accent: "from-violet-500/25 to-violet-500/5",
-      iconClassName: "bg-violet-500/10 text-violet-600",
+      iconClassName: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
     },
   ];
 
   return (
-    <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <section className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
       {stats.map((stat) => {
         const isPositive = stat.change >= 0;
         const TrendIcon = isPositive ? TrendingUp : TrendingDown;
@@ -236,45 +266,37 @@ const DashboardStats = async () => {
         return (
           <Card
             key={stat.title}
-            className="group relative overflow-hidden rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+            className="border-border bg-background shadow-sm transition-shadow duration-200 hover:shadow-md"
           >
-            <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b", stat.accent)} />
-            <CardContent className="relative p-5">
-              <div className="mb-6 flex items-start justify-between gap-4">
-                <div className="min-w-0 space-y-1">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                    {stat.subtitle}
-                  </p>
-                  <p className="truncate text-sm font-bold text-muted-foreground">
-                    {stat.title}
-                  </p>
+            <div className="p-5">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div
+                  className={cn(
+                    "grid size-8 place-items-center rounded-lg",
+                    stat.iconClassName,
+                  )}
+                >
+                  <Icon className="size-4" />
                 </div>
-                <div className={cn("grid size-11 place-items-center rounded-2xl", stat.iconClassName)}>
-                  <Icon className="size-5" />
-                </div>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-bold",
+                    isPositive
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+                  )}
+                >
+                  <TrendIcon className="size-2.5" />
+                  {formatPercentageChange(stat.change)}
+                </span>
               </div>
-
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold tracking-tight text-foreground xl:text-3xl">
-                  {stat.value}
-                </h3>
-
-                <div className="flex items-center justify-between gap-3">
-                  <div
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
-                      isPositive ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600",
-                    )}
-                  >
-                    <TrendIcon className="size-3.5" />
-                    <span>{formatPercentageChange(stat.change)}</span>
-                  </div>
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    {stat.note}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
+              <p className="text-xl font-bold tracking-tight xl:text-2xl">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">
+                {stat.title}
+              </p>
+            </div>
           </Card>
         );
       })}

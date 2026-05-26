@@ -12,19 +12,16 @@ import {
   ShoppingBag,
   Store,
   ArrowUpLeft,
+  Sparkles,
 } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import RequestServiceDialog from "./_components/RequestServiceDialog";
 import { Metadata } from "next";
+
+import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import RequestServiceDialog from "./_components/RequestServiceDialog";
 
 export const metadata: Metadata = {
   title: "خدمات اضافية",
@@ -56,26 +53,20 @@ const brandingServices: ServiceItem[] = [
   {
     id: "store-banner-design",
     title: "تصميم بنرات المتجر",
-    description:
-      "بنرات وكفرات احترافية للعروض والمنتجات بشكل يلفت العميل بسرعة.",
+    description: "بنرات وكفرات احترافية للعروض والمنتجات بشكل يلفت العميل بسرعة.",
     price: "يبدأ من 599 جنيه",
     duration: "1 - 3 أيام",
     icon: BrushCleaning,
-    features: [
-      "بانر رئيسي للمتجر",
-      "تصميم متناسق مع البراند",
-      "جاهز للرفع فورًا",
-    ],
+    features: ["بانر رئيسي للمتجر", "تصميم متناسق مع البراند", "جاهز للرفع فورًا"],
   },
   {
     id: "delete-powered-by-casho",
-    title: "ازالة يتم التشغيل بواسطة كاشو",
-    description:
-      "ازالة شعار كاشو من المتجر تدي مظهر احترافي وتخلي البراند بتاعك هو البطل.",
+    title: "إزالة يتم التشغيل بواسطة كاشو",
+    description: "إزالة شعار كاشو من المتجر تدي مظهر احترافي وتخلي البراند بتاعك هو البطل.",
     price: "150 ج.م",
-    duration: "شهريا",
+    duration: "شهريًا",
     icon: LayoutTemplate,
-    features: ["ازالة شعار كاشو", "مظهر أكثر احترافية", "تجربة مستخدم أنظف"],
+    features: ["إزالة شعار كاشو", "مظهر أكثر احترافية", "تجربة مستخدم أنظف"],
   },
 ];
 
@@ -93,8 +84,7 @@ const contentServices: ServiceItem[] = [
   {
     id: "product-description",
     title: "كتابة وصف المنتجات",
-    description:
-      "كتابة وصف احترافي ومنظم للمنتجات بدل الوصف العشوائي أو الناقص.",
+    description: "كتابة وصف احترافي ومنظم للمنتجات بدل الوصف العشوائي أو الناقص.",
     price: "يبدأ من 499 جنيه",
     duration: "1 - 3 أيام",
     icon: FileText,
@@ -103,8 +93,7 @@ const contentServices: ServiceItem[] = [
   {
     id: "social-posts-package",
     title: "باكدج بوستات سوشيال",
-    description:
-      "بوستات جاهزة للنشر تساعدك تنشط صفحتك وتعرض منتجاتك بشكل أفضل.",
+    description: "بوستات جاهزة للنشر تساعدك تنشط صفحتك وتعرض منتجاتك بشكل أفضل.",
     price: "يبدأ من 1299 جنيه",
     duration: "3 - 6 أيام",
     icon: ImageIcon,
@@ -115,34 +104,23 @@ const contentServices: ServiceItem[] = [
 const operationServices: ServiceItem[] = [
   {
     id: "moderator",
-    title: "ادارة البيزنس",
-    description:
-      "الرد على العملاء والاستفسارات بسرعة بدل ما الأوردرات تضيع وسط الرسائل.",
+    title: "إدارة البيزنس",
+    description: "الرد على العملاء والاستفسارات بسرعة بدل ما الأوردرات تضيع وسط الرسائل.",
     price: "يبدأ من 2499 جنيه / شهريًا",
     duration: "خدمة شهرية",
     icon: MessageCircleMore,
     popular: true,
-    features: [
-      "الرد على الرسائل",
-      "تنظيم الاستفسارات",
-      "تسريع التواصل مع العملاء",
-    ],
+    features: ["الرد على الرسائل", "تنظيم الاستفسارات", "تسريع التواصل مع العملاء"],
   },
   {
     id: "product-uploading",
     title: "رفع المنتجات",
-    description:
-      "نرفع المنتجات ونرتبها داخل المتجر بدل ما تضيع وقتك في الإدخال والتنسيق.",
+    description: "نرفع المنتجات ونرتبها داخل المتجر بدل ما تضيع وقتك في الإدخال والتنسيق.",
     price: "يبدأ من 399 جنيه",
     duration: "حسب عدد المنتجات",
     icon: PackagePlus,
-    features: [
-      "إدخال المنتجات",
-      "تنسيق الاسم والسعر",
-      "ترتيب أفضل داخل المتجر",
-    ],
+    features: ["إدخال المنتجات", "تنسيق الاسم والسعر", "ترتيب أفضل داخل المتجر"],
   },
-
   {
     id: "monthly-store-management",
     title: "إدارة شهرية للمتجر",
@@ -154,85 +132,69 @@ const operationServices: ServiceItem[] = [
   },
 ];
 
-function ServiceCard({
-  service,
-  storeId,
-}: {
-  service: ServiceItem;
-  storeId?: string;
-}) {
+function ServiceCard({ service, storeId }: { service: ServiceItem; storeId?: string }) {
   const Icon = service.icon;
 
   return (
     <Card
       dir="rtl"
-      className="group h-full rounded-xl border-border/70 bg-background shadow-sm transition-all"
+      className={cn(
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-200",
+        "hover:-translate-y-1 hover:shadow-lg",
+        service.popular
+          ? "border-primary/30 shadow-sm shadow-primary/5"
+          : "border-border/60",
+      )}
     >
-      <CardHeader className="space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+      {service.popular && (
+        <div className="bg-primary px-4 py-1.5 text-center text-xs font-semibold text-primary-foreground">
+          ⭐ الأكثر طلبًا
+        </div>
+      )}
+
+      <CardContent className="flex flex-1 flex-col gap-5 p-5">
+        <div className="flex items-start gap-3">
+          <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
             <Icon className="size-5" />
           </div>
-
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {service.popular && (
-              <Badge className="rounded-xl px-3 py-1 text-xs">
-                الأكثر طلبًا
-              </Badge>
-            )}
-            <Badge variant="secondary" className="rounded-xl px-3 py-1 text-xs">
-              خدمة إضافية
-            </Badge>
+          <div className="min-w-0 flex-1 pt-0.5">
+            <h3 className="font-bold leading-snug">{service.title}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {service.description}
+            </p>
           </div>
         </div>
 
-        <div className="space-y-2 text-right">
-          <CardTitle className="text-xl font-semibold leading-8">
-            {service.title}
-          </CardTitle>
-          <CardDescription className="text-right text-sm leading-7 text-muted-foreground">
-            {service.description}
-          </CardDescription>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-5">
-        <div className="grid grid-cols-1 gap-3 rounded-xl border border-border/20 bg-muted/30 p-4 sm:grid-cols-2">
-          <div className="space-y-1 text-right">
-            <p className="text-xs text-muted-foreground">السعر</p>
-            <p className="font-semibold">{service.price}</p>
-          </div>
-
-          <div className="space-y-1 text-right">
-            <p className="text-xs text-muted-foreground">مدة التنفيذ</p>
-            <div className="flex items-center justify-end gap-2 font-semibold">
-              <span>{service.duration}</span>
-              <Clock3 className="size-4 text-primary" />
-            </div>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
+            {service.price}
+          </span>
+          <span className="flex items-center gap-1.5 rounded-lg bg-muted/60 px-3 py-1.5 text-sm text-muted-foreground">
+            <Clock3 className="size-3.5 shrink-0" />
+            {service.duration}
+          </span>
         </div>
 
-        <div className="space-y-3 text-right w-full" dir="rtl">
-          <p className="text-sm font-semibold">الخدمة تشمل:</p>
-
-          <div className="space-y-2 text-right w-full">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            الخدمة تشمل
+          </p>
+          <ul className="space-y-1.5">
             {service.features.map((feature) => (
-              <div
-                dir="ltr"
-                key={feature}
-                className="flex items-center justify-end gap-2 text-sm text-right text-muted-foreground"
-              >
-                <span>{feature}</span>
+              <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <BadgeCheck className="size-4 shrink-0 text-primary" />
-              </div>
+                <span>{feature}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
-        <RequestServiceDialog
-          service={{ id: service.id, title: service.title }}
-          storeId={storeId}
-        />
+        <div className="mt-auto pt-1">
+          <RequestServiceDialog
+            service={{ id: service.id, title: service.title }}
+            storeId={storeId}
+          />
+        </div>
       </CardContent>
     </Card>
   );
@@ -248,33 +210,40 @@ function SectionHeader({
   description: string;
 }) {
   return (
-    <div
-      dir="rtl"
-      className="mb-6 flex flex-col gap-4 rounded-xl border border-border/20 bg-primary/10 p-5 md:flex-row md:items-center md:justify-between "
-    >
-      <div className="text-right">
-        <h2 className="text-2xl font-semibold text-primary">{title}</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
-          {description}
-        </p>
+    <div dir="rtl" className="mb-5 flex items-center gap-3">
+      <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="size-4" />
       </div>
-
-      <div className="flex size-14 shrink-0 items-center justify-center self-end rounded-xl bg-primary/10 text-primary md:self-auto">
-        <Icon className="size-6" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-3">
+          <h2 className="whitespace-nowrap text-base font-bold">{title}</h2>
+          <div className="h-px flex-1 bg-border/60" />
+        </div>
+        <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
       </div>
     </div>
   );
 }
 
-const ServicesRoute = () => {
+export default async function ServicesRoute() {
+  const userId = await requireUserId();
+  const store = await prisma.store.findFirst({
+    where: { userId },
+    select: { id: true },
+  });
+
   return (
-    <main className="wrapper py-3" dir="rtl">
-      <section className="relative overflow-hidden rounded-xl border border-border/80 px-6 py-8 shadow-sm md:px-10 ">
-        <div className="relative mx-auto max-w-4xl text-center">
-          {/* <Badge className="mb-4 rounded-xl px-4 py-3 text-sm">
-            <Sparkles className="size-4" />
+    <div className="space-y-10" dir="rtl">
+      {/* ── Hero ── */}
+      <section className="relative overflow-hidden rounded-2xl border border-border/60 px-8 py-10 text-center shadow-sm">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />
+
+        <div className="relative">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+            <Sparkles className="size-3.5" />
             خدمات إضافية تساعدك تبيع أكتر
-          </Badge> */}
+          </div>
 
           <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
             كل اللي متجرك محتاجه
@@ -290,73 +259,67 @@ const ServicesRoute = () => {
         </div>
       </section>
 
-      <section className="mt-10 space-y-10">
-        <section>
-          <SectionHeader
-            icon={Palette}
-            title="خدمات الهوية والتأسيس"
-            description="خدمات تساعدك تخلي متجرك شكله احترافي من البداية وتجهز البراند بشكل يدي ثقة أكبر للعميل."
-          />
-
-          <div className="grid gap-5 lg:grid-cols-3">
-            {brandingServices.map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <SectionHeader
-            icon={PenSquare}
-            title="خدمات المحتوى"
-            description="مناسبة للتاجر اللي محتاج يعرض منتجاته بشكل أحسن ويكون عنده محتوى جاهز يساعده في البيع والتسويق."
-          />
-
-          <div className="grid gap-5 lg:grid-cols-3">
-            {contentServices.map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <SectionHeader
-            icon={ShoppingBag}
-            title="خدمات التشغيل والمبيعات"
-            description="الخدمات دي تساعدك تشغل المتجر بشكل أسهل، تتابع العملاء، وتوفر وقتك في الحاجات اليومية المتكررة."
-          />
-
-          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
-            {operationServices.map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-          </div>
-        </section>
+      {/* ── Branding ── */}
+      <section>
+        <SectionHeader
+          icon={Palette}
+          title="خدمات الهوية والتأسيس"
+          description="خدمات تساعدك تخلي متجرك شكله احترافي من البداية وتجهز البراند بشكل يدي ثقة أكبر للعميل."
+        />
+        <div className="grid gap-5 lg:grid-cols-3">
+          {brandingServices.map((service) => (
+            <ServiceCard key={service.id} service={service} storeId={store?.id} />
+          ))}
+        </div>
       </section>
 
-      <section className="mt-12">
-        <Card
-          dir="rtl"
-          className="rounded-[28px] border-border/20 bg-primary/5 shadow-sm"
-        >
-          <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between md:p-8">
-            <div className="text-right">
-              <h3 className="text-2xl font-semibold">عايز خدمة مخصصة؟</h3>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
-                لو محتاج خدمة مش موجودة فوق، زي إدارة إعلانات، تجهيز كامل
-                للمتجر، أو باكدج مخصوص ليك، ابعت طلبك وهنراجع أنسب حل ليك.
+      {/* ── Content ── */}
+      <section>
+        <SectionHeader
+          icon={PenSquare}
+          title="خدمات المحتوى"
+          description="مناسبة للتاجر اللي محتاج يعرض منتجاته بشكل أحسن ويكون عنده محتوى جاهز يساعده في البيع والتسويق."
+        />
+        <div className="grid gap-5 lg:grid-cols-3">
+          {contentServices.map((service) => (
+            <ServiceCard key={service.id} service={service} storeId={store?.id} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Operations ── */}
+      <section>
+        <SectionHeader
+          icon={ShoppingBag}
+          title="خدمات التشغيل والمبيعات"
+          description="الخدمات دي تساعدك تشغل المتجر بشكل أسهل، تتابع العملاء، وتوفر وقتك في الحاجات اليومية المتكررة."
+        />
+        <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          {operationServices.map((service) => (
+            <ServiceCard key={service.id} service={service} storeId={store?.id} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Custom CTA ── */}
+      <section className="pb-4">
+        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-linear-to-l from-primary/8 via-background to-sky-500/5 p-8">
+          <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-sky-500/8 blur-3xl" />
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h3 className="text-xl font-bold">عايز خدمة مخصصة؟</h3>
+              <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
+                لو محتاج خدمة مش موجودة فوق، زي إدارة إعلانات، تجهيز كامل للمتجر، أو باكدج مخصوص ليك،
+                ابعت طلبك وهنراجع أنسب حل ليك.
               </p>
             </div>
-
-            <Button size="lg" className="h-12 rounded-xl px-6">
+            <Button size="lg" className="h-11 shrink-0 rounded-xl px-6">
               اطلب خدمة مخصصة
               <ArrowUpLeft className="ms-2 size-4" />
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </section>
-    </main>
+    </div>
   );
-};
-
-export default ServicesRoute;
+}

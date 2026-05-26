@@ -20,7 +20,7 @@ const REGION_STYLES: Record<PaymentRegion, string> = {
 
 export default function PaymentMethodsSection() {
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-primary/15 bg-background px-4 py-10 shadow-sm md:px-8 md:py-14">
+    <section className="relative overflow-hidden ... border border-primary/15 bg-background px-4 py-10 shadow-sm md:px-8 md:py-14">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.14),transparent_34%)]" />
 
       <div className="relative mx-auto max-w-7xl space-y-10">

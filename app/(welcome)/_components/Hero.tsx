@@ -252,7 +252,7 @@ export default function HeroSection() {
                         initial={{ opacity: 0, x: 18 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.45, delay: 0.15 * index }}
-                        className="flex items-center justify-between rounded-xl border border-border/50 bg-background/80 p-3"
+                        className="flex items-center justify-between rounded-xl border border-border bg-background/80 p-3"
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -295,7 +295,7 @@ export default function HeroSection() {
                   <p className="mt-1 text-xs leading-6 text-muted-foreground">
                     {HERO_CONTENT.alertCard.description}
                   </p>
-                  <div className="mt-4 flex items-center justify-between rounded-xl border border-border/50 bg-background/70 px-3 py-2 text-xs">
+                  <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-background/70 px-3 py-2 text-xs">
                     <span className="text-muted-foreground">
                       {HERO_CONTENT.alertCard.product}
                     </span>

@@ -29,7 +29,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const userId = await requireUserId();
   const store = await prisma.store.findFirst({
     where: { userId },

@@ -2,16 +2,31 @@
 
 import { useActionState, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { ImageIcon, Loader2, Upload, X } from "lucide-react";
+import {
+  Eye,
+  ImageIcon,
+  Layers3,
+  Loader2,
+  PackagePlus,
+  Star,
+  Upload,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { CreateProductAction } from "@/actions/products/products.actions";
-
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -19,32 +34,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import TagInput from "./TagInput";
+import AttributesInput from "./AttributesInput";
 
-type Category = {
-  id: string;
-  name: string;
-};
+type Category = { id: string; name: string };
 
-type CreateProductFormProps = {
-  categories: Category[];
-};
+function OptionalBadge() {
+  return (
+    <span className="ms-1.5 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-normal text-muted-foreground">
+      اختياري
+    </span>
+  );
+}
 
-const initialState = {
-  success: false,
-  message: "",
-};
+const initialState = { success: false, message: "" };
 
 export default function CreateProductForm({
   categories,
-}: CreateProductFormProps) {
+}: {
+  categories: Category[];
+}) {
   const [state, formAction, isPending] = useActionState(
     CreateProductAction,
     initialState,
   );
-
   const [categoryId, setCategoryId] = useState("");
 
-  // الصورة الأساسية
   const [imageInputMode, setImageInputMode] = useState<"link" | "upload">(
     "link",
   );
@@ -52,8 +68,6 @@ export default function CreateProductForm({
   const [manualImageUrl, setManualImageUrl] = useState("");
   const [isUploadingMainImage, setIsUploadingMainImage] = useState(false);
 
-  // الصور الإضافية
-  const [manualAdditionalImages, setManualAdditionalImages] = useState("");
   const [uploadedAdditionalImages, setUploadedAdditionalImages] = useState<
     string[]
   >([]);
@@ -65,66 +79,46 @@ export default function CreateProductForm({
 
   useEffect(() => {
     if (!state?.message) return;
-
-    if (state.success) {
-      toast.success(state.message);
-    } else {
-      toast.error(state.message);
-    }
+    if (state.success) toast.success(state.message);
+    else toast.error(state.message);
   }, [state]);
 
-  const mergedAdditionalImages = useMemo(() => {
-    const manual = manualAdditionalImages
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    return [...manual, ...uploadedAdditionalImages];
-  }, [manualAdditionalImages, uploadedAdditionalImages]);
+  const mergedAdditionalImages = useMemo(
+    () => uploadedAdditionalImages,
+    [uploadedAdditionalImages],
+  );
 
   async function uploadToCloudinary(file: File) {
-    if (!cloudName || !uploadPreset) {
-      throw new Error(
-        "Cloudinary environment variables are missing. Add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
-      );
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-
-    const response = await fetch(
+    if (!cloudName || !uploadPreset)
+      throw new Error("Cloudinary env vars missing");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", uploadPreset);
+    fd.append("folder", "casho/uploads/products");
+    const res = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      },
+      { method: "POST", body: fd },
     );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.secure_url) {
+    const data = await res.json();
+    if (!res.ok || !data.secure_url)
       throw new Error(data?.error?.message || "فشل رفع الصورة");
-    }
-
     return data.secure_url as string;
   }
 
-  async function handleMainImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleMainImageUpload(
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try {
       setIsUploadingMainImage(true);
       const url = await uploadToCloudinary(file);
-
       setImagePreview(url);
       setManualImageUrl(url);
       setImageInputMode("upload");
-
-      toast.success("تم رفع الصورة الأساسية بنجاح");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "فشل رفع الصورة");
+      toast.success("تم رفع الصورة");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "فشل رفع الصورة");
     } finally {
       setIsUploadingMainImage(false);
       e.target.value = "";
@@ -136,375 +130,538 @@ export default function CreateProductForm({
   ) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-
     try {
       setIsUploadingAdditionalImages(true);
-
-      const uploadedUrls = await Promise.all(
-        files.map((file) => uploadToCloudinary(file)),
-      );
-
-      setUploadedAdditionalImages((prev) => [...prev, ...uploadedUrls]);
-
-      toast.success("تم رفع الصور الإضافية بنجاح");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "فشل رفع الصور");
+      const urls = await Promise.all(files.map(uploadToCloudinary));
+      setUploadedAdditionalImages((prev) => [...prev, ...urls]);
+      toast.success(`تم رفع ${urls.length} صور`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "فشل رفع الصور");
     } finally {
       setIsUploadingAdditionalImages(false);
       e.target.value = "";
     }
   }
 
-  function removeUploadedAdditionalImage(url: string) {
-    setUploadedAdditionalImages((prev) => prev.filter((item) => item !== url));
-  }
-
-  function handleManualImageChange(value: string) {
-    setManualImageUrl(value);
-    setImagePreview(value);
-    setImageInputMode("link");
-  }
+  const isUploading = isUploadingMainImage || isUploadingAdditionalImages;
 
   return (
-    <form action={formAction} className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="name">اسم المنتج</Label>
-          <Input id="name" name="name" placeholder="مثال: تيشيرت أسود" />
-        </div>
+    <form action={formAction}>
+      <div className="grid gap-5 lg:grid-cols-3">
+        {/* ═══ Main Content ═══ */}
+        <div className="space-y-5 lg:col-span-2">
+          {/* Card 1: Basic Info */}
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">المعلومات الأساسية</CardTitle>
+              <CardDescription>
+                اسم المنتج ووصفه التفصيلي — تظهر للعملاء مباشرة
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="name">
+                  اسم المنتج{" "}
+                  <span className="text-destructive" aria-hidden>
+                    *
+                  </span>
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="مثال: تيشيرت أسود قطني"
+                  className="rounded-xl"
+                  required
+                />
+              </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="description">وصف المنتج</Label>
-          <Textarea
-            id="description"
-            name="description"
-            placeholder="اكتب وصف مختصر وواضح للمنتج..."
-            className="min-h-28 resize-none"
-          />
-        </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="description">
+                  وصف المنتج
+                  <OptionalBadge />
+                </Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  placeholder="اكتب وصفًا واضحًا يشرح مميزات المنتج وتفاصيله..."
+                  className="min-h-28 resize-none rounded-xl"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="space-y-2">
-          <Label htmlFor="price">السعر الحالي</Label>
-          <Input
-            id="price"
-            name="price"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="مثال: 299.99"
-          />
-        </div>
+          {/* Card 2: Pricing & Inventory */}
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">التسعير والمخزون</CardTitle>
+              <CardDescription>
+                السعر والكمية المتاحة والتصنيف
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="price">
+                    السعر{" "}
+                    <span className="text-destructive" aria-hidden>
+                      *
+                    </span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="price"
+                      name="price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="rounded-xl pe-12"
+                      required
+                    />
+                    <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                      ج.م
+                    </span>
+                  </div>
+                </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="compareAtPrice">السعر قبل الخصم</Label>
-          <Input
-            id="compareAtPrice"
-            name="compareAtPrice"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="مثال: 399.99"
-          />
-        </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="compareAtPrice">
+                    السعر قبل الخصم
+                    <OptionalBadge />
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="compareAtPrice"
+                      name="compareAtPrice"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="rounded-xl pe-12"
+                    />
+                    <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                      ج.م
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    يظهر كسعر مشطوب بجانب سعر البيع
+                  </p>
+                </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="stock">المخزون</Label>
-          <Input
-            id="stock"
-            name="stock"
-            type="number"
-            min="0"
-            placeholder="مثال: 15"
-          />
-        </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="stock">
+                    الكمية المتاحة{" "}
+                    <span className="text-destructive" aria-hidden>
+                      *
+                    </span>
+                  </Label>
+                  <Input
+                    id="stock"
+                    name="stock"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="0"
+                    defaultValue="0"
+                    className="rounded-xl"
+                  />
+                </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="brand">البراند</Label>
-          <Input id="brand" name="brand" placeholder="مثال: Nike أو Samsung" />
-        </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="brand">
+                    البراند
+                    <OptionalBadge />
+                  </Label>
+                  <Input
+                    id="brand"
+                    name="brand"
+                    placeholder="مثال: Nike أو Samsung"
+                    className="rounded-xl"
+                  />
+                </div>
+              </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="weight">الوزن (اختياري)</Label>
-          <Input
-            id="weight"
-            name="weight"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="مثال: 0.5"
-          />
-        </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="categoryId">
+                  التصنيف{" "}
+                  <span className="text-destructive" aria-hidden>
+                    *
+                  </span>
+                </Label>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger id="categoryId" className="w-full rounded-xl">
+                    <SelectValue placeholder="اختر تصنيف المنتج" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <input type="hidden" name="categoryId" value={categoryId} />
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="space-y-2">
-          <Label htmlFor="categoryId">التصنيف</Label>
+          {/* Card 3: Images */}
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">الصور</CardTitle>
+              <CardDescription>
+                صورة أساسية وصور إضافية تظهر في معرض المنتج
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {/* Main Image */}
+              <div className="space-y-3">
+                <Label>الصورة الأساسية</Label>
+                <div className="flex overflow-hidden rounded-xl border">
+                  <button
+                    type="button"
+                    onClick={() => setImageInputMode("link")}
+                    className={`flex-1 py-2 text-sm transition ${
+                      imageInputMode === "link"
+                        ? "bg-primary font-medium text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    رابط URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageInputMode("upload")}
+                    className={`flex-1 py-2 text-sm transition ${
+                      imageInputMode === "upload"
+                        ? "bg-primary font-medium text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    رفع من الجهاز
+                  </button>
+                </div>
 
-          <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger id="categoryId" className="w-full">
-              <SelectValue placeholder="اختر التصنيف" />
-            </SelectTrigger>
-
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <input type="hidden" name="categoryId" value={categoryId} />
-        </div>
-
-        <div className="space-y-3 md:col-span-2">
-          <Label>الصورة الأساسية</Label>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant={imageInputMode === "link" ? "default" : "outline"}
-              onClick={() => setImageInputMode("link")}
-            >
-              إضافة برابط
-            </Button>
-
-            <Button
-              type="button"
-              variant={imageInputMode === "upload" ? "default" : "outline"}
-              onClick={() => setImageInputMode("upload")}
-            >
-              رفع صورة من علي الجهاز
-            </Button>
-          </div>
-
-          {imageInputMode === "link" ? (
-            <Input
-              id="image"
-              type="url"
-              placeholder="https://example.com/image.jpg"
-              value={manualImageUrl}
-              onChange={(e) => handleManualImageChange(e.target.value)}
-            />
-          ) : (
-            <div className="space-y-3">
-              <Label
-                htmlFor="main-image-upload"
-                className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 text-center transition hover:bg-muted/50"
-              >
-                {isUploadingMainImage ? (
-                  <>
-                    <Loader2 className="mb-2 size-5 animate-spin" />
-                    <span className="text-sm">جاري رفع الصورة...</span>
-                  </>
+                {imageInputMode === "link" ? (
+                  <Input
+                    type="url"
+                    placeholder="https://example.com/image.jpg"
+                    value={manualImageUrl}
+                    onChange={(e) => {
+                      setManualImageUrl(e.target.value);
+                      setImagePreview(e.target.value);
+                    }}
+                    className="rounded-xl"
+                  />
                 ) : (
-                  <>
-                    <Upload className="mb-2 size-5" />
-                    <span className="text-sm font-medium">
-                      اضغط لرفع الصورة الأساسية
-                    </span>
-                    <span className="mt-1 text-xs text-muted-foreground">
-                      PNG, JPG, WEBP
-                    </span>
-                  </>
+                  <Label
+                    htmlFor="main-image-upload"
+                    className="flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/30 text-center transition hover:bg-muted/50"
+                  >
+                    {isUploadingMainImage ? (
+                      <>
+                        <Loader2 className="size-5 animate-spin text-primary" />
+                        <span className="text-sm">جاري رفع الصورة...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="size-5 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                          اضغط لاختيار صورة
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          PNG، JPG، WEBP
+                        </span>
+                      </>
+                    )}
+                  </Label>
                 )}
-              </Label>
 
-              <Input
-                id="main-image-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleMainImageUpload}
-                disabled={isUploadingMainImage}
-              />
-            </div>
-          )}
+                <Input
+                  id="main-image-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleMainImageUpload}
+                  disabled={isUploadingMainImage}
+                />
+                <input type="hidden" name="image" value={manualImageUrl} />
+              </div>
 
-          <input type="hidden" name="image" value={manualImageUrl} />
+              <Separator />
+
+              {/* Additional Images */}
+              <div className="space-y-3">
+                <div>
+                  <Label>
+                    الصور الإضافية
+                    <OptionalBadge />
+                  </Label>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    تظهر في معرض صور المنتج بجانب الصورة الأساسية
+                  </p>
+                </div>
+
+                <Label
+                  htmlFor="additional-images-upload"
+                  className="flex min-h-20 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/30 text-center transition hover:bg-muted/50"
+                >
+                  {isUploadingAdditionalImages ? (
+                    <>
+                      <Loader2 className="size-5 animate-spin text-primary" />
+                      <span className="text-sm">جاري رفع الصور...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="size-5 text-muted-foreground" />
+                      <span className="text-sm font-medium">
+                        اضغط لرفع صور إضافية
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        يمكنك اختيار أكثر من صورة في وقت واحد
+                      </span>
+                    </>
+                  )}
+                </Label>
+                <Input
+                  id="additional-images-upload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleAdditionalImagesUpload}
+                  disabled={isUploadingAdditionalImages}
+                />
+
+                {mergedAdditionalImages.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {mergedAdditionalImages.map((url, i) => (
+                      <div
+                        key={`${url}-${i}`}
+                        className="relative overflow-hidden rounded-xl border"
+                      >
+                        <div className="relative aspect-square w-full">
+                          <Image
+                            src={url}
+                            alt={`صورة ${i + 1}`}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="absolute inset-e-1.5 top-1.5 size-6 rounded-full"
+                          onClick={() =>
+                            setUploadedAdditionalImages((prev) =>
+                              prev.filter((u) => u !== url),
+                            )
+                          }
+                        >
+                          <X className="size-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <input
+                  type="hidden"
+                  name="images"
+                  value={mergedAdditionalImages.join(", ")}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card 4: Attributes */}
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">
+                الخصائص والمزايا
+                <OptionalBadge />
+              </CardTitle>
+              <CardDescription>
+                أضف مقاسات وألوان ووسوم وأي خصائص خاصة بمنتجك
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label>المقاسات</Label>
+                  <TagInput
+                    name="sizes"
+                    placeholder="S, M, L, XL..."
+                    hint="اضغط Enter أو فاصلة لإضافة مقاس"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>الألوان</Label>
+                  <TagInput
+                    name="colors"
+                    placeholder="أسود، أبيض، أحمر..."
+                    hint="اضغط Enter أو فاصلة لإضافة لون"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>وسوم (Tags)</Label>
+                <TagInput
+                  name="tags"
+                  placeholder="جديد، الأكثر مبيعًا، عروض..."
+                  hint="تساعد العملاء في البحث عن المنتج بسهولة"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="weight">
+                  الوزن بالكيلو
+                  <OptionalBadge />
+                </Label>
+                <Input
+                  id="weight"
+                  name="weight"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="مثال: 0.5"
+                  className="rounded-xl"
+                />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium">
+                    خصائص مخصصة
+                    <OptionalBadge />
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    أضف أي معلومة إضافية غير موجودة فوق — المادة، بلد الصنع،
+                    تعليمات العناية...
+                  </p>
+                </div>
+                <AttributesInput />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="space-y-3 md:col-span-2">
-          <Label htmlFor="images">
-            الصور الإضافية
-            <span className="ms-2 text-xs text-muted-foreground">
-              تقدر تضيف روابط، أو ترفع صور، أو تستخدم الاتنين مع بعض
-            </span>
-          </Label>
-
-          <Input
-            id="images"
-            placeholder="https://img1.jpg, https://img2.jpg"
-            value={manualAdditionalImages}
-            onChange={(e) => setManualAdditionalImages(e.target.value)}
-          />
-
-          <div className="space-y-3">
-            <Label
-              htmlFor="additional-images-upload"
-              className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 text-center transition hover:bg-muted/50"
-            >
-              {isUploadingAdditionalImages ? (
-                <>
-                  <Loader2 className="mb-2 size-5 animate-spin" />
-                  <span className="text-sm">جاري رفع الصور...</span>
-                </>
-              ) : (
-                <>
-                  <Upload className="mb-2 size-5" />
-                  <span className="text-sm font-medium">
-                    اضغط لرفع صور إضافية
-                  </span>
-                  <span className="mt-1 text-xs text-muted-foreground">
-                    تقدر تختار أكتر من صورة
-                  </span>
-                </>
-              )}
-            </Label>
-
-            <Input
-              id="additional-images-upload"
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleAdditionalImagesUpload}
-              disabled={isUploadingAdditionalImages}
-            />
-          </div>
-
-          {uploadedAdditionalImages.length > 0 && (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {uploadedAdditionalImages.map((url, index) => (
-                <div
-                  key={`${url}-${index}`}
-                  className="relative overflow-hidden rounded-xl border bg-background"
-                >
-                  <div className="relative h-36 w-full">
+        {/* ═══ Sidebar ═══ */}
+        <div className="space-y-5">
+          {/* Image Preview */}
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">معاينة الصورة</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex min-h-48 items-center justify-center overflow-hidden rounded-xl border border-dashed bg-muted/20">
+                {imagePreview ? (
+                  <div className="relative aspect-square w-full overflow-hidden rounded-xl">
                     <Image
-                      src={url}
-                      alt={`صورة إضافية ${index + 1}`}
+                      src={imagePreview}
+                      alt="معاينة"
                       fill
-                      className="object-cover"
+                      className="object-contain"
                       unoptimized
                     />
                   </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 p-6 text-center text-muted-foreground">
+                    <ImageIcon className="size-8" />
+                    <p className="text-sm">الصورة ستظهر هنا</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="destructive"
-                    className="absolute left-2 top-2 size-8 rounded-full"
-                    onClick={() => removeUploadedAdditionalImage(url)}
-                  >
-                    <X className="size-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <input
-            type="hidden"
-            name="images"
-            value={mergedAdditionalImages.join(", ")}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="sizes">
-            المقاسات
-            <span className="ms-2 text-xs text-muted-foreground">
-              افصل بينهم بفاصلة
-            </span>
-          </Label>
-          <Input id="sizes" name="sizes" placeholder="S, M, L, XL" />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="colors">
-            الألوان
-            <span className="ms-2 text-xs text-muted-foreground">
-              افصل بينهم بفاصلة
-            </span>
-          </Label>
-          <Input id="colors" name="colors" placeholder="أسود, أبيض, أزرق" />
-        </div>
-
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="tags">
-            Tags
-            <span className="ms-2 text-xs text-muted-foreground">
-              افصل بينهم بفاصلة
-            </span>
-          </Label>
-          <Input
-            id="tags"
-            name="tags"
-            placeholder="صيفي, جديد, الأكثر مبيعًا"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-6 md:col-span-2">
-          <div className="flex items-center gap-2">
-            <Checkbox id="isActive" name="isActive" defaultChecked />
-            <Label htmlFor="isActive">نشط</Label>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox id="isFeatured" name="isFeatured" />
-            <Label htmlFor="isFeatured">مميز</Label>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox id="hasVariants" name="hasVariants" />
-            <Label htmlFor="hasVariants">المنتج له خيارات متعددة</Label>
-          </div>
-        </div>
-
-        <div className="space-y-3 md:col-span-2">
-          <Label>معاينة الصورة الأساسية</Label>
-
-          <div className="flex min-h-65 items-center justify-center overflow-hidden rounded-xl border border-dashed bg-muted/30">
-            {imagePreview ? (
-              <div className="relative h-65 w-full">
-                <Image
-                  src={imagePreview}
-                  alt="معاينة صورة المنتج"
-                  fill
-                  className="object-contain"
-                  unoptimized
+          {/* Publication Settings */}
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">إعدادات النشر</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition hover:bg-muted/30">
+                <Checkbox
+                  id="isActive"
+                  name="isActive"
+                  defaultChecked
+                  className="mt-0.5"
                 />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
-                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-background">
-                  <ImageIcon className="size-6" />
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-sm font-medium">
+                    <Eye className="size-3.5" />
+                    نشط ومرئي
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    يظهر المنتج للعملاء في المتجر
+                  </p>
                 </div>
-                <p className="text-sm font-medium">لا توجد صورة للمعاينة</p>
-                <p className="mt-1 text-xs">
-                  أضف رابط الصورة أو ارفعها وسيظهر الـ preview هنا
-                </p>
-              </div>
+              </label>
+
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition hover:bg-muted/30">
+                <Checkbox
+                  id="isFeatured"
+                  name="isFeatured"
+                  className="mt-0.5"
+                />
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-sm font-medium">
+                    <Star className="size-3.5" />
+                    منتج مميز
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    يُبرز في الواجهة والعروض الخاصة
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition hover:bg-muted/30">
+                <Checkbox
+                  id="hasVariants"
+                  name="hasVariants"
+                  className="mt-0.5"
+                />
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-sm font-medium">
+                    <Layers3 className="size-3.5" />
+                    له خيارات متعددة
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    مقاسات أو ألوان أو نسخ مختلفة
+                  </p>
+                </div>
+              </label>
+            </CardContent>
+          </Card>
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            className="w-full rounded-xl"
+            disabled={isPending || isUploading}
+            size="lg"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="me-2 size-4 animate-spin" />
+                جارٍ الإضافة...
+              </>
+            ) : (
+              <>
+                <PackagePlus className="me-2 size-4" />
+                إضافة المنتج
+              </>
             )}
-          </div>
+          </Button>
         </div>
       </div>
-
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={
-          isPending || isUploadingMainImage || isUploadingAdditionalImages
-        }
-      >
-        {isPending ? (
-          <>
-            <Loader2 className="me-2 size-4 animate-spin" />
-            جاري إنشاء المنتج...
-          </>
-        ) : (
-          "إنشاء المنتج"
-        )}
-      </Button>
     </form>
   );
 }

@@ -37,7 +37,7 @@ export function DashboardPageShell({
 }: DashboardPageShellProps) {
   return (
     <div dir="rtl" className={cn("space-y-6", className)}>
-      <Card className="relative overflow-hidden rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
+      <Card className="relative overflow-hidden ... border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-bl from-primary/12 via-transparent to-transparent" />
         <CardContent className="relative p-5 sm:p-6 lg:p-7">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -78,7 +78,7 @@ export function DashboardSurface({ children, className }: DashboardSurfaceProps)
   return (
     <Card
       className={cn(
-        "rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl",
+        "... border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl",
         className,
       )}
     >

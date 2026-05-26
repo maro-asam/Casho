@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Upload, Loader2, ImageIcon, Link2, FolderPlus, X } from "lucide-react";
-import { CreateCategoryAction } from "@/actions/admin/categories.actions";
+import { Upload, Loader2, ImageIcon, Link2, Save, X } from "lucide-react";
+import { UpdateCategoryAction } from "@/actions/admin/categories.actions";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-export default function CreateCategoryForm({ storeId }: { storeId: string }) {
+type EditCategoryFormProps = {
+  categoryId: string;
+  storeId: string;
+  defaultName: string;
+  defaultImage?: string | null;
+};
+
+export default function EditCategoryForm({
+  categoryId,
+  storeId,
+  defaultName,
+  defaultImage,
+}: EditCategoryFormProps) {
   const [isPending, startTransition] = useTransition();
   const [imageInputMode, setImageInputMode] = useState<"upload" | "link">(
-    "upload",
+    defaultImage ? "link" : "upload",
   );
-  const [imageValue, setImageValue] = useState("");
+  const [imageValue, setImageValue] = useState(defaultImage ?? "");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const router = useRouter();
@@ -53,7 +65,7 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
       setIsUploadingImage(true);
       const url = await uploadToCloudinary(file);
       setImageValue(url);
-      toast.success("تم رفع صورة التصنيف");
+      toast.success("تم رفع الصورة بنجاح");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "فشل رفع الصورة");
     } finally {
@@ -69,7 +81,8 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
       return;
     }
     startTransition(async () => {
-      const result = await CreateCategoryAction(
+      const result = await UpdateCategoryAction(
+        categoryId,
         storeId,
         name.trim(),
         imageValue.trim() || undefined,
@@ -78,7 +91,7 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
         toast.error(result.error);
         return;
       }
-      toast.success("تم إنشاء التصنيف بنجاح");
+      toast.success("تم تحديث التصنيف بنجاح");
       router.push("/dashboard/categories");
       router.refresh();
     });
@@ -98,11 +111,12 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
           id="name"
           name="name"
           required
+          defaultValue={defaultName}
           placeholder="مثال: ملابس رجالي"
           className="h-11 rounded-xl"
         />
         <p className="text-xs text-muted-foreground">
-          سيتم إنشاء slug فريد تلقائيًا من الاسم
+          سيتم تحديث slug التصنيف تلقائيًا عند تغيير الاسم
         </p>
       </div>
 
@@ -185,7 +199,6 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
           />
         </div>
 
-        {/* Preview */}
         {previewImage ? (
           <div className="relative overflow-hidden rounded-xl border">
             <div className="relative h-48 w-full">
@@ -223,12 +236,12 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
         {isPending ? (
           <>
             <Loader2 className="me-2 size-4 animate-spin" />
-            جاري الإنشاء...
+            جاري الحفظ...
           </>
         ) : (
           <>
-            <FolderPlus className="me-2 size-4" />
-            إنشاء التصنيف
+            <Save className="me-2 size-4" />
+            حفظ التغييرات
           </>
         )}
       </Button>

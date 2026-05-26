@@ -194,7 +194,7 @@ const MerchantDashboardRoute = async () => {
   if (!store) {
     return (
       <div className="p-6" dir="rtl">
-        <Card className="overflow-hidden rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5">
+        <Card className="overflow-hidden ... border-border/70 bg-background/80 shadow-sm shadow-black/5">
           <CardContent className="flex min-h-105 flex-col items-center justify-center p-8 text-center">
             <div className="mb-4 grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Store className="size-8" />
@@ -388,19 +388,12 @@ const MerchantDashboardRoute = async () => {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <Card className="relative overflow-hidden rounded-[2.25rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-bl from-primary/15 via-transparent to-transparent" />
-        <div className="pointer-events-none absolute -left-20 -top-20 size-64 rounded-full bg-primary/10 blur-3xl" />
-        <CardContent className="relative p-5 sm:p-6 lg:p-7">
-          <div className="grid gap-8 xl:grid-cols-[1.35fr_0.65fr] xl:items-stretch">
-            <div className="space-y-6">
+      <Card className="relative overflow-hidden ... border-border bg-background shadow-sm">
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/7 via-transparent to-transparent" />
+        <CardContent className="relative p-6 sm:p-7 lg:p-8">
+          <div className="grid gap-6 xl:grid-cols-[1fr_auto] xl:items-center">
+            <div className="space-y-5">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-full border-0 bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
-                  Merchant Command Center
-                </Badge>
-                <Badge variant="secondary" className="rounded-full px-3 py-1">
-                  {getTodayDate()}
-                </Badge>
                 <Badge
                   className={
                     isActive
@@ -420,28 +413,22 @@ const MerchantDashboardRoute = async () => {
                     </span>
                   )}
                 </Badge>
+                <span className="text-sm text-muted-foreground">{getTodayDate()}</span>
               </div>
 
-              <div className="space-y-3">
-                <p className="text-sm font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                  Casho SaaS Dashboard
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  أهلاً بيك،{" "}
+                  <span className="text-primary">{store.name}</span>
+                </h1>
+                <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
+                  تابع طلباتك وإحصائياتك وتحكم في كل حاجة في متجرك من مكان واحد.
                 </p>
-                <div className="space-y-7">
-                  <h1 className="max-w-4xl text-3xl font-medium tracking-tight md:text-4xl xl:text-5xl">
-                    أهلاً بيك في غرفة تشغيل{" "}
-                    <span className="text-primary font-bold">{store.name}</span>
-                  </h1>
-                  <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-                    من هنا تقدر تتابع كل حاجة بتحصل في متجرك، من الطلبات لحد
-                    الإحصائيات، وكمان تقدر تتحكم في كل حاجة تخص متجرك من مكان
-                    واحد.
-                  </p>
-                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 <CopyStoreLinkBtn storeUrl={storeUrl} />
-                <Button asChild className=" font-bold">
+                <Button asChild className="font-bold">
                   <Link
                     href={`/store/${store.slug}`}
                     target="_blank"
@@ -454,60 +441,53 @@ const MerchantDashboardRoute = async () => {
                 <Button
                   asChild
                   variant="outline"
-                  className=" bg-background/70 font-bold"
+                  className="font-bold"
                 >
                   <Link href="/dashboard/support">
                     <Headset className="size-4" />
-                    اطلب الدعم
+                    الدعم
                   </Link>
                 </Button>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <div className="rounded-[1.75rem] border border-border/70 bg-background/70 p-4 shadow-sm">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                      Setup score
-                    </p>
-                    <p className="text-sm font-bold text-muted-foreground">
-                      جاهزية المتجر
-                    </p>
-                  </div>
-                  <span className="text-3xl font-bold text-primary">
-                    {setupPercentage}%
-                  </span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${setupPercentage}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-[1.75rem] border border-border/70 bg-background/70 p-4 shadow-sm">
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-2xl bg-primary/10 text-primary">
-                    <Wallet className="size-5" />
+            <div className="flex flex-wrap gap-3 xl:flex-col xl:items-stretch xl:min-w-50">
+              <div className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Wallet className="size-4" />
                   </span>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                      Balance
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {formatPrice(store.balance)}
-                    </p>
+                    <p className="text-xs text-muted-foreground">الرصيد المتاح</p>
+                    <p className="text-xl font-bold">{formatPrice(store.balance)}</p>
                   </div>
                 </div>
                 <Button
                   asChild
                   variant="secondary"
-                  className="w-full rounded-2xl font-bold"
+                  size="sm"
+                  className="w-full rounded-xl font-bold"
                 >
                   <Link href="/dashboard/balance">إدارة الرصيد</Link>
                 </Button>
+              </div>
+
+              <div className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground">جاهزية المتجر</p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">
+                      {completedSetup} من {starterSteps.length} خطوات
+                    </p>
+                  </div>
+                  <span className="text-2xl font-bold text-primary">{setupPercentage}%</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${setupPercentage}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -521,74 +501,103 @@ const MerchantDashboardRoute = async () => {
       <DashboardCharts data={chartData} />
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card className="rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl xl:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between gap-4 p-5 pb-2 sm:p-6 sm:pb-2">
+        <Card className="... border-border bg-background shadow-sm xl:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-4 p-5 pb-3 sm:p-6 sm:pb-3">
             <div>
-              <CardTitle className="text-lg font-bold">آخر الطلبات</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                متابعة سريعة لأحدث نشاط في المتجر
+              <CardTitle className="text-base font-bold">آخر الطلبات</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                أحدث ٥ طلبات في المتجر
               </p>
             </div>
             <Button
               asChild
               variant="outline"
-              className="rounded-2xl bg-background/70 font-bold"
+              size="sm"
+              className="rounded-xl font-bold text-xs"
             >
               <Link href="/dashboard/orders">
-                كل الطلبات
-                <ShoppingCart className="size-4" />
+                عرض الكل
+                <ShoppingCart className="size-3.5" />
               </Link>
             </Button>
           </CardHeader>
-          <CardContent className="p-5 sm:p-6">
+          <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6">
             {store.orders.length > 0 ? (
-              <div className="space-y-3">
-                {store.orders.map((order) => {
-                  const itemsCount = order.items.reduce(
-                    (sum, item) => sum + item.quantity,
-                    0,
-                  );
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="pb-3 text-right text-xs font-medium text-muted-foreground">
+                        الطلب
+                      </th>
+                      <th className="pb-3 pr-4 text-right text-xs font-medium text-muted-foreground hidden sm:table-cell">
+                        العميل
+                      </th>
+                      <th className="pb-3 pr-4 text-right text-xs font-medium text-muted-foreground">
+                        الحالة
+                      </th>
+                      <th className="pb-3 pr-4 text-right text-xs font-medium text-muted-foreground hidden md:table-cell">
+                        التاريخ
+                      </th>
+                      <th className="pb-3 text-left text-xs font-medium text-muted-foreground">
+                        المبلغ
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {store.orders.map((order) => {
+                      const itemsCount = order.items.reduce(
+                        (sum, item) => sum + item.quantity,
+                        0,
+                      );
 
-                  return (
-                    <div
-                      key={order.id}
-                      className="flex flex-col gap-3 rounded-[1.5rem] border border-border/70 bg-muted/25 p-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-                          <ShoppingCart className="size-5" />
-                        </span>
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-bold">
-                              طلب #{order.id.slice(0, 8)}
+                      return (
+                        <tr
+                          key={order.id}
+                          className="border-b border-border/30 last:border-0 hover:bg-muted/20 transition-colors"
+                        >
+                          <td className="py-3.5">
+                            <p className="text-sm font-bold">
+                              #{order.id.slice(0, 8)}
                             </p>
+                            <p className="text-xs text-muted-foreground sm:hidden">
+                              {order.fullName}
+                            </p>
+                          </td>
+                          <td className="py-3.5 pr-4 hidden sm:table-cell">
+                            <p className="text-sm font-medium">{order.fullName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {itemsCount} قطعة
+                            </p>
+                          </td>
+                          <td className="py-3.5 pr-4">
                             <Badge
-                              className={`rounded-full border-0 ${getOrderStatusClassName(order.status)}`}
+                              className={`rounded-full border-0 text-xs ${getOrderStatusClassName(order.status)}`}
                             >
                               {formatOrderStatus(order.status)}
                             </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {order.fullName} • {itemsCount} قطعة •{" "}
-                            {formatDate(order.createdAt)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        <p className="text-lg font-bold">
-                          {formatPrice(order.total)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {order.paymentMethod}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+                          </td>
+                          <td className="py-3.5 pr-4 hidden md:table-cell">
+                            <p className="text-xs text-muted-foreground">
+                              {formatDate(order.createdAt)}
+                            </p>
+                          </td>
+                          <td className="py-3.5 text-left">
+                            <p className="text-sm font-bold">
+                              {formatPrice(order.total)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {order.paymentMethod}
+                            </p>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             ) : (
-              <div className="flex min-h-48 items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-muted/25 text-center">
+              <div className="flex min-h-48 items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/20 text-center">
                 <div className="space-y-3">
                   <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
                     <ShoppingCart className="size-5" />
@@ -606,17 +615,14 @@ const MerchantDashboardRoute = async () => {
         </Card>
 
         <div className="space-y-4">
-          <Card className="rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
-            <CardHeader className="p-5 pb-2 sm:p-6 sm:pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                <Sparkles className="size-5 text-primary" />
-                Quick actions
+          <Card className="... border-border bg-background shadow-sm">
+            <CardHeader className="p-5 pb-3 sm:p-6 sm:pb-3">
+              <CardTitle className="flex items-center gap-2 text-base font-bold">
+                <Sparkles className="size-4 text-primary" />
+                إجراءات سريعة
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                اختصارات تشغيلية مهمة
-              </p>
             </CardHeader>
-            <CardContent className="grid gap-3 p-5 sm:p-6">
+            <CardContent className="grid gap-2 p-5 pt-0 sm:p-6 sm:pt-0">
               {quickActions.map((action) => {
                 const Icon = action.icon;
 
@@ -624,10 +630,10 @@ const MerchantDashboardRoute = async () => {
                   <Link
                     key={action.href}
                     href={action.href}
-                    className="group flex items-center gap-3 rounded-[1.35rem] border border-border/70 bg-muted/25 p-3 transition-all hover:border-primary/30 hover:bg-primary/5"
+                    className="group flex items-center gap-3 rounded-xl border border-border bg-muted/20 p-3 transition-all hover:border-primary/30 hover:bg-primary/5"
                   >
-                    <span className="grid size-10 place-items-center rounded-2xl bg-background text-primary shadow-sm">
-                      <Icon className="size-5" />
+                    <span className="grid size-9 place-items-center rounded-lg bg-background text-primary shadow-sm">
+                      <Icon className="size-4" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-bold">
@@ -637,46 +643,45 @@ const MerchantDashboardRoute = async () => {
                         {action.description}
                       </span>
                     </span>
-                    <ExternalLink className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                    <ExternalLink className="size-3.5 text-muted-foreground/50 transition-colors group-hover:text-primary" />
                   </Link>
                 );
               })}
             </CardContent>
           </Card>
 
-          <Card className="rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
-            <CardHeader className="p-5 pb-2 sm:p-6 sm:pb-2">
-              <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                <TrendingUp className="size-5 text-primary" />
-                Store health
+          <Card className="... border-border bg-background shadow-sm">
+            <CardHeader className="p-5 pb-3 sm:p-6 sm:pb-3">
+              <CardTitle className="flex items-center gap-2 text-base font-bold">
+                <TrendingUp className="size-4 text-primary" />
+                صحة المتجر
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                مراجعة سريعة للنقط المؤثرة
-              </p>
             </CardHeader>
-            <CardContent className="space-y-3 p-5 sm:p-6">
+            <CardContent className="space-y-2 p-5 pt-0 sm:p-6 sm:pt-0">
               {storeHealth.map((item) => (
                 <div
                   key={item.title}
-                  className="flex items-center justify-between gap-3 rounded-[1.2rem] border border-border/70 bg-muted/25 px-3 py-3"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 px-3 py-2.5"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <span
                       className={
                         item.completed
-                          ? "grid size-7 place-items-center rounded-full bg-emerald-500 text-white"
-                          : "grid size-7 place-items-center rounded-full bg-muted text-muted-foreground"
+                          ? "grid size-6 place-items-center rounded-full bg-emerald-500 text-white"
+                          : "grid size-6 place-items-center rounded-full bg-muted text-muted-foreground"
                       }
                     >
                       {item.completed ? (
-                        <CheckCircle2 className="size-4" />
+                        <CheckCircle2 className="size-3.5" />
                       ) : (
-                        <Settings className="size-4" />
+                        <Settings className="size-3.5" />
                       )}
                     </span>
-                    <span className="text-sm font-bold">{item.title}</span>
+                    <span className="text-sm font-medium">{item.title}</span>
                   </div>
-                  <span className="text-xs font-bold text-muted-foreground">
+                  <span
+                    className={`text-xs font-bold ${item.completed ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}
+                  >
                     {item.value}
                   </span>
                 </div>

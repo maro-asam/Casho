@@ -38,6 +38,19 @@ function parseCommaSeparated(value: FormDataEntryValue | null) {
     .filter(Boolean);
 }
 
+function parseAttributes(value: FormDataEntryValue | null) {
+  const raw = String(value ?? "[]").trim();
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed as { key: string; value: string }[];
+    }
+  } catch {
+    // ignore malformed JSON
+  }
+  return null;
+}
+
 export async function CreateProductAction(
   _prevState: ProductFormState,
   formData: FormData,
@@ -71,6 +84,7 @@ export async function CreateProductAction(
     const isActive = formData.get("isActive") === "on";
     const isFeatured = formData.get("isFeatured") === "on";
     const hasVariants = formData.get("hasVariants") === "on";
+    const attributes = parseAttributes(formData.get("attributes"));
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -135,6 +149,8 @@ export async function CreateProductAction(
         isActive,
         isFeatured,
         hasVariants,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        attributes: attributes as any,
         storeId: store.id,
         categoryId: category.id,
       },
@@ -183,6 +199,7 @@ export async function UpdateProductAction(
     const isActive = formData.get("isActive") === "on";
     const isFeatured = formData.get("isFeatured") === "on";
     const hasVariants = formData.get("hasVariants") === "on";
+    const attributes = parseAttributes(formData.get("attributes"));
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -272,6 +289,8 @@ export async function UpdateProductAction(
         isActive,
         isFeatured,
         hasVariants,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        attributes: attributes as any,
         categoryId: category.id,
       },
     });

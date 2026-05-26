@@ -1,26 +1,23 @@
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
-import { Edit, ImageIcon, Star, Trash2 } from "lucide-react";
-
-import { DeleteProductAction } from "@/actions/products/products.actions";
+import { Edit, ImageIcon, Star, Package, ShieldCheck, ShieldX } from "lucide-react";
+import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import Image from "next/image";
+import ProductDeleteButton from "./ProductDeleteButton";
 
 type Product = {
   id: string;
   name: string;
   slug: string;
   price: number;
+  compareAtPrice: number | null;
+  stock: number;
   image: string | null;
   isActive: boolean;
   isFeatured: boolean;
-  createdAt: Date;
-  category: {
-    name: string;
-  };
+  category: { name: string };
 };
 
 function formatPrice(price: number) {
@@ -31,6 +28,34 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
+function StockBadge({ stock }: { stock: number }) {
+  if (stock === 0) {
+    return (
+      <Badge variant="destructive" className="rounded-lg text-xs">
+        نفاد المخزون
+      </Badge>
+    );
+  }
+  if (stock <= 5) {
+    return (
+      <Badge
+        variant="outline"
+        className="rounded-lg border-orange-200 bg-orange-50 text-xs text-orange-700 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-400"
+      >
+        {stock} قطعة
+      </Badge>
+    );
+  }
+  return (
+    <Badge
+      variant="outline"
+      className="rounded-lg border-emerald-200 bg-emerald-50 text-xs text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
+    >
+      {stock} قطعة
+    </Badge>
+  );
+}
+
 export default function ProductTableRow({ product }: { product: Product }) {
   return (
     <TableRow className="transition-colors hover:bg-muted/30">
@@ -38,7 +63,6 @@ export default function ProductTableRow({ product }: { product: Product }) {
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-muted">
             {product.image ? (
-              // لو هتستخدم next/image بدل img ابقى بدله
               <Image
                 width={100}
                 height={100}
@@ -53,10 +77,15 @@ export default function ProductTableRow({ product }: { product: Product }) {
             )}
           </div>
 
-          <div className="min-w-0 space-y-1">
-            <p className="truncate font-semibold text-foreground">
-              {product.name}
-            </p>
+          <div className="min-w-0 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <p className="truncate font-semibold text-foreground">
+                {product.name}
+              </p>
+              {product.isFeatured && (
+                <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />
+              )}
+            </div>
             <p className="truncate text-xs text-muted-foreground">
               /{product.slug}
             </p>
@@ -65,62 +94,66 @@ export default function ProductTableRow({ product }: { product: Product }) {
       </TableCell>
 
       <TableCell>
-        <Badge variant="outline" className="rounded-xl">
+        <Badge
+          variant="outline"
+          className="gap-1 whitespace-nowrap rounded-lg text-xs"
+        >
+          <Package className="size-3" />
           {product.category.name}
         </Badge>
       </TableCell>
 
-      <TableCell className="font-medium">
-        {formatPrice(product.price)}
+      <TableCell>
+        <div className="space-y-0.5">
+          <p className="whitespace-nowrap font-semibold text-foreground">
+            {formatPrice(product.price)}
+          </p>
+          {product.compareAtPrice && (
+            <p className="text-xs text-muted-foreground line-through">
+              {formatPrice(product.compareAtPrice)}
+            </p>
+          )}
+        </div>
+      </TableCell>
+
+      <TableCell>
+        <StockBadge stock={product.stock} />
       </TableCell>
 
       <TableCell>
         {product.isActive ? (
-          <Badge className="rounded-xl">نشط</Badge>
+          <Badge className="gap-1 whitespace-nowrap rounded-lg bg-emerald-500 hover:bg-emerald-500/90">
+            <ShieldCheck className="size-3.5" />
+            نشط
+          </Badge>
         ) : (
-          <Badge variant="secondary" className="rounded-xl">
+          <Badge
+            variant="secondary"
+            className="gap-1 whitespace-nowrap rounded-lg"
+          >
+            <ShieldX className="size-3.5" />
             غير نشط
           </Badge>
         )}
       </TableCell>
 
       <TableCell>
-        {product.isFeatured ? (
-          <Badge variant="outline" className="gap-1 rounded-xl">
-            <Star className="size-3.5" />
-            مميز
-          </Badge>
-        ) : (
-          <span className="text-sm text-muted-foreground">—</span>
-        )}
-      </TableCell>
-
-      <TableCell>
-        <div className="flex flex-wrap items-center justify-start gap-2">
-          <Button asChild variant="secondary" size="sm" className="rounded-xl">
+        <div className="flex items-center gap-1 whitespace-nowrap">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1.5 rounded-lg"
+          >
             <Link href={`/dashboard/products/${product.id}/edit`}>
-              <Edit className="me-2 size-4" />
+              <Edit className="size-3.5" />
               تعديل
             </Link>
           </Button>
-
-          <form
-            action={async () => {
-              "use server";
-              await DeleteProductAction(product.id);
-              revalidatePath("/dashboard/products");
-            }}
-          >
-            <Button
-              type="submit"
-              variant="destructive"
-              size="sm"
-              className="rounded-xl"
-            >
-              <Trash2 className="me-2 size-4" />
-              حذف
-            </Button>
-          </form>
+          <ProductDeleteButton
+            productId={product.id}
+            productName={product.name}
+          />
         </div>
       </TableCell>
     </TableRow>

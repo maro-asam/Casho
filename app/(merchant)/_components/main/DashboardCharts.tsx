@@ -125,7 +125,7 @@ export default function DashboardCharts({ data }: DashboardChartsProps) {
 
   return (
     <section className="grid grid-cols-1 gap-4 xl:grid-cols-5">
-      <Card className="rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl xl:col-span-3">
+      <Card className="... border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl xl:col-span-3">
         <CardHeader className="flex flex-row items-start justify-between gap-4 p-5 pb-2 sm:p-6 sm:pb-2">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export default function DashboardCharts({ data }: DashboardChartsProps) {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl xl:col-span-2">
+      <Card className="... border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl xl:col-span-2">
         <CardHeader className="flex flex-row items-start justify-between gap-4 p-5 pb-2 sm:p-6 sm:pb-2">
           <div className="flex items-center gap-2">
             <span className="grid size-10 place-items-center rounded-2xl bg-sky-500/10 text-sky-600">

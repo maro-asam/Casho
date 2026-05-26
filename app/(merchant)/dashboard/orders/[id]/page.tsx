@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ArrowRight,
@@ -9,27 +10,27 @@ import {
   Phone,
   ShoppingBag,
   User,
-  Receipt,
   CircleDollarSign,
   Hash,
+  ShoppingCart,
+  Truck,
+  Tag,
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@prisma/client";
+import { Metadata } from "next";
 
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Metadata } from "next";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { cn } from "@/lib/utils";
+
+import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 import ExportInvoiceButton from "@/app/(merchant)/dashboard/orders/_components/export-invoice-button";
+import { OrderStatusSelect } from "@/app/(merchant)/dashboard/orders/_components/order-status-select";
 
 export const metadata: Metadata = {
   title: "تفاصيل الطلب",
@@ -44,63 +45,66 @@ function formatPrice(price: number) {
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("ar-EG", {
-    dateStyle: "full",
+    dateStyle: "long",
     timeStyle: "short",
   }).format(new Date(date));
 }
 
-function getStatusBadgeClass(status: OrderStatus) {
-  switch (status) {
-    case "DELIVERED":
-      return "bg-green-100 text-green-700 border-green-200 hover:bg-green-100";
-    case "PAID":
-      return "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100";
-    case "SHIPPED":
-      return "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100";
-    case "CANCELED":
-      return "bg-red-100 text-red-700 border-red-200 hover:bg-red-100";
-    default:
-      return "bg-muted text-muted-foreground border-border hover:bg-muted";
-  }
-}
-
-function getStatusLabel(status: OrderStatus) {
-  switch (status) {
-    case "PENDING":
-      return "معلق";
-    case "PAID":
-      return "مدفوع";
-    case "SHIPPED":
-      return "تم الشحن";
-    case "DELIVERED":
-      return "تم التوصيل";
-    case "CANCELED":
-      return "ملغي";
-    default:
-      return status;
-  }
+function getStatusConfig(status: OrderStatus) {
+  const config: Record<
+    OrderStatus,
+    { label: string; className: string; dot: string }
+  > = {
+    PENDING: {
+      label: "معلق",
+      className:
+        "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+      dot: "bg-amber-500",
+    },
+    PAID: {
+      label: "مدفوع",
+      className:
+        "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800",
+      dot: "bg-sky-500",
+    },
+    SHIPPED: {
+      label: "تم الشحن",
+      className:
+        "bg-violet-500/10 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800",
+      dot: "bg-violet-500",
+    },
+    DELIVERED: {
+      label: "تم التوصيل",
+      className:
+        "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+      dot: "bg-emerald-500",
+    },
+    CANCELED: {
+      label: "ملغي",
+      className:
+        "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800",
+      dot: "bg-rose-500",
+    },
+  };
+  return config[status];
 }
 
 function getPaymentMethodLabel(method: string) {
-  switch (method) {
-    case "cash_on_delivery":
-      return "الدفع عند الاستلام";
-    case "instapay":
-      return "إنستاباي";
-    case "vodafone_cash":
-      return "فودافون كاش";
-    default:
-      return method;
-  }
+  const map: Record<string, string> = {
+    cash_on_delivery: "الدفع عند الاستلام",
+    instapay: "إنستاباي",
+    vodafone_cash: "فودافون كاش",
+    bank_transfer: "تحويل بنكي",
+  };
+  return map[method] ?? method;
 }
 
-export default async function OrderDetailsRoute({
+export default async function OrderDetailsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -108,23 +112,12 @@ export default async function OrderDetailsRoute({
     select: { id: true, name: true },
   });
 
-  if (!store) {
-    notFound();
-  }
+  if (!store) notFound();
 
   const order = await prisma.order.findFirst({
-    where: {
-      id,
-      storeId: store.id,
-    },
+    where: { id, storeId: store.id },
     include: {
-      store: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
+      store: { select: { id: true, name: true, slug: true } },
       items: {
         include: {
           product: {
@@ -140,30 +133,38 @@ export default async function OrderDetailsRoute({
     },
   });
 
-  if (!order) {
-    notFound();
-  }
+  if (!order) notFound();
+
+  const statusConfig = getStatusConfig(order.status);
 
   return (
-    <div className="space-y-6 " dir="rtl">
+    <div className="space-y-6" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col gap-4 rounded-xl border bg-linear-to-r from-primary/10 via-primary/5 to-transparent p-5 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-primary">
-            <Receipt className="h-5 w-5" />
-            <span className="text-sm font-semibold">إدارة الطلبات</span>
-          </div>
+      <DashboardSectionHeader
+        icon={ShoppingCart}
+        title={`طلب #${order.id.slice(0, 8).toUpperCase()}`}
+        description={`مُقدَّم بتاريخ ${formatDate(order.createdAt)}`}
+      />
 
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-            تفاصيل الطلب
-          </h1>
-
-          <p className="text-sm leading-6 text-muted-foreground">
-            عرض كامل لبيانات الطلب والعميل والمنتجات مع ملخص مالي واضح وسريع.
-          </p>
+      {/* Action bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background p-3 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "size-2 rounded-full",
+              statusConfig.dot,
+            )}
+          />
+          <span className="text-sm font-medium">{statusConfig.label}</span>
+          <Separator orientation="vertical" className="mx-1 h-4" />
+          <OrderStatusSelect
+            orderId={order.id}
+            storeId={store.id}
+            currentStatus={order.status}
+          />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
           <ExportInvoiceButton
             order={{
               id: order.id,
@@ -176,130 +177,128 @@ export default async function OrderDetailsRoute({
               shipping: order.shipping,
               total: order.total,
               status: order.status,
-              store: {
-                name: order.store.name,
-                slug: order.store.slug,
-              },
+              store: { name: order.store.name, slug: order.store.slug },
               items: order.items.map((item) => ({
                 id: item.id,
                 quantity: item.quantity,
                 price: item.price,
-                product: {
-                  name: item.product.name,
-                  slug: item.product.slug,
-                },
+                product: { name: item.product.name, slug: item.product.slug },
               })),
             }}
           />
-
-          <Button asChild variant="outline" className="w-fit rounded-xl">
-            <Link href="/dashboard/orders" className="flex items-center gap-2">
-              <ArrowRight className="h-4 w-4" />
-              رجوع للطلبات
+          <Button asChild variant="outline" className="rounded-xl">
+            <Link href="/dashboard/orders">
+              <ArrowRight className="me-1.5 size-4" />
+              الطلبات
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Top Summary */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="rounded-xl border-primary/15 shadow-sm">
-          <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Hash className="h-5 w-5" />
-            </div>
-            <p className="text-sm text-muted-foreground">رقم الطلب</p>
-            <p className="mt-2 text-lg font-semibold ">#{order.id.slice(0, 8)}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-xl border-primary/15 shadow-sm">
-          <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <ShoppingBag className="h-5 w-5" />
-            </div>
-            <p className="text-sm text-muted-foreground">حالة الطلب</p>
-            <div className="mt-2">
-              <Badge className={`${getStatusBadgeClass(order.status)} p-3`}>
-                {getStatusLabel(order.status)}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-xl border-primary/15 shadow-sm">
-          <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <CreditCard className="h-5 w-5" />
-            </div>
-            <p className="text-sm text-muted-foreground">طريقة الدفع</p>
-            <p className="mt-2 text-lg font-semibold text-foreground">
-              {getPaymentMethodLabel(order.paymentMethod)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-xl border-primary/15 shadow-sm">
-          <CardContent className="p-5">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <CircleDollarSign className="h-5 w-5" />
-            </div>
-            <p className="text-sm text-muted-foreground">إجمالي الطلب</p>
-            <p className="mt-2 text-lg font-semibold ">
-              {formatPrice(order.total)}
-            </p>
-          </CardContent>
-        </Card>
+      {/* Summary stats */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          {
+            label: "رقم الطلب",
+            value: `#${order.id.slice(0, 8).toUpperCase()}`,
+            icon: Hash,
+            accent: "bg-primary/10 text-primary",
+          },
+          {
+            label: "حالة الطلب",
+            value: statusConfig.label,
+            icon: ShoppingBag,
+            accent: cn("border", statusConfig.className),
+            isStatus: true,
+          },
+          {
+            label: "طريقة الدفع",
+            value: getPaymentMethodLabel(order.paymentMethod),
+            icon: CreditCard,
+            accent: "bg-primary/10 text-primary",
+          },
+          {
+            label: "إجمالي الطلب",
+            value: formatPrice(order.total),
+            icon: CircleDollarSign,
+            accent: "bg-primary/10 text-primary",
+            highlight: true,
+          },
+        ].map((card) => {
+          const Icon = card.icon;
+          return (
+            <Card key={card.label} className="rounded-xl shadow-sm">
+              <CardContent className="flex items-center gap-4 p-4">
+                <div
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                    card.isStatus ? card.accent : "bg-primary/10 text-primary",
+                  )}
+                >
+                  <Icon className="size-4.5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">{card.label}</p>
+                  <p
+                    className={cn(
+                      "mt-0.5 truncate text-sm font-bold",
+                      card.highlight && "text-primary",
+                    )}
+                  >
+                    {card.value}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
+      {/* Customer + Order meta */}
       <div className="grid gap-6 xl:grid-cols-3">
-        {/* Customer Info */}
+        {/* Customer info */}
         <Card className="rounded-xl shadow-sm xl:col-span-2">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <User className="h-5 w-5 text-primary" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <User className="size-4" />
+              </span>
               بيانات العميل
             </CardTitle>
-            <CardDescription>
-              المعلومات الأساسية الخاصة بصاحب الطلب
-            </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-5">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="flex items-start gap-3 rounded-xl border bg-primary/5 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <User className="h-5 w-5" />
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <User className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">الاسم الكامل</p>
+                  <p className="truncate font-semibold">{order.fullName}</p>
                 </div>
+              </div>
 
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">الاسم</p>
-                  <p className="font-semibold text-foreground">
-                    {order.fullName}
+              <div className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Phone className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">رقم الهاتف</p>
+                  <p className="truncate font-semibold" dir="ltr">
+                    {order.phone}
                   </p>
                 </div>
               </div>
-
-              <div className="flex items-start gap-3 rounded-xl border bg-primary/5 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Phone className="h-5 w-5" />
-                </div>
-
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">رقم الهاتف</p>
-                  <p className="font-semibold text-foreground">{order.phone}</p>
-                </div>
-              </div>
             </div>
 
-            <div className="flex items-start gap-3 rounded-xl border bg-primary/5 p-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <MapPin className="h-5 w-5" />
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">العنوان</p>
-                <p className="font-semibold leading-relaxed text-foreground">
+            <div className="flex items-start gap-3 rounded-xl border bg-muted/30 p-3.5">
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <MapPin className="size-4" />
+              </span>
+              <div>
+                <p className="text-xs text-muted-foreground">عنوان التوصيل</p>
+                <p className="mt-0.5 font-semibold leading-relaxed">
                   {order.address}
                 </p>
               </div>
@@ -307,147 +306,198 @@ export default async function OrderDetailsRoute({
           </CardContent>
         </Card>
 
-        {/* Order Meta */}
+        {/* Order meta */}
         <Card className="rounded-xl shadow-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Package className="h-5 w-5 text-primary" />
-              معلومات إضافية
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Package className="size-4" />
+              </span>
+              تفاصيل الطلب
             </CardTitle>
-            <CardDescription>بيانات مرتبطة بالطلب نفسه</CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-4">
-            <div className="rounded-xl border p-4">
-              <div className="mb-2 flex items-center gap-2 text-primary">
-                <ShoppingBag className="h-4 w-4" />
-                <span className="text-sm font-medium">المتجر</span>
-              </div>
-              <p className="font-semibold">{order.store.name}</p>
-            </div>
+          <CardContent className="space-y-2">
+            {[
+              {
+                icon: ShoppingBag,
+                label: "المتجر",
+                value: order.store.name,
+              },
+              {
+                icon: CalendarDays,
+                label: "تاريخ الطلب",
+                value: formatDate(order.createdAt),
+              },
+              {
+                icon: CreditCard,
+                label: "طريقة الدفع",
+                value: getPaymentMethodLabel(order.paymentMethod),
+              },
+              {
+                icon: Package,
+                label: "عدد المنتجات",
+                value: `${order.items.length} ${order.items.length === 1 ? "منتج" : "منتجات"}`,
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground shadow-sm">
+                    <Icon className="size-3.5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground">{item.label}</p>
+                    <p className="truncate text-sm font-semibold">
+                      {item.value}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
 
-            <div className="rounded-xl border p-4">
-              <div className="mb-2 flex items-center gap-2 text-primary">
-                <CalendarDays className="h-4 w-4" />
-                <span className="text-sm font-medium">تاريخ الطلب</span>
+            {order.couponCode && (
+              <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-950/30">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                  <Tag className="size-3.5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground">كوبون خصم</p>
+                  <p className="truncate font-mono text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                    {order.couponCode}
+                  </p>
+                </div>
               </div>
-              <p className="font-semibold leading-6">
-                {formatDate(order.createdAt)}
-              </p>
-            </div>
-
-            <div className="rounded-xl border p-4">
-              <div className="mb-2 flex items-center gap-2 text-primary">
-                <CreditCard className="h-4 w-4" />
-                <span className="text-sm font-medium">طريقة الدفع</span>
-              </div>
-              <p className="font-semibold">
-                {getPaymentMethodLabel(order.paymentMethod)}
-              </p>
-            </div>
-
-            <div className="rounded-xl border p-4">
-              <div className="mb-2 flex items-center gap-2 text-primary">
-                <Package className="h-4 w-4" />
-                <span className="text-sm font-medium">عدد المنتجات</span>
-              </div>
-              <p className="font-semibold text-primary">{order.items.length}</p>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
       {/* Products */}
       <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Package className="h-5 w-5 text-primary" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Package className="size-4" />
+            </span>
             منتجات الطلب
+            <Badge variant="secondary" className="ms-auto rounded-lg text-xs">
+              {order.items.length}
+            </Badge>
           </CardTitle>
-          <CardDescription>كل المنتجات الموجودة داخل هذا الطلب</CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent>
           {order.items.length === 0 ? (
-            <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+            <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
               لا توجد منتجات داخل هذا الطلب
             </div>
           ) : (
-            order.items.map((item, index) => {
-              const itemTotal = item.price * item.quantity;
-
-              return (
-                <div key={item.id}>
-                  <div className="flex flex-col gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/40 md:flex-row md:items-center md:justify-between">
-                    <div className="space-y-2">
-                      <h3 className="text-base font-semibold text-foreground">
-                        {item.product.name}
-                      </h3>
-
-                      <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                        <span>الكمية: {item.quantity}</span>
-                        <span>•</span>
-                        <span>سعر القطعة: {formatPrice(item.price)}</span>
+            <div className="divide-y rounded-xl border">
+              {order.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/30"
+                >
+                  {/* Product image */}
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border bg-muted">
+                    {item.product.image ? (
+                      <Image
+                        src={item.product.image}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Package className="size-5 text-muted-foreground/40" />
                       </div>
-
-                      <p className="text-xs text-primary">
-                        {item.product.slug}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-primary/5 px-4 py-3 text-right">
-                      <p className="text-sm text-muted-foreground">الإجمالي</p>
-                      <p className="text-lg font-semibold text-primary">
-                        {formatPrice(itemTotal)}
-                      </p>
-                    </div>
+                    )}
                   </div>
 
-                  {index < order.items.length - 1 && (
-                    <Separator className="my-4" />
-                  )}
+                  {/* Name + meta */}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">
+                      {item.product.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {item.quantity} × {formatPrice(item.price)}
+                    </p>
+                  </div>
+
+                  {/* Line total */}
+                  <div className="shrink-0 rounded-xl bg-primary/10 px-3.5 py-2 text-center">
+                    <p className="text-[11px] text-muted-foreground">
+                      الإجمالي
+                    </p>
+                    <p className="text-sm font-bold text-primary">
+                      {formatPrice(item.price * item.quantity)}
+                    </p>
+                  </div>
                 </div>
-              );
-            })
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Financial Summary */}
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <CircleDollarSign className="h-5 w-5 text-primary" />
-            الملخص المالي
-          </CardTitle>
-          <CardDescription>تفاصيل الحساب النهائي للطلب</CardDescription>
-        </CardHeader>
+      {/* Financial summary */}
+      <div className="flex justify-end">
+        <Card className="w-full rounded-xl shadow-sm xl:max-w-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Truck className="size-4" />
+              </span>
+              الملخص المالي
+            </CardTitle>
+          </CardHeader>
 
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between rounded-xl border p-4">
-            <span className="text-muted-foreground">المجموع الفرعي</span>
-            <span className="font-semibold text-foreground">
-              {formatPrice(order.subtotal)}
-            </span>
-          </div>
+          <CardContent className="space-y-2">
+            <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
+              <span className="text-sm text-muted-foreground">
+                المجموع الفرعي
+              </span>
+              <span className="font-semibold">{formatPrice(order.subtotal)}</span>
+            </div>
 
-          <div className="flex items-center justify-between rounded-xl border p-4">
-            <span className="text-muted-foreground">الشحن</span>
-            <span className="font-semibold text-foreground">
-              {formatPrice(order.shipping)}
-            </span>
-          </div>
+            <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
+              <span className="text-sm text-muted-foreground">رسوم الشحن</span>
+              <span className="font-semibold">{formatPrice(order.shipping)}</span>
+            </div>
 
-          <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-4">
-            <span className="text-base font-semibold text-foreground">
-              الإجمالي النهائي
-            </span>
-            <span className="text-lg font-extrabold text-primary">
-              {formatPrice(order.total)}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+            {order.discount > 0 && (
+              <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/30">
+                <span className="flex items-center gap-1.5 text-sm text-emerald-700 dark:text-emerald-300">
+                  <Tag className="size-3.5" />
+                  خصم
+                  {order.couponCode && (
+                    <span className="font-mono text-xs">
+                      ({order.couponCode})
+                    </span>
+                  )}
+                </span>
+                <span className="font-semibold text-emerald-700 dark:text-emerald-300">
+                  -{formatPrice(order.discount)}
+                </span>
+              </div>
+            )}
+
+            <Separator />
+
+            <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-4 py-3.5">
+              <span className="font-bold">الإجمالي النهائي</span>
+              <span className="text-xl font-extrabold text-primary">
+                {formatPrice(order.total)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

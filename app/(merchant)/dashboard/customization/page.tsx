@@ -2,9 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import NavbarVariantPicker from "./_components/NavbarVariantPicker";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import { PaintRoller } from "lucide-react";
+import { PaintRoller, LayoutTemplate } from "lucide-react";
 import { Metadata } from "next";
-import { Separator } from "@/components/ui/separator";
 import StoreColorsSection from "./_components/StoreColorsSection";
 import ThemePicker from "./_components/ThemePicker";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
   title: "تخصيص المتجر",
 };
 
-export default async function CustomziationRoute() {
+export default async function CustomizationRoute() {
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -40,33 +39,34 @@ export default async function CustomziationRoute() {
       <DashboardSectionHeader
         icon={PaintRoller}
         title="تخصيص المتجر"
-        description={
-          <>
-            تخصيص متجرك بالشكل اللي يعجبك، من اختيار ألوان المتجر، لحد شكل
-            النافبار والثيم العام للمتجر. كل ده عشان تقدر تقدم تجربة فريدة
-            لعملائك وتعكس هوية متجرك بشكل أفضل.
-          </>
-        }
+        description="اختر ثيم المتجر وألوانه وشكل القائمة العلوية لتعكس هوية متجرك"
       />
 
-      <Card className="">
-        <CardContent className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold">ثيمات المتجر</h3>
+      {/* ── Themes ── */}
+      <Card>
+        <CardContent className="space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <LayoutTemplate className="size-4" />
+            </div>
+            <div>
+              <h2 className="font-semibold">ثيم المتجر</h2>
+              <p className="text-xs text-muted-foreground">
+                اختر الشكل العام للمتجر — كل ثيم بيجيب معاه ألوان وتصميم مختلف
+              </p>
+            </div>
           </div>
-
           <ThemePicker
             storeId={store.id}
             currentThemeId={store.settings?.themeId}
           />
         </CardContent>
       </Card>
-      <Separator />
 
+      {/* ── Colors ── */}
       <StoreColorsSection store={store} />
 
-      <Separator />
-
+      {/* ── Navbar ── */}
       <NavbarVariantPicker
         storeId={store.id}
         currentVariant={

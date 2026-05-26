@@ -71,7 +71,7 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
   if (isHidden || !steps.length) return null;
 
   return (
-    <Card className="relative overflow-hidden rounded-[2rem] border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
+    <Card className="relative overflow-hidden ... border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-bl from-primary/12 via-transparent to-transparent" />
       <CardContent className="relative p-5 sm:p-6">
         <div className="grid gap-6 xl:grid-cols-[0.9fr_1.4fr] xl:items-start">
@@ -79,7 +79,7 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2">
                 <Badge className="rounded-full border-0 bg-primary/10 text-primary hover:bg-primary/10">
-                  Setup playbook
+                  دليل الإعداد
                 </Badge>
                 <div className="space-y-2">
                   <h2 className="text-xl font-bold tracking-tight md:text-2xl">
@@ -120,7 +120,7 @@ export default function StarterGuideBar({ steps }: StarterGuideBarProps) {
               <div className="flex flex-col gap-3 rounded-[1.5rem] border border-primary/20 bg-primary/10 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-                    Next best action
+                    الخطوة التالية
                   </p>
                   <p className="text-sm font-bold">{nextStep.title}</p>
                 </div>

@@ -35,7 +35,7 @@ export default function DashboardLoading() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         {Array.from({ length: 5 }).map((_, index) => (
-          <Card key={index} className="rounded-[2rem] border-border/70 bg-background/80 shadow-sm">
+          <Card key={index} className="... border-border/70 bg-background/80 shadow-sm">
             <CardContent className="space-y-5 p-5">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
@@ -55,8 +55,8 @@ export default function DashboardLoading() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
-        <Skeleton className="h-[450px] rounded-[2rem] xl:col-span-3" />
-        <Skeleton className="h-[450px] rounded-[2rem] xl:col-span-2" />
+        <Skeleton className="h-[450px] ... xl:col-span-3" />
+        <Skeleton className="h-[450px] ... xl:col-span-2" />
       </div>
     </div>
   );

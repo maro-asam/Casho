@@ -3,7 +3,6 @@ import { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
 type DashboardSectionHeaderProps = {
   icon: LucideIcon;
@@ -23,30 +22,29 @@ export default function DashboardSectionHeader({
   actionHref,
 }: DashboardSectionHeaderProps) {
   return (
-    <Card className="flex flex-col gap-4 p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Icon className="size-5" />
-          </div>
-
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-
-          {badge !== undefined && (
-            <Badge variant="secondary" className="rounded-xl px-3 py-1">
-              {badge}
-            </Badge>
-          )}
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="size-4.5" />
         </div>
-
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold tracking-tight">{title}</h1>
+            {badge !== undefined && (
+              <Badge variant="secondary" className="rounded-lg px-2 py-0.5 text-xs">
+                {badge}
+              </Badge>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
       </div>
 
       {actionLabel && actionHref && (
-        <Button asChild className="rounded-xl">
+        <Button asChild className="shrink-0 ">
           <Link href={actionHref}>{actionLabel}</Link>
         </Button>
       )}
-    </Card>
+    </div>
   );
 }

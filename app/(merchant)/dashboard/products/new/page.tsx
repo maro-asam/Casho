@@ -8,13 +8,7 @@ import { prisma } from "@/lib/prisma";
 import CreateProductForm from "@/app/(merchant)/dashboard/products/_components/CreateProductForm";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 
@@ -73,27 +67,7 @@ export default async function CreateNewProductPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="mx-auto w-full max-w-3xl">
-          <Card className="rounded-xl shadow-sm">
-            <CardHeader className="space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <PackagePlus className="size-6" />
-              </div>
-
-              <div>
-                <CardTitle className="text-xl">بيانات المنتج</CardTitle>
-                <CardDescription className="mt-1 leading-6">
-                  أدخل بيانات المنتج بشكل واضح، واختر التصنيف المناسب له، ثم
-                  أضفه ليظهر داخل متجرك للعملاء.
-                </CardDescription>
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <CreateProductForm categories={categories} />
-            </CardContent>
-          </Card>
-        </div>
+        <CreateProductForm categories={categories} />
       )}
     </div>
   );

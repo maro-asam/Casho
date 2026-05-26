@@ -22,16 +22,20 @@ import {
 } from "@/components/ui/command";
 import { OrderStatus } from "@prisma/client";
 
-const orderStatuses: { value: OrderStatus; label: string }[] = [
-  { value: "PENDING", label: "معلق" },
-  { value: "PAID", label: "مدفوع" },
-  { value: "SHIPPED", label: "تم الشحن" },
-  { value: "DELIVERED", label: "وصل" },
-  { value: "CANCELED", label: "ملغي" },
+const orderStatuses: {
+  value: OrderStatus;
+  label: string;
+  dotClass: string;
+}[] = [
+  { value: "PENDING", label: "معلق", dotClass: "bg-amber-500" },
+  { value: "PAID", label: "مدفوع", dotClass: "bg-sky-500" },
+  { value: "SHIPPED", label: "تم الشحن", dotClass: "bg-violet-500" },
+  { value: "DELIVERED", label: "وصل", dotClass: "bg-emerald-500" },
+  { value: "CANCELED", label: "ملغي", dotClass: "bg-rose-500" },
 ];
 
-function getStatusLabel(status: OrderStatus) {
-  return orderStatuses.find((item) => item.value === status)?.label || status;
+function getStatus(status: OrderStatus) {
+  return orderStatuses.find((s) => s.value === status);
 }
 
 interface OrderStatusSelectProps {
@@ -70,28 +74,35 @@ export function OrderStatusSelect({
     });
   };
 
+  const current = getStatus(value);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="w-[170px] justify-between"
+          size="sm"
+          className="w-36 justify-between rounded-xl border-border text-xs"
           disabled={pending}
-          size={`default`}
         >
           {pending ? (
             <span className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              جاري التحديث...
+              <Loader2 className="size-3 animate-spin" />
+              جاري...
             </span>
           ) : (
-            getStatusLabel(value)
+            <span className="flex items-center gap-2">
+              <span
+                className={cn("size-2 shrink-0 rounded-full", current?.dotClass)}
+              />
+              {current?.label}
+            </span>
           )}
-          <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="size-3 shrink-0 opacity-40" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[170px] p-0" align="end">
+      <PopoverContent className="w-40 p-1" align="end">
         <Command>
           <CommandList>
             <CommandEmpty>لا توجد حالات</CommandEmpty>
@@ -101,15 +112,23 @@ export function OrderStatusSelect({
                   key={status.value}
                   value={status.label}
                   onSelect={() => handleSelect(status.value)}
-                  className="my-1 cursor-pointer"
+                  className="cursor-pointer rounded-lg px-2 py-1.5 text-sm"
                 >
+                  <span className="flex flex-1 items-center gap-2">
+                    <span
+                      className={cn(
+                        "size-2 shrink-0 rounded-full",
+                        status.dotClass,
+                      )}
+                    />
+                    {status.label}
+                  </span>
                   <Check
                     className={cn(
-                      "me-2 h-4 w-4",
+                      "size-3.5 text-primary",
                       value === status.value ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  {status.label}
                 </CommandItem>
               ))}
             </CommandGroup>

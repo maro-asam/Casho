@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentType,
-  type ReactNode,
-} from "react";
+import { useMemo, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,6 +9,7 @@ import {
   BookOpen,
   ChartNoAxesCombined,
   ChevronLeft,
+  ChevronRight,
   CirclePercent,
   CreditCard,
   ExternalLink,
@@ -27,23 +22,21 @@ import {
   PaintRoller,
   Rocket,
   ScreenShare,
-  Search,
   Send,
   Settings,
   ShoppingCart,
-  Sparkles,
   Store,
   Tag,
   Truck,
-  X,
 } from "lucide-react";
 
 import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
+import DashboardSearch from "@/app/(merchant)/_components/main/DashboardSearch";
 import NotificationsBell from "@/app/(merchant)/_components/notifications/NotificationsBell";
 import type { NotificationDTO } from "@/actions/notifications/notifications.actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/theme/ModeToggle";
 
@@ -68,9 +61,10 @@ type DashboardLink = {
 
 type NavSection = {
   title: string;
-  caption: string;
   links: DashboardLink[];
 };
+
+const COLLAPSED_KEY = "casho-sidebar-collapsed";
 
 export default function DashboardShell({
   store,
@@ -79,7 +73,21 @@ export default function DashboardShell({
   children,
 }: DashboardShellProps) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const isCollapsed = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener("storage", cb);
+      return () => window.removeEventListener("storage", cb);
+    },
+    () => localStorage.getItem(COLLAPSED_KEY) === "true",
+    () => false,
+  );
+
+  const toggle = () => {
+    const next = !(localStorage.getItem(COLLAPSED_KEY) === "true");
+    localStorage.setItem(COLLAPSED_KEY, String(next));
+    window.dispatchEvent(new Event("storage"));
+  };
 
   const storeInitials = useMemo(() => {
     return store.name
@@ -94,8 +102,7 @@ export default function DashboardShell({
   const sections: NavSection[] = useMemo(
     () => [
       {
-        title: "Command",
-        caption: "لوحة التشغيل",
+        title: "التشغيل",
         links: [
           { name: "نظرة عامة", href: "/dashboard", icon: LayoutDashboard },
           {
@@ -105,42 +112,62 @@ export default function DashboardShell({
             count: initialUnreadCount,
           },
           { name: "الطلبات", href: "/dashboard/orders", icon: ShoppingCart },
-          { name: "التقارير", href: "/dashboard/reports", icon: ChartNoAxesCombined },
+          {
+            name: "التقارير",
+            href: "/dashboard/reports",
+            icon: ChartNoAxesCombined,
+          },
         ],
       },
       {
-        title: "Commerce",
-        caption: "الكتالوج والمبيعات",
+        title: "المتجر",
         links: [
           { name: "المنتجات", href: "/dashboard/products", icon: Package },
           { name: "التصنيفات", href: "/dashboard/categories", icon: Tag },
           { name: "البانرات", href: "/dashboard/banners", icon: ImageIcon },
-          { name: "الكوبونات", href: "/dashboard/coupons", icon: CirclePercent },
+          {
+            name: "الكوبونات",
+            href: "/dashboard/coupons",
+            icon: CirclePercent,
+          },
         ],
       },
       {
-        title: "Growth",
-        caption: "النمو والتحسين",
+        title: "النمو",
         links: [
-          { name: "تخصيص المتجر", href: "/dashboard/customization", icon: PaintRoller },
+          {
+            name: "تخصيص المتجر",
+            href: "/dashboard/customization",
+            icon: PaintRoller,
+          },
           { name: "إعدادات SEO", href: "/dashboard/seo", icon: Rocket },
           { name: "المدونة", href: "/dashboard/blog", icon: BookOpen },
           { name: "خدمات إضافية", href: "/dashboard/services", icon: Layers },
         ],
       },
       {
-        title: "Finance",
-        caption: "الدفع والاشتراك",
+        title: "المالية",
         links: [
-          { name: "إدارة الرصيد", href: "/dashboard/balance", icon: BanknoteArrowUp },
-          { name: "تغيير الخطة", href: "/dashboard/change-plan", icon: ChartNoAxesCombined },
-          { name: "بوابات الدفع", href: "/dashboard/payment-methods", icon: CreditCard },
+          {
+            name: "إدارة الرصيد",
+            href: "/dashboard/balance",
+            icon: BanknoteArrowUp,
+          },
+          {
+            name: "تغيير الخطة",
+            href: "/dashboard/change-plan",
+            icon: ChartNoAxesCombined,
+          },
+          {
+            name: "بوابات الدفع",
+            href: "/dashboard/payment-methods",
+            icon: CreditCard,
+          },
           { name: "الإعدادات", href: "/dashboard/settings", icon: Settings },
         ],
       },
       {
-        title: "Support",
-        caption: "المساعدة والأتمتة",
+        title: "الدعم",
         links: [
           { name: "مركز المساعدة", href: "/dashboard/support", icon: Headset },
           {
@@ -170,88 +197,49 @@ export default function DashboardShell({
     [initialUnreadCount],
   );
 
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsOpen(false);
-  }, [pathname]);
-
   const isActive = (href: string, disabled?: boolean) => {
     if (disabled) return false;
-
-    return href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
+    return href === "/dashboard"
+      ? pathname === "/dashboard"
+      : pathname.startsWith(href);
   };
 
-  const sidebar = (
-    <div className="flex h-full flex-col border-l border-border/70 bg-background/95 backdrop-blur-2xl">
-      <div className="relative overflow-hidden px-4 pb-4 pt-5">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-bl from-primary/15 via-primary/5 to-transparent" />
-        <div className="relative flex items-center justify-between gap-3">
-          <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-sm font-bold text-primary-foreground shadow-xl shadow-primary/20 ring-1 ring-primary-foreground/15">
-              {storeInitials || <Store className="size-5" />}
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-bold leading-5">
-                {store.name}
-              </span>
-              <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Sparkles className="size-3.5 text-primary" />
-                Casho Merchant OS
-              </span>
-            </span>
-          </Link>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-10 shrink-0 rounded-2xl md:hidden"
-            onClick={() => setIsOpen(false)}
-            aria-label="إغلاق القائمة"
-          >
-            <X className="size-5" />
-          </Button>
+  const sidebarContent = (collapsed: boolean) => (
+    <div className="flex h-full flex-col bg-card">
+      {/* Store header */}
+      <div
+        className={cn(
+          "flex h-14 shrink-0 items-center border-b border-border",
+          collapsed ? "justify-center px-2" : "gap-3 px-4",
+        )}
+      >
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
+          {storeInitials || <Store className="size-4" />}
         </div>
-
-        <div className="relative mt-5 rounded-[1.7rem] border border-border/70 bg-background/70 p-3 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                Workspace
-              </p>
-              <p className="mt-1 truncate text-sm font-bold">{store.slug}</p>
-            </div>
-            <Badge className="rounded-full border-0 bg-primary/10 text-primary hover:bg-primary/10">
-              SaaS
-            </Badge>
+        {!collapsed && (
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold leading-tight">
+              {store.name}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {store.slug}
+            </p>
           </div>
-        </div>
+        )}
       </div>
 
-      <Separator className="bg-border/70" />
-
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <div className="space-y-6">
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-3" style={{ padding: collapsed ? "12px 8px" : "12px 8px" }}>
+        <div className={cn("space-y-5", collapsed && "space-y-2")}>
           {sections.map((section) => (
-            <div key={section.title} className="space-y-2">
-              <div className="flex items-center justify-between px-3">
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            <div key={section.title}>
+              {!collapsed && (
+                <p className="mb-1 px-2 text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                   {section.title}
                 </p>
-                <p className="text-[10px] font-bold text-muted-foreground/70">
-                  {section.caption}
-                </p>
-              </div>
-
-              <div className="space-y-1">
+              )}
+              {collapsed && <div className="my-2 h-px bg-border/50" />}
+              <div className="space-y-0.5">
                 {section.links.map((link) => {
                   const Icon = link.icon;
                   const active = isActive(link.href, link.disabled);
@@ -260,16 +248,25 @@ export default function DashboardShell({
                     return (
                       <div
                         key={link.name}
-                        className="flex h-11 items-center gap-3 rounded-2xl px-3 text-sm font-bold text-muted-foreground opacity-70"
+                        title={link.name}
+                        className={cn(
+                          "flex cursor-not-allowed items-center rounded-md px-2 py-1.5 text-sm text-muted-foreground/40",
+                          collapsed ? "justify-center" : "gap-2.5",
+                        )}
                       >
-                        <span className="grid size-8 place-items-center rounded-xl bg-muted">
-                          <Icon className="size-4" />
-                        </span>
-                        <span className="flex-1 truncate">{link.name}</span>
-                        {link.badge && (
-                          <Badge variant="secondary" className="rounded-full px-2 text-[10px]">
-                            {link.badge}
-                          </Badge>
+                        <Icon className="size-4 shrink-0" />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 truncate">{link.name}</span>
+                            {link.badge && (
+                              <Badge
+                                variant="secondary"
+                                className="px-1.5 py-0 text-[10px] font-medium"
+                              >
+                                {link.badge}
+                              </Badge>
+                            )}
+                          </>
                         )}
                       </div>
                     );
@@ -279,40 +276,36 @@ export default function DashboardShell({
                     <Link
                       key={link.name}
                       href={link.href}
+                      title={collapsed ? link.name : undefined}
                       className={cn(
-                        "group relative flex h-11 items-center gap-3 rounded-2xl px-3 text-sm font-bold transition-all duration-200",
+                        "relative flex items-center rounded-md px-2 py-1.5 text-[15px] font-medium transition-colors",
+                        collapsed ? "justify-center" : "gap-2.5",
                         active
-                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                          : "text-foreground/75 hover:bg-muted hover:text-foreground",
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                       )}
                     >
-                      {active && (
-                        <span className="absolute inset-y-2 right-0 w-1 rounded-l-full bg-primary-foreground/90" />
-                      )}
-                      <span
-                        className={cn(
-                          "grid size-8 place-items-center rounded-xl transition-colors",
-                          active
-                            ? "bg-primary-foreground/15"
-                            : "bg-muted text-muted-foreground group-hover:text-foreground",
-                        )}
-                      >
-                        <Icon className="size-4" />
-                      </span>
-                      <span className="flex-1 truncate">{link.name}</span>
-                      {!!link.count && link.count > 0 && (
-                        <span
-                          className={cn(
-                            "grid min-w-5 place-items-center rounded-full px-1.5 text-[10px] font-bold",
-                            active
-                              ? "bg-primary-foreground text-primary"
-                              : "bg-primary text-primary-foreground",
+                      <Icon className="size-4 shrink-0" />
+                      {!collapsed && (
+                        <>
+                          <span className="flex-1 truncate">{link.name}</span>
+                          {!!link.count && link.count > 0 && (
+                            <span
+                              className={cn(
+                                "flex min-w-4.5 items-center justify-center rounded-lg px-1.5 text-[10px] font-bold",
+                                active
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-primary/10 text-primary",
+                              )}
+                            >
+                              {link.count > 99 ? "99+" : link.count}
+                            </span>
                           )}
-                        >
-                          {link.count > 99 ? "99+" : link.count}
-                        </span>
+                        </>
                       )}
-                      {active && <ChevronLeft className="size-4 opacity-80" />}
+                      {collapsed && !!link.count && link.count > 0 && (
+                        <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-primary" />
+                      )}
                     </Link>
                   );
                 })}
@@ -322,68 +315,80 @@ export default function DashboardShell({
         </div>
       </nav>
 
-      <div className="border-t border-border/70 bg-muted/30 p-3">
-        <div className="rounded-[1.7rem] border border-border/70 bg-background/85 p-2 shadow-sm">
-          <Button
-            asChild
-            variant="ghost"
-            className="h-11 w-full justify-start gap-3 rounded-2xl font-bold"
-          >
-            <Link href="/dashboard/settings">
-              <span className="grid size-8 place-items-center rounded-xl bg-muted">
+      {/* Footer */}
+      <div className="shrink-0 border-t border-border p-2 space-y-0.5">
+        {!collapsed && (
+          <>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="h-9 w-full justify-start gap-2.5 px-2 text-muted-foreground hover:text-foreground"
+            >
+              <Link href="/dashboard/settings">
                 <Settings className="size-4" />
-              </span>
-              إعدادات المتجر
-            </Link>
-          </Button>
-
-          <Button
-            asChild
-            variant="ghost"
-            className="h-11 w-full justify-start gap-3 rounded-2xl font-bold"
-          >
-            <Link href={`/store/${store.slug}`} target="_blank" rel="noreferrer">
-              <span className="grid size-8 place-items-center rounded-xl bg-muted">
+                إعدادات المتجر
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="h-9 w-full justify-start gap-2.5 px-2 text-muted-foreground hover:text-foreground"
+            >
+              <Link href={`/store/${store.slug}`} target="_blank" rel="noreferrer">
                 <ExternalLink className="size-4" />
-              </span>
-              زيارة المتجر
-            </Link>
-          </Button>
-
-          <div className="mt-1">
-            <LogoutButton />
-          </div>
-        </div>
+                زيارة المتجر
+              </Link>
+            </Button>
+          </>
+        )}
+        <LogoutButton collapsed={collapsed} />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggle}
+          title={collapsed ? "توسيع القائمة" : "طي القائمة"}
+          className={cn(
+            "h-9 w-full px-2 text-muted-foreground hover:text-foreground",
+            collapsed ? "justify-center" : "justify-start gap-2.5",
+          )}
+        >
+          {collapsed ? (
+            <ChevronLeft className="size-4" />
+          ) : (
+            <>
+              <ChevronRight className="size-4" />
+              <span className="text-sm">طي القائمة</span>
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );
 
   return (
-    <div
-      dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-muted/35 text-foreground"
-    >
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute right-[18rem] top-[-16rem] size-[38rem] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute left-[-18rem] top-[16rem] size-[32rem] rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_left,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:44px_44px] opacity-15" />
-      </div>
-
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/70 bg-background/85 px-4 backdrop-blur-2xl md:hidden">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="size-10 rounded-2xl bg-background/70"
-          onClick={() => setIsOpen(true)}
-          aria-label="فتح القائمة"
-        >
-          <Menu className="size-5" />
-        </Button>
+    <div dir="rtl" className="min-h-screen bg-background text-foreground">
+      {/* Mobile header */}
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background px-4 md:hidden">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-9">
+              <Menu className="size-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-65 p-0 [&>button]:hidden">
+            <SheetTitle className="sr-only">قائمة التنقل</SheetTitle>
+            <div onClick={() => setMobileOpen(false)}>
+              {sidebarContent(false)}
+            </div>
+          </SheetContent>
+        </Sheet>
 
         <Link href="/dashboard" className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-bold">{store.name}</span>
-          <span className="block text-xs text-muted-foreground">Merchant OS</span>
+          <span className="block truncate text-sm font-semibold">
+            {store.name}
+          </span>
         </Link>
 
         <NotificationsBell
@@ -393,65 +398,60 @@ export default function DashboardShell({
         <ModeToggle />
       </header>
 
-      <div
-        role="presentation"
-        onClick={() => setIsOpen(false)}
-        className={cn(
-          "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden",
-          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
-        )}
-      />
-
+      {/* Desktop sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-[304px] border-l border-border/70 shadow-2xl shadow-black/15 transition-transform duration-300 md:translate-x-0 md:shadow-none",
-          isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0",
+          "fixed inset-y-0 right-0 z-20 hidden border-l border-border md:block transition-all duration-300 ease-in-out overflow-hidden",
+          isCollapsed ? "w-16" : "w-65",
         )}
       >
-        {sidebar}
+        {sidebarContent(isCollapsed)}
       </aside>
 
-      <main className="min-h-screen md:pr-[304px]">
-        <div className="sticky top-0 z-20 hidden h-16 items-center justify-between gap-4 border-b border-border/70 bg-background/75 px-6 backdrop-blur-2xl md:flex">
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
-              Dashboard
-            </p>
-            <h1 className="truncate text-base font-bold">{store.name}</h1>
-          </div>
+      {/* Main content */}
+      <main
+        className={cn(
+          "flex min-h-screen flex-col transition-all duration-300 ease-in-out",
+          isCollapsed ? "md:pr-16" : "md:pr-65",
+        )}
+      >
+        {/* Desktop topbar */}
+        <header className="sticky top-0 z-10 hidden h-14 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur-sm md:flex">
+          <p className="text-sm font-semibold text-muted-foreground">
+            {store.name}
+          </p>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="hidden h-10 min-w-64 items-center gap-2 rounded-2xl border border-border/70 bg-background/70 px-3 text-right text-sm font-semibold text-muted-foreground shadow-sm lg:flex"
-            >
-              <Search className="size-4" />
-              بحث سريع داخل لوحة التحكم
-              <span className="mr-auto rounded-lg border bg-muted px-1.5 py-0.5 text-[10px]">⌘K</span>
-            </button>
+            <DashboardSearch />
 
             <NotificationsBell
               initialNotifications={initialNotifications}
               initialUnreadCount={initialUnreadCount}
             />
             <ModeToggle />
+
             <Button
               asChild
               variant="outline"
               size="sm"
-              className="h-10 gap-2 rounded-2xl bg-background/70 font-bold"
+              className="h-8 gap-1.5 text-xs"
             >
-              <Link href={`/store/${store.slug}`} target="_blank" rel="noreferrer">
+              <Link
+                href={`/store/${store.slug}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ExternalLink className="size-3.5" />
                 زيارة المتجر
-                <Store className="size-4" />
               </Link>
             </Button>
           </div>
-        </div>
+        </header>
 
-        <section className="mx-auto flex w-full max-w-[1540px] flex-col gap-6 px-4 pb-10 pt-5 sm:px-5 md:px-7 md:pb-14 md:pt-7">
+        {/* Page content */}
+        <div className="mx-auto w-full max-w-385 flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">
           {children}
-        </section>
+        </div>
       </main>
     </div>
   );

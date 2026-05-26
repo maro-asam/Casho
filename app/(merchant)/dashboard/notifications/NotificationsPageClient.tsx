@@ -14,8 +14,9 @@ import {
   Trash2,
   Wrench,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { NotificationDTO } from "@/actions/notifications/notifications.actions";
@@ -25,10 +26,10 @@ import {
   MarkAllNotificationsAsReadAction,
   MarkNotificationAsReadAction,
 } from "@/actions/notifications/notifications.actions";
+import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 
 type NotificationsPageClientProps = {
   initialNotifications: NotificationDTO[];
-  initialUnreadCount: number;
 };
 
 type Filter = "all" | "unread" | "read";
@@ -53,6 +54,24 @@ const notificationIcons: Partial<
   SYSTEM: Bell,
 };
 
+const notificationIconColors: Partial<Record<NotificationDTO["type"], string>> = {
+  NEW_ORDER: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+  ORDER_STATUS_CHANGED: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+  TOPUP_APPROVED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  TOPUP_REJECTED: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  TOPUP_REQUEST_CREATED: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  SERVICE_REQUEST_CREATED: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
+  SERVICE_REQUEST_UPDATED: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
+  SUPPORT_REQUEST_CREATED: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
+  STORE_ACTIVATED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  STORE_PAST_DUE: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  SUBSCRIPTION_EXPIRING: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  SUBSCRIPTION_EXPIRED: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  POWERED_BY_APPROVED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  POWERED_BY_REJECTED: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  SYSTEM: "bg-muted text-muted-foreground",
+};
+
 function formatDate(dateIso: string) {
   return new Intl.DateTimeFormat("ar-EG", {
     day: "numeric",
@@ -63,9 +82,14 @@ function formatDate(dateIso: string) {
   }).format(new Date(dateIso));
 }
 
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: "all", label: "الكل" },
+  { key: "unread", label: "غير مقروء" },
+  { key: "read", label: "مقروء" },
+];
+
 export default function NotificationsPageClient({
   initialNotifications,
-  initialUnreadCount,
 }: NotificationsPageClientProps) {
   const router = useRouter();
   const [notifications, setNotifications] = useState(initialNotifications);
@@ -73,217 +97,194 @@ export default function NotificationsPageClient({
   const [isPending, startTransition] = useTransition();
 
   const unreadCount = useMemo(
-    () => notifications.filter((notification) => !notification.readAt).length,
+    () => notifications.filter((n) => !n.readAt).length,
     [notifications],
   );
 
   const visibleNotifications = useMemo(() => {
-    if (filter === "unread") {
-      return notifications.filter((notification) => !notification.readAt);
-    }
-
-    if (filter === "read") {
-      return notifications.filter((notification) => notification.readAt);
-    }
-
+    if (filter === "unread") return notifications.filter((n) => !n.readAt);
+    if (filter === "read") return notifications.filter((n) => n.readAt);
     return notifications;
   }, [filter, notifications]);
 
-  function markOneAsRead(notificationId: string) {
+  function markOneAsRead(id: string) {
     const now = new Date().toISOString();
-
-    setNotifications((current) =>
-      current.map((notification) =>
-        notification.id === notificationId && !notification.readAt
-          ? { ...notification, readAt: now }
-          : notification,
-      ),
+    setNotifications((cur) =>
+      cur.map((n) => (n.id === id && !n.readAt ? { ...n, readAt: now } : n)),
     );
-
-    startTransition(() => {
-      void MarkNotificationAsReadAction(notificationId);
-    });
+    startTransition(() => { void MarkNotificationAsReadAction(id); });
   }
 
   function openNotification(notification: NotificationDTO) {
-    if (!notification.readAt) {
-      markOneAsRead(notification.id);
-    }
-
-    if (notification.href) {
-      router.push(notification.href);
-    }
+    if (!notification.readAt) markOneAsRead(notification.id);
+    if (notification.href) router.push(notification.href);
   }
 
   function markAllAsRead() {
     const now = new Date().toISOString();
-
-    setNotifications((current) =>
-      current.map((notification) => ({ ...notification, readAt: notification.readAt ?? now })),
+    setNotifications((cur) =>
+      cur.map((n) => ({ ...n, readAt: n.readAt ?? now })),
     );
-
-    startTransition(() => {
-      void MarkAllNotificationsAsReadAction();
-    });
+    startTransition(() => { void MarkAllNotificationsAsReadAction(); });
   }
 
-  function deleteNotification(notificationId: string) {
-    setNotifications((current) =>
-      current.filter((notification) => notification.id !== notificationId),
-    );
-
-    startTransition(() => {
-      void DeleteNotificationAction(notificationId);
-    });
+  function deleteNotification(id: string) {
+    setNotifications((cur) => cur.filter((n) => n.id !== id));
+    startTransition(() => { void DeleteNotificationAction(id); });
   }
 
   function deleteReadNotifications() {
-    setNotifications((current) => current.filter((notification) => !notification.readAt));
-
-    startTransition(() => {
-      void DeleteReadNotificationsAction();
-    });
+    setNotifications((cur) => cur.filter((n) => !n.readAt));
+    startTransition(() => { void DeleteReadNotificationsAction(); });
   }
 
   return (
     <div className="space-y-6" dir="rtl">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-2">
-          <Badge variant="outline" className="w-fit">
-            Notifications
-          </Badge>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">الإشعارات</h1>
-          <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-            هنا هتلاقي الأوردرات الجديدة، تحديثات الرصيد، طلبات الدعم، وأي حاجة مهمة تخص متجرك.
-          </p>
+      <DashboardSectionHeader
+        icon={Bell}
+        title="الإشعارات"
+        description="متابعة الطلبات الجديدة، تحديثات الرصيد، وكل ما يخص متجرك."
+        badge={unreadCount > 0 ? unreadCount : undefined}
+      />
+
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-muted/30 p-1 w-fit">
+          {FILTERS.map(({ key, label }) => {
+            const count =
+              key === "all"
+                ? notifications.length
+                : key === "unread"
+                  ? unreadCount
+                  : notifications.length - unreadCount;
+
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setFilter(key)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                  filter === key
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {label}
+                <span
+                  className={cn(
+                    "min-w-5 rounded-full px-1.5 py-0.5 text-center text-[11px] font-bold leading-none",
+                    filter === key
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
-            className="gap-2"
+            size="sm"
+            className="gap-2 rounded-xl"
             disabled={unreadCount === 0 || isPending}
             onClick={markAllAsRead}
           >
-            <CheckCheck className="h-4 w-4" />
+            <CheckCheck className="size-3.5" />
             تعليم الكل كمقروء
           </Button>
           <Button
             type="button"
             variant="ghost"
-            className="gap-2 text-destructive hover:text-destructive"
-            disabled={notifications.every((notification) => !notification.readAt) || isPending}
+            size="sm"
+            className="gap-2 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"
+            disabled={notifications.every((n) => !n.readAt) || isPending}
             onClick={deleteReadNotifications}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="size-3.5" />
             حذف المقروء
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <button
-          type="button"
-          onClick={() => setFilter("all")}
-          className={cn(
-            "rounded-2xl border bg-card p-4 text-start transition hover:bg-muted/40",
-            filter === "all" && "border-primary bg-primary/5",
-          )}
-        >
-          <p className="text-sm text-muted-foreground">كل الإشعارات</p>
-          <p className="mt-1 text-2xl font-bold">{notifications.length}</p>
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilter("unread")}
-          className={cn(
-            "rounded-2xl border bg-card p-4 text-start transition hover:bg-muted/40",
-            filter === "unread" && "border-primary bg-primary/5",
-          )}
-        >
-          <p className="text-sm text-muted-foreground">غير مقروء</p>
-          <p className="mt-1 text-2xl font-bold">{unreadCount}</p>
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilter("read")}
-          className={cn(
-            "rounded-2xl border bg-card p-4 text-start transition hover:bg-muted/40",
-            filter === "read" && "border-primary bg-primary/5",
-          )}
-        >
-          <p className="text-sm text-muted-foreground">مقروء</p>
-          <p className="mt-1 text-2xl font-bold">
-            {notifications.length - unreadCount}
-          </p>
-        </button>
-      </div>
-
+      {/* List */}
       {visibleNotifications.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex min-h-72 flex-col items-center justify-center gap-3 text-center">
-            <div className="rounded-full bg-muted p-4">
-              <Inbox className="h-8 w-8 text-muted-foreground" />
+        <Card className="... border-dashed border-border/60">
+          <CardContent className="flex min-h-72 flex-col items-center justify-center gap-4 text-center">
+            <div className="grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
+              <Inbox className="size-7" />
             </div>
             <div>
-              <h2 className="font-bold">مفيش إشعارات هنا</h2>
-              <p className="mt-1 max-w-md text-sm leading-7 text-muted-foreground">
+              <p className="font-bold">مفيش إشعارات هنا</p>
+              <p className="mt-1 max-w-xs text-sm leading-7 text-muted-foreground">
                 لما يحصل نشاط جديد في المتجر، الإشعارات هتظهر هنا تلقائيًا.
               </p>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {visibleNotifications.map((notification) => {
-            const Icon = notificationIcons[notification.type] ?? Bell;
-            const unread = !notification.readAt;
+        <Card className="... border-border bg-background shadow-sm">
+          <div className="divide-y divide-border/50">
+            {visibleNotifications.map((notification) => {
+              const Icon = notificationIcons[notification.type] ?? Bell;
+              const iconColor =
+                notificationIconColors[notification.type] ??
+                "bg-muted text-muted-foreground";
+              const unread = !notification.readAt;
 
-            return (
-              <Card
-                key={notification.id}
-                className={cn(
-                  "overflow-hidden transition hover:shadow-sm",
-                  unread && "border-primary/40 bg-primary/5",
-                )}
-              >
-                <CardContent className="flex gap-4 p-4">
+              return (
+                <div
+                  key={notification.id}
+                  className={cn(
+                    "flex items-start gap-4 px-5 py-4 transition-colors first:rounded-t-[2rem] last:rounded-b-[2rem]",
+                    unread ? "bg-primary/5 hover:bg-primary/8" : "hover:bg-muted/30",
+                  )}
+                >
+                  {/* Icon */}
+                  <div
+                    className={cn(
+                      "mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl",
+                      unread ? "bg-primary/10 text-primary" : iconColor,
+                    )}
+                  >
+                    <Icon className="size-4" />
+                  </div>
+
+                  {/* Content */}
                   <button
                     type="button"
-                    className="flex min-w-0 flex-1 gap-4 text-start"
+                    className="min-w-0 flex-1 text-right"
                     onClick={() => openNotification(notification)}
                   >
-                    <span
-                      className={cn(
-                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border bg-background",
-                        unread && "border-primary/40 bg-primary/10 text-primary",
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-bold">{notification.title}</span>
+                      {unread && (
+                        <Badge className="h-4 rounded-full border-0 bg-primary/10 px-1.5 text-[10px] font-bold text-primary hover:bg-primary/10">
+                          جديد
+                        </Badge>
                       )}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </span>
-
-                    <span className="min-w-0 flex-1 space-y-2">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold">{notification.title}</span>
-                        {unread && <Badge>جديد</Badge>}
-                      </span>
-                      <span className="block text-sm leading-7 text-muted-foreground">
-                        {notification.message}
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {formatDate(notification.createdAt)}
-                      </span>
-                    </span>
+                    </div>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {notification.message}
+                    </p>
+                    <p className="mt-1.5 text-xs text-muted-foreground/60">
+                      {formatDate(notification.createdAt)}
+                    </p>
                   </button>
 
-                  <div className="flex shrink-0 flex-col gap-2">
+                  {/* Actions */}
+                  <div className="flex shrink-0 items-center gap-1 pt-0.5">
                     {unread && (
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
-                        className="h-8"
+                        className="h-7 rounded-lg px-2 text-xs text-muted-foreground hover:text-foreground"
                         onClick={() => markOneAsRead(notification.id)}
                       >
                         مقروء
@@ -293,23 +294,17 @@ export default function NotificationsPageClient({
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      className="size-7 rounded-lg text-muted-foreground/50 hover:bg-destructive/10 hover:text-destructive"
                       onClick={() => deleteNotification(notification.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="size-3.5" />
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {initialUnreadCount !== unreadCount && (
-        <p className="text-xs text-muted-foreground">
-          تم تحديث الحالة محليًا. لو عملت refresh هتشوف آخر حالة من السيرفر.
-        </p>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
       )}
     </div>
   );

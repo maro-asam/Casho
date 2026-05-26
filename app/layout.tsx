@@ -5,7 +5,7 @@
 
 import "./globals.css";
 import type { Metadata } from "next";
-import { Alexandria, Inter } from "next/font/google";
+import { Cairo, Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
-const cairoFont = Alexandria({
+const cairoFont = Cairo({
   subsets: ["arabic"],
   variable: "--font-cairo",
 });

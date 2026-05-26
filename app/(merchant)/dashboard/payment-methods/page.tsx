@@ -1,135 +1,105 @@
 import type { Metadata } from "next";
-import {
-  Banknote,
-  CreditCard,
-  ShieldCheck,
-  WalletCards,
-} from "lucide-react";
+import { Banknote, CreditCard, ShieldCheck, WalletCards, type LucideIcon } from "lucide-react";
 
 import { GetPaymentMethodsSettingsAction } from "@/actions/payment-methods/payment-methods.actions";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import PaymentMethodsForm from "./_components/PaymentMethodsForm";
 
 export const metadata: Metadata = {
   title: "طرق الدفع",
 };
 
+function StatCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  valueClass,
+}: {
+  title: string;
+  value: string;
+  description: string;
+  icon: LucideIcon;
+  valueClass?: string;
+}) {
+  return (
+    <Card className="border-border/60 shadow-sm">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
+        <div className="space-y-1">
+          <CardDescription className="text-xs">{title}</CardDescription>
+          <CardTitle className={cn("text-xl font-bold md:text-2xl", valueClass)}>{value}</CardTitle>
+        </div>
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="size-5" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default async function PaymentMethodsPage() {
   const settings = await GetPaymentMethodsSettingsAction();
 
   const activeManualMethods = settings.enabledPaymentMethods.filter(
-    (method) => method !== "kashier",
+    (m) => m !== "kashier",
   ).length;
-
-  const activeOnlineMethods = settings.enabledPaymentMethods.includes("kashier")
-    ? 1
-    : 0;
+  const kashierActive = settings.enabledPaymentMethods.includes("kashier");
 
   return (
-    <div className="min-h-[calc(100vh-120px)]" dir="rtl">
-      <div className="mx-auto flex w-full flex-col gap-6 p-4 md:p-6">
-        <Card className="border-border/60 shadow-sm">
-          <CardContent className="flex flex-col gap-5 p-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="rounded-xl px-3 py-1">
-                  طرق الدفع
-                </Badge>
+    <div className="space-y-6" dir="rtl">
+      {/* ── Hero ── */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 px-6 py-7 shadow-sm">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/8 blur-3xl" />
+        <div className="pointer-events-none absolute -left-10 bottom-0 h-36 w-36 rounded-full bg-sky-500/8 blur-3xl" />
 
-                <Badge
-                  variant={settings.kashierEnabled ? "secondary" : "outline"}
-                  className="rounded-xl px-3 py-1"
-                >
-                  {settings.kashierEnabled ? "Kashier مفعل" : "Kashier متوقف"}
-                </Badge>
-              </div>
-
-              <div className="space-y-1">
-                <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                  ظبط طرق الدفع اللي هتظهر في متجرك
-                </h1>
-
-                <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                  فعّل وسائل الدفع العالمية، المصرية، والسعودية. الطرق اليدوية
-                  هتعرض بيانات التحويل للعميل بعد تأكيد الطلب.
-                </p>
-              </div>
+        <div className="relative flex items-start gap-4">
+          <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <WalletCards className="size-6" />
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-bold tracking-tight">طرق الدفع</h1>
+              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-xs">
+                {settings.storeName}
+              </Badge>
             </div>
-
-            <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <WalletCards className="size-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="border-border/60 shadow-sm">
-            <CardContent className="flex items-start justify-between gap-4 p-5">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">الطرق اليدوية</p>
-
-                <h2 className="text-2xl font-semibold">
-                  {activeManualMethods}
-                </h2>
-
-                <p className="text-sm leading-6 text-muted-foreground">
-                  طرق مفعلة في checkout.
-                </p>
-              </div>
-
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Banknote className="size-5" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/60 shadow-sm">
-            <CardContent className="flex items-start justify-between gap-4 p-5">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">الدفع الأونلاين</p>
-
-                <h2 className="text-2xl font-semibold">
-                  {activeOnlineMethods > 0 ? "مفعل" : "متوقف"}
-                </h2>
-
-                <p className="text-sm leading-6 text-muted-foreground">
-                  ربط Kashier مع صفحة الدفع.
-                </p>
-              </div>
-
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <CreditCard className="size-5" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/60 shadow-sm">
-            <CardContent className="flex items-start justify-between gap-4 p-5">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  عدد الطرق المفعلة
-                </p>
-
-                <h2 className="text-2xl font-semibold">
-                  {settings.enabledPaymentMethods.length}
-                </h2>
-
-                <p className="text-sm leading-6 text-muted-foreground">
-                  وسائل دفع ظاهرة للعملاء.
-                </p>
-              </div>
-
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <ShieldCheck className="size-5" />
-              </div>
-            </CardContent>
-          </Card>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              فعّل وسائل الدفع اللي هتظهر في متجرك — يدوية، محلية، أو بوابة دفع أونلاين.
+            </p>
+          </div>
         </div>
-
-        <PaymentMethodsForm initialSettings={settings} />
       </div>
+
+      {/* ── Stats ── */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          title="الطرق اليدوية المفعلة"
+          value={String(activeManualMethods)}
+          description="تحويلات بنكية ومحافظ إلكترونية ستظهر في الـ checkout."
+          icon={Banknote}
+        />
+        <StatCard
+          title="بوابة الدفع الأونلاين"
+          value={kashierActive ? "مفعل" : "متوقف"}
+          description="Kashier — دفع بالكارت أو المحفظة الرقمية بدون تحويل يدوي."
+          icon={CreditCard}
+          valueClass={kashierActive ? "text-emerald-600" : "text-muted-foreground"}
+        />
+        <StatCard
+          title="إجمالي طرق الدفع"
+          value={String(settings.enabledPaymentMethods.length)}
+          description="وسائل دفع ظاهرة حاليًا للعملاء في صفحة الدفع."
+          icon={ShieldCheck}
+        />
+      </div>
+
+      {/* ── Form ── */}
+      <PaymentMethodsForm initialSettings={settings} />
     </div>
   );
 }

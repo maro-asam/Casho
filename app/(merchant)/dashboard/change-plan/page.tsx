@@ -132,7 +132,7 @@ export default async function ChangePlanRoute({
 
   return (
     <div
-      className="min-h-[calc(100vh-120px)] bg-background p-4 md:p-6"
+      className="min-h-[calc(100vh-120px)]  p-4 md:p-6"
       dir="rtl"
     >
       <div className="mx-auto flex w-full flex-col gap-6">

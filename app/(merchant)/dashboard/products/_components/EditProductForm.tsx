@@ -29,6 +29,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import TagInput from "./TagInput";
+import AttributesInput from "./AttributesInput";
 
 type Category = {
   id: string;
@@ -61,6 +64,7 @@ type Product = {
   hasVariants: boolean;
 
   categoryId: string;
+  attributes: unknown;
 };
 
 type Props = {
@@ -479,53 +483,53 @@ export default function EditProductForm({ product, categories }: Props) {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="sizes">
-            المقاسات
-            <span className="ms-2 text-xs text-muted-foreground">
-              افصل بينهم بفاصلة
-            </span>
-          </Label>
-          <Input
-            id="sizes"
+        <div className="space-y-1.5">
+          <Label>المقاسات</Label>
+          <TagInput
             name="sizes"
-            placeholder="S, M, L, XL"
-            defaultValue={product.sizes.join(", ")}
-            className="rounded-xl"
+            placeholder="S, M, L, XL..."
+            defaultValues={product.sizes}
+            hint="اضغط Enter أو فاصلة لإضافة مقاس"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="colors">
-            الألوان
-            <span className="ms-2 text-xs text-muted-foreground">
-              افصل بينهم بفاصلة
-            </span>
-          </Label>
-          <Input
-            id="colors"
+        <div className="space-y-1.5">
+          <Label>الألوان</Label>
+          <TagInput
             name="colors"
-            placeholder="أسود, أبيض, أزرق"
-            defaultValue={product.colors.join(", ")}
-            className="rounded-xl"
+            placeholder="أسود، أبيض، أحمر..."
+            defaultValues={product.colors}
+            hint="اضغط Enter أو فاصلة لإضافة لون"
           />
         </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="tags">
-            Tags
-            <span className="ms-2 text-xs text-muted-foreground">
-              افصل بينهم بفاصلة
-            </span>
-          </Label>
-          <Input
-            id="tags"
+        <div className="space-y-1.5 md:col-span-2">
+          <Label>وسوم (Tags)</Label>
+          <TagInput
             name="tags"
-            placeholder="جديد, الأكثر مبيعًا, صيفي"
-            defaultValue={product.tags.join(", ")}
-            className="rounded-xl"
+            placeholder="جديد، الأكثر مبيعًا، صيفي..."
+            defaultValues={product.tags}
+            hint="تساعد العملاء في البحث عن المنتج"
           />
         </div>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-3">
+        <div>
+          <p className="text-sm font-medium">خصائص مخصصة</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            أضف أي معلومة إضافية خاصة بالمنتج — المادة، بلد الصنع، تعليمات العناية...
+          </p>
+        </div>
+        <AttributesInput
+          defaultValues={
+            Array.isArray(product.attributes)
+              ? (product.attributes as { key: string; value: string }[])
+              : []
+          }
+        />
       </div>
 
       <Card className="rounded-xl border-dashed">

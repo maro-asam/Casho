@@ -194,7 +194,7 @@ export default function NotificationsBell({
           type="button"
           variant="outline"
           size="icon"
-          className="relative h-10 w-10 rounded-full"
+          className="relative h-10 w-10 "
           aria-label="الإشعارات"
         >
           <Bell className="h-4 w-4" />
