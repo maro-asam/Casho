@@ -6,6 +6,7 @@ import { PaintRoller, LayoutTemplate } from "lucide-react";
 import { Metadata } from "next";
 import StoreColorsSection from "./_components/StoreColorsSection";
 import ThemePicker from "./_components/ThemePicker";
+import StoreFontPicker from "./_components/StoreFontPicker";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default async function CustomizationRoute() {
           primaryColor: true,
           secondaryColor: true,
           themeId: true,
+          fontId: true,
         },
       },
     },
@@ -65,6 +67,12 @@ export default async function CustomizationRoute() {
 
       {/* ── Colors ── */}
       <StoreColorsSection store={store} />
+
+      {/* ── Fonts ── */}
+      <StoreFontPicker
+        storeId={store.id}
+        currentFontId={store.settings?.fontId}
+      />
 
       {/* ── Navbar ── */}
       <NavbarVariantPicker

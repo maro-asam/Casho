@@ -38,8 +38,18 @@ export default async function DashboardLayout({
   const store = await prisma.store.findFirst({
     where: { userId },
     select: {
+      id: true,
       name: true,
       slug: true,
+      settings: {
+        select: {
+          themeId: true,
+          fontId: true,
+          navbarVariant: true,
+          primaryColor: true,
+          secondaryColor: true,
+        },
+      },
     },
   });
 

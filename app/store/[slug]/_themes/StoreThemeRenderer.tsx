@@ -1,10 +1,10 @@
 import { getStoreTheme } from "@/constants/store-themes";
 
 import type { StoreThemeData } from "./types";
-import BoutiqueHome from "./boutique/BoutiqueHome";
-import BoldHome from "./bold/BoldHome";
 import ClassicHome from "./classic/ClassicHome";
-import MagazineHome from "./magazine/MagazineHome";
+import ModernHome from "./modern/ModernHome";
+import ExclusiveHome from "./exclusive/ExclusiveHome";
+import AllaiaHome from "./allaia/AllaiaHome";
 
 type StoreThemeRendererProps = {
   themeId?: string | null;
@@ -18,14 +18,14 @@ export default function StoreThemeRenderer({
   const theme = getStoreTheme(themeId);
 
   switch (theme.id) {
-    case "boutique":
-      return <BoutiqueHome store={store} />;
+    case "modern":
+      return <ModernHome store={store} />;
 
-    case "bold":
-      return <BoldHome store={store} />;
+    case "exclusive":
+      return <ExclusiveHome store={store} />;
 
-    case "magazine":
-      return <MagazineHome store={store} />;
+    case "allaia":
+      return <AllaiaHome store={store} />;
 
     case "classic":
     default:

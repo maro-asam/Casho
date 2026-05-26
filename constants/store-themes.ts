@@ -1,11 +1,6 @@
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 
-export const STORE_THEME_IDS = [
-  "classic",
-  "boutique",
-  "bold",
-  "magazine",
-] as const;
+export const STORE_THEME_IDS = ["classic", "modern", "exclusive", "allaia"] as const;
 
 export type StoreThemeId = (typeof STORE_THEME_IDS)[number];
 
@@ -46,59 +41,57 @@ export const STORE_THEMES: Record<StoreThemeId, StoreTheme> = {
     },
   },
 
-  boutique: {
-    id: "boutique",
-    name: "Boutique",
-    description: "ستايل premium مناسب للملابس والهاند ميد والبراندات الناعمة.",
-    navbarVariant: "centered",
+  modern: {
+    id: "modern",
+    name: "Modern",
+    description: "تصميم عصري وأنيق بألوان داكنة وبطاقات منتجات portrait احترافية.",
+    navbarVariant: "default",
     tokens: {
-      primaryColor: "#be185d",
-      secondaryColor: "#fdf2f8",
-      background: "#fff7fb",
-      surface: "#fffafd",
+      primaryColor: "#18181b",
+      secondaryColor: "#f59e0b",
+      background: "#fafaf9",
+      surface: "#f5f5f4",
       card: "#ffffff",
-      muted: "#fce7f3",
-      border: "#fbcfe8",
-      radius: "1.5rem",
-      heroOverlay:
-        "linear-gradient(to left, rgba(80,7,36,.72), rgba(80,7,36,.22), rgba(0,0,0,.12))",
+      muted: "#f5f5f4",
+      border: "#e7e5e4",
+      radius: "0.5rem",
+      heroOverlay: "linear-gradient(to left, rgba(24,24,27,.90), rgba(24,24,27,.50), rgba(24,24,27,.15))",
     },
   },
 
-  bold: {
-    id: "bold",
-    name: "Bold",
-    description: "ستايل قوي وسريع مناسب للإلكترونيات، الجيم، والـ streetwear.",
-    navbarVariant: "compact",
+  allaia: {
+    id: "allaia",
+    name: "Allaia",
+    description: "تصميم إيديتوريال نظيف مستوحى من متاجر الموضة — أبيض ناصع، لوجو في المنتصف، بطاقات بدون حدود.",
+    navbarVariant: "allaia",
     tokens: {
-      primaryColor: "#111827",
-      secondaryColor: "#facc15",
-      background: "#f9fafb",
-      surface: "#ffffff",
+      primaryColor: "#1c1c1c",
+      secondaryColor: "#f5f5f5",
+      background: "#ffffff",
+      surface: "#fafafa",
       card: "#ffffff",
-      muted: "#f3f4f6",
-      border: "#d1d5db",
-      radius: "0.625rem",
-      heroOverlay:
-        "linear-gradient(to left, rgba(0,0,0,.78), rgba(0,0,0,.42), rgba(0,0,0,.14))",
+      muted: "#f4f4f4",
+      border: "#e8e8e8",
+      radius: "0.25rem",
+      heroOverlay: "linear-gradient(to left, rgba(0,0,0,.55), rgba(0,0,0,.10))",
     },
   },
-  magazine: {
-    id: "magazine",
-    name: "Magazine",
-    description: "ستايل جذاب مناسب للنشرات والتصميمات الحديثة.",
+
+  exclusive: {
+    id: "exclusive",
+    name: "Exclusive",
+    description: "تصميم احترافي بلون أحمر جريء مع أقسام عروض ومنتجات مميزة.",
     navbarVariant: "default",
     tokens: {
-      primaryColor: "#0ea5e9",
-      secondaryColor: "#f0f9ff",
+      primaryColor: "#DB4444",
+      secondaryColor: "#000000",
       background: "#ffffff",
-      surface: "#ffffff",
+      surface: "#f5f5f5",
       card: "#ffffff",
-      muted: "#f0f9ff",
-      border: "#bfdbfe",
-      radius: "0.875rem",
-      heroOverlay:
-        "linear-gradient(to left, rgba(14,165,233,.72), rgba(14,165,233,.22), rgba(0,0,0,.12))",
+      muted: "#f5f5f5",
+      border: "#e8e8e8",
+      radius: "0.375rem",
+      heroOverlay: "linear-gradient(to left, rgba(0,0,0,.70), rgba(0,0,0,.30))",
     },
   },
 };
@@ -111,6 +104,5 @@ export function getStoreTheme(themeId?: string | null): StoreTheme {
   if (themeId && isStoreThemeId(themeId)) {
     return STORE_THEMES[themeId];
   }
-
   return STORE_THEMES.classic;
 }

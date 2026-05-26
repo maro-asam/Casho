@@ -8,6 +8,7 @@ import StoreFrontHeader from "./_components/NAVBARS/StoreHeader";
 import StoreFooter from "./_components/shared/StoreFooter";
 import { getStoreTheme } from "@/constants/store-themes";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
+import { getArabicFont } from "@/constants/arabic-fonts";
 
 type LayoutProps = {
   children: ReactNode;
@@ -163,6 +164,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         select: {
           logo: true,
           themeId: true,
+          fontId: true,
           primaryColor: true,
           secondaryColor: true,
           navbarVariant: true,
@@ -179,6 +181,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);
 
   const theme = getStoreTheme(store.settings?.themeId);
+  const font = getArabicFont(store.settings?.fontId);
 
   const primaryColor =
     store.settings?.primaryColor || theme.tokens.primaryColor;
@@ -207,9 +210,14 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
     "--primary-foreground": "var(--store-primary-foreground)",
     "--secondary": "var(--store-secondary)",
     "--secondary-foreground": "var(--store-secondary-foreground)",
+    fontFamily: font.family,
   } as CSSProperties;
 
   return (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link rel="stylesheet" href={font.googleUrl} />
     <div
       dir="rtl"
       style={storeThemeStyle}
@@ -234,5 +242,6 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         }
       />
     </div>
+    </>
   );
 }

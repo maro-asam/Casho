@@ -140,7 +140,7 @@ function ServiceCard({ service, storeId }: { service: ServiceItem; storeId?: str
       dir="rtl"
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-200",
-        "hover:-translate-y-1 hover:shadow-lg",
+        "hover:-translate-y-1 hover:shadow-lg p-0",
         service.popular
           ? "border-primary/30 shadow-sm shadow-primary/5"
           : "border-border/60",

@@ -14,6 +14,11 @@ export const STORE_NAVBAR_VARIANTS = [
     label: "مضغوط احترافي",
     description: "هيدر خفيف وسريع ويركز على البحث والعربة",
   },
+  {
+    value: "allaia",
+    label: "إيديتوريال",
+    description: "لوجو في المنتصف، روابط على الجانبين — مثالي لمتاجر الموضة",
+  },
 ] as const;
 
 export type StoreNavbarVariant =

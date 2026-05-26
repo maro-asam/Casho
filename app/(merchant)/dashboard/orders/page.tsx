@@ -200,7 +200,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
           return (
             <Card
               key={stat.label}
-              className="border-border bg-card shadow-sm"
+              className="border-border  shadow-sm"
             >
               <div className="p-5">
                 <div
@@ -238,7 +238,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
         </Card>
       ) : (
         <>
-          <Card className="border-border shadow-sm">
+          <Card className="border-border shadow-sm ">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>

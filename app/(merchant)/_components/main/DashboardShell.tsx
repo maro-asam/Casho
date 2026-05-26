@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
+import {
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -33,17 +39,32 @@ import {
 import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
 import DashboardSearch from "@/app/(merchant)/_components/main/DashboardSearch";
 import NotificationsBell from "@/app/(merchant)/_components/notifications/NotificationsBell";
+// import QuickCustomizeSheet from "@/app/(merchant)/_components/main/QuickCustomizeSheet";
 import type { NotificationDTO } from "@/actions/notifications/notifications.actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/theme/ModeToggle";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 interface DashboardShellProps {
   store: {
+    id: string;
     name: string;
     slug: string;
+    settings: {
+      themeId: string | null;
+      fontId: string | null;
+      navbarVariant: string | null;
+      primaryColor: string | null;
+      secondaryColor: string | null;
+    } | null;
   };
   initialNotifications: NotificationDTO[];
   initialUnreadCount: number;
@@ -229,7 +250,10 @@ export default function DashboardShell({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-3" style={{ padding: collapsed ? "12px 8px" : "12px 8px" }}>
+      <nav
+        className="flex-1 overflow-y-auto py-3"
+        style={{ padding: collapsed ? "12px 8px" : "12px 8px" }}
+      >
         <div className={cn("space-y-5", collapsed && "space-y-2")}>
           {sections.map((section) => (
             <div key={section.title}>
@@ -336,7 +360,11 @@ export default function DashboardShell({
               size="sm"
               className="h-9 w-full justify-start gap-2.5 px-2 text-muted-foreground hover:text-foreground"
             >
-              <Link href={`/store/${store.slug}`} target="_blank" rel="noreferrer">
+              <Link
+                href={`/store/${store.slug}`}
+                target="_blank"
+                rel="noreferrer"
+              >
                 <ExternalLink className="size-4" />
                 زيارة المتجر
               </Link>
@@ -430,14 +458,15 @@ export default function DashboardShell({
             />
             <ModeToggle />
 
+            {/* <QuickCustomizeSheet storeId={store.id} settings={store.settings} /> */}
+
             <Button
               asChild
               variant="outline"
-              size="sm"
-              className="h-8 gap-1.5 text-xs"
+              className="gap-1.5 text-xs"
             >
               <Link
-                href={`/store/${store.slug}`}
+                href={buildStoreUrl(store.slug)}
                 target="_blank"
                 rel="noreferrer"
               >

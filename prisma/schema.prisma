@@ -98,6 +98,7 @@ model StoreSettings {
   store   Store  @relation(fields: [storeId], references: [id])
 
   themeId        String  @default("classic")
+  fontId         String  @default("cairo")
   logo           String?
   coverImage     String?
   primaryColor   String?
