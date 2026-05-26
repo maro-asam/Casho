@@ -43,6 +43,12 @@ export async function LoginAction(
       };
     }
 
+    if (!user.password) {
+      return {
+        error: "هذا الحساب مسجّل بواسطة Google، استخدم زر تسجيل الدخول بـ Google",
+      };
+    }
+
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatch) {
