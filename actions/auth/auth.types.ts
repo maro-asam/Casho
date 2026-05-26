@@ -9,6 +9,9 @@ export type ActionState<TFields extends FieldErrorMap = FieldErrorMap> = {
 
 export type RegisterState = ActionState<{
   storeName?: string;
+  name?: string;
+  country?: string;
+  businessType?: string;
   email?: string;
   phoneNumber?: string;
   password?: string;

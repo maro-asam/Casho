@@ -29,6 +29,16 @@ export const registerSchema = z
       .min(2, "اسم المتجر قصير جدًا")
       .max(60, "اسم المتجر طويل جدًا"),
 
+    name: z
+      .string()
+      .trim()
+      .min(2, "الاسم قصير جدًا")
+      .max(100, "الاسم طويل جدًا"),
+
+    country: z.string().trim().min(1, "البلد مطلوب"),
+
+    businessType: z.string().trim().min(1, "نوع النشاط مطلوب"),
+
     email: z
       .string()
       .trim()

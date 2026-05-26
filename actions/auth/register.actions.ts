@@ -45,6 +45,9 @@ export async function RegisterAction(
 ): Promise<RegisterState> {
   const rawData = {
     storeName: formData.get("storeName")?.toString() ?? "",
+    name: formData.get("name")?.toString() ?? "",
+    country: formData.get("country")?.toString() ?? "",
+    businessType: formData.get("businessType")?.toString() ?? "",
     email: formData.get("email")?.toString() ?? "",
     phoneNumber: formData.get("phoneNumber")?.toString() ?? "",
     password: formData.get("password")?.toString() ?? "",
@@ -60,7 +63,7 @@ export async function RegisterAction(
     };
   }
 
-  const { storeName, email, phoneNumber, password } = parsed.data;
+  const { storeName, name, country, businessType, email, phoneNumber, password } = parsed.data;
 
   try {
     const existingUser = await prisma.user.findFirst({
@@ -118,6 +121,9 @@ export async function RegisterAction(
           email,
           password: hashedPassword,
           phone_number: phoneNumber || null,
+          name: name || null,
+          country: country || null,
+          businessType: businessType || null,
           stores: {
             create: {
               name: storeName.trim(),

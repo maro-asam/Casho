@@ -13,7 +13,7 @@
   --background: #ffffff;
   --foreground: #0a0d1a;
 
-  --card: #f1f4ff;
+  --card: #f7f9ff;
   --card-foreground: #0a0d1a;
 
   --popover: #ffffff;
@@ -38,7 +38,7 @@
   --destructive-foreground: #ffffff;
 
   /* borders & inputs */
-  --border: rgb(211, 211, 211);
+  --border: rgb(233, 233, 233);
   --input: #e2e5f0;
   --ring: #1447e6;
 
