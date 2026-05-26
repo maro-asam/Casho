@@ -98,7 +98,7 @@ export default function ClassicHome({ store }: StoreThemeProps) {
                 key={category.id}
                 category={category}
                 storeSlug={store.slug}
-                variant="classic"
+                // variant="classic"
               />
             ))}
           </div>
