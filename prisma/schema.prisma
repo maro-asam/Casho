@@ -91,6 +91,10 @@ model Store {
   storePaymentSettings StorePaymentSettings?
   notifications        Notification[]
 
+  instagramConnection  InstagramConnection?
+  suggestedOrders      SuggestedOrder[]
+  igAiUsageLogs        IgAiUsageLog[]
+
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
   @@index([gracePeriodEndsAt])
@@ -101,7 +105,7 @@ model StoreSettings {
   storeId String @unique
   store   Store  @relation(fields: [storeId], references: [id])
 
-  themeId        String  @default("classic")
+  themeId        String  @default("default")
   fontId         String  @default("cairo")
   logo           String?
   coverImage     String?
@@ -109,6 +113,15 @@ model StoreSettings {
   secondaryColor String?
   navbarVariant  String  @default("default")
   shippingPrice  Int     @default(0)
+
+  /// Full merchant theme customization (ThemeCustomization JSON).
+  /// Stores presetId + tokenOverrides + layoutOverrides + sectionOverrides.
+  /// When present, takes precedence over themeId / primaryColor / secondaryColor.
+  themeConfig      Json?
+
+  /// Unpublished draft of the theme customization.
+  /// The merchant can preview this before publishing to themeConfig.
+  draftThemeConfig Json?
 
   seoTitle       String?
   seoDescription String?
@@ -193,8 +206,9 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cartItems  CartItem[]
-  orderItems OrderItem[]
+  cartItems           CartItem[]
+  orderItems          OrderItem[]
+  suggestedOrderItems SuggestedOrderItem[]
 }
 
 model Banner {
@@ -298,9 +312,10 @@ model Order {
 
   createdAt DateTime @default(now())
 
-  items  OrderItem[]
-  userId String?
-  user   User?       @relation(fields: [userId], references: [id])
+  items          OrderItem[]
+  userId         String?
+  user           User?           @relation(fields: [userId], references: [id])
+  suggestedOrder SuggestedOrder?
 }
 
 model OrderItem {
@@ -532,7 +547,43 @@ enum NotificationType {
   SUBSCRIPTION_EXPIRED
   STORE_ACTIVATED
   STORE_PAST_DUE
+  ABANDONED_CART
   SYSTEM
+  IG_ORDER_SUGGESTED
+  IG_CONNECTION_EXPIRED
+}
+
+// ─────────────────────────────────────────────────────────────
+// Instagram AI Orders
+// ─────────────────────────────────────────────────────────────
+
+enum IgConnectionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+enum IgConversationStatus {
+  UNPROCESSED
+  PROCESSING
+  NO_ORDER
+  SUGGESTED
+  IGNORED
+}
+
+enum SuggestedOrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum IgJobStatus {
+  QUEUED
+  PROCESSING
+  DONE
+  FAILED
 }
 
 model BlogCategory {
@@ -621,4 +672,182 @@ enum BlogStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+// ─────────────────────────────────────────────────────────────
+// Instagram AI Orders — Models
+// ─────────────────────────────────────────────────────────────
+
+model InstagramConnection {
+  id              String             @id @default(uuid())
+  storeId         String             @unique
+  store           Store              @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  igUserId        String
+  igUsername      String
+  igPageId        String?
+  igPageName      String?
+
+  // AES-256-GCM encrypted long-lived token (via lib/secrets.ts encryptSecret)
+  accessTokenEnc  String
+
+  tokenExpiresAt  DateTime?
+  status          IgConnectionStatus @default(ACTIVE)
+  webhookVerified Boolean            @default(false)
+  lastSyncAt      DateTime?
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  conversations   InstagramConversation[]
+
+  @@index([storeId])
+  @@index([status])
+}
+
+model InstagramConversation {
+  id               String               @id @default(uuid())
+  connectionId     String
+  connection       InstagramConnection  @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  storeId          String
+  igConversationId String               @unique
+
+  customerIgId       String
+  customerIgName     String?
+  customerIgUsername String?
+
+  lastMessageAt    DateTime
+  messageCount     Int                  @default(0)
+  status           IgConversationStatus @default(UNPROCESSED)
+
+  lastAnalyzedAt   DateTime?
+  analysisVersion  Int                  @default(0)
+
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  messages         InstagramMessage[]
+  suggestedOrders  SuggestedOrder[]
+  jobs             IgProcessingJob[]
+
+  @@index([storeId, status])
+  @@index([connectionId, lastMessageAt])
+}
+
+model InstagramMessage {
+  id             String                @id @default(uuid())
+  conversationId String
+  conversation   InstagramConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  igMessageId    String                @unique
+  fromIgId       String
+  isFromBusiness Boolean
+  messageType    String                @default("text")
+  content        String?
+  attachmentUrl  String?
+  sentAt         DateTime
+
+  createdAt      DateTime              @default(now())
+
+  @@index([conversationId, sentAt])
+}
+
+model SuggestedOrder {
+  id               String               @id @default(uuid())
+  storeId          String
+  store            Store                @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  conversationId   String
+  conversation     InstagramConversation @relation(fields: [conversationId], references: [id])
+
+  customerName     String?
+  customerPhone    String?
+  customerAddress  String?
+  aiNotes          String?
+  confidence       Float
+
+  rawAiResponse    Json
+
+  // Immutable snapshot of conversation messages at analysis time (for debugging/auditing)
+  conversationSnapshot Json?
+
+  // Merchant feedback — captured when merchant edits AI fields or rejects with reason
+  merchantEdited   Boolean  @default(false)
+  merchantFeedback Json?
+
+  status           SuggestedOrderStatus @default(PENDING)
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  rejectionReason  String?
+
+  orderId          String?              @unique
+  order            Order?               @relation(fields: [orderId], references: [id])
+
+  expiresAt        DateTime
+
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  items            SuggestedOrderItem[]
+
+  @@index([storeId, status, createdAt])
+  @@index([conversationId])
+  @@index([expiresAt, status])
+}
+
+model SuggestedOrderItem {
+  id               String         @id @default(uuid())
+  suggestedOrderId String
+  suggestedOrder   SuggestedOrder @relation(fields: [suggestedOrderId], references: [id], onDelete: Cascade)
+
+  aiProductName    String
+  aiVariant        String?
+  aiQuantity       Int            @default(1)
+
+  matchedProductId String?
+  matchedProduct   Product?       @relation(fields: [matchedProductId], references: [id])
+  matchedVariant   String?
+  unitPrice        Int?
+
+  createdAt        DateTime       @default(now())
+}
+
+model IgProcessingJob {
+  id             String                @id @default(uuid())
+  conversationId String
+  conversation   InstagramConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  status         IgJobStatus           @default(QUEUED)
+  attempts       Int                   @default(0)
+  maxAttempts    Int                   @default(3)
+  lastAttemptAt  DateTime?
+  nextRetryAt    DateTime?
+  errorMessage   String?
+
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([status, nextRetryAt])
+  @@index([conversationId])
+}
+
+// Webhook replay protection — stores processed igMessageIds so Meta retries are idempotent
+model IgProcessedWebhookEvent {
+  id          String   @id @default(uuid())
+  eventKey    String   @unique // igMessageId (or composite key for non-message events)
+  processedAt DateTime @default(now())
+
+  @@index([processedAt])
+}
+
+// Per-store AI usage tracking for daily rate limiting
+model IgAiUsageLog {
+  id       String @id @default(uuid())
+  storeId  String
+  store    Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  date     String // YYYY-MM-DD
+  jobCount Int    @default(0)
+
+  @@unique([storeId, date])
+  @@index([storeId])
 }

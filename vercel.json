@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/instagram/process-job/run",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/instagram/token-refresh/run",
+      "schedule": "0 6 * * 1"
+    }
+  ]
+}

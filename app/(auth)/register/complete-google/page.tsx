@@ -16,11 +16,21 @@ export default async function CompleteGooglePage() {
   if (!googleData) redirect("/register");
 
   return (
-    <div dir="rtl" className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
+    <div
+      dir="rtl"
+      className="flex min-h-screen items-center justify-center bg-background px-6 py-12"
+    >
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
           <Link href="/">
-            <Image src="/logo.svg" alt="Casho" width={44} height={44} priority className="rounded-xl" />
+            <Image
+              src="/logo.svg"
+              alt="Casho"
+              width={44}
+              height={44}
+              priority
+              className="rounded-xl"
+            />
           </Link>
         </div>
 

@@ -7,9 +7,17 @@ import { transliterate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { requireUserId } from "../auth/require-user-id.actions";
 
-type ProductFormState = {
+export type ProductFormState = {
   success: boolean;
   message: string;
+  /** Populated on successful creation — used by the AI Marketing Assistant modal. */
+  productData?: {
+    id:           string;
+    name:         string;
+    description:  string | null;
+    pricePiasters: number;
+    categoryName: string;
+  };
 };
 
 function normalizeOptional(value: FormDataEntryValue | null) {
@@ -121,7 +129,7 @@ export async function CreateProductAction(
 
     const category = await prisma.category.findFirst({
       where: { id: categoryId, storeId: store.id },
-      select: { id: true },
+      select: { id: true, name: true },
     });
 
     if (!category) {
@@ -131,7 +139,7 @@ export async function CreateProductAction(
     const baseSlug = transliterate(name) || "product";
     const slug = `${baseSlug}-${crypto.randomUUID().slice(0, 6)}`;
 
-    await prisma.product.create({
+    const created = await prisma.product.create({
       data: {
         name,
         slug,
@@ -154,15 +162,29 @@ export async function CreateProductAction(
         storeId: store.id,
         categoryId: category.id,
       },
+      select: { id: true },
     });
+
+    revalidatePath("/dashboard/products");
+    revalidatePath("/dashboard");
+
+    // Return product data so the client can show the AI Marketing Assistant.
+    // The client is responsible for navigating to /dashboard/products afterward.
+    return {
+      success: true,
+      message: "تم إضافة المنتج بنجاح 🎉",
+      productData: {
+        id:            created.id,
+        name,
+        description,
+        pricePiasters: price,
+        categoryName:  category.name,
+      },
+    };
   } catch (error) {
     console.error("CreateProductAction Error:", error);
     return { success: false, message: "حدث خطأ أثناء إنشاء المنتج" };
   }
-
-  revalidatePath("/dashboard/products");
-  revalidatePath("/dashboard");
-  redirect("/dashboard/products");
 }
 
 export async function UpdateProductAction(

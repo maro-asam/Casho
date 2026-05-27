@@ -1,9 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Sparkles, Eye } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "../../../../../components/ui/badge";
 import AddToCartButton from "../../cart/_components/AddToCartButton";
 import { formatPrice } from "@/lib/utils";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
@@ -14,111 +11,96 @@ type ProductCardProps = {
     name: string;
     slug: string;
     price: number;
-    compareAtPrice?: number;
+    compareAtPrice?: number | null;
     image: string;
     isFeatured?: boolean;
-    category?: {
-      name: string;
-      slug: string;
-    } | null;
+    category?: { name: string; slug: string } | null;
   };
   storeSlug: string;
 };
 
-const ProductCard = ({ product, storeSlug }: ProductCardProps) => {
+export default function ProductCard({ product, storeSlug }: ProductCardProps) {
   const hasDiscount =
     !!product.compareAtPrice && product.compareAtPrice > product.price;
 
-  const discountPercentage = hasDiscount
+  const discountPct = hasDiscount
     ? Math.round(
         ((product.compareAtPrice! - product.price) / product.compareAtPrice!) *
           100,
       )
     : 0;
+
+  const href = buildStoreUrl(storeSlug, `/products/${product.slug}`);
+
   return (
-    <Card
-      dir="rtl"
-      className="group overflow-hidden border border-border/20 bg-background py-0 gap-5"
-    >
-      <div className="relative">
-        <Link
-          href={buildStoreUrl(storeSlug, `/products/${product.slug}`)}
-          className="block"
-        >
-          <div className="relative aspect-square w-full overflow-hidden">
-            <Image
-              src={product.image || "/images/product-placeholder.png"}
-              alt={product.name}
-              fill
-              className="object-cover transition-all duration-300 group-hover:scale-105 group-hover:blur-[2px]"
-            />
+    <div className="group flex flex-col" dir="rtl">
+      {/* Image */}
+      <Link href={href} className="block overflow-hidden rounded-2xl bg-[--store-card] relative">
+        <div className="relative w-full" style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}>
+          <Image
+            src={product.image || "/images/product-placeholder.png"}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform group-hover:scale-105"
+            style={{ transitionDuration: "var(--store-motion, 250ms)" }}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        </div>
 
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-all duration-300 group-hover:opacity-100">
-              <div className="flex items-center gap-2 rounded-xl bg-background/95 px-4 py-2 text-sm font-medium text-foreground shadow-md">
-                <Eye className="size-4" />
-                عرض المنتج
-              </div>
-
-              {hasDiscount && (
-                <Badge className="rounded-xl px-3 py-1">
-                  خصم {discountPercentage}%
-                </Badge>
-              )}
-            </div>
-          </div>
-        </Link>
-
-        <button
-          type="button"
-          className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-xl bg-background/95 shadow-sm"
-        >
-          <Heart className="size-4" />
-        </button>
-
-        {/* 🔥 SALE Badge */}
+        {/* Discount badge */}
         {hasDiscount && (
-          <Badge className="z-100 absolute left-3 top-3 bg-red-500 text-white">
-            -{discountPercentage}%
-          </Badge>
+          <span className="absolute start-3 top-3 rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white shadow">
+            -{discountPct}%
+          </span>
         )}
 
-        {product.isFeatured && (
-          <Badge className="absolute right-3 top-3 z-10 flex items-center gap-1 p-3">
-            <Sparkles className="size-3" />
+        {/* Featured badge */}
+        {product.isFeatured && !hasDiscount && (
+          <span
+            className="absolute start-3 top-3 rounded-full px-2.5 py-1 text-xs font-bold shadow"
+            style={{
+              background: "var(--store-primary)",
+              color: "var(--store-primary-foreground)",
+            }}
+          >
             مميز
-          </Badge>
+          </span>
         )}
-      </div>
+      </Link>
 
-      <CardContent className="space-y-3 p-4">
+      {/* Info */}
+      <div className="mt-3 flex flex-1 flex-col gap-2">
         <Link
-          href={buildStoreUrl(storeSlug, `/products/${product.slug}`)}
-          className="line-clamp-1 text-base font-semibold text-foreground hover:text-primary"
+          href={href}
+          className="line-clamp-2 text-sm font-medium leading-snug text-foreground hover:text-[--store-primary] transition-colors"
         >
           {product.name}
         </Link>
 
-        {product.category?.name && (
-          <p className="text-xs text-muted-foreground">
-            {product.category.name}
-          </p>
-        )}
-
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-lg font-semibold text-primary">
-            {formatPrice(product.price)}
-          </p>
+        <div className="mt-auto flex items-center justify-between gap-2">
+          <div className="flex flex-col">
+            <span
+              className="text-base font-bold"
+              style={{ color: "var(--store-primary)" }}
+            >
+              {formatPrice(product.price)}
+            </span>
+            {hasDiscount && product.compareAtPrice && (
+              <span className="text-xs text-muted-foreground line-through">
+                {formatPrice(product.compareAtPrice)}
+              </span>
+            )}
+          </div>
 
           <AddToCartButton
             size="sm"
             variant="outline"
             storeSlug={storeSlug}
             productId={product.id}
+            style={{ borderRadius: "var(--store-btn-radius, 0.5rem)" }}
           />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
-};
-
-export default ProductCard;
+}

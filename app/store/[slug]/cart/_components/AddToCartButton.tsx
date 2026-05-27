@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import type { CSSProperties } from "react";
 import { ShoppingCart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,20 +12,24 @@ type AddToCartButtonProps = {
   storeSlug: string;
   productId: string;
   size: "sm" | "default" | "lg";
-  variant:
+  variant?:
     | "default"
     | "outline"
     | "link"
     | "secondary"
     | "ghost"
     | "destructive";
+  className?: string;
+  style?: CSSProperties;
 };
 
 const AddToCartButton = ({
   storeSlug,
   productId,
   size,
-  variant,
+  variant = "default",
+  className,
+  style,
 }: AddToCartButtonProps) => {
   const [isPending, startTransition] = useTransition();
 
@@ -51,6 +56,8 @@ const AddToCartButton = ({
       variant={variant}
       onClick={handleAddToCart}
       disabled={isPending}
+      className={className}
+      style={style}
     >
       {isPending ? (
         <>

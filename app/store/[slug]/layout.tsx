@@ -1,4 +1,4 @@
-import { ReactNode, CSSProperties } from "react";
+import { ReactNode } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -6,32 +6,22 @@ import { prisma } from "@/lib/prisma";
 import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import StoreFrontHeader from "./_components/NAVBARS/StoreHeader";
 import StoreFooter from "./_components/shared/StoreFooter";
-import { getStoreTheme } from "@/constants/store-themes";
-import type { StoreNavbarVariant } from "@/constants/store-navbar";
+import { resolveStoreTheme } from "@/constants/store-themes";
+import { buildThemeCSSVars } from "@/lib/theme/build-css-vars";
+import { StoreThemeProvider } from "./_context/StoreThemeContext";
 import { getArabicFont } from "@/constants/arabic-fonts";
+import type { StoreNavbarVariant } from "@/constants/store-navbar";
+import type { ThemeCustomization } from "@/types/store-theme.types";
 
 type LayoutProps = {
   children: ReactNode;
   params: Promise<{ slug: string }>;
 };
 
-function getContrastColor(hex: string) {
-  const cleanHex = hex.replace("#", "");
-
-  if (cleanHex.length !== 6) return "#ffffff";
-
-  const r = parseInt(cleanHex.substring(0, 2), 16);
-  const g = parseInt(cleanHex.substring(2, 4), 16);
-  const b = parseInt(cleanHex.substring(4, 6), 16);
-
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-  return brightness > 155 ? "#000000" : "#ffffff";
-}
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function buildStoreUrl(slug: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://casho.store";
-
   try {
     const url = new URL(appUrl);
     return `https://${slug}.${url.host}`;
@@ -42,13 +32,8 @@ function buildStoreUrl(slug: string) {
 
 function getAbsoluteImageUrl(image: string | null | undefined) {
   if (!image) return undefined;
-
-  if (image.startsWith("http://") || image.startsWith("https://")) {
-    return image;
-  }
-
+  if (image.startsWith("http://") || image.startsWith("https://")) return image;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://casho.store";
-
   try {
     return new URL(image, appUrl).toString();
   } catch {
@@ -56,13 +41,14 @@ function getAbsoluteImageUrl(image: string | null | undefined) {
   }
 }
 
+// ─── Metadata ─────────────────────────────────────────────────────────────────
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-
   if (!slug) return {};
 
   const store = await prisma.store.findUnique({
@@ -108,19 +94,10 @@ export async function generateMetadata({
       apple: image || "/favicon.ico",
     },
     keywords: store.settings?.seoKeywords ?? [],
-    alternates: {
-      canonical: url,
-    },
+    alternates: { canonical: url },
     robots: isIndexed
-      ? {
-          index: true,
-          follow: true,
-        }
-      : {
-          index: false,
-          follow: false,
-          nocache: true,
-        },
+      ? { index: true, follow: true }
+      : { index: false, follow: false, nocache: true },
     openGraph: {
       title: store.settings?.ogTitle || title,
       description: store.settings?.ogDescription || description,
@@ -128,16 +105,7 @@ export async function generateMetadata({
       siteName: store.name,
       type: "website",
       locale: "ar_EG",
-      images: image
-        ? [
-            {
-              url: image,
-              width: 1200,
-              height: 630,
-              alt: store.name,
-            },
-          ]
-        : [],
+      images: image ? [{ url: image, width: 1200, height: 630, alt: store.name }] : [],
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
@@ -148,9 +116,10 @@ export async function generateMetadata({
   };
 }
 
+// ─── Layout ───────────────────────────────────────────────────────────────────
+
 export default async function StoreLayout({ children, params }: LayoutProps) {
   const { slug } = await params;
-
   if (!slug) return notFound();
 
   const store = await prisma.store.findUnique({
@@ -169,6 +138,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           secondaryColor: true,
           navbarVariant: true,
           announcementText: true,
+          themeConfig: true,
         },
       },
     },
@@ -177,71 +147,82 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   if (!store) return notFound();
 
   const { items } = await GetCartItemsAction(slug);
-
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);
 
-  const theme = getStoreTheme(store.settings?.themeId);
+  // ── Resolve theme ──────────────────────────────────────────────────────
+  // Priority (highest → lowest):
+  //   1. themeConfig JSON (full merchant customization)
+  //   2. Legacy primaryColor / secondaryColor overrides
+  //   3. themeId preset defaults
+  const themeConfig = store.settings?.themeConfig as ThemeCustomization | null;
+
+  const resolvedTheme = resolveStoreTheme(
+    themeConfig?.presetId ?? store.settings?.themeId,
+    themeConfig,
+    store.settings?.primaryColor,
+    store.settings?.secondaryColor,
+  );
+
+  // ── Navbar ─────────────────────────────────────────────────────────────
+  // Merchant can override via navbarVariant in StoreSettings, otherwise
+  // falls back to the theme preset's default.
+  const navbarVariant = (
+    store.settings?.navbarVariant || resolvedTheme.layout.navbar
+  ) as StoreNavbarVariant;
+
+  // ── Font ───────────────────────────────────────────────────────────────
   const font = getArabicFont(store.settings?.fontId);
 
-  const primaryColor =
-    store.settings?.primaryColor || theme.tokens.primaryColor;
-  const secondaryColor =
-    store.settings?.secondaryColor || theme.tokens.secondaryColor;
-
-  const navbarVariant = (store.settings?.navbarVariant ||
-    theme.navbarVariant) as StoreNavbarVariant;
-
-  const storeThemeStyle = {
-    "--store-primary": primaryColor,
-    "--store-primary-foreground": getContrastColor(primaryColor),
-
-    "--store-secondary": secondaryColor,
-    "--store-secondary-foreground": getContrastColor(secondaryColor),
-
-    "--store-background": theme.tokens.background,
-    "--store-surface": theme.tokens.surface,
-    "--store-card": theme.tokens.card,
-    "--store-muted": theme.tokens.muted,
-    "--store-border": theme.tokens.border,
-    "--store-radius": theme.tokens.radius,
-    "--store-hero-overlay": theme.tokens.heroOverlay,
-
-    "--primary": "var(--store-primary)",
-    "--primary-foreground": "var(--store-primary-foreground)",
-    "--secondary": "var(--store-secondary)",
-    "--secondary-foreground": "var(--store-secondary-foreground)",
-    fontFamily: font.family,
-  } as CSSProperties;
+  // ── CSS custom properties ──────────────────────────────────────────────
+  const cssVars = buildThemeCSSVars(resolvedTheme, font.family);
 
   return (
     <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="stylesheet" href={font.googleUrl} />
-    <div
-      dir="rtl"
-      style={storeThemeStyle}
-      className="min-h-screen text-foreground"
-    >
-      <StoreFrontHeader
-        storeName={store.name}
-        storeSlug={store.slug}
-        logo={store.settings?.logo}
-        cartCount={cartCount}
-        announcementText={store.settings?.announcementText}
-        variant={navbarVariant}
-      />
 
-      <main className="min-h-screen">{children}</main>
-
-      <StoreFooter
-        storeName={store.name}
-        storeSlug={store.slug}
-        showPoweredByCasho={
-          store.poweredByRemovalEnabled ? store.showPoweredByCasho : true
+      {/* Inject dynamic grid-cols rule — can't be done with Tailwind classes alone */}
+      <style>{`
+        @media (min-width: 640px) {
+          .store-product-grid {
+            grid-template-columns: repeat(${Math.min(resolvedTheme.layout.desktopGridCols, 3)}, minmax(0, 1fr)) !important;
+          }
         }
-      />
-    </div>
+        @media (min-width: 1024px) {
+          .store-product-grid {
+            grid-template-columns: repeat(${resolvedTheme.layout.desktopGridCols}, minmax(0, 1fr)) !important;
+          }
+        }
+      `}</style>
+
+      {/*
+        StoreThemeProvider is a Client Component, but it receives a serializable
+        ResolvedTheme object from this Server Component — this is valid in Next.js.
+        All CSS vars are also injected here so server-rendered children work too.
+      */}
+      <StoreThemeProvider theme={resolvedTheme}>
+        <div dir="rtl" style={cssVars} className="min-h-screen">
+          <StoreFrontHeader
+            storeName={store.name}
+            storeSlug={store.slug}
+            logo={store.settings?.logo}
+            cartCount={cartCount}
+            announcementText={store.settings?.announcementText}
+            variant={navbarVariant}
+          />
+
+          <main className="min-h-screen">{children}</main>
+
+          <StoreFooter
+            storeName={store.name}
+            storeSlug={store.slug}
+            showPoweredByCasho={
+              store.poweredByRemovalEnabled ? store.showPoweredByCasho : true
+            }
+          />
+        </div>
+      </StoreThemeProvider>
     </>
   );
 }

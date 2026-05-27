@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Sparkles } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 type BannerItem = {
   id: string;
@@ -39,23 +39,7 @@ const StoreBanner = ({ banners, storeSlug }: StoreBannerProps) => {
   const sideBanners = banners.slice(3, 7);
 
   return (
-    <section className="mb-8 w-full" dir="rtl">
-      <div className="mb-4 flex flex-row items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight md:text-2xl text-primary">
-            أفضل العروض
-          </h2>
-        </div>
-
-        <Badge
-          variant="default"
-          className="w-fit rounded-xl p-4 bg-primary/10 text-primary text-xs sm:text-sm"
-        >
-          <Sparkles className="me-1 size-4" />
-          عروض حصرية
-        </Badge>
-      </div>
-
+    <section className="w-full" dir="rtl">
       <div className="space-y-4">
         <div className="w-full">
           <Carousel

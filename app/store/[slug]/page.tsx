@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/card";
 
 import { SubscriptionStatus } from "@prisma/client";
-// import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
-import StoreThemeRenderer from "./_themes/StoreThemeRenderer";
+import StoreHome from "./_components/StoreHome";
+import { resolveStoreTheme } from "@/constants/store-themes";
+import type { ThemeCustomization } from "@/types/store-theme.types";
 
 type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
@@ -38,13 +39,12 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           logo: true,
           primaryColor: true,
           secondaryColor: true,
+          themeConfig: true,
         },
       },
 
       categories: {
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: { createdAt: "desc" },
         select: {
           id: true,
           name: true,
@@ -54,12 +54,8 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       },
 
       banners: {
-        where: {
-          isActive: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
         select: {
           id: true,
           title: true,
@@ -69,12 +65,8 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       },
 
       products: {
-        where: {
-          isActive: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
         select: {
           id: true,
           name: true,
@@ -98,6 +90,77 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   });
 
   if (!store) return notFound();
+
+  // ── Resolve theme + sections ──────────────────────────────────────────────
+  const themeConfig = store.settings?.themeConfig as ThemeCustomization | null;
+  const resolvedTheme = resolveStoreTheme(
+    themeConfig?.presetId ?? store.settings?.themeId,
+    themeConfig,
+    store.settings?.primaryColor,
+    store.settings?.secondaryColor,
+  );
+  const sections = resolvedTheme.sections.home;
+  const sectionContent = resolvedTheme.sectionContent;
+
+  // ── Best sellers query (only if section is enabled) ───────────────────────
+  let bestSellers: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    compareAtPrice: number | null;
+    image: string;
+    isFeatured: boolean;
+    isActive: boolean;
+    salesCount: number;
+    category: { name: string; slug: string; image: string | null } | null;
+  }> = [];
+
+  if (sections.showBestSellers) {
+    const maxProducts = sectionContent.bestSellers?.maxProducts ?? 8;
+
+    // Count sold units per product in this store's orders
+    const topItems = await prisma.orderItem.groupBy({
+      by: ["productId"],
+      where: {
+        order: { storeId: store.id },
+      },
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: "desc" } },
+      take: maxProducts,
+    });
+
+    if (topItems.length > 0) {
+      const productIds = topItems.map((t) => t.productId);
+      const products = await prisma.product.findMany({
+        where: { id: { in: productIds }, isActive: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          compareAtPrice: true,
+          image: true,
+          isFeatured: true,
+          isActive: true,
+          category: {
+            select: { name: true, slug: true, image: true },
+          },
+        },
+      });
+
+      // Re-order by sales count and attach count
+      bestSellers = productIds
+        .map((id) => {
+          const product = products.find((p) => p.id === id);
+          if (!product) return null;
+          const salesCount =
+            topItems.find((t) => t.productId === id)?._sum.quantity ?? 0;
+          return { ...product, salesCount };
+        })
+        .filter(Boolean) as typeof bestSellers;
+    }
+  }
 
   if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
     return (
@@ -124,9 +187,19 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   }
 
   return (
-    <>
-      {/* <StoreVisitTracker storeId={store.id} /> */}
-      <StoreThemeRenderer themeId={store.settings?.themeId} store={store} />
-    </>
+    <StoreHome
+      store={{
+        ...store,
+        bestSellers,
+        // Override themeId with the resolved preset so StoreHome always uses
+        // the same theme that the layout used for CSS vars (themeConfig.presetId
+        // takes priority over the legacy themeId field).
+        settings: store.settings
+          ? { ...store.settings, themeId: resolvedTheme.id }
+          : null,
+      }}
+      sections={sections}
+      sectionContent={sectionContent}
+    />
   );
 }

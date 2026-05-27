@@ -18,15 +18,41 @@ import {
 import { FormField } from "./form-field";
 
 const COUNTRIES = [
-  "مصر", "السعودية", "الإمارات", "الكويت", "قطر", "البحرين", "عُمان",
-  "الأردن", "المغرب", "تونس", "الجزائر", "ليبيا", "السودان", "العراق",
-  "لبنان", "سوريا", "فلسطين", "اليمن", "أخرى",
+  "مصر",
+  "السعودية",
+  "الإمارات",
+  "الكويت",
+  "قطر",
+  "البحرين",
+  "عُمان",
+  "الأردن",
+  "المغرب",
+  "تونس",
+  "الجزائر",
+  "ليبيا",
+  "السودان",
+  "العراق",
+  "لبنان",
+  "سوريا",
+  "فلسطين",
+  "اليمن",
+  "أخرى",
 ];
 
 const BUSINESS_TYPES = [
-  "ملابس وأزياء", "إلكترونيات وتقنية", "أغذية ومشروبات", "صحة وجمال",
-  "منزل وديكور", "رياضة ولياقة", "كتب وتعليم", "مجوهرات وإكسسوارات",
-  "حرف يدوية", "خدمات رقمية", "أطفال وألعاب", "سيارات وقطع غيار", "أخرى",
+  "ملابس وأزياء",
+  "إلكترونيات وتقنية",
+  "أغذية ومشروبات",
+  "صحة وجمال",
+  "منزل وديكور",
+  "رياضة ولياقة",
+  "كتب وتعليم",
+  "مجوهرات وإكسسوارات",
+  "حرف يدوية",
+  "خدمات رقمية",
+  "أطفال وألعاب",
+  "سيارات وقطع غيار",
+  "أخرى",
 ];
 
 type Props = {
@@ -36,7 +62,10 @@ type Props = {
 
 export function CompleteGoogleForm({ email, name }: Props) {
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState(RegisterGoogleAction, null);
+  const [state, formAction, isPending] = useActionState(
+    RegisterGoogleAction,
+    null,
+  );
   const [country, setCountry] = useState("");
   const [businessType, setBusinessType] = useState("");
 
@@ -44,7 +73,7 @@ export function CompleteGoogleForm({ email, name }: Props) {
     if (state?.error) toast.error(state.error);
     if (state?.success) {
       toast.success("تم إنشاء الحساب بنجاح 🎉");
-      router.push("/dashboard/change-plan?onboarding=1");
+      router.push("/dashboard/change-plan");
       router.refresh();
     }
   }, [state, router]);
@@ -58,7 +87,11 @@ export function CompleteGoogleForm({ email, name }: Props) {
         <p className="text-xs text-muted-foreground">{email}</p>
       </div>
 
-      <FormField htmlFor="storeName" label="اسم المتجر" error={state?.fieldErrors?.storeName}>
+      <FormField
+        htmlFor="storeName"
+        label="اسم المتجر"
+        error={state?.fieldErrors?.storeName}
+      >
         <Input
           id="storeName"
           name="storeName"
@@ -68,28 +101,50 @@ export function CompleteGoogleForm({ email, name }: Props) {
         />
       </FormField>
 
-      <FormField htmlFor="country" label="البلد" error={state?.fieldErrors?.country}>
-        <Select name="country" value={country} onValueChange={setCountry} required>
+      <FormField
+        htmlFor="country"
+        label="البلد"
+        error={state?.fieldErrors?.country}
+      >
+        <Select
+          name="country"
+          value={country}
+          onValueChange={setCountry}
+          required
+        >
           <SelectTrigger className="h-11 w-full">
             <SelectValue placeholder="اختر البلد" />
           </SelectTrigger>
           <SelectContent>
             {COUNTRIES.map((c) => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <input type="hidden" name="country" value={country} />
       </FormField>
 
-      <FormField htmlFor="businessType" label="نوع النشاط" error={state?.fieldErrors?.businessType}>
-        <Select name="businessType" value={businessType} onValueChange={setBusinessType} required>
+      <FormField
+        htmlFor="businessType"
+        label="نوع النشاط"
+        error={state?.fieldErrors?.businessType}
+      >
+        <Select
+          name="businessType"
+          value={businessType}
+          onValueChange={setBusinessType}
+          required
+        >
           <SelectTrigger className="h-11 w-full">
             <SelectValue placeholder="اختر نوع نشاطك" />
           </SelectTrigger>
           <SelectContent>
             {BUSINESS_TYPES.map((b) => (
-              <SelectItem key={b} value={b}>{b}</SelectItem>
+              <SelectItem key={b} value={b}>
+                {b}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>

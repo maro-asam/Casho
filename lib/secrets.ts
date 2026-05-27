@@ -1,5 +1,21 @@
 import crypto from "crypto";
 
+/**
+ * Required environment variables — Instagram AI Orders feature:
+ *
+ *   META_APP_ID              — Facebook App ID (from developers.facebook.com)
+ *   META_APP_SECRET          — Facebook App Secret
+ *   META_WEBHOOK_VERIFY_TOKEN — Random string you choose for webhook verification
+ *   OPENAI_API_KEY           — OpenAI API key for order extraction (GPT-4o)
+ *   CRON_SECRET              — Secret token for /api/instagram/process-job/run
+ *
+ * Instagram access tokens are encrypted using the same PAYMENT_ENCRYPTION_KEY
+ * already required by this file (via encryptSecret / decryptSecret below).
+ *
+ * Generate a CRON_SECRET:
+ *   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+ */
+
 const ENCRYPTION_KEY_ENV = "PAYMENT_ENCRYPTION_KEY";
 
 function getEncryptionKey() {

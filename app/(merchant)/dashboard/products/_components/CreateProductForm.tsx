@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Eye,
@@ -8,13 +9,19 @@ import {
   Layers3,
   Loader2,
   PackagePlus,
+  Sparkles,
   Star,
   Upload,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { CreateProductAction } from "@/actions/products/products.actions";
+import {
+  CreateProductAction,
+  type ProductFormState,
+} from "@/actions/products/products.actions";
+import type { ProductDataForMarketing } from "./MarketingAssistantModal";
+import MarketingAssistantModal from "./MarketingAssistantModal";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -48,18 +55,20 @@ function OptionalBadge() {
   );
 }
 
-const initialState = { success: false, message: "" };
+const initialState: ProductFormState = { success: false, message: "" };
 
 export default function CreateProductForm({
   categories,
 }: {
   categories: Category[];
 }) {
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     CreateProductAction,
     initialState,
   );
   const [categoryId, setCategoryId] = useState("");
+  const [marketingData, setMarketingData] = useState<ProductDataForMarketing | null>(null);
 
   const [imageInputMode, setImageInputMode] = useState<"link" | "upload">(
     "link",
@@ -79,9 +88,19 @@ export default function CreateProductForm({
 
   useEffect(() => {
     if (!state?.message) return;
-    if (state.success) toast.success(state.message);
-    else toast.error(state.message);
-  }, [state]);
+    if (state.success) {
+      toast.success(state.message);
+      // If the action returned product data, open the AI Marketing modal.
+      // Otherwise fall back to immediate navigation.
+      if (state.productData) {
+        setMarketingData(state.productData);
+      } else {
+        router.push("/dashboard/products");
+      }
+    } else {
+      toast.error(state.message);
+    }
+  }, [state, router]);
 
   const mergedAdditionalImages = useMemo(
     () => uploadedAdditionalImages,
@@ -660,8 +679,23 @@ export default function CreateProductForm({
               </>
             )}
           </Button>
+
+          {/* Hint: AI feature teaser */}
+          <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+            <Sparkles className="size-3 text-purple-400" />
+            بعد الإضافة ستتمكن من توليد محتوى تسويقي بالـ AI
+          </p>
         </div>
       </div>
+
+      {/* AI Marketing Assistant modal — shown after successful product creation */}
+      {marketingData && (
+        <MarketingAssistantModal
+          productData={marketingData}
+          open={!!marketingData}
+          onDone={() => router.push("/dashboard/products")}
+        />
+      )}
     </form>
   );
 }

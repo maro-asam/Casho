@@ -13,6 +13,7 @@ import {
   BanknoteArrowUp,
   Bell,
   BookOpen,
+  Camera,
   ChartNoAxesCombined,
   ChevronLeft,
   ChevronRight,
@@ -24,8 +25,11 @@ import {
   Layers,
   LayoutDashboard,
   Menu,
+  MessageSquare,
+  Music2,
   Package,
   PaintRoller,
+  Phone,
   Rocket,
   ScreenShare,
   Send,
@@ -33,6 +37,7 @@ import {
   ShoppingCart,
   Store,
   Tag,
+  Timer,
   Truck,
 } from "lucide-react";
 
@@ -134,6 +139,17 @@ export default function DashboardShell({
           },
           { name: "الطلبات", href: "/dashboard/orders", icon: ShoppingCart },
           {
+            name: "الكارتات المتروكة",
+            href: "/dashboard/abandoned-carts",
+            icon: Timer,
+          },
+          {
+            name: "طلبات انستجرام",
+            href: "/dashboard/suggested-orders",
+            icon: Send,
+            badge: "AI",
+          },
+          {
             name: "التقارير",
             href: "/dashboard/reports",
             icon: ChartNoAxesCombined,
@@ -166,6 +182,7 @@ export default function DashboardShell({
           { name: "خدمات إضافية", href: "/dashboard/services", icon: Layers },
         ],
       },
+
       {
         title: "المالية",
         links: [
@@ -185,6 +202,39 @@ export default function DashboardShell({
             icon: CreditCard,
           },
           { name: "الإعدادات", href: "/dashboard/settings", icon: Settings },
+        ],
+      },
+
+      {
+        title: "الربط",
+        links: [
+          {
+            name: "انستجرام",
+            href: "/dashboard/integrations/instagram",
+            icon: Camera,
+            badge: "AI",
+          },
+          {
+            name: "Facebook Messenger",
+            href: "/dashboard/integrations/facebook",
+            icon: MessageSquare,
+            disabled: true,
+            badge: "Soon",
+          },
+          {
+            name: "واتساب",
+            href: "/dashboard/integrations/whatsapp",
+            icon: Phone,
+            disabled: true,
+            badge: "Soon",
+          },
+          {
+            name: "تيك توك",
+            href: "/dashboard/integrations/tiktok",
+            icon: Music2,
+            disabled: true,
+            badge: "Soon",
+          },
         ],
       },
       {
@@ -460,11 +510,7 @@ export default function DashboardShell({
 
             {/* <QuickCustomizeSheet storeId={store.id} settings={store.settings} /> */}
 
-            <Button
-              asChild
-              variant="outline"
-              className="gap-1.5 text-xs"
-            >
+            <Button asChild variant="outline" className="gap-1.5 text-xs">
               <Link
                 href={buildStoreUrl(store.slug)}
                 target="_blank"

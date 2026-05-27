@@ -20,6 +20,7 @@ import {
   formatPiastersAsEgp,
   orderStatusLabels,
 } from "@/lib/notifications/in-app";
+import { sendWhatsAppOrderNotification } from "@/lib/notifications/whatsapp";
 
 const kashierAllowedMethodKeys = new Set(
   KASHIER_ALLOWED_METHODS.map((method) => method.key),
@@ -79,6 +80,7 @@ export async function CreateOrderAction(
       settings: {
         select: {
           shippingPrice: true,
+          whatsappNumber: true,
         },
       },
       storePaymentSettings: {
@@ -254,6 +256,20 @@ export async function CreateOrderAction(
       total,
     },
   });
+
+  const whatsappNumber = store.settings?.whatsappNumber;
+  if (whatsappNumber) {
+    sendWhatsAppOrderNotification(whatsappNumber, {
+      id: order.id,
+      customerName: data.fullName,
+      customerPhone: data.phone,
+      address: data.address,
+      total,
+      paymentMethod: data.paymentMethod,
+      itemCount: cartItems.reduce((sum, i) => sum + i.quantity, 0),
+      storeName: store.name,
+    });
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/orders");
