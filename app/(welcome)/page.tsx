@@ -16,7 +16,7 @@ export default function Page() {
       <LandingPageTracker />
 
       <LenisProvider>
-        <div className="mt-10 flex flex-col gap-20">
+        <div className="mt-10 flex flex-col gap-20 ">
         
           <HeroSection />
           <PaymentMethodsSection />
