@@ -17,7 +17,7 @@ import { createNotification } from "@/lib/notifications/in-app";
 import { logger } from "@/lib/logger";
 
 const REFRESH_THRESHOLD_DAYS = 14;
-const META_API_BASE = "https://graph.facebook.com/v21.0";
+const INSTAGRAM_API_BASE = "https://graph.instagram.com";
 
 export type TokenRefreshResult = {
   refreshed: number;
@@ -113,13 +113,11 @@ async function refreshLongLivedToken(
   accessToken: string,
 ): Promise<{ accessToken: string; expiresInSeconds: number } | null> {
   const params = new URLSearchParams({
-    grant_type:        "fb_exchange_token",
-    client_id:         process.env.META_APP_ID ?? "",
-    client_secret:     process.env.META_APP_SECRET ?? "",
-    fb_exchange_token: accessToken,
+    grant_type:   "ig_refresh_token",
+    access_token: accessToken,
   });
 
-  const res = await fetch(`${META_API_BASE}/oauth/access_token?${params.toString()}`);
+  const res = await fetch(`${INSTAGRAM_API_BASE}/refresh_access_token?${params.toString()}`);
   const json = await res.json() as Record<string, unknown>;
 
   if (!res.ok || json.error) {

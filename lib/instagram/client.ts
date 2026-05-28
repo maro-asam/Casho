@@ -120,23 +120,36 @@ export async function getLinkedPages(accessToken: string): Promise<IgPagesRespon
   });
 }
 
-/** Exchange short-lived token for long-lived token (~60 days) */
+/** Exchange short-lived Instagram token for long-lived token (~60 days) */
 export async function exchangeForLongLivedToken(shortLivedToken: string): Promise<{
   access_token: string;
   token_type: string;
   expires_in: number;
 }> {
-  const appId = process.env.META_APP_ID!;
-  const appSecret = process.env.META_APP_SECRET!;
+  const appSecret = process.env.INSTAGRAM_APP_SECRET!;
 
-  return metaFetch("/oauth/access_token", {
-    params: {
-      grant_type: "fb_exchange_token",
-      client_id: appId,
-      client_secret: appSecret,
-      fb_exchange_token: shortLivedToken,
-    },
-  });
+  const url = new URL("https://graph.instagram.com/access_token");
+  url.searchParams.set("grant_type", "ig_exchange_token");
+  url.searchParams.set("client_secret", appSecret);
+  url.searchParams.set("access_token", shortLivedToken);
+
+  const res = await fetch(url.toString());
+  const json = (await res.json()) as {
+    access_token?: string;
+    token_type?: string;
+    expires_in?: number;
+    error?: { message: string };
+  };
+
+  if (json.error || !json.access_token) {
+    throw new Error(json.error?.message ?? "Failed to exchange for long-lived token");
+  }
+
+  return {
+    access_token: json.access_token,
+    token_type: json.token_type ?? "bearer",
+    expires_in: json.expires_in ?? 5183944,
+  };
 }
 
 /** Get all Instagram conversations for the IG user */
@@ -186,18 +199,31 @@ export async function subscribeToWebhook(
   });
 }
 
-/** Refresh a long-lived token (call this before it expires) */
+/** Refresh a long-lived Instagram token (call this before it expires) */
 export async function refreshLongLivedToken(accessToken: string): Promise<{
   access_token: string;
   token_type: string;
   expires_in: number;
 }> {
-  return metaFetch("/oauth/access_token", {
-    params: {
-      grant_type: "fb_exchange_token",
-      client_id: process.env.META_APP_ID!,
-      client_secret: process.env.META_APP_SECRET!,
-      fb_exchange_token: accessToken,
-    },
-  });
+  const url = new URL("https://graph.instagram.com/refresh_access_token");
+  url.searchParams.set("grant_type", "ig_refresh_token");
+  url.searchParams.set("access_token", accessToken);
+
+  const res = await fetch(url.toString());
+  const json = (await res.json()) as {
+    access_token?: string;
+    token_type?: string;
+    expires_in?: number;
+    error?: { message: string };
+  };
+
+  if (json.error || !json.access_token) {
+    throw new Error(json.error?.message ?? "Failed to refresh token");
+  }
+
+  return {
+    access_token: json.access_token,
+    token_type: json.token_type ?? "bearer",
+    expires_in: json.expires_in ?? 5183944,
+  };
 }
