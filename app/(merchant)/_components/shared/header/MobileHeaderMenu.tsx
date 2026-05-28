@@ -6,6 +6,7 @@ import { LogIn, Menu, Store, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { LogoutAction } from "@/actions/auth/logout.actions";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 type HeaderUser = {
   id: string;
@@ -77,7 +78,7 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
 
                 {storeSlug && (
                   <Button className="w-full" variant="outline" asChild>
-                    <Link href={`/store/${storeSlug}`} onClick={() => setOpen(false)}>
+                    <Link href={buildStoreUrl(storeSlug)} onClick={() => setOpen(false)}>
                       عرض المتجر
                     </Link>
                   </Button>

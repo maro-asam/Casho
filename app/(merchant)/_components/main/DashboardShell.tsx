@@ -411,7 +411,7 @@ export default function DashboardShell({
               className="h-9 w-full justify-start gap-2.5 px-2 text-muted-foreground hover:text-foreground"
             >
               <Link
-                href={`/store/${store.slug}`}
+                href={buildStoreUrl(store.slug)}
                 target="_blank"
                 rel="noreferrer"
               >

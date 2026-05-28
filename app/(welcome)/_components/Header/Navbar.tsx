@@ -24,6 +24,7 @@ import MobileNavMenu from "./MobileNavMenu";
 import AnimatedNavbarShell from "./AnimatedNavbarShell";
 import NavbarDesktopLinks from "./NavbarDesktopLinks";
 import { ModeToggle } from "@/theme/ModeToggle";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 const Navbar = async () => {
   const user = await getCurrentUser();
@@ -125,7 +126,7 @@ const Navbar = async () => {
                           className="cursor-pointer rounded-xl"
                         >
                           <Link
-                            href={`/store/${store.slug}`}
+                            href={buildStoreUrl(store.slug)}
                             className="flex items-center justify-between"
                           >
                             <span>عرض المتجر</span>

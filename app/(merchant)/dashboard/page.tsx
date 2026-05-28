@@ -413,13 +413,14 @@ const MerchantDashboardRoute = async () => {
                     </span>
                   )}
                 </Badge>
-                <span className="text-sm text-muted-foreground">{getTodayDate()}</span>
+                <span className="text-sm text-muted-foreground">
+                  {getTodayDate()}
+                </span>
               </div>
 
               <div>
                 <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-                  أهلاً بيك،{" "}
-                  <span className="text-primary">{store.name}</span>
+                  أهلاً بيك، <span className="text-primary">{store.name}</span>
                 </h1>
                 <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
                   تابع طلباتك وإحصائياتك وتحكم في كل حاجة في متجرك من مكان واحد.
@@ -430,7 +431,7 @@ const MerchantDashboardRoute = async () => {
                 <CopyStoreLinkBtn storeUrl={storeUrl} />
                 <Button asChild className="font-bold">
                   <Link
-                    href={`/store/${store.slug}`}
+                    href={buildStoreUrl(store.slug)}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -438,11 +439,7 @@ const MerchantDashboardRoute = async () => {
                     زيارة المتجر
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="font-bold"
-                >
+                <Button asChild variant="outline" className="font-bold">
                   <Link href="/dashboard/support">
                     <Headset className="size-4" />
                     الدعم
@@ -458,8 +455,12 @@ const MerchantDashboardRoute = async () => {
                     <Wallet className="size-4" />
                   </span>
                   <div>
-                    <p className="text-xs text-muted-foreground">الرصيد المتاح</p>
-                    <p className="text-xl font-bold">{formatPrice(store.balance)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      الرصيد المتاح
+                    </p>
+                    <p className="text-xl font-bold">
+                      {formatPrice(store.balance)}
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -475,12 +476,16 @@ const MerchantDashboardRoute = async () => {
               <div className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-4">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs text-muted-foreground">جاهزية المتجر</p>
+                    <p className="text-xs text-muted-foreground">
+                      جاهزية المتجر
+                    </p>
                     <p className="text-xs text-muted-foreground/70 mt-0.5">
                       {completedSetup} من {starterSteps.length} خطوات
                     </p>
                   </div>
-                  <span className="text-2xl font-bold text-primary">{setupPercentage}%</span>
+                  <span className="text-2xl font-bold text-primary">
+                    {setupPercentage}%
+                  </span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                   <div
@@ -565,7 +570,9 @@ const MerchantDashboardRoute = async () => {
                             </p>
                           </td>
                           <td className="py-3.5 pr-4 hidden sm:table-cell">
-                            <p className="text-sm font-medium">{order.fullName}</p>
+                            <p className="text-sm font-medium">
+                              {order.fullName}
+                            </p>
                             <p className="text-xs text-muted-foreground">
                               {itemsCount} قطعة
                             </p>

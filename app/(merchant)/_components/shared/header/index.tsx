@@ -15,6 +15,7 @@ import {
 import MobileHeaderMenu from "./MobileHeaderMenu";
 import Image from "next/image";
 import { ModeToggle } from "@/theme/ModeToggle";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 const links = [
   { name: "الرئيسية", href: "/" },
@@ -101,7 +102,7 @@ const Header = async () => {
 
                 {storeSlug && (
                   <DropdownMenuItem asChild>
-                    <Link href={`/store/${storeSlug}`}>عرض المتجر</Link>
+                    <Link href={buildStoreUrl(storeSlug)}>عرض المتجر</Link>
                   </DropdownMenuItem>
                 )}
 

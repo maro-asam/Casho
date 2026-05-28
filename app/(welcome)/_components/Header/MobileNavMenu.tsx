@@ -16,6 +16,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/theme/ModeToggle";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 type MobileNavMenuProps = {
   user: {
@@ -223,7 +224,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
 
                     {user.storeSlug && (
                       <Link
-                        href={`/store/${user.storeSlug}`}
+                        href={buildStoreUrl(user.storeSlug)}
                         onClick={() => setOpen(false)}
                       >
                         <Button
