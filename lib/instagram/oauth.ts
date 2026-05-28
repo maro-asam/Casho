@@ -18,8 +18,8 @@ export function buildAuthorizationUrl(state: string): string {
     client_id: appId,
     redirect_uri: `${appUrl}/api/instagram/oauth/callback`,
     scope: [
-      "instagram_basic",
-      "instagram_manage_messages",
+      "instagram_business_basic",
+      "instagram_business_manage_messages",
       "pages_show_list",
       "pages_messaging",
     ].join(","),
