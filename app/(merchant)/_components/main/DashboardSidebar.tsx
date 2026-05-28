@@ -28,27 +28,27 @@ export default function DashboardSidebar({ store }: Props) {
   const links = [
     {
       name: "لوحة التحكم",
-      href: "/dashboard",
+      href: "/",
       icon: LayoutDashboard,
     },
     {
       name: "الطلبات",
-      href: "/dashboard/orders",
+      href: "/orders",
       icon: ShoppingCart,
     },
     {
       name: "المنتجات",
-      href: "/dashboard/products",
+      href: "/products",
       icon: Package,
     },
     {
       name: "التصنيفات",
-      href: "/dashboard/categories",
+      href: "/categories",
       icon: Shapes,
     },
     {
       name: "البانر",
-      href: "/dashboard/banners",
+      href: "/banners",
       icon: ImageIcon,
     },
   ];
@@ -56,7 +56,7 @@ export default function DashboardSidebar({ store }: Props) {
   return (
     <aside className="w-64 h-full bg-secondary text-secondary-foreground p-4 border-l-2 flex flex-col">
       <h2 className="py-3 text-3xl text-primary font-semibold text-center">
-        <Link href="/dashboard">{store.name}</Link>
+        <Link href="/">{store.name}</Link>
       </h2>
 
       <hr className="my-3" />
@@ -64,8 +64,8 @@ export default function DashboardSidebar({ store }: Props) {
       <div className="flex flex-col gap-3">
         {links.map((link) => {
           const isActive =
-            link.href === "/dashboard"
-              ? pathname === "/dashboard"
+            link.href === "/"
+              ? pathname === "/"
               : pathname.startsWith(link.href);
 
           const Icon = link.icon;

@@ -186,7 +186,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
           </>
         }
         actionLabel="إضافة كوبون جديد"
-        actionHref="/dashboard/coupons/new"
+        actionHref="/coupons/new"
       />
 
       {totalCoupons > 0 && (
@@ -232,7 +232,7 @@ const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
               وتزود المبيعات.
             </p>
             <Button asChild className="mt-6 ">
-              <Link href="/dashboard/coupons/new">
+              <Link href="/coupons/new">
                 <Plus className="ms-2 size-4" />
                 إضافة أول كوبون
               </Link>

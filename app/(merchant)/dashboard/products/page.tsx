@@ -179,7 +179,7 @@ const MerchantProductsRoute = async ({
           </>
         }
         actionLabel="إضافة منتج"
-        actionHref="/dashboard/products/new"
+        actionHref="/products/new"
       />
 
       {totalProducts > 0 && (
@@ -223,7 +223,7 @@ const MerchantProductsRoute = async ({
               منتجاتك بشكل أفضل.
             </p>
             <Button asChild className="mt-6 rounded-xl">
-              <Link href="/dashboard/products/new">
+              <Link href="/products/new">
                 <Plus className="ms-2 size-4" />
                 إضافة أول منتج
               </Link>

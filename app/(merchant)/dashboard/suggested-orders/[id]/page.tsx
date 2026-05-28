@@ -78,7 +78,7 @@ export default async function SuggestedOrderDetailPage({ params }: Props) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Button asChild variant="ghost" size="icon" className="rounded-xl">
-            <Link href="/dashboard/suggested-orders">
+            <Link href="/suggested-orders">
               <ArrowRight className="size-5" />
             </Link>
           </Button>

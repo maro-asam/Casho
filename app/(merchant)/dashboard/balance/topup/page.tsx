@@ -188,7 +188,7 @@ export default async function BalanceTopupRoute() {
             </div>
 
             <Button asChild className="rounded-xl">
-              <Link href="/dashboard">
+              <Link href="/">
                 <ArrowRight className="ms-2 size-4" />
                 الرجوع للداشبورد
               </Link>
@@ -230,7 +230,7 @@ export default async function BalanceTopupRoute() {
             </div>
 
             <Button asChild variant="outline" className="rounded-xl">
-              <Link href="/dashboard/balance">
+              <Link href="/balance">
                 <ArrowRight className="ms-2 size-4" />
                 الرجوع لإدارة الرصيد
               </Link>

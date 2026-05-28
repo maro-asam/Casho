@@ -200,7 +200,7 @@ const BalanceHistory = async ({ searchParams }: BalanceHistoryProps) => {
               </div>
 
               <Button asChild className="rounded-xl">
-                <Link href="/dashboard">الرجوع للداشبورد</Link>
+                <Link href="/">الرجوع للداشبورد</Link>
               </Button>
             </CardContent>
           </Card>

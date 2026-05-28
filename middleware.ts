@@ -4,6 +4,17 @@ const ROOT_DOMAIN = process.env.ROOT_DOMAIN || "casho.store";
 
 const RESERVED_SUBDOMAINS = new Set(["www", "app", "casho"]);
 
+const AUTH_PATHS = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+];
+
+function isAuthPath(pathname: string) {
+  return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
 function getHost(req: NextRequest) {
   const forwardedHost = req.headers.get("x-forwarded-host");
   return (forwardedHost || req.headers.get("host") || "")
@@ -24,7 +35,6 @@ function isStaticAsset(pathname: string) {
 function getSubdomain(host: string) {
   if (!host) return null;
 
-  // local
   if (host === "localhost" || host === "127.0.0.1") {
     return null;
   }
@@ -34,7 +44,6 @@ function getSubdomain(host: string) {
     return subdomain || null;
   }
 
-  // production main domains
   if (host === ROOT_DOMAIN || host === `www.${ROOT_DOMAIN}`) {
     return null;
   }
@@ -56,14 +65,37 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const subdomain = getSubdomain(host);
+
+  // ─── app.casho.store (or app.localhost) → dashboard app ───────────────────
+  if (subdomain === "app") {
+    // Unauthenticated users go to /login (except auth pages themselves)
+    if (!token && !isAuthPath(pathname)) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+
+    // Rewrite clean paths → /dashboard prefix (internal Next.js routing)
+    // e.g. /orders → /dashboard/orders, / → /dashboard
+    if (!pathname.startsWith("/dashboard") && !isAuthPath(pathname)) {
+      const url = req.nextUrl.clone();
+      url.pathname =
+        pathname === "/" ? "/dashboard" : `/dashboard${pathname}`;
+      return NextResponse.rewrite(url);
+    }
+
+    return NextResponse.next();
+  }
+
+  // ─── Protect /dashboard on other domains (localhost dev) ──────────────────
   if (!token && pathname.startsWith("/dashboard")) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  const subdomain = getSubdomain(host);
-
+  // ─── Store subdomains → /store/[slug] ─────────────────────────────────────
   if (
     subdomain &&
     !RESERVED_SUBDOMAINS.has(subdomain) &&

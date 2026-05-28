@@ -97,7 +97,7 @@ export default async function BannersPage() {
           </>
         }
         actionLabel="إضافة بانر"
-        actionHref="/dashboard/banners/new"
+        actionHref="/banners/new"
       />
 
       {totalBanners > 0 && (
@@ -135,7 +135,7 @@ export default async function BannersPage() {
               واضح وجذاب داخل متجرك.
             </p>
             <Button asChild className="mt-6 rounded-xl">
-              <Link href="/dashboard/banners/new">
+              <Link href="/banners/new">
                 <Plus className="me-2 size-4" />
                 إضافة أول بانر
               </Link>

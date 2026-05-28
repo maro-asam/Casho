@@ -112,7 +112,7 @@ async function getReportsData() {
     select: { id: true, name: true, slug: true, balance: true },
   });
 
-  if (!store) redirect("/dashboard");
+  if (!store) redirect("/");
 
   const now = new Date();
   const currentFrom = addDays(startOfDay(now), -29);

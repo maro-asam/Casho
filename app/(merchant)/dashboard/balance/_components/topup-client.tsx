@@ -98,7 +98,7 @@ const TopupClient = ({ storeId }: { storeId: string }) => {
         <h1 className="text-2xl font-semibold">شحن الرصيد</h1>
 
         <Button asChild variant="outline">
-          <Link href="/dashboard/balance">
+          <Link href="/balance">
             <ArrowLeft className="ms-2 size-4" />
             رجوع
           </Link>

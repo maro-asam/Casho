@@ -79,7 +79,7 @@ export default function NewCouponForm() {
 
     if (state?.success) {
       toast.success(state.message || "تم إنشاء الكوبون بنجاح");
-      router.push("/dashboard/coupons");
+      router.push("/coupons");
       router.refresh();
     }
   }, [state, router]);
@@ -240,7 +240,7 @@ export default function NewCouponForm() {
           type="button"
           variant="outline"
           className="rounded-xl"
-          onClick={() => router.push("/dashboard/coupons")}
+          onClick={() => router.push("/coupons")}
         >
           إلغاء
         </Button>

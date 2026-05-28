@@ -79,7 +79,7 @@ export default function CreateCategoryForm({ storeId }: { storeId: string }) {
         return;
       }
       toast.success("تم إنشاء التصنيف بنجاح");
-      router.push("/dashboard/categories");
+      router.push("/categories");
       router.refresh();
     });
   }

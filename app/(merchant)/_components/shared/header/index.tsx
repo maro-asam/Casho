@@ -97,7 +97,7 @@ const Header = async () => {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard">لوحة التحكم</Link>
+                  <Link href="/">لوحة التحكم</Link>
                 </DropdownMenuItem>
 
                 {storeSlug && (

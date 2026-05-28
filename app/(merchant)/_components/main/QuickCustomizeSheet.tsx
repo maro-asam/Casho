@@ -110,7 +110,7 @@ export default function QuickCustomizeSheet({ storeId, settings }: Props) {
         {/* Footer */}
         <div className="shrink-0 border-t px-5 py-3">
           <Button asChild variant="ghost" size="sm" className="w-full justify-between text-xs text-muted-foreground">
-            <Link href="/dashboard/customization">
+            <Link href="/customization">
               عرض كل خيارات التخصيص
               <ArrowLeft className="size-3.5" />
             </Link>

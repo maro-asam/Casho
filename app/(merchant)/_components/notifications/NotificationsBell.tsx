@@ -306,7 +306,7 @@ export default function NotificationsBell({
             className="w-full justify-center text-sm"
             onClick={() => {
               setOpen(false);
-              router.push("/dashboard/notifications");
+              router.push("/notifications");
             }}
           >
             عرض كل الإشعارات

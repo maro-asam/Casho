@@ -59,7 +59,10 @@ export default function StoreFrontHeaderAllaia({
     const q = search.trim();
     const params = new URLSearchParams();
     if (q) params.set("search", q);
-    const url = buildStoreUrl(storeSlug, `/products${params.toString() ? `?${params}` : ""}`);
+    const url = buildStoreUrl(
+      storeSlug,
+      `/products${params.toString() ? `?${params}` : ""}`,
+    );
     setSearchOpen(false);
     startTransition(() => router.push(url));
   }
@@ -90,14 +93,13 @@ export default function StoreFrontHeaderAllaia({
 
       {/* ── Main navbar ── */}
       <header
-        className="border-b bg-white transition-shadow duration-300"
+        className="border-b bg-background transition-shadow duration-300"
         style={{
           borderColor: "#e8e8e8",
           boxShadow: scrolled ? "0 2px 12px rgba(0,0,0,.06)" : "none",
         }}
       >
         <div className="mx-auto flex h-16 max-w-screen-2xl items-center gap-4 px-5 md:px-8">
-
           {/* ── Right side: nav links (desktop) + hamburger (mobile) ── */}
           <div className="flex flex-1 items-center gap-0">
             {/* Mobile hamburger */}
@@ -110,8 +112,13 @@ export default function StoreFrontHeaderAllaia({
                 </SheetTrigger>
                 <SheetContent side="right" className="w-80 p-0" dir="rtl">
                   <div className="flex h-full flex-col">
-                    <SheetHeader className="border-b px-5 py-4" style={{ borderColor: "#e8e8e8" }}>
-                      <SheetTitle className="text-right text-sm font-medium">القائمة</SheetTitle>
+                    <SheetHeader
+                      className="border-b px-5 py-4"
+                      style={{ borderColor: "#e8e8e8" }}
+                    >
+                      <SheetTitle className="text-right text-sm font-medium">
+                        القائمة
+                      </SheetTitle>
                     </SheetHeader>
                     <div className="flex-1 overflow-y-auto">
                       {navLinks.map((link) => (
@@ -126,7 +133,10 @@ export default function StoreFrontHeaderAllaia({
                         </SheetClose>
                       ))}
                     </div>
-                    <div className="border-t p-4" style={{ borderColor: "#e8e8e8" }}>
+                    <div
+                      className="border-t p-4"
+                      style={{ borderColor: "#e8e8e8" }}
+                    >
                       <SheetClose asChild>
                         <Link
                           href={buildStoreUrl(storeSlug, "/cart")}
@@ -135,7 +145,7 @@ export default function StoreFrontHeaderAllaia({
                           <ShoppingBag className="size-4" />
                           العربة
                           {cartCount > 0 && (
-                            <span className="flex size-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-black">
+                            <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold ">
                               {cartCount}
                             </span>
                           )}
@@ -194,7 +204,11 @@ export default function StoreFrontHeaderAllaia({
               className="flex size-10 items-center justify-center rounded-full transition hover:bg-gray-100"
               aria-label="بحث"
             >
-              {searchOpen ? <X className="size-5" /> : <Search className="size-5" />}
+              {searchOpen ? (
+                <X className="size-5" />
+              ) : (
+                <Search className="size-5" />
+              )}
             </button>
 
             {/* Cart */}
@@ -222,7 +236,10 @@ export default function StoreFrontHeaderAllaia({
             className="border-t px-5 py-3 md:px-8"
             style={{ borderColor: "#e8e8e8", background: "#fafafa" }}
           >
-            <form onSubmit={handleSearch} className="mx-auto flex max-w-lg items-center gap-3">
+            <form
+              onSubmit={handleSearch}
+              className="mx-auto flex max-w-lg items-center gap-3"
+            >
               <Search className="size-4 shrink-0 text-gray-400" />
               <input
                 ref={searchRef}

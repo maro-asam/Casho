@@ -101,7 +101,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
       try {
         await CreateBannerAction(storeId, title.trim(), image.trim());
         toast.success("تم إنشاء البانر بنجاح");
-        router.push("/dashboard/banners");
+        router.push("/banners");
         router.refresh();
       } catch {
         toast.error("حدث خطأ أثناء إنشاء البانر");
@@ -266,7 +266,7 @@ export default function NewBannerForm({ storeId }: NewBannerFormProps) {
               className="gap-1.5 text-muted-foreground"
               asChild
             >
-              <Link href="/dashboard/banners">
+              <Link href="/banners">
                 <ArrowRight className="size-4" />
                 العودة للبانرز
               </Link>

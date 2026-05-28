@@ -26,7 +26,7 @@ const PLATFORMS = [
     name: "انستجرام",
     description: "اكتشاف الطلبات من محادثات DM تلقائياً بالذكاء الاصطناعي",
     icon: Camera,
-    href: "/dashboard/integrations/instagram",
+    href: "/integrations/instagram",
     available: true,
     badge: "متاح",
     badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
@@ -37,7 +37,7 @@ const PLATFORMS = [
     name: "Facebook Messenger",
     description: "ربط حسابك التجاري على Facebook لاستقبال وتحليل طلبات الرسائل",
     icon: MessageSquare,
-    href: "/dashboard/integrations/facebook",
+    href: "/integrations/facebook",
     available: false,
     badge: "قريباً",
     badgeClass: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
@@ -48,7 +48,7 @@ const PLATFORMS = [
     name: "واتساب",
     description: "تحويل محادثات واتساب التجاري إلى طلبات تلقائياً",
     icon: Phone,
-    href: "/dashboard/integrations/whatsapp",
+    href: "/integrations/whatsapp",
     available: false,
     badge: "قريباً",
     badgeClass: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
@@ -59,7 +59,7 @@ const PLATFORMS = [
     name: "تيك توك",
     description: "اكتشاف الطلبات من تعليقات ورسائل TikTok Shop",
     icon: Music2,
-    href: "/dashboard/integrations/tiktok",
+    href: "/integrations/tiktok",
     available: false,
     badge: "قريباً",
     badgeClass: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
@@ -96,7 +96,7 @@ export default async function IntegrationsPage() {
               </div>
             </div>
             <Button asChild variant="outline" size="sm" className="rounded-xl">
-              <Link href="/dashboard/suggested-orders">
+              <Link href="/suggested-orders">
                 مراجعة
                 <ArrowLeft className="mr-1.5 size-4" />
               </Link>

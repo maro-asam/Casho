@@ -46,33 +46,33 @@ type SearchItem = {
 
 const items: SearchItem[] = [
   // التشغيل
-  { label: "نظرة عامة", href: "/dashboard", icon: LayoutDashboard, group: "التشغيل" },
-  { label: "الإشعارات", href: "/dashboard/notifications", icon: Bell, group: "التشغيل" },
-  { label: "الطلبات", href: "/dashboard/orders", icon: ShoppingCart, group: "التشغيل" },
-  { label: "التقارير", href: "/dashboard/reports", icon: ChartNoAxesCombined, group: "التشغيل" },
+  { label: "نظرة عامة", href: "/", icon: LayoutDashboard, group: "التشغيل" },
+  { label: "الإشعارات", href: "/notifications", icon: Bell, group: "التشغيل" },
+  { label: "الطلبات", href: "/orders", icon: ShoppingCart, group: "التشغيل" },
+  { label: "التقارير", href: "/reports", icon: ChartNoAxesCombined, group: "التشغيل" },
   // المتجر
-  { label: "المنتجات", href: "/dashboard/products", icon: Package, group: "المتجر" },
-  { label: "التصنيفات", href: "/dashboard/categories", icon: Tag, group: "المتجر" },
-  { label: "البانرات", href: "/dashboard/banners", icon: ImageIcon, group: "المتجر" },
-  { label: "الكوبونات", href: "/dashboard/coupons", icon: CirclePercent, group: "المتجر" },
+  { label: "المنتجات", href: "/products", icon: Package, group: "المتجر" },
+  { label: "التصنيفات", href: "/categories", icon: Tag, group: "المتجر" },
+  { label: "البانرات", href: "/banners", icon: ImageIcon, group: "المتجر" },
+  { label: "الكوبونات", href: "/coupons", icon: CirclePercent, group: "المتجر" },
   // النمو
-  { label: "تخصيص المتجر", href: "/dashboard/customization", icon: PaintRoller, group: "النمو" },
-  { label: "إعدادات SEO", href: "/dashboard/seo", icon: Rocket, group: "النمو" },
-  { label: "المدونة", href: "/dashboard/blog", icon: BookOpen, group: "النمو" },
+  { label: "تخصيص المتجر", href: "/customization", icon: PaintRoller, group: "النمو" },
+  { label: "إعدادات SEO", href: "/seo", icon: Rocket, group: "النمو" },
+  { label: "المدونة", href: "/blog", icon: BookOpen, group: "النمو" },
   // المالية
-  { label: "إدارة الرصيد", href: "/dashboard/balance", icon: BanknoteArrowUp, group: "المالية" },
-  { label: "تغيير الخطة", href: "/dashboard/change-plan", icon: ChartNoAxesCombined, group: "المالية" },
-  { label: "بوابات الدفع", href: "/dashboard/payment-methods", icon: CreditCard, group: "المالية" },
-  { label: "الإعدادات", href: "/dashboard/settings", icon: Settings, group: "المالية" },
+  { label: "إدارة الرصيد", href: "/balance", icon: BanknoteArrowUp, group: "المالية" },
+  { label: "تغيير الخطة", href: "/change-plan", icon: ChartNoAxesCombined, group: "المالية" },
+  { label: "بوابات الدفع", href: "/payment-methods", icon: CreditCard, group: "المالية" },
+  { label: "الإعدادات", href: "/settings", icon: Settings, group: "المالية" },
   // الدعم
-  { label: "مركز المساعدة", href: "/dashboard/support", icon: Headset, group: "الدعم" },
+  { label: "مركز المساعدة", href: "/support", icon: Headset, group: "الدعم" },
 ];
 
 const quickActions: SearchItem[] = [
-  { label: "إضافة منتج جديد", href: "/dashboard/products/new", icon: PackagePlus, group: "إجراءات سريعة" },
-  { label: "إضافة تصنيف", href: "/dashboard/categories/new", icon: TagsIcon, group: "إجراءات سريعة" },
-  { label: "إضافة كوبون", href: "/dashboard/coupons/new", icon: Plus, group: "إجراءات سريعة" },
-  { label: "الطلبات المكتملة", href: "/dashboard/orders?status=DELIVERED", icon: CheckCircle2, group: "إجراءات سريعة" },
+  { label: "إضافة منتج جديد", href: "/products/new", icon: PackagePlus, group: "إجراءات سريعة" },
+  { label: "إضافة تصنيف", href: "/categories/new", icon: TagsIcon, group: "إجراءات سريعة" },
+  { label: "إضافة كوبون", href: "/coupons/new", icon: Plus, group: "إجراءات سريعة" },
+  { label: "الطلبات المكتملة", href: "/orders?status=DELIVERED", icon: CheckCircle2, group: "إجراءات سريعة" },
 ];
 
 const groups = [...new Set(items.map((i) => i.group))];

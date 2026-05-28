@@ -241,6 +241,8 @@ export type ThemePreset = {
   description: string;
   colorScheme: "light" | "dark";
   tokens: ThemeTokens;
+  /** Tokens to apply when the user activates dark mode (overrides `tokens`). */
+  darkTokens?: Partial<ThemeTokens>;
   layout: ThemeLayout;
   sections: ThemeSections;
 };
@@ -262,6 +264,8 @@ export type ResolvedTheme = {
   id: ThemePresetId;
   colorScheme: "light" | "dark";
   tokens: ThemeTokens;
+  /** Dark-mode token overrides (applied when `.dark` class is active). */
+  darkTokens?: Partial<ThemeTokens>;
   layout: ThemeLayout;
   sections: ThemeSections;
   /** Resolved section content (passed to section components) */

@@ -78,7 +78,7 @@ export default async function InstagramIntegrationPage() {
         {...(connection && stats && (stats.pendingCount ?? 0) > 0
           ? {
               actionLabel: `${stats.pendingCount} طلب قيد المراجعة`,
-              actionHref: "/dashboard/suggested-orders",
+              actionHref: "/suggested-orders",
             }
           : {})}
       />
@@ -137,7 +137,7 @@ export default async function InstagramIntegrationPage() {
               </div>
             </div>
             <Button asChild variant="outline" size="sm" className="rounded-xl">
-              <Link href="/dashboard/suggested-orders">
+              <Link href="/suggested-orders">
                 مراجعة
                 <ArrowLeft className="mr-1.5 size-4" />
               </Link>

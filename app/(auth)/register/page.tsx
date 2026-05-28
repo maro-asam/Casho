@@ -163,7 +163,7 @@ export default function RegisterRoute() {
       toast.success("تم إنشاء الحساب بنجاح");
       setStep(4);
       const timer = setTimeout(() => {
-        router.push("/dashboard/change-plan?onboarding=1");
+        router.push("/change-plan?onboarding=1");
         router.refresh();
       }, 1200);
       return () => clearTimeout(timer);

@@ -339,7 +339,7 @@ export default function StoreFrontHeaderDefault({
                               >
                                 <ShoppingCart className="h-4 w-4" />
                                 عرض العربة
-                                <span className="inline-flex min-w-5 items-center justify-center rounded-xl bg-white px-1.5 text-[11px] font-semibold text-primary">
+                                <span className="inline-flex min-w-5 items-center justify-center rounded-xl  px-1.5 text-[11px] font-semibold text-primary">
                                   {cartCount}
                                 </span>
                               </Link>

@@ -71,7 +71,7 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
                 </div>
 
                 <Button className="w-full" asChild>
-                  <Link href="/dashboard" onClick={() => setOpen(false)}>
+                  <Link href="/" onClick={() => setOpen(false)}>
                     لوحة التحكم
                   </Link>
                 </Button>

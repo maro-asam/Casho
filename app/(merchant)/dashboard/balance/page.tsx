@@ -190,7 +190,7 @@ export default async function BalanceRoute() {
               </p>
             </div>
             <Button asChild className="rounded-xl">
-              <Link href="/dashboard">الرجوع للوحة التحكم</Link>
+              <Link href="/">الرجوع للوحة التحكم</Link>
             </Button>
           </CardContent>
         </Card>
@@ -419,7 +419,7 @@ export default async function BalanceRoute() {
             </div>
           </div>
           <Button asChild variant="outline" className="shrink-0 ">
-            <Link href="/dashboard/balance/history">عرض الكل</Link>
+            <Link href="/balance/history">عرض الكل</Link>
           </Button>
         </CardHeader>
 

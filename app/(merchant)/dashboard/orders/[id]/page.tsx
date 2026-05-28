@@ -187,7 +187,7 @@ export default async function OrderDetailsPage({
             }}
           />
           <Button asChild variant="outline" className="rounded-xl">
-            <Link href="/dashboard/orders">
+            <Link href="/orders">
               <ArrowRight className="me-1.5 size-4" />
               الطلبات
             </Link>

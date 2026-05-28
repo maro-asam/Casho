@@ -119,7 +119,7 @@ export default async function ChangePlanRoute({
             </div>
 
             <Button asChild>
-              <Link href="/dashboard">الرجوع للداشبورد</Link>
+              <Link href="/">الرجوع للداشبورد</Link>
             </Button>
           </CardContent>
         </Card>
@@ -288,7 +288,7 @@ export default async function ChangePlanRoute({
                 </div>
 
                 <Button asChild className="w-full">
-                  <Link href="/dashboard/balance/topup">
+                  <Link href="/balance/topup">
                     <Wallet className="ms-2 size-4" />
                     شحن رصيد
                   </Link>

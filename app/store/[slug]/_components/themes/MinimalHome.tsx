@@ -114,7 +114,10 @@ function MinimalProductCard({
       className="group flex flex-col"
     >
       {/* Image — aspect ratio from merchant layout setting */}
-      <div className="relative overflow-hidden bg-neutral-50" style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}>
+      <div
+        className="relative overflow-hidden bg-neutral-50"
+        style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}
+      >
         {product.image ? (
           <Image
             src={product.image}
@@ -182,30 +185,105 @@ function EmptyProducts({ storeSlug }: { storeSlug: string }) {
 // ─── Main ─────────────────────────────────────────────────────────
 type MinimalHomeProps = StoreHomeProps & { sectionContent?: SectionContentMap };
 
-export default function MinimalHome({ store, sections, sectionContent = {} }: MinimalHomeProps) {
-  const featuredProducts = store.products.filter((p) => p.isFeatured).slice(0, 8);
+export default function MinimalHome({
+  store,
+  sections,
+  sectionContent = {},
+}: MinimalHomeProps) {
+  const featuredProducts = store.products
+    .filter((p) => p.isFeatured)
+    .slice(0, 8);
   const latestProducts = store.products.slice(0, 15);
   const categories = store.categories.slice(0, 12);
 
   const funnelSections = [
     sections.showOfferStrip && (
-      <SectionRenderer key="showOfferStrip" sectionKey="showOfferStrip" store={store} sectionContent={sectionContent} categories={store.categories} bestSellers={store.bestSellers} />
+      <SectionRenderer
+        key="showOfferStrip"
+        sectionKey="showOfferStrip"
+        store={store}
+        sectionContent={sectionContent}
+        categories={store.categories}
+        bestSellers={store.bestSellers}
+      />
     ),
-    sections.showSocialProof && <SectionRenderer key="showSocialProof" sectionKey="showSocialProof" store={store} sectionContent={sectionContent} />,
-    sections.showBestSellers && <SectionRenderer key="showBestSellers" sectionKey="showBestSellers" store={store} sectionContent={sectionContent} bestSellers={store.bestSellers} />,
-    sections.showCollections && <SectionRenderer key="showCollections" sectionKey="showCollections" store={store} sectionContent={sectionContent} categories={store.categories} />,
-    sections.showWhyChooseUs && <SectionRenderer key="showWhyChooseUs" sectionKey="showWhyChooseUs" store={store} sectionContent={sectionContent} />,
-    sections.showTestimonials && <SectionRenderer key="showTestimonials" sectionKey="showTestimonials" store={store} sectionContent={sectionContent} />,
-    sections.showUrgency && <SectionRenderer key="showUrgency" sectionKey="showUrgency" store={store} sectionContent={sectionContent} />,
-    sections.showAboutBrand && <SectionRenderer key="showAboutBrand" sectionKey="showAboutBrand" store={store} sectionContent={sectionContent} />,
-    sections.showNewsletter && <SectionRenderer key="showNewsletter" sectionKey="showNewsletter" store={store} sectionContent={sectionContent} />,
+    sections.showSocialProof && (
+      <SectionRenderer
+        key="showSocialProof"
+        sectionKey="showSocialProof"
+        store={store}
+        sectionContent={sectionContent}
+      />
+    ),
+    sections.showBestSellers && (
+      <SectionRenderer
+        key="showBestSellers"
+        sectionKey="showBestSellers"
+        store={store}
+        sectionContent={sectionContent}
+        bestSellers={store.bestSellers}
+      />
+    ),
+    sections.showCollections && (
+      <SectionRenderer
+        key="showCollections"
+        sectionKey="showCollections"
+        store={store}
+        sectionContent={sectionContent}
+        categories={store.categories}
+      />
+    ),
+    sections.showWhyChooseUs && (
+      <SectionRenderer
+        key="showWhyChooseUs"
+        sectionKey="showWhyChooseUs"
+        store={store}
+        sectionContent={sectionContent}
+      />
+    ),
+    sections.showTestimonials && (
+      <SectionRenderer
+        key="showTestimonials"
+        sectionKey="showTestimonials"
+        store={store}
+        sectionContent={sectionContent}
+      />
+    ),
+    sections.showUrgency && (
+      <SectionRenderer
+        key="showUrgency"
+        sectionKey="showUrgency"
+        store={store}
+        sectionContent={sectionContent}
+      />
+    ),
+    sections.showAboutBrand && (
+      <SectionRenderer
+        key="showAboutBrand"
+        sectionKey="showAboutBrand"
+        store={store}
+        sectionContent={sectionContent}
+      />
+    ),
+    sections.showNewsletter && (
+      <SectionRenderer
+        key="showNewsletter"
+        sectionKey="showNewsletter"
+        store={store}
+        sectionContent={sectionContent}
+      />
+    ),
   ].filter(Boolean);
 
   return (
     <div dir="rtl">
       {/* Offer strip — full width before hero */}
       {sections.showOfferStrip && (
-        <SectionRenderer sectionKey="showOfferStrip" store={store} sectionContent={sectionContent} />
+        <SectionRenderer
+          sectionKey="showOfferStrip"
+          store={store}
+          sectionContent={sectionContent}
+        />
       )}
 
       {/* Hero */}
@@ -215,10 +293,17 @@ export default function MinimalHome({ store, sections, sectionContent = {} }: Mi
         {/* Categories — text pills */}
         {sections.showCategories && categories.length > 0 && (
           <section>
-            <MinimalLabel title="التصنيفات" href={buildStoreUrl(store.slug, "/categories")} />
+            <MinimalLabel
+              title="التصنيفات"
+              href={buildStoreUrl(store.slug, "/categories")}
+            />
             <div className="flex flex-wrap gap-2" dir="rtl">
               {categories.map((cat) => (
-                <MinimalCategoryPill key={cat.id} category={cat} storeSlug={store.slug} />
+                <MinimalCategoryPill
+                  key={cat.id}
+                  category={cat}
+                  storeSlug={store.slug}
+                />
               ))}
             </div>
           </section>
@@ -229,35 +314,52 @@ export default function MinimalHome({ store, sections, sectionContent = {} }: Mi
         {/* Featured Products */}
         {sections.showFeaturedProducts && featuredProducts.length > 0 && (
           <section>
-            <MinimalLabel title="المميزة" href={buildStoreUrl(store.slug, "/products")} />
+            <MinimalLabel
+              title="المميزة"
+              href={buildStoreUrl(store.slug, "/products")}
+            />
             <div className="grid grid-cols-2 gap-x-4 gap-y-10 store-product-grid">
               {featuredProducts.map((product) => (
-                <MinimalProductCard key={product.id} product={product} storeSlug={store.slug} />
+                <MinimalProductCard
+                  key={product.id}
+                  product={product}
+                  storeSlug={store.slug}
+                />
               ))}
             </div>
           </section>
         )}
 
-        {sections.showFeaturedProducts && featuredProducts.length > 0 && <MinimalDivider />}
+        {sections.showFeaturedProducts && featuredProducts.length > 0 && (
+          <MinimalDivider />
+        )}
 
         {/* Latest Products */}
-        {sections.showLatestProducts && (
-          latestProducts.length === 0 ? (
+        {sections.showLatestProducts &&
+          (latestProducts.length === 0 ? (
             <EmptyProducts storeSlug={store.slug} />
           ) : (
             <section>
-              <MinimalLabel title="الجديد" href={buildStoreUrl(store.slug, "/products")} />
+              <MinimalLabel
+                title="الجديد"
+                href={buildStoreUrl(store.slug, "/products")}
+              />
               <div className="grid grid-cols-2 gap-x-4 gap-y-10 store-product-grid">
                 {latestProducts.map((product) => (
-                  <MinimalProductCard key={product.id} product={product} storeSlug={store.slug} />
+                  <MinimalProductCard
+                    key={product.id}
+                    product={product}
+                    storeSlug={store.slug}
+                  />
                 ))}
               </div>
             </section>
-          )
-        )}
+          ))}
 
         {/* Funnel sections */}
-        {funnelSections.filter((s) => s && (s as React.ReactElement).key !== "showOfferStrip")}
+        {funnelSections.filter(
+          (s) => s && (s as React.ReactElement).key !== "showOfferStrip",
+        )}
       </div>
     </div>
   );

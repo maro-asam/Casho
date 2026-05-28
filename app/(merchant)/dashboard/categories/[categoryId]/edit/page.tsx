@@ -42,7 +42,7 @@ export default async function EditCategoryPage({
     select: { id: true, name: true, slug: true, image: true },
   });
 
-  if (!category) redirect("/dashboard/categories");
+  if (!category) redirect("/categories");
 
   return (
     <div className="space-y-6" dir="rtl">

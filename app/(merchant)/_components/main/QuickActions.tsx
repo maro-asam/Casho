@@ -18,26 +18,26 @@ const QuickActions = () => {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <Link href="/dashboard/products/new" className="block">
+        <Link href="/products/new" className="block">
           <Button className="w-full justify-between rounded-xl">
             <span>إضافة منتج</span>
             <Plus className="size-4" />
           </Button>
         </Link>
 
-        <Link href="/dashboard/products" className="block">
+        <Link href="/products" className="block">
           <Button variant="outline" className="w-full rounded-xl">
             إدارة المنتجات
           </Button>
         </Link>
 
-        <Link href="/dashboard/orders" className="block">
+        <Link href="/orders" className="block">
           <Button variant="outline" className="w-full rounded-xl">
             إدارة الطلبات
           </Button>
         </Link>
 
-        <Link href="/dashboard/settings" className="block">
+        <Link href="/settings" className="block">
           <Button variant="outline" className="w-full rounded-xl">
             إعدادات المتجر
           </Button>

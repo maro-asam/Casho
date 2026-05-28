@@ -7,7 +7,7 @@ import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import StoreFrontHeader from "./_components/NAVBARS/StoreHeader";
 import StoreFooter from "./_components/shared/StoreFooter";
 import { resolveStoreTheme } from "@/constants/store-themes";
-import { buildThemeCSSVars } from "@/lib/theme/build-css-vars";
+import { buildThemeCSSString } from "@/lib/theme/build-css-vars";
 import { StoreThemeProvider } from "./_context/StoreThemeContext";
 import { getArabicFont } from "@/constants/arabic-fonts";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
@@ -174,7 +174,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   const font = getArabicFont(store.settings?.fontId);
 
   // ── CSS custom properties ──────────────────────────────────────────────
-  const cssVars = buildThemeCSSVars(resolvedTheme, font.family);
+  const themeCSS = buildThemeCSSString(resolvedTheme, font.family, resolvedTheme.darkTokens);
 
   return (
     <>
@@ -182,27 +182,21 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="stylesheet" href={font.googleUrl} />
 
-      {/* Inject dynamic grid-cols rule — can't be done with Tailwind classes alone */}
-      <style>{`
-        @media (min-width: 640px) {
-          .store-product-grid {
-            grid-template-columns: repeat(${Math.min(resolvedTheme.layout.desktopGridCols, 3)}, minmax(0, 1fr)) !important;
-          }
-        }
-        @media (min-width: 1024px) {
-          .store-product-grid {
-            grid-template-columns: repeat(${resolvedTheme.layout.desktopGridCols}, minmax(0, 1fr)) !important;
-          }
-        }
-      `}</style>
+      {/*
+        Inject theme CSS vars + grid rules as a stylesheet rule instead of inline
+        styles. Using a <style> block allows the `.dark .store-theme-root` selector
+        to override the base `.store-theme-root` vars when next-themes adds the
+        `.dark` class, which inline styles cannot do (inline specificity is highest).
+      */}
+      <style>{themeCSS}</style>
 
       {/*
         StoreThemeProvider is a Client Component, but it receives a serializable
         ResolvedTheme object from this Server Component — this is valid in Next.js.
-        All CSS vars are also injected here so server-rendered children work too.
+        CSS vars are injected via the <style> block above; the class wires it up.
       */}
       <StoreThemeProvider theme={resolvedTheme}>
-        <div dir="rtl" style={cssVars} className="min-h-screen">
+        <div dir="rtl" className="store-theme-root min-h-screen">
           <StoreFrontHeader
             storeName={store.name}
             storeSlug={store.slug}

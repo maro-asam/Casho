@@ -246,7 +246,7 @@ const MerchantDashboardRoute = async () => {
       id: "balance",
       title: "فعّل الاشتراك",
       description: "أضف رصيد أو اختار خطة نشطة لتشغيل المتجر بثقة.",
-      href: "/dashboard/balance",
+      href: "/balance",
       completed: isActive,
       icon: "wallet" as const,
     },
@@ -254,7 +254,7 @@ const MerchantDashboardRoute = async () => {
       id: "categories",
       title: "أضف تصنيفاتك",
       description: "قسّم منتجاتك لتسهيل التصفح على العملاء.",
-      href: "/dashboard/categories",
+      href: "/categories",
       completed: store.categories.length > 0,
       icon: "category" as const,
     },
@@ -262,7 +262,7 @@ const MerchantDashboardRoute = async () => {
       id: "products",
       title: "أضف منتجاتك",
       description: "ابدأ بأول منتج بالصور والسعر والوصف.",
-      href: "/dashboard/products/new",
+      href: "/products/new",
       completed: store.products.length > 0,
       icon: "product" as const,
     },
@@ -270,7 +270,7 @@ const MerchantDashboardRoute = async () => {
       id: "banners",
       title: "أضف بانرات",
       description: "اعرض العروض أو المنتجات المميزة في واجهة المتجر.",
-      href: "/dashboard/banners",
+      href: "/banners",
       completed: store.banners.length > 0,
       icon: "banner" as const,
     },
@@ -279,7 +279,7 @@ const MerchantDashboardRoute = async () => {
       title: "جهّز طرق الدفع",
       description:
         "فعّل الدفع المناسب لعملاء مصر: COD، فودافون كاش، InstaPay، أو غيره.",
-      href: "/dashboard/payment-methods",
+      href: "/payment-methods",
       completed: hasPaymentMethods,
       icon: "payment" as const,
     },
@@ -287,7 +287,7 @@ const MerchantDashboardRoute = async () => {
       id: "shipping",
       title: "حدد سعر الشحن",
       description: "اضبط تكلفة الشحن الافتراضية عشان الطلبات تطلع مظبوطة.",
-      href: "/dashboard/settings",
+      href: "/settings",
       completed: hasShippingPrice,
       icon: "shipping" as const,
     },
@@ -295,7 +295,7 @@ const MerchantDashboardRoute = async () => {
       id: "seo",
       title: "إعدادات الـ SEO",
       description: "حسّن ظهور متجرك في محركات البحث والمشاركة.",
-      href: "/dashboard/seo",
+      href: "/seo",
       completed: hasSeoSettings,
       icon: "seo" as const,
     },
@@ -338,25 +338,25 @@ const MerchantDashboardRoute = async () => {
     {
       title: "إضافة منتج",
       description: "ابدأ بيع منتج جديد",
-      href: "/dashboard/products/new",
+      href: "/products/new",
       icon: Package,
     },
     {
       title: "تخصيص الواجهة",
       description: "لون، ثيم، وهوية المتجر",
-      href: "/dashboard/customization",
+      href: "/customization",
       icon: PaintRoller,
     },
     {
       title: "طرق الدفع",
       description: "فعل وسائل التحصيل",
-      href: "/dashboard/payment-methods",
+      href: "/payment-methods",
       icon: CreditCard,
     },
     {
       title: "تحسين SEO",
       description: "ارفع ظهور المتجر",
-      href: "/dashboard/seo",
+      href: "/seo",
       icon: Rocket,
     },
   ];
@@ -440,7 +440,7 @@ const MerchantDashboardRoute = async () => {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="font-bold">
-                  <Link href="/dashboard/support">
+                  <Link href="/support">
                     <Headset className="size-4" />
                     الدعم
                   </Link>
@@ -469,7 +469,7 @@ const MerchantDashboardRoute = async () => {
                   size="sm"
                   className="w-full rounded-xl font-bold"
                 >
-                  <Link href="/dashboard/balance">إدارة الرصيد</Link>
+                  <Link href="/balance">إدارة الرصيد</Link>
                 </Button>
               </div>
 
@@ -520,7 +520,7 @@ const MerchantDashboardRoute = async () => {
               size="sm"
               className="rounded-xl font-bold text-xs"
             >
-              <Link href="/dashboard/orders">
+              <Link href="/orders">
                 عرض الكل
                 <ShoppingCart className="size-3.5" />
               </Link>

@@ -92,7 +92,7 @@ export default function EditCategoryForm({
         return;
       }
       toast.success("تم تحديث التصنيف بنجاح");
-      router.push("/dashboard/categories");
+      router.push("/categories");
       router.refresh();
     });
   }

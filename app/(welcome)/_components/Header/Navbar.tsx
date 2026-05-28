@@ -31,10 +31,10 @@ const Navbar = async () => {
   const store = user?.stores?.[0];
 
   return (
-    <header className="sticky top-4 z-100 mx-auto">
+    <header className="sticky top-4 z-50 mx-auto">
       <div className="mx-auto">
         <AnimatedNavbarShell>
-          <div className="flex items-center justify-between rounded-xl border border-border/10 bg-card/80 px-4 py-3 backdrop-blur-2xl shadow-lg md:px-6">
+          <div className="flex w-full items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-3">
               <Link href="/" className="group flex items-center gap-3">
@@ -112,7 +112,7 @@ const Navbar = async () => {
                         className="cursor-pointer rounded-xl"
                       >
                         <Link
-                          href="/dashboard"
+                          href={buildStoreUrl("app")}
                           className="flex items-center justify-between"
                         >
                           <span>لوحة التحكم</span>

@@ -93,7 +93,7 @@ export default function ChangePlanForm({
       toast.success(state.message);
 
       if (isOnboarding) {
-        router.replace("/dashboard");
+        router.replace("/");
         router.refresh();
       }
     } else {

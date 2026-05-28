@@ -73,7 +73,7 @@ export function CompleteGoogleForm({ email, name }: Props) {
     if (state?.error) toast.error(state.error);
     if (state?.success) {
       toast.success("تم إنشاء الحساب بنجاح 🎉");
-      router.push("/dashboard/change-plan");
+      router.push("/change-plan");
       router.refresh();
     }
   }, [state, router]);

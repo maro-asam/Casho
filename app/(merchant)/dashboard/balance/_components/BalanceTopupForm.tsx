@@ -281,7 +281,7 @@ export default function BalanceTopupForm({
             type="button"
             variant="outline"
             className="h-12 rounded-xl"
-            onClick={() => router.push("/dashboard/balance")}
+            onClick={() => router.push("/balance")}
             disabled={isPending}
           >
             رجوع

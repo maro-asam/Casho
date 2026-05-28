@@ -70,7 +70,7 @@ export default async function EditProductPage({
     },
   });
   if (!product) {
-    redirect("/dashboard/products");
+    redirect("/products");
   }
 
   const categories = await prisma.category.findMany({

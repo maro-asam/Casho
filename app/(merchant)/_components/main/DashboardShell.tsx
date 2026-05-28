@@ -130,28 +130,28 @@ export default function DashboardShell({
       {
         title: "التشغيل",
         links: [
-          { name: "نظرة عامة", href: "/dashboard", icon: LayoutDashboard },
+          { name: "نظرة عامة", href: "/", icon: LayoutDashboard },
           {
             name: "الإشعارات",
-            href: "/dashboard/notifications",
+            href: "/notifications",
             icon: Bell,
             count: initialUnreadCount,
           },
-          { name: "الطلبات", href: "/dashboard/orders", icon: ShoppingCart },
+          { name: "الطلبات", href: "/orders", icon: ShoppingCart },
           {
             name: "الكارتات المتروكة",
-            href: "/dashboard/abandoned-carts",
+            href: "/abandoned-carts",
             icon: Timer,
           },
           {
             name: "طلبات انستجرام",
-            href: "/dashboard/suggested-orders",
+            href: "/suggested-orders",
             icon: Send,
             badge: "AI",
           },
           {
             name: "التقارير",
-            href: "/dashboard/reports",
+            href: "/reports",
             icon: ChartNoAxesCombined,
           },
         ],
@@ -159,12 +159,12 @@ export default function DashboardShell({
       {
         title: "المتجر",
         links: [
-          { name: "المنتجات", href: "/dashboard/products", icon: Package },
-          { name: "التصنيفات", href: "/dashboard/categories", icon: Tag },
-          { name: "البانرات", href: "/dashboard/banners", icon: ImageIcon },
+          { name: "المنتجات", href: "/products", icon: Package },
+          { name: "التصنيفات", href: "/categories", icon: Tag },
+          { name: "البانرات", href: "/banners", icon: ImageIcon },
           {
             name: "الكوبونات",
-            href: "/dashboard/coupons",
+            href: "/coupons",
             icon: CirclePercent,
           },
         ],
@@ -174,12 +174,12 @@ export default function DashboardShell({
         links: [
           {
             name: "تخصيص المتجر",
-            href: "/dashboard/customization",
+            href: "/customization",
             icon: PaintRoller,
           },
-          { name: "إعدادات SEO", href: "/dashboard/seo", icon: Rocket },
-          { name: "المدونة", href: "/dashboard/blog", icon: BookOpen },
-          { name: "خدمات إضافية", href: "/dashboard/services", icon: Layers },
+          { name: "إعدادات SEO", href: "/seo", icon: Rocket },
+          { name: "المدونة", href: "/blog", icon: BookOpen },
+          { name: "خدمات إضافية", href: "/services", icon: Layers },
         ],
       },
 
@@ -188,20 +188,20 @@ export default function DashboardShell({
         links: [
           {
             name: "إدارة الرصيد",
-            href: "/dashboard/balance",
+            href: "/balance",
             icon: BanknoteArrowUp,
           },
           {
             name: "تغيير الخطة",
-            href: "/dashboard/change-plan",
+            href: "/change-plan",
             icon: ChartNoAxesCombined,
           },
           {
             name: "بوابات الدفع",
-            href: "/dashboard/payment-methods",
+            href: "/payment-methods",
             icon: CreditCard,
           },
-          { name: "الإعدادات", href: "/dashboard/settings", icon: Settings },
+          { name: "الإعدادات", href: "/settings", icon: Settings },
         ],
       },
 
@@ -210,27 +210,27 @@ export default function DashboardShell({
         links: [
           {
             name: "انستجرام",
-            href: "/dashboard/integrations/instagram",
+            href: "/integrations/instagram",
             icon: Camera,
             badge: "AI",
           },
           {
             name: "Facebook Messenger",
-            href: "/dashboard/integrations/facebook",
+            href: "/integrations/facebook",
             icon: MessageSquare,
             disabled: true,
             badge: "Soon",
           },
           {
             name: "واتساب",
-            href: "/dashboard/integrations/whatsapp",
+            href: "/integrations/whatsapp",
             icon: Phone,
             disabled: true,
             badge: "Soon",
           },
           {
             name: "تيك توك",
-            href: "/dashboard/integrations/tiktok",
+            href: "/integrations/tiktok",
             icon: Music2,
             disabled: true,
             badge: "Soon",
@@ -240,24 +240,24 @@ export default function DashboardShell({
       {
         title: "الدعم",
         links: [
-          { name: "مركز المساعدة", href: "/dashboard/support", icon: Headset },
+          { name: "مركز المساعدة", href: "/support", icon: Headset },
           {
             name: "ربط تيليجرام",
-            href: "/dashboard/telegram",
+            href: "/telegram",
             icon: Send,
             disabled: true,
             badge: "Soon",
           },
           {
             name: "الحملات التسويقية",
-            href: "/dashboard/marketing-campaigns",
+            href: "/marketing-campaigns",
             icon: ScreenShare,
             disabled: true,
             badge: "Soon",
           },
           {
             name: "شركات الشحن",
-            href: "/dashboard/shipping-companies",
+            href: "/shipping-companies",
             icon: Truck,
             disabled: true,
             badge: "Soon",
@@ -270,8 +270,8 @@ export default function DashboardShell({
 
   const isActive = (href: string, disabled?: boolean) => {
     if (disabled) return false;
-    return href === "/dashboard"
-      ? pathname === "/dashboard"
+    return href === "/"
+      ? pathname === "/"
       : pathname.startsWith(href);
   };
 
@@ -399,7 +399,7 @@ export default function DashboardShell({
               size="sm"
               className="h-9 w-full justify-start gap-2.5 px-2 text-muted-foreground hover:text-foreground"
             >
-              <Link href="/dashboard/settings">
+              <Link href="/settings">
                 <Settings className="size-4" />
                 إعدادات المتجر
               </Link>
@@ -463,7 +463,7 @@ export default function DashboardShell({
           </SheetContent>
         </Sheet>
 
-        <Link href="/dashboard" className="min-w-0 flex-1">
+        <Link href="/" className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold">
             {store.name}
           </span>

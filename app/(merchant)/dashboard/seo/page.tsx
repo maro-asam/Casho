@@ -41,7 +41,7 @@ const SEOSettingsRoute = async () => {
   }
 
   if (!store.slug) {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   return (

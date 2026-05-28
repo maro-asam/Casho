@@ -59,7 +59,7 @@ export default async function CreateNewProductPage() {
             </p>
 
             <Button asChild className="mt-6 rounded-xl">
-              <Link href="/dashboard/categories/new">
+              <Link href="/categories/new">
                 <Plus className="me-2 size-4" />
                 إضافة تصنيف جديد
               </Link>

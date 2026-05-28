@@ -95,7 +95,7 @@ export default function CreateProductForm({
       if (state.productData) {
         setMarketingData(state.productData);
       } else {
-        router.push("/dashboard/products");
+        router.push("/products");
       }
     } else {
       toast.error(state.message);
@@ -693,7 +693,7 @@ export default function CreateProductForm({
         <MarketingAssistantModal
           productData={marketingData}
           open={!!marketingData}
-          onDone={() => router.push("/dashboard/products")}
+          onDone={() => router.push("/products")}
         />
       )}
     </form>

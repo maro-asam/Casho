@@ -95,7 +95,7 @@ export default async function CategoriesPage({
           </>
         }
         actionLabel="إضافة تصنيف جديد"
-        actionHref="/dashboard/categories/new"
+        actionHref="/categories/new"
       />
 
       {categories.length === 0 ? (
@@ -112,7 +112,7 @@ export default async function CategoriesPage({
             </p>
 
             <Button asChild className="mt-6 rounded-xl">
-              <Link href="/dashboard/categories/new">
+              <Link href="/categories/new">
                 <Plus className="me-2 size-4" />
                 إضافة أول تصنيف
               </Link>
