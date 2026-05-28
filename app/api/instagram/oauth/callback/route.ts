@@ -19,7 +19,12 @@ import {
 } from "@/lib/instagram/client";
 
 export async function GET(req: NextRequest) {
-  const dashboardUrl = `${process.env.APP_URL}/dashboard/instagram`;
+  const rootDomain = process.env.ROOT_DOMAIN || "localhost";
+  const appOrigin =
+    rootDomain === "localhost"
+      ? (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000")
+      : `https://app.${rootDomain}`;
+  const dashboardUrl = `${appOrigin}/dashboard/integrations/instagram`;
 
   try {
     const session = await getCurrentSession();
