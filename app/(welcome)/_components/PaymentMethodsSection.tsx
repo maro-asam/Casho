@@ -20,7 +20,7 @@ const REGION_STYLES: Record<PaymentRegion, string> = {
 
 export default function PaymentMethodsSection() {
   return (
-    <section className="relative overflow-hidden ... border border-primary/15 bg-background px-4 py-10 shadow-sm md:px-8 md:py-14">
+    <section className="relative overflow-hidden rounded-lg border border-primary/15 bg-background px-4 py-10 shadow-sm md:px-8 md:py-14">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.14),transparent_34%)]" />
 
       <div className="relative mx-auto max-w-7xl space-y-10">
@@ -85,7 +85,7 @@ export default function PaymentMethodsSection() {
                       viewport={{ once: true }}
                       className="group rounded-2xl border bg-background/80 p-4 text-center shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
                     >
-                      <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border bg-white p-3 shadow-sm">
+                      <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border bg-card p-3 shadow-sm">
                         <Image
                           src={method.logo}
                           alt={method.label}
@@ -99,9 +99,6 @@ export default function PaymentMethodsSection() {
                         {method.label}
                       </p>
 
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {method.manual ? "تحويل يدوي" : "بوابة دفع"}
-                      </p>
                     </motion.div>
                   ))}
                 </div>
