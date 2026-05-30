@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, Package, Tag } from "lucide-react";
+import ProductReviews from "./_components/ProductReviews";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +55,21 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
 
   if (!product) return notFound();
 
+  const reviews = await prisma.productReview.findMany({
+    where: { productId: product.id, storeId: store.id },
+    orderBy: { reviewDate: "desc" },
+    select: {
+      id: true,
+      customerName: true,
+      customerAvatar: true,
+      rating: true,
+      title: true,
+      content: true,
+      verifiedPurchase: true,
+      reviewDate: true,
+    },
+  });
+
   const relatedProducts = await prisma.product.findMany({
     where: {
       storeId: store.id,
@@ -87,10 +103,10 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
       : [product.image];
 
   if (isBold) {
-    return <BoldProductDetail store={store} product={product} gallery={gallery} relatedProducts={relatedProducts} hasDiscount={hasDiscount} discountPct={discountPct} />;
+    return <BoldProductDetail store={store} product={product} gallery={gallery} relatedProducts={relatedProducts} hasDiscount={hasDiscount} discountPct={discountPct} reviews={reviews} />;
   }
 
-  return <DefaultProductDetail store={store} product={product} gallery={gallery} relatedProducts={relatedProducts} hasDiscount={hasDiscount} discountPct={discountPct} />;
+  return <DefaultProductDetail store={store} product={product} gallery={gallery} relatedProducts={relatedProducts} hasDiscount={hasDiscount} discountPct={discountPct} reviews={reviews} />;
 }
 
 // ─── Shared types ─────────────────────────────────────────
@@ -123,6 +139,17 @@ type RelatedProduct = {
   isFeatured: boolean;
   category: { name: string; slug: string } | null;
 };
+type ReviewItem = {
+  id: string;
+  customerName: string;
+  customerAvatar: string | null;
+  rating: number;
+  title: string | null;
+  content: string;
+  verifiedPurchase: boolean;
+  reviewDate: Date;
+};
+
 type ProductDetailProps = {
   store: StoreInfo;
   product: ProductInfo;
@@ -130,11 +157,12 @@ type ProductDetailProps = {
   relatedProducts: RelatedProduct[];
   hasDiscount: boolean;
   discountPct: number;
+  reviews: ReviewItem[];
 };
 
 // ─── Default Theme Product Page ───────────────────────────
 
-function DefaultProductDetail({ store, product, gallery, relatedProducts, hasDiscount, discountPct }: ProductDetailProps) {
+function DefaultProductDetail({ store, product, gallery, relatedProducts, hasDiscount, discountPct, reviews }: ProductDetailProps) {
   return (
     <div className="min-h-screen" dir="rtl">
       <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
@@ -280,6 +308,8 @@ function DefaultProductDetail({ store, product, gallery, relatedProducts, hasDis
           </div>
         </div>
 
+        <ProductReviews reviews={reviews} />
+
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <section className="mt-20">
@@ -307,7 +337,7 @@ function DefaultProductDetail({ store, product, gallery, relatedProducts, hasDis
 
 // ─── Bold Theme Product Page ──────────────────────────────
 
-function BoldProductDetail({ store, product, gallery, relatedProducts, hasDiscount, discountPct }: ProductDetailProps) {
+function BoldProductDetail({ store, product, gallery, relatedProducts, hasDiscount, discountPct, reviews }: ProductDetailProps) {
   return (
     <div className="min-h-screen" dir="rtl">
       {/* Split-screen hero: image left (start in LTR) / info right */}
@@ -466,6 +496,10 @@ function BoldProductDetail({ store, product, gallery, relatedProducts, hasDiscou
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <ProductReviews reviews={reviews} />
       </div>
 
       {/* Related Products */}

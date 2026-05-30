@@ -94,6 +94,7 @@ model Store {
   instagramConnection  InstagramConnection?
   suggestedOrders      SuggestedOrder[]
   igAiUsageLogs        IgAiUsageLog[]
+  reviews              ProductReview[]
 
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -209,6 +210,7 @@ model Product {
   cartItems           CartItem[]
   orderItems          OrderItem[]
   suggestedOrderItems SuggestedOrderItem[]
+  reviews             ProductReview[]
 }
 
 model Banner {
@@ -838,6 +840,31 @@ model IgProcessedWebhookEvent {
   processedAt DateTime @default(now())
 
   @@index([processedAt])
+}
+
+model ProductReview {
+  id               String   @id @default(uuid())
+
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  storeId          String
+  store            Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  customerName     String
+  customerAvatar   String?
+  rating           Int
+  title            String?
+  content          String   @db.Text
+  verifiedPurchase Boolean  @default(false)
+  reviewDate       DateTime @default(now())
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([productId, rating])
+  @@index([storeId, createdAt])
+  @@index([productId, reviewDate])
 }
 
 // Per-store AI usage tracking for daily rate limiting
