@@ -10,38 +10,65 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { BlogFilters } from "./_components/blog-filters";
+import { BlogPagination } from "./_components/blog-pagination";
+
+const POSTS_PER_PAGE = 9;
 
 type BlogRouteProps = {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 };
 
 const BlogRoute = async ({ searchParams }: BlogRouteProps) => {
-  const { q, category } = await searchParams;
+  const { q, category, page: pageParam } = await searchParams;
 
-  const [posts, categories] = await Promise.all([
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const hasFilters = !!(q || category);
+  const isFirstPage = page === 1;
+
+  // Shared where clause for filters
+  const filterWhere = {
+    ...(q
+      ? {
+          OR: [
+            { title: { contains: q, mode: "insensitive" as const } },
+            { excerpt: { contains: q, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+    ...(category ? { category: { slug: category } } : {}),
+  };
+
+  // Featured post — only page 1, no filters
+  const featuredPost =
+    !hasFilters && isFirstPage
+      ? await prisma.blogPost.findFirst({
+          where: { status: "PUBLISHED", featured: true },
+          include: { category: true },
+          orderBy: { publishedAt: "desc" },
+        })
+      : null;
+
+  // Regular posts where clause: exclude featured on page 1
+  const regularWhere = {
+    status: "PUBLISHED" as const,
+    ...(featuredPost ? { id: { not: featuredPost.id } } : {}),
+    ...filterWhere,
+  };
+
+  const [regularPosts, totalCount, categories] = await Promise.all([
     prisma.blogPost.findMany({
-      where: {
-        status: "PUBLISHED",
-        ...(q
-          ? {
-              OR: [
-                { title: { contains: q, mode: "insensitive" } },
-                { excerpt: { contains: q, mode: "insensitive" } },
-              ],
-            }
-          : {}),
-        ...(category ? { category: { slug: category } } : {}),
-      },
+      where: regularWhere,
       include: { category: true },
       orderBy: [{ featured: "desc" }, { publishedAt: "desc" }],
+      skip: (page - 1) * POSTS_PER_PAGE,
+      take: POSTS_PER_PAGE,
     }),
+    prisma.blogPost.count({ where: regularWhere }),
     prisma.blogCategory.findMany({ orderBy: { name: "asc" } }),
   ]);
 
-  const featuredPost = !q && !category ? posts.find((p) => p.featured) : null;
-  const regularPosts = featuredPost
-    ? posts.filter((p) => p.id !== featuredPost.id)
-    : posts;
+  const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
+  const isEmpty = !featuredPost && regularPosts.length === 0;
 
   return (
     <main className="py-10 md:py-14 lg:py-20">
@@ -74,7 +101,7 @@ const BlogRoute = async ({ searchParams }: BlogRouteProps) => {
           />
         </Suspense>
 
-        {/* Featured Post */}
+        {/* Featured Post — page 1 only */}
         {featuredPost && (
           <Link
             href={`/blog/${featuredPost.slug}`}
@@ -133,7 +160,7 @@ const BlogRoute = async ({ searchParams }: BlogRouteProps) => {
         )}
 
         {/* Posts Grid */}
-        {regularPosts.length === 0 && !featuredPost ? (
+        {isEmpty ? (
           <div className="mt-14 rounded-xl border border-dashed p-10 text-center text-muted-foreground">
             {q
               ? `لا توجد مقالات تطابق "${q}"`
@@ -198,6 +225,20 @@ const BlogRoute = async ({ searchParams }: BlogRouteProps) => {
             ))}
           </div>
         ) : null}
+
+        {/* Pagination */}
+        <BlogPagination
+          currentPage={page}
+          totalPages={totalPages}
+          searchParams={{ q, category }}
+        />
+
+        {/* Counter */}
+        {totalPages > 1 && (
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            صفحة {page} من {totalPages} — {totalCount} مقال
+          </p>
+        )}
 
         {/* CTA */}
         <div className="mt-16 rounded-2xl border bg-card p-8 text-center">

@@ -33,6 +33,7 @@ export function BlogFilters({
         if (value) params.set(key, value);
         else params.delete(key);
       }
+      params.delete("page"); // reset to page 1 on filter change
       router.push(`/blog?${params.toString()}`);
     },
     [router, searchParams],

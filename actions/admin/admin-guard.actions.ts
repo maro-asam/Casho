@@ -7,7 +7,6 @@ const ADMIN_EMAILS = ["marolinkedin@gmail.com", "cashostore0@gmail.com"];
 export async function requireAdmin() {
   const userId = await requireUserId();
 
-  // هات اليوزر بالإيميل من الداتابيز
   const { prisma } = await import("@/lib/prisma");
 
   const user = await prisma.user.findUnique({

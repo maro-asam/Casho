@@ -145,6 +145,29 @@ export default async function CartPage({
                                 {item.product.name}
                               </h3>
 
+                              {item.selectedFeatures &&
+                                Object.keys(
+                                  item.selectedFeatures as Record<string, string>,
+                                ).length > 0 && (
+                                  <div className="flex flex-wrap gap-1">
+                                    {Object.entries(
+                                      item.selectedFeatures as Record<string, string>,
+                                    ).map(([key, val]) => (
+                                      <span
+                                        key={key}
+                                        className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                                      >
+                                        {key === "size"
+                                          ? "المقاس"
+                                          : key === "color"
+                                            ? "اللون"
+                                            : key}
+                                        : {val}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+
                               <p className="text-sm text-muted-foreground">
                                 سعر القطعة: {formatPrice(item.product.price)}
                               </p>

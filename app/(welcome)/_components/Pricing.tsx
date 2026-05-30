@@ -1,28 +1,20 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { Check, Lock } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { plans } from "@/constants/welcome/pricing.constants";
+import FadeIn from "./FadeIn";
 
 export default function PricingSection() {
   return (
     <section id="pricing" className="py-10 md:py-14 lg:py-20">
       <div className="wrapper">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-2xl text-center"
-        >
+        <FadeIn className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
             الأسعار
           </span>
 
-          <h2 className="mt-5 text-3xl  leading-tight tracking-tight text-foreground md:text-4xl">
+          <h2 className="mt-5 text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
             ابدأ دلوقتي بسعر مناسب
             <span className="mt-2 block font-semibold bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
               قبل ما العرض الحالي يخلص
@@ -32,16 +24,13 @@ export default function PricingSection() {
           <p className="mt-5 text-base leading-8 text-muted-foreground md:text-lg">
             حالياً الخطة الأساسية هي المتاحة للاشتراك، وباقي الخطط هتنزل قريب.
           </p>
-        </motion.div>
+        </FadeIn>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {plans.map((plan, index) => (
-            <motion.div
+            <FadeIn
               key={plan.name}
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
+              delay={index * 80}
               className={[
                 "relative rounded-xl border p-6 md:p-7 transition-all",
                 plan.highlighted
@@ -65,25 +54,16 @@ export default function PricingSection() {
                 </div>
               ) : null}
 
-              <div
-                className={plan.locked ? "pointer-events-none select-none" : ""}
-              >
+              <div className={plan.locked ? "pointer-events-none select-none" : ""}>
                 <div className="text-center">
-                  <h3 className="text-xl font-semibold text-foreground">
-                    {plan.name}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                    {plan.description}
-                  </p>
+                  <h3 className="text-xl font-semibold text-foreground">{plan.name}</h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{plan.description}</p>
 
                   <div className="mt-6 flex items-end justify-center gap-2">
                     <span className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
                       {plan.price}
                     </span>
-                    <span className="pb-1 text-sm text-muted-foreground">
-                      ج.م {plan.period}
-                    </span>
+                    <span className="pb-1 text-sm text-muted-foreground">ج.م {plan.period}</span>
                   </div>
                 </div>
 
@@ -99,9 +79,7 @@ export default function PricingSection() {
                       >
                         <Check className="size-3.5" />
                       </div>
-                      <p className="text-sm leading-7 text-foreground/90">
-                        {feature}
-                      </p>
+                      <p className="text-sm leading-7 text-foreground/90">{feature}</p>
                     </div>
                   ))}
                 </div>
@@ -120,21 +98,15 @@ export default function PricingSection() {
                   )}
                 </Button>
               </div>
-            </motion.div>
+            </FadeIn>
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.45 }}
-          className="mt-6 text-center"
-        >
+        <FadeIn delay={80} className="mt-6 text-center">
           <p className="text-sm leading-7 text-muted-foreground">
             بعد انتهاء عرض أول 50 تاجر، هيتم إتاحة الخطط الكاملة بشكل رسمي.
           </p>
-        </motion.div>
+        </FadeIn>
       </div>
     </section>
   );

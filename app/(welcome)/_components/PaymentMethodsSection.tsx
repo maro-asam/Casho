@@ -1,7 +1,4 @@
-"use client";
-
 import Image from "next/image";
-import { motion } from "framer-motion";
 import {
   PAYMENT_METHODS,
   PAYMENT_REGION_LABELS,
@@ -9,6 +6,7 @@ import {
 } from "@/constants/welcome/payment-methods";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import FadeIn from "./FadeIn";
 
 const REGIONS: PaymentRegion[] = ["global", "egypt", "saudi"];
 
@@ -17,6 +15,14 @@ const REGION_STYLES: Record<PaymentRegion, string> = {
   egypt: "from-emerald-500/10 to-lime-500/5",
   saudi: "from-violet-500/10 to-fuchsia-500/5",
 };
+
+function MiniFeature({ text }: { text: string }) {
+  return (
+    <div className="rounded-full border bg-background px-4 py-2 text-sm text-muted-foreground">
+      {text}
+    </div>
+  );
+}
 
 export default function PaymentMethodsSection() {
   return (
@@ -46,12 +52,9 @@ export default function PaymentMethodsSection() {
             );
 
             return (
-              <motion.div
+              <FadeIn
                 key={region}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08 }}
-                viewport={{ once: true }}
+                delay={index * 80}
                 className={cn(
                   "rounded-3xl border bg-linear-to-br p-5 shadow-sm",
                   REGION_STYLES[region],
@@ -59,10 +62,7 @@ export default function PaymentMethodsSection() {
               >
                 <div className="mb-5 flex items-center justify-between gap-3">
                   <div className="text-right">
-                    <h3 className="font-semibold">
-                      {PAYMENT_REGION_LABELS[region]}
-                    </h3>
-
+                    <h3 className="font-semibold">{PAYMENT_REGION_LABELS[region]}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {methods.length} وسائل دفع
                     </p>
@@ -74,16 +74,10 @@ export default function PaymentMethodsSection() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  {methods.map((method, methodIndex) => (
-                    <motion.div
+                  {methods.map((method) => (
+                    <div
                       key={method.key}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{
-                        delay: index * 0.08 + methodIndex * 0.035,
-                      }}
-                      viewport={{ once: true }}
-                      className="group rounded-2xl border bg-background/80 p-4 text-center shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+                      className="group rounded-2xl border bg-background/80 p-4 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
                     >
                       <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border bg-card p-3 shadow-sm">
                         <Image
@@ -98,16 +92,15 @@ export default function PaymentMethodsSection() {
                       <p className="mt-3 truncate text-sm font-semibold">
                         {method.label}
                       </p>
-
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
+              </FadeIn>
             );
           })}
         </div>
 
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-3 rounded-3xl border bg-card/70 p-4 shadow-sm backdrop-blur">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-3 rounded-3xl border bg-card/70 p-4 shadow-sm">
           <MiniFeature text="لوجوهات واضحة" />
           <MiniFeature text="تقسيم حسب السوق" />
           <MiniFeature text="تحويلات يدوية" />
@@ -115,13 +108,5 @@ export default function PaymentMethodsSection() {
         </div>
       </div>
     </section>
-  );
-}
-
-function MiniFeature({ text }: { text: string }) {
-  return (
-    <div className="rounded-full border bg-background px-4 py-2 text-sm text-muted-foreground">
-      {text}
-    </div>
   );
 }

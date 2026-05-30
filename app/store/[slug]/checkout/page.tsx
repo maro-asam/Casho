@@ -134,6 +134,21 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
                         <p className="line-clamp-1 font-medium">
                           {item.product.name}
                         </p>
+                        {item.selectedFeatures &&
+                          Object.keys(
+                            item.selectedFeatures as Record<string, string>,
+                          ).length > 0 && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {Object.entries(
+                                item.selectedFeatures as Record<string, string>,
+                              )
+                                .map(
+                                  ([k, v]) =>
+                                    `${k === "size" ? "المقاس" : k === "color" ? "اللون" : k}: ${v}`,
+                                )
+                                .join(" · ")}
+                            </p>
+                          )}
                         <p className="text-xs text-muted-foreground">
                           {item.quantity} ×{" "}
                           {formatPrice(item.product.price)}

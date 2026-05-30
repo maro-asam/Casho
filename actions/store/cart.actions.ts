@@ -9,7 +9,11 @@ function normalizeCouponCode(code: string) {
   return code.trim().toUpperCase();
 }
 
-export async function AddToCartAction(storeSlug: string, productId: string) {
+export async function AddToCartAction(
+  storeSlug: string,
+  productId: string,
+  selectedFeatures?: Record<string, string>,
+) {
   const { guestSessionId } = await MustSession();
 
   const store = await prisma.store.findUnique({
@@ -25,29 +29,55 @@ export async function AddToCartAction(storeSlug: string, productId: string) {
       storeId: store.id,
       isActive: true,
     },
-    select: { id: true, name: true },
+    select: { id: true, name: true, sizes: true, colors: true },
   });
 
   if (!product) throw new Error("Product not found");
 
-  await prisma.cartItem.upsert({
-    where: {
-      guestSessionId_productId: {
-        guestSessionId,
-        productId,
-      },
-    },
-    update: {
-      quantity: { increment: 1 },
-      storeId: store.id,
-    },
-    create: {
-      guestSessionId,
-      storeId: store.id,
-      productId,
-      quantity: 1,
-    },
+  // Server-side validation of feature values against product data
+  if (selectedFeatures?.size && !product.sizes.includes(selectedFeatures.size)) {
+    return { success: false, message: "المقاس المختار غير متاح" };
+  }
+  if (selectedFeatures?.color && !product.colors.includes(selectedFeatures.color)) {
+    return { success: false, message: "اللون المختار غير متاح" };
+  }
+
+  const normalizedFeatures =
+    selectedFeatures && Object.keys(selectedFeatures).length > 0
+      ? selectedFeatures
+      : null;
+
+  // Find existing cart item with same product + same feature combination
+  const existingItems = await prisma.cartItem.findMany({
+    where: { guestSessionId, productId, storeId: store.id },
+    select: { id: true, selectedFeatures: true },
   });
+
+  const sortedKey = (f: Record<string, string> | null) =>
+    f ? JSON.stringify(Object.fromEntries(Object.entries(f).sort())) : null;
+
+  const matchingItem = existingItems.find(
+    (item) =>
+      sortedKey(item.selectedFeatures as Record<string, string> | null) ===
+      sortedKey(normalizedFeatures),
+  );
+
+  if (matchingItem) {
+    await prisma.cartItem.update({
+      where: { id: matchingItem.id },
+      data: { quantity: { increment: 1 } },
+    });
+  } else {
+    await prisma.cartItem.create({
+      data: {
+        guestSessionId,
+        storeId: store.id,
+        productId,
+        quantity: 1,
+        ...(normalizedFeatures ? { selectedFeatures: normalizedFeatures } : {}),
+      },
+    });
+  }
 
   revalidatePath(`/store/${storeSlug}`);
   revalidatePath(`/store/${storeSlug}/cart`);

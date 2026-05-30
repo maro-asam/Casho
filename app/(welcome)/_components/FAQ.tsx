@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { HelpCircle } from "lucide-react";
 import {
   Accordion,
@@ -9,20 +8,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { faqs } from "@/constants/welcome/FAQ.constants";
-
-
+import FadeIn from "./FadeIn";
 
 export default function FAQSection() {
   return (
     <section id="faq" className="py-10 md:py-14 lg:py-20">
       <div className="wrapper">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-2xl text-center"
-        >
+        <FadeIn className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
             <HelpCircle className="size-4" />
             الأسئلة الشائعة
@@ -39,13 +31,10 @@ export default function FAQSection() {
             جمعنالك أهم الأسئلة اللي ممكن تيجي في بالك عشان تبقى الصورة واضحة
             من البداية.
           </p>
-        </motion.div>
+        </FadeIn>
 
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.55 }}
+        <FadeIn
+          delay={80}
           className="mx-auto mt-14 max-w-4xl rounded-xl border border-border bg-card p-3 sm:p-4 md:p-5"
         >
           <Accordion type="single" collapsible className="w-full space-y-3">
@@ -65,7 +54,7 @@ export default function FAQSection() {
               </AccordionItem>
             ))}
           </Accordion>
-        </motion.div>
+        </FadeIn>
       </div>
     </section>
   );

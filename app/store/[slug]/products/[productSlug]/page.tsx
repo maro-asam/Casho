@@ -22,8 +22,7 @@ import ProductGallery from "../_components/ProductGallery";
 import ProductTabs from "./_components/ProductTabs";
 import ShareButton from "./_components/ShareButton";
 import TrustBadges from "./_components/TrustBadges";
-import ProductPurchaseActions from "./_components/ProductPurchaseActions";
-import StickyMobilePurchaseBar from "./_components/StickyMobilePurchaseBar";
+import ProductActionsSection from "./_components/ProductActionsSection";
 import ProductCard from "../../_components/shared/ProductCard";
 import BoldProductCard from "../../_components/themes/BoldProductCard";
 
@@ -384,93 +383,16 @@ function StandardProductPage({
               </p>
             )}
 
-            {/* ── Variants ── */}
-            {((product.sizes ?? []).length > 0 ||
-              (product.colors ?? []).length > 0) && (
-              <div
-                className={cn(
-                  "space-y-4 rounded-2xl border p-4",
-                  isMinimal && "rounded-none border-x-0 border-b-0 pt-0",
-                )}
-                style={{ borderColor: "var(--store-border)" }}
-              >
-                {(product.sizes ?? []).length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      المقاسات
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {(product.sizes ?? []).map((size) => (
-                        <button
-                          key={size}
-                          className={cn(
-                            "rounded-xl border px-4 py-1.5 text-sm font-medium transition-colors hover:border-[color:var(--store-primary)] hover:text-[color:var(--store-primary)]",
-                            isMinimal && "rounded-lg",
-                          )}
-                          style={{ borderColor: "var(--store-border)" }}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {(product.colors ?? []).length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      الألوان
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {(product.colors ?? []).map((color) => (
-                        <button
-                          key={color}
-                          className={cn(
-                            "rounded-xl border px-4 py-1.5 text-sm font-medium transition-colors hover:border-[color:var(--store-primary)] hover:text-[color:var(--store-primary)]",
-                            isMinimal && "rounded-lg",
-                          )}
-                          style={{ borderColor: "var(--store-border)" }}
-                        >
-                          {color}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── Stock status ── */}
-            <div className="flex items-center gap-2">
-              {inStock ? (
-                <>
-                  <CheckCircle2 className="size-4 text-emerald-500" />
-                  <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    متوفر
-                    {product.stock <= 10 && (
-                      <span className="ms-1 font-normal text-muted-foreground">
-                        — {product.stock} قطعة متبقية
-                      </span>
-                    )}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="size-4 text-rose-500" />
-                  <span className="text-sm font-medium text-rose-600 dark:text-rose-400">
-                    نفد المخزون
-                  </span>
-                </>
-              )}
-            </div>
-
-            <Separator style={{ background: "var(--store-border)" }} />
-
-            {/* ── Purchase actions ── */}
-            <ProductPurchaseActions
+            {/* ── Variants + stock + purchase actions ── */}
+            <ProductActionsSection
               storeSlug={store.slug}
               productId={product.id}
+              sizes={product.sizes ?? []}
+              colors={product.colors ?? []}
               inStock={inStock}
               stock={product.stock}
+              price={formatPrice(product.price)}
+              isMinimal={isMinimal}
             />
 
             {/* ── Share + extras row ── */}
@@ -543,13 +465,6 @@ function StandardProductPage({
         )}
       </div>
 
-      {/* ── Sticky mobile purchase bar ── */}
-      <StickyMobilePurchaseBar
-        storeSlug={store.slug}
-        productId={product.id}
-        price={formatPrice(product.price)}
-        inStock={inStock}
-      />
     </div>
   );
 }
@@ -703,68 +618,15 @@ function BoldProductPage({
                 </p>
               )}
 
-              {/* Variants */}
-              {((product.sizes ?? []).length > 0 ||
-                (product.colors ?? []).length > 0) && (
-                <div className="space-y-5">
-                  {(product.sizes ?? []).length > 0 && (
-                    <div className="space-y-3">
-                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
-                        المقاسات
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {(product.sizes ?? []).map((size) => (
-                          <button
-                            key={size}
-                            className="border px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors hover:border-foreground"
-                            style={{ borderColor: "var(--store-border)" }}
-                          >
-                            {size}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {(product.colors ?? []).length > 0 && (
-                    <div className="space-y-3">
-                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
-                        الألوان
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {(product.colors ?? []).map((color) => (
-                          <button
-                            key={color}
-                            className="border px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors hover:border-foreground"
-                            style={{ borderColor: "var(--store-border)" }}
-                          >
-                            {color}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Stock */}
-              <div className="flex items-center gap-2">
-                <div
-                  className={cn(
-                    "size-1.5 rounded-full",
-                    inStock ? "bg-emerald-500" : "bg-rose-500",
-                  )}
-                />
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                  {inStock ? "متوفر في المخزون" : "نفد المخزون"}
-                </span>
-              </div>
-
-              {/* Purchase actions */}
-              <ProductPurchaseActions
+              {/* Variants + stock + purchase actions */}
+              <ProductActionsSection
                 storeSlug={store.slug}
                 productId={product.id}
+                sizes={product.sizes ?? []}
+                colors={product.colors ?? []}
                 inStock={inStock}
                 stock={product.stock}
+                price={formatPrice(product.price)}
                 boldStyle
               />
 
@@ -834,13 +696,6 @@ function BoldProductPage({
         )}
       </div>
 
-      {/* ── Sticky mobile bar ── */}
-      <StickyMobilePurchaseBar
-        storeSlug={store.slug}
-        productId={product.id}
-        price={formatPrice(product.price)}
-        inStock={inStock}
-      />
     </div>
   );
 }

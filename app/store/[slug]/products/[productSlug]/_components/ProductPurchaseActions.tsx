@@ -16,6 +16,8 @@ type ProductPurchaseActionsProps = {
   stock: number;
   className?: string;
   boldStyle?: boolean;
+  selectedFeatures?: Record<string, string>;
+  requiresFeatureSelection?: boolean;
 };
 
 export default function ProductPurchaseActions({
@@ -25,6 +27,8 @@ export default function ProductPurchaseActions({
   stock,
   className,
   boldStyle,
+  selectedFeatures,
+  requiresFeatureSelection,
 }: ProductPurchaseActionsProps) {
   const [qty, setQty] = useState(1);
   const [cartPending, startCartTransition] = useTransition();
@@ -47,11 +51,15 @@ export default function ProductPurchaseActions({
   }
 
   const handleAddToCart = () => {
+    if (requiresFeatureSelection) {
+      toast.error("يرجى اختيار جميع الخيارات المطلوبة أولاً");
+      return;
+    }
     startCartTransition(async () => {
       try {
         let allOk = true;
         for (let i = 0; i < qty; i++) {
-          const res = await AddToCartAction(storeSlug, productId);
+          const res = await AddToCartAction(storeSlug, productId, selectedFeatures);
           if (!res?.success) {
             allOk = false;
             break;
@@ -69,9 +77,13 @@ export default function ProductPurchaseActions({
   };
 
   const handleBuyNow = () => {
+    if (requiresFeatureSelection) {
+      toast.error("يرجى اختيار جميع الخيارات المطلوبة أولاً");
+      return;
+    }
     startBuyTransition(async () => {
       try {
-        const res = await AddToCartAction(storeSlug, productId);
+        const res = await AddToCartAction(storeSlug, productId, selectedFeatures);
         if (res?.success) {
           router.push(`/store/${storeSlug}/checkout`);
           router.refresh();

@@ -159,9 +159,9 @@ const ROW2: RowItem[] = [
   { kind: "store", data: STORES[2] },
 ];
 
-function MiniStoreCard({ store }: { store: StoreData }) {
+function MiniStoreCard({ store, noBlur }: { store: StoreData; noBlur?: boolean }) {
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-border/60 bg-background/90 shadow-md backdrop-blur-md">
+    <div className={`w-full overflow-hidden rounded-2xl border border-border/60 bg-background/90 shadow-md ${noBlur ? "" : "backdrop-blur-md"}`}>
       <div className="flex items-center justify-between border-b border-border/40 px-3 py-2.5">
         <div className="relative">
           <ShoppingCart className="size-3.5 text-muted-foreground" />
@@ -213,9 +213,9 @@ function MiniStoreCard({ store }: { store: StoreData }) {
   );
 }
 
-function MiniDashboardCard({ data }: { data: DashboardData }) {
+function MiniDashboardCard({ data, noBlur }: { data: DashboardData; noBlur?: boolean }) {
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-border/60 bg-background/90 shadow-md backdrop-blur-md">
+    <div className={`w-full overflow-hidden rounded-2xl border border-border/60 bg-background/90 shadow-md ${noBlur ? "" : "backdrop-blur-md"}`}>
       <div className="flex items-center justify-between border-b border-border/40 px-3 py-2.5">
         <div className="flex items-center gap-1.5 rounded-md bg-primary/10 px-2 py-1 text-[10px] font-medium text-primary">
           <div className="size-1.5 animate-pulse rounded-full bg-emerald-500" />
@@ -269,9 +269,11 @@ function MiniDashboardCard({ data }: { data: DashboardData }) {
 function MarqueeRow({
   items,
   direction,
+  mobile,
 }: {
   items: RowItem[];
   direction: "left" | "right";
+  mobile?: boolean;
 }) {
   const doubled = [...items, ...items];
 
@@ -283,9 +285,9 @@ function MarqueeRow({
         {doubled.map((item, i) => (
           <div key={i} className="pr-4 flex-none w-56">
             {item.kind === "store" ? (
-              <MiniStoreCard store={item.data} />
+              <MiniStoreCard store={item.data} noBlur={mobile} />
             ) : (
-              <MiniDashboardCard data={item.data} />
+              <MiniDashboardCard data={item.data} noBlur={mobile} />
             )}
           </div>
         ))}
@@ -297,18 +299,23 @@ function MarqueeRow({
 export default function StoreMarquee() {
   return (
     <div className="relative mt-14 w-full">
-      {/* Side fades — physical directions + high z to clear 3D stacking context */}
+      {/* Side fades */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-50 w-52"
+        className="pointer-events-none absolute inset-y-0 left-0 z-50 w-20 md:w-52"
         style={{ background: "linear-gradient(to right, var(--background) 35%, transparent)" }}
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-50 w-52"
+        className="pointer-events-none absolute inset-y-0 right-0 z-50 w-20 md:w-52"
         style={{ background: "linear-gradient(to left, var(--background) 35%, transparent)" }}
       />
 
-      {/* 3D perspective wrapper */}
-      <div style={{ perspective: "1000px" }}>
+      {/* Mobile: single flat row — no 3D, no blur */}
+      <div className="flex flex-col gap-4 md:hidden">
+        <MarqueeRow items={ROW1} direction="left" mobile />
+      </div>
+
+      {/* Desktop: 3D perspective with two rows */}
+      <div className="hidden md:block" style={{ perspective: "1000px" }}>
         <div
           className="flex flex-col gap-4"
           style={{

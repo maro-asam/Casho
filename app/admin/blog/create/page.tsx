@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { BlogStatus } from "@prisma/client";
-import { ImagePlus, Loader2, Save, Sparkles } from "lucide-react";
+import { ImagePlus, Link2, Loader2, Save, Sparkles, Upload, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { createBlogPostAction } from "@/actions/blog/blog.actions";
 
@@ -43,6 +44,39 @@ const CreateBlogRoute = () => {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [coverImage, setCoverImage] = useState("");
+  const [imageInputMode, setImageInputMode] = useState<"upload" | "link">("upload");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+  async function uploadToCloudinary(file: File) {
+    if (!cloudName || !uploadPreset) throw new Error("إعدادات Cloudinary غير مكتملة");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", uploadPreset);
+    fd.append("folder", "casho/uploads/blog");
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok || !data.secure_url) throw new Error(data?.error?.message || "فشل رفع الصورة");
+    return data.secure_url as string;
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingImage(true);
+      const url = await uploadToCloudinary(file);
+      setCoverImage(url);
+      toast.success("تم رفع الصورة بنجاح");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "فشل رفع الصورة");
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = "";
+    }
+  }
 
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
@@ -258,19 +292,63 @@ const CreateBlogRoute = () => {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <Input
-                value={coverImage}
-                onChange={(e) => setCoverImage(e.target.value)}
-                placeholder="رابط الصورة"
-              />
+              {/* Mode toggle */}
+              <div className="flex rounded-lg border p-1 gap-1">
+                <button
+                  type="button"
+                  onClick={() => setImageInputMode("upload")}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${imageInputMode === "upload" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <Upload className="size-3.5" />
+                  رفع صورة
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImageInputMode("link")}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${imageInputMode === "link" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <Link2 className="size-3.5" />
+                  رابط
+                </button>
+              </div>
 
-              {coverImage ? (
-                <img
-                  src={coverImage}
-                  alt="preview"
-                  className="h-44 w-full rounded-xl border object-cover"
+              {imageInputMode === "upload" ? (
+                <label className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 transition-colors hover:border-primary/50 hover:bg-muted/30 ${isUploadingImage ? "pointer-events-none opacity-60" : ""}`}>
+                  {isUploadingImage ? (
+                    <Loader2 className="size-6 animate-spin text-primary" />
+                  ) : (
+                    <Upload className="size-6 text-muted-foreground" />
+                  )}
+                  <span className="text-sm text-muted-foreground">
+                    {isUploadingImage ? "جاري الرفع..." : "اضغط لاختيار صورة"}
+                  </span>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
+                </label>
+              ) : (
+                <Input
+                  value={coverImage}
+                  onChange={(e) => setCoverImage(e.target.value)}
+                  placeholder="https://..."
+                  dir="ltr"
                 />
-              ) : null}
+              )}
+
+              {coverImage && (
+                <div className="relative">
+                  <img
+                    src={coverImage}
+                    alt="preview"
+                    className="h-44 w-full rounded-xl border object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCoverImage("")}
+                    className="absolute right-2 top-2 rounded-full bg-background/80 p-1 shadow hover:bg-background"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              )}
             </CardContent>
           </Card>
 

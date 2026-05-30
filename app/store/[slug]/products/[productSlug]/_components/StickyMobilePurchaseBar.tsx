@@ -12,6 +12,8 @@ type StickyMobilePurchaseBarProps = {
   productId: string;
   price: string;
   inStock: boolean;
+  selectedFeatures?: Record<string, string>;
+  requiresFeatureSelection?: boolean;
 };
 
 export default function StickyMobilePurchaseBar({
@@ -19,6 +21,8 @@ export default function StickyMobilePurchaseBar({
   productId,
   price,
   inStock,
+  selectedFeatures,
+  requiresFeatureSelection,
 }: StickyMobilePurchaseBarProps) {
   const [cartPending, startCart] = useTransition();
   const [buyPending, startBuy] = useTransition();
@@ -27,16 +31,25 @@ export default function StickyMobilePurchaseBar({
 
   if (!inStock) return null;
 
-  const addToCart = () =>
+  const addToCart = () => {
+    if (requiresFeatureSelection) {
+      toast.error("يرجى اختيار جميع الخيارات أولاً");
+      return;
+    }
     startCart(async () => {
-      const res = await AddToCartAction(storeSlug, productId);
+      const res = await AddToCartAction(storeSlug, productId, selectedFeatures);
       if (res?.success) toast.success("تم إضافة المنتج إلى العربة");
       else toast.error("حدث خطأ أثناء الإضافة");
     });
+  };
 
-  const buyNow = () =>
+  const buyNow = () => {
+    if (requiresFeatureSelection) {
+      toast.error("يرجى اختيار جميع الخيارات أولاً");
+      return;
+    }
     startBuy(async () => {
-      const res = await AddToCartAction(storeSlug, productId);
+      const res = await AddToCartAction(storeSlug, productId, selectedFeatures);
       if (res?.success) {
         router.push(`/store/${storeSlug}/checkout`);
         router.refresh();
@@ -44,6 +57,7 @@ export default function StickyMobilePurchaseBar({
         toast.error("حدث خطأ أثناء التنفيذ");
       }
     });
+  };
 
   return (
     <div

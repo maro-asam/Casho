@@ -213,6 +213,9 @@ export async function CreateOrderAction(
             productId: item.productId,
             price: Math.round(item.product.price * 100),
             quantity: item.quantity,
+            ...(item.selectedFeatures
+              ? { selectedFeatures: item.selectedFeatures }
+              : {}),
           })),
         },
       },
