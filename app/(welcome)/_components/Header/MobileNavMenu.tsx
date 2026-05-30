@@ -31,6 +31,7 @@ const NAV_LINKS = [
   { name: "المميزات", href: "#features" },
   { name: "الأسعار", href: "#pricing" },
   { name: "الأسئلة", href: "#faq" },
+  { name: "المدونة", href: "/blog" },
 ];
 
 const backdropVariants = {
@@ -212,7 +213,10 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
               >
                 {user ? (
                   <>
-                    <Link href={buildStoreUrl("app")} onClick={() => setOpen(false)}>
+                    <Link
+                      href={buildStoreUrl("app")}
+                      onClick={() => setOpen(false)}
+                    >
                       <Button
                         variant="outline"
                         className="h-12 w-full justify-between rounded-xl border-border/20 bg-background"

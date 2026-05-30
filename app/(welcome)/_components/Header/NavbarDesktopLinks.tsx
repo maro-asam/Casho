@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { name: "المميزات", href: "#features" },
   { name: "الأسعار", href: "#pricing" },
   { name: "الأسئلة", href: "#faq" },
+  { name: "المدونة", href: "/blog" },
 ];
 
 const containerVariants = {

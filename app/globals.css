@@ -109,10 +109,10 @@
   --secondary-foreground: #e4e7f0;
 
   --muted: #1c2030;
-  --muted-foreground: #8892b0;
+  --muted-foreground: #a0aac8;
 
   --accent: #1c2030;
-  --accent-foreground: #e4e7f0;
+  --accent-foreground: #e4e7f1;
 
   /* alerts */
   --destructive: oklch(0.65 0.22 22);

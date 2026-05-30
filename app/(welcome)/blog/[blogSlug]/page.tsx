@@ -12,12 +12,66 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ShareButtons } from "../_components/share-buttons";
+import type { Metadata } from "next";
 
 type BlogDetailsRouteProps = {
   params: Promise<{
     blogSlug: string;
   }>;
 };
+
+export async function generateMetadata({
+  params,
+}: BlogDetailsRouteProps): Promise<Metadata> {
+  const { blogSlug } = await params;
+
+  const post = await prisma.blogPost.findUnique({
+    where: { slug: blogSlug, status: "PUBLISHED" },
+    select: {
+      title: true,
+      excerpt: true,
+      coverImage: true,
+      seoTitle: true,
+      seoDescription: true,
+      seoKeywords: true,
+      publishedAt: true,
+      authorName: true,
+    },
+  });
+
+  if (!post) return {};
+
+  const appUrl = process.env.APP_URL || "https://casho.store";
+  const postUrl = `${appUrl}/blog/${blogSlug}`;
+  const title = post.seoTitle || post.title;
+  const description = post.seoDescription || post.excerpt || "";
+  const image = post.coverImage || `${appUrl}/og-image.png`;
+
+  return {
+    title,
+    description,
+    keywords: post.seoKeywords,
+    openGraph: {
+      title,
+      description,
+      url: postUrl,
+      type: "article",
+      publishedTime: post.publishedAt?.toISOString(),
+      authors: [post.authorName],
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+    alternates: {
+      canonical: postUrl,
+    },
+  };
+}
 
 const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
   const { blogSlug } = await params;
@@ -37,192 +91,227 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
   }
 
   await prisma.blogPost.update({
-    where: {
-      id: post.id,
-    },
-    data: {
-      views: {
-        increment: 1,
-      },
-    },
+    where: { id: post.id },
+    data: { views: { increment: 1 } },
   });
 
   const relatedPosts = await prisma.blogPost.findMany({
     where: {
       status: "PUBLISHED",
-      id: {
-        not: post.id,
-      },
+      id: { not: post.id },
       categoryId: post.categoryId ?? undefined,
     },
-    orderBy: {
-      publishedAt: "desc",
-    },
+    orderBy: { publishedAt: "desc" },
     take: 3,
   });
 
-  return (
-    <main className="py-10 md:py-14 lg:py-20">
-      <div className="mx-auto  px-4">
-        {/* Breadcrumb */}
+  const appUrl = process.env.APP_URL || "https://casho.store";
+  const postUrl = `${appUrl}/blog/${post.slug}`;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.seoDescription || post.excerpt || "",
+    image: post.coverImage || `${appUrl}/og-image.png`,
+    datePublished: (post.publishedAt || post.createdAt).toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    author: {
+      "@type": "Person",
+      name: post.authorName,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "كاشو",
+      logo: {
+        "@type": "ImageObject",
+        url: `${appUrl}/logo.svg`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postUrl,
+    },
+    keywords: post.seoKeywords.join(", "),
+    inLanguage: "ar",
+    url: postUrl,
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+    <main className="py-10 md:py-14 lg:py-20">
+      <div className="wrapper">
+        {/* Breadcrumb */}
         <div className="mb-8 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <Link href="/" className="hover:text-primary">
             الرئيسية
           </Link>
-
           <ChevronLeft className="size-4" />
-
           <Link href="/blog" className="hover:text-primary">
             المدونة
           </Link>
-
           <ChevronLeft className="size-4" />
-
-          <span className="text-foreground">{post.title}</span>
+          <span className="line-clamp-1 text-foreground">{post.title}</span>
         </div>
+      </div>
 
-        {/* Header */}
+      {/* Header */}
+      <div className="mx-auto px-4 text-center">
+        <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+          <BookOpen className="size-4" />
+          {post.category?.name || "عام"}
+        </span>
 
-        <div className="mx-auto text-center">
-          <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-            <BookOpen className="size-4" />
-            {post.category?.name || "عام"}
+        <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-foreground md:text-5xl">
+          {post.title}
+        </h1>
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-2">
+            <CalendarDays className="size-4" />
+            {new Date(post.publishedAt || post.createdAt).toLocaleDateString(
+              "ar-EG",
+            )}
           </span>
-
-          <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-primary md:text-5xl">
-            {post.title}
-          </h1>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2">
-              <CalendarDays className="size-4" />
-              {new Date(post.publishedAt || post.createdAt).toLocaleDateString(
-                "ar-EG",
-              )}
-            </span>
-
-            <span className="inline-flex items-center gap-2">
-              <Clock3 className="size-4" />
-              {post.readTime || 5} دقائق قراءة
-            </span>
-
-            <span className="inline-flex items-center gap-2">
-              <Eye className="size-4" />
-              {post.views + 1} مشاهدة
-            </span>
-          </div>
+          <span className="inline-flex items-center gap-2">
+            <Clock3 className="size-4" />
+            {post.readTime || 5} دقائق قراءة
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <Eye className="size-4" />
+            {post.views + 1} مشاهدة
+          </span>
         </div>
+      </div>
 
-        {/* Cover */}
-
-        <div className="relative mt-10 h-[260px] overflow-hidden rounded-3xl border md:h-[500px]">
-          <Image
-            src={post.coverImage || "/login.jpg"}
-            alt={post.title}
-            fill
-            priority
-            className="object-cover"
-          />
+      {/* Cover */}
+      <div className="mx-auto mt-10 max-w-5xl px-4">
+        <div className="relative h-65 overflow-hidden rounded-3xl border md:h-120">
+          {post.coverImage ? (
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              priority
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/15 to-sky-500/15">
+              <BookOpen className="size-24 text-primary/20" />
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Content */}
+      {/* Content */}
+      <article dir="rtl" className="mx-auto mt-12  px-4 text-right">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            h1: ({ children }) => (
+              <h1 className="mb-6 text-4xl font-extrabold leading-tight text-foreground">
+                {children}
+              </h1>
+            ),
+            h2: ({ children }) => (
+              <h2 className="mb-4 mt-12 text-2xl font-extrabold leading-snug text-foreground md:text-3xl">
+                {children}
+              </h2>
+            ),
+            h3: ({ children }) => (
+              <h3 className="mb-3 mt-8 text-xl font-semibold leading-snug text-foreground md:text-2xl">
+                {children}
+              </h3>
+            ),
+            p: ({ children }) => (
+              <p className="mb-5 text-lg leading-9 text-muted-foreground">
+                {children}
+              </p>
+            ),
+            ul: ({ children }) => (
+              <ul className="mb-6 list-disc space-y-2 pr-6 text-lg leading-9 text-muted-foreground">
+                {children}
+              </ul>
+            ),
+            ol: ({ children }) => (
+              <ol className="mb-6 list-decimal space-y-2 pr-6 text-lg leading-9 text-muted-foreground">
+                {children}
+              </ol>
+            ),
+            li: ({ children }) => <li className="pr-1">{children}</li>,
+            blockquote: ({ children }) => (
+              <blockquote className="my-6 rounded-2xl border-r-4 border-primary bg-primary/5 px-5 py-4 text-lg leading-9 text-foreground">
+                {children}
+              </blockquote>
+            ),
+            strong: ({ children }) => (
+              <strong className="font-extrabold text-foreground">
+                {children}
+              </strong>
+            ),
+            a: ({ href, children }) => (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary underline underline-offset-4"
+              >
+                {children}
+              </a>
+            ),
+            hr: () => <hr className="my-10 border-border" />,
+            code: ({ children }) => (
+              <code className="rounded-md bg-muted px-2 py-1 text-sm text-foreground">
+                {children}
+              </code>
+            ),
+            pre: ({ children }) => (
+              <pre className="my-6 overflow-x-auto rounded-2xl bg-zinc-950 p-5 text-left text-sm leading-7 text-white">
+                {children}
+              </pre>
+            ),
+            table: ({ children }) => (
+              <div className="my-6 overflow-x-auto rounded-xl border">
+                <table className="w-full text-sm">{children}</table>
+              </div>
+            ),
+            thead: ({ children }) => (
+              <thead className="bg-muted/50">{children}</thead>
+            ),
+            th: ({ children }) => (
+              <th className="px-4 py-3 text-right font-semibold text-foreground">
+                {children}
+              </th>
+            ),
+            td: ({ children }) => (
+              <td className="border-t px-4 py-3 text-muted-foreground">
+                {children}
+              </td>
+            ),
+          }}
+        >
+          {post.content}
+        </ReactMarkdown>
 
-        <article dir="rtl" className="mx-auto mt-12 max-w-6xl text-right">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              h1: ({ children }) => (
-                <h1 className="mb-6 text-4xl font-extrabold leading-tight text-foreground">
-                  {children}
-                </h1>
-              ),
+        {/* Share Buttons */}
+        <div className="mt-10 border-t pt-8">
+          <ShareButtons title={post.title} url={postUrl} />
+        </div>
+      </article>
 
-              h2: ({ children }) => (
-                <h2 className="mb-4 mt-12 text-2xl font-extrabold leading-snug text-foreground md:text-3xl">
-                  {children}
-                </h2>
-              ),
-
-              h3: ({ children }) => (
-                <h3 className="mb-3 mt-8 text-xl font-semibold leading-snug text-foreground md:text-2xl">
-                  {children}
-                </h3>
-              ),
-
-              p: ({ children }) => (
-                <p className="mb-5 text-lg leading-9 text-muted-foreground">
-                  {children}
-                </p>
-              ),
-
-              ul: ({ children }) => (
-                <ul className="mb-6 list-disc space-y-2 pr-6 text-lg leading-9 text-muted-foreground">
-                  {children}
-                </ul>
-              ),
-
-              ol: ({ children }) => (
-                <ol className="mb-6 list-decimal space-y-2 pr-6 text-lg leading-9 text-muted-foreground">
-                  {children}
-                </ol>
-              ),
-
-              li: ({ children }) => <li className="pr-1">{children}</li>,
-
-              blockquote: ({ children }) => (
-                <blockquote className="my-6 rounded-2xl border-r-4 border-primary bg-primary/5 px-5 py-4 text-lg leading-9 text-foreground">
-                  {children}
-                </blockquote>
-              ),
-
-              strong: ({ children }) => (
-                <strong className="font-extrabold text-foreground">
-                  {children}
-                </strong>
-              ),
-
-              a: ({ href, children }) => (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-primary underline underline-offset-4"
-                >
-                  {children}
-                </a>
-              ),
-
-              hr: () => <hr className="my-10 border-border" />,
-
-              code: ({ children }) => (
-                <code className="rounded-md bg-muted px-2 py-1 text-sm text-foreground">
-                  {children}
-                </code>
-              ),
-
-              pre: ({ children }) => (
-                <pre className="my-6 overflow-x-auto rounded-2xl bg-zinc-950 p-5 text-left text-sm leading-7 text-white">
-                  {children}
-                </pre>
-              ),
-            }}
-          >
-            {post.content}
-          </ReactMarkdown>
-        </article>
-
+      <div className="wrapper">
         {/* CTA */}
-
-        <div className="mx-auto mt-14 rounded-3xl border bg-card p-8 text-center">
+        <div className="mt-14 rounded-3xl border bg-card p-8 text-center">
           <h3 className="text-2xl font-semibold text-foreground">
             جاهز تبدأ متجرك؟
           </h3>
-
           <p className="mt-3 text-muted-foreground">
             طبّق الأفكار اللي قرأتها وابدأ البيع أونلاين بشكل احترافي.
           </p>
-
           <Link
             href="/register"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
@@ -233,7 +322,6 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
         </div>
 
         {/* Related */}
-
         {relatedPosts.length > 0 && (
           <section className="mt-16">
             <h2 className="text-2xl font-semibold text-foreground">
@@ -245,22 +333,27 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
                 <Link
                   key={item.id}
                   href={`/blog/${item.slug}`}
-                  className="group overflow-hidden rounded-2xl border bg-card"
+                  className="group overflow-hidden rounded-2xl border bg-card transition hover:-translate-y-1 hover:shadow-md"
                 >
                   <div className="relative h-44 overflow-hidden">
-                    <Image
-                      src={item.coverImage || "/login.jpg"}
-                      alt={item.title}
-                      fill
-                      className="object-cover transition duration-500 group-hover:scale-105"
-                    />
+                    {item.coverImage ? (
+                      <Image
+                        src={item.coverImage}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/10 to-sky-500/10">
+                        <BookOpen className="size-10 text-primary/20" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-5">
                     <h3 className="line-clamp-2 font-semibold transition group-hover:text-primary">
                       {item.title}
                     </h3>
-
                     <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                       {item.excerpt ||
                         "اقرأ المقال لمعرفة تفاصيل أكثر تساعدك في تنمية متجرك."}
@@ -273,6 +366,7 @@ const BlogDetailsRoute = async ({ params }: BlogDetailsRouteProps) => {
         )}
       </div>
     </main>
+    </>
   );
 };
 

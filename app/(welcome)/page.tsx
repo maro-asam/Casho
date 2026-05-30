@@ -17,7 +17,6 @@ export default function Page() {
 
       <LenisProvider>
         <div className="mt-10 flex flex-col gap-20 ">
-        
           <HeroSection />
           <PaymentMethodsSection />
           <StatsSection />
