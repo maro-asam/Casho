@@ -1,34 +1,114 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Package, Tag } from "lucide-react";
-import ProductReviews from "./_components/ProductReviews";
+import {
+  ArrowRight,
+  Star,
+  Tag,
+  CheckCircle2,
+  AlertCircle,
+  Package,
+  Layers,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { formatPrice, cn } from "@/lib/utils";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { SubscriptionStatus } from "@prisma/client";
+
 import ProductGallery from "../_components/ProductGallery";
-import AddToCartButton from "../../cart/_components/AddToCartButton";
-import BuyNowButton from "../../cart/_components/BuyNowButton";
+import ProductTabs from "./_components/ProductTabs";
+import ShareButton from "./_components/ShareButton";
+import TrustBadges from "./_components/TrustBadges";
+import ProductPurchaseActions from "./_components/ProductPurchaseActions";
+import StickyMobilePurchaseBar from "./_components/StickyMobilePurchaseBar";
 import ProductCard from "../../_components/shared/ProductCard";
 import BoldProductCard from "../../_components/themes/BoldProductCard";
-import { SubscriptionStatus } from "@prisma/client";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 
 export const dynamic = "force-dynamic";
 
-type ProductDetailsRouteProps = {
-  params: Promise<{ slug: string; productSlug: string }>;
-};
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function calcDiscount(price: number, compare: number | null) {
   if (!compare || compare <= price) return 0;
   return Math.round(((compare - price) / compare) * 100);
 }
 
-export default async function ProductDetailsRoute({ params }: ProductDetailsRouteProps) {
-  const { slug, productSlug } = await params;
+function getAvgRating(reviews: { rating: number }[]) {
+  if (!reviews.length) return 0;
+  return reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+}
 
+function buildProductUrl(storeSlug: string, productSlug: string) {
+  return buildStoreUrl(storeSlug, `/products/${productSlug}`);
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type StoreInfo = { id: string; name: string; slug: string };
+
+type ProductInfo = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  compareAtPrice: number | null;
+  image: string;
+  images: string[];
+  description: string | null;
+  brand: string | null;
+  weight: number | null;
+  stock: number;
+  isFeatured: boolean;
+  sizes: string[] | null;
+  colors: string[] | null;
+  category: { id: string; name: string; slug: string };
+};
+
+type RelatedProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  compareAtPrice: number | null;
+  image: string;
+  isFeatured: boolean;
+  category: { name: string; slug: string } | null;
+};
+
+type ReviewItem = {
+  id: string;
+  customerName: string;
+  customerAvatar: string | null;
+  rating: number;
+  title: string | null;
+  content: string;
+  verifiedPurchase: boolean;
+  reviewDate: Date;
+};
+
+type ProductDetailProps = {
+  store: StoreInfo;
+  product: ProductInfo;
+  gallery: string[];
+  relatedProducts: RelatedProduct[];
+  hasDiscount: boolean;
+  discountPct: number;
+  reviews: ReviewItem[];
+};
+
+// ─── Route ────────────────────────────────────────────────────────────────────
+
+type ProductDetailsRouteProps = {
+  params: Promise<{ slug: string; productSlug: string }>;
+};
+
+export default async function ProductDetailsRoute({
+  params,
+}: ProductDetailsRouteProps) {
+  const { slug, productSlug } = await params;
   if (!slug || !productSlug) return notFound();
 
   const store = await prisma.store.findUnique({
@@ -55,46 +135,46 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
 
   if (!product) return notFound();
 
-  const reviews = await prisma.productReview.findMany({
-    where: { productId: product.id, storeId: store.id },
-    orderBy: { reviewDate: "desc" },
-    select: {
-      id: true,
-      customerName: true,
-      customerAvatar: true,
-      rating: true,
-      title: true,
-      content: true,
-      verifiedPurchase: true,
-      reviewDate: true,
-    },
-  });
+  const [reviews, relatedProducts] = await Promise.all([
+    prisma.productReview.findMany({
+      where: { productId: product.id, storeId: store.id },
+      orderBy: { reviewDate: "desc" },
+      select: {
+        id: true,
+        customerName: true,
+        customerAvatar: true,
+        rating: true,
+        title: true,
+        content: true,
+        verifiedPurchase: true,
+        reviewDate: true,
+      },
+    }),
+    prisma.product.findMany({
+      where: {
+        storeId: store.id,
+        categoryId: product.categoryId,
+        isActive: true,
+        NOT: { id: product.id },
+      },
+      take: 5,
+      orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        compareAtPrice: true,
+        image: true,
+        isFeatured: true,
+        category: { select: { name: true, slug: true } },
+      },
+    }),
+  ]);
 
-  const relatedProducts = await prisma.product.findMany({
-    where: {
-      storeId: store.id,
-      categoryId: product.categoryId,
-      isActive: true,
-      NOT: { id: product.id },
-    },
-    take: 5,
-    orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      price: true,
-      compareAtPrice: true,
-      image: true,
-      isFeatured: true,
-      category: { select: { name: true, slug: true } },
-    },
-  });
-
-  const themeId = store.settings?.themeId;
-  const isBold = themeId === "bold";
-
-  const hasDiscount = !!product.compareAtPrice && product.compareAtPrice > product.price;
+  const themeId = store.settings?.themeId ?? "default";
+  const hasDiscount =
+    !!product.compareAtPrice && product.compareAtPrice > product.price;
   const discountPct = calcDiscount(product.price, product.compareAtPrice);
 
   const gallery =
@@ -102,162 +182,256 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
       ? [product.image, ...product.images.filter((img) => img !== product.image)]
       : [product.image];
 
-  if (isBold) {
-    return <BoldProductDetail store={store} product={product} gallery={gallery} relatedProducts={relatedProducts} hasDiscount={hasDiscount} discountPct={discountPct} reviews={reviews} />;
+  const props: ProductDetailProps = {
+    store,
+    product,
+    gallery,
+    relatedProducts,
+    hasDiscount,
+    discountPct,
+    reviews,
+  };
+
+  if (themeId === "bold") {
+    return <BoldProductPage {...props} />;
   }
 
-  return <DefaultProductDetail store={store} product={product} gallery={gallery} relatedProducts={relatedProducts} hasDiscount={hasDiscount} discountPct={discountPct} reviews={reviews} />;
+  return <StandardProductPage {...props} themeId={themeId} />;
 }
 
-// ─── Shared types ─────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  STANDARD PRODUCT PAGE  (default, elegant, modern, minimal, dark)
+// ─────────────────────────────────────────────────────────────────────────────
 
-type StoreInfo = { id: string; name: string; slug: string };
-type ProductInfo = {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  compareAtPrice: number | null;
-  image: string;
-  images: string[];
-  description: string | null;
-  brand: string | null;
-  weight: number | null;
-  stock: number;
-  isFeatured: boolean;
-  sizes: string[] | null;
-  colors: string[] | null;
-  category: { id: string; name: string; slug: string };
-};
-type RelatedProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  compareAtPrice: number | null;
-  image: string;
-  isFeatured: boolean;
-  category: { name: string; slug: string } | null;
-};
-type ReviewItem = {
-  id: string;
-  customerName: string;
-  customerAvatar: string | null;
-  rating: number;
-  title: string | null;
-  content: string;
-  verifiedPurchase: boolean;
-  reviewDate: Date;
-};
+type ThemeId = string;
 
-type ProductDetailProps = {
-  store: StoreInfo;
-  product: ProductInfo;
-  gallery: string[];
-  relatedProducts: RelatedProduct[];
-  hasDiscount: boolean;
-  discountPct: number;
-  reviews: ReviewItem[];
-};
+function StandardProductPage({
+  store,
+  product,
+  gallery,
+  relatedProducts,
+  hasDiscount,
+  discountPct,
+  reviews,
+  themeId,
+}: ProductDetailProps & { themeId: ThemeId }) {
+  const avgRating = getAvgRating(reviews);
+  const inStock = product.stock > 0;
 
-// ─── Default Theme Product Page ───────────────────────────
+  const specs = [
+    hasDiscount && product.compareAtPrice
+      ? { label: "السعر الأصلي", value: formatPrice(product.compareAtPrice) }
+      : null,
+    { label: "التصنيف", value: product.category.name },
+    product.brand ? { label: "البراند", value: product.brand } : null,
+    product.weight !== null
+      ? { label: "الوزن", value: `${product.weight} كجم` }
+      : null,
+    { label: "الحالة", value: inStock ? "متوفر" : "نفد المخزون" },
+  ].filter((s): s is { label: string; value: string } => s !== null);
 
-function DefaultProductDetail({ store, product, gallery, relatedProducts, hasDiscount, discountPct, reviews }: ProductDetailProps) {
+  const productUrl = buildProductUrl(store.slug, product.slug);
+
+  // Minimal theme: strip decorative elements
+  const isMinimal = themeId === "minimal";
+  // Elegant: extra spacing
+  const isElegant = themeId === "elegant";
+
   return (
-    <div className="min-h-screen" dir="rtl">
-      <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
-        <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <Button asChild variant="ghost" size="sm" className="-me-1 gap-1.5 px-2">
-            <Link href={buildStoreUrl(store.slug)}>
-              <ArrowRight className="size-4" />
-              {store.name}
-            </Link>
-          </Button>
-          <span>/</span>
+    <div dir="rtl" className="min-h-screen pb-28 lg:pb-0">
+      <div
+        className={cn(
+          "mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8",
+          isElegant ? "py-10 lg:py-16" : "py-6 lg:py-10",
+        )}
+      >
+        {/* ── Breadcrumb ── */}
+        <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground lg:mb-8">
+          <Link
+            href={buildStoreUrl(store.slug)}
+            className="flex items-center gap-1 transition-colors hover:text-foreground"
+          >
+            <ArrowRight className="size-3.5" />
+            {store.name}
+          </Link>
+          <span className="opacity-40">/</span>
           <Link
             href={buildStoreUrl(store.slug, `/categories/${product.category.slug}`)}
-            className="hover:text-foreground transition-colors"
+            className="transition-colors hover:text-foreground"
           >
             {product.category.name}
           </Link>
-          <span>/</span>
-          <span className="font-medium text-foreground line-clamp-1 max-w-48">
+          <span className="opacity-40">/</span>
+          <span className="line-clamp-1 max-w-[200px] font-medium text-foreground">
             {product.name}
           </span>
         </nav>
 
-        {/* Product Layout */}
-        <div className="grid gap-10 lg:grid-cols-[1fr_480px]">
+        {/* ── Main grid ── */}
+        <div className="grid gap-8 lg:grid-cols-[1fr_420px] lg:gap-12 xl:grid-cols-[1fr_460px]">
+          {/* Gallery column — sticky on desktop */}
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <ProductGallery productName={product.name} mainImage={product.image} images={gallery} />
+            <ProductGallery
+              productName={product.name}
+              mainImage={product.image}
+              images={gallery}
+            />
           </div>
 
-          <div className="space-y-7">
+          {/* Info column */}
+          <div className={cn("space-y-5", isElegant && "space-y-6")}>
+            {/* ── Meta row: category + badges ── */}
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="gap-1.5 rounded-full px-3 py-1">
-                <Tag className="size-3" />
-                {product.category.name}
-              </Badge>
+              {!isMinimal && (
+                <Badge
+                  variant="secondary"
+                  className="gap-1.5 rounded-full px-3 py-1 text-xs"
+                >
+                  <Tag className="size-3" />
+                  {product.category.name}
+                </Badge>
+              )}
               {hasDiscount && (
-                <Badge className="rounded-full bg-red-500 px-3 py-1 text-white hover:bg-red-500">
+                <Badge className="rounded-full bg-rose-500 px-3 py-1 text-xs font-bold text-white hover:bg-rose-500">
                   خصم {discountPct}%
                 </Badge>
               )}
-              {product.isFeatured && (
+              {product.isFeatured && !isMinimal && (
                 <Badge
-                  className="rounded-full px-3 py-1"
-                  style={{ background: "var(--store-primary)", color: "var(--store-primary-foreground)" }}
+                  className="rounded-full px-3 py-1 text-xs"
+                  style={{
+                    background: "var(--store-primary)",
+                    color: "var(--store-primary-foreground)",
+                  }}
                 >
-                  منتج مميز
+                  منتج مميز ✦
                 </Badge>
               )}
               {product.brand && (
-                <Badge variant="outline" className="rounded-full px-3 py-1">
+                <Badge
+                  variant="outline"
+                  className="rounded-full px-3 py-1 text-xs"
+                >
                   {product.brand}
                 </Badge>
               )}
             </div>
 
-            <h1 className="text-2xl font-bold leading-snug tracking-tight md:text-3xl">
+            {/* ── Rating summary ── */}
+            {reviews.length > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className={cn(
+                        "size-4",
+                        s <= Math.round(avgRating)
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-muted-foreground/20 text-muted-foreground/20",
+                      )}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-semibold">
+                  {avgRating.toFixed(1)}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  ({reviews.length} تقييم)
+                </span>
+              </div>
+            )}
+
+            {/* ── Product name ── */}
+            <h1
+              className={cn(
+                "font-bold leading-snug tracking-tight",
+                isElegant
+                  ? "text-2xl font-semibold md:text-3xl"
+                  : "text-2xl md:text-3xl lg:text-4xl",
+              )}
+            >
               {product.name}
             </h1>
 
-            <div className="flex flex-wrap items-baseline gap-3">
-              <span className="text-3xl font-extrabold" style={{ color: "var(--store-primary)" }}>
+            {/* ── Price ── */}
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className={cn(
+                  "font-extrabold leading-none",
+                  isElegant ? "text-3xl" : "text-4xl",
+                )}
+                style={{ color: "var(--store-primary)" }}
+              >
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.compareAtPrice && (
-                <span className="text-lg text-muted-foreground line-through">
-                  {formatPrice(product.compareAtPrice)}
-                </span>
+                <>
+                  <span className="text-lg text-muted-foreground line-through">
+                    {formatPrice(product.compareAtPrice)}
+                  </span>
+                  <span className="rounded-lg bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+                    وفّر {formatPrice(product.compareAtPrice - product.price)}
+                  </span>
+                </>
               )}
             </div>
 
+            {/* ── Description ── */}
             {product.description?.trim() && (
-              <p className="text-sm leading-7 text-muted-foreground md:text-base">
+              <p className="text-sm leading-7 text-muted-foreground md:text-[15px]">
                 {product.description}
               </p>
             )}
 
-            {((product.sizes ?? []).length > 0 || (product.colors ?? []).length > 0) && (
-              <div className="space-y-4">
+            {/* ── Variants ── */}
+            {((product.sizes ?? []).length > 0 ||
+              (product.colors ?? []).length > 0) && (
+              <div
+                className={cn(
+                  "space-y-4 rounded-2xl border p-4",
+                  isMinimal && "rounded-none border-x-0 border-b-0 pt-0",
+                )}
+                style={{ borderColor: "var(--store-border)" }}
+              >
                 {(product.sizes ?? []).length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-semibold">المقاسات</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      المقاسات
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {(product.sizes ?? []).map((size) => (
-                        <Badge key={size} variant="outline" className="rounded-xl px-3 py-1">{size}</Badge>
+                        <button
+                          key={size}
+                          className={cn(
+                            "rounded-xl border px-4 py-1.5 text-sm font-medium transition-colors hover:border-[color:var(--store-primary)] hover:text-[color:var(--store-primary)]",
+                            isMinimal && "rounded-lg",
+                          )}
+                          style={{ borderColor: "var(--store-border)" }}
+                        >
+                          {size}
+                        </button>
                       ))}
                     </div>
                   </div>
                 )}
                 {(product.colors ?? []).length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-semibold">الألوان</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      الألوان
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {(product.colors ?? []).map((color) => (
-                        <Badge key={color} variant="outline" className="rounded-xl px-3 py-1">{color}</Badge>
+                        <button
+                          key={color}
+                          className={cn(
+                            "rounded-xl border px-4 py-1.5 text-sm font-medium transition-colors hover:border-[color:var(--store-primary)] hover:text-[color:var(--store-primary)]",
+                            isMinimal && "rounded-lg",
+                          )}
+                          style={{ borderColor: "var(--store-border)" }}
+                        >
+                          {color}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -265,65 +439,102 @@ function DefaultProductDetail({ store, product, gallery, relatedProducts, hasDis
               </div>
             )}
 
+            {/* ── Stock status ── */}
             <div className="flex items-center gap-2">
-              <div className={`size-2 rounded-full ${product.stock > 0 ? "bg-emerald-500" : "bg-rose-500"}`} />
-              <span className="text-sm text-muted-foreground">
-                {product.stock > 0 ? `متوفر — ${product.stock} قطعة` : "نفد المخزون"}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap gap-3 pt-2">
-              {product.stock > 0 ? (
+              {inStock ? (
                 <>
-                  <AddToCartButton size="lg" variant="default" storeSlug={store.slug} productId={product.id} />
-                  <BuyNowButton storeSlug={store.slug} productId={product.id} />
+                  <CheckCircle2 className="size-4 text-emerald-500" />
+                  <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                    متوفر
+                    {product.stock <= 10 && (
+                      <span className="ms-1 font-normal text-muted-foreground">
+                        — {product.stock} قطعة متبقية
+                      </span>
+                    )}
+                  </span>
                 </>
               ) : (
-                <Button size="lg" disabled className="w-full rounded-2xl text-base">غير متوفر حاليًا</Button>
+                <>
+                  <AlertCircle className="size-4 text-rose-500" />
+                  <span className="text-sm font-medium text-rose-600 dark:text-rose-400">
+                    نفد المخزون
+                  </span>
+                </>
               )}
             </div>
 
-            <div className="rounded-2xl border bg-muted/30 p-5">
-              <div className="mb-4 flex items-center gap-2">
-                <Package className="size-4" style={{ color: "var(--store-primary)" }} />
-                <p className="font-semibold">تفاصيل المنتج</p>
-              </div>
-              <dl className="space-y-3 text-sm">
-                {[
-                  ["السعر", formatPrice(product.price)],
-                  hasDiscount && product.compareAtPrice ? ["السعر الأصلي", formatPrice(product.compareAtPrice)] : null,
-                  ["التصنيف", product.category.name],
-                  product.brand ? ["البراند", product.brand] : null,
-                  product.weight !== null ? ["الوزن", `${product.weight} كجم`] : null,
-                ]
-                  .filter((item): item is [string, string] => item !== null)
-                  .map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between border-b border-border/30 pb-3 last:border-0 last:pb-0">
-                      <dt className="text-muted-foreground">{label}</dt>
-                      <dd className="font-medium">{value}</dd>
-                    </div>
-                  ))}
-              </dl>
+            <Separator style={{ background: "var(--store-border)" }} />
+
+            {/* ── Purchase actions ── */}
+            <ProductPurchaseActions
+              storeSlug={store.slug}
+              productId={product.id}
+              inStock={inStock}
+              stock={product.stock}
+            />
+
+            {/* ── Share + extras row ── */}
+            <div className="flex items-center gap-3 pt-1">
+              <ShareButton title={product.name} url={productUrl} />
+              {product.brand && (
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Layers className="size-3.5" />
+                  {product.brand}
+                </span>
+              )}
             </div>
+
+            {/* ── Trust badges ── */}
+            {!isMinimal ? (
+              <TrustBadges className="pt-1" />
+            ) : (
+              <TrustBadges variant="row" className="pt-1" />
+            )}
           </div>
         </div>
 
-        <ProductReviews reviews={reviews} />
+        {/* ── Tabs: description / specs / reviews / shipping ── */}
+        <div
+          className={cn(
+            "mt-14 rounded-2xl border p-1",
+            isElegant && "mt-20",
+            isMinimal && "mt-14 rounded-none border-x-0",
+          )}
+          style={{ borderColor: "var(--store-border)" }}
+        >
+          <ProductTabs
+            description={product.description}
+            specs={specs}
+            reviews={reviews}
+          />
+        </div>
 
-        {/* Related Products */}
+        {/* ── Related products ── */}
         {relatedProducts.length > 0 && (
-          <section className="mt-20">
+          <section className={cn("mt-16", isElegant && "mt-24")}>
             <div className="mb-6 flex items-center justify-between gap-4">
-              <h2 className="text-xl font-bold tracking-tight sm:text-2xl">منتجات مشابهة</h2>
+              <div className="flex items-center gap-2">
+                <Package
+                  className="size-5"
+                  style={{ color: "var(--store-primary)" }}
+                />
+                <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
+                  قد يعجبك أيضاً
+                </h2>
+              </div>
               <Link
-                href={buildStoreUrl(store.slug, `/categories/${product.category.slug}`)}
-                className="flex items-center gap-1 text-sm font-medium"
+                href={buildStoreUrl(
+                  store.slug,
+                  `/categories/${product.category.slug}`,
+                )}
+                className="flex items-center gap-1 text-sm font-medium transition-opacity hover:opacity-70"
                 style={{ color: "var(--store-primary)" }}
               >
                 عرض الكل
+                <ArrowRight className="size-3.5" />
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {relatedProducts.map((item) => (
                 <ProductCard key={item.id} product={item} storeSlug={store.slug} />
               ))}
@@ -331,18 +542,52 @@ function DefaultProductDetail({ store, product, gallery, relatedProducts, hasDis
           </section>
         )}
       </div>
+
+      {/* ── Sticky mobile purchase bar ── */}
+      <StickyMobilePurchaseBar
+        storeSlug={store.slug}
+        productId={product.id}
+        price={formatPrice(product.price)}
+        inStock={inStock}
+      />
     </div>
   );
 }
 
-// ─── Bold Theme Product Page ──────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  BOLD PRODUCT PAGE
+// ─────────────────────────────────────────────────────────────────────────────
 
-function BoldProductDetail({ store, product, gallery, relatedProducts, hasDiscount, discountPct, reviews }: ProductDetailProps) {
+function BoldProductPage({
+  store,
+  product,
+  gallery,
+  relatedProducts,
+  hasDiscount,
+  discountPct,
+  reviews,
+}: ProductDetailProps) {
+  const avgRating = getAvgRating(reviews);
+  const inStock = product.stock > 0;
+  const productUrl = buildProductUrl(store.slug, product.slug);
+
+  const specs = [
+    hasDiscount && product.compareAtPrice
+      ? { label: "السعر الأصلي", value: formatPrice(product.compareAtPrice) }
+      : null,
+    { label: "التصنيف", value: product.category.name },
+    product.brand ? { label: "البراند", value: product.brand } : null,
+    product.weight !== null
+      ? { label: "الوزن", value: `${product.weight} كجم` }
+      : null,
+    { label: "الحالة", value: inStock ? "متوفر" : "نفد المخزون" },
+  ].filter((s): s is { label: string; value: string } => s !== null);
+
   return (
-    <div className="min-h-screen" dir="rtl">
-      {/* Split-screen hero: image left (start in LTR) / info right */}
-      <div className="lg:grid lg:min-h-[85vh] lg:grid-cols-[55%_45%]">
-        {/* Image panel */}
+    <div dir="rtl" className="min-h-screen pb-24 lg:pb-0">
+      {/* ── Split-screen hero ── */}
+      <div className="lg:grid lg:min-h-[90vh] lg:grid-cols-[55%_45%]">
+        {/* Gallery panel — sticky on desktop */}
         <div className="relative lg:sticky lg:top-0 lg:h-screen lg:overflow-hidden">
           <ProductGallery
             productName={product.name}
@@ -354,174 +599,248 @@ function BoldProductDetail({ store, product, gallery, relatedProducts, hasDiscou
         </div>
 
         {/* Info panel */}
-        <div className="border-s px-6 py-12 sm:px-10 lg:overflow-y-auto lg:py-16" style={{ borderColor: "var(--store-border)" }}>
-          {/* Breadcrumb */}
-          <nav className="mb-8 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <Link href={buildStoreUrl(store.slug)} className="hover:text-foreground transition-colors">
-              {store.name}
-            </Link>
-            <span>/</span>
-            <Link
-              href={buildStoreUrl(store.slug, `/categories/${product.category.slug}`)}
-              className="hover:text-foreground transition-colors"
-            >
-              {product.category.name}
-            </Link>
-          </nav>
-
-          <div className="space-y-8">
-            {/* Category + badges */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-60"
-                style={{ color: "var(--store-primary)" }}
+        <div
+          className="flex flex-col gap-0 border-s lg:overflow-y-auto"
+          style={{ borderColor: "var(--store-border)" }}
+        >
+          <div className="px-6 py-10 sm:px-10 lg:py-14">
+            {/* Breadcrumb */}
+            <nav className="mb-10 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <Link
+                href={buildStoreUrl(store.slug)}
+                className="transition-colors hover:text-foreground"
+              >
+                {store.name}
+              </Link>
+              <span className="opacity-40">/</span>
+              <Link
+                href={buildStoreUrl(
+                  store.slug,
+                  `/categories/${product.category.slug}`,
+                )}
+                className="transition-colors hover:text-foreground"
               >
                 {product.category.name}
-              </span>
-              {hasDiscount && (
-                <span className="bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                  خصم {discountPct}%
+              </Link>
+            </nav>
+
+            <div className="space-y-7">
+              {/* Category + discount */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span
+                  className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60"
+                  style={{ color: "var(--store-primary)" }}
+                >
+                  {product.category.name}
                 </span>
-              )}
-            </div>
-
-            {/* Name */}
-            <h1 className="text-3xl font-black leading-tight tracking-tight md:text-4xl lg:text-5xl">
-              {product.name}
-            </h1>
-
-            {/* Price */}
-            <div className="flex flex-wrap items-baseline gap-4 border-y py-5" style={{ borderColor: "var(--store-border)" }}>
-              <span className="text-4xl font-black" style={{ color: "var(--store-primary)" }}>
-                {formatPrice(product.price)}
-              </span>
-              {hasDiscount && product.compareAtPrice && (
-                <span className="text-xl text-muted-foreground line-through">
-                  {formatPrice(product.compareAtPrice)}
-                </span>
-              )}
-            </div>
-
-            {/* Description */}
-            {product.description?.trim() && (
-              <p className="text-sm leading-7 text-muted-foreground">
-                {product.description}
-              </p>
-            )}
-
-            {/* Variants */}
-            {((product.sizes ?? []).length > 0 || (product.colors ?? []).length > 0) && (
-              <div className="space-y-5">
-                {(product.sizes ?? []).length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-widest">المقاسات</p>
-                    <div className="flex flex-wrap gap-2">
-                      {(product.sizes ?? []).map((size) => (
-                        <span
-                          key={size}
-                          className="border px-4 py-1.5 text-xs font-semibold"
-                          style={{ borderColor: "var(--store-border)" }}
-                        >
-                          {size}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                {hasDiscount && (
+                  <span className="bg-black px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.15em] text-white dark:bg-white dark:text-black">
+                    خصم {discountPct}%
+                  </span>
                 )}
-                {(product.colors ?? []).length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-widest">الألوان</p>
-                    <div className="flex flex-wrap gap-2">
-                      {(product.colors ?? []).map((color) => (
-                        <span
-                          key={color}
-                          className="border px-4 py-1.5 text-xs font-semibold"
-                          style={{ borderColor: "var(--store-border)" }}
-                        >
-                          {color}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                {product.brand && (
+                  <span className="border border-current px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] opacity-50">
+                    {product.brand}
+                  </span>
                 )}
               </div>
-            )}
 
-            {/* Stock */}
-            <div className="flex items-center gap-2">
-              <div className={`size-1.5 rounded-full ${product.stock > 0 ? "bg-emerald-500" : "bg-rose-500"}`} />
-              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {product.stock > 0 ? "متوفر في المخزون" : "نفد المخزون"}
-              </span>
-            </div>
-
-            {/* CTA */}
-            <div className="flex flex-col gap-3 sm:flex-row">
-              {product.stock > 0 ? (
-                <>
-                  <AddToCartButton
-                    size="lg"
-                    storeSlug={store.slug}
-                    productId={product.id}
-                    className="flex-1 rounded-none border-2 border-black bg-black font-bold uppercase tracking-widest text-white hover:bg-transparent hover:text-black"
-                  />
-                  <BuyNowButton storeSlug={store.slug} productId={product.id} />
-                </>
-              ) : (
-                <Button size="lg" disabled className="w-full rounded-none border-2 font-bold uppercase tracking-widest">
-                  غير متوفر حاليًا
-                </Button>
+              {/* Rating */}
+              {reviews.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        className={cn(
+                          "size-3.5",
+                          s <= Math.round(avgRating)
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-muted-foreground/20 text-muted-foreground/20",
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold">{avgRating.toFixed(1)}</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({reviews.length})
+                  </span>
+                </div>
               )}
-            </div>
 
-            {/* Details table */}
-            <div className="border-t pt-8" style={{ borderColor: "var(--store-border)" }}>
-              <p className="mb-4 text-xs font-bold uppercase tracking-widest">تفاصيل المنتج</p>
-              <dl className="space-y-0">
-                {[
-                  ["السعر", formatPrice(product.price)],
-                  hasDiscount && product.compareAtPrice ? ["السعر الأصلي", formatPrice(product.compareAtPrice)] : null,
-                  ["التصنيف", product.category.name],
-                  product.brand ? ["البراند", product.brand] : null,
-                  product.weight !== null ? ["الوزن", `${product.weight} كجم`] : null,
-                ]
-                  .filter((item): item is [string, string] => item !== null)
-                  .map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between border-b py-3" style={{ borderColor: "var(--store-border)" }}>
-                      <dt className="text-xs text-muted-foreground">{label}</dt>
-                      <dd className="text-xs font-semibold">{value}</dd>
+              {/* Product name */}
+              <h1 className="text-3xl font-black leading-tight tracking-tight md:text-4xl lg:text-5xl">
+                {product.name}
+              </h1>
+
+              {/* Price */}
+              <div
+                className="flex flex-wrap items-baseline gap-4 border-y py-5"
+                style={{ borderColor: "var(--store-border)" }}
+              >
+                <span
+                  className="text-4xl font-black leading-none"
+                  style={{ color: "var(--store-primary)" }}
+                >
+                  {formatPrice(product.price)}
+                </span>
+                {hasDiscount && product.compareAtPrice && (
+                  <span className="text-xl text-muted-foreground line-through">
+                    {formatPrice(product.compareAtPrice)}
+                  </span>
+                )}
+                {hasDiscount && product.compareAtPrice && (
+                  <span className="bg-rose-500 px-2.5 py-1 text-xs font-black text-white">
+                    وفّر {formatPrice(product.compareAtPrice - product.price)}
+                  </span>
+                )}
+              </div>
+
+              {/* Description */}
+              {product.description?.trim() && (
+                <p className="text-sm leading-7 text-muted-foreground">
+                  {product.description}
+                </p>
+              )}
+
+              {/* Variants */}
+              {((product.sizes ?? []).length > 0 ||
+                (product.colors ?? []).length > 0) && (
+                <div className="space-y-5">
+                  {(product.sizes ?? []).length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
+                        المقاسات
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {(product.sizes ?? []).map((size) => (
+                          <button
+                            key={size}
+                            className="border px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors hover:border-foreground"
+                            style={{ borderColor: "var(--store-border)" }}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-              </dl>
+                  )}
+                  {(product.colors ?? []).length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
+                        الألوان
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {(product.colors ?? []).map((color) => (
+                          <button
+                            key={color}
+                            className="border px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors hover:border-foreground"
+                            style={{ borderColor: "var(--store-border)" }}
+                          >
+                            {color}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Stock */}
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "size-1.5 rounded-full",
+                    inStock ? "bg-emerald-500" : "bg-rose-500",
+                  )}
+                />
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  {inStock ? "متوفر في المخزون" : "نفد المخزون"}
+                </span>
+              </div>
+
+              {/* Purchase actions */}
+              <ProductPurchaseActions
+                storeSlug={store.slug}
+                productId={product.id}
+                inStock={inStock}
+                stock={product.stock}
+                boldStyle
+              />
+
+              {/* Share */}
+              <div className="flex items-center gap-3 pt-2">
+                <ShareButton
+                  title={product.name}
+                  url={productUrl}
+                  variant="ghost"
+                />
+              </div>
+
+              {/* Trust badges row */}
+              <TrustBadges variant="row" className="border-t pt-5" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-        <ProductReviews reviews={reviews} />
+      {/* ── Tabs (below split-screen) ── */}
+      <div
+        className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8"
+      >
+        <div
+          className="mt-0 border-t"
+          style={{ borderColor: "var(--store-border)" }}
+        >
+          <ProductTabs
+            description={product.description}
+            specs={specs}
+            reviews={reviews}
+            tabsStyle="bold"
+          />
+        </div>
+
+        {/* ── Related products ── */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-16 pb-16">
+            <div
+              className="mb-8 flex items-end justify-between gap-4 border-b pb-4"
+              style={{ borderColor: "var(--store-border)" }}
+            >
+              <h2 className="text-2xl font-black uppercase tracking-tight">
+                منتجات مشابهة
+              </h2>
+              <Link
+                href={buildStoreUrl(
+                  store.slug,
+                  `/categories/${product.category.slug}`,
+                )}
+                className="mb-0.5 text-xs font-black uppercase tracking-[0.2em] transition-opacity hover:opacity-60"
+                style={{ color: "var(--store-primary)" }}
+              >
+                عرض الكل
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {relatedProducts.map((item) => (
+                <BoldProductCard
+                  key={item.id}
+                  product={item}
+                  storeSlug={store.slug}
+                />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
-      {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <div className="mx-auto max-w-screen-2xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-end justify-between gap-4 border-b pb-4" style={{ borderColor: "var(--store-border)" }}>
-            <h2 className="text-2xl font-black uppercase tracking-tight">منتجات مشابهة</h2>
-            <Link
-              href={buildStoreUrl(store.slug, `/categories/${product.category.slug}`)}
-              className="mb-0.5 text-xs font-bold uppercase tracking-widest transition-opacity hover:opacity-70"
-              style={{ color: "var(--store-primary)" }}
-            >
-              عرض الكل
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {relatedProducts.map((item) => (
-              <BoldProductCard key={item.id} product={item} storeSlug={store.slug} />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* ── Sticky mobile bar ── */}
+      <StickyMobilePurchaseBar
+        storeSlug={store.slug}
+        productId={product.id}
+        price={formatPrice(product.price)}
+        inStock={inStock}
+      />
     </div>
   );
 }

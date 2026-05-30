@@ -35,8 +35,14 @@ export default function ProductCard({ product, storeSlug }: ProductCardProps) {
   return (
     <div className="group flex flex-col" dir="rtl">
       {/* Image */}
-      <Link href={href} className="block overflow-hidden rounded-2xl bg-[--store-card] relative">
-        <div className="relative w-full" style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}>
+      <Link
+        href={href}
+        className="block overflow-hidden rounded-2xl bg-[--store-card] relative"
+      >
+        <div
+          className="relative w-full"
+          style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}
+        >
           <Image
             src={product.image || "/images/product-placeholder.png"}
             alt={product.name}
