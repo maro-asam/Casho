@@ -23,6 +23,10 @@ const cairoFont = Cairo({
 export const metadata: Metadata = {
   metadataBase: new URL("https://casho.store"),
 
+  verification: {
+    google: "RI4hEmywBWkqnDsiidR5uwHT-H1fdZ3CzU2Y6f-d8Zw",
+  },
+
   title: "كاشو | أنشئ متجرك الإلكتروني في دقائق وابدأ البيع أونلاين",
 
   description:
