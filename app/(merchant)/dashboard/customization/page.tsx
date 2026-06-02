@@ -27,6 +27,10 @@ export default async function CustomizationRoute() {
           secondaryColor: true,
           fontId: true,
           themeConfig: true,
+          logo: true,
+          coverImage: true,
+          description: true,
+          announcementText: true,
         },
       },
     },
@@ -64,6 +68,10 @@ export default async function CustomizationRoute() {
         currentLayout={resolvedTheme.layout}
         currentSections={resolvedTheme.sections}
         sectionContent={resolvedTheme.sectionContent}
+        logo={store.settings?.logo}
+        coverImage={store.settings?.coverImage}
+        description={store.settings?.description}
+        announcementText={store.settings?.announcementText}
       />
     </div>
   );

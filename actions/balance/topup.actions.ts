@@ -7,6 +7,7 @@ import {
   TopupRequestStatus,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
 import { applyBalanceChange } from "@/lib/balance";
@@ -16,6 +17,7 @@ import {
   createNotification,
   formatPiastersAsEgp,
 } from "@/lib/notifications/in-app";
+import { createKashierTopupHppUrl } from "@/lib/kashier";
 
 type CreateTopupRequestInput = {
   storeId: string;
@@ -35,6 +37,7 @@ const methodLabels: Record<TopupMethod, string> = {
   INSTAPAY: "إنستا باي",
   VODAFONE_CASH: "فودافون كاش",
   BANK_TRANSFER: "تحويل بنكي",
+  KASHIER: "Kashier",
 };
 
 function isValidTopupAmount(amount: number) {
@@ -363,5 +366,80 @@ export async function ApplyApprovedTopupRequestAction(
       success: false,
       message: "حدث خطأ أثناء إضافة الرصيد",
     };
+  }
+}
+
+export async function InitiateKashierTopupAction(
+  storeId: string,
+  amountInPiasters: number,
+): Promise<ActionResult> {
+  try {
+    const userId = await requireUserId();
+    await MustOwnStore(storeId, userId);
+
+    if (!isValidTopupAmount(amountInPiasters)) {
+      return { success: false, message: "قيمة الشحن غير صحيحة" };
+    }
+
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      select: { id: true, name: true },
+    });
+
+    if (!store) {
+      return { success: false, message: "المتجر غير موجود" };
+    }
+
+    const topupRequest = await prisma.topupRequest.create({
+      data: {
+        storeId,
+        amount: amountInPiasters,
+        method: TopupMethod.KASHIER,
+        status: TopupRequestStatus.PENDING,
+      },
+      select: { id: true },
+    });
+
+    const rawAppUrl = (
+      process.env.APP_URL ||
+      process.env.NEXT_PUBLIC_APP_URL
+    )?.replace(/\/$/, "");
+
+    if (!rawAppUrl) {
+      throw new Error("APP_URL is required for Kashier topup");
+    }
+
+    const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
+    let callbackBaseUrl = rawAppUrl;
+    try {
+      const u = new URL(rawAppUrl);
+      if (u.hostname === rootDomain) {
+        callbackBaseUrl = `${u.protocol}//app.${rootDomain}`;
+      }
+    } catch {
+      // fall through
+    }
+
+    const checkoutUrl = createKashierTopupHppUrl({
+      orderId: topupRequest.id,
+      amountInPiasters,
+      merchantRedirect: `${callbackBaseUrl}/api/payments/kashier/topup-callback`,
+      metaData: {
+        storeId: store.id,
+        storeName: store.name,
+        type: "topup",
+      },
+    });
+
+    redirect(checkoutUrl);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === "NEXT_REDIRECT"
+    ) {
+      throw error;
+    }
+    console.error("InitiateKashierTopupAction Error:", error);
+    return { success: false, message: "حدث خطأ أثناء بدء عملية الدفع" };
   }
 }

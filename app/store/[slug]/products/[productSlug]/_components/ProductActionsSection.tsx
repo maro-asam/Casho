@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import ProductPurchaseActions from "./ProductPurchaseActions";
 import StickyMobilePurchaseBar from "./StickyMobilePurchaseBar";
+import WholesalePricingTable, { type WholesaleTier } from "./WholesalePricingTable";
 
 type Props = {
   storeSlug: string;
@@ -15,6 +16,8 @@ type Props = {
   inStock: boolean;
   stock: number;
   price: string;
+  regularPriceRaw: number;
+  wholesaleOptions?: WholesaleTier[] | null;
   boldStyle?: boolean;
   isMinimal?: boolean;
 };
@@ -27,15 +30,19 @@ export default function ProductActionsSection({
   inStock,
   stock,
   price,
+  regularPriceRaw,
+  wholesaleOptions,
   boldStyle,
   isMinimal,
 }: Props) {
+  const [qty, setQty] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const hasSizes = sizes.length > 0;
   const hasColors = colors.length > 0;
   const hasVariants = hasSizes || hasColors;
+  const hasWholesale = wholesaleOptions && wholesaleOptions.length > 0;
 
   const selectedFeatures: Record<string, string> = {};
   if (selectedSize) selectedFeatures.size = selectedSize;
@@ -90,8 +97,8 @@ export default function ProductActionsSection({
                       boldStyle &&
                         "rounded-none border px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors",
                       selectedSize === size
-                        ? "border-[color:var(--store-primary)] bg-[color:var(--store-primary)] text-[color:var(--store-primary-foreground)]"
-                        : "hover:border-[color:var(--store-primary)] hover:text-[color:var(--store-primary)]",
+                        ? "border-(--store-primary) bg-(--store-primary) text-(--store-primary-foreground)"
+                        : "hover:border-(--store-primary) hover:text-(--store-primary)",
                     )}
                     style={
                       selectedSize !== size
@@ -135,8 +142,8 @@ export default function ProductActionsSection({
                       boldStyle &&
                         "rounded-none border px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors",
                       selectedColor === color
-                        ? "border-[color:var(--store-primary)] bg-[color:var(--store-primary)] text-[color:var(--store-primary-foreground)]"
-                        : "hover:border-[color:var(--store-primary)] hover:text-[color:var(--store-primary)]",
+                        ? "border-(--store-primary) bg-(--store-primary) text-(--store-primary-foreground)"
+                        : "hover:border-(--store-primary) hover:text-(--store-primary)",
                     )}
                     style={
                       selectedColor !== color
@@ -191,6 +198,16 @@ export default function ProductActionsSection({
         </div>
       )}
 
+      {/* ── Wholesale pricing table ── */}
+      {hasWholesale && (
+        <WholesalePricingTable
+          tiers={wholesaleOptions}
+          currentQty={qty}
+          regularPrice={regularPriceRaw}
+          boldStyle={boldStyle}
+        />
+      )}
+
       {!boldStyle && (
         <Separator style={{ background: "var(--store-border)" }} />
       )}
@@ -201,6 +218,8 @@ export default function ProductActionsSection({
         productId={productId}
         inStock={inStock}
         stock={stock}
+        qty={qty}
+        onQtyChange={setQty}
         selectedFeatures={featuresForAction}
         requiresFeatureSelection={requiresFeatureSelection}
         boldStyle={boldStyle}

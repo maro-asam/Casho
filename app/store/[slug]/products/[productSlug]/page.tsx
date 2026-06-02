@@ -48,6 +48,8 @@ function buildProductUrl(storeSlug: string, productSlug: string) {
 
 type StoreInfo = { id: string; name: string; slug: string };
 
+type WholesaleTier = { minQty: number; maxQty?: number; price: number };
+
 type ProductInfo = {
   id: string;
   name: string;
@@ -63,6 +65,7 @@ type ProductInfo = {
   isFeatured: boolean;
   sizes: string[] | null;
   colors: string[] | null;
+  wholesaleOptions: WholesaleTier[] | null;
   category: { id: string; name: string; slug: string };
 };
 
@@ -183,7 +186,10 @@ export default async function ProductDetailsRoute({
 
   const props: ProductDetailProps = {
     store,
-    product,
+    product: {
+      ...product,
+      wholesaleOptions: (product.wholesaleOptions as WholesaleTier[] | null) ?? null,
+    },
     gallery,
     relatedProducts,
     hasDiscount,
@@ -392,6 +398,8 @@ function StandardProductPage({
               inStock={inStock}
               stock={product.stock}
               price={formatPrice(product.price)}
+              regularPriceRaw={product.price}
+              wholesaleOptions={product.wholesaleOptions}
               isMinimal={isMinimal}
             />
 
@@ -627,6 +635,8 @@ function BoldProductPage({
                 inStock={inStock}
                 stock={product.stock}
                 price={formatPrice(product.price)}
+                regularPriceRaw={product.price}
+                wholesaleOptions={product.wholesaleOptions}
                 boldStyle
               />
 

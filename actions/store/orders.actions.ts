@@ -27,11 +27,15 @@ const kashierAllowedMethodKeys = new Set(
 );
 
 function getAppUrl() {
-  return (
-    process.env.APP_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "http://localhost:3000"
-  ).replace(/\/$/, "");
+  const url = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
+
+  if (!url) {
+    throw new Error(
+      "APP_URL environment variable is required for Kashier payments",
+    );
+  }
+
+  return url.replace(/\/$/, "");
 }
 
 function isPaymentMethodKey(value: string): value is PaymentMethodKey {
@@ -81,6 +85,7 @@ export async function CreateOrderAction(
         select: {
           shippingPrice: true,
           whatsappNumber: true,
+          primaryColor: true,
         },
       },
       storePaymentSettings: {
@@ -121,6 +126,7 @@ export async function CreateOrderAction(
             id: true,
             price: true,
             name: true,
+            wholesaleOptions: true,
           },
         },
       },
@@ -155,8 +161,20 @@ export async function CreateOrderAction(
   if (cartItems.length === 0) throw new Error("Cart is empty");
 
   const subtotal = cartItems.reduce((acc, item) => {
-    const priceInCents = Math.round(item.product.price * 100);
-    return acc + priceInCents * item.quantity;
+    const tiers = item.product.wholesaleOptions as
+      | { minQty: number; maxQty?: number; price: number }[]
+      | null;
+    let unitPrice = item.product.price;
+    if (tiers && tiers.length > 0) {
+      for (let i = tiers.length - 1; i >= 0; i--) {
+        const t = tiers[i];
+        if (item.quantity >= t.minQty && (t.maxQty === undefined || item.quantity <= t.maxQty)) {
+          unitPrice = t.price;
+          break;
+        }
+      }
+    }
+    return acc + Math.round(unitPrice * 100) * item.quantity;
   }, 0);
 
   const shipping = (store.settings?.shippingPrice ?? 0) * 100;
@@ -209,14 +227,29 @@ export async function CreateOrderAction(
         phone: data.phone,
         address: data.address,
         items: {
-          create: cartItems.map((item) => ({
-            productId: item.productId,
-            price: Math.round(item.product.price * 100),
-            quantity: item.quantity,
-            ...(item.selectedFeatures
-              ? { selectedFeatures: item.selectedFeatures }
-              : {}),
-          })),
+          create: cartItems.map((item) => {
+            const tiers = item.product.wholesaleOptions as
+              | { minQty: number; maxQty?: number; price: number }[]
+              | null;
+            let unitPrice = item.product.price;
+            if (tiers && tiers.length > 0) {
+              for (let i = tiers.length - 1; i >= 0; i--) {
+                const t = tiers[i];
+                if (item.quantity >= t.minQty && (t.maxQty === undefined || item.quantity <= t.maxQty)) {
+                  unitPrice = t.price;
+                  break;
+                }
+              }
+            }
+            return {
+              productId: item.productId,
+              price: Math.round(unitPrice * 100),
+              quantity: item.quantity,
+              ...(item.selectedFeatures
+                ? { selectedFeatures: item.selectedFeatures }
+                : {}),
+            };
+          }),
         },
       },
       select: { id: true },
@@ -311,6 +344,7 @@ export async function CreateOrderAction(
       merchantRedirect: `${appUrl}/api/payments/kashier/callback`,
       allowedMethods,
       display: "ar",
+      brandColor: store.settings?.primaryColor ?? undefined,
       metaData: {
         storeId: store.id,
         storeName: store.name,

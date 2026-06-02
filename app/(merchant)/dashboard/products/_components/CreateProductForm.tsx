@@ -44,6 +44,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import TagInput from "./TagInput";
 import AttributesInput from "./AttributesInput";
+import WholesaleInput from "./WholesaleInput";
 
 type Category = { id: string; name: string };
 
@@ -495,7 +496,23 @@ export default function CreateProductForm({
             </CardContent>
           </Card>
 
-          {/* Card 4: Attributes */}
+          {/* Card 4: Wholesale */}
+          <Card className="rounded-xl shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                أسعار الجملة
+                <OptionalBadge />
+              </CardTitle>
+              <CardDescription>
+                حدد شرائح سعرية مخفضة للطلبات الكبيرة — مثل Alibaba
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <WholesaleInput />
+            </CardContent>
+          </Card>
+
+          {/* Card 5: Attributes */}
           <Card className="rounded-xl shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-base">

@@ -15,23 +15,12 @@ const settingsSchema = z.object({
     .min(2, "اسم المتجر لازم يكون حرفين على الأقل")
     .max(60, "اسم المتجر كبير جدًا"),
 
-  logo: z.string().trim().optional(),
-  coverImage: z.string().trim().optional(),
-  primaryColor: z.string().trim().optional(),
-  secondaryColor: z.string().trim().optional(),
-
   shippingPrice: z.coerce
     .number("سعر الشحن لازم يكون رقم")
     .int("سعر الشحن لازم يكون رقم صحيح")
     .min(0, "سعر الشحن لا يمكن يكون أقل من صفر")
     .max(100000, "سعر الشحن كبير جدًا"),
 
-  announcementText: z
-    .string()
-    .trim()
-    .max(300, "النص العلوي طويل جدًا")
-    .optional(),
-  description: z.string().trim().max(1000, "وصف المتجر طويل جدًا").optional(),
   whatsappNumber: z.string().trim().max(30, "رقم الواتساب غير صالح").optional(),
   tiktok: z.string().trim().max(255, "رابط تيك توك غير صالح").optional(),
   instagram: z.string().trim().max(255, "رابط انستجرام غير صالح").optional(),
@@ -51,13 +40,7 @@ export type StoreSettingsFormState = {
   message: string;
   errors?: {
     storeName?: string[];
-    logo?: string[];
-    coverImage?: string[];
-    primaryColor?: string[];
-    secondaryColor?: string[];
     shippingPrice?: string[];
-    announcementText?: string[];
-    description?: string[];
     whatsappNumber?: string[];
     tiktok?: string[];
     instagram?: string[];
@@ -118,16 +101,7 @@ export async function UpdateStoreSettingsAction(
     const rawData = {
       storeId: formData.get("storeId")?.toString() ?? "",
       storeName: formData.get("storeName")?.toString() ?? "",
-
-      logo: formData.get("logo")?.toString() ?? "",
-      coverImage: formData.get("coverImage")?.toString() ?? "",
-      primaryColor: formData.get("primaryColor")?.toString() ?? "",
-      secondaryColor: formData.get("secondaryColor")?.toString() ?? "",
-
       shippingPrice: formData.get("shippingPrice")?.toString() ?? "0",
-
-      announcementText: formData.get("announcementText")?.toString() ?? "",
-      description: formData.get("description")?.toString() ?? "",
       whatsappNumber: formData.get("whatsappNumber")?.toString() ?? "",
       tiktok: formData.get("tiktok")?.toString() ?? "",
       instagram: formData.get("instagram")?.toString() ?? "",
@@ -148,13 +122,7 @@ export async function UpdateStoreSettingsAction(
     const {
       storeId,
       storeName,
-      logo,
-      coverImage,
-      primaryColor,
-      secondaryColor,
       shippingPrice,
-      announcementText,
-      description,
       whatsappNumber,
       tiktok,
       instagram,
@@ -209,15 +177,7 @@ export async function UpdateStoreSettingsAction(
       await tx.storeSettings.upsert({
         where: { storeId: store.id },
         update: {
-          logo: emptyToNull(logo),
-          coverImage: emptyToNull(coverImage),
-          primaryColor: emptyToNull(primaryColor),
-          secondaryColor: emptyToNull(secondaryColor),
-
           shippingPrice,
-
-          announcementText: emptyToNull(announcementText),
-          description: emptyToNull(description),
           whatsappNumber: emptyToNull(whatsappNumber),
           tiktok: emptyToNull(tiktok),
           instagram: emptyToNull(instagram),
@@ -226,15 +186,7 @@ export async function UpdateStoreSettingsAction(
         },
         create: {
           storeId: store.id,
-          logo: emptyToNull(logo),
-          coverImage: emptyToNull(coverImage),
-          primaryColor: emptyToNull(primaryColor),
-          secondaryColor: emptyToNull(secondaryColor),
-
           shippingPrice,
-
-          announcementText: emptyToNull(announcementText),
-          description: emptyToNull(description),
           whatsappNumber: emptyToNull(whatsappNumber),
           tiktok: emptyToNull(tiktok),
           instagram: emptyToNull(instagram),

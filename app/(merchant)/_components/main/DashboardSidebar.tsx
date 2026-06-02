@@ -10,6 +10,7 @@ import {
   Shapes,
   ImageIcon,
   Settings,
+  Globe,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,17 @@ export default function DashboardSidebar({ store }: Props) {
           <Link href={`/dashboard/settings`}>
             <Settings className="h-4 w-4" />
             اعدادات المتجر
+          </Link>
+        </Button>
+
+        <Button
+          asChild
+          variant={pathname.startsWith("/domain") ? "default" : "outline"}
+          className="w-full justify-start gap-2"
+        >
+          <Link href="/domain">
+            <Globe className="h-4 w-4" />
+            النطاق الخاص
           </Link>
         </Button>
 

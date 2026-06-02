@@ -34,12 +34,25 @@ export async function createUserSession(userId: string) {
 
   const cookieStore = await cookies();
 
+  const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Clear stale cookies that could take priority over the shared .casho.store cookie.
+  // Browser sends the most specific domain cookie first, so we must clear both:
+  // - subdomain-specific (e.g. app.casho.store) — deleted by omitting domain
+  // - root domain (e.g. casho.store without dot) — deleted by explicit domain
+  if (isProduction) {
+    cookieStore.delete({ name: SESSION_COOKIE_NAME, path: "/" });
+    cookieStore.delete({ name: SESSION_COOKIE_NAME, path: "/", domain: rootDomain });
+  }
+
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_MAX_AGE,
+    domain: isProduction ? `.${rootDomain}` : undefined,
   });
 }
 
@@ -57,6 +70,17 @@ export async function deleteCurrentSession() {
     });
   }
 
+  const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (isProduction) {
+    // Delete the shared .casho.store cookie
+    cookieStore.delete({ name: SESSION_COOKIE_NAME, domain: `.${rootDomain}`, path: "/" });
+    // Delete root domain cookie (casho.store without dot)
+    cookieStore.delete({ name: SESSION_COOKIE_NAME, domain: rootDomain, path: "/" });
+  }
+
+  // Delete any host-specific cookie (e.g. app.casho.store or app.localhost)
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
 

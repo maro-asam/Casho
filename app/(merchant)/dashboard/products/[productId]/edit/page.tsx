@@ -67,6 +67,7 @@ export default async function EditProductPage({
       hasVariants: true,
       categoryId: true,
       attributes: true,
+      wholesaleOptions: true,
     },
   });
   if (!product) {

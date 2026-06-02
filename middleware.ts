@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN || "casho.store";
+const APP_URL = process.env.APP_URL || `https://app.${ROOT_DOMAIN}`;
 
 const RESERVED_SUBDOMAINS = new Set(["www", "app", "casho"]);
 
@@ -56,7 +57,30 @@ function getSubdomain(host: string) {
   return null;
 }
 
-export function middleware(req: NextRequest) {
+function isCustomDomain(host: string): boolean {
+  if (!host) return false;
+  if (host === "localhost" || host === "127.0.0.1") return false;
+  if (host.endsWith(".localhost")) return false;
+  if (host === ROOT_DOMAIN || host === `www.${ROOT_DOMAIN}`) return false;
+  if (host.endsWith(`.${ROOT_DOMAIN}`)) return false;
+  return true;
+}
+
+async function resolveCustomDomain(host: string, origin: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${origin}/api/internal/domain-lookup?domain=${encodeURIComponent(host)}`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.slug ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("sessionToken");
   const host = getHost(req);
@@ -66,6 +90,21 @@ export function middleware(req: NextRequest) {
   }
 
   const subdomain = getSubdomain(host);
+
+  // ─── Root domain auth pages → redirect to app subdomain ──────────────────
+  // prod: casho.store/login → app.casho.store/login
+  // dev:  localhost:3000/login → app.localhost:3000/login
+  if (!subdomain && isAuthPath(pathname)) {
+    if (process.env.NODE_ENV !== "production") {
+      const port = req.nextUrl.port ? `:${req.nextUrl.port}` : "";
+      return NextResponse.redirect(
+        `http://app.localhost${port}${pathname}${req.nextUrl.search}`
+      );
+    }
+    return NextResponse.redirect(
+      `https://app.${ROOT_DOMAIN}${pathname}${req.nextUrl.search}`
+    );
+  }
 
   // ─── app.casho.store (or app.localhost) → dashboard app ───────────────────
   if (subdomain === "app") {
@@ -93,6 +132,19 @@ export function middleware(req: NextRequest) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  // ─── Custom domains → resolve slug via internal API ──────────────────────
+  if (isCustomDomain(host) && !pathname.startsWith("/store/")) {
+    const origin = `${req.nextUrl.protocol}//${req.nextUrl.host}`;
+    const slug = await resolveCustomDomain(host, origin);
+    if (slug) {
+      const url = req.nextUrl.clone();
+      url.pathname = pathname === "/" ? `/store/${slug}` : `/store/${slug}${pathname}`;
+      return NextResponse.rewrite(url);
+    }
+    // Unknown custom domain — fall through to 404
+    return NextResponse.next();
   }
 
   // ─── Store subdomains → /store/[slug] ─────────────────────────────────────

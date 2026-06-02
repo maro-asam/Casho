@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { TOPUP_METHODS } from "@/constants/topup";
@@ -27,6 +28,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import BalanceTopupForm from "@/app/(merchant)/dashboard/balance/_components/BalanceTopupForm";
+import KashierTopupCard from "@/app/(merchant)/dashboard/balance/_components/KashierTopupCard";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -144,7 +146,12 @@ function StatCard({
   );
 }
 
-export default async function BalanceTopupRoute() {
+export default async function BalanceTopupRoute({
+  searchParams,
+}: {
+  searchParams: Promise<{ topup?: string }>;
+}) {
+  const { topup } = await searchParams;
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -223,8 +230,7 @@ export default async function BalanceTopupRoute() {
                   أضف رصيد لمتجرك
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                  اختار طريقة الدفع، اكتب المبلغ، وابعت بيانات التحويل. بعد
-                  المراجعة هيتم إضافة الرصيد لمحفظة متجرك.
+                  اشحن فوري بـ Kashier بدون مراجعة، أو حوّل يدوياً وابعت بيانات التحويل.
                 </p>
               </div>
             </div>
@@ -277,11 +283,22 @@ export default async function BalanceTopupRoute() {
 
         <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-6">
+            <KashierTopupCard
+              storeId={store.id}
+              topupResult={topup ?? null}
+            />
+
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-border/50" />
+              <span className="text-xs text-muted-foreground">أو حوّل يدوياً</span>
+              <div className="h-px flex-1 bg-border/50" />
+            </div>
+
             <Card className="border-border/60 shadow-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg">بيانات طلب الشحن</CardTitle>
+                <CardTitle className="text-lg">طلب شحن يدوي</CardTitle>
                 <CardDescription>
-                  اكتب تفاصيل الطلب بدقة عشان تتم مراجعته بشكل أسرع.
+                  حوّل وابعت بيانات التحويل — هيتراجع ويتضاف الرصيد بعدين.
                 </CardDescription>
               </CardHeader>
 

@@ -42,6 +42,24 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
+function getEffectiveUnitPrice(
+  price: number,
+  wholesaleOptions: unknown,
+  quantity: number,
+): number {
+  const tiers = wholesaleOptions as
+    | { minQty: number; maxQty?: number; price: number }[]
+    | null;
+  if (!tiers || tiers.length === 0) return price;
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    const t = tiers[i];
+    if (quantity >= t.minQty && (t.maxQty === undefined || quantity <= t.maxQty)) {
+      return t.price;
+    }
+  }
+  return price;
+}
+
 export default async function CartPage({
   params,
   searchParams,
@@ -114,7 +132,13 @@ export default async function CartPage({
           <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
             <div className="space-y-4">
               {items.map((item) => {
-                const lineTotal = item.product.price * item.quantity;
+                const effectiveUnitPrice = getEffectiveUnitPrice(
+                  item.product.price,
+                  item.product.wholesaleOptions,
+                  item.quantity,
+                );
+                const isWholesalePrice = effectiveUnitPrice < item.product.price;
+                const lineTotal = effectiveUnitPrice * item.quantity;
 
                 return (
                   <Card
@@ -168,9 +192,25 @@ export default async function CartPage({
                                   </div>
                                 )}
 
-                              <p className="text-sm text-muted-foreground">
-                                سعر القطعة: {formatPrice(item.product.price)}
-                              </p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {isWholesalePrice ? (
+                                  <>
+                                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                                      سعر القطعة: {formatPrice(effectiveUnitPrice)}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground line-through">
+                                      {formatPrice(item.product.price)}
+                                    </span>
+                                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                      سعر الجملة
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">
+                                    سعر القطعة: {formatPrice(item.product.price)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
 
                             <div className="text-left">

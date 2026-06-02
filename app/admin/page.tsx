@@ -2,263 +2,138 @@ import Link from "next/link";
 import {
   Store,
   Wallet,
-  AlertTriangle,
   CheckCircle2,
   Ban,
   ArrowUpRight,
-  Building2,
   CircleDollarSign,
   TrendingUp,
+  Building2,
 } from "lucide-react";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getAdminDashboardData } from "@/actions/admin/admin-dashboard.actions";
 import { SubscriptionStatus } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import AdminDashboardCharts from "./_components/admin-dashboard-charts";
 
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 2,
-  }).format(value / 100);
+function fmt(v: number) {
+  return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(v / 100);
 }
-
-function formatDate(date: Date | null) {
-  if (!date) return "—";
-
-  return new Intl.DateTimeFormat("ar-EG", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+function fmtDate(d: Date | null) {
+  if (!d) return "—";
+  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium" }).format(d);
 }
-
-function statusLabel(status: SubscriptionStatus) {
-  switch (status) {
-    case SubscriptionStatus.ACTIVE:
-      return "نشط";
-    case SubscriptionStatus.GRACE_PERIOD:
-      return "فترة سماح";
-    case SubscriptionStatus.PAST_DUE:
-      return "متأخر";
-    case SubscriptionStatus.CANCELED:
-      return "ملغي";
-    case SubscriptionStatus.INACTIVE:
-    default:
-      return "غير مفعل";
-  }
+function statusLabel(s: SubscriptionStatus) {
+  const map: Record<SubscriptionStatus, string> = {
+    ACTIVE: "نشط", GRACE_PERIOD: "فترة سماح",
+    PAST_DUE: "متأخر", CANCELED: "ملغي", INACTIVE: "غير مفعل",
+  };
+  return map[s] ?? s;
 }
-
-function statusClasses(status: SubscriptionStatus) {
-  switch (status) {
-    case SubscriptionStatus.ACTIVE:
-      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
-    case SubscriptionStatus.GRACE_PERIOD:
-      return "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400";
-    case SubscriptionStatus.PAST_DUE:
-      return "border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-400";
-    case SubscriptionStatus.CANCELED:
-      return "border-zinc-500/20 bg-zinc-500/10 text-zinc-700 dark:text-zinc-400";
-    case SubscriptionStatus.INACTIVE:
-    default:
-      return "border-muted bg-muted text-muted-foreground";
+function statusCls(s: SubscriptionStatus) {
+  switch (s) {
+    case "ACTIVE":       return "bg-emerald-500/10 text-emerald-700 border-emerald-500/20";
+    case "GRACE_PERIOD": return "bg-amber-500/10  text-amber-700  border-amber-500/20";
+    case "PAST_DUE":     return "bg-rose-500/10   text-rose-700   border-rose-500/20";
+    case "CANCELED":     return "bg-zinc-500/10   text-zinc-600   border-zinc-500/20";
+    default:             return "bg-muted          text-muted-foreground border-border";
   }
 }
 
 export default async function AdminDashboardPage() {
   const data = await getAdminDashboardData();
 
-  const cards = [
-    {
-      title: "إجمالي المتاجر",
-      value: data.stats.totalStores.toLocaleString("ar-EG"),
-      description: "كل المتاجر الموجودة على المنصة",
-      icon: Store,
-      iconWrap: "bg-primary/10 text-primary",
-    },
-    {
-      title: "المتاجر النشطة",
-      value: data.stats.activeStores.toLocaleString("ar-EG"),
-      description: "المتاجر المفعلة حاليًا",
-      icon: CheckCircle2,
-      iconWrap: "bg-emerald-500/10 text-emerald-600",
-    },
-    {
-      title: "طلبات الشحن المعلقة",
-      value: data.stats.pendingTopupRequests.toLocaleString("ar-EG"),
-      description: "طلبات محتاجة مراجعة أو موافقة",
-      icon: Wallet,
-      iconWrap: "bg-amber-500/10 text-amber-600",
-    },
-    {
-      title: "إجمالي الشحنات الموافق عليها",
-      value: formatPrice(data.analytics.totalApprovedTopupsAmount),
-      description: "إجمالي قيمة الشحنات المعتمدة",
-      icon: CircleDollarSign,
-      iconWrap: "bg-sky-500/10 text-sky-600",
-    },
-    {
-      title: "شحنات هذا الشهر",
-      value: formatPrice(data.analytics.thisMonthApprovedTopupsAmount),
-      description: "إجمالي ما تم اعتماده هذا الشهر",
-      icon: TrendingUp,
-      iconWrap: "bg-violet-500/10 text-violet-600",
-    },
-    {
-      title: "المتاجر غير المفعلة",
-      value: data.stats.inactiveStores.toLocaleString("ar-EG"),
-      description: "تحتاج متابعة أو تفعيل",
-      icon: Ban,
-      iconWrap: "bg-zinc-500/10 text-zinc-600",
-    },
+  const stats = [
+    { label: "إجمالي المتاجر",       value: data.stats.totalStores,          icon: Store,            color: "text-primary      bg-primary/10"      },
+    { label: "المتاجر النشطة",        value: data.stats.activeStores,         icon: CheckCircle2,     color: "text-emerald-600  bg-emerald-500/10"  },
+    { label: "طلبات شحن معلقة",      value: data.stats.pendingTopupRequests,  icon: Wallet,           color: "text-amber-600    bg-amber-500/10"    },
+    { label: "إجمالي الشحنات",        value: fmt(data.analytics.totalApprovedTopupsAmount), icon: CircleDollarSign, color: "text-sky-600 bg-sky-500/10" },
+    { label: "شحنات هذا الشهر",      value: fmt(data.analytics.thisMonthApprovedTopupsAmount), icon: TrendingUp, color: "text-violet-600 bg-violet-500/10" },
+    { label: "متاجر غير مفعلة",      value: data.stats.inactiveStores,        icon: Ban,              color: "text-zinc-500     bg-zinc-500/10"     },
   ];
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <section className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Dashboard
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            نظرة سريعة على أداء المنصة، الشحنات، وحالة المتاجر.
-          </p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">لوحة التحكم</h1>
+          <p className="mt-1 text-sm text-muted-foreground">نظرة شاملة على أداء المنصة</p>
         </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground">
+          <span className="size-1.5 rounded-full bg-emerald-500" />
+          بيانات مباشرة
+        </span>
+      </div>
 
-        <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2 text-xs text-muted-foreground">
-          <span className="inline-block size-2 rounded-xl bg-emerald-500" />
-          بيانات مباشرة من قاعدة البيانات
-        </div>
-      </section>
+      {/* Stats grid */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-xl border bg-background p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">{s.label}</p>
+                <p className="mt-1 text-2xl font-semibold tracking-tight">{s.value}</p>
+              </div>
+              <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-lg", s.color)}>
+                <s.icon className="size-5" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {cards.map((item) => {
-          const Icon = item.icon;
-
-          return (
-            <Card
-              key={item.title}
-              className="group rounded-[24px] border-border/20 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-                <div className="space-y-1">
-                  <CardDescription className="text-xs md:text-sm">
-                    {item.title}
-                  </CardDescription>
-                  <CardTitle className="text-2xl font-semibold tracking-tight md:text-3xl">
-                    {item.value}
-                  </CardTitle>
-                </div>
-
-                <div
-                  className={cn(
-                    "flex size-12 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105",
-                    item.iconWrap,
-                  )}
-                >
-                  <Icon className="size-5" />
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                <p className="text-xs leading-5 text-muted-foreground">
-                  {item.description}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </section>
-
+      {/* Charts */}
       <AdminDashboardCharts
         monthlyTopups={data.analytics.monthlyTopups}
         statusBreakdown={data.analytics.statusBreakdown}
         topStoresByTopups={data.analytics.topStoresByTopups}
       />
 
-      <section className="grid gap-4 ">
-        <Card className="rounded-[28px] border-border/20 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
-            <div className="space-y-1">
-              <CardTitle className="text-xl">أحدث المتاجر</CardTitle>
-              <CardDescription>آخر المتاجر المضافة على المنصة.</CardDescription>
-            </div>
+      {/* Latest stores */}
+      <div className="rounded-xl border bg-background shadow-sm">
+        <div className="flex items-center justify-between border-b px-6 py-4">
+          <div>
+            <h2 className="font-semibold">أحدث المتاجر</h2>
+            <p className="text-sm text-muted-foreground">آخر المتاجر المضافة</p>
+          </div>
+          <Link href="/admin/stores" className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition hover:bg-muted">
+            عرض الكل <ArrowUpRight className="size-3.5" />
+          </Link>
+        </div>
 
-            <Link
-              href="/admin/stores"
-              className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition hover:bg-muted"
-            >
-              عرض الكل
-              <ArrowUpRight className="size-4" />
-            </Link>
-          </CardHeader>
-
-          <CardContent className="space-y-3">
-            {data.latestStores.length === 0 ? (
-              <div className="rounded-xl border border-dashed p-8 text-center">
-                <p className="text-sm text-muted-foreground">
-                  لا توجد متاجر حتى الآن.
-                </p>
-              </div>
-            ) : (
-              data.latestStores.map((store) => (
-                <Link
-                  key={store.id}
-                  href={`/admin/stores/${store.id}`}
-                  className="group flex flex-col gap-4 rounded-xl border border-border/20 bg-background p-4 transition-all duration-200 hover:border-primary/20 hover:bg-muted/30 hover:shadow-sm md:flex-row md:items-center md:justify-between"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted">
-                      <Building2 className="size-5 text-muted-foreground" />
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold">{store.name}</h3>
-                        <Badge
-                          className={cn(
-                            "rounded-xl border font-medium",
-                            statusClasses(store.subscriptionStatus),
-                          )}
-                          variant="outline"
-                        >
-                          {statusLabel(store.subscriptionStatus)}
-                        </Badge>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground">
-                        {store.user.email}
-                      </p>
-
-                      <p className="text-xs text-muted-foreground">
-                        تم الإنشاء: {formatDate(store.createdAt)}
-                      </p>
-                    </div>
+        {data.latestStores.length === 0 ? (
+          <div className="p-10 text-center text-sm text-muted-foreground">لا توجد متاجر بعد</div>
+        ) : (
+          <div className="divide-y">
+            {data.latestStores.map((store) => (
+              <Link
+                key={store.id}
+                href={`/admin/stores/${store.id}`}
+                className="flex items-center justify-between gap-4 px-6 py-4 transition hover:bg-muted/40"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <Building2 className="size-4 text-muted-foreground" />
                   </div>
-
-                  <div className="flex items-center justify-between gap-3 md:justify-end">
-                    <div className="rounded-xl bg-muted px-3 py-2 text-sm font-medium">
-                      {formatPrice(store.balance)}
-                    </div>
-
-                    <div className="flex size-9 items-center justify-center rounded-xl border transition group-hover:bg-background">
-                      <ArrowUpRight className="size-4" />
-                    </div>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{store.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{store.user.email}</p>
                   </div>
-                </Link>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </section>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-3">
+                  <Badge variant="outline" className={cn("hidden rounded-full border text-xs sm:inline-flex", statusCls(store.subscriptionStatus))}>
+                    {statusLabel(store.subscriptionStatus)}
+                  </Badge>
+                  <span className="hidden text-sm text-muted-foreground md:block">{fmtDate(store.createdAt)}</span>
+                  <span className="rounded-lg bg-muted px-2.5 py-1 text-sm font-medium">{fmt(store.balance)}</span>
+                  <ArrowUpRight className="size-4 shrink-0 text-muted-foreground" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -32,6 +32,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import TagInput from "./TagInput";
 import AttributesInput from "./AttributesInput";
+import WholesaleInput, { type WholesaleTier } from "./WholesaleInput";
 
 type Category = {
   id: string;
@@ -65,6 +66,7 @@ type Product = {
 
   categoryId: string;
   attributes: unknown;
+  wholesaleOptions: unknown;
 };
 
 type Props = {
@@ -512,6 +514,24 @@ export default function EditProductForm({ product, categories }: Props) {
             hint="تساعد العملاء في البحث عن المنتج"
           />
         </div>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-3">
+        <div>
+          <p className="text-sm font-medium">أسعار الجملة</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            شرائح سعرية مخفضة للطلبات الكبيرة — مثل Alibaba
+          </p>
+        </div>
+        <WholesaleInput
+          initialTiers={
+            Array.isArray(product.wholesaleOptions)
+              ? (product.wholesaleOptions as WholesaleTier[])
+              : []
+          }
+        />
       </div>
 
       <Separator />

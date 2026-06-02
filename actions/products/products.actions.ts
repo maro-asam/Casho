@@ -59,6 +59,19 @@ function parseAttributes(value: FormDataEntryValue | null) {
   return null;
 }
 
+function parseWholesaleOptions(value: FormDataEntryValue | null) {
+  const raw = String(value ?? "[]").trim();
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed as { minQty: number; maxQty?: number; price: number }[];
+    }
+  } catch {
+    // ignore malformed JSON
+  }
+  return null;
+}
+
 export async function CreateProductAction(
   _prevState: ProductFormState,
   formData: FormData,
@@ -93,6 +106,7 @@ export async function CreateProductAction(
     const isFeatured = formData.get("isFeatured") === "on";
     const hasVariants = formData.get("hasVariants") === "on";
     const attributes = parseAttributes(formData.get("attributes"));
+    const wholesaleOptions = parseWholesaleOptions(formData.get("wholesaleOptions"));
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -159,6 +173,8 @@ export async function CreateProductAction(
         hasVariants,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         attributes: attributes as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        wholesaleOptions: wholesaleOptions as any,
         storeId: store.id,
         categoryId: category.id,
       },
@@ -222,6 +238,7 @@ export async function UpdateProductAction(
     const isFeatured = formData.get("isFeatured") === "on";
     const hasVariants = formData.get("hasVariants") === "on";
     const attributes = parseAttributes(formData.get("attributes"));
+    const wholesaleOptions = parseWholesaleOptions(formData.get("wholesaleOptions"));
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -313,6 +330,8 @@ export async function UpdateProductAction(
         hasVariants,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         attributes: attributes as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        wholesaleOptions: wholesaleOptions as any,
         categoryId: category.id,
       },
     });

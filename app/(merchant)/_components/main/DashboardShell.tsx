@@ -20,6 +20,7 @@ import {
   CirclePercent,
   CreditCard,
   ExternalLink,
+  Globe,
   Headset,
   ImageIcon,
   Layers,
@@ -186,6 +187,7 @@ export default function DashboardShell({
           { name: "إعدادات SEO", href: "/seo", icon: Rocket },
           { name: "المدونة", href: "/blog", icon: BookOpen },
           { name: "خدمات إضافية", href: "/services", icon: Layers },
+          { name: "دومين مخصص", href: "/domain", icon: Globe },
         ],
       },
 
@@ -207,7 +209,6 @@ export default function DashboardShell({
             href: "/payment-methods",
             icon: CreditCard,
           },
-          { name: "الإعدادات", href: "/settings", icon: Settings },
         ],
       },
 
@@ -247,6 +248,8 @@ export default function DashboardShell({
         title: "الدعم",
         links: [
           { name: "مركز المساعدة", href: "/support", icon: Headset },
+          { name: "الإعدادات", href: "/settings", icon: Settings },
+
           {
             name: "ربط تيليجرام",
             href: "/telegram",
@@ -276,9 +279,7 @@ export default function DashboardShell({
 
   const isActive = (href: string, disabled?: boolean) => {
     if (disabled) return false;
-    return href === "/"
-      ? pathname === "/"
-      : pathname.startsWith(href);
+    return href === "/" ? pathname === "/" : pathname.startsWith(href);
   };
 
   const sidebarContent = (collapsed: boolean) => (
@@ -463,7 +464,7 @@ export default function DashboardShell({
           </SheetTrigger>
           <SheetContent side="right" className="w-65 p-0 [&>button]:hidden">
             <SheetTitle className="sr-only">قائمة التنقل</SheetTitle>
-            <div onClick={() => setMobileOpen(false)}>
+            <div className="h-full" onClick={() => setMobileOpen(false)}>
               {sidebarContent(false)}
             </div>
           </SheetContent>

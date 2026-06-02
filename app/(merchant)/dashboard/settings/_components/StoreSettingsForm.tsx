@@ -5,15 +5,13 @@ import { toast } from "sonner";
 import {
   Loader2,
   Save,
-  Image as ImageLucide,
   Phone,
-  FileText,
   Store as StoreIcon,
   CheckCircle2,
   XCircle,
   Sparkles,
+  FileText,
 } from "lucide-react";
-import Image from "next/image";
 
 import {
   UpdateStoreSettingsAction,
@@ -27,7 +25,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 
 type Props = {
@@ -39,13 +36,9 @@ type Props = {
     settings: {
       id: string;
       storeId: string;
-      logo: string | null;
-      coverImage: string | null;
       primaryColor: string | null;
       secondaryColor: string | null;
       shippingPrice: number;
-      announcementText: string | null;
-      description: string | null;
       whatsappNumber: string | null;
       tiktok: string | null;
       instagram: string | null;
@@ -236,109 +229,6 @@ export default function StoreSettingsForm({ store }: Props) {
               ) : null}
             </div>
           )}
-        </div>
-      </section>
-
-      <Separator />
-
-      <section className="space-y-5">
-        <div className="flex items-center gap-2">
-          <ImageLucide className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">الصور والهوية</h3>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="logo">رابط اللوجو</Label>
-            <Input
-              id="logo"
-              name="logo"
-              placeholder="https://example.com/logo.png"
-              defaultValue={settings?.logo ?? ""}
-              dir="ltr"
-              className="text-left"
-            />
-
-            {state.errors?.logo && (
-              <p className="text-sm text-destructive">{state.errors.logo[0]}</p>
-            )}
-
-            {settings?.logo && (
-              <div className="rounded-xl border p-3">
-                <p className="mb-2 text-sm text-muted-foreground">
-                  معاينة اللوجو
-                </p>
-                <Image
-                  width={1000}
-                  height={1000}
-                  src={settings.logo}
-                  alt="Logo Preview"
-                  className="h-20 w-20 rounded-xl border object-cover"
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="coverImage">رابط صورة الغلاف</Label>
-            <Input
-              id="coverImage"
-              name="coverImage"
-              placeholder="https://example.com/cover.jpg"
-              defaultValue={settings?.coverImage ?? ""}
-              dir="ltr"
-              className="text-left"
-            />
-
-            {state.errors?.coverImage && (
-              <p className="text-sm text-destructive">
-                {state.errors.coverImage[0]}
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <Separator />
-
-      <section className="space-y-5">
-        <div className="flex items-center gap-2">
-          <FileText className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">محتوى المتجر</h3>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-2 w-full">
-          <div className="space-y-2">
-            <Label htmlFor="description">وصف المتجر</Label>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="مثال: متجر متخصص في بيع الملابس الكاجوال بأفضل جودة وسعر"
-              defaultValue={settings?.description ?? ""}
-              className="min-h-28 resize-none"
-            />
-            {state.errors?.description && (
-              <p className="text-sm text-destructive">
-                {state.errors.description[0]}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="announcementText">النص العلوي</Label>
-            <Textarea
-              id="announcementText"
-              name="announcementText"
-              placeholder="مثال: شحن مجاني للطلبات فوق 500 جنيه"
-              defaultValue={settings?.announcementText ?? ""}
-              className="min-h-28 resize-none"
-            />
-            {state.errors?.announcementText && (
-              <p className="text-sm text-destructive">
-                {state.errors.announcementText[0]}
-              </p>
-            )}
-          </div>
         </div>
       </section>
 

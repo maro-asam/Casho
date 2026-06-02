@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Zap, Loader2, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ type ProductPurchaseActionsProps = {
   productId: string;
   inStock: boolean;
   stock: number;
+  qty: number;
+  onQtyChange: (qty: number) => void;
   className?: string;
   boldStyle?: boolean;
   selectedFeatures?: Record<string, string>;
@@ -25,17 +27,18 @@ export default function ProductPurchaseActions({
   productId,
   inStock,
   stock,
+  qty,
+  onQtyChange,
   className,
   boldStyle,
   selectedFeatures,
   requiresFeatureSelection,
 }: ProductPurchaseActionsProps) {
-  const [qty, setQty] = useState(1);
   const [cartPending, startCartTransition] = useTransition();
   const [buyPending, startBuyTransition] = useTransition();
   const router = useRouter();
 
-  const maxQty = Math.min(stock, 10);
+  const maxQty = stock;
   const isPending = cartPending || buyPending;
 
   if (!inStock) {
@@ -109,7 +112,7 @@ export default function ProductPurchaseActions({
         >
           <button
             type="button"
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            onClick={() => onQtyChange(Math.max(1, qty - 1))}
             disabled={qty <= 1 || isPending}
             className="flex h-10 w-10 items-center justify-center text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40"
           >
@@ -120,7 +123,7 @@ export default function ProductPurchaseActions({
           </span>
           <button
             type="button"
-            onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
+            onClick={() => onQtyChange(Math.min(maxQty, qty + 1))}
             disabled={qty >= maxQty || isPending}
             className="flex h-10 w-10 items-center justify-center text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40"
           >

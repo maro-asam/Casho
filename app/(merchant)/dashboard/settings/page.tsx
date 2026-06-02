@@ -1,11 +1,9 @@
 import { Metadata } from "next";
 import {
-  ImageIcon,
-  Megaphone,
-  Palette,
   Settings2,
   Store,
   Phone,
+  Truck,
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
@@ -35,9 +33,23 @@ export default async function SettingsRoute() {
       id: true,
       name: true,
       slug: true,
-      settings: true,
-      showPoweredByCasho: true,
       poweredByRemovalEnabled: true,
+      settings: {
+        select: {
+          id: true,
+          storeId: true,
+          shippingPrice: true,
+          primaryColor: true,
+          secondaryColor: true,
+          whatsappNumber: true,
+          tiktok: true,
+          instagram: true,
+          facebook: true,
+          email: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
     },
   });
 
@@ -76,10 +88,10 @@ export default async function SettingsRoute() {
         <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl text-primary font-semibold">
-              تخصيص المتجر
+              إعدادات المتجر
             </CardTitle>
             <CardDescription>
-              حدّث الشعار وصورة الغلاف والألوان وروابط التواصل بسهولة.
+              حدّث اسم المتجر وسعر الشحن وروابط التواصل الاجتماعي.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -88,44 +100,6 @@ export default async function SettingsRoute() {
         </Card>
 
         <div className="space-y-4">
-          <Card className="rounded-xl shadow-sm bg-primary/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <Palette className="size-4" />
-                الهوية البصرية
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm text-primary">
-              <p>اختر ألوان واضحة ومتناسقة مع البراند.</p>
-              <p>الأفضل استخدام لون أساسي ولون ثانوي فقط.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-xl shadow-sm bg-orange-600/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base text-orange-600">
-                <ImageIcon className="size-4" />
-                الصور
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm  text-orange-600">
-              <p>ضع روابط صور واضحة وعالية الجودة.</p>
-              <p>يفضل أن يكون اللوجو بخلفية شفافة إن أمكن.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-xl shadow-sm text-green-600 bg-green-600/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Megaphone className="size-4" />
-                الإعلان العلوي
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm ">
-              <p>استخدمه في التوصيل المجاني أو العروض أو كود الخصم.</p>
-            </CardContent>
-          </Card>
-
           <Card className="rounded-xl shadow-sm text-red-600 bg-red-600/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -133,8 +107,21 @@ export default async function SettingsRoute() {
                 التواصل
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm ">
+            <CardContent className="space-y-2 text-sm">
               <p>أضف واتساب وصفحات السوشيال لتسهيل الوصول للعميل.</p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl shadow-sm text-blue-600 bg-blue-600/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Truck className="size-4" />
+                الشحن
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <p>سعر الشحن بيتضاف تلقائيًا على إجمالي كل طلب.</p>
+              <p>ضعه صفر لو بتوفر شحن مجاني.</p>
             </CardContent>
           </Card>
         </div>

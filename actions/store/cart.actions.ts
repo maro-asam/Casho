@@ -9,6 +9,24 @@ function normalizeCouponCode(code: string) {
   return code.trim().toUpperCase();
 }
 
+function getEffectivePrice(
+  price: number,
+  wholesaleOptions: unknown,
+  quantity: number,
+): number {
+  const tiers = wholesaleOptions as
+    | { minQty: number; maxQty?: number; price: number }[]
+    | null;
+  if (!tiers || tiers.length === 0) return price;
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    const t = tiers[i];
+    if (quantity >= t.minQty && (t.maxQty === undefined || quantity <= t.maxQty)) {
+      return t.price;
+    }
+  }
+  return price;
+}
+
 export async function AddToCartAction(
   storeSlug: string,
   productId: string,
@@ -301,6 +319,7 @@ export async function GetCartItemsAction(storeSlug: string) {
             name: true,
             price: true,
             image: true,
+            wholesaleOptions: true,
           },
         },
       },
@@ -332,7 +351,12 @@ export async function GetCartItemsAction(storeSlug: string) {
   ]);
 
   const subtotal = items.reduce((acc, item) => {
-    return acc + item.product.price * item.quantity;
+    const unitPrice = getEffectivePrice(
+      item.product.price,
+      item.product.wholesaleOptions,
+      item.quantity,
+    );
+    return acc + unitPrice * item.quantity;
   }, 0);
 
   const shipping = items.length > 0 ? (store.settings?.shippingPrice ?? 0) : 0;

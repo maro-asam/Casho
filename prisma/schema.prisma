@@ -91,6 +91,10 @@ model Store {
   storePaymentSettings StorePaymentSettings?
   notifications        Notification[]
 
+  customDomain           String?             @unique
+  customDomainStatus     CustomDomainStatus  @default(PENDING)
+  customDomainConnectedAt DateTime?
+
   instagramConnection  InstagramConnection?
   suggestedOrders      SuggestedOrder[]
   igAiUsageLogs        IgAiUsageLog[]
@@ -193,6 +197,8 @@ model Product {
 
   weight     Float?
   attributes Json?
+
+  wholesaleOptions Json?
 
   isActive    Boolean @default(true)
   isFeatured  Boolean @default(false)
@@ -431,6 +437,7 @@ enum TopupMethod {
   VODAFONE_CASH
   INSTAPAY
   BANK_TRANSFER
+  KASHIER
 }
 
 model TopupRequest {
@@ -675,6 +682,12 @@ enum BlogStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+enum CustomDomainStatus {
+  PENDING
+  ACTIVE
+  FAILED
 }
 
 // ─────────────────────────────────────────────────────────────

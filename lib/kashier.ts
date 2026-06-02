@@ -34,7 +34,6 @@ export function getKashierConfig() {
     paymentApiKey: requiredEnv("KASHIER_PAYMENT_API_KEY"),
     checkoutUrl:
       process.env.KASHIER_CHECKOUT_URL || "https://checkout.kashier.io",
-    appUrl: requiredEnv("APP_URL").replace(/\/$/, ""),
   };
 }
 
@@ -71,10 +70,12 @@ export function generateKashierOrderHash(input: {
     .digest("hex");
 }
 
-export function createKashierWalletHppUrl(input: {
+export function createKashierTopupHppUrl(input: {
   orderId: string;
   amountInPiasters: number;
+  merchantRedirect: string;
   currency?: "EGP";
+  allowedMethods?: string;
   metaData?: Record<string, string>;
 }) {
   const config = getKashierConfig();
@@ -96,8 +97,8 @@ export function createKashierWalletHppUrl(input: {
     amount,
     currency,
     hash,
-    merchantRedirect: `${config.appUrl}/api/payments/kashier/callback`,
-    allowedMethods: "wallet",
+    merchantRedirect: input.merchantRedirect,
+    allowedMethods: input.allowedMethods ?? "card,wallet",
     failureRedirect: "true",
     redirectMethod: "get",
     display: "ar",

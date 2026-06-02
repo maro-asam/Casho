@@ -54,6 +54,20 @@ function getAppUrl(req: NextRequest) {
   ).replace(/\/$/, "");
 }
 
+function getStorefrontBaseUrl(storeSlug: string, req: NextRequest) {
+  const appUrl = getAppUrl(req);
+  const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
+  const parsed = new URL(appUrl);
+  const protocol = parsed.protocol;
+
+  if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+    const port = parsed.port || "3000";
+    return `${protocol}//${storeSlug}.localhost:${port}`;
+  }
+
+  return `${protocol}//${storeSlug}.${rootDomain}`;
+}
+
 function buildOrderUrl(input: {
   req: NextRequest;
   storeSlug: string;
@@ -62,15 +76,16 @@ function buildOrderUrl(input: {
 }) {
   const pathname =
     input.payment === "success"
-      ? `/store/${input.storeSlug}/order/${input.orderId}/success`
-      : `/store/${input.storeSlug}/order/${input.orderId}`;
+      ? `/order/${input.orderId}/success`
+      : `/order/${input.orderId}`;
 
-  const url = new URL(pathname, getAppUrl(input.req));
+  const url = new URL(pathname, getStorefrontBaseUrl(input.storeSlug, input.req));
 
   url.searchParams.set("payment", input.payment);
 
   return url;
 }
+
 function buildHomeUrl(req: NextRequest, reason: string) {
   const url = new URL("/", getAppUrl(req));
   url.searchParams.set("payment", reason);

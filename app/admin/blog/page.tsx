@@ -1,221 +1,134 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { BlogStatus } from "@prisma/client";
-import { Plus, Search, Star, FileText } from "lucide-react";
-
+import { Plus, Star, FileText, Eye, BookOpen } from "lucide-react";
+import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import BlogActions from "./_components/BlogActions";
-
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-const statusMap = {
-  [BlogStatus.DRAFT]: {
-    label: "مسودة",
-    variant: "secondary",
-  },
-  [BlogStatus.PUBLISHED]: {
-    label: "منشور",
-    variant: "default",
-  },
-  [BlogStatus.ARCHIVED]: {
-    label: "مؤرشف",
-    variant: "outline",
-  },
-} as const;
+const STATUS_CONFIG: Record<BlogStatus, { label: string; cls: string }> = {
+  DRAFT:     { label: "مسودة",  cls: "bg-zinc-500/10   text-zinc-600   border-zinc-500/20"   },
+  PUBLISHED: { label: "منشور",  cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20" },
+  ARCHIVED:  { label: "مؤرشف", cls: "bg-muted          text-muted-foreground border-border"   },
+};
 
-const AdminBlogsListRoute = async () => {
+function fmtDate(d: Date) {
+  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium" }).format(d);
+}
+
+export default async function AdminBlogsListRoute() {
+  await requireAdmin();
+
   const blogs = await prisma.blogPost.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      category: true,
-    },
+    orderBy: { createdAt: "desc" },
+    include: { category: true },
   });
 
-  const totalBlogs = blogs.length;
-
-  const publishedBlogs = blogs.filter(
-    (item) => item.status === BlogStatus.PUBLISHED,
-  ).length;
-
-  const featuredBlogs = blogs.filter((item) => item.featured).length;
+  const published = blogs.filter((b) => b.status === "PUBLISHED").length;
+  const featured  = blogs.filter((b) => b.featured).length;
+  const drafts    = blogs.filter((b) => b.status === "DRAFT").length;
 
   return (
     <div className="space-y-6">
       {/* Header */}
-
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">إدارة المقالات</h1>
-
-          <p className="text-muted-foreground">
-            إدارة مقالات المدونة الخاصة بـ Casho
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">المقالات</h1>
+          <p className="mt-1 text-sm text-muted-foreground">إدارة مقالات مدونة كاشو</p>
         </div>
-
-        <Button asChild>
+        <Button asChild size="sm" className="rounded-lg">
           <Link href="/admin/blog/create">
-            <Plus className="me-2 size-4" />
-            إضافة مقال
+            <Plus className="me-1.5 size-4" />
+            مقال جديد
           </Link>
         </Button>
       </div>
 
       {/* Stats */}
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="rounded-xl">
-          <CardHeader className="pb-2">
-            <CardDescription>إجمالي المقالات</CardDescription>
-
-            <CardTitle className="text-3xl">{totalBlogs}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="rounded-xl">
-          <CardHeader className="pb-2">
-            <CardDescription>المقالات المنشورة</CardDescription>
-
-            <CardTitle className="text-3xl">{publishedBlogs}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="rounded-xl">
-          <CardHeader className="pb-2">
-            <CardDescription>المقالات المميزة</CardDescription>
-
-            <CardTitle className="text-3xl">{featuredBlogs}</CardTitle>
-          </CardHeader>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[
+          { label: "إجمالي المقالات", value: blogs.length, icon: FileText, cls: "text-primary      bg-primary/10"      },
+          { label: "منشورة",           value: published,    icon: BookOpen, cls: "text-emerald-600  bg-emerald-500/10"  },
+          { label: "مميزة",            value: featured,     icon: Star,     cls: "text-amber-600    bg-amber-500/10"    },
+        ].map((s) => (
+          <div key={s.label} className="rounded-xl border bg-background p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-muted-foreground">{s.label}</p>
+                <p className="mt-1 text-2xl font-semibold">{s.value}</p>
+              </div>
+              <div className={cn("flex size-10 items-center justify-center rounded-lg", s.cls)}>
+                <s.icon className="size-5" />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Search */}
-
-      <Card className="rounded-xl">
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-            <Input placeholder="ابحث عن مقال..." className="pr-10" />
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Table */}
+      <div className="rounded-xl border bg-background shadow-sm">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">كل المقالات</h2>
+          <p className="text-sm text-muted-foreground">{drafts} مسودة · {published} منشور</p>
+        </div>
 
-      <Card className="rounded-xl">
-        <CardHeader>
-          <CardTitle>كل المقالات</CardTitle>
-
-          <CardDescription>
-            يمكنك تعديل، حذف، أو مراجعة المقالات
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          {blogs.length === 0 ? (
-            <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 text-center">
-              <div className="rounded-full bg-muted p-4">
-                <FileText className="size-8 text-muted-foreground" />
-              </div>
-
-              <h3 className="text-lg font-semibold">لا توجد مقالات بعد</h3>
-
-              <p className="text-sm text-muted-foreground">
-                ابدأ بإضافة أول مقال للمدونة
-              </p>
-
-              <Button asChild>
-                <Link href="/admin/blog/create">
-                  <Plus className="me-2 size-4" />
-                  إضافة مقال
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>العنوان</TableHead>
-                    <TableHead>التصنيف</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>المشاهدات</TableHead>
-                    <TableHead>مميز</TableHead>
-                    <TableHead>التاريخ</TableHead>
-                    <TableHead className="text-left">الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {blogs.map((blog) => {
-                    const status = statusMap[blog.status];
-
-                    return (
-                      <TableRow key={blog.id}>
-                        <TableCell className="font-medium">
-                          <div className="line-clamp-1 max-w-[280px]">
-                            {blog.title}
-                          </div>
-                        </TableCell>
-
-                        <TableCell>{blog.category?.name || "-"}</TableCell>
-
-                        <TableCell>
-                          <Badge variant={status.variant}>{status.label}</Badge>
-                        </TableCell>
-
-                        <TableCell>{blog.views}</TableCell>
-
-                        <TableCell>
-                          {blog.featured ? (
-                            <Star className="size-4 fill-current text-yellow-500" />
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {new Date(blog.createdAt).toLocaleDateString("ar-EG")}
-                        </TableCell>
-
-                        <TableCell>
-                          <BlogActions
-                            blog={{
-                              id: blog.id,
-                              slug: blog.slug,
-                              title: blog.title,
-                            }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {blogs.length === 0 ? (
+          <div className="p-10 text-center">
+            <FileText className="mx-auto size-8 text-muted-foreground/40" />
+            <p className="mt-3 text-sm text-muted-foreground">لا توجد مقالات بعد</p>
+            <Button asChild size="sm" className="mt-4 rounded-lg">
+              <Link href="/admin/blog/create"><Plus className="me-1.5 size-4" />أضف أول مقال</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/30 text-right text-xs text-muted-foreground">
+                  <th className="px-6 py-3 font-medium">المقال</th>
+                  <th className="px-6 py-3 font-medium">التصنيف</th>
+                  <th className="px-6 py-3 font-medium">الحالة</th>
+                  <th className="px-6 py-3 font-medium">المشاهدات</th>
+                  <th className="px-6 py-3 font-medium">التاريخ</th>
+                  <th className="px-6 py-3 font-medium" />
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {blogs.map((blog) => {
+                  const cfg = STATUS_CONFIG[blog.status];
+                  return (
+                    <tr key={blog.id} className="transition hover:bg-muted/30">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          {blog.featured && <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />}
+                          <span className="line-clamp-1 max-w-xs font-medium">{blog.title}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground">{blog.category?.name || "—"}</td>
+                      <td className="px-6 py-4">
+                        <Badge variant="outline" className={cn("rounded-full border text-xs", cfg.cls)}>
+                          {cfg.label}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center gap-1 text-muted-foreground">
+                          <Eye className="size-3.5" />{blog.views}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground">{fmtDate(blog.createdAt)}</td>
+                      <td className="px-6 py-4">
+                        <BlogActions blog={{ id: blog.id, slug: blog.slug, title: blog.title }} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
-};
-
-export default AdminBlogsListRoute;
+}

@@ -6,28 +6,42 @@ import { signPendingGoogleAuth } from "@/lib/auth/pending-google-auth";
 
 const PENDING_COOKIE = "pendingGoogleAuth";
 
+function getMerchantAppUrl() {
+  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
+  try {
+    const u = new URL(appUrl);
+    if (u.hostname === rootDomain) {
+      return `${u.protocol}//app.${rootDomain}`;
+    }
+  } catch {
+    // fall through
+  }
+  return appUrl;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
 
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const merchantUrl = getMerchantAppUrl();
 
   if (error || !code) {
-    return NextResponse.redirect(`${appUrl}/login?error=google_cancelled`);
+    return NextResponse.redirect(`${merchantUrl}/login?error=google_cancelled`);
   }
 
   try {
     const tokens = await exchangeGoogleCode(code);
 
     if (!tokens.access_token) {
-      return NextResponse.redirect(`${appUrl}/login?error=google_failed`);
+      return NextResponse.redirect(`${merchantUrl}/login?error=google_failed`);
     }
 
     const googleUser = await getGoogleUserInfo(tokens.access_token);
 
     if (!googleUser.email_verified) {
-      return NextResponse.redirect(`${appUrl}/login?error=google_unverified`);
+      return NextResponse.redirect(`${merchantUrl}/login?error=google_unverified`);
     }
 
     const existingUser = await prisma.user.findFirst({
@@ -45,7 +59,7 @@ export async function GET(request: NextRequest) {
         });
       }
       await createUserSession(existingUser.id);
-      return NextResponse.redirect(`${appUrl}/dashboard`);
+      return NextResponse.redirect(`${merchantUrl}/dashboard`);
     }
 
     // New user — store Google data in signed cookie, redirect to complete registration
@@ -55,7 +69,7 @@ export async function GET(request: NextRequest) {
       name: googleUser.name || "",
     });
 
-    const response = NextResponse.redirect(`${appUrl}/register/complete-google`);
+    const response = NextResponse.redirect(`${merchantUrl}/register/complete-google`);
     response.cookies.set(PENDING_COOKIE, pendingToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -66,6 +80,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (err) {
     console.error("Google OAuth callback error:", err);
-    return NextResponse.redirect(`${appUrl}/login?error=google_failed`);
+    return NextResponse.redirect(`${merchantUrl}/login?error=google_failed`);
   }
 }

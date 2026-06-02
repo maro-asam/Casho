@@ -8,6 +8,7 @@ import {
   Type,
   Layers,
   ExternalLink,
+  ImageIcon,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import StoreColorsSection from "./StoreColorsSection";
 import StoreFontPicker from "./StoreFontPicker";
 import ThemeLayoutEditor from "./ThemeLayoutEditor";
 import ThemeSectionsEditor from "./ThemeSectionsEditor";
+import StoreIdentitySection from "./StoreIdentitySection";
 import type { ThemeLayout, ThemeSections, SectionContentMap } from "@/types/store-theme.types";
 
 type Props = {
@@ -30,6 +32,10 @@ type Props = {
   currentLayout: ThemeLayout;
   currentSections: ThemeSections;
   sectionContent?: SectionContentMap;
+  logo?: string | null;
+  coverImage?: string | null;
+  description?: string | null;
+  announcementText?: string | null;
 };
 
 const TABS = [
@@ -38,6 +44,7 @@ const TABS = [
   { value: "design",   label: "التصميم",  icon: LayoutGrid },
   { value: "fonts",    label: "الخطوط",   icon: Type },
   { value: "sections", label: "الأقسام",  icon: Layers },
+  { value: "identity", label: "الهوية",   icon: ImageIcon },
 ] as const;
 
 export default function CustomizationTabs({
@@ -50,6 +57,10 @@ export default function CustomizationTabs({
   currentLayout,
   currentSections,
   sectionContent = {},
+  logo,
+  coverImage,
+  description,
+  announcementText,
 }: Props) {
   const [activeTab, setActiveTab] = useState<string>("theme");
 
@@ -125,6 +136,17 @@ export default function CustomizationTabs({
             storeId={storeId}
             currentSections={currentSections}
             sectionContent={sectionContent}
+          />
+        </TabsContent>
+
+        {/* Identity */}
+        <TabsContent value="identity">
+          <StoreIdentitySection
+            storeId={storeId}
+            logo={logo}
+            coverImage={coverImage}
+            description={description}
+            announcementText={announcementText}
           />
         </TabsContent>
       </Tabs>

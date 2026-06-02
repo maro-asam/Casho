@@ -43,7 +43,7 @@ export function LoginForm() {
     if (state?.error) toast.error(state.error);
     if (state?.success) {
       toast.success("تم تسجيل الدخول بنجاح");
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     }
   }, [state, router]);
