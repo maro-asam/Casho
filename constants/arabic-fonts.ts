@@ -120,3 +120,16 @@ export const GOOGLE_FONTS_PRECONNECT_URLS = [
   "https://fonts.googleapis.com",
   "https://fonts.gstatic.com",
 ];
+
+// ─── Unified helper ──────────────────────────────────────────────────────────
+// Returns the correct font object regardless of whether it's Arabic or English.
+// Falls back to Cairo if the id is unknown.
+
+import { ENGLISH_FONTS, type EnglishFont } from "./english-fonts";
+
+export function getStoreFont(id?: string | null): ArabicFont | EnglishFont {
+  if (!id) return ARABIC_FONTS.cairo;
+  if (id in ARABIC_FONTS) return ARABIC_FONTS[id as ArabicFontId];
+  if (id in ENGLISH_FONTS) return ENGLISH_FONTS[id as keyof typeof ENGLISH_FONTS];
+  return ARABIC_FONTS.cairo;
+}

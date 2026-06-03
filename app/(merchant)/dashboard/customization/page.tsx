@@ -28,6 +28,7 @@ export default async function CustomizationRoute() {
           primaryColor: true,
           secondaryColor: true,
           fontId: true,
+          storeLanguage: true,
           themeConfig: true,
           logo: true,
           coverImage: true,
@@ -73,6 +74,7 @@ export default async function CustomizationRoute() {
         storeSlug={store.slug}
         currentThemeId={store.settings?.themeId}
         currentFontId={store.settings?.fontId}
+        currentLanguage={store.settings?.storeLanguage}
         primaryColor={store.settings?.primaryColor}
         secondaryColor={store.settings?.secondaryColor}
         navbarVariant={store.settings?.navbarVariant}

@@ -112,6 +112,7 @@ model StoreSettings {
 
   themeId        String  @default("default")
   fontId         String  @default("cairo")
+  storeLanguage  String  @default("ar")
   logo           String?
   coverImage     String?
   primaryColor   String?

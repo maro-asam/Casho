@@ -20,6 +20,7 @@ type BuilderStore = {
   storeSlug: string;
   currentThemeId: string;
   currentFontId: string;
+  storeLanguage: string;
   primaryColor: string | null;
   secondaryColor: string | null;
   currentLayout: ThemeLayout;

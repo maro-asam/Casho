@@ -5,29 +5,25 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
-import { ARABIC_FONTS } from "@/constants/arabic-fonts";
-import { ENGLISH_FONTS } from "@/constants/english-fonts";
-
-const VALID_FONT_IDS = [...Object.keys(ARABIC_FONTS), ...Object.keys(ENGLISH_FONTS)];
 
 const schema = z.object({
   storeId: z.string().min(1),
-  fontId: z.string().refine((v) => VALID_FONT_IDS.includes(v), "خط غير صالح"),
+  storeLanguage: z.enum(["ar", "en"]),
 });
 
-export async function UpdateStoreFontAction(input: {
+export async function UpdateStoreLanguageAction(input: {
   storeId: string;
-  fontId: string;
+  storeLanguage: "ar" | "en";
 }) {
   try {
     const userId = await requireUserId();
 
     const parsed = schema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, message: "خط غير صالح" };
+      return { success: false, message: "لغة غير صالحة" };
     }
 
-    const { storeId, fontId } = parsed.data;
+    const { storeId, storeLanguage } = parsed.data;
 
     await MustOwnStore(storeId, userId);
 
@@ -42,14 +38,17 @@ export async function UpdateStoreFontAction(input: {
 
     await prisma.storeSettings.upsert({
       where: { storeId },
-      update: { fontId },
-      create: { storeId, fontId },
+      update: { storeLanguage },
+      create: { storeId, storeLanguage },
     });
 
     revalidatePath("/dashboard/customization");
     revalidatePath(`/store/${store.slug}`);
 
-    return { success: true, message: "تم حفظ الخط بنجاح" };
+    return {
+      success: true,
+      message: storeLanguage === "ar" ? "تم التحويل إلى العربية" : "Switched to English",
+    };
   } catch {
     return { success: false, message: "حدث خطأ أثناء الحفظ" };
   }

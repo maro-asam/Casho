@@ -26,6 +26,7 @@ type Props = {
   storeSlug: string;
   currentThemeId?: string | null;
   currentFontId?: string | null;
+  currentLanguage?: string | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;
   navbarVariant?: string | null;
@@ -53,6 +54,7 @@ export default function CustomizationTabs({
   storeSlug,
   currentThemeId,
   currentFontId,
+  currentLanguage,
   primaryColor,
   secondaryColor,
   currentLayout,
@@ -129,7 +131,7 @@ export default function CustomizationTabs({
 
         {/* Fonts */}
         <TabsContent value="fonts">
-          <StoreFontPicker storeId={storeId} currentFontId={currentFontId} />
+          <StoreFontPicker storeId={storeId} currentFontId={currentFontId} currentLanguage={currentLanguage} />
         </TabsContent>
 
         {/* Sections */}

@@ -9,7 +9,7 @@ import StoreFooter from "./_components/shared/StoreFooter";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import { buildThemeCSSString } from "@/lib/theme/build-css-vars";
 import { StoreThemeProvider } from "./_context/StoreThemeContext";
-import { getArabicFont } from "@/constants/arabic-fonts";
+import { getStoreFont } from "@/constants/arabic-fonts";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import { StoreBuilderBridge } from "./_components/StoreBuilderBridge";
@@ -135,6 +135,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           logo: true,
           themeId: true,
           fontId: true,
+          storeLanguage: true,
           primaryColor: true,
           secondaryColor: true,
           navbarVariant: true,
@@ -172,8 +173,10 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
     store.settings?.navbarVariant || resolvedTheme.layout.navbar
   ) as StoreNavbarVariant;
 
-  // ── Font ───────────────────────────────────────────────────────────────
-  const font = getArabicFont(store.settings?.fontId);
+  // ── Language & Font ────────────────────────────────────────────────────
+  const storeLanguage = store.settings?.storeLanguage ?? "ar";
+  const storeDir = storeLanguage === "en" ? "ltr" : "rtl";
+  const font = getStoreFont(store.settings?.fontId);
 
   // ── CSS custom properties ──────────────────────────────────────────────
   const themeCSS = buildThemeCSSString(resolvedTheme, font.family, resolvedTheme.darkTokens);
@@ -199,7 +202,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
       */}
       <StoreThemeProvider theme={resolvedTheme}>
         <StoreBuilderBridge />
-        <div dir="rtl" className="store-theme-root min-h-screen">
+        <div dir={storeDir} className="store-theme-root min-h-screen">
           <StoreFrontHeader
             storeName={store.name}
             storeSlug={store.slug}

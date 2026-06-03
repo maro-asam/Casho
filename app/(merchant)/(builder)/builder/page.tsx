@@ -21,6 +21,7 @@ export default async function BuilderPage() {
           primaryColor: true,
           secondaryColor: true,
           fontId: true,
+          storeLanguage: true,
           themeConfig: true,
           logo: true,
           coverImage: true,
@@ -47,6 +48,7 @@ export default async function BuilderPage() {
       storeSlug={store.slug}
       currentThemeId={store.settings?.themeId ?? "default"}
       currentFontId={store.settings?.fontId ?? "cairo"}
+      storeLanguage={store.settings?.storeLanguage ?? "ar"}
       primaryColor={store.settings?.primaryColor ?? null}
       secondaryColor={store.settings?.secondaryColor ?? null}
       currentLayout={resolvedTheme.layout}
