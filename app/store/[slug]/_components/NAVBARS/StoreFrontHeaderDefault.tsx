@@ -39,6 +39,7 @@ export default function StoreFrontHeaderDefault({
   logo,
   cartCount = 0,
   announcementText,
+  showStoreName = true,
 }: StoreFrontHeaderProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -107,13 +108,22 @@ export default function StoreFrontHeaderDefault({
               >
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden">
                   {logo ? (
-                    <Image
-                      src={logo}
-                      alt={storeName}
-                      width={100}
-                      height={100}
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                    />
+                    logo.endsWith(".svg") || logo.includes("/svg") ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={logo}
+                        alt={storeName}
+                        className="h-full w-full object-contain transition duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <Image
+                        src={logo}
+                        alt={storeName}
+                        width={100}
+                        height={100}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    )
                   ) : (
                     <div className="rounded-xl bg-primary/15 p-2">
                       <Store className="h-6 w-6 text-primary" />
@@ -121,11 +131,13 @@ export default function StoreFrontHeaderDefault({
                   )}
                 </div>
 
-                <div className="min-w-0 hidden sm:block">
-                  <h1 className="truncate text-base font-semibold text-primary md:text-lg">
-                    {storeName}
-                  </h1>
-                </div>
+                {showStoreName && (
+                  <div className="min-w-0 hidden sm:block">
+                    <h1 className="truncate text-base font-semibold text-primary md:text-lg">
+                      {storeName}
+                    </h1>
+                  </div>
+                )}
               </Link>
 
               <div className="hidden flex-1 lg:flex lg:max-w-xl">

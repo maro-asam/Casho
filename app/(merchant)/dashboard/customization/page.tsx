@@ -33,6 +33,7 @@ export default async function CustomizationRoute() {
           coverImage: true,
           description: true,
           announcementText: true,
+          showStoreName: true,
         },
       },
     },
@@ -82,6 +83,7 @@ export default async function CustomizationRoute() {
         coverImage={store.settings?.coverImage}
         description={store.settings?.description}
         announcementText={store.settings?.announcementText}
+        showStoreName={store.settings?.showStoreName ?? true}
       />
     </div>
   );

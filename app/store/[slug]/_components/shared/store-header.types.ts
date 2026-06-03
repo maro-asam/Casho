@@ -4,4 +4,5 @@ export type StoreFrontHeaderProps = {
   logo?: string | null;
   cartCount?: number;
   announcementText?: string | null;
+  showStoreName?: boolean;
 };

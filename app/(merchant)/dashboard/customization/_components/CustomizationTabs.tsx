@@ -36,6 +36,7 @@ type Props = {
   coverImage?: string | null;
   description?: string | null;
   announcementText?: string | null;
+  showStoreName?: boolean;
 };
 
 const TABS = [
@@ -61,6 +62,7 @@ export default function CustomizationTabs({
   coverImage,
   description,
   announcementText,
+  showStoreName = true,
 }: Props) {
   const [activeTab, setActiveTab] = useState<string>("theme");
 
@@ -147,6 +149,7 @@ export default function CustomizationTabs({
             coverImage={coverImage}
             description={description}
             announcementText={announcementText}
+            showStoreName={showStoreName}
           />
         </TabsContent>
       </Tabs>

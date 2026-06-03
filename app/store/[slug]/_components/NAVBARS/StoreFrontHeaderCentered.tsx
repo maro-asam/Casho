@@ -133,6 +133,7 @@ export default function StoreFrontHeaderCentered({
   logo,
   cartCount = 0,
   announcementText,
+  showStoreName = true,
 }: StoreFrontHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();

@@ -16,6 +16,7 @@ const identitySchema = z.object({
     .trim()
     .max(300, "النص العلوي طويل جدًا")
     .optional(),
+  showStoreName: z.boolean().optional(),
 });
 
 export type StoreIdentityFormState = {
@@ -27,6 +28,7 @@ export type StoreIdentityFormState = {
     coverImage?: string[];
     description?: string[];
     announcementText?: string[];
+    showStoreName?: string[];
   };
 };
 
@@ -48,6 +50,7 @@ export async function UpdateStoreIdentityAction(
       coverImage: formData.get("coverImage")?.toString() ?? "",
       description: formData.get("description")?.toString() ?? "",
       announcementText: formData.get("announcementText")?.toString() ?? "",
+      showStoreName: formData.get("showStoreName") === "true",
     });
 
     if (!parsed.success) {
@@ -58,7 +61,7 @@ export async function UpdateStoreIdentityAction(
       };
     }
 
-    const { storeId, logo, coverImage, description, announcementText } =
+    const { storeId, logo, coverImage, description, announcementText, showStoreName } =
       parsed.data;
 
     const store = await prisma.store.findFirst({
@@ -80,6 +83,7 @@ export async function UpdateStoreIdentityAction(
         coverImage: emptyToNull(coverImage),
         description: emptyToNull(description),
         announcementText: emptyToNull(announcementText),
+        showStoreName: showStoreName ?? true,
       },
       create: {
         storeId: store.id,
@@ -87,6 +91,7 @@ export async function UpdateStoreIdentityAction(
         coverImage: emptyToNull(coverImage),
         description: emptyToNull(description),
         announcementText: emptyToNull(announcementText),
+        showStoreName: showStoreName ?? true,
       },
     });
 

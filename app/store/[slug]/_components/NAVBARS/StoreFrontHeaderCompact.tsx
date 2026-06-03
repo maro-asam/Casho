@@ -25,6 +25,7 @@ export default function StoreFrontHeaderCompact({
   storeSlug,
   logo,
   cartCount = 0,
+  showStoreName = true,
 }: StoreFrontHeaderProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -120,22 +121,29 @@ export default function StoreFrontHeaderCompact({
           >
             <div className="flex h-11 w-11 items-center justify-center overflow-hidden">
               {logo ? (
-                <Image
-                  src={logo}
-                  alt={storeName}
-                  width={44}
-                  height={44}
-                  className="h-full w-full object-cover"
-                />
+                logo.endsWith(".svg") || logo.includes("/svg") ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logo} alt={storeName} className="h-full w-full object-contain" />
+                ) : (
+                  <Image
+                    src={logo}
+                    alt={storeName}
+                    width={44}
+                    height={44}
+                    className="h-full w-full object-cover"
+                  />
+                )
               ) : (
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
                   <Store className="h-4 w-4 text-primary" />
                 </div>
               )}
             </div>
-            <span className="truncate text-sm font-semibold md:text-base">
-              {storeName}
-            </span>
+            {showStoreName && (
+              <span className="truncate text-sm font-semibold md:text-base">
+                {storeName}
+              </span>
+            )}
           </Link>
 
           <form

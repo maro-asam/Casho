@@ -136,6 +136,8 @@ model StoreSettings {
   ogImage        String?
   isIndexed      Boolean  @default(true)
 
+  showStoreName    Boolean  @default(true)
+
   announcementText String?
   description      String?
   email            String?

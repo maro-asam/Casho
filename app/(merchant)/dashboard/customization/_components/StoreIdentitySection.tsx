@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { Loader2, Save, ImageIcon, FileText, Upload, X } from "lucide-react";
+import { Loader2, Save, ImageIcon, FileText, Upload, X, Type } from "lucide-react";
 
 import {
   UpdateStoreIdentityAction,
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 
 type Props = {
   storeId: string;
@@ -21,6 +22,7 @@ type Props = {
   coverImage?: string | null;
   description?: string | null;
   announcementText?: string | null;
+  showStoreName?: boolean;
 };
 
 const initialState: StoreIdentityFormState = { success: false, message: "" };
@@ -49,6 +51,7 @@ export default function StoreIdentitySection({
   coverImage,
   description,
   announcementText,
+  showStoreName = true,
 }: Props) {
   const [state, formAction, isPending] = useActionState(
     UpdateStoreIdentityAction,
@@ -59,6 +62,7 @@ export default function StoreIdentitySection({
   const [coverUrl, setCoverUrl] = useState(coverImage ?? "");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [storeNameVisible, setStoreNameVisible] = useState(showStoreName);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -120,7 +124,7 @@ export default function StoreIdentitySection({
             <input
               ref={logoInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,image/svg+xml"
               className="hidden"
               onChange={handleLogoUpload}
             />
@@ -136,12 +140,11 @@ export default function StoreIdentitySection({
                     <X className="size-4" />
                   </button>
                 </div>
-                <Image
-                  width={80}
-                  height={80}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={logoUrl}
                   alt="Logo Preview"
-                  className="h-20 w-20 rounded-xl border object-cover"
+                  className="h-20 w-20 rounded-xl border object-contain"
                 />
                 <Button
                   type="button"
@@ -250,6 +253,24 @@ export default function StoreIdentitySection({
               </p>
             )}
           </div>
+        </div>
+
+        {/* Show Store Name Toggle */}
+        <input type="hidden" name="showStoreName" value={String(storeNameVisible)} />
+        <div className="flex items-center justify-between rounded-xl border p-4">
+          <div className="flex items-center gap-3">
+            <Type className="size-4 text-primary" />
+            <div>
+              <p className="text-sm font-medium">إظهار اسم المتجر</p>
+              <p className="text-xs text-muted-foreground">
+                عرض اسم المتجر بجانب اللوجو في شريط التنقل
+              </p>
+            </div>
+          </div>
+          <Switch
+            checked={storeNameVisible}
+            onCheckedChange={setStoreNameVisible}
+          />
         </div>
       </section>
 

@@ -140,6 +140,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           navbarVariant: true,
           announcementText: true,
           themeConfig: true,
+          showStoreName: true,
         },
       },
     },
@@ -205,6 +206,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
             logo={store.settings?.logo}
             cartCount={cartCount}
             announcementText={store.settings?.announcementText}
+            showStoreName={store.settings?.showStoreName ?? true}
             variant={navbarVariant}
           />
 
