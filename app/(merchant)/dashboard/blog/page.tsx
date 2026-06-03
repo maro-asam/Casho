@@ -114,7 +114,7 @@ const MerchantBlogRoute = async () => {
                 key={post.id}
                 className="group overflow-hidden rounded-2xl border bg-card transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <Link href={`/blog/${post.slug}`}>
+                <Link href={`https://${process.env.ROOT_DOMAIN || "casho.store"}/blog/${post.slug}`} target="_blank">
                   <div className="relative h-56 overflow-hidden">
                     <Image
                       src={post.coverImage || "/login.jpg"}

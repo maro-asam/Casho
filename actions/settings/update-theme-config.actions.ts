@@ -330,3 +330,59 @@ export async function UpdateThemeAction({
   }
   return SelectThemePresetAction({ storeId, presetId: themeId });
 }
+
+// ─── Visual Builder: publish draft → live ────────────────────────────────────
+
+/**
+ * Copies draftThemeConfig → themeConfig and revalidates the storefront.
+ * Called from the builder's "نشر" (Publish) button.
+ */
+export async function PublishThemeFromDraftAction({
+  storeId,
+}: {
+  storeId: string;
+}): Promise<ActionResult> {
+  try {
+    const userId = await requireUserId();
+    await MustOwnStore(storeId, userId);
+
+    const settings = await prisma.storeSettings.findUnique({
+      where: { storeId },
+      select: { draftThemeConfig: true, themeId: true },
+    });
+
+    const draft = settings?.draftThemeConfig as ThemeCustomization | null;
+
+    // If no draft exists, nothing to publish — current live config is already up-to-date
+    if (!draft) {
+      return { success: true, message: "المتجر محدّث بالفعل" };
+    }
+
+    const storeInfo = await prisma.store.findUnique({
+      where: { id: storeId },
+      select: { slug: true },
+    });
+
+    await prisma.storeSettings.update({
+      where: { storeId },
+      data: {
+        themeConfig: draft,
+        // Sync legacy fields
+        ...(isThemePresetId(draft.presetId) ? { themeId: draft.presetId } : {}),
+        ...(draft.tokenOverrides?.primary ? { primaryColor: draft.tokenOverrides.primary } : {}),
+        ...(draft.tokenOverrides?.secondary ? { secondaryColor: draft.tokenOverrides.secondary } : {}),
+      },
+    });
+
+    revalidatePath("/dashboard/customization");
+    revalidatePath("/builder");
+    if (storeInfo?.slug) {
+      revalidatePath(`/store/${storeInfo.slug}`);
+    }
+
+    return { success: true, message: "تم نشر التغييرات بنجاح 🎉" };
+  } catch (error) {
+    console.error("PublishThemeFromDraftAction:", error);
+    return { success: false, message: "حصل خطأ أثناء النشر" };
+  }
+}

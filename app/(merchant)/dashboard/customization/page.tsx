@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import { PaintRoller } from "lucide-react";
+import { PaintRoller, Wand2 } from "lucide-react";
 import { Metadata } from "next";
+import Link from "next/link";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import CustomizationTabs from "./_components/CustomizationTabs";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "تخصيص المتجر",
@@ -51,11 +53,19 @@ export default async function CustomizationRoute() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <DashboardSectionHeader
-        icon={PaintRoller}
-        title="تخصيص المتجر"
-        description="صمّم متجرك بالكامل — اختر الثيم والألوان والخطوط وتحكم في كل قسم"
-      />
+      <div className="flex items-start justify-between gap-4">
+        <DashboardSectionHeader
+          icon={PaintRoller}
+          title="تخصيص المتجر"
+          description="صمّم متجرك بالكامل — اختر الثيم والألوان والخطوط وتحكم في كل قسم"
+        />
+        <Button asChild className="gap-2 shrink-0">
+          <Link href="/builder">
+            <Wand2 className="size-4" />
+            المحرر المرئي
+          </Link>
+        </Button>
+      </div>
 
       <CustomizationTabs
         storeId={store.id}

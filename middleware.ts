@@ -117,7 +117,13 @@ export async function middleware(req: NextRequest) {
 
     // Rewrite clean paths → /dashboard prefix (internal Next.js routing)
     // e.g. /orders → /dashboard/orders, / → /dashboard
-    if (!pathname.startsWith("/dashboard") && !isAuthPath(pathname)) {
+    // Paths that map directly to their own top-level routes (no rewrite needed)
+    const DIRECT_PATHS = ["/builder"];
+    if (
+      !pathname.startsWith("/dashboard") &&
+      !isAuthPath(pathname) &&
+      !DIRECT_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))
+    ) {
       const url = req.nextUrl.clone();
       url.pathname =
         pathname === "/" ? "/dashboard" : `/dashboard${pathname}`;
@@ -127,8 +133,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // ─── Protect /dashboard on other domains (localhost dev) ──────────────────
-  if (!token && pathname.startsWith("/dashboard")) {
+  // ─── Protect /dashboard and /builder on other domains (localhost dev) ──────
+  if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/builder"))) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

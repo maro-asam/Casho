@@ -12,6 +12,7 @@ import { StoreThemeProvider } from "./_context/StoreThemeContext";
 import { getArabicFont } from "@/constants/arabic-fonts";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type { ThemeCustomization } from "@/types/store-theme.types";
+import { StoreBuilderBridge } from "./_components/StoreBuilderBridge";
 
 type LayoutProps = {
   children: ReactNode;
@@ -196,6 +197,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         CSS vars are injected via the <style> block above; the class wires it up.
       */}
       <StoreThemeProvider theme={resolvedTheme}>
+        <StoreBuilderBridge />
         <div dir="rtl" className="store-theme-root min-h-screen">
           <StoreFrontHeader
             storeName={store.name}
