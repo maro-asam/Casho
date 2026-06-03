@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Save, ImageIcon, FileText, Upload, X, Type, Pencil, Camera } from "lucide-react";
+import { Loader2, Save, ImageIcon, FileText, Upload, X, Type, Pencil, Camera, SquareCode } from "lucide-react";
 
 import {
   UpdateStoreIdentityAction,
@@ -13,12 +13,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import LogoEditorModal from "./LogoEditorModal";
 import UnsplashPickerModal from "./UnsplashPickerModal";
 
 type Props = {
   storeId: string;
   logo?: string | null;
+  logoRadius?: number | null;
   coverImage?: string | null;
   description?: string | null;
   announcementText?: string | null;
@@ -48,6 +50,7 @@ async function uploadToCloudinary(file: File, folder: string): Promise<string> {
 export default function StoreIdentitySection({
   storeId,
   logo,
+  logoRadius: initialLogoRadius = 8,
   coverImage,
   description,
   announcementText,
@@ -59,6 +62,7 @@ export default function StoreIdentitySection({
   );
 
   const [logoUrl, setLogoUrl] = useState(logo ?? "");
+  const [logoRadius, setLogoRadius] = useState(initialLogoRadius ?? 8);
   const [coverUrl, setCoverUrl] = useState(coverImage ?? "");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -141,6 +145,7 @@ export default function StoreIdentitySection({
           <div className="space-y-2">
             <Label>اللوجو</Label>
             <input type="hidden" name="logo" value={logoUrl} />
+            <input type="hidden" name="logoRadius" value={logoRadius} />
             <input
               ref={logoInputRef}
               type="file"
@@ -161,7 +166,7 @@ export default function StoreIdentitySection({
                   </button>
                 </div>
                 {isUploadingLogo ? (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-xl border bg-muted">
+                  <div className="flex h-20 w-20 items-center justify-center border bg-muted" style={{ borderRadius: `${logoRadius}px` }}>
                     <Loader2 className="size-5 animate-spin text-muted-foreground" />
                   </div>
                 ) : (
@@ -169,9 +174,28 @@ export default function StoreIdentitySection({
                   <img
                     src={logoUrl}
                     alt="Logo Preview"
-                    className="h-20 w-20 rounded-xl border object-contain"
+                    className="h-20 w-20 border object-contain"
+                    style={{ borderRadius: `${logoRadius}px` }}
                   />
                 )}
+                {/* Radius Slider */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <SquareCode className="size-3.5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">استدارة الزوايا</span>
+                    </div>
+                    <span className="text-xs font-medium tabular-nums">{logoRadius}px</span>
+                  </div>
+                  <Slider
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={[logoRadius]}
+                    onValueChange={([v]) => setLogoRadius(v)}
+                    className="w-full"
+                  />
+                </div>
                 <div className="flex gap-2">
                   <Button
                     type="button"

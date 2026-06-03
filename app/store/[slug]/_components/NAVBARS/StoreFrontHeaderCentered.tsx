@@ -131,6 +131,7 @@ export default function StoreFrontHeaderCentered({
   storeName,
   storeSlug,
   logo,
+  logoRadius = 8,
   cartCount = 0,
   announcementText,
   showStoreName = true,
@@ -275,6 +276,7 @@ export default function StoreFrontHeaderCentered({
                   "max-h-14 w-auto object-contain",
                   isOverlay && "brightness-0 invert",
                 )}
+                style={{ borderRadius: `${logoRadius ?? 8}px` }}
               />
             ) : (
               <span
@@ -338,6 +340,7 @@ export default function StoreFrontHeaderCentered({
                   "max-h-12 w-auto object-contain",
                   isOverlay && "brightness-0 invert",
                 )}
+                style={{ borderRadius: `${logoRadius ?? 8}px` }}
               />
             ) : (
               <span

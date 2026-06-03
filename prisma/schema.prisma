@@ -114,6 +114,7 @@ model StoreSettings {
   fontId         String  @default("cairo")
   storeLanguage  String  @default("ar")
   logo           String?
+  logoRadius     Int     @default(8)
   coverImage     String?
   primaryColor   String?
   secondaryColor String?

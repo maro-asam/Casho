@@ -9,6 +9,7 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 const identitySchema = z.object({
   storeId: z.string().min(1, "معرف المتجر مطلوب"),
   logo: z.string().trim().optional(),
+  logoRadius: z.coerce.number().int().min(0).max(50).optional(),
   coverImage: z.string().trim().optional(),
   description: z.string().trim().max(1000, "وصف المتجر طويل جدًا").optional(),
   announcementText: z
@@ -25,6 +26,7 @@ export type StoreIdentityFormState = {
   errors?: {
     storeId?: string[];
     logo?: string[];
+    logoRadius?: string[];
     coverImage?: string[];
     description?: string[];
     announcementText?: string[];
@@ -47,6 +49,7 @@ export async function UpdateStoreIdentityAction(
     const parsed = identitySchema.safeParse({
       storeId: formData.get("storeId")?.toString() ?? "",
       logo: formData.get("logo")?.toString() ?? "",
+      logoRadius: formData.get("logoRadius")?.toString() ?? "8",
       coverImage: formData.get("coverImage")?.toString() ?? "",
       description: formData.get("description")?.toString() ?? "",
       announcementText: formData.get("announcementText")?.toString() ?? "",
@@ -61,7 +64,7 @@ export async function UpdateStoreIdentityAction(
       };
     }
 
-    const { storeId, logo, coverImage, description, announcementText, showStoreName } =
+    const { storeId, logo, logoRadius, coverImage, description, announcementText, showStoreName } =
       parsed.data;
 
     const store = await prisma.store.findFirst({
@@ -80,6 +83,7 @@ export async function UpdateStoreIdentityAction(
       where: { storeId: store.id },
       update: {
         logo: emptyToNull(logo),
+        logoRadius: logoRadius ?? 8,
         coverImage: emptyToNull(coverImage),
         description: emptyToNull(description),
         announcementText: emptyToNull(announcementText),
@@ -88,6 +92,7 @@ export async function UpdateStoreIdentityAction(
       create: {
         storeId: store.id,
         logo: emptyToNull(logo),
+        logoRadius: logoRadius ?? 8,
         coverImage: emptyToNull(coverImage),
         description: emptyToNull(description),
         announcementText: emptyToNull(announcementText),

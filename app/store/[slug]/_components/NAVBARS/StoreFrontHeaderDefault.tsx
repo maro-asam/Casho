@@ -37,6 +37,7 @@ export default function StoreFrontHeaderDefault({
   storeName,
   storeSlug,
   logo,
+  logoRadius = 8,
   cartCount = 0,
   announcementText,
   showStoreName = true,
@@ -106,7 +107,7 @@ export default function StoreFrontHeaderDefault({
                 href={buildStoreUrl(storeSlug)}
                 className="group flex min-w-0 items-center gap-2"
               >
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden" style={{ borderRadius: `${logoRadius ?? 8}px` }}>
                   {logo ? (
                     logo.endsWith(".svg") || logo.includes("/svg") ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -243,7 +244,7 @@ export default function StoreFrontHeaderDefault({
                             href={buildStoreUrl(storeSlug)}
                             className="flex items-center gap-3 rounded-xl border bg-card p-3 transition hover:bg-muted/40"
                           >
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-muted">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border bg-muted" style={{ borderRadius: `${logoRadius ?? 8}px` }}>
                               {logo ? (
                                 <Image
                                   src={logo}
