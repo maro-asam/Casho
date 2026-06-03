@@ -1,20 +1,19 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { toast } from "sonner";
-import { Loader2, Save, ImageIcon, FileText, Upload, X, Type } from "lucide-react";
+import { Loader2, Save, ImageIcon, FileText, Upload, X, Type, Pencil } from "lucide-react";
 
 import {
   UpdateStoreIdentityAction,
   type StoreIdentityFormState,
 } from "@/actions/store/store-identity.actions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import LogoEditorModal from "./LogoEditorModal";
 
 type Props = {
   storeId: string;
@@ -64,6 +63,10 @@ export default function StoreIdentitySection({
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [storeNameVisible, setStoreNameVisible] = useState(showStoreName);
 
+  // Logo editor
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [rawLogoSrc, setRawLogoSrc] = useState<string>("");
+
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,20 +76,35 @@ export default function StoreIdentitySection({
     else toast.error(state.message);
   }, [state]);
 
-  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setRawLogoSrc(objectUrl);
+    setEditorOpen(true);
+    e.target.value = "";
+  }
+
+  async function handleEditorDone(_dataUrl: string, blob: Blob) {
+    setEditorOpen(false);
     try {
       setIsUploadingLogo(true);
+      const file = new File([blob], "logo.png", { type: "image/png" });
       const url = await uploadToCloudinary(file, "casho/uploads/logos");
       setLogoUrl(url);
-      toast.success("تم رفع اللوجو");
+      toast.success("تم حفظ اللوجو");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "فشل رفع اللوجو");
     } finally {
       setIsUploadingLogo(false);
-      e.target.value = "";
+      if (rawLogoSrc) URL.revokeObjectURL(rawLogoSrc);
     }
+  }
+
+  function handleEditorClose() {
+    setEditorOpen(false);
+    if (rawLogoSrc) URL.revokeObjectURL(rawLogoSrc);
+    setRawLogoSrc("");
   }
 
   async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -140,27 +158,45 @@ export default function StoreIdentitySection({
                     <X className="size-4" />
                   </button>
                 </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={logoUrl}
-                  alt="Logo Preview"
-                  className="h-20 w-20 rounded-xl border object-contain"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full gap-2"
-                  onClick={() => logoInputRef.current?.click()}
-                  disabled={isUploadingLogo}
-                >
-                  {isUploadingLogo ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
+                {isUploadingLogo ? (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-xl border bg-muted">
+                    <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={logoUrl}
+                    alt="Logo Preview"
+                    className="h-20 w-20 rounded-xl border object-contain"
+                  />
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-2"
+                    onClick={() => {
+                      setRawLogoSrc(logoUrl);
+                      setEditorOpen(true);
+                    }}
+                    disabled={isUploadingLogo}
+                  >
+                    <Pencil className="size-4" />
+                    تعديل
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-2"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={isUploadingLogo}
+                  >
                     <Upload className="size-4" />
-                  )}
-                  تغيير اللوجو
-                </Button>
+                    تغيير
+                  </Button>
+                </div>
               </div>
             ) : (
               <button
@@ -207,9 +243,8 @@ export default function StoreIdentitySection({
                     <X className="size-4" />
                   </button>
                 </div>
-                <Image
-                  width={400}
-                  height={120}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={coverUrl}
                   alt="Cover Preview"
                   className="h-28 w-full rounded-xl border object-cover"
@@ -333,6 +368,13 @@ export default function StoreIdentitySection({
           )}
         </Button>
       </div>
+
+      <LogoEditorModal
+        open={editorOpen}
+        imageSrc={rawLogoSrc}
+        onClose={handleEditorClose}
+        onDone={handleEditorDone}
+      />
     </form>
   );
 }
