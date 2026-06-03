@@ -25,6 +25,7 @@ import {
   ImageIcon,
   Layers,
   LayoutDashboard,
+  QrCode,
   Menu,
   MessageSquare,
   Music2,
@@ -188,6 +189,7 @@ export default function DashboardShell({
           { name: "المدونة", href: "/blog", icon: BookOpen },
           { name: "خدمات إضافية", href: "/services", icon: Layers },
           { name: "دومين مخصص", href: "/domain", icon: Globe },
+          { name: "QR Code المتجر", href: "/qr-code", icon: QrCode },
         ],
       },
 
