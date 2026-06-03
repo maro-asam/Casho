@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Save, ImageIcon, FileText, Upload, X, Type, Pencil } from "lucide-react";
+import { Loader2, Save, ImageIcon, FileText, Upload, X, Type, Pencil, Camera } from "lucide-react";
 
 import {
   UpdateStoreIdentityAction,
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import LogoEditorModal from "./LogoEditorModal";
+import UnsplashPickerModal from "./UnsplashPickerModal";
 
 type Props = {
   storeId: string;
@@ -62,6 +63,7 @@ export default function StoreIdentitySection({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [storeNameVisible, setStoreNameVisible] = useState(showStoreName);
+  const [unsplashOpen, setUnsplashOpen] = useState(false);
 
   // Logo editor
   const [editorOpen, setEditorOpen] = useState(false);
@@ -249,38 +251,64 @@ export default function StoreIdentitySection({
                   alt="Cover Preview"
                   className="h-28 w-full rounded-xl border object-cover"
                 />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-2"
+                    onClick={() => coverInputRef.current?.click()}
+                    disabled={isUploadingCover}
+                  >
+                    {isUploadingCover ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Upload className="size-4" />
+                    )}
+                    رفع
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-2"
+                    onClick={() => setUnsplashOpen(true)}
+                    disabled={isUploadingCover}
+                  >
+                    <Camera className="size-4" />
+                    Unsplash
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={isUploadingCover}
+                  className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 p-6 text-center transition-colors hover:border-primary/50 hover:bg-muted/30 disabled:opacity-50"
+                >
+                  {isUploadingCover ? (
+                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                  ) : (
+                    <Upload className="size-6 text-muted-foreground" />
+                  )}
+                  <span className="text-sm text-muted-foreground">
+                    {isUploadingCover ? "جاري الرفع..." : "اضغط لرفع صورة الغلاف"}
+                  </span>
+                </button>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   className="w-full gap-2"
-                  onClick={() => coverInputRef.current?.click()}
+                  onClick={() => setUnsplashOpen(true)}
                   disabled={isUploadingCover}
                 >
-                  {isUploadingCover ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Upload className="size-4" />
-                  )}
-                  تغيير الغلاف
+                  <Camera className="size-4" />
+                  اختر من Unsplash
                 </Button>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => coverInputRef.current?.click()}
-                disabled={isUploadingCover}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 p-8 text-center transition-colors hover:border-primary/50 hover:bg-muted/30 disabled:opacity-50"
-              >
-                {isUploadingCover ? (
-                  <Loader2 className="size-6 animate-spin text-muted-foreground" />
-                ) : (
-                  <Upload className="size-6 text-muted-foreground" />
-                )}
-                <span className="text-sm text-muted-foreground">
-                  {isUploadingCover ? "جاري الرفع..." : "اضغط لرفع صورة الغلاف"}
-                </span>
-              </button>
             )}
             {state.errors?.coverImage && (
               <p className="text-sm text-destructive">
@@ -374,6 +402,15 @@ export default function StoreIdentitySection({
         imageSrc={rawLogoSrc}
         onClose={handleEditorClose}
         onDone={handleEditorDone}
+      />
+
+      <UnsplashPickerModal
+        open={unsplashOpen}
+        onClose={() => setUnsplashOpen(false)}
+        onSelect={(url) => {
+          setCoverUrl(url);
+          toast.success("تم اختيار الصورة");
+        }}
       />
     </form>
   );
