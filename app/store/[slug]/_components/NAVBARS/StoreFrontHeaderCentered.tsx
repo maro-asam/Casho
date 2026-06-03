@@ -132,6 +132,7 @@ export default function StoreFrontHeaderCentered({
   storeSlug,
   logo,
   logoRadius = 8,
+  logoSize = 80,
   cartCount = 0,
   announcementText,
   showStoreName = true,
@@ -270,13 +271,13 @@ export default function StoreFrontHeaderCentered({
               <Image
                 src={logo}
                 alt={storeName}
-                width={140}
-                height={64}
+                width={logoSize ?? 80}
+                height={logoSize ?? 80}
                 className={cn(
-                  "max-h-14 w-auto object-contain",
+                  "w-auto object-contain",
                   isOverlay && "brightness-0 invert",
                 )}
-                style={{ borderRadius: `${logoRadius ?? 8}px` }}
+                style={{ height: logoSize ?? 80, borderRadius: `${logoRadius ?? 8}px` }}
               />
             ) : (
               <span
@@ -334,13 +335,13 @@ export default function StoreFrontHeaderCentered({
               <Image
                 src={logo}
                 alt={storeName}
-                width={110}
-                height={48}
+                width={logoSize ?? 80}
+                height={logoSize ?? 80}
                 className={cn(
-                  "max-h-12 w-auto object-contain",
+                  "w-auto object-contain",
                   isOverlay && "brightness-0 invert",
                 )}
-                style={{ borderRadius: `${logoRadius ?? 8}px` }}
+                style={{ height: Math.min(logoSize ?? 80, 48), borderRadius: `${logoRadius ?? 8}px` }}
               />
             ) : (
               <span

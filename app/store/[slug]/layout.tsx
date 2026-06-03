@@ -134,6 +134,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         select: {
           logo: true,
           logoRadius: true,
+          logoSize: true,
           themeId: true,
           fontId: true,
           storeLanguage: true,
@@ -209,6 +210,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
             storeSlug={store.slug}
             logo={store.settings?.logo}
             logoRadius={store.settings?.logoRadius}
+            logoSize={store.settings?.logoSize}
             cartCount={cartCount}
             announcementText={store.settings?.announcementText}
             showStoreName={store.settings?.showStoreName ?? true}

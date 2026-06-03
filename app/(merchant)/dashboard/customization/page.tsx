@@ -32,6 +32,7 @@ export default async function CustomizationRoute() {
           themeConfig: true,
           logo: true,
           logoRadius: true,
+          logoSize: true,
           coverImage: true,
           description: true,
           announcementText: true,
@@ -84,6 +85,7 @@ export default async function CustomizationRoute() {
         sectionContent={resolvedTheme.sectionContent}
         logo={store.settings?.logo}
         logoRadius={store.settings?.logoRadius}
+        logoSize={store.settings?.logoSize}
         coverImage={store.settings?.coverImage}
         description={store.settings?.description}
         announcementText={store.settings?.announcementText}

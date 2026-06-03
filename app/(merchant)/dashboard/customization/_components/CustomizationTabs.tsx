@@ -35,6 +35,7 @@ type Props = {
   sectionContent?: SectionContentMap;
   logo?: string | null;
   logoRadius?: number | null;
+  logoSize?: number | null;
   coverImage?: string | null;
   description?: string | null;
   announcementText?: string | null;
@@ -63,6 +64,7 @@ export default function CustomizationTabs({
   sectionContent = {},
   logo,
   logoRadius,
+  logoSize,
   coverImage,
   description,
   announcementText,
@@ -151,6 +153,7 @@ export default function CustomizationTabs({
             storeId={storeId}
             logo={logo}
             logoRadius={logoRadius}
+            logoSize={logoSize}
             coverImage={coverImage}
             description={description}
             announcementText={announcementText}

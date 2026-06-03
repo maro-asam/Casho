@@ -25,6 +25,7 @@ export default function StoreFrontHeaderCompact({
   storeSlug,
   logo,
   logoRadius = 8,
+  logoSize = 80,
   cartCount = 0,
   showStoreName = true,
 }: StoreFrontHeaderProps) {
@@ -120,7 +121,7 @@ export default function StoreFrontHeaderCompact({
             href={buildStoreUrl(storeSlug)}
             className="flex min-w-0 items-center gap-2"
           >
-            <div className="flex h-11 w-11 items-center justify-center overflow-hidden" style={{ borderRadius: `${logoRadius ?? 8}px` }}>
+            <div className="flex items-center justify-center overflow-hidden" style={{ width: logoSize ?? 80, height: logoSize ?? 80, borderRadius: `${logoRadius ?? 8}px` }}>
               {logo ? (
                 logo.endsWith(".svg") || logo.includes("/svg") ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -129,8 +130,8 @@ export default function StoreFrontHeaderCompact({
                   <Image
                     src={logo}
                     alt={storeName}
-                    width={44}
-                    height={44}
+                    width={logoSize ?? 80}
+                    height={logoSize ?? 80}
                     className="h-full w-full object-cover"
                   />
                 )

@@ -32,6 +32,7 @@ export default function StoreFrontHeaderAllaia({
   storeSlug,
   logo,
   logoRadius = 8,
+  logoSize = 80,
   cartCount = 0,
   announcementText,
 }: StoreFrontHeaderProps) {
@@ -178,12 +179,12 @@ export default function StoreFrontHeaderAllaia({
             className="flex shrink-0 flex-col items-center gap-1"
           >
             {logo ? (
-              <div className="h-10 w-24 overflow-hidden" style={{ borderRadius: `${logoRadius ?? 8}px` }}>
+              <div className="overflow-hidden" style={{ height: logoSize ?? 80, width: logoSize ?? 80, borderRadius: `${logoRadius ?? 8}px` }}>
                 <Image
                   src={logo}
                   alt={storeName}
-                  width={96}
-                  height={40}
+                  width={logoSize ?? 80}
+                  height={logoSize ?? 80}
                   className="h-full w-full object-contain"
                 />
               </div>

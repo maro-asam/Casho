@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Save, ImageIcon, FileText, Upload, X, Type, Pencil, Camera, SquareCode } from "lucide-react";
+import { Loader2, Save, ImageIcon, FileText, Upload, X, Type, Pencil, Camera, SquareCode, Maximize2 } from "lucide-react";
 
 import {
   UpdateStoreIdentityAction,
@@ -21,6 +21,7 @@ type Props = {
   storeId: string;
   logo?: string | null;
   logoRadius?: number | null;
+  logoSize?: number | null;
   coverImage?: string | null;
   description?: string | null;
   announcementText?: string | null;
@@ -51,6 +52,7 @@ export default function StoreIdentitySection({
   storeId,
   logo,
   logoRadius: initialLogoRadius = 8,
+  logoSize: initialLogoSize = 80,
   coverImage,
   description,
   announcementText,
@@ -63,6 +65,7 @@ export default function StoreIdentitySection({
 
   const [logoUrl, setLogoUrl] = useState(logo ?? "");
   const [logoRadius, setLogoRadius] = useState(initialLogoRadius ?? 8);
+  const [logoSize, setLogoSize] = useState(initialLogoSize ?? 80);
   const [coverUrl, setCoverUrl] = useState(coverImage ?? "");
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -146,6 +149,7 @@ export default function StoreIdentitySection({
             <Label>اللوجو</Label>
             <input type="hidden" name="logo" value={logoUrl} />
             <input type="hidden" name="logoRadius" value={logoRadius} />
+            <input type="hidden" name="logoSize" value={logoSize} />
             <input
               ref={logoInputRef}
               type="file"
@@ -166,7 +170,10 @@ export default function StoreIdentitySection({
                   </button>
                 </div>
                 {isUploadingLogo ? (
-                  <div className="flex h-20 w-20 items-center justify-center border bg-muted" style={{ borderRadius: `${logoRadius}px` }}>
+                  <div
+                    className="flex items-center justify-center border bg-muted"
+                    style={{ width: logoSize, height: logoSize, borderRadius: `${logoRadius}px` }}
+                  >
                     <Loader2 className="size-5 animate-spin text-muted-foreground" />
                   </div>
                 ) : (
@@ -174,27 +181,46 @@ export default function StoreIdentitySection({
                   <img
                     src={logoUrl}
                     alt="Logo Preview"
-                    className="h-20 w-20 border object-contain"
-                    style={{ borderRadius: `${logoRadius}px` }}
+                    className="border object-contain"
+                    style={{ width: logoSize, height: logoSize, borderRadius: `${logoRadius}px` }}
                   />
                 )}
-                {/* Radius Slider */}
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <SquareCode className="size-3.5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">استدارة الزوايا</span>
+                {/* Size & Radius Sliders */}
+                <div className="space-y-3 pt-1">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Maximize2 className="size-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">حجم اللوجو</span>
+                      </div>
+                      <span className="text-xs font-medium tabular-nums">{logoSize}px</span>
                     </div>
-                    <span className="text-xs font-medium tabular-nums">{logoRadius}px</span>
+                    <Slider
+                      min={32}
+                      max={160}
+                      step={4}
+                      value={[logoSize]}
+                      onValueChange={([v]) => setLogoSize(v)}
+                      className="w-full"
+                    />
                   </div>
-                  <Slider
-                    min={0}
-                    max={50}
-                    step={1}
-                    value={[logoRadius]}
-                    onValueChange={([v]) => setLogoRadius(v)}
-                    className="w-full"
-                  />
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <SquareCode className="size-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">استدارة الزوايا</span>
+                      </div>
+                      <span className="text-xs font-medium tabular-nums">{logoRadius}px</span>
+                    </div>
+                    <Slider
+                      min={0}
+                      max={50}
+                      step={1}
+                      value={[logoRadius]}
+                      onValueChange={([v]) => setLogoRadius(v)}
+                      className="w-full"
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button

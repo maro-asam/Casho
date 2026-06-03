@@ -115,6 +115,7 @@ model StoreSettings {
   storeLanguage  String  @default("ar")
   logo           String?
   logoRadius     Int     @default(8)
+  logoSize       Int     @default(80)
   coverImage     String?
   primaryColor   String?
   secondaryColor String?
