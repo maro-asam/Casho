@@ -1,6 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { Monitor } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { useBuilder, type PanelId } from "./BuilderContext";
 import BuilderTopBar from "./BuilderTopBar";
 import BuilderSidebar from "./BuilderSidebar";
@@ -31,6 +34,24 @@ export default function BuilderShell() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
+      {/* ── Mobile block ─────────────────────────────────────────────────── */}
+      <div className="flex lg:hidden h-screen flex-col items-center justify-center gap-6 p-8 text-center bg-background" dir="rtl">
+        <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
+          <Monitor className="size-8 text-muted-foreground" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold">يتطلب شاشة أكبر</h2>
+          <p className="text-sm text-muted-foreground max-w-xs">
+            محرر المتجر المرئي مخصص للاستخدام على الحاسوب. يرجى فتحه من جهاز حاسوب للحصول على أفضل تجربة.
+          </p>
+        </div>
+        <Button asChild variant="outline">
+          <Link href="/dashboard/customization">العودة للتخصيص</Link>
+        </Button>
+      </div>
+
+      {/* ── Desktop builder ──────────────────────────────────────────────── */}
+      <div className="hidden lg:flex h-screen flex-col overflow-hidden">
       {/* ── Top bar ──────────────────────────────────────────────────────── */}
       <BuilderTopBar />
 
@@ -57,6 +78,7 @@ export default function BuilderShell() {
 
         {/* Preview canvas */}
         <BuilderPreviewFrame />
+      </div>
       </div>
     </div>
   );
