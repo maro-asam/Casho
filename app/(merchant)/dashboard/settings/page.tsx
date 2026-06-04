@@ -92,7 +92,7 @@ export default async function SettingsRoute() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="">
         <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl text-primary font-semibold">
@@ -107,41 +107,16 @@ export default async function SettingsRoute() {
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
-          <Card className="rounded-xl shadow-sm text-red-600 bg-red-600/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Phone className="size-4" />
-                التواصل
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>أضف واتساب وصفحات السوشيال لتسهيل الوصول للعميل.</p>
-            </CardContent>
-          </Card>
 
-          <Card className="rounded-xl shadow-sm text-blue-600 bg-blue-600/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Truck className="size-4" />
-                الشحن
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>سعر الشحن بيتضاف تلقائيًا على إجمالي كل طلب.</p>
-              <p>ضعه صفر لو بتوفر شحن مجاني.</p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
 
       {/* ── Store Members ── */}
-      <div className="lg:max-w-2xl">
+      <div className="">
         <StoreMembers members={members} pendingInvitations={pendingInvitations} />
       </div>
 
       {/* ── Active Sessions ── */}
-      <div className="lg:max-w-2xl">
+      <div className="">
         <ActiveSessions sessions={sessions} />
       </div>
     </div>

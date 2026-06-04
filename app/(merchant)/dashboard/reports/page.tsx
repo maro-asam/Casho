@@ -1,723 +1,561 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BarChart3 } from "lucide-react";
+import { LoyaltyTransactionType, OrderStatus } from "@prisma/client";
 
-import { OrderStatus } from "@prisma/client";
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  BarChart3,
-  Eye,
-  Package,
-  Receipt,
-  TrendingDown,
-  TrendingUp,
-  Users,
-  Wallet,
-} from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
-import { cn } from "@/lib/utils";
-
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import { MerchantReportsCharts } from "./_components/merchant-reports-charts";
+import { PeriodSelector } from "./_components/period-selector";
+import { ReportsContent } from "./_components/reports-content";
+import type { ReportPeriod, ReportsData } from "./_lib/types";
 
-const numberFormatter = new Intl.NumberFormat("ar-EG");
+const VALID_PERIODS: ReportPeriod[] = [7, 30, 90, 365];
 
-const moneyFormatter = new Intl.NumberFormat("ar-EG", {
-  style: "currency",
-  currency: "EGP",
-  maximumFractionDigits: 0,
-});
+function parsePeriod(raw: string | undefined): ReportPeriod {
+  const n = parseInt(raw ?? "30") as ReportPeriod;
+  return VALID_PERIODS.includes(n) ? n : 30;
+}
 
-const formatMoney = (amountInPiasters: number) =>
-  moneyFormatter.format(amountInPiasters / 100);
-
-const startOfDay = (date: Date) => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
-const addDays = (date: Date, days: number) => {
+const addDays = (date: Date, days: number): Date => {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
   return d;
 };
 
-const getChange = (current: number, previous: number) => {
-  if (previous === 0 && current === 0) return 0;
-  if (previous === 0) return 100;
-  return ((current - previous) / previous) * 100;
+const startOfDay = (date: Date): Date => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
 };
 
-const formatChange = (value: number) => {
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(1)}%`;
+const ARABIC_DAYS = [
+  "الأحد",
+  "الاثنين",
+  "الثلاثاء",
+  "الأربعاء",
+  "الخميس",
+  "الجمعة",
+  "السبت",
+];
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  cash_on_delivery: "الدفع عند الاستلام",
+  vodafone_cash: "فودافون كاش",
+  instapay: "InstaPay",
+  bank_transfer: "تحويل بنكي",
+  kashier: "Kashier",
 };
 
-const getArabicDay = (date: Date) =>
-  new Intl.DateTimeFormat("ar-EG", { weekday: "long" }).format(date);
+export default async function MerchantReportsRoute({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}) {
+  const params = await searchParams;
+  const period = parsePeriod(params.period);
 
-function getStatusMeta(status: OrderStatus) {
-  const meta: Record<
-    OrderStatus,
-    { label: string; className: string }
-  > = {
-    PENDING: {
-      label: "معلق",
-      className:
-        "bg-amber-500/10 text-amber-700 hover:bg-amber-500/10 dark:text-amber-300",
-    },
-    PAID: {
-      label: "مدفوع",
-      className:
-        "bg-sky-500/10 text-sky-700 hover:bg-sky-500/10 dark:text-sky-300",
-    },
-    SHIPPED: {
-      label: "تم الشحن",
-      className:
-        "bg-violet-500/10 text-violet-700 hover:bg-violet-500/10 dark:text-violet-300",
-    },
-    DELIVERED: {
-      label: "تم التسليم",
-      className:
-        "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300",
-    },
-    CANCELED: {
-      label: "ملغي",
-      className:
-        "bg-rose-500/10 text-rose-700 hover:bg-rose-500/10 dark:text-rose-300",
-    },
-  };
-  return meta[status];
-}
-
-async function getReportsData() {
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, name: true, slug: true, balance: true },
+    select: {
+      id: true,
+      name: true,
+      settings: { select: { defaultLowStockThreshold: true } },
+    },
   });
 
   if (!store) redirect("/");
 
+  const storeId = store.id;
+  const lowStockThreshold = store.settings?.defaultLowStockThreshold ?? 5;
+
   const now = new Date();
-  const currentFrom = addDays(startOfDay(now), -29);
-  const previousFrom = addDays(currentFrom, -30);
+  const currentFrom = addDays(startOfDay(now), -(period - 1));
+  const previousFrom = addDays(currentFrom, -period);
   const previousTo = currentFrom;
 
   const [
     currentOrders,
     previousOrders,
-    currentVisits,
-    previousVisits,
-    orderItems,
-    recentOrders,
-    productsCount,
-    lowStockCount,
+    currentVisitsAll,
+    previousVisitsCount,
+    allProducts,
+    allCustomers,
+    coupons,
+    allReviews,
+    loyaltyTransactions,
   ] = await Promise.all([
     prisma.order.findMany({
-      where: { storeId: store.id, createdAt: { gte: currentFrom } },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.order.findMany({
-      where: {
-        storeId: store.id,
-        createdAt: { gte: previousFrom, lt: previousTo },
-      },
-    }),
-    prisma.visit.findMany({
-      where: { storeId: store.id, createdAt: { gte: currentFrom } },
-      select: { id: true, createdAt: true },
-    }),
-    prisma.visit.count({
-      where: {
-        storeId: store.id,
-        createdAt: { gte: previousFrom, lt: previousTo },
-      },
-    }),
-    prisma.orderItem.findMany({
-      where: {
-        order: {
-          storeId: store.id,
-          createdAt: { gte: currentFrom },
-          status: { not: OrderStatus.CANCELED },
+      where: { storeId, createdAt: { gte: currentFrom } },
+      include: {
+        items: {
+          include: { product: { include: { category: true } } },
         },
       },
-      include: { product: { include: { category: true } } },
+      orderBy: { createdAt: "asc" },
     }),
+
     prisma.order.findMany({
-      where: { storeId: store.id },
-      orderBy: { createdAt: "desc" },
-      take: 6,
+      where: { storeId, createdAt: { gte: previousFrom, lt: previousTo } },
+      select: { total: true, status: true, discount: true },
     }),
-    prisma.product.count({ where: { storeId: store.id, isActive: true } }),
-    prisma.product.count({
-      where: { storeId: store.id, isActive: true, stock: { lte: 5 } },
+
+    prisma.visit.findMany({
+      where: { storeId, createdAt: { gte: currentFrom } },
+      select: { createdAt: true },
+    }),
+
+    prisma.visit.count({
+      where: { storeId, createdAt: { gte: previousFrom, lt: previousTo } },
+    }),
+
+    prisma.product.findMany({
+      where: { storeId },
+      include: { category: { select: { name: true } } },
+    }),
+
+    prisma.customer.findMany({
+      where: { storeId },
+      include: {
+        orders: {
+          select: { total: true, createdAt: true, status: true },
+        },
+      },
+    }),
+
+    prisma.coupon.findMany({
+      where: { storeId },
+      include: {
+        appliedCoupons: { where: { createdAt: { gte: currentFrom } } },
+      },
+    }),
+
+    prisma.productReview.findMany({
+      where: { storeId },
+      include: { product: { select: { name: true } } },
+    }),
+
+    prisma.loyaltyTransaction.findMany({
+      where: { customer: { storeId }, createdAt: { gte: currentFrom } },
     }),
   ]);
 
-  const validCurrentOrders = currentOrders.filter(
+  // ── KPI Computation ──────────────────────────────────────────
+  const validCurrent = currentOrders.filter(
     (o) => o.status !== OrderStatus.CANCELED,
   );
-  const validPreviousOrders = previousOrders.filter(
+  const validPrevious = previousOrders.filter(
     (o) => o.status !== OrderStatus.CANCELED,
   );
 
-  const totalRevenue = validCurrentOrders.reduce((s, o) => s + o.total, 0);
-  const previousRevenue = validPreviousOrders.reduce((s, o) => s + o.total, 0);
+  const totalRevenue = validCurrent.reduce((s, o) => s + o.total, 0);
+  const previousRevenue = validPrevious.reduce((s, o) => s + o.total, 0);
+
+  const netStatuses: string[] = ["PAID", "SHIPPED", "DELIVERED"];
+  const netCurrent = currentOrders.filter((o) => netStatuses.includes(o.status));
+  const netPrevious = previousOrders.filter((o) =>
+    netStatuses.includes(o.status as string),
+  );
+  const netSales = netCurrent.reduce((s, o) => s + o.total, 0);
+  const previousNetSales = netPrevious.reduce((s, o) => s + o.total, 0);
+
   const totalOrders = currentOrders.length;
   const previousOrdersCount = previousOrders.length;
-  const totalVisits = currentVisits.length;
+  const totalVisits = currentVisitsAll.length;
 
   const conversionRate =
-    totalVisits > 0 ? (validCurrentOrders.length / totalVisits) * 100 : 0;
-  const previousConversionRate =
-    previousVisits > 0
-      ? (validPreviousOrders.length / previousVisits) * 100
+    totalVisits > 0 ? (validCurrent.length / totalVisits) * 100 : 0;
+  const prevConversionRate =
+    previousVisitsCount > 0
+      ? (validPrevious.length / previousVisitsCount) * 100
       : 0;
 
-  const paidOrDeliveredOrders = currentOrders.filter(
-    (o) =>
-      o.status === OrderStatus.PAID ||
-      o.status === OrderStatus.SHIPPED ||
-      o.status === OrderStatus.DELIVERED,
+  const aov =
+    validCurrent.length > 0
+      ? Math.round(totalRevenue / validCurrent.length)
+      : 0;
+  const prevAov =
+    validPrevious.length > 0
+      ? Math.round(previousRevenue / validPrevious.length)
+      : 0;
+
+  const canceledCount = currentOrders.filter(
+    (o) => o.status === OrderStatus.CANCELED,
+  ).length;
+  const cancelRate =
+    totalOrders > 0 ? (canceledCount / totalOrders) * 100 : 0;
+  const prevCanceledCount = previousOrders.filter(
+    (o) => o.status === OrderStatus.CANCELED,
+  ).length;
+  const prevCancelRate =
+    previousOrdersCount > 0
+      ? (prevCanceledCount / previousOrdersCount) * 100
+      : 0;
+
+  const totalDiscount = currentOrders.reduce((s, o) => s + (o.discount || 0), 0);
+  const previousDiscount = previousOrders.reduce(
+    (s, o) => s + (o.discount || 0),
+    0,
   );
-  const netSales = paidOrDeliveredOrders.reduce((s, o) => s + o.total, 0);
-  const averageOrderValue =
-    validCurrentOrders.length > 0
-      ? Math.round(totalRevenue / validCurrentOrders.length)
-      : 0;
+  const discountPercentage =
+    totalRevenue > 0 ? (totalDiscount / totalRevenue) * 100 : 0;
 
-  const days = Array.from({ length: 7 }).map((_, i) => {
-    const date = addDays(startOfDay(now), i - 6);
+  // ── Daily Time-Series ─────────────────────────────────────────
+  const dailyData = Array.from({ length: period }).map((_, i) => {
+    const date = addDays(startOfDay(now), -(period - 1 - i));
     const nextDate = addDays(date, 1);
+    const key = date.toISOString().split("T")[0];
+
     const dayOrders = currentOrders.filter(
       (o) => o.createdAt >= date && o.createdAt < nextDate,
     );
-    const dayValidOrders = dayOrders.filter(
+    const dayValid = dayOrders.filter(
       (o) => o.status !== OrderStatus.CANCELED,
     );
-    const dayVisits = currentVisits.filter(
+    const dayVisits = currentVisitsAll.filter(
       (v) => v.createdAt >= date && v.createdAt < nextDate,
     );
+
     return {
-      day: getArabicDay(date),
-      sales: dayValidOrders.reduce((s, o) => s + o.total, 0),
+      date: key,
+      label: new Intl.DateTimeFormat("ar-EG", {
+        day: "numeric",
+        month: "short",
+      }).format(date),
+      revenue: dayValid.reduce((s, o) => s + o.total, 0),
       orders: dayOrders.length,
       visits: dayVisits.length,
     };
   });
 
-  const statusData = Object.values(OrderStatus).map((status) => ({
-    name: getStatusMeta(status).label,
-    value: currentOrders.filter((o) => o.status === status).length,
-    status,
+  // ── Status Distribution ────────────────────────────────────────
+  const statusData = [
+    {
+      name: "معلق",
+      value: currentOrders.filter((o) => o.status === "PENDING").length,
+      status: "PENDING",
+    },
+    {
+      name: "مدفوع",
+      value: currentOrders.filter((o) => o.status === "PAID").length,
+      status: "PAID",
+    },
+    {
+      name: "تم الشحن",
+      value: currentOrders.filter((o) => o.status === "SHIPPED").length,
+      status: "SHIPPED",
+    },
+    {
+      name: "تم التسليم",
+      value: currentOrders.filter((o) => o.status === "DELIVERED").length,
+      status: "DELIVERED",
+    },
+    {
+      name: "ملغي",
+      value: currentOrders.filter((o) => o.status === "CANCELED").length,
+      status: "CANCELED",
+    },
+  ];
+
+  // ── Payment Method Breakdown ───────────────────────────────────
+  const paymentMap = new Map<string, { orders: number; revenue: number }>();
+  for (const order of validCurrent) {
+    const method = order.paymentMethod;
+    const cur = paymentMap.get(method) ?? { orders: 0, revenue: 0 };
+    cur.orders++;
+    cur.revenue += order.total;
+    paymentMap.set(method, cur);
+  }
+  const paymentMethodData = Array.from(paymentMap.entries())
+    .map(([method, data]) => ({
+      method,
+      label: PAYMENT_METHOD_LABELS[method] ?? method,
+      ...data,
+    }))
+    .sort((a, b) => b.revenue - a.revenue);
+
+  // ── Day of Week ────────────────────────────────────────────────
+  const dowMap = new Map(
+    ARABIC_DAYS.map((d) => [d, { orders: 0, revenue: 0 }]),
+  );
+  for (const order of validCurrent) {
+    const dayName = ARABIC_DAYS[order.createdAt.getDay()];
+    const cur = dowMap.get(dayName)!;
+    cur.orders++;
+    cur.revenue += order.total;
+  }
+  const dayOfWeekData = ARABIC_DAYS.map((day) => ({
+    day,
+    ...dowMap.get(day)!,
   }));
 
+  // ── Hourly Distribution ────────────────────────────────────────
+  const hourMap = new Map<number, number>();
+  for (let h = 0; h < 24; h++) hourMap.set(h, 0);
+  for (const order of validCurrent) {
+    const h = order.createdAt.getHours();
+    hourMap.set(h, (hourMap.get(h) ?? 0) + 1);
+  }
+  const hourlyData = Array.from(hourMap.entries()).map(([hour, orders]) => ({
+    hour: `${hour}:00`,
+    orders,
+  }));
+
+  // ── Products Performance ───────────────────────────────────────
   const productStatsMap = new Map<
     string,
-    { id: string; name: string; category: string; sold: number; revenue: number; stock: number }
+    {
+      id: string;
+      name: string;
+      category: string;
+      sold: number;
+      revenue: number;
+      stock: number;
+    }
   >();
-  for (const item of orderItems) {
-    const cur = productStatsMap.get(item.productId);
-    if (cur) {
-      cur.sold += item.quantity;
-      cur.revenue += item.price * item.quantity;
-    } else {
-      productStatsMap.set(item.productId, {
-        id: item.productId,
-        name: item.product.name,
-        category: item.product.category.name,
-        sold: item.quantity,
-        revenue: item.price * item.quantity,
-        stock: item.product.stock,
-      });
+
+  for (const order of validCurrent) {
+    for (const item of order.items) {
+      const cur = productStatsMap.get(item.productId);
+      if (cur) {
+        cur.sold += item.quantity;
+        cur.revenue += item.price * item.quantity;
+      } else {
+        productStatsMap.set(item.productId, {
+          id: item.productId,
+          name: item.product.name,
+          category: item.product.category.name,
+          sold: item.quantity,
+          revenue: item.price * item.quantity,
+          stock: item.product.stock,
+        });
+      }
     }
   }
+
+  const allProductStats = Array.from(productStatsMap.values());
   const maxProductRevenue = Math.max(
-    ...Array.from(productStatsMap.values()).map((p) => p.revenue),
+    ...allProductStats.map((p) => p.revenue),
     1,
   );
-  const topProducts = Array.from(productStatsMap.values())
+
+  const topProductsByRevenue = allProductStats
     .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 6)
+    .slice(0, 10)
     .map((p) => ({
       ...p,
       performance: Math.round((p.revenue / maxProductRevenue) * 100),
     }));
 
-  const bestDay = [...days].sort((a, b) => b.sales - a.sales)[0];
+  const maxProductQty = Math.max(...allProductStats.map((p) => p.sold), 1);
+  const topProductsByQuantity = [...allProductStats]
+    .sort((a, b) => b.sold - a.sold)
+    .slice(0, 10)
+    .map((p) => ({
+      ...p,
+      performance: Math.round((p.sold / maxProductQty) * 100),
+    }));
 
-  const kpis = [
-    {
-      title: "إجمالي المبيعات",
-      value: formatMoney(totalRevenue),
-      change: getChange(totalRevenue, previousRevenue),
-      description: "مقارنة بآخر 30 يوم",
-      icon: Wallet,
-      iconClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    },
-    {
-      title: "عدد الطلبات",
-      value: numberFormatter.format(totalOrders),
-      change: getChange(totalOrders, previousOrdersCount),
-      description: "كل الطلبات خلال 30 يوم",
-      icon: Receipt,
-      iconClass: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-    },
-    {
-      title: "زيارات المتجر",
-      value: numberFormatter.format(totalVisits),
-      change: getChange(totalVisits, previousVisits),
-      description: "زيارات مسجلة على المتجر",
-      icon: Eye,
-      iconClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-    },
-    {
-      title: "معدل التحويل",
-      value: `${conversionRate.toFixed(2)}%`,
-      change: getChange(conversionRate, previousConversionRate),
-      description: "من الزيارات لطلبات فعلية",
-      icon: Users,
-      iconClass: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-    },
-  ];
+  const soldProductIds = new Set(productStatsMap.keys());
+  const productsWithNoSales = allProducts
+    .filter((p) => p.isActive && !soldProductIds.has(p.id))
+    .slice(0, 20)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category.name,
+      stock: p.stock,
+    }));
 
-  return {
-    store,
-    kpis,
-    revenueData: days,
+  // ── Category Breakdown ─────────────────────────────────────────
+  const categoryMap = new Map<
+    string,
+    { name: string; revenue: number; orders: number }
+  >();
+  for (const order of validCurrent) {
+    for (const item of order.items) {
+      const catName = item.product.category.name;
+      const cur = categoryMap.get(catName) ?? {
+        name: catName,
+        revenue: 0,
+        orders: 0,
+      };
+      cur.revenue += item.price * item.quantity;
+      cur.orders += item.quantity;
+      categoryMap.set(catName, cur);
+    }
+  }
+  const categoryData = Array.from(categoryMap.values()).sort(
+    (a, b) => b.revenue - a.revenue,
+  );
+
+  // ── Customers ─────────────────────────────────────────────────
+  const newCustomersThisPeriod = allCustomers.filter(
+    (c) => new Date(c.createdAt) >= currentFrom,
+  ).length;
+
+  const customersWithOrdersThisPeriod = allCustomers.filter((c) =>
+    c.orders.some(
+      (o) =>
+        new Date(o.createdAt) >= currentFrom &&
+        o.status !== OrderStatus.CANCELED,
+    ),
+  );
+
+  const topCustomers = customersWithOrdersThisPeriod
+    .map((c) => {
+      const periodOrders = c.orders.filter(
+        (o) =>
+          new Date(o.createdAt) >= currentFrom &&
+          o.status !== OrderStatus.CANCELED,
+      );
+      return {
+        phone: c.phone,
+        name: c.name ?? "عميل",
+        orders: periodOrders.length,
+        totalSpend: periodOrders.reduce((s, o) => s + o.total, 0),
+      };
+    })
+    .sort((a, b) => b.totalSpend - a.totalSpend)
+    .slice(0, 10);
+
+  // ── Loyalty ────────────────────────────────────────────────────
+  const totalLoyaltyEarned = loyaltyTransactions
+    .filter((t) => t.type === LoyaltyTransactionType.EARNED)
+    .reduce((s, t) => s + t.points, 0);
+  const totalLoyaltyRedeemed = loyaltyTransactions
+    .filter((t) => t.type === LoyaltyTransactionType.REDEEMED)
+    .reduce((s, t) => s + Math.abs(t.points), 0);
+
+  // ── Inventory ──────────────────────────────────────────────────
+  const activeProducts = allProducts.filter((p) => p.isActive);
+  const outOfStock = activeProducts.filter((p) => p.stock === 0);
+  const lowStockList = activeProducts
+    .filter(
+      (p) =>
+        p.stock > 0 &&
+        p.stock <= (p.lowStockThreshold ?? lowStockThreshold),
+    )
+    .sort((a, b) => a.stock - b.stock)
+    .slice(0, 20);
+
+  // ── Reviews ────────────────────────────────────────────────────
+  const totalReviews = allReviews.length;
+  const avgRating =
+    totalReviews > 0
+      ? allReviews.reduce((s, r) => s + r.rating, 0) / totalReviews
+      : 0;
+  const reviewDistribution = [5, 4, 3, 2, 1].map((rating) => ({
+    rating,
+    count: allReviews.filter((r) => r.rating === rating).length,
+  }));
+
+  // ── Coupons ────────────────────────────────────────────────────
+  const couponData = coupons
+    .map((c) => {
+      const ordersWithCoupon = validCurrent.filter(
+        (o) => o.couponCode === c.code,
+      );
+      const couponDiscount = ordersWithCoupon.reduce(
+        (s, o) => s + (o.discount || 0),
+        0,
+      );
+      return {
+        id: c.id,
+        code: c.code,
+        type: c.type as string,
+        value: c.value,
+        usedThisPeriod: c.appliedCoupons.length,
+        totalDiscount: couponDiscount,
+        isActive: c.isActive,
+        expiresAt: c.expiresAt,
+      };
+    })
+    .sort((a, b) => b.usedThisPeriod - a.usedThisPeriod);
+
+  // ── Assemble Data Object ───────────────────────────────────────
+  const data: ReportsData = {
+    period,
+    storeName: store.name,
+
+    kpis: {
+      revenue: { current: totalRevenue, previous: previousRevenue },
+      netSales: { current: netSales, previous: previousNetSales },
+      orders: { current: totalOrders, previous: previousOrdersCount },
+      visits: { current: totalVisits, previous: previousVisitsCount },
+      conversionRate: {
+        current: conversionRate,
+        previous: prevConversionRate,
+      },
+      aov: { current: aov, previous: prevAov },
+      cancelRate: { current: cancelRate, previous: prevCancelRate },
+      totalDiscount: { current: totalDiscount, previous: previousDiscount },
+    },
+
+    dailyData,
     statusData,
-    topProducts,
-    recentOrders,
-    totalRevenue,
-    netSales,
-    averageOrderValue,
-    bestDay,
-    paidOrDeliveredOrdersCount: paidOrDeliveredOrders.length,
-    productsCount,
-    lowStockCount,
-  };
-}
+    paymentMethodData,
+    dayOfWeekData,
+    hourlyData,
 
-const MerchantReportsRoute = async () => {
-  const reports = await getReportsData();
+    topProductsByRevenue,
+    topProductsByQuantity,
+    categoryData,
+    productsWithNoSales,
+
+    customerStats: {
+      total: allCustomers.length,
+      newThisPeriod: newCustomersThisPeriod,
+      withOrders: customersWithOrdersThisPeriod.length,
+    },
+    topCustomers,
+    loyaltyStats: {
+      totalEarned: totalLoyaltyEarned,
+      totalRedeemed: totalLoyaltyRedeemed,
+    },
+
+    inventoryStats: {
+      activeProducts: activeProducts.length,
+      lowStock: lowStockList.length,
+      outOfStock: outOfStock.length,
+    },
+    lowStockProducts: lowStockList.map((p) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category.name,
+      stock: p.stock,
+      threshold: p.lowStockThreshold ?? lowStockThreshold,
+    })),
+
+    reviewStats: {
+      total: totalReviews,
+      avgRating,
+      distribution: reviewDistribution,
+    },
+
+    couponData,
+    totalDiscount,
+    discountPercentage,
+  };
 
   return (
     <div dir="rtl" className="space-y-6">
       <DashboardSectionHeader
         icon={BarChart3}
         title="التقارير والتحليلات"
-        description="راقب أداء متجرك، المبيعات، الطلبات، الزيارات، وأفضل المنتجات من مكان واحد."
+        description="تحليل عميق وشامل لكل جوانب متجرك — مبيعات، منتجات، عملاء، مخزون، كوبونات وأكتر."
       />
 
-      {/* Hero + product health */}
-      <section className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
-        <Card className="relative overflow-hidden ... border-border shadow-sm">
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/7 via-transparent to-transparent" />
-          <CardContent className="relative p-6 sm:p-8">
-            <div className="grid gap-6 lg:grid-cols-[1fr_240px] lg:items-center">
-              <div className="space-y-4">
-                <Badge
-                  variant="secondary"
-                  className="rounded-full border-0 bg-primary/10 text-primary"
-                >
-                  ملخص آخر 30 يوم
-                </Badge>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground">
+          البيانات المعروضة لآخر{" "}
+          <span className="font-bold text-foreground">{period}</span> يوم
+        </p>
+        <PeriodSelector current={period} />
+      </div>
 
-                <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
-                  {reports.bestDay.sales > 0
-                    ? `${reports.bestDay.day} أقوى يوم مبيعات في آخر أسبوع`
-                    : "لسه مفيش بيانات كافية لعرض توصية"}
-                </h2>
-
-                <p className="max-w-lg text-sm leading-6 text-muted-foreground">
-                  إجمالي المبيعات{" "}
-                  <span className="font-bold text-foreground">
-                    {formatMoney(reports.totalRevenue)}
-                  </span>
-                  ، وصافي الطلبات المدفوعة والمسلمة{" "}
-                  <span className="font-bold text-foreground">
-                    {formatMoney(reports.netSales)}
-                  </span>
-                  .
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-border bg-muted/30 p-5">
-                <p className="text-xs font-medium text-muted-foreground">
-                  صافي المبيعات
-                </p>
-                <p className="mt-1.5 text-3xl font-bold">
-                  {formatMoney(reports.netSales)}
-                </p>
-
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">طلبات فعالة</span>
-                    <span className="font-bold">
-                      {numberFormatter.format(reports.paidOrDeliveredOrdersCount)}
-                    </span>
-                  </div>
-                  <Progress
-                    value={
-                      reports.totalRevenue > 0
-                        ? Math.min(
-                            Math.round(
-                              (reports.netSales / reports.totalRevenue) * 100,
-                            ),
-                            100,
-                          )
-                        : 0
-                    }
-                    className="h-1.5"
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="... border-border shadow-sm">
-          <CardHeader className="p-6 pb-4">
-            <CardTitle className="flex items-center gap-2 text-base font-bold">
-              <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Package className="size-4" />
-              </span>
-              حالة المنتجات
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-3 p-6 pt-0">
-            <div className="rounded-2xl border border-border bg-muted/20 p-5">
-              <p className="text-xs font-medium text-muted-foreground">
-                منتجات نشطة
-              </p>
-              <p className="mt-2 text-3xl font-bold">
-                {numberFormatter.format(reports.productsCount)}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-5">
-              <p className="text-xs font-medium text-muted-foreground">
-                مخزون منخفض
-              </p>
-              <p className="mt-2 text-3xl font-bold text-rose-600 dark:text-rose-400">
-                {numberFormatter.format(reports.lowStockCount)}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                مخزون 5 قطع أو أقل
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* KPI cards */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {reports.kpis.map((item) => {
-          const Icon = item.icon;
-          const isUp = item.change >= 0;
-          const TrendIcon = isUp ? TrendingUp : TrendingDown;
-
-          return (
-            <Card
-              key={item.title}
-              className="border-border bg-background shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="p-5">
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <div
-                    className={cn(
-                      "grid size-8 place-items-center rounded-lg",
-                      item.iconClass,
-                    )}
-                  >
-                    <Icon className="size-4" />
-                  </div>
-
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-bold",
-                      isUp
-                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                        : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-                    )}
-                  >
-                    <TrendIcon className="size-2.5" />
-                    {formatChange(item.change)}
-                  </span>
-                </div>
-
-                <p className="text-2xl font-bold tracking-tight">
-                  {item.value}
-                </p>
-                <p className="mt-1 text-xs font-medium text-muted-foreground">
-                  {item.title}
-                </p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground/70">
-                  {item.description}
-                </p>
-              </div>
-            </Card>
-          );
-        })}
-      </section>
-
-      <MerchantReportsCharts
-        revenueData={reports.revenueData}
-        statusData={reports.statusData}
-      />
-
-      {/* Sales details + recent orders */}
-      <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <Card className="... border-border shadow-sm">
-          <CardHeader className="p-6 pb-4">
-            <CardTitle className="flex items-center gap-2 text-base font-bold">
-              <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
-                <TrendingUp className="size-4" />
-              </span>
-              تفاصيل المبيعات
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="p-6 pt-0">
-            <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
-              <div className="rounded-2xl border border-border bg-muted/20 p-4">
-                <p className="text-xs font-medium text-muted-foreground">
-                  متوسط قيمة الطلب
-                </p>
-                <p className="mt-1.5 text-2xl font-bold">
-                  {formatMoney(reports.averageOrderValue)}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-border bg-muted/20 p-4">
-                <p className="text-xs font-medium text-muted-foreground">
-                  أعلى يوم مبيعات
-                </p>
-                <p className="mt-1.5 text-2xl font-bold">
-                  {reports.bestDay.day}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {formatMoney(reports.bestDay.sales)}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-border bg-muted/20 p-4">
-                <p className="text-xs font-medium text-muted-foreground">
-                  طلبات فعالة
-                </p>
-                <p className="mt-1.5 text-2xl font-bold">
-                  {numberFormatter.format(reports.paidOrDeliveredOrdersCount)}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="... border-border shadow-sm">
-          <CardHeader className="p-6 pb-4">
-            <CardTitle className="flex items-center gap-2 text-base font-bold">
-              <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Receipt className="size-4" />
-              </span>
-              آخر الطلبات
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border/30 hover:bg-transparent">
-                  <TableHead className="ps-6 text-right text-xs font-medium text-muted-foreground">
-                    الطلب
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                    العميل
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                    الحالة
-                  </TableHead>
-                  <TableHead className="pe-6 text-right text-xs font-medium text-muted-foreground">
-                    المبلغ
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {reports.recentOrders.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="py-10 text-center text-sm text-muted-foreground"
-                    >
-                      لا توجد طلبات حتى الآن
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  reports.recentOrders.map((order) => {
-                    const status = getStatusMeta(order.status);
-                    return (
-                      <TableRow
-                        key={order.id}
-                        className="border-border/30 transition-colors hover:bg-muted/20"
-                      >
-                        <TableCell className="py-3.5 ps-6">
-                          <Link
-                            href={`/dashboard/orders/${order.id}`}
-                            className="text-sm font-bold text-primary hover:underline"
-                          >
-                            #{order.id.slice(0, 8)}
-                          </Link>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {new Intl.DateTimeFormat("ar-EG", {
-                              day: "numeric",
-                              month: "short",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }).format(order.createdAt)}
-                          </p>
-                        </TableCell>
-                        <TableCell className="py-3.5 text-sm font-medium">
-                          {order.fullName}
-                        </TableCell>
-                        <TableCell className="py-3.5">
-                          <Badge
-                            className={cn(
-                              "rounded-full border-0 text-xs",
-                              status.className,
-                            )}
-                          >
-                            {status.label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="pe-6 py-3.5 text-sm font-bold">
-                          {formatMoney(order.total)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Top products */}
-      <Card className="... border-border shadow-sm">
-        <CardHeader className="p-6 pb-4">
-          <CardTitle className="flex items-center gap-2 text-base font-bold">
-            <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
-              <Package className="size-4" />
-            </span>
-            أفضل المنتجات أداءً
-          </CardTitle>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            المنتجات الأعلى مبيعًا وإيرادًا خلال آخر 30 يوم
-          </p>
-        </CardHeader>
-
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border/30 hover:bg-transparent">
-                <TableHead className="ps-6 text-right text-xs font-medium text-muted-foreground">
-                  المنتج
-                </TableHead>
-                <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                  القسم
-                </TableHead>
-                <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                  المبيعات
-                </TableHead>
-                <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                  الإيراد
-                </TableHead>
-                <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                  المخزون
-                </TableHead>
-                <TableHead className="pe-6 text-right text-xs font-medium text-muted-foreground">
-                  الأداء
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {reports.topProducts.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="py-10 text-center text-sm text-muted-foreground"
-                  >
-                    لا توجد مبيعات منتجات حتى الآن
-                  </TableCell>
-                </TableRow>
-              ) : (
-                reports.topProducts.map((product) => (
-                  <TableRow
-                    key={product.id}
-                    className="border-border/30 transition-colors hover:bg-muted/20"
-                  >
-                    <TableCell className="py-3.5 ps-6 text-sm font-bold">
-                      {product.name}
-                    </TableCell>
-                    <TableCell className="py-3.5 text-sm text-muted-foreground">
-                      {product.category}
-                    </TableCell>
-                    <TableCell className="py-3.5 text-sm font-medium">
-                      {numberFormatter.format(product.sold)} قطعة
-                    </TableCell>
-                    <TableCell className="py-3.5 text-sm font-bold">
-                      {formatMoney(product.revenue)}
-                    </TableCell>
-                    <TableCell className="py-3.5">
-                      <Badge
-                        className={cn(
-                          "rounded-full border-0 text-xs",
-                          product.stock <= 5
-                            ? "bg-rose-500/10 text-rose-700 hover:bg-rose-500/10 dark:text-rose-300"
-                            : "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300",
-                        )}
-                      >
-                        {numberFormatter.format(product.stock)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="pe-6 py-3.5">
-                      <div className="flex min-w-32 items-center gap-3">
-                        <Progress
-                          value={product.performance}
-                          className="h-1.5"
-                        />
-                        <span className="text-xs font-bold text-muted-foreground">
-                          {product.performance}%
-                        </span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <ReportsContent data={data} />
     </div>
   );
-};
-
-export default MerchantReportsRoute;
+}

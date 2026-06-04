@@ -69,7 +69,7 @@ function RoleBadge({ role }: { role: StoreRole }) {
   return (
     <Badge
       variant="outline"
-      className={`rounded-full text-[10px] px-2 py-0 ${ROLE_COLORS[role]}`}
+      className={`text-[10px] px-2 py-0 ${ROLE_COLORS[role]}`}
     >
       {ROLE_LABELS[role]}
     </Badge>
@@ -204,7 +204,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
   }
 
   return (
-    <Card className="rounded-xl shadow-sm">
+    <Card className=" shadow-sm">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -226,15 +226,16 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
               setInviteOpen(o);
               if (!o) setNewInviteUrl(null);
             }}
+            
           >
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-1.5 rounded-xl text-xs">
+            <DialogTrigger asChild >
+              <Button size="sm" className="gap-1.5  text-xs">
                 <UserPlus className="size-3.5" />
                 دعوة عضو
               </Button>
             </DialogTrigger>
 
-            <DialogContent dir="rtl" className="max-w-md rounded-2xl">
+            <DialogContent dir="rtl" className="min-w-2xl">
               <DialogHeader>
                 <DialogTitle>دعوة عضو جديد</DialogTitle>
                 <DialogDescription>
@@ -254,7 +255,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
                     <CopyButton text={newInviteUrl} />
                   </div>
                   <Button
-                    className="w-full rounded-xl"
+                    className="w-full"
                     onClick={() => {
                       setNewInviteUrl(null);
                       setInviteOpen(false);
@@ -275,7 +276,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
                       required
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
-                      className="rounded-xl"
+                      className=""
                     />
                   </div>
 
@@ -286,11 +287,11 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
                       value={inviteRole}
                       onValueChange={(v) => setInviteRole(v as "STORE_MANAGER" | "STORE_STAFF")}
                     >
-                      <SelectTrigger id="invite-role" className="rounded-xl">
+                      <SelectTrigger id="invite-role" className="w-full" dir="rtl">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="STORE_MANAGER">
+                      <SelectContent dir="rtl" className="w-full">
+                        <SelectItem value="STORE_MANAGER" >
                           <div>
                             <p className="font-medium">مدير</p>
                             <p className="text-xs text-muted-foreground">
@@ -313,7 +314,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
                   <DialogFooter>
                     <Button
                       type="submit"
-                      className="w-full rounded-xl"
+                      className="w-full"
                       disabled={isPending}
                     >
                       {isPending ? "جاري الإنشاء..." : "إنشاء رابط الدعوة"}
@@ -346,7 +347,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
                 {member.isCurrentUser && (
                   <Badge
                     variant="outline"
-                    className="rounded-full text-[10px] px-1.5 py-0 bg-slate-100 text-slate-600 border-slate-200"
+                    className=" text-[10px] px-1.5 py-0 bg-slate-100 text-slate-600 border-slate-200"
                   >
                     أنت
                   </Badge>
@@ -461,7 +462,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
 
       {/* Transfer ownership dialog */}
       <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-        <DialogContent dir="rtl" className="max-w-md rounded-2xl">
+        <DialogContent dir="rtl" className="min-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-amber-600">
               <AlertTriangle className="size-5" />
@@ -479,7 +480,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
               اكتب <strong>نقل الملكية</strong> للتأكيد
             </Label>
             <Input
-              className="rounded-xl"
+              className=""
               placeholder="نقل الملكية"
               value={transferConfirmText}
               onChange={(e) => setTransferConfirmText(e.target.value)}
@@ -489,7 +490,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
-              className="rounded-xl"
+              className=""
               onClick={() => {
                 setTransferOpen(false);
                 setTransferConfirmText("");
@@ -499,7 +500,7 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
             </Button>
             <Button
               variant="destructive"
-              className="rounded-xl"
+              className=""
               disabled={transferConfirmText !== "نقل الملكية" || isPending}
               onClick={handleTransferConfirm}
             >
