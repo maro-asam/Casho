@@ -12,6 +12,12 @@ enum UserRole {
   SUPER_ADMIN
 }
 
+enum StoreRole {
+  STORE_OWNER
+  STORE_MANAGER
+  STORE_STAFF
+}
+
 model User {
   id                  String               @id @default(uuid())
   email               String               @unique
@@ -34,6 +40,8 @@ model User {
   securityLogs        SecurityLog[]
   supportRequests     SupportRequest[]
   notifications       Notification[]
+  storeMembers        StoreMember[]
+  sentInvitations     StoreInvitation[]    @relation("SentInvitations")
 }
 
 model Session {
@@ -143,6 +151,9 @@ model Store {
   suggestedOrders      SuggestedOrder[]
   igAiUsageLogs        IgAiUsageLog[]
   reviews              ProductReview[]
+
+  members     StoreMember[]
+  invitations StoreInvitation[]
 
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -706,6 +717,10 @@ enum NotificationType {
   IG_ORDER_SUGGESTED
   IG_CONNECTION_EXPIRED
   LOW_STOCK
+  STORE_INVITATION
+  MEMBER_JOINED
+  MEMBER_REMOVED
+  OWNERSHIP_TRANSFERRED
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1024,6 +1039,43 @@ model ProductReview {
   @@index([productId, rating])
   @@index([storeId, createdAt])
   @@index([productId, reviewDate])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Multi-tenant store membership & invitations
+// ─────────────────────────────────────────────────────────────
+
+model StoreMember {
+  id       String    @id @default(uuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeId  String
+  store    Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  role     StoreRole
+  joinedAt DateTime  @default(now())
+
+  @@unique([userId, storeId])
+  @@index([storeId])
+  @@index([userId])
+}
+
+model StoreInvitation {
+  id              String    @id @default(uuid())
+  email           String
+  storeId         String
+  store           Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  role            StoreRole
+  tokenHash       String    @unique
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  declinedAt      DateTime?
+  invitedByUserId String
+  invitedBy       User      @relation("SentInvitations", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+
+  @@index([storeId])
+  @@index([email])
+  @@index([expiresAt])
 }
 
 // Per-store AI usage tracking for daily rate limiting

@@ -18,8 +18,10 @@ import {
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import StoreSettingsForm from "./_components/StoreSettingsForm";
 import ActiveSessions from "./_components/ActiveSessions";
+import StoreMembers from "./_components/StoreMembers";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetActiveSessionsAction } from "@/actions/auth/sessions.actions";
+import { GetStoreMembersAction } from "@/actions/store/members.actions";
 
 export const metadata: Metadata = {
   title: "إعدادات المتجر",
@@ -28,7 +30,10 @@ export const metadata: Metadata = {
 
 export default async function SettingsRoute() {
   const userId = await requireUserId();
-  const sessions = await GetActiveSessionsAction();
+  const [sessions, { members, pendingInvitations }] = await Promise.all([
+    GetActiveSessionsAction(),
+    GetStoreMembersAction(),
+  ]);
 
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -128,6 +133,11 @@ export default async function SettingsRoute() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* ── Store Members ── */}
+      <div className="lg:max-w-2xl">
+        <StoreMembers members={members} pendingInvitations={pendingInvitations} />
       </div>
 
       {/* ── Active Sessions ── */}

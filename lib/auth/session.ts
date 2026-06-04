@@ -118,6 +118,7 @@ export async function getCurrentSession() {
         select: {
           id: true,
           email: true,
+          name: true,
           role: true,
           stores: {
             select: { id: true, name: true, slug: true },
