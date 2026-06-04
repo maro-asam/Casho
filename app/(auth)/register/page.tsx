@@ -150,10 +150,13 @@ export default function RegisterRoute() {
   const isStepTwoValid =
     merchantName.trim().length >= 2 && !!country && !!businessType;
 
+  const passwordHasDigit = /\d/.test(password);
+
   const isStepThreeValid =
     email.trim().length > 0 &&
     phoneNumber.trim().length > 0 &&
     password.length >= 8 &&
+    passwordHasDigit &&
     confirmPassword.length > 0 &&
     !passwordMismatch;
 
@@ -555,6 +558,16 @@ export default function RegisterRoute() {
                       onChange={(e) => setPassword(e.target.value)}
                       className="h-11"
                     />
+                    {password.length > 0 && (
+                      <div className="mt-2 flex items-center gap-4 text-xs">
+                        <span className={password.length >= 8 ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}>
+                          {password.length >= 8 ? "✓" : "○"} 8 أحرف على الأقل
+                        </span>
+                        <span className={passwordHasDigit ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}>
+                          {passwordHasDigit ? "✓" : "○"} رقم واحد على الأقل
+                        </span>
+                      </div>
+                    )}
                   </FormField>
 
                   <FormField

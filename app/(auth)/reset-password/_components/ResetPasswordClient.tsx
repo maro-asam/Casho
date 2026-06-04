@@ -65,6 +65,9 @@ export default function ResetPasswordClient() {
                   placeholder="••••••••"
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  8 أحرف على الأقل، وتحتوي على رقم واحد على الأقل
+                </p>
                 {state?.fieldErrors?.password ? (
                   <p className="text-sm text-destructive">
                     {state.fieldErrors.password}

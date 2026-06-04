@@ -1,27 +1,53 @@
 "use server";
 
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
+import { UserRole } from "@prisma/client";
 
-const ADMIN_EMAILS = ["marolinkedin@gmail.com", "cashostore0@gmail.com"];
-
+/**
+ * Guards admin routes using DB-backed role (ADMIN | SUPER_ADMIN).
+ * Replaces the previous hardcoded email list approach.
+ *
+ * Bootstrap: set the first admin by running once in psql:
+ *   UPDATE "User" SET role = 'ADMIN' WHERE email = 'your@email.com';
+ */
 export async function requireAdmin() {
-  const userId = await requireUserId();
+  const session = await getCurrentSession();
 
-  const { prisma } = await import("@/lib/prisma");
+  if (!session?.user) {
+    redirect("/login");
+  }
 
   const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      email: true,
-    },
+    where: { id: session.user.id },
+    select: { id: true, email: true, role: true },
   });
 
   if (!user) {
-    throw new Error("User not found");
+    redirect("/login");
   }
 
-  if (!ADMIN_EMAILS.includes(user.email)) {
+  if (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN) {
+    throw new Error("Unauthorized");
+  }
+
+  return user;
+}
+
+export async function requireSuperAdmin() {
+  const session = await getCurrentSession();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, email: true, role: true },
+  });
+
+  if (!user || user.role !== UserRole.SUPER_ADMIN) {
     throw new Error("Unauthorized");
   }
 

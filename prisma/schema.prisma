@@ -6,21 +6,32 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
 model User {
   id                  String               @id @default(uuid())
   email               String               @unique
   phone_number        String?              @unique
   password            String?
+  passwordAlgo        String?              // "argon2id" | "bcrypt" — for migration
   googleId            String?              @unique
   name                String?
   country             String?
   businessType        String?
+  role                UserRole             @default(USER)
+  emailVerified       Boolean              @default(false)
   stores              Store[]
   createdAt           DateTime             @default(now())
   cartItems           CartItem[]
   orders              Order[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+  loginAttempts       LoginAttempt[]
+  securityLogs        SecurityLog[]
   supportRequests     SupportRequest[]
   notifications       Notification[]
 }
@@ -33,6 +44,8 @@ model Session {
   expiresAt  DateTime
   lastUsedAt DateTime @default(now())
   createdAt  DateTime @default(now())
+  userAgent  String?
+  ipAddress  String?
 
   @@index([userId])
   @@index([expiresAt])
@@ -48,6 +61,33 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model LoginAttempt {
+  id        String   @id @default(uuid())
+  email     String
+  ipAddress String?
+  success   Boolean
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ipAddress, createdAt])
+}
+
+model SecurityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event     String   // LOGIN_SUCCESS | LOGIN_FAILURE | LOGOUT | PASSWORD_CHANGED | PASSWORD_RESET_REQUESTED | ACCOUNT_LOCKED | SESSION_REVOKED
+  ipAddress String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([event, createdAt])
 }
 
 model Store {

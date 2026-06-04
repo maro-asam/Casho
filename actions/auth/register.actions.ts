@@ -1,6 +1,5 @@
 "use server";
 
-import bcrypt from "bcryptjs";
 import { SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
@@ -9,6 +8,7 @@ import { registerSchema } from "@/validations/auth.schema";
 import { getFieldErrors } from "@/lib/zod";
 import { normalizeStoreSlug } from "@/lib/store/slug";
 import { createUserSession } from "@/lib/auth/session";
+import { hashPassword } from "@/lib/auth/password";
 import { TrackStoreRegistrationAction } from "@/actions/tracking/meta-registration-events.actions";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
 
@@ -108,7 +108,7 @@ export async function RegisterAction(
       };
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await hashPassword(password);
     const freeTrialEndsAt = getFreeTrialEndDate();
 
     const created = await prisma.$transaction(async (tx) => {
@@ -120,6 +120,7 @@ export async function RegisterAction(
         data: {
           email,
           password: hashedPassword,
+          passwordAlgo: "argon2id",
           phone_number: phoneNumber || null,
           name: name || null,
           country: country || null,

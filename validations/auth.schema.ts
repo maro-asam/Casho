@@ -3,7 +3,8 @@ import { z } from "zod";
 const passwordSchema = z
   .string()
   .min(8, "كلمة المرور لازم تكون 8 أحرف على الأقل")
-  .max(100, "كلمة المرور طويلة جدًا");
+  .max(100, "كلمة المرور طويلة جدًا")
+  .refine((p) => /\d/.test(p), "كلمة المرور لازم تحتوي على رقم واحد على الأقل");
 
 const egyptianPhoneSchema = z
   .string()
@@ -67,8 +68,8 @@ export const forgotPasswordSchema = z.object({
 export const resetPasswordSchema = z
   .object({
     token: z.string().min(1, "الرابط غير صالح"),
-    password: z.string().min(6, "كلمة المرور لازم تكون 6 أحرف على الأقل"),
-    confirmPassword: z.string().min(6, "تأكيد كلمة المرور مطلوب"),
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
