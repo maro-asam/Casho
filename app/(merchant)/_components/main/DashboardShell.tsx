@@ -433,25 +433,6 @@ export default function DashboardShell({
           </>
         )}
         <LogoutButton collapsed={collapsed} />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggle}
-          title={collapsed ? "توسيع القائمة" : "طي القائمة"}
-          className={cn(
-            "h-9 w-full px-2 text-muted-foreground hover:text-foreground",
-            collapsed ? "justify-center" : "justify-start gap-2.5",
-          )}
-        >
-          {collapsed ? (
-            <ChevronLeft className="size-4" />
-          ) : (
-            <>
-              <ChevronRight className="size-4" />
-              <span className="text-sm">طي القائمة</span>
-            </>
-          )}
-        </Button>
       </div>
     </div>
   );
@@ -506,9 +487,20 @@ export default function DashboardShell({
       >
         {/* Desktop topbar */}
         <header className="sticky top-0 z-10 hidden h-14 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur-sm md:flex">
-          <p className="text-sm font-semibold text-muted-foreground">
-            {store.name}
-          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggle}
+            title={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
+            className="gap-2 px-2 text-muted-foreground hover:text-foreground"
+          >
+            {isCollapsed ? (
+              <ChevronLeft className="size-4" />
+            ) : (
+              <ChevronRight className="size-4" />
+            )}
+            <span className="text-sm">{isCollapsed ? "توسيع" : "طي القائمة"}</span>
+          </Button>
 
           <div className="flex items-center gap-2">
             <DashboardSearch />
