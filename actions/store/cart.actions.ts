@@ -2,8 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { MustSession, ReadSession } from "../auth/auth-helpers.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
+
+function shippingCookieKey(storeId: string) {
+  return `ship_${storeId}`;
+}
 
 function normalizeCouponCode(code: string) {
   return code.trim().toUpperCase();
@@ -285,12 +290,24 @@ export async function GetCartItemsAction(storeSlug: string) {
       settings: {
         select: {
           shippingPrice: true,
+          loyaltyEnabled: true,
+          loyaltyPointsValuePiasters: true,
+          loyaltyMinRedemption: true,
         },
       },
     },
   });
 
   if (!store) throw new Error("Store not found");
+
+  const shippingMethods = await prisma.shippingMethod.findMany({
+    where: { storeId: store.id, isActive: true },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    select: { id: true, name: true, price: true, description: true, estimatedDays: true },
+  });
+
+  const cookieStore = await cookies();
+  const selectedShippingMethodId = cookieStore.get(shippingCookieKey(store.id))?.value ?? null;
 
   if (!guestSessionId) {
     return {
@@ -303,10 +320,12 @@ export async function GetCartItemsAction(storeSlug: string) {
         total: 0,
       },
       appliedCoupon: null,
+      shippingMethods,
+      selectedShippingMethodId,
     };
   }
 
-  const [items, appliedCoupon] = await Promise.all([
+  const [items, appliedCoupon, appliedLoyalty] = await Promise.all([
     prisma.cartItem.findMany({
       where: {
         guestSessionId,
@@ -348,6 +367,10 @@ export async function GetCartItemsAction(storeSlug: string) {
         },
       },
     }),
+    prisma.appliedLoyaltyPoints.findUnique({
+      where: { guestSessionId_storeId: { guestSessionId, storeId: store.id } },
+      select: { points: true, customerId: true },
+    }),
   ]);
 
   const subtotal = items.reduce((acc, item) => {
@@ -359,7 +382,15 @@ export async function GetCartItemsAction(storeSlug: string) {
     return acc + unitPrice * item.quantity;
   }, 0);
 
-  const shipping = items.length > 0 ? (store.settings?.shippingPrice ?? 0) : 0;
+  let shipping = 0;
+  if (items.length > 0) {
+    if (shippingMethods.length > 0) {
+      const selected = shippingMethods.find((m) => m.id === selectedShippingMethodId);
+      shipping = selected ? selected.price : (shippingMethods[0]?.price ?? 0);
+    } else {
+      shipping = store.settings?.shippingPrice ?? 0;
+    }
+  }
 
   let discount = 0;
   let validCoupon: typeof appliedCoupon = null;
@@ -384,18 +415,38 @@ export async function GetCartItemsAction(storeSlug: string) {
     }
   }
 
+  // Apply loyalty points discount
+  const loyaltyPointsValue = store.settings?.loyaltyPointsValuePiasters ?? 1;
+  const loyaltyDiscount =
+    store.settings?.loyaltyEnabled && appliedLoyalty
+      ? appliedLoyalty.points * loyaltyPointsValue
+      : 0;
+  discount += loyaltyDiscount;
+
   const total = Math.max(0, subtotal + shipping - discount);
+
+  const activeMethodId =
+    shippingMethods.length > 0
+      ? (shippingMethods.find((m) => m.id === selectedShippingMethodId)?.id ??
+        shippingMethods[0]?.id)
+      : null;
 
   return {
     store,
     items,
     appliedCoupon: validCoupon,
+    appliedLoyalty: store.settings?.loyaltyEnabled ? appliedLoyalty : null,
+    loyaltyEnabled: store.settings?.loyaltyEnabled ?? false,
+    loyaltyMinRedemption: store.settings?.loyaltyMinRedemption ?? 100,
+    loyaltyPointsValue,
     summary: {
       subtotal,
       shipping,
       discount,
       total,
     },
+    shippingMethods,
+    selectedShippingMethodId: activeMethodId,
   };
 }
 
@@ -472,4 +523,21 @@ export async function RemoveCartItemAction(
   revalidatePath(`/store/${storeSlug}/cart`);
   revalidatePath(`/store/${storeSlug}`);
   return { success: true };
+}
+
+export async function SelectShippingMethodAction(storeSlug: string, methodId: string) {
+  const store = await prisma.store.findUnique({
+    where: { slug: storeSlug },
+    select: { id: true },
+  });
+  if (!store) return;
+
+  const cookieStore = await cookies();
+  cookieStore.set(shippingCookieKey(store.id), methodId, {
+    path: "/",
+    httpOnly: false,
+    maxAge: 60 * 60 * 24,
+  });
+
+  revalidatePath(`/store/${storeSlug}/cart`);
 }

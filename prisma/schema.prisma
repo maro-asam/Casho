@@ -83,6 +83,10 @@ model Store {
   coupons        Coupon[]
   appliedCoupons AppliedCoupon[]
 
+  shippingMethods      ShippingMethod[]
+  customers            Customer[]
+  appliedLoyaltyPoints AppliedLoyaltyPoints[]
+
   showPoweredByCasho      Boolean @default(true)
   poweredByRemovalEnabled Boolean @default(false)
 
@@ -121,6 +125,13 @@ model StoreSettings {
   secondaryColor String?
   navbarVariant  String  @default("default")
   shippingPrice  Int     @default(0)
+
+  defaultLowStockThreshold Int @default(5)
+
+  loyaltyEnabled             Boolean @default(false)
+  loyaltyPointsPerEGP        Float   @default(1)
+  loyaltyPointsValuePiasters Int     @default(1)
+  loyaltyMinRedemption       Int     @default(100)
 
   /// Full merchant theme customization (ThemeCustomization JSON).
   /// Stores presetId + tokenOverrides + layoutOverrides + sectionOverrides.
@@ -194,7 +205,8 @@ model Product {
 
   brand String?
 
-  stock Int @default(0)
+  stock             Int  @default(0)
+  lowStockThreshold Int?
 
   sizes  String[] @default([])
   colors String[] @default([])
@@ -204,6 +216,9 @@ model Product {
   attributes Json?
 
   wholesaleOptions Json?
+
+  type        ProductType @default(SIMPLE)
+  bundleItems Json?
 
   isActive    Boolean @default(true)
   isFeatured  Boolean @default(false)
@@ -296,6 +311,68 @@ model AppliedCoupon {
   @@index([couponId])
 }
 
+model ShippingMethod {
+  id            String   @id @default(uuid())
+  storeId       String
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name          String
+  price         Int
+  description   String?
+  estimatedDays Int?
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  orders Order[]
+
+  @@index([storeId, isActive])
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  phone     String
+  name      String?
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders              Order[]
+  loyaltyTransactions LoyaltyTransaction[]
+  appliedLoyalty      AppliedLoyaltyPoints[]
+
+  @@unique([storeId, phone])
+  @@index([storeId])
+}
+
+model LoyaltyTransaction {
+  id          String                 @id @default(uuid())
+  customerId  String
+  customer    Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderId     String?
+  type        LoyaltyTransactionType
+  points      Int
+  description String?
+  createdAt   DateTime               @default(now())
+
+  @@index([customerId, createdAt])
+}
+
+model AppliedLoyaltyPoints {
+  id             String   @id @default(uuid())
+  guestSessionId String
+  storeId        String
+  store          Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  points         Int
+  createdAt      DateTime @default(now())
+
+  @@unique([guestSessionId, storeId])
+  @@index([customerId])
+}
+
 model Order {
   id String @id @default(uuid())
 
@@ -317,6 +394,14 @@ model Order {
   fullName String
   phone    String
   address  String
+
+  shippingMethodId String?
+  shippingMethod   ShippingMethod? @relation(fields: [shippingMethodId], references: [id])
+
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  pointsEarned   Int?
+  pointsRedeemed Int?
 
   paymentProvider  String?
   paymentStatus    String?
@@ -406,6 +491,17 @@ model BalanceTransaction {
 enum CouponType {
   PERCENTAGE
   FIXED
+}
+
+enum ProductType {
+  SIMPLE
+  BUNDLE
+}
+
+enum LoyaltyTransactionType {
+  EARNED
+  REDEEMED
+  MANUAL
 }
 
 enum OrderStatus {
@@ -566,6 +662,7 @@ enum NotificationType {
   SYSTEM
   IG_ORDER_SUGGESTED
   IG_CONNECTION_EXPIRED
+  LOW_STOCK
 }
 
 // ─────────────────────────────────────────────────────────────

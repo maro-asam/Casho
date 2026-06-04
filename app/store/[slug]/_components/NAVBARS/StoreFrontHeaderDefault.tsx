@@ -286,13 +286,13 @@ export default function StoreFrontHeaderDefault({
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
                               placeholder="دور على منتج..."
-                              className="h-11 pl-12 pr-11"
+                              className="h-11 pl-12 pr-11 "
                             />
                             <Search className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <Button
                               type="submit"
                               size="sm"
-                              className="absolute left-1 top-1/2 h-9 -translate-y-1/2 px-4 rounded-xl"
+                              className="absolute left-1 top-1/2 h-9 -translate-y-1/2 px-4 "
                               disabled={isPending}
                             >
                               بحث

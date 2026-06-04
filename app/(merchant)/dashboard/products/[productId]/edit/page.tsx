@@ -58,6 +58,7 @@ export default async function EditProductPage({
       images: true,
       brand: true,
       stock: true,
+      lowStockThreshold: true,
       sizes: true,
       colors: true,
       tags: true,
@@ -65,6 +66,8 @@ export default async function EditProductPage({
       isActive: true,
       isFeatured: true,
       hasVariants: true,
+      type: true,
+      bundleItems: true,
       categoryId: true,
       attributes: true,
       wholesaleOptions: true,
@@ -74,14 +77,18 @@ export default async function EditProductPage({
     redirect("/products");
   }
 
-  const categories = await prisma.category.findMany({
-    where: { storeId: store.id },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
+  const [categories, bundleProducts] = await Promise.all([
+    prisma.category.findMany({
+      where: { storeId: store.id },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true },
+    }),
+    prisma.product.findMany({
+      where: { storeId: store.id, isActive: true, type: "SIMPLE", NOT: { id: productId } },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, image: true },
+    }),
+  ]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -113,7 +120,7 @@ export default async function EditProductPage({
           </CardHeader>
 
           <CardContent>
-            <EditProductForm product={product} categories={categories} />
+            <EditProductForm product={product} categories={categories} products={bundleProducts} />
           </CardContent>
         </Card>
       </div>

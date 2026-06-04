@@ -100,7 +100,7 @@
   --popover: #13161f;
   --popover-foreground: #e4e7f1;
 
-  /* primary — same #1447e6 */
+  /* primary — same #20bb6b */
   --primary: #20bb6b;
   --primary-foreground: #ffffff;
 
@@ -109,7 +109,7 @@
   --secondary-foreground: #e4e7f0;
 
   --muted: #1c2030;
-  --muted-foreground: #a0aac8;
+  --muted-foreground: #7f95d6;
 
   --accent: #1c2030;
   --accent-foreground: #e4e7f1;

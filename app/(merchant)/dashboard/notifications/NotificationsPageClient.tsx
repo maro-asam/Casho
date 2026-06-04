@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
 import {
+  AlertTriangle,
   Bell,
   CheckCheck,
   CircleDollarSign,
@@ -52,6 +53,7 @@ const notificationIcons: Partial<
   STORE_ACTIVATED: Sparkles,
   STORE_PAST_DUE: Bell,
   SYSTEM: Bell,
+  LOW_STOCK: AlertTriangle,
 };
 
 const notificationIconColors: Partial<Record<NotificationDTO["type"], string>> = {
@@ -70,6 +72,7 @@ const notificationIconColors: Partial<Record<NotificationDTO["type"], string>> =
   POWERED_BY_APPROVED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   POWERED_BY_REJECTED: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
   SYSTEM: "bg-muted text-muted-foreground",
+  LOW_STOCK: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
 };
 
 function formatDate(dateIso: string) {

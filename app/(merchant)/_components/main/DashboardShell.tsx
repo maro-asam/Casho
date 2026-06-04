@@ -20,6 +20,7 @@ import {
   CirclePercent,
   CreditCard,
   ExternalLink,
+  Gift,
   Globe,
   Headset,
   ImageIcon,
@@ -175,6 +176,11 @@ export default function DashboardShell({
             href: "/reviews",
             icon: Star,
           },
+          {
+            name: "نظام النقاط",
+            href: "/loyalty",
+            icon: Gift,
+          },
         ],
       },
       {
@@ -217,6 +223,11 @@ export default function DashboardShell({
       {
         title: "الربط",
         links: [
+          {
+            name: "طرق الشحن",
+            href: "/dashboard/shipping",
+            icon: Truck,
+          },
           {
             name: "انستجرام",
             href: "/integrations/instagram",
@@ -263,13 +274,6 @@ export default function DashboardShell({
             name: "الحملات التسويقية",
             href: "/marketing-campaigns",
             icon: ScreenShare,
-            disabled: true,
-            badge: "Soon",
-          },
-          {
-            name: "شركات الشحن",
-            href: "/shipping-companies",
-            icon: Truck,
             disabled: true,
             badge: "Soon",
           },

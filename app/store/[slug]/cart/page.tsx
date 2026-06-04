@@ -19,8 +19,15 @@ import {
   GetCartItemsAction,
   RemoveCartItemAction,
   RemoveCouponAction,
+  SelectShippingMethodAction,
   UpdateCartItemQtyAction,
 } from "@/actions/store/cart.actions";
+import {
+  CheckLoyaltyPointsAction,
+  ApplyLoyaltyPointsAction,
+  RemoveLoyaltyPointsAction,
+} from "@/actions/store/loyalty.actions";
+import { Truck, Gift } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,7 +77,7 @@ export default async function CartPage({
   const { slug } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
-  const { store, items, summary, appliedCoupon } = await GetCartItemsAction(slug);
+  const { store, items, summary, appliedCoupon, shippingMethods, selectedShippingMethodId, appliedLoyalty, loyaltyEnabled, loyaltyMinRedemption, loyaltyPointsValue } = await GetCartItemsAction(slug);
 
   const couponStatus = resolvedSearchParams?.couponStatus;
   const couponMessage = resolvedSearchParams?.couponMessage;
@@ -323,6 +330,58 @@ export default async function CartPage({
                 </div>
 
                 <CardContent className="space-y-5 p-5">
+                  {/* Shipping Method Selector */}
+                  {shippingMethods.length > 0 && (
+                    <div className="rounded-xl border border-dashed bg-muted/35 p-4">
+                      <div className="mb-3 flex items-center gap-2">
+                        <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10">
+                          <Truck className="size-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">طريقة الشحن</p>
+                          <p className="text-xs text-muted-foreground">اختر طريقة التوصيل</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {shippingMethods.map((method) => (
+                          <form
+                            key={method.id}
+                            action={async () => {
+                              "use server";
+                              await SelectShippingMethodAction(slug, method.id);
+                            }}
+                          >
+                            <button
+                              type="submit"
+                              className={`w-full flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm transition hover:bg-muted/30 ${
+                                selectedShippingMethodId === method.id
+                                  ? "border-primary bg-primary/5 font-medium"
+                                  : "bg-background"
+                              }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span
+                                  className={`size-4 rounded-full border-2 flex-shrink-0 ${
+                                    selectedShippingMethodId === method.id
+                                      ? "border-primary bg-primary"
+                                      : "border-muted-foreground"
+                                  }`}
+                                />
+                                <span>{method.name}</span>
+                                {method.estimatedDays && (
+                                  <span className="text-xs text-muted-foreground">· {method.estimatedDays} أيام</span>
+                                )}
+                              </span>
+                              <span className="font-semibold">
+                                {method.price === 0 ? "مجاني" : `${(method.price / 100).toFixed(0)} ج`}
+                              </span>
+                            </button>
+                          </form>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="relative overflow-hidden rounded-xl border border-dashed bg-muted/35 p-4">
                     <div className="absolute -left-3 top-1/2 size-6 -translate-y-1/2 rounded-xl bg-background" />
                     <div className="absolute -right-3 top-1/2 size-6 -translate-y-1/2 rounded-xl bg-background" />
@@ -406,6 +465,75 @@ export default async function CartPage({
                       </form>
                     )}
                   </div>
+
+                  {/* Loyalty Points Section */}
+                  {loyaltyEnabled && (
+                    <>
+                      <Separator />
+                      <div className="rounded-xl border border-dashed bg-muted/35 p-4">
+                        <div className="mb-3 flex items-center gap-2">
+                          <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10">
+                            <Gift className="size-4 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-semibold">نقاط المكافآت</p>
+                            <p className="text-xs text-muted-foreground">استرد نقاطك للحصول على خصم</p>
+                          </div>
+                        </div>
+
+                        {appliedLoyalty ? (
+                          <div className="flex items-center justify-between rounded-xl border bg-background px-3 py-3">
+                            <div>
+                              <p className="text-sm font-semibold">تم تطبيق {appliedLoyalty.points} نقطة</p>
+                              <p className="text-xs text-muted-foreground">
+                                خصم {formatPrice(appliedLoyalty.points * loyaltyPointsValue)}
+                              </p>
+                            </div>
+                            <form action={async () => {
+                              "use server";
+                              const guestSessionId = await (await import("@/actions/session/guest.actions")).GetGuestSessionId();
+                              await RemoveLoyaltyPointsAction(guestSessionId ?? "", slug);
+                            }}>
+                              <Button type="submit" variant="outline" className="rounded-xl">إزالة</Button>
+                            </form>
+                          </div>
+                        ) : (
+                          <form
+                            action={async (formData: FormData) => {
+                              "use server";
+                              const phone = formData.get("loyaltyPhone") as string;
+                              const points = Number(formData.get("loyaltyPoints") ?? 0);
+                              const guestSessionId = await (await import("@/actions/session/guest.actions")).GetGuestSessionId();
+                              await ApplyLoyaltyPointsAction(phone, points, guestSessionId ?? "", slug);
+                            }}
+                            className="space-y-2"
+                          >
+                            <input
+                              name="loyaltyPhone"
+                              placeholder="رقم التليفون"
+                              className="h-10 w-full rounded-xl border bg-background px-3 text-sm"
+                              required
+                            />
+                            <div className="flex gap-2">
+                              <input
+                                name="loyaltyPoints"
+                                type="number"
+                                min={loyaltyMinRedemption}
+                                step="1"
+                                placeholder={`نقاط (الحد الأدنى ${loyaltyMinRedemption})`}
+                                className="h-10 flex-1 rounded-xl border bg-background px-3 text-sm"
+                                required
+                              />
+                              <Button type="submit" variant="secondary" className="h-10 rounded-xl px-4">
+                                <Gift className="size-4" />
+                                استرداد
+                              </Button>
+                            </div>
+                          </form>
+                        )}
+                      </div>
+                    </>
+                  )}
 
                   <Separator />
 

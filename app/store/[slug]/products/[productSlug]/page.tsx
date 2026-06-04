@@ -50,6 +50,13 @@ type StoreInfo = { id: string; name: string; slug: string };
 
 type WholesaleTier = { minQty: number; maxQty?: number; price: number };
 
+type BundleItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+  image: string;
+};
+
 type ProductInfo = {
   id: string;
   name: string;
@@ -66,6 +73,8 @@ type ProductInfo = {
   sizes: string[] | null;
   colors: string[] | null;
   wholesaleOptions: WholesaleTier[] | null;
+  type: string;
+  bundleItems: BundleItem[] | null;
   category: { id: string; name: string; slug: string };
 };
 
@@ -189,6 +198,9 @@ export default async function ProductDetailsRoute({
     product: {
       ...product,
       wholesaleOptions: (product.wholesaleOptions as WholesaleTier[] | null) ?? null,
+      bundleItems: Array.isArray(product.bundleItems)
+        ? (product.bundleItems as BundleItem[])
+        : null,
     },
     gallery,
     relatedProducts,
@@ -202,6 +214,49 @@ export default async function ProductDetailsRoute({
   }
 
   return <StandardProductPage {...props} themeId={themeId} />;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  BUNDLE CONTENTS SECTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+function BundleContentsSection({ items }: { items: BundleItem[] }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div
+      className="rounded-2xl border p-4"
+      style={{ borderColor: "var(--store-border)" }}
+    >
+      <div className="mb-3 flex items-center gap-2">
+        <Layers className="size-4" style={{ color: "var(--store-primary)" }} />
+        <h3 className="text-sm font-semibold">محتويات الباقة</h3>
+      </div>
+      <div className="space-y-2">
+        {items.map((item, i) => (
+          <div key={i} className="flex items-center gap-3 rounded-xl border bg-muted/30 p-2.5" style={{ borderColor: "var(--store-border)" }}>
+            {item.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={item.image}
+                alt={item.productName}
+                className="h-10 w-10 shrink-0 rounded-lg object-cover"
+              />
+            )}
+            <span className="flex-1 text-sm font-medium">{item.productName}</span>
+            <span
+              className="rounded-full px-2 py-0.5 text-xs font-semibold"
+              style={{
+                background: "var(--store-primary)",
+                color: "var(--store-primary-foreground, #fff)",
+              }}
+            >
+              × {item.quantity}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -402,6 +457,10 @@ function StandardProductPage({
               wholesaleOptions={product.wholesaleOptions}
               isMinimal={isMinimal}
             />
+
+            {product.type === "BUNDLE" && product.bundleItems && (
+              <BundleContentsSection items={product.bundleItems} />
+            )}
 
             {/* ── Share + extras row ── */}
             <div className="flex items-center gap-3 pt-1">
@@ -639,6 +698,10 @@ function BoldProductPage({
                 wholesaleOptions={product.wholesaleOptions}
                 boldStyle
               />
+
+              {product.type === "BUNDLE" && product.bundleItems && (
+                <BundleContentsSection items={product.bundleItems} />
+              )}
 
               {/* Share */}
               <div className="flex items-center gap-3 pt-2">

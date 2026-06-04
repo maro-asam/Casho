@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Edit, ImageIcon, Star, Package, ShieldCheck, ShieldX } from "lucide-react";
+import { Edit, ImageIcon, Star, Package, ShieldCheck, ShieldX, Layers } from "lucide-react";
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +14,11 @@ type Product = {
   price: number;
   compareAtPrice: number | null;
   stock: number;
+  lowStockThreshold: number | null;
   image: string | null;
   isActive: boolean;
   isFeatured: boolean;
+  type: string;
   category: { name: string };
 };
 
@@ -28,7 +30,7 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
-function StockBadge({ stock }: { stock: number }) {
+function StockBadge({ stock, threshold }: { stock: number; threshold: number }) {
   if (stock === 0) {
     return (
       <Badge variant="destructive" className="rounded-lg text-xs">
@@ -36,13 +38,13 @@ function StockBadge({ stock }: { stock: number }) {
       </Badge>
     );
   }
-  if (stock <= 5) {
+  if (stock <= threshold) {
     return (
       <Badge
         variant="outline"
         className="rounded-lg border-orange-200 bg-orange-50 text-xs text-orange-700 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-400"
       >
-        {stock} قطعة
+        {stock} قطعة · منخفض
       </Badge>
     );
   }
@@ -85,6 +87,9 @@ export default function ProductTableRow({ product }: { product: Product }) {
               {product.isFeatured && (
                 <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />
               )}
+              {product.type === "BUNDLE" && (
+                <Layers className="size-3.5 shrink-0 text-violet-500" />
+              )}
             </div>
             <p className="truncate text-xs text-muted-foreground">
               /{product.slug}
@@ -117,7 +122,7 @@ export default function ProductTableRow({ product }: { product: Product }) {
       </TableCell>
 
       <TableCell>
-        <StockBadge stock={product.stock} />
+        <StockBadge stock={product.stock} threshold={product.lowStockThreshold ?? 5} />
       </TableCell>
 
       <TableCell>

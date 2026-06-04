@@ -11,6 +11,7 @@ import {
   Plus,
   Star,
   Store,
+  Upload,
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
@@ -150,9 +151,11 @@ const MerchantProductsRoute = async ({
       price: true,
       compareAtPrice: true,
       stock: true,
+      lowStockThreshold: true,
       image: true,
       isActive: true,
       isFeatured: true,
+      type: true,
       category: { select: { name: true } },
     },
   });
@@ -237,7 +240,15 @@ const MerchantProductsRoute = async ({
               <div className="h-10 animate-pulse rounded-xl bg-muted" />
             }
           >
-            <ProductFilters categories={categories} />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <ProductFilters categories={categories} />
+              <Button asChild variant="outline" size="sm" className="rounded-xl gap-1.5">
+                <Link href="/dashboard/products/import">
+                  <Upload className="size-4" />
+                  استيراد CSV
+                </Link>
+              </Button>
+            </div>
           </Suspense>
 
           {products.length === 0 ? (

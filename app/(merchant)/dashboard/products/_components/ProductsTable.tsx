@@ -15,9 +15,11 @@ type Product = {
   price: number;
   compareAtPrice: number | null;
   stock: number;
+  lowStockThreshold: number | null;
   image: string | null;
   isActive: boolean;
   isFeatured: boolean;
+  type: string;
   category: { name: string };
 };
 

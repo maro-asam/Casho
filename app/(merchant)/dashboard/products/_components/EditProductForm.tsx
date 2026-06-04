@@ -33,6 +33,7 @@ import { Separator } from "@/components/ui/separator";
 import TagInput from "./TagInput";
 import AttributesInput from "./AttributesInput";
 import WholesaleInput, { type WholesaleTier } from "./WholesaleInput";
+import BundleItemsInput, { type BundleItem } from "./BundleItemsInput";
 
 type Category = {
   id: string;
@@ -53,6 +54,7 @@ type Product = {
 
   brand: string | null;
   stock: number;
+  lowStockThreshold: number | null;
 
   sizes: string[];
   colors: string[];
@@ -63,15 +65,20 @@ type Product = {
   isActive: boolean;
   isFeatured: boolean;
   hasVariants: boolean;
+  type: string;
+  bundleItems: unknown;
 
   categoryId: string;
   attributes: unknown;
   wholesaleOptions: unknown;
 };
 
+type AvailableProduct = { id: string; name: string; image: string };
+
 type Props = {
   product: Product;
   categories: Category[];
+  products?: AvailableProduct[];
 };
 
 type FormState = {
@@ -84,7 +91,7 @@ const initialState: FormState = {
   message: "",
 };
 
-export default function EditProductForm({ product, categories }: Props) {
+export default function EditProductForm({ product, categories, products = [] }: Props) {
   const updateAction = UpdateProductAction.bind(null, product.id);
 
   const [state, formAction, isPending] = useActionState(
@@ -283,6 +290,21 @@ export default function EditProductForm({ product, categories }: Props) {
             defaultValue={product.stock}
             className="rounded-xl"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="lowStockThreshold">حد التنبيه (مخزون منخفض)</Label>
+          <Input
+            id="lowStockThreshold"
+            name="lowStockThreshold"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="افتراضي: 5 قطع"
+            defaultValue={product.lowStockThreshold ?? ""}
+            className="rounded-xl"
+          />
+          <p className="text-xs text-muted-foreground">سيصلك تنبيه عندما يصل المخزون لهذا الرقم أو أقل</p>
         </div>
 
         <div className="space-y-2">
@@ -515,6 +537,27 @@ export default function EditProductForm({ product, categories }: Props) {
           />
         </div>
       </div>
+
+      {products.length > 0 && (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-medium">نوع المنتج</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">اختر "باقة" لبيع مجموعة منتجات بسعر واحد</p>
+            </div>
+            <BundleItemsInput
+              products={products}
+              initialType={product.type}
+              initialItems={
+                Array.isArray(product.bundleItems)
+                  ? (product.bundleItems as BundleItem[])
+                  : []
+              }
+            />
+          </div>
+        </>
+      )}
 
       <Separator />
 

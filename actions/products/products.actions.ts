@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { transliterate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { requireUserId } from "../auth/require-user-id.actions";
+import { createNotification } from "@/lib/notifications/in-app";
+import { ProductType } from "@prisma/client";
 
 export type ProductFormState = {
   success: boolean;
@@ -72,6 +74,47 @@ function parseWholesaleOptions(value: FormDataEntryValue | null) {
   return null;
 }
 
+function parseBundleItems(value: FormDataEntryValue | null) {
+  const raw = String(value ?? "[]").trim();
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed as { productId: string; productName: string; quantity: number; image: string }[];
+    }
+  } catch {
+    // ignore malformed JSON
+  }
+  return null;
+}
+
+async function checkAndNotifyLowStock(
+  productId: string,
+  productName: string,
+  stock: number,
+  storeId: string,
+) {
+  const settings = await prisma.storeSettings.findUnique({
+    where: { storeId },
+    select: { defaultLowStockThreshold: true },
+  });
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { lowStockThreshold: true },
+  });
+  const threshold = product?.lowStockThreshold ?? settings?.defaultLowStockThreshold ?? 5;
+
+  if (stock <= threshold) {
+    await createNotification({
+      storeId,
+      type: "LOW_STOCK",
+      title: "مخزون منخفض",
+      message: `المنتج "${productName}" وصل إلى ${stock} قطعة فقط`,
+      href: `/dashboard/products/${productId}/edit`,
+      data: { productId, stock, threshold },
+    });
+  }
+}
+
 export async function CreateProductAction(
   _prevState: ProductFormState,
   formData: FormData,
@@ -108,6 +151,13 @@ export async function CreateProductAction(
     const attributes = parseAttributes(formData.get("attributes"));
     const wholesaleOptions = parseWholesaleOptions(formData.get("wholesaleOptions"));
 
+    const lowStockThresholdRaw = String(formData.get("lowStockThreshold") ?? "").trim();
+    const lowStockThreshold = lowStockThresholdRaw ? Number(lowStockThresholdRaw) : null;
+
+    const typeRaw = String(formData.get("type") ?? "SIMPLE").trim();
+    const type: ProductType = typeRaw === "BUNDLE" ? "BUNDLE" : "SIMPLE";
+    const bundleItems = parseBundleItems(formData.get("bundleItems"));
+
     const store = await prisma.store.findFirst({
       where: { userId },
       select: { id: true },
@@ -141,6 +191,10 @@ export async function CreateProductAction(
       compareAtPrice = null;
     }
 
+    if (type === "BUNDLE" && (!bundleItems || bundleItems.length === 0)) {
+      return { success: false, message: "يجب إضافة منتجات للباقة" };
+    }
+
     const category = await prisma.category.findFirst({
       where: { id: categoryId, storeId: store.id },
       select: { id: true, name: true },
@@ -164,6 +218,7 @@ export async function CreateProductAction(
         images,
         brand,
         stock,
+        lowStockThreshold,
         sizes,
         colors,
         tags,
@@ -171,6 +226,9 @@ export async function CreateProductAction(
         isActive,
         isFeatured,
         hasVariants,
+        type,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        bundleItems: bundleItems as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         attributes: attributes as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -180,6 +238,8 @@ export async function CreateProductAction(
       },
       select: { id: true },
     });
+
+    await checkAndNotifyLowStock(created.id, name, stock, store.id);
 
     revalidatePath("/dashboard/products");
     revalidatePath("/dashboard");
@@ -240,6 +300,13 @@ export async function UpdateProductAction(
     const attributes = parseAttributes(formData.get("attributes"));
     const wholesaleOptions = parseWholesaleOptions(formData.get("wholesaleOptions"));
 
+    const lowStockThresholdRaw = String(formData.get("lowStockThreshold") ?? "").trim();
+    const lowStockThreshold = lowStockThresholdRaw ? Number(lowStockThresholdRaw) : null;
+
+    const typeRaw = String(formData.get("type") ?? "SIMPLE").trim();
+    const type: ProductType = typeRaw === "BUNDLE" ? "BUNDLE" : "SIMPLE";
+    const bundleItems = parseBundleItems(formData.get("bundleItems"));
+
     const store = await prisma.store.findFirst({
       where: { userId },
       select: { id: true },
@@ -271,6 +338,10 @@ export async function UpdateProductAction(
 
     if (compareAtPrice !== null && compareAtPrice <= price) {
       compareAtPrice = null;
+    }
+
+    if (type === "BUNDLE" && (!bundleItems || bundleItems.length === 0)) {
+      return { success: false, message: "يجب إضافة منتجات للباقة" };
     }
 
     const category = await prisma.category.findFirst({
@@ -321,6 +392,7 @@ export async function UpdateProductAction(
         images,
         brand,
         stock,
+        lowStockThreshold,
         sizes,
         colors,
         tags,
@@ -328,6 +400,9 @@ export async function UpdateProductAction(
         isActive,
         isFeatured,
         hasVariants,
+        type,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        bundleItems: bundleItems as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         attributes: attributes as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -335,6 +410,8 @@ export async function UpdateProductAction(
         categoryId: category.id,
       },
     });
+
+    await checkAndNotifyLowStock(product.id, name, stock, store.id);
   } catch (error) {
     console.error("UpdateProductAction Error:", error);
     return { success: false, message: "حدث خطأ أثناء تعديل المنتج" };

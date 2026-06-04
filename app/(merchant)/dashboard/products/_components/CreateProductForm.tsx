@@ -45,8 +45,10 @@ import { Textarea } from "@/components/ui/textarea";
 import TagInput from "./TagInput";
 import AttributesInput from "./AttributesInput";
 import WholesaleInput from "./WholesaleInput";
+import BundleItemsInput from "./BundleItemsInput";
 
 type Category = { id: string; name: string };
+type AvailableProduct = { id: string; name: string; image: string };
 
 function OptionalBadge() {
   return (
@@ -60,8 +62,10 @@ const initialState: ProductFormState = { success: false, message: "" };
 
 export default function CreateProductForm({
   categories,
+  products = [],
 }: {
   categories: Category[];
+  products?: AvailableProduct[];
 }) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(
@@ -288,6 +292,22 @@ export default function CreateProductForm({
                 </div>
 
                 <div className="space-y-1.5">
+                  <Label htmlFor="lowStockThreshold">
+                    حد تنبيه المخزون
+                    <OptionalBadge />
+                  </Label>
+                  <Input
+                    id="lowStockThreshold"
+                    name="lowStockThreshold"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="افتراضي: 5"
+                    className="rounded-xl"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
                   <Label htmlFor="brand">
                     البراند
                     <OptionalBadge />
@@ -496,7 +516,25 @@ export default function CreateProductForm({
             </CardContent>
           </Card>
 
-          {/* Card 4: Wholesale */}
+          {/* Card 4: Bundle / Type */}
+          {products.length > 0 && (
+            <Card className="rounded-xl shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-base flex items-center gap-2">
+                  نوع المنتج
+                  <OptionalBadge />
+                </CardTitle>
+                <CardDescription>
+                  اختر "باقة" لبيع مجموعة منتجات بسعر واحد
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BundleItemsInput products={products} />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Card 5: Wholesale */}
           <Card className="rounded-xl shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-base flex items-center gap-2">

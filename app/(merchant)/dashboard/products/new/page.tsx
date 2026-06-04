@@ -26,11 +26,18 @@ export default async function CreateNewProductPage() {
 
   if (!store) redirect("/");
 
-  const categories = await prisma.category.findMany({
-    where: { storeId: store.id },
-    orderBy: { createdAt: "desc" },
-    select: { id: true, name: true },
-  });
+  const [categories, products] = await Promise.all([
+    prisma.category.findMany({
+      where: { storeId: store.id },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true },
+    }),
+    prisma.product.findMany({
+      where: { storeId: store.id, isActive: true, type: "SIMPLE" },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, image: true },
+    }),
+  ]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -67,7 +74,7 @@ export default async function CreateNewProductPage() {
           </CardContent>
         </Card>
       ) : (
-        <CreateProductForm categories={categories} />
+        <CreateProductForm categories={categories} products={products} />
       )}
     </div>
   );

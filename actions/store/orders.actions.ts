@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { NotificationType, OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { MustOwnStore, MustSession } from "@/actions/auth/auth-helpers.actions";
@@ -177,7 +178,22 @@ export async function CreateOrderAction(
     return acc + Math.round(unitPrice * 100) * item.quantity;
   }, 0);
 
-  const shipping = (store.settings?.shippingPrice ?? 0) * 100;
+  const cookieStore = await cookies();
+  const selectedShippingMethodId = cookieStore.get(`ship_${store.id}`)?.value ?? null;
+
+  const shippingMethods = await prisma.shippingMethod.findMany({
+    where: { storeId: store.id, isActive: true },
+    select: { id: true, price: true },
+  });
+
+  let shipping = (store.settings?.shippingPrice ?? 0) * 100;
+  let resolvedShippingMethodId: string | null = null;
+  if (shippingMethods.length > 0) {
+    const selected = shippingMethods.find((m) => m.id === selectedShippingMethodId);
+    const method = selected ?? shippingMethods[0];
+    shipping = method.price;
+    resolvedShippingMethodId = method.id;
+  }
   let discount = 0;
   let couponIdToUse: string | null = null;
   let couponCodeToUse: string | null = null;
@@ -207,6 +223,21 @@ export async function CreateOrderAction(
     }
   }
 
+  // Apply loyalty points discount
+  const appliedLoyalty = await prisma.appliedLoyaltyPoints.findUnique({
+    where: { guestSessionId_storeId: { guestSessionId, storeId: store.id } },
+    select: { points: true, customerId: true },
+  });
+  const loyaltySettings = await prisma.storeSettings.findUnique({
+    where: { storeId: store.id },
+    select: { loyaltyEnabled: true, loyaltyPointsValuePiasters: true },
+  });
+  let loyaltyDiscount = 0;
+  if (appliedLoyalty && loyaltySettings?.loyaltyEnabled) {
+    loyaltyDiscount = appliedLoyalty.points * (loyaltySettings.loyaltyPointsValuePiasters ?? 1);
+    discount += loyaltyDiscount;
+  }
+
   const total = Math.max(0, subtotal + shipping - discount);
 
   const order = await prisma.$transaction(async (tx) => {
@@ -223,6 +254,7 @@ export async function CreateOrderAction(
         discount,
         total,
         couponCode: couponCodeToUse,
+        ...(resolvedShippingMethodId ? { shippingMethodId: resolvedShippingMethodId } : {}),
         fullName: data.fullName,
         phone: data.phone,
         address: data.address,
@@ -275,6 +307,50 @@ export async function CreateOrderAction(
 
     return created;
   });
+
+  // Award loyalty points after order creation
+  try {
+    const loyaltySettings = await prisma.storeSettings.findUnique({
+      where: { storeId: store.id },
+      select: { loyaltyEnabled: true, loyaltyPointsPerEGP: true, loyaltyPointsValuePiasters: true },
+    });
+
+    if (loyaltySettings?.loyaltyEnabled) {
+      const totalEgp = total / 100;
+      const pointsEarned = Math.floor(totalEgp * (loyaltySettings.loyaltyPointsPerEGP ?? 1));
+
+      const appliedLoyalty = await prisma.appliedLoyaltyPoints.findUnique({
+        where: { guestSessionId_storeId: { guestSessionId, storeId: store.id } },
+        select: { customerId: true, points: true },
+      });
+
+      const customer = await prisma.customer.upsert({
+        where: { storeId_phone: { storeId: store.id, phone: data.phone } },
+        create: { storeId: store.id, phone: data.phone, name: data.fullName, points: pointsEarned },
+        update: {
+          name: data.fullName,
+          points: {
+            increment: pointsEarned - (appliedLoyalty?.points ?? 0),
+          },
+        },
+      });
+
+      await prisma.order.update({ where: { id: order.id }, data: { customerId: customer.id, pointsEarned } });
+
+      await prisma.loyaltyTransaction.create({
+        data: { customerId: customer.id, orderId: order.id, type: "EARNED", points: pointsEarned, description: `طلب #${order.id.slice(-6)}` },
+      });
+
+      if (appliedLoyalty) {
+        await prisma.loyaltyTransaction.create({
+          data: { customerId: appliedLoyalty.customerId, orderId: order.id, type: "REDEEMED", points: -appliedLoyalty.points, description: `استرداد نقاط - طلب #${order.id.slice(-6)}` },
+        });
+        await prisma.appliedLoyaltyPoints.deleteMany({ where: { guestSessionId, storeId: store.id } });
+      }
+    }
+  } catch (err) {
+    console.error("Loyalty points error (non-fatal):", err);
+  }
 
   await createNotification({
     storeId: store.id,
