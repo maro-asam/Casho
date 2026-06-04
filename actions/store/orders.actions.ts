@@ -22,6 +22,7 @@ import {
   orderStatusLabels,
 } from "@/lib/notifications/in-app";
 import { sendWhatsAppOrderNotification } from "@/lib/notifications/whatsapp";
+import { sendTelegramMarkdown } from "@/lib/notifications/telegram";
 
 const kashierAllowedMethodKeys = new Set(
   KASHIER_ALLOWED_METHODS.map((method) => method.key),
@@ -86,6 +87,7 @@ export async function CreateOrderAction(
         select: {
           shippingPrice: true,
           whatsappNumber: true,
+          telegramChatId: true,
           primaryColor: true,
         },
       },
@@ -381,6 +383,23 @@ export async function CreateOrderAction(
       itemCount: cartItems.reduce((sum, i) => sum + i.quantity, 0),
       storeName: store.name,
     });
+  }
+
+  const telegramChatId = store.settings?.telegramChatId;
+  if (telegramChatId) {
+    const paymentLabel =
+      data.paymentMethod === "cash_on_delivery" ? "كاش عند الاستلام" : data.paymentMethod;
+    const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
+    const msg =
+      `🛒 *طلب جديد!*\n\n` +
+      `👤 ${data.fullName}\n` +
+      `📞 ${data.phone}\n` +
+      `🏠 ${data.address}\n` +
+      `💰 ${formatPiastersAsEgp(total)}\n` +
+      `💳 ${paymentLabel}\n` +
+      `📦 ${itemCount} قطعة\n\n` +
+      `🔗 #${order.id.slice(-6).toUpperCase()}`;
+    sendTelegramMarkdown(telegramChatId, msg);
   }
 
   revalidatePath("/dashboard");

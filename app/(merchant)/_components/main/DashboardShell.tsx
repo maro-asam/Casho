@@ -265,10 +265,8 @@ export default function DashboardShell({
 
           {
             name: "ربط تيليجرام",
-            href: "/telegram",
+            href: "/dashboard/telegram",
             icon: Send,
-            disabled: true,
-            badge: "Soon",
           },
           {
             name: "الحملات التسويقية",

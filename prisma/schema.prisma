@@ -160,6 +160,9 @@ model StoreSettings {
   facebook         String?
   tiktok           String?
 
+  telegramChatId    String?
+  telegramLinkToken String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
