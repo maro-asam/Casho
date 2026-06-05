@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-import { GetSuggestedOrdersAction } from "@/actions/instagram/get-suggested-orders.actions";
+import { GetSuggestedOrdersAction } from "@/actions/instagram/instagram.actions";
 import { ConfidenceBadge } from "./_components/ConfidenceBadge";
 import { RejectDialog } from "./_components/RejectDialog";
 import { SuggestedOrderStatus } from "@prisma/client";

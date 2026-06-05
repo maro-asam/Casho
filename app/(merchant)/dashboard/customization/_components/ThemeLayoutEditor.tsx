@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   UpdateThemeLayoutAction,
-} from "@/actions/settings/update-theme-config.actions";
-import { UpdateNavbarVariantAction } from "@/actions/settings/update-navbar-variant.actions";
+  UpdateNavbarVariantAction,
+} from "@/actions/settings/theme.actions";
 import type { ThemeLayout, NavbarVariant, ButtonStyle, ImageAspectRatio, AnimationStyle } from "@/types/store-theme.types";
 
 type Props = {

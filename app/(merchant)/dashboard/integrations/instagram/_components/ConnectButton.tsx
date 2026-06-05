@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ConnectInstagramAction } from "@/actions/instagram/connect.actions";
+import { ConnectInstagramAction } from "@/actions/instagram/instagram.actions";
 
 export function ConnectButton() {
   const [isPending, startTransition] = useTransition();

@@ -14,7 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { CreateCouponAction } from "@/actions/coupons/create-coupon.actions";
+import { CreateCouponAction } from "@/actions/coupons/coupons.actions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

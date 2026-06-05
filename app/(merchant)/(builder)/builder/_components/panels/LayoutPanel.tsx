@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useBuilder } from "../BuilderContext";
-import { UpdateThemeLayoutAction } from "@/actions/settings/update-theme-config.actions";
+import { UpdateThemeLayoutAction } from "@/actions/settings/theme.actions";
 import type { ThemeLayout } from "@/types/store-theme.types";
 
 // ─── Generic option picker ────────────────────────────────────────────────────

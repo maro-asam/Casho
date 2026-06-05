@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-import { GetInstagramStatsAction } from "@/actions/instagram/get-suggested-orders.actions";
+import { GetInstagramStatsAction } from "@/actions/instagram/instagram.actions";
 import { ConnectionStatus } from "./_components/ConnectionStatus";
 import { ConnectButton } from "./_components/ConnectButton";
 

@@ -55,8 +55,8 @@ import { useBuilder } from "../BuilderContext";
 import {
   UpdateThemeSectionsAction,
   UpdateSectionOrderAction,
-} from "@/actions/settings/update-theme-config.actions";
-import { UpdateSectionContentAction } from "@/actions/settings/update-section-content.actions";
+} from "@/actions/settings/theme.actions";
+import { UpdateSectionContentAction } from "@/actions/settings/theme.actions";
 import type {
   SectionKey,
   HomePageSections,

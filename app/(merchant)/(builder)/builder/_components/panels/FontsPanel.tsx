@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils";
 import { useBuilder } from "../BuilderContext";
 import { ARABIC_FONTS } from "@/constants/arabic-fonts";
 import { ENGLISH_FONTS } from "@/constants/english-fonts";
-import { UpdateStoreFontAction } from "@/actions/store/update-store-font.actions";
-import { UpdateStoreLanguageAction } from "@/actions/store/update-store-language.actions";
+import { UpdateStoreFontAction, UpdateStoreLanguageAction } from "@/actions/settings/theme.actions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function FontsPanel() {

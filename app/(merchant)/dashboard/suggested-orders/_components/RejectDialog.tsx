@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { RejectSuggestedOrderAction } from "@/actions/instagram/reject-suggested-order.actions";
+import { RejectSuggestedOrderAction } from "@/actions/instagram/instagram.actions";
 
 type Props = {
   suggestedOrderId: string;

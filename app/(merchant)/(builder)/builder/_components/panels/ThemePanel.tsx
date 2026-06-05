@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useBuilder } from "../BuilderContext";
 import { STORE_THEMES, type StoreThemeId } from "@/constants/store-themes";
-import { UpdateThemeAction } from "@/actions/settings/update-theme-config.actions";
+import { UpdateThemeAction } from "@/actions/settings/theme.actions";
 
 // ─── Inline previews (compact 80px cards) ────────────────────────────────────
 

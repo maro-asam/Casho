@@ -18,7 +18,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import {
   GetSuggestedOrderDetailAction,
-} from "@/actions/instagram/get-suggested-orders.actions";
+} from "@/actions/instagram/instagram.actions";
 import { ConfidenceBadge } from "../_components/ConfidenceBadge";
 import { RejectDialog } from "../_components/RejectDialog";
 import { ConversationViewer } from "./_components/ConversationViewer";

@@ -5,7 +5,7 @@ import { Sparkles, Send, CheckCircle2, Clock3 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { RequestRemovePoweredByAction } from "@/actions/services/request-remove-powered-by.actions";
+import { RequestRemovePoweredByAction } from "@/actions/services/services.actions";
 
 type PoweredByCashoCardProps = {
   storeId: string;

@@ -6,7 +6,7 @@ import { Check, Palette } from "lucide-react";
 
 import { STORE_THEMES, type StoreThemeId } from "@/constants/store-themes";
 import { cn } from "@/lib/utils";
-import { UpdateThemeAction } from "@/actions/settings/update-theme-config.actions";
+import { UpdateThemeAction } from "@/actions/settings/theme.actions";
 import { Card, CardContent } from "@/components/ui/card";
 
 type ThemePickerProps = {

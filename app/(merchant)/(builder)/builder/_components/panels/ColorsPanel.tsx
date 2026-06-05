@@ -5,7 +5,7 @@ import { Droplets, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useBuilder } from "../BuilderContext";
-import { UpdateThemeTokensAction } from "@/actions/settings/update-theme-config.actions";
+import { UpdateThemeTokensAction } from "@/actions/settings/theme.actions";
 import { resolveStoreTheme } from "@/constants/store-themes";
 
 // ─── Color swatch picker ──────────────────────────────────────────────────────

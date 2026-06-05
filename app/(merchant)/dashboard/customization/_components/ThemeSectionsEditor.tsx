@@ -52,8 +52,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   UpdateThemeSectionsAction,
   UpdateSectionOrderAction,
-} from "@/actions/settings/update-theme-config.actions";
-import { UpdateSectionContentAction } from "@/actions/settings/update-section-content.actions";
+  UpdateSectionContentAction,
+} from "@/actions/settings/theme.actions";
 import type {
   ThemeSections,
   SectionKey,

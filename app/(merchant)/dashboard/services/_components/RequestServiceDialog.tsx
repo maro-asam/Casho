@@ -5,7 +5,7 @@ import { useActionState, useEffect } from "react";
 import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 
-import { CreateServiceRequestAction } from "@/actions/services/create-service-request.action";
+import { CreateServiceRequestAction } from "@/actions/services/services.actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

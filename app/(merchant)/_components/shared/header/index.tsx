@@ -42,7 +42,7 @@ const Header = async () => {
             alt={storeName || "كاشو"}
             width={45}
             height={45}
-            className="rounded-xl"
+            className="rounded-lg"
           />
           <div>
             <span className="text-primary ">C</span>ASHO
@@ -66,13 +66,13 @@ const Header = async () => {
         <div className="hidden items-center gap-2 md:flex">
           {!user ? (
             <>
-              <Button className="rounded-xl" asChild>
+              <Button className="" asChild>
                 <Link href="/register" className="flex items-center gap-2">
                   ابدأ متجرك دلوقتي <Store />
                 </Link>
               </Button>
 
-              <Button className="rounded-xl" variant="outline" asChild>
+              <Button className="" variant="outline" asChild>
                 <Link href="/login" className="flex items-center gap-2">
                   تسجيل الدخول <LogIn />
                 </Link>
@@ -81,7 +81,7 @@ const Header = async () => {
           ) : (
             <DropdownMenu dir="rtl" modal={false}>
               <DropdownMenuTrigger asChild className="w-full">
-                <Button variant="outline" className="rounded-xl">
+                <Button variant="outline" className="">
                   {storeName || user.email} <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>

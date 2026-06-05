@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useBuilder, type PreviewDevice } from "./BuilderContext";
-import { PublishThemeFromDraftAction } from "@/actions/settings/update-theme-config.actions";
+import { PublishThemeFromDraftAction } from "@/actions/settings/theme.actions";
 
 // ─── Device switcher config ───────────────────────────────────────────────────
 

@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 
 import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
-import { TrackPurchaseAction } from "@/actions/tracking/meta-order-events.actions";
+import { TrackPurchaseAction } from "@/actions/tracking/tracking.actions";
 import { revalidatePath } from "next/cache";
 import {
   addDays,
@@ -604,4 +604,39 @@ export async function RenewStoreSubscriptionAction(
       message: "حدث خطأ أثناء تجديد الاشتراك",
     };
   }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+export async function canStoreUsePlatform(storeId: string) {
+  const store = await prisma.store.findUnique({
+    where: { id: storeId },
+    select: {
+      subscriptionStatus: true,
+      subscriptionEndsAt: true,
+      gracePeriodEndsAt: true,
+    },
+  });
+
+  if (!store) return false;
+
+  const now = new Date();
+
+  if (
+    store.subscriptionStatus === "ACTIVE" &&
+    store.subscriptionEndsAt &&
+    store.subscriptionEndsAt.getTime() > now.getTime()
+  ) {
+    return true;
+  }
+
+  if (
+    store.subscriptionStatus === "GRACE_PERIOD" &&
+    store.gracePeriodEndsAt &&
+    store.gracePeriodEndsAt.getTime() > now.getTime()
+  ) {
+    return true;
+  }
+
+  return false;
 }

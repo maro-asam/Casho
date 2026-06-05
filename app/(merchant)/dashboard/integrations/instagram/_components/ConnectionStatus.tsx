@@ -26,8 +26,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { DisconnectInstagramAction } from "@/actions/instagram/disconnect.actions";
-import { SyncInstagramConversationsAction } from "@/actions/instagram/sync-conversations.actions";
+import {
+  DisconnectInstagramAction,
+  SyncInstagramConversationsAction,
+} from "@/actions/instagram/instagram.actions";
 import { toast } from "sonner";
 
 type Props = {

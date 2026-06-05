@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { UpdateStoreColorsAction } from "@/actions/store/update-store-colors.actions";
+import { UpdateStoreColorsAction } from "@/actions/settings/theme.actions";
 
 type StoreColorsProps = {
   store: {

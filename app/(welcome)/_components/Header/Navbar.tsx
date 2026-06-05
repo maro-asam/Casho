@@ -44,18 +44,15 @@ const Navbar = async () => {
                     width={55}
                     height={55}
                     alt="Casho logo"
-                    className="rounded-xl"
+                    className="rounded-lg"
                   />
                 </div>
 
                 <div className="flex flex-col leading-none">
-                  <span className="text-xl font-extrabold">
+                  <span className="text-2xl font-extrabold">
                     <span className="text-primary font-extrabold">C</span>ASHO
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    <span className="text-primary">كاشو</span> منصتك للبيع
-                    أونلاين
-                  </span>
+
                 </div>
               </Link>
             </div>
@@ -71,7 +68,7 @@ const Navbar = async () => {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="h-11 rounded-xl border-border/10 px-3 transition-all duration-300"
+                        className="h-11  border-border/10 px-3 transition-all duration-300"
                       >
                         <div className="flex items-center gap-2">
                           <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300">
@@ -109,7 +106,7 @@ const Navbar = async () => {
 
                       <DropdownMenuItem
                         asChild
-                        className="cursor-pointer rounded-xl"
+                        className="cursor-pointer "
                       >
                         <Link
                           href={buildStoreUrl("app")}
@@ -123,7 +120,7 @@ const Navbar = async () => {
                       {store?.slug && (
                         <DropdownMenuItem
                           asChild
-                          className="cursor-pointer rounded-xl"
+                          className="cursor-pointer "
                         >
                           <Link
                             href={buildStoreUrl(store.slug)}
@@ -155,7 +152,7 @@ const Navbar = async () => {
                   <ModeToggle />
                   <Button
                     asChild
-                    className="h-11 rounded-xl px-5 text-sm font-semibold shadow-md shadow-primary/20 transition-all duration-300 "
+                    className=" px-5 text-sm font-semibold shadow-md shadow-primary/20 transition-all duration-300 "
                   >
                     <Link href="/register" className="group">
                       ابدأ دلوقتي
@@ -166,7 +163,7 @@ const Navbar = async () => {
                   <Button
                     asChild
                     variant={`outline`}
-                    className="h-11 rounded-xl px-5 text-sm transition-all duration-300 "
+                    className=" px-5 text-sm transition-all duration-300 "
                   >
                     <Link href="/login" className="group">
                       تسجيل دخول

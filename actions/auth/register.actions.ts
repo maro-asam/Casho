@@ -9,7 +9,7 @@ import { getFieldErrors } from "@/lib/zod";
 import { normalizeStoreSlug } from "@/lib/store/slug";
 import { createUserSession } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
-import { TrackStoreRegistrationAction } from "@/actions/tracking/meta-registration-events.actions";
+import { TrackStoreRegistrationAction } from "@/actions/tracking/tracking.actions";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {

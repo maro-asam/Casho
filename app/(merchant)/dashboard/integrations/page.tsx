@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-import { GetInstagramStatsAction } from "@/actions/instagram/get-suggested-orders.actions";
+import { GetInstagramStatsAction } from "@/actions/instagram/instagram.actions";
 
 export const metadata: Metadata = {
   title: "التكاملات",

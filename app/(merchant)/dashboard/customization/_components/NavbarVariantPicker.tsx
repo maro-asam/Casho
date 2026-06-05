@@ -6,7 +6,7 @@ import { Check, Navigation } from "lucide-react";
 
 import { STORE_NAVBAR_VARIANTS, type StoreNavbarVariant } from "@/constants/store-navbar";
 import { cn } from "@/lib/utils";
-import { UpdateNavbarVariantAction } from "@/actions/settings/update-navbar-variant.actions";
+import { UpdateNavbarVariantAction } from "@/actions/settings/theme.actions";
 import { Card, CardContent } from "@/components/ui/card";
 
 type NavbarVariantPickerProps = {

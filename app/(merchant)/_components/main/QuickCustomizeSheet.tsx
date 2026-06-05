@@ -28,10 +28,12 @@ import { STORE_THEMES, type StoreThemeId } from "@/constants/store-themes";
 import { ARABIC_FONT_LIST, type ArabicFontId } from "@/constants/arabic-fonts";
 import { STORE_NAVBAR_VARIANTS, type StoreNavbarVariant } from "@/constants/store-navbar";
 
-import { UpdateStoreThemeAction } from "@/actions/themes/update-store-theme.actions";
-import { UpdateStoreFontAction } from "@/actions/store/update-store-font.actions";
-import { UpdateNavbarVariantAction } from "@/actions/settings/update-navbar-variant.actions";
-import { UpdateStoreColorsAction } from "@/actions/store/update-store-colors.actions";
+import {
+  UpdateStoreThemeAction,
+  UpdateStoreFontAction,
+  UpdateNavbarVariantAction,
+  UpdateStoreColorsAction,
+} from "@/actions/settings/theme.actions";
 import { cn } from "@/lib/utils";
 
 type Settings = {
@@ -169,7 +171,7 @@ function ThemeSection({ storeId, currentThemeId }: { storeId: string; currentThe
                 <div className="h-2 w-10 rounded-full" style={{ background: "rgba(255,255,255,.75)" }} />
                 <div className="h-4 w-7 rounded-md" style={{ background: "var(--ts)" }} />
               </div>
-              <div className="flex h-[60px] flex-col justify-center gap-1.5 px-3" style={{ background: "var(--tp)" }}>
+              <div className="flex h-15 flex-col justify-center gap-1.5 px-3" style={{ background: "var(--tp)" }}>
                 <div className="absolute inset-0 bg-black/20" />
                 <div className="relative h-2 w-20 rounded-full" style={{ background: "rgba(255,255,255,.9)" }} />
                 <div className="relative h-1.5 w-14 rounded-full" style={{ background: "rgba(255,255,255,.55)" }} />

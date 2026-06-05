@@ -6,8 +6,7 @@ import { toast } from "sonner";
 
 import { ARABIC_FONT_LIST, type ArabicFontId } from "@/constants/arabic-fonts";
 import { ENGLISH_FONT_LIST, type EnglishFontId } from "@/constants/english-fonts";
-import { UpdateStoreFontAction } from "@/actions/store/update-store-font.actions";
-import { UpdateStoreLanguageAction } from "@/actions/store/update-store-language.actions";
+import { UpdateStoreFontAction, UpdateStoreLanguageAction } from "@/actions/settings/theme.actions";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
