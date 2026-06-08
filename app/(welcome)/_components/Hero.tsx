@@ -527,7 +527,7 @@ export default function Hero() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-70" />
                 <span className="relative inline-flex size-2 rounded-full bg-primary" />
               </span>
-              +5000 متجر نشط على كاشو
+              +500 متجر نشط على كاشو
             </div>
           </motion.div>
 

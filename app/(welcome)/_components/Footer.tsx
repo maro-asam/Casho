@@ -15,8 +15,9 @@ const footerLinks = {
     { name: "تسجيل الدخول", href: "/login" },
   ],
   legal: [
-    { name: "سياسة الخصوصية", href: "#" },
-    { name: "الشروط والأحكام", href: "#" },
+    { name: "سياسة الخصوصية", href: "/privacy-policy" },
+    { name: "سياسة الاسترداد", href: "/refund-policy" },
+    { name: "الشروط والأحكام", href: "/terms" },
   ],
   contact: [
     { name: "01014344053", href: "tel:01014344053", icon: Phone },
