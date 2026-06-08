@@ -8,9 +8,9 @@ import {
   Menu,
   X,
   Store,
-  Sparkles,
   LayoutDashboard,
   LogOut,
+  ArrowLeft,
   ChevronLeft,
 } from "lucide-react";
 
@@ -30,7 +30,7 @@ const NAV_LINKS = [
   { name: "الرئيسية", href: "/" },
   { name: "المميزات", href: "#features" },
   { name: "الأسعار", href: "#pricing" },
-  { name: "الأسئلة", href: "#faq" },
+  { name: "الأسئلة الشائعة", href: "#faq" },
   { name: "المدونة", href: "/blog" },
 ];
 
@@ -41,64 +41,65 @@ const backdropVariants = {
 };
 
 const panelVariants = {
-  hidden: {
-    opacity: 0,
-    y: -18,
-    scale: 0.98,
-    filter: "blur(8px)",
-  },
+  hidden: { opacity: 0, y: -12, scale: 0.98, filter: "blur(6px)" },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
     filter: "blur(0px)",
     transition: {
-      duration: 0.28,
+      duration: 0.25,
       ease: [0.22, 1, 0.36, 1],
-      staggerChildren: 0.06,
-      delayChildren: 0.04,
+      staggerChildren: 0.05,
+      delayChildren: 0.03,
     },
   },
   exit: {
     opacity: 0,
-    y: -14,
+    y: -10,
     scale: 0.98,
-    filter: "blur(8px)",
-    transition: {
-      duration: 0.2,
-      ease: "easeOut",
-    },
+    filter: "blur(6px)",
+    transition: { duration: 0.18, ease: "easeOut" },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: -10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.22, ease: "easeOut" },
-  },
+  hidden: { opacity: 0, y: -8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: "easeOut" } },
 };
+
+function UserInitials({ name, email }: { name: string; email: string }) {
+  const initials = name
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  return (
+    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary">
+      {initials || email[0].toUpperCase()}
+    </div>
+  );
+}
 
 export default function MobileNavMenu({ user }: MobileNavMenuProps) {
   const [open, setOpen] = useState(false);
+  const displayName = user?.storeName || user?.email?.split("@")[0] || "حسابي";
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
   return (
     <div className="flex items-center gap-1">
-      <ModeToggle className="" />
+      <ModeToggle />
 
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
         onClick={() => setOpen(true)}
-        className="size-11 rounded-xl border-border/20 bg-background/80 backdrop-blur-md"
+        className="size-9 rounded-lg"
         aria-label="فتح القائمة"
       >
         <Menu className="size-5" />
@@ -108,7 +109,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
         {open && (
           <>
             <motion.div
-              className="fixed inset-0 z-80 bg-black/30 backdrop-blur-sm"
+              className="fixed inset-0 z-80 bg-black/20 backdrop-blur-sm"
               variants={backdropVariants}
               initial="hidden"
               animate="visible"
@@ -117,152 +118,143 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
             />
 
             <motion.div
-              className="fixed inset-x-4 top-4 z-90 origin-top rounded-xl border border-border/20 bg-background/95 p-4 shadow-2xl backdrop-blur-2xl"
+              className="fixed inset-x-3 top-3 z-90 overflow-hidden rounded-2xl border border-border/15 bg-background/97 shadow-2xl backdrop-blur-2xl"
               // @ts-expect-error
               variants={panelVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
+              {/* Header */}
               <motion.div
                 // @ts-expect-error
                 variants={itemVariants}
-                className="mb-4 flex items-center justify-between"
+                className="flex items-center justify-between border-b border-border/10 px-4 py-3.5"
               >
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5"
+                >
+                  <span className="text-lg font-black tracking-tight">
+                    <span className="text-primary">C</span>ASHO
+                  </span>
+                </Link>
+
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setOpen(false)}
-                  className="size-10 rounded-xl"
-                  aria-label="إغلاق القائمة"
+                  className="size-8 rounded-lg"
                 >
-                  <X className="size-5" />
+                  <X className="size-4" />
                 </Button>
-
-                <Link
-                  href="/"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3"
-                >
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
-                    <Store className="size-5" />
-                  </div>
-
-                  <div className="text-right leading-none">
-                    <p className="text-base font-extrabold">
-                      <span className="text-primary">كاشو</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      منصتك للبيع أونلاين
-                    </p>
-                  </div>
-                </Link>
               </motion.div>
 
-              {user && (
-                <motion.div
-                  // @ts-expect-error
-                  variants={itemVariants}
-                  className="mb-4 rounded-xl border border-primary/10 bg-primary/5 p-3"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="text-right">
-                      <p className="text-sm font-semibold">
-                        {user.storeName || "حسابي"}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground break-all">
+              <div className="p-3">
+                {/* User card */}
+                {user && (
+                  <motion.div
+                    // @ts-expect-error
+                    variants={itemVariants}
+                    className="mb-3 flex items-center gap-3 rounded-xl bg-foreground/4 px-3 py-2.5"
+                  >
+                    <UserInitials name={displayName} email={user.email} />
+                    <div className="min-w-0 text-right">
+                      <p className="text-sm font-semibold">{displayName}</p>
+                      <p className="truncate text-xs text-muted-foreground">
                         {user.email}
                       </p>
                     </div>
+                  </motion.div>
+                )}
 
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Sparkles className="size-4" />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              <motion.nav
-                // @ts-expect-error
-                variants={itemVariants}
-                className="flex flex-col gap-2"
-              >
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className="group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-foreground/85 transition-colors hover:bg-primary/5 hover:text-primary"
-                  >
-                    <span>{link.name}</span>
-                    <ChevronLeft className="size-4 text-muted-foreground transition-transform group-hover:-translate-x-1 group-hover:text-primary" />
-                  </Link>
-                ))}
-              </motion.nav>
-
-              <motion.div
-                // @ts-expect-error
-                variants={itemVariants}
-                className="my-4 h-px bg-border/70"
-              />
-
-              <motion.div
-                // @ts-expect-error
-                variants={itemVariants}
-                className="flex flex-col gap-2"
-              >
-                {user ? (
-                  <>
+                {/* Nav links */}
+                <motion.nav
+                  // @ts-expect-error
+                  variants={itemVariants}
+                  className="flex flex-col"
+                >
+                  {NAV_LINKS.map((link) => (
                     <Link
-                      href={buildStoreUrl("app")}
+                      key={link.name}
+                      href={link.href}
                       onClick={() => setOpen(false)}
+                      className="group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
                     >
-                      <Button
-                        variant="outline"
-                        className="h-12 w-full justify-between rounded-xl border-border/20 bg-background"
-                      >
-                        <LayoutDashboard className="size-4" />
-                        <span>لوحة التحكم</span>
-                      </Button>
+                      <span>{link.name}</span>
+                      <ChevronLeft className="size-3.5 text-muted-foreground/50 transition-transform group-hover:-translate-x-0.5 group-hover:text-foreground/40" />
                     </Link>
+                  ))}
+                </motion.nav>
 
-                    {user.storeSlug && (
-                      <Link
-                        href={buildStoreUrl(user.storeSlug)}
-                        onClick={() => setOpen(false)}
-                      >
+                <motion.div
+                  // @ts-expect-error
+                  variants={itemVariants}
+                  className="my-3 h-px bg-border/60"
+                />
+
+                {/* Actions */}
+                <motion.div
+                  // @ts-expect-error
+                  variants={itemVariants}
+                  className="flex flex-col gap-2"
+                >
+                  {user ? (
+                    <>
+                      <Link href={buildStoreUrl("app")} onClick={() => setOpen(false)}>
                         <Button
                           variant="outline"
-                          className="h-12 w-full justify-between rounded-xl border-border/20 bg-background"
+                          className="h-11 w-full justify-between rounded-xl border-border/20"
                         >
-                          <Store className="size-4" />
-                          <span>عرض المتجر</span>
+                          <span>لوحة التحكم</span>
+                          <LayoutDashboard className="size-4 text-muted-foreground" />
                         </Button>
                       </Link>
-                    )}
 
-                    <form action="/api/logout" className="w-full">
-                      <Button
-                        type="submit"
-                        variant="ghost"
-                        className="h-12 w-full justify-between rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <LogOut className="size-4" />
-                        <span>تسجيل الخروج</span>
-                      </Button>
-                    </form>
-                  </>
-                ) : (
-                  <div>
-                    <Link href="/register" onClick={() => setOpen(false)}>
-                      <Button className="h-12 w-full justify-center rounded-xl text-sm font-semibold shadow-md shadow-primary/20">
-                        ابدأ دلوقتي
-                        <Store className="ms-2 size-4" />
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </motion.div>
+                      {user.storeSlug && (
+                        <Link href={buildStoreUrl(user.storeSlug)} onClick={() => setOpen(false)}>
+                          <Button
+                            variant="outline"
+                            className="h-11 w-full justify-between rounded-xl border-border/20"
+                          >
+                            <span>عرض المتجر</span>
+                            <Store className="size-4 text-muted-foreground" />
+                          </Button>
+                        </Link>
+                      )}
+
+                      <form action="/api/logout" className="w-full">
+                        <Button
+                          type="submit"
+                          variant="ghost"
+                          className="h-11 w-full justify-between rounded-xl text-destructive/80 hover:bg-destructive/8 hover:text-destructive"
+                        >
+                          <span>تسجيل الخروج</span>
+                          <LogOut className="size-4" />
+                        </Button>
+                      </form>
+                    </>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <Link href="/register" onClick={() => setOpen(false)}>
+                        <Button className="group h-11 w-full rounded-xl bg-gradient-to-l from-primary to-primary/80 text-sm font-semibold shadow-lg shadow-primary/20">
+                          ابدأ مجانًا
+                          <ArrowLeft className="ms-2 size-4 transition-transform group-hover:-translate-x-0.5" />
+                        </Button>
+                      </Link>
+                      <Link href="/login" onClick={() => setOpen(false)}>
+                        <Button
+                          variant="ghost"
+                          className="h-11 w-full rounded-xl text-sm text-foreground/70"
+                        >
+                          تسجيل دخول
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
             </motion.div>
           </>
         )}

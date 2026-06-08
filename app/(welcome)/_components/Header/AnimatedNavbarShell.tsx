@@ -20,9 +20,9 @@ export default function AnimatedNavbarShell({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20, filter: "blur(12px)" }}
+      initial={{ opacity: 0, y: -16, filter: "blur(10px)" }}
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
         "mx-auto transition-[max-width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
         scrolled ? "max-w-4xl" : "max-w-full",
@@ -30,10 +30,10 @@ export default function AnimatedNavbarShell({
     >
       <div
         className={cn(
-          "flex items-center justify-between px-4 md:px-6 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "flex items-center justify-between px-4 md:px-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           scrolled
-            ? "rounded-2xl border border-border/20 bg-background/85 py-2.5 shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-2xl dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)]"
-            : "rounded-xl border border-border/10 bg-card/60 py-3.5 shadow-sm backdrop-blur-md",
+            ? "rounded-2xl border border-border/15 bg-background/80 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-2xl dark:bg-background/70 dark:shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
+            : "rounded-2xl border border-transparent bg-transparent py-3",
         )}
       >
         {children}

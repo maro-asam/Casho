@@ -176,7 +176,7 @@ export function LoginForm() {
               </Button>
             </a>
 
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center text-sm text-muted-foreground mt-5">
               معندكش حساب؟{" "}
               <Link
                 href="/register"
