@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-import { GetCRMCustomersAction, computeHealthScore } from "@/actions/crm/customers.actions";
+import { GetCRMCustomersAction } from "@/actions/crm/customers.actions";
+import { computeHealthScore } from "@/lib/crm/health-score";
 import { GetTagsAction } from "@/actions/crm/customer-tags.actions";
 import { GetSegmentsAction } from "@/actions/crm/customer-segments.actions";
 import { CreateCustomerDialog } from "../_components/CreateCustomerDialog";

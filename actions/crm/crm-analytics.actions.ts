@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { computeHealthScore } from "./customers.actions";
+import { computeHealthScore } from "@/lib/crm/health-score";
 
 async function getStoreId(userId: string) {
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
