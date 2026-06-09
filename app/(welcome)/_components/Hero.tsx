@@ -133,6 +133,21 @@ function ArabicStorefront() {
       style={{ direction: "rtl", backgroundColor: V.bg, color: V.fg }}
       className="select-none overflow-hidden"
     >
+      {/* ── Top promo strip ───────────────────────── */}
+      <div
+        style={{
+          background: V.primary,
+          padding: "7px 20px",
+          textAlign: "center",
+          fontSize: 9,
+          fontWeight: 700,
+          color: V.priFg,
+          letterSpacing: "0.05em",
+        }}
+      >
+        ◆ &nbsp; شحن مجاني على الطلبات فوق ٥٠٠ ج.م &nbsp; · &nbsp; تسليم خلال ٢٤ ساعة &nbsp; ◆
+      </div>
+
       {/* ── Navbar ───────────────────────────────── */}
       <div
         style={{
@@ -140,194 +155,298 @@ function ArabicStorefront() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "14px 28px",
+          padding: "11px 20px",
         }}
       >
-        <span
-          style={{
-            fontWeight: 900,
-            fontSize: 17,
-            color: V.fg,
-            letterSpacing: "0.03em",
-          }}
-        >
-          زُهرة
-        </span>
         <div
           style={{
             display: "flex",
-            gap: 22,
+            gap: 18,
+            fontSize: 9.5,
             color: V.muted,
-            fontSize: 11,
             fontWeight: 500,
           }}
         >
-          <span
-            style={{
-              color: V.primary,
-              borderBottom: `1px solid ${V.primary}`,
-              paddingBottom: 2,
-            }}
-          >
-            الرئيسية
-          </span>
           <span>نساء</span>
           <span>رجال</span>
           <span>تخفيضات</span>
         </div>
-        <div
+        <span
           style={{
-            display: "flex",
-            gap: 12,
-            alignItems: "center",
-            color: V.muted,
+            fontWeight: 900,
+            fontSize: 19,
+            color: V.fg,
+            letterSpacing: "0.06em",
+            fontStyle: "italic",
           }}
         >
-          <ShoppingBag style={{ width: 16, height: 16 }} />
-          <span
+          زُهرة
+        </span>
+        <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 6, color: V.muted }}>
+          <ShoppingBag style={{ width: 15, height: 15 }} />
+          <div
             style={{
-              fontSize: 10,
-              background: V.mutedBg,
-              borderRadius: 999,
-              padding: "1px 8px",
+              position: "absolute",
+              top: -7,
+              left: -6,
+              width: 14,
+              height: 14,
+              borderRadius: "50%",
+              background: V.primary,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 7,
+              color: V.priFg,
+              fontWeight: 800,
             }}
           >
             ٢
-          </span>
+          </div>
         </div>
       </div>
 
-      {/* ── Hero Banner ──────────────────────────── */}
-      <div style={{ position: "relative", overflow: "hidden", height: 300 }}>
-        <div style={{ position: "absolute", inset: 0, background: V.card }} />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(ellipse 50% 90% at 16% 55%, ${V.pri20}, transparent)`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `repeating-linear-gradient(45deg, ${V.pri12} 0, ${V.pri12} 1px, transparent 0, transparent 50%)`,
-            backgroundSize: "9px 9px",
-            opacity: 0.4,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            left: "5%",
-            top: 0,
-            width: 110,
-            height: "100%",
-            background: `linear-gradient(to bottom, ${V.pri20}, transparent)`,
-            clipPath: "polygon(25% 0%,100% 0%,75% 100%,0% 100%)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            left: "19%",
-            top: 0,
-            width: 65,
-            height: "100%",
-            background: `linear-gradient(to bottom, ${V.pri12}, transparent)`,
-            clipPath: "polygon(15% 0%,85% 0%,85% 100%,15% 100%)",
-          }}
-        />
+      {/* ── Hero banner ──────────────────────────── */}
+      <div style={{ display: "flex", height: 258, overflow: "hidden" }}>
 
+        {/* LEFT — dress product */}
         <div
           style={{
-            position: "absolute",
-            top: "50%",
-            transform: "translateY(-50%)",
-            right: 32,
-            textAlign: "right",
+            width: "36%",
+            position: "relative",
+            background: "linear-gradient(160deg, #f7eee5, #eeddd0)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            overflow: "hidden",
           }}
         >
           <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              border: `1px solid ${V.pri30}`,
-              borderRadius: 999,
-              padding: "3px 12px",
-              fontSize: 9,
-              fontWeight: 600,
-              color: V.primary,
-              marginBottom: 14,
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(180,120,60,0.18), transparent)",
             }}
+          />
+          <svg
+            viewBox="0 0 100 190"
+            style={{ height: 248, width: "auto", position: "relative", zIndex: 1 }}
           >
-            <span
-              style={{
-                width: 5,
-                height: 5,
-                borderRadius: "50%",
-                background: V.primary,
-                flexShrink: 0,
-              }}
-            />
-            كولكشن جديد · ربيع ٢٠٢٥
-          </div>
-          <h3
-            style={{
-              fontSize: 38,
-              fontWeight: 900,
-              color: V.fg,
-              lineHeight: 1.05,
-              margin: 0,
-            }}
-          >
-            موضة
-            <br />
-            <span style={{ color: V.primary }}>الربيع</span>
-          </h3>
-          <p
-            style={{
-              fontSize: 11,
-              color: V.muted,
-              marginTop: 8,
-              fontWeight: 400,
-            }}
-          >
-            إيديشن محدود — متوفر لفترة محدودة
-          </p>
-          <button
-            style={{
-              marginTop: 16,
-              background: V.primary,
-              borderRadius: 999,
-              padding: "9px 22px",
-              fontSize: 11,
-              fontWeight: 700,
-              color: V.priFg,
-              cursor: "pointer",
-              border: "none",
-            }}
-          >
-            تسوّق دلوقتي ←
-          </button>
+            <defs>
+              <linearGradient id="sg-d1" x1="0" y1="0" x2="0.4" y2="1">
+                <stop offset="0%" stopColor="#2d1b4e" />
+                <stop offset="100%" stopColor="#160d28" />
+              </linearGradient>
+              <linearGradient id="sg-skin" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#d4956a" />
+                <stop offset="100%" stopColor="#c07848" />
+              </linearGradient>
+            </defs>
+            <ellipse cx="50" cy="20" rx="11" ry="13" fill="url(#sg-skin)" />
+            <path d="M39,16 Q35,8 40,4 Q50,0 60,4 Q65,8 61,16" fill="#2c1810" />
+            <path d="M39,16 Q36,24 38,28" stroke="#2c1810" strokeWidth="3" fill="none" />
+            <path d="M61,16 Q64,24 62,28" stroke="#2c1810" strokeWidth="3" fill="none" />
+            <rect x="45" y="31" width="10" height="8" rx="3" fill="url(#sg-skin)" />
+            <path d="M30,38 Q50,33 70,38 L73,88 L50,92 L27,88 Z" fill="url(#sg-d1)" />
+            <path d="M27,86 Q50,94 73,86 L82,183 Q50,188 18,183 Z" fill="url(#sg-d1)" />
+            <path d="M30,38 L14,70 Q13,74 16,76 L26,56" fill="url(#sg-d1)" />
+            <path d="M70,38 L86,70 Q87,74 84,76 L74,56" fill="url(#sg-d1)" />
+            <path d="M30,84 Q50,91 70,84" stroke="rgba(255,210,140,0.3)" strokeWidth="1.5" fill="none" />
+            <path d="M30,38 Q50,33 70,38" stroke="rgba(255,210,140,0.2)" strokeWidth="1" fill="none" />
+            <circle cx="46" cy="58" r="1.5" fill="rgba(255,220,160,0.55)" />
+            <circle cx="54" cy="66" r="1" fill="rgba(255,220,160,0.45)" />
+            <circle cx="43" cy="72" r="1" fill="rgba(255,220,160,0.38)" />
+            <rect x="32" y="84" width="36" height="5" rx="2.5" fill="rgba(255,210,140,0.18)" />
+          </svg>
         </div>
 
+        {/* CENTER — copy */}
         <div
           style={{
-            position: "absolute",
-            bottom: 24,
-            left: 28,
-            background: V.pri12,
-            border: `1px solid ${V.pri30}`,
-            borderRadius: 10,
-            padding: "8px 14px",
-            fontSize: 9,
-            color: V.primary,
-            fontWeight: 600,
+            flex: 1,
+            background: V.card,
+            padding: "28px 26px 24px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            textAlign: "right",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          يبدأ من ٢٨٠ ج.م
+          <div
+            style={{
+              position: "absolute",
+              right: -44,
+              bottom: -44,
+              width: 130,
+              height: 130,
+              borderRadius: "50%",
+              background: V.pri12,
+            }}
+          />
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 8.5,
+                fontWeight: 700,
+                color: V.primary,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase" as const,
+                marginBottom: 12,
+              }}
+            >
+              <span style={{ width: 18, height: 1, background: V.primary, flexShrink: 0 }} />
+              كولكشن الربيع ٢٠٢٥
+            </div>
+            <h3
+              style={{
+                fontSize: 32,
+                fontWeight: 900,
+                color: V.fg,
+                lineHeight: 1.0,
+                margin: "0 0 10px",
+              }}
+            >
+              فساتين
+              <br />
+              <span style={{ color: V.primary }}>السهرة</span>
+            </h3>
+            <p
+              style={{
+                fontSize: 10,
+                color: V.muted,
+                marginBottom: 18,
+                lineHeight: 1.55,
+                fontWeight: 400,
+              }}
+            >
+              تصاميم حصرية من أفخر الأقمشة
+              <br />
+              إيديشن محدود لهذا الموسم
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                style={{
+                  background: V.fg,
+                  color: V.bg,
+                  borderRadius: 4,
+                  padding: "9px 22px",
+                  fontSize: 10.5,
+                  fontWeight: 800,
+                  border: "none",
+                  cursor: "pointer",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                تسوّق الآن
+              </button>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  textAlign: "right",
+                  gap: 2,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 8,
+                    color: V.muted,
+                    textDecoration: "line-through",
+                  }}
+                >
+                  ٦٥٠ ج.م
+                </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: V.primary,
+                    fontWeight: 800,
+                    lineHeight: 1,
+                  }}
+                >
+                  ٤٥٠ ج.م
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT — abaya product */}
+        <div
+          style={{
+            width: "28%",
+            position: "relative",
+            background: "linear-gradient(155deg, #0d1220, #1a2340)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(circle at 50% 25%, rgba(79,70,229,0.22), transparent 68%)",
+            }}
+          />
+          <svg
+            viewBox="0 0 90 165"
+            style={{ height: 230, width: "auto", position: "relative", zIndex: 1 }}
+          >
+            <defs>
+              <linearGradient id="sg-ab" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#2e2660" />
+                <stop offset="100%" stopColor="#1a1840" />
+              </linearGradient>
+            </defs>
+            <ellipse cx="45" cy="16" rx="10" ry="11" fill="#c4913a" />
+            <path d="M35,13 Q30,5 35,2 Q45,0 55,2 Q60,5 55,13" fill="#3d2510" />
+            <path d="M20,25 Q45,20 70,25 L74,72 L45,76 L16,72 Z" fill="url(#sg-ab)" />
+            <path d="M16,70 Q45,78 74,70 L80,160 Q45,165 10,160 Z" fill="url(#sg-ab)" />
+            <path d="M20,25 L4,60 L16,70 Z" fill="url(#sg-ab)" />
+            <path d="M70,25 L86,60 L74,70 Z" fill="url(#sg-ab)" />
+            <path d="M20,25 Q45,20 70,25" stroke="rgba(180,145,50,0.45)" strokeWidth="1.5" fill="none" />
+            <path d="M16,70 Q45,78 74,70" stroke="rgba(180,145,50,0.25)" strokeWidth="1" fill="none" />
+            <path d="M13,150 Q45,157 77,150" stroke="rgba(180,145,50,0.2)" strokeWidth="1" fill="none" />
+          </svg>
+          <div
+            style={{
+              position: "absolute",
+              top: 12,
+              right: 10,
+              background: "rgba(239,68,68,0.9)",
+              borderRadius: 4,
+              padding: "2px 7px",
+              fontSize: 8,
+              fontWeight: 800,
+              color: "#fff",
+            }}
+          >
+            −٢٠٪
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              bottom: 14,
+              width: "100%",
+              textAlign: "center",
+            }}
+          >
+            <p style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", margin: "0 0 2px" }}>
+              عباية فاخرة
+            </p>
+            <p style={{ fontSize: 12, color: "#fff", fontWeight: 800, margin: 0 }}>
+              ٧١٢ ج.م
+            </p>
+          </div>
         </div>
       </div>
 
@@ -345,88 +464,137 @@ function ArabicStorefront() {
           {
             label: "فستان سهرة",
             price: "٦٥٠",
-            badge: "جديد",
-            bg: "linear-gradient(145deg,#4a1020,#1a0508)",
+            old: "٨٥٠",
+            badge: "−٢٤٪",
+            hue: "#7c3aed",
+            bg: "linear-gradient(155deg,#1a0a2e,#0a0618)",
+            sold: "٢٣",
           },
           {
             label: "بلوزة حرير",
             price: "٣٢٠",
-            badge: null,
-            bg: "linear-gradient(145deg,#1c2535,#080d14)",
+            old: null,
+            badge: "جديد",
+            hue: "#2563eb",
+            bg: "linear-gradient(155deg,#091626,#040e1c)",
+            sold: "١٢",
           },
           {
             label: "عباية فاخرة",
             price: "٨٩٠",
-            badge: "−٢٠٪",
-            bg: "linear-gradient(145deg,#2a1f10,#100c04)",
+            old: "١١٠٠",
+            badge: "−١٩٪",
+            hue: "#b8860b",
+            bg: "linear-gradient(155deg,#1a1208,#0c0804)",
+            sold: "٣٨",
           },
           {
             label: "كاب ستايل",
             price: "٢٨٠",
+            old: null,
             badge: null,
-            bg: "linear-gradient(145deg,#141a14,#060a06)",
+            hue: "#4b5563",
+            bg: "linear-gradient(155deg,#111111,#080808)",
+            sold: "٧",
           },
         ].map((p) => (
-          <div
-            key={p.label}
-            style={{ backgroundColor: V.card, padding: "14px 12px" }}
-          >
+          <div key={p.label} style={{ backgroundColor: V.card, padding: "12px 10px" }}>
             <div
               style={{
-                height: 96,
-                borderRadius: 8,
+                height: 90,
+                borderRadius: 7,
                 background: p.bg,
-                marginBottom: 10,
+                marginBottom: 9,
                 position: "relative",
                 overflow: "hidden",
+                display: "flex",
+                alignItems: "flex-end",
               }}
             >
               <div
                 style={{
                   position: "absolute",
                   inset: 0,
-                  height: "45%",
-                  background:
-                    "linear-gradient(to bottom,rgba(255,255,255,0.06),transparent)",
+                  background: `radial-gradient(ellipse 90% 55% at 50% 0%, ${p.hue}35, transparent)`,
                 }}
               />
               <div
                 style={{
                   position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  width: 32,
-                  height: 40,
-                  background: "rgba(255,255,255,0.04)",
-                  clipPath: "polygon(0 0,0 100%,100% 100%)",
+                  inset: 0,
+                  background:
+                    "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%)",
                 }}
               />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    width: 22,
+                    height: 48,
+                    background: `linear-gradient(180deg, ${p.hue}60, ${p.hue}25)`,
+                    borderRadius: "50% 50% 38% 38% / 14% 14% 9% 9%",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: -9,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: 11,
+                      height: 11,
+                      borderRadius: "50%",
+                      background: `${p.hue}45`,
+                    }}
+                  />
+                </div>
+              </div>
               {p.badge && (
                 <div
                   style={{
                     position: "absolute",
-                    top: 7,
-                    right: 7,
+                    top: 6,
+                    right: 6,
                     background: p.badge.startsWith("−")
                       ? "rgba(239,68,68,0.88)"
-                      : V.primary,
-                    borderRadius: 4,
-                    padding: "2px 7px",
-                    fontSize: 8,
-                    fontWeight: 700,
-                    color: p.badge.startsWith("−") ? "#fff" : V.priFg,
+                      : p.hue,
+                    borderRadius: 3,
+                    padding: "1.5px 5px",
+                    fontSize: 7.5,
+                    fontWeight: 800,
+                    color: "#fff",
                   }}
                 >
                   {p.badge}
                 </div>
               )}
+              <span
+                style={{
+                  position: "relative",
+                  padding: "3px 7px",
+                  fontSize: 7,
+                  color: "rgba(255,255,255,0.38)",
+                  fontWeight: 500,
+                }}
+              >
+                {p.sold} مبيعة
+              </span>
             </div>
             <p
               style={{
-                fontSize: 10,
+                fontSize: 9.5,
                 color: V.muted,
-                fontWeight: 500,
-                marginBottom: 4,
+                fontWeight: 600,
+                marginBottom: 3,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -435,16 +603,29 @@ function ArabicStorefront() {
             >
               {p.label}
             </p>
-            <p
+            <div
               style={{
-                fontSize: 12,
-                color: V.primary,
-                fontWeight: 700,
-                textAlign: "right",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              {p.price} ج.م
-            </p>
+              <p style={{ fontSize: 11.5, color: V.primary, fontWeight: 700 }}>
+                {p.price} ج.م
+              </p>
+              {p.old && (
+                <p
+                  style={{
+                    fontSize: 8,
+                    color: V.muted,
+                    textDecoration: "line-through",
+                    margin: 0,
+                  }}
+                >
+                  {p.old}
+                </p>
+              )}
+            </div>
           </div>
         ))}
       </div>
