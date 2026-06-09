@@ -88,8 +88,8 @@ export function NewPOForm({
     startTransition(async () => {
       try {
         const po = await CreatePurchaseOrderAction({
-          supplierId: supplierId || undefined,
-          branchId: branchId || undefined,
+          supplierId: supplierId && supplierId !== "none" ? supplierId : undefined,
+          branchId: branchId && branchId !== "none" ? branchId : undefined,
           notes: notes || undefined,
           expectedDate: expectedDate ? new Date(expectedDate) : undefined,
           items: rows.map((r) => ({
@@ -119,7 +119,7 @@ export function NewPOForm({
                 <SelectValue placeholder="اختر مورداً (اختياري)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">بدون مورد</SelectItem>
+                <SelectItem value="none">بدون مورد</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
@@ -135,7 +135,7 @@ export function NewPOForm({
                   <SelectValue placeholder="اختر الفرع" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">غير محدد</SelectItem>
+                  <SelectItem value="none">غير محدد</SelectItem>
                   {branches.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
                       {b.name} {b.isDefault && "(افتراضي)"}

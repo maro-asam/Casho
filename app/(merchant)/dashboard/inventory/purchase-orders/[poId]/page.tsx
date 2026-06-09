@@ -14,8 +14,9 @@ const STATUS_CONFIG: Record<PurchaseOrderStatus, { label: string; variant: "defa
   CANCELLED: { label: "ملغي", variant: "destructive" },
 };
 
-export default async function PODetailPage({ params }: { params: { poId: string } }) {
-  const po = await GetPurchaseOrderDetailAction(params.poId);
+export default async function PODetailPage({ params }: { params: Promise<{ poId: string }> }) {
+  const { poId } = await params;
+  const po = await GetPurchaseOrderDetailAction(poId);
   const cfg = STATUS_CONFIG[po.status];
 
   const receivedTotal = po.items.reduce((s, i) => s + i.receivedQuantity * i.unitCost, 0);

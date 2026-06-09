@@ -105,7 +105,7 @@ export function NewAdjustmentForm({
       try {
         await CreateAdjustmentAction({
           reason: reason as AdjustmentReason,
-          branchId: branchId || undefined,
+          branchId: branchId && branchId !== "none" ? branchId : undefined,
           notes: notes || undefined,
           reference: reference || undefined,
           items: rows.map((r) => ({ productId: r.productId, newQuantity: r.newQuantity })),
@@ -148,7 +148,7 @@ export function NewAdjustmentForm({
                   <SelectValue placeholder="كل الفروع" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">كل الفروع</SelectItem>
+                  <SelectItem value="none">كل الفروع</SelectItem>
                   {branches.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
                       {b.name} {b.isDefault && "(افتراضي)"}

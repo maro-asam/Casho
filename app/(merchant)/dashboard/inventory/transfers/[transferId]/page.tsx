@@ -14,8 +14,9 @@ const STATUS_CONFIG: Record<TransferStatus, { label: string; variant: "default" 
   CANCELLED: { label: "ملغي", variant: "destructive" },
 };
 
-export default async function TransferDetailPage({ params }: { params: { transferId: string } }) {
-  const transfer = await GetTransferDetailAction(params.transferId);
+export default async function TransferDetailPage({ params }: { params: Promise<{ transferId: string }> }) {
+  const { transferId } = await params;
+  const transfer = await GetTransferDetailAction(transferId);
   const cfg = STATUS_CONFIG[transfer.status];
 
   return (

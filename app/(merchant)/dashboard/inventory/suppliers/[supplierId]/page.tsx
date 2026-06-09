@@ -15,9 +15,10 @@ const PO_STATUS: Record<string, { label: string; variant: "default" | "secondary
 export default async function SupplierDetailPage({
   params,
 }: {
-  params: { supplierId: string };
+  params: Promise<{ supplierId: string }>;
 }) {
-  const supplier = await GetSupplierDetailAction(params.supplierId);
+  const { supplierId } = await params;
+  const supplier = await GetSupplierDetailAction(supplierId);
 
   return (
     <div className="space-y-6 p-6">
