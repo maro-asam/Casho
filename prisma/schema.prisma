@@ -181,6 +181,12 @@ model Store {
   transferItems      StockTransferItem[]
   adjustmentItems    InventoryAdjustmentItem[]
 
+  customerNotes       CustomerNote[]
+  customerWalletTx    CustomerWalletTransaction[]
+  customerTimeline    CustomerTimeline[]
+  customerTags        CustomerTag[]
+  customerSegments    CustomerSegment[]
+
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
   @@index([gracePeriodEndsAt])
@@ -425,22 +431,181 @@ model ShippingMethod {
   @@index([storeId, isActive])
 }
 
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+  VIP
+}
+
+enum WalletTransactionType {
+  CREDIT
+  DEBIT
+  REFUND
+  REWARD
+}
+
+enum CustomerTimelineEventType {
+  ORDER_PLACED
+  ORDER_RETURNED
+  ORDER_CANCELED
+  POINTS_EARNED
+  POINTS_REDEEMED
+  POINTS_ADJUSTED
+  WALLET_CREDITED
+  WALLET_DEBITED
+  TAG_ADDED
+  TAG_REMOVED
+  NOTE_ADDED
+  PROFILE_UPDATED
+  REFERRAL_MADE
+}
+
+enum SegmentType {
+  MANUAL
+  AUTOMATIC
+}
+
 model Customer {
-  id        String   @id @default(uuid())
-  storeId   String
-  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  phone     String
-  name      String?
-  points    Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(uuid())
+  storeId       String
+  store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  phone         String
+  name          String?
+  email         String?
+  address       String?
+  birthday      DateTime?
+  notes         String?
+  points        Int            @default(0)
+  walletBalance Int            @default(0)
+  referralCode  String?        @unique
+  referredById  String?
+  status        CustomerStatus @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   orders              Order[]
   loyaltyTransactions LoyaltyTransaction[]
   appliedLoyalty      AppliedLoyaltyPoints[]
+  walletTransactions  CustomerWalletTransaction[]
+  staffNotes          CustomerNote[]
+  timeline            CustomerTimeline[]
+  tags                CustomerTagAssignment[]
+  segmentMemberships  CustomerSegmentMembership[]
+  referredBy          Customer?                   @relation("CustomerReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals           Customer[]                  @relation("CustomerReferrals")
 
   @@unique([storeId, phone])
   @@index([storeId])
+  @@index([storeId, status])
+  @@index([storeId, createdAt])
+}
+
+model CustomerNote {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  storeId    String
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  content    String
+  authorId   String?
+  authorName String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([customerId, createdAt])
+  @@index([storeId, createdAt])
+}
+
+model CustomerWalletTransaction {
+  id            String                @id @default(uuid())
+  customerId    String
+  customer      Customer              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  storeId       String
+  store         Store                 @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  type          WalletTransactionType
+  amount        Int
+  balanceBefore Int
+  balanceAfter  Int
+  description   String?
+  reference     String?
+  createdAt     DateTime              @default(now())
+
+  @@index([customerId, createdAt])
+  @@index([storeId, createdAt])
+}
+
+model CustomerTimeline {
+  id          String                    @id @default(uuid())
+  customerId  String
+  customer    Customer                  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  storeId     String
+  store       Store                     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  eventType   CustomerTimelineEventType
+  title       String
+  description String?
+  metadata    Json?
+  referenceId String?
+  createdAt   DateTime                  @default(now())
+
+  @@index([customerId, createdAt])
+  @@index([storeId, createdAt])
+}
+
+model CustomerTag {
+  id        String   @id @default(uuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  color     String?
+  createdAt DateTime @default(now())
+
+  assignments CustomerTagAssignment[]
+
+  @@unique([storeId, name])
+  @@index([storeId])
+}
+
+model CustomerTagAssignment {
+  id         String      @id @default(uuid())
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tagId      String
+  tag        CustomerTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  assignedAt DateTime    @default(now())
+
+  @@unique([customerId, tagId])
+  @@index([tagId])
+}
+
+model CustomerSegment {
+  id          String      @id @default(uuid())
+  storeId     String
+  store       Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  type        SegmentType @default(MANUAL)
+  color       String?
+  rules       Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  memberships CustomerSegmentMembership[]
+
+  @@unique([storeId, name])
+  @@index([storeId])
+}
+
+model CustomerSegmentMembership {
+  id         String          @id @default(uuid())
+  customerId String
+  customer   Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  segmentId  String
+  segment    CustomerSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  addedAt    DateTime        @default(now())
+
+  @@unique([customerId, segmentId])
+  @@index([segmentId])
 }
 
 model LoyaltyTransaction {

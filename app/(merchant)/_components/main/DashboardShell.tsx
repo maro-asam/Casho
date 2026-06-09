@@ -48,6 +48,9 @@ import {
   ArrowLeftRight,
   ClipboardList,
   Users,
+  UserCircle,
+  Sparkles,
+  Layers2,
 } from "lucide-react";
 
 import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
@@ -168,6 +171,37 @@ export default function DashboardShell({
             name: "التقارير",
             href: "/reports",
             icon: ChartNoAxesCombined,
+          },
+        ],
+      },
+      {
+        title: "إدارة العملاء",
+        links: [
+          {
+            name: "لوحة CRM",
+            href: "/dashboard/crm",
+            icon: UserCircle,
+            badge: "NEW",
+          },
+          {
+            name: "العملاء",
+            href: "/dashboard/crm/customers",
+            icon: Users,
+          },
+          {
+            name: "الشرائح",
+            href: "/dashboard/crm/segments",
+            icon: Layers2,
+          },
+          {
+            name: "العلامات",
+            href: "/dashboard/crm/tags",
+            icon: Tag,
+          },
+          {
+            name: "التحليلات",
+            href: "/dashboard/crm/analytics",
+            icon: Sparkles,
           },
         ],
       },
