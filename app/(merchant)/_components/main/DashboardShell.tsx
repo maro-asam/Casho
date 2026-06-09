@@ -43,6 +43,11 @@ import {
   Tag,
   Timer,
   Truck,
+  MonitorCheck,
+  Warehouse,
+  ArrowLeftRight,
+  ClipboardList,
+  Users,
 } from "lucide-react";
 
 import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
@@ -136,6 +141,12 @@ export default function DashboardShell({
         links: [
           { name: "نظرة عامة", href: "/", icon: LayoutDashboard },
           {
+            name: "نقطة البيع",
+            href: "/pos",
+            icon: MonitorCheck,
+            badge: "POS",
+          },
+          {
             name: "الإشعارات",
             href: "/notifications",
             icon: Bell,
@@ -157,6 +168,37 @@ export default function DashboardShell({
             name: "التقارير",
             href: "/reports",
             icon: ChartNoAxesCombined,
+          },
+        ],
+      },
+      {
+        title: "المخزون",
+        links: [
+          {
+            name: "إدارة المخزون",
+            href: "/dashboard/inventory",
+            icon: Warehouse,
+            badge: "NEW",
+          },
+          {
+            name: "حركات المخزون",
+            href: "/dashboard/inventory/movements",
+            icon: ClipboardList,
+          },
+          {
+            name: "الموردون",
+            href: "/dashboard/inventory/suppliers",
+            icon: Users,
+          },
+          {
+            name: "طلبات الشراء",
+            href: "/dashboard/inventory/purchase-orders",
+            icon: ShoppingCart,
+          },
+          {
+            name: "تحويلات الفروع",
+            href: "/dashboard/inventory/transfers",
+            icon: ArrowLeftRight,
           },
         ],
       },

@@ -42,6 +42,15 @@ model User {
   notifications       Notification[]
   storeMembers        StoreMember[]
   sentInvitations     StoreInvitation[]    @relation("SentInvitations")
+  cashierOrders       Order[]              @relation("CashierOrders")
+  posShifts           PosShift[]           @relation("CashierShifts")
+  heldOrders          PosHeldOrder[]       @relation("CashierHeldOrders")
+  cashierReturns      PosReturn[]          @relation("CashierReturns")
+
+  createdPurchaseOrders  PurchaseOrder[]      @relation("PurchaseOrderCreatedBy")
+  createdTransfers       StockTransfer[]      @relation("TransferCreatedBy")
+  approvedTransfers      StockTransfer[]      @relation("TransferApprovedBy")
+  inventoryAdjustments   InventoryAdjustment[]
 }
 
 model Session {
@@ -155,6 +164,23 @@ model Store {
   members     StoreMember[]
   invitations StoreInvitation[]
 
+  posShifts      PosShift[]
+  heldOrders     PosHeldOrder[]
+  posReturns     PosReturn[]
+  stockMovements StockMovement[]
+
+  branches           Branch[]
+  branchInventory    BranchInventory[]
+  suppliers          Supplier[]
+  purchaseOrders     PurchaseOrder[]
+  stockTransfers     StockTransfer[]
+  inventoryAdjustments InventoryAdjustment[]
+  productVariants    ProductVariant[]
+  productSuppliers   ProductSupplier[]
+  purchaseOrderItems PurchaseOrderItem[]
+  transferItems      StockTransferItem[]
+  adjustmentItems    InventoryAdjustmentItem[]
+
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
   @@index([gracePeriodEndsAt])
@@ -253,6 +279,7 @@ model Product {
 
   price          Float
   compareAtPrice Float?
+  costPrice      Float?
 
   image  String   @default("/images/product-placeholder.png")
   images String[] @default([])
@@ -261,6 +288,9 @@ model Product {
 
   stock             Int  @default(0)
   lowStockThreshold Int?
+
+  sku     String?
+  barcode String?
 
   sizes  String[] @default([])
   colors String[] @default([])
@@ -291,6 +321,19 @@ model Product {
   orderItems          OrderItem[]
   suggestedOrderItems SuggestedOrderItem[]
   reviews             ProductReview[]
+  returnItems         PosReturnItem[]
+  stockMovements      StockMovement[]
+
+  variants         ProductVariant[]
+  suppliers        ProductSupplier[]
+  branchInventory  BranchInventory[]
+  purchaseOrderItems PurchaseOrderItem[]
+  transferItems    StockTransferItem[]
+  adjustmentItems  InventoryAdjustmentItem[]
+
+  @@index([storeId, isActive])
+  @@index([storeId, barcode])
+  @@index([storeId, sku])
 }
 
 model Banner {
@@ -435,6 +478,7 @@ model Order {
   storeId String
   store   Store  @relation(fields: [storeId], references: [id])
 
+  source        OrderSource @default(ONLINE)
   status        OrderStatus @default(PENDING)
   paymentMethod String
 
@@ -442,8 +486,11 @@ model Order {
   shipping Int @default(0)
   discount Int @default(0)
   total    Int
+  costTotal   Int?
+  profitTotal Int?
 
   couponCode String?
+  notes      String?
 
   fullName String
   phone    String
@@ -462,12 +509,22 @@ model Order {
   paymentReference String?
   paidAt           DateTime?
 
+  posShiftId  String?
+  posShift    PosShift? @relation(fields: [posShiftId], references: [id], onDelete: SetNull)
+  cashierId   String?
+  cashierUser User?     @relation("CashierOrders", fields: [cashierId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
 
   items          OrderItem[]
   userId         String?
-  user           User?           @relation(fields: [userId], references: [id])
+  user           User?            @relation(fields: [userId], references: [id])
   suggestedOrder SuggestedOrder?
+  splitPayments  PosSplitPayment[]
+  posReturns     PosReturn[]      @relation("OriginalOrderReturns")
+
+  @@index([storeId, source, createdAt])
+  @@index([posShiftId])
 }
 
 model OrderItem {
@@ -480,6 +537,9 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
 
   price            Int
+  costPrice        Int?
+  profitAmount     Int?
+  discountAmount   Int?
   quantity         Int
   selectedFeatures Json?
 
@@ -717,6 +777,8 @@ enum NotificationType {
   IG_ORDER_SUGGESTED
   IG_CONNECTION_EXPIRED
   LOW_STOCK
+  OUT_OF_STOCK
+  PURCHASE_ORDER_RECEIVED
   STORE_INVITATION
   MEMBER_JOINED
   MEMBER_REMOVED
@@ -1088,4 +1150,463 @@ model IgAiUsageLog {
 
   @@unique([storeId, date])
   @@index([storeId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// POS System — Enums
+// ─────────────────────────────────────────────────────────────
+
+enum OrderSource {
+  ONLINE
+  POS
+  INSTAGRAM
+}
+
+enum PosShiftStatus {
+  OPEN
+  CLOSED
+}
+
+enum PosShiftEntryType {
+  CASH_IN
+  CASH_OUT
+  OPENING_FLOAT
+  CLOSING_COUNT
+}
+
+enum PosReturnStatus {
+  PENDING
+  COMPLETED
+  CANCELED
+}
+
+enum PosReturnType {
+  FULL_RETURN
+  PARTIAL_RETURN
+  EXCHANGE
+}
+
+enum StockMovementType {
+  SALE
+  RETURN
+  PURCHASE
+  ADJUSTMENT
+  DAMAGE
+  INITIAL
+  TRANSFER_IN
+  TRANSFER_OUT
+  COUNT
+  WRITE_OFF
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  PARTIAL
+  RECEIVED
+  CANCELLED
+}
+
+enum TransferStatus {
+  PENDING
+  APPROVED
+  SHIPPED
+  RECEIVED
+  CANCELLED
+}
+
+enum AdjustmentReason {
+  DAMAGE
+  THEFT
+  EXPIRY
+  COUNT_CORRECTION
+  LOSS
+  FOUND
+  OTHER
+}
+
+// ─────────────────────────────────────────────────────────────
+// POS System — Models
+// ─────────────────────────────────────────────────────────────
+
+model PosShift {
+  id               String         @id @default(uuid())
+  storeId          String
+  store            Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  cashierId        String
+  cashier          User           @relation("CashierShifts", fields: [cashierId], references: [id])
+  status           PosShiftStatus @default(OPEN)
+  openingBalance   Int            @default(0)
+  closingBalance   Int?
+  expectedCash     Int?
+  cashDifference   Int?
+  totalSales       Int            @default(0)
+  totalReturns     Int            @default(0)
+  totalDiscount    Int            @default(0)
+  transactionCount Int            @default(0)
+  returnCount      Int            @default(0)
+  notes            String?
+  openedAt         DateTime       @default(now())
+  closedAt         DateTime?
+  entries          PosShiftEntry[]
+  orders           Order[]
+
+  @@index([storeId, status])
+  @@index([cashierId, openedAt])
+  @@index([storeId, openedAt])
+}
+
+model PosShiftEntry {
+  id        String            @id @default(uuid())
+  shiftId   String
+  shift     PosShift          @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  type      PosShiftEntryType
+  amount    Int
+  note      String?
+  createdAt DateTime          @default(now())
+
+  @@index([shiftId, createdAt])
+}
+
+model PosHeldOrder {
+  id        String   @id @default(uuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  cashierId String
+  cashier   User     @relation("CashierHeldOrders", fields: [cashierId], references: [id])
+  label     String?
+  note      String?
+  cartData  Json
+  itemCount Int      @default(0)
+  total     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId, cashierId])
+  @@index([storeId, createdAt])
+}
+
+model PosSplitPayment {
+  id            String   @id @default(uuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  paymentMethod String
+  amount        Int
+  reference     String?
+  createdAt     DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model PosReturn {
+  id              String          @id @default(uuid())
+  storeId         String
+  store           Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  originalOrderId String
+  originalOrder   Order           @relation("OriginalOrderReturns", fields: [originalOrderId], references: [id])
+  cashierId       String?
+  cashier         User?           @relation("CashierReturns", fields: [cashierId], references: [id])
+  type            PosReturnType
+  status          PosReturnStatus @default(PENDING)
+  reason          String?
+  refundAmount    Int
+  refundMethod    String?
+  exchangeOrderId String?         @unique
+  notes           String?
+  processedAt     DateTime?
+  createdAt       DateTime        @default(now())
+  items           PosReturnItem[]
+
+  @@index([storeId, createdAt])
+  @@index([originalOrderId])
+}
+
+model PosReturnItem {
+  id        String    @id @default(uuid())
+  returnId  String
+  return    PosReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product   @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Int
+  reason    String?
+
+  @@index([returnId])
+}
+
+model StockMovement {
+  id          String            @id @default(uuid())
+  storeId     String
+  store       Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product           @relation(fields: [productId], references: [id])
+  variantId   String?
+  variant     ProductVariant?   @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  branchId    String?
+  branch      Branch?           @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  type        StockMovementType
+  quantity    Int
+  stockBefore Int
+  stockAfter  Int
+  reference   String?
+  note        String?
+  userId      String?
+  createdAt   DateTime          @default(now())
+
+  @@index([productId, createdAt])
+  @@index([storeId, createdAt])
+  @@index([storeId, type, createdAt])
+  @@index([variantId, createdAt])
+  @@index([branchId, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Inventory Management System
+// ─────────────────────────────────────────────────────────────
+
+model Branch {
+  id        String   @id @default(uuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  address   String?
+  phone     String?
+  isDefault Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inventory      BranchInventory[]
+  movements      StockMovement[]
+  transfersFrom  StockTransfer[]   @relation("TransferFrom")
+  transfersTo    StockTransfer[]   @relation("TransferTo")
+  purchaseOrders PurchaseOrder[]
+  adjustments    InventoryAdjustment[]
+
+  @@index([storeId])
+  @@index([storeId, isDefault])
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  storeId   String
+  store     Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  name       String
+  sku        String?
+  barcode    String?
+  attributes Json
+  price      Float?
+  costPrice  Float?
+  stock      Int     @default(0)
+  lowStockThreshold Int?
+  imageUrl   String?
+  isActive   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branchInventory    BranchInventory[]
+  movements          StockMovement[]
+  purchaseOrderItems PurchaseOrderItem[]
+  transferItems      StockTransferItem[]
+  adjustmentItems    InventoryAdjustmentItem[]
+
+  @@unique([storeId, sku])
+  @@index([productId])
+  @@index([storeId])
+  @@index([storeId, barcode])
+}
+
+model BranchInventory {
+  id        String  @id @default(uuid())
+  storeId   String
+  store     Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  branchId  String
+  branch    Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  quantity         Int @default(0)
+  reservedQuantity Int @default(0)
+  incomingQuantity Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([branchId, productId, variantId])
+  @@index([storeId])
+  @@index([branchId])
+  @@index([productId])
+}
+
+model Supplier {
+  id        String  @id @default(uuid())
+  storeId   String
+  store     Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  taxNumber String?
+  notes     String?
+  balance   Int     @default(0)
+  isActive  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products       ProductSupplier[]
+  purchaseOrders PurchaseOrder[]
+
+  @@index([storeId])
+}
+
+model ProductSupplier {
+  id         String   @id @default(uuid())
+  storeId    String
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  isPrimary  Boolean  @default(false)
+  costPrice  Float?
+
+  @@unique([productId, supplierId])
+  @@index([storeId])
+  @@index([supplierId])
+}
+
+model PurchaseOrder {
+  id          String              @id @default(uuid())
+  storeId     String
+  store       Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  supplierId  String?
+  supplier    Supplier?           @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  branchId    String?
+  branch      Branch?             @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  orderNumber String
+  status      PurchaseOrderStatus @default(DRAFT)
+  notes       String?
+  totalAmount Int                 @default(0)
+  expectedDate DateTime?
+  receivedAt  DateTime?
+  createdById String
+  createdBy   User                @relation("PurchaseOrderCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  items PurchaseOrderItem[]
+
+  @@unique([storeId, orderNumber])
+  @@index([storeId])
+  @@index([storeId, status])
+  @@index([supplierId])
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  storeId         String
+  store           Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  variantId       String?
+  variant         ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity        Int
+  receivedQuantity Int          @default(0)
+  unitCost        Int
+  totalCost       Int
+
+  @@index([purchaseOrderId])
+  @@index([productId])
+}
+
+model StockTransfer {
+  id           String         @id @default(uuid())
+  storeId      String
+  store        Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  fromBranchId String
+  fromBranch   Branch         @relation("TransferFrom", fields: [fromBranchId], references: [id])
+  toBranchId   String
+  toBranch     Branch         @relation("TransferTo", fields: [toBranchId], references: [id])
+  status       TransferStatus @default(PENDING)
+  reference    String?
+  notes        String?
+  createdById  String
+  createdBy    User           @relation("TransferCreatedBy", fields: [createdById], references: [id])
+  approvedById String?
+  approvedBy   User?          @relation("TransferApprovedBy", fields: [approvedById], references: [id])
+  shippedAt    DateTime?
+  receivedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  items StockTransferItem[]
+
+  @@index([storeId])
+  @@index([storeId, status])
+  @@index([fromBranchId])
+  @@index([toBranchId])
+}
+
+model StockTransferItem {
+  id                String        @id @default(uuid())
+  transferId        String
+  transfer          StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  storeId           String
+  store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId         String
+  product           Product       @relation(fields: [productId], references: [id])
+  variantId         String?
+  variant           ProductVariant? @relation(fields: [variantId], references: [id])
+  requestedQuantity Int
+  shippedQuantity   Int           @default(0)
+  receivedQuantity  Int           @default(0)
+
+  @@index([transferId])
+  @@index([productId])
+}
+
+model InventoryAdjustment {
+  id        String           @id @default(uuid())
+  storeId   String
+  store     Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  branchId  String?
+  branch    Branch?          @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  reason    AdjustmentReason
+  notes     String?
+  reference String?
+  createdAt DateTime         @default(now())
+
+  items InventoryAdjustmentItem[]
+
+  @@index([storeId])
+  @@index([storeId, createdAt])
+}
+
+model InventoryAdjustmentItem {
+  id           String              @id @default(uuid())
+  adjustmentId String
+  adjustment   InventoryAdjustment @relation(fields: [adjustmentId], references: [id], onDelete: Cascade)
+  storeId      String
+  store        Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product             @relation(fields: [productId], references: [id])
+  variantId    String?
+  variant      ProductVariant?     @relation(fields: [variantId], references: [id])
+  quantityBefore Int
+  quantityAfter  Int
+  quantityChange Int
+
+  @@index([adjustmentId])
+  @@index([productId])
 }

@@ -319,6 +319,55 @@ export default function CreateProductForm({
                     className="rounded-xl"
                   />
                 </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="costPrice">
+                    سعر التكلفة (للربح)
+                    <OptionalBadge />
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="costPrice"
+                      name="costPrice"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="rounded-xl pe-12"
+                    />
+                    <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                      ج.م
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">يُستخدم لحساب الربح في نقطة البيع</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="sku">
+                    كود SKU
+                    <OptionalBadge />
+                  </Label>
+                  <Input
+                    id="sku"
+                    name="sku"
+                    placeholder="مثال: SHIRT-BLK-XL"
+                    className="rounded-xl"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="barcode">
+                    الباركود
+                    <OptionalBadge />
+                  </Label>
+                  <Input
+                    id="barcode"
+                    name="barcode"
+                    placeholder="مثال: 6221234567890"
+                    className="rounded-xl"
+                  />
+                  <p className="text-xs text-muted-foreground">EAN-13 أو أي صيغة باركود أخرى</p>
+                </div>
               </div>
 
               <div className="space-y-1.5">

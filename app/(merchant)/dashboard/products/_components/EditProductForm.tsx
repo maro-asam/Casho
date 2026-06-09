@@ -53,6 +53,9 @@ type Product = {
   images: string[];
 
   brand: string | null;
+  costPrice: number | null;
+  sku: string | null;
+  barcode: string | null;
   stock: number;
   lowStockThreshold: number | null;
 
@@ -314,6 +317,45 @@ export default function EditProductForm({ product, categories, products = [] }: 
             name="brand"
             placeholder="مثال: Nike أو Samsung"
             defaultValue={product.brand || ""}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="costPrice">سعر التكلفة (للربح)</Label>
+          <div className="relative">
+            <Input
+              id="costPrice"
+              name="costPrice"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              defaultValue={product.costPrice ?? ""}
+              className="rounded-xl pe-12"
+            />
+            <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">ج.م</span>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="sku">كود SKU</Label>
+          <Input
+            id="sku"
+            name="sku"
+            placeholder="مثال: SHIRT-BLK-XL"
+            defaultValue={product.sku || ""}
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="barcode">الباركود</Label>
+          <Input
+            id="barcode"
+            name="barcode"
+            placeholder="مثال: 6221234567890"
+            defaultValue={product.barcode || ""}
             className="rounded-xl"
           />
         </div>

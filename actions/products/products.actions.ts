@@ -128,6 +128,9 @@ export async function CreateProductAction(
 
     const description = normalizeOptional(formData.get("description"));
     let compareAtPrice = parseOptionalNumber(formData.get("compareAtPrice"));
+    const costPrice = parseOptionalNumber(formData.get("costPrice"));
+    const sku = normalizeOptional(formData.get("sku"));
+    const barcode = normalizeOptional(formData.get("barcode"));
 
     const image =
       normalizeOptional(formData.get("image")) ??
@@ -214,6 +217,9 @@ export async function CreateProductAction(
         description,
         price,
         compareAtPrice,
+        costPrice,
+        sku,
+        barcode,
         image,
         images,
         brand,
@@ -277,6 +283,9 @@ export async function UpdateProductAction(
 
     const description = normalizeOptional(formData.get("description"));
     let compareAtPrice = parseOptionalNumber(formData.get("compareAtPrice"));
+    const costPrice = parseOptionalNumber(formData.get("costPrice"));
+    const sku = normalizeOptional(formData.get("sku"));
+    const barcode = normalizeOptional(formData.get("barcode"));
 
     const image =
       normalizeOptional(formData.get("image")) ??
@@ -388,6 +397,9 @@ export async function UpdateProductAction(
         description,
         price,
         compareAtPrice,
+        costPrice,
+        sku,
+        barcode,
         image,
         images,
         brand,

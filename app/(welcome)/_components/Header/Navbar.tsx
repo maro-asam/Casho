@@ -54,15 +54,15 @@ const Navbar = async () => {
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <div className="flex size-9 items-center justify-center">
               <Image
-                src="/logo.svg"
-                width={36}
-                height={36}
+                src="/trans-logo.svg"
+                width={38}
+                height={38}
                 alt="Casho"
                 className="rounded-lg"
               />
             </div>
             <span className="text-xl font-black tracking-tight">
-              <span className="text-primary">C</span>ASHO
+              كــاشو <span className="text-primary">|</span> CASHO
             </span>
           </Link>
 

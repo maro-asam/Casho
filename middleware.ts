@@ -118,7 +118,7 @@ export async function middleware(req: NextRequest) {
     // Rewrite clean paths → /dashboard prefix (internal Next.js routing)
     // e.g. /orders → /dashboard/orders, / → /dashboard
     // Paths that map directly to their own top-level routes (no rewrite needed)
-    const DIRECT_PATHS = ["/builder", "/store"];
+    const DIRECT_PATHS = ["/builder", "/store", "/pos"];
     if (
       !pathname.startsWith("/dashboard") &&
       !isAuthPath(pathname) &&
