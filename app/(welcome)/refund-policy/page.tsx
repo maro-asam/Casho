@@ -74,6 +74,10 @@ export default function RefundPolicyPage() {
                 cashostore0@gmail.com
               </a>
             </li>
+            <li>
+              العنوان القانوني: 58 شارع الحجاز، برج أمون، مصر الجديدة، القاهرة —{" "}
+              58 Hegaz St., Amoun Tower, Heliopolis, Cairo
+            </li>
             <li>أذكر في رسالتك: اسم الحساب، تاريخ العملية، والمبلغ، ورقم المعاملة إن وُجد.</li>
           </ul>
           <p className="mt-2">

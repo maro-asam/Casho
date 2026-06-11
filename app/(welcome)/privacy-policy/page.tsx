@@ -94,11 +94,15 @@ export default function PrivacyPolicyPage() {
 
         <div>
           <h2 className="text-lg font-semibold text-foreground mb-2">٨. التواصل معنا</h2>
-          <p>
+          <p className="mb-1">
             لأي استفسار يتعلق بالخصوصية تواصل معنا على:{" "}
             <a href="mailto:cashostore0@gmail.com" className="text-primary underline">
               cashostore0@gmail.com
             </a>
+          </p>
+          <p>
+            العنوان القانوني: 58 شارع الحجاز، برج أمون، مصر الجديدة، القاهرة —{" "}
+            58 Hegaz St., Amoun Tower, Heliopolis, Cairo
           </p>
         </div>
 

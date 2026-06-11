@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone, Store } from "lucide-react";
+import { Mail, MapPin, Phone, Store } from "lucide-react";
 
 const footerLinks = {
   product: [
@@ -25,6 +25,11 @@ const footerLinks = {
       name: "cashostore0@gmail.com",
       href: "mailto:cashostore0@gmail.com",
       icon: Mail,
+    },
+    {
+      name: "58 شارع الحجاز، برج أمون، مصر الجديدة، القاهرة",
+      href: "#",
+      icon: MapPin,
     },
   ],
   // social: [
