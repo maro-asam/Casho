@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import {
   PAYMENT_METHODS,
@@ -7,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import FadeIn from "./FadeIn";
+import { useLang } from "../_i18n/LanguageContext";
 
 const REGIONS: PaymentRegion[] = ["global", "egypt", "saudi"];
 
@@ -25,6 +28,9 @@ function MiniFeature({ text }: { text: string }) {
 }
 
 export default function PaymentMethodsSection() {
+  const { t } = useLang();
+  const pm = t.payments;
+
   return (
     <section className="relative overflow-hidden rounded-lg border border-primary/15 bg-background px-4 py-10 shadow-sm md:px-8 md:py-14">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.14),transparent_34%)]" />
@@ -32,16 +38,15 @@ export default function PaymentMethodsSection() {
       <div className="relative mx-auto max-w-7xl space-y-10">
         <div className="mx-auto max-w-3xl space-y-4 text-center">
           <Badge variant="secondary" className="rounded-full px-4 py-1">
-            وسائل الدفع
+            {pm.badge}
           </Badge>
 
           <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
-            ادفع بالطريقة اللي تناسب عميلك
+            {pm.title}
           </h2>
 
           <p className="text-sm leading-7 text-muted-foreground md:text-base">
-            وفر في متجرك وسائل دفع عالمية، مصرية، وسعودية — مع دعم بيانات
-            التحويل اليدوي لكل وسيلة بشكل واضح وسهل.
+            {pm.subtitle}
           </p>
         </div>
 
@@ -64,7 +69,7 @@ export default function PaymentMethodsSection() {
                   <div className="text-right">
                     <h3 className="font-semibold">{PAYMENT_REGION_LABELS[region]}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {methods.length} وسائل دفع
+                      {methods.length} {pm.methodsCount}
                     </p>
                   </div>
 
@@ -101,10 +106,9 @@ export default function PaymentMethodsSection() {
         </div>
 
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-3 rounded-3xl border bg-card/70 p-4 shadow-sm">
-          <MiniFeature text="لوجوهات واضحة" />
-          <MiniFeature text="تقسيم حسب السوق" />
-          <MiniFeature text="تحويلات يدوية" />
-          <MiniFeature text="جاهز للـ Checkout" />
+          {pm.miniFeatures.map((f) => (
+            <MiniFeature key={f} text={f} />
+          ))}
         </div>
       </div>
     </section>

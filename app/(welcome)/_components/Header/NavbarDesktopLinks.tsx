@@ -5,14 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-
-const NAV_LINKS = [
-  { name: "الرئيسية", href: "/" },
-  { name: "المميزات", href: "#features" },
-  { name: "الأسعار", href: "#pricing" },
-  { name: "الأسئلة", href: "#faq" },
-  { name: "المدونة", href: "/blog" },
-];
+import { useLang } from "../../_i18n/LanguageContext";
 
 const containerVariants = {
   hidden: {},
@@ -34,6 +27,15 @@ const itemVariants = {
 export default function NavbarDesktopLinks() {
   const pathname = usePathname();
   const [hovered, setHovered] = useState<string | null>(null);
+  const { t } = useLang();
+
+  const NAV_LINKS = [
+    { name: t.nav.home, href: "/" },
+    { name: t.nav.features, href: "#features" },
+    { name: t.nav.pricing, href: "#pricing" },
+    { name: t.nav.faq, href: "#faq" },
+    { name: t.nav.blog, href: "/blog" },
+  ];
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";

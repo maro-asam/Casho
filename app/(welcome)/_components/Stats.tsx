@@ -1,9 +1,13 @@
-import { stats } from "@/constants/welcome/stats.constants";
+"use client";
+
+import { useLang } from "../_i18n/LanguageContext";
 
 export default function StatsSection() {
+  const { t } = useLang();
+  const st = t.stats;
+
   return (
     <section className="relative overflow-hidden py-10">
-      {/* subtle grid */}
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
@@ -18,24 +22,23 @@ export default function StatsSection() {
       <div className="relative mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center flex flex-col items-center gap-2">
           <span className="inline-flex rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-            أرقام كــاشو
+            {st.badge}
           </span>
 
           <h2 className="text-3xl md:text-4xl leading-tight tracking-tight text-zinc">
-            أرقام بتثبت إن البيع أونلاين
+            {st.title}
             <span className="mt-4 font-semibold block bg-linear-to-l from-sky-500 via-sky-500 to-primary bg-clip-text text-transparent">
-              لازم يكون أسهل
+              {st.titleAccent}
             </span>
           </h2>
 
-          <p className="mt-5 text-base leading-8 text-muted-foreground  ">
-            كاشو بيساعدك تطلق متجرك، تستقبل الطلبات، وتبيع لعملائك في مصر بطريقة
-            أبسط وأسرع ومن غير تعقيد تقني.
+          <p className="mt-5 text-base leading-8 text-muted-foreground">
+            {st.subtitle}
           </p>
         </div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {stats.map((item, index) => (
+          {st.items.map((item, index) => (
             <div
               key={index}
               className="group relative overflow-hidden rounded-xl border border-zinc/10 bg-zinc/[0.03] p-6 backdrop-blur-sm transition duration-300 hover:border-primary/30 hover:bg-zinc/[0.05]"
@@ -43,7 +46,7 @@ export default function StatsSection() {
               <div className="absolute inset-0 bg-linear-to-b from-zinc/[0.04] to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
 
               <div className="relative text-center">
-                <div className="text-4xl font-extrabold tracking-tight text-primary ">
+                <div className="text-4xl font-extrabold tracking-tight text-primary">
                   {item.value}
                 </div>
 

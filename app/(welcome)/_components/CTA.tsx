@@ -1,10 +1,16 @@
+"use client";
+
 import { ArrowLeft, CheckCircle2, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import FadeIn from "./FadeIn";
+import { useLang } from "../_i18n/LanguageContext";
 
 export default function CTASection() {
+  const { t } = useLang();
+  const cta = t.cta;
+
   return (
     <section className="py-10 md:py-14 lg:py-20">
       <div className="wrapper">
@@ -21,46 +27,38 @@ export default function CTASection() {
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
                 <Sparkles className="size-4" />
-                عرض الإطلاق شغال الآن
+                {cta.badge}
               </div>
 
               <h2 className="mt-6 text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-                ابدأ متجرك النهارده
-                <span className="mt-2 block text-primary">قبل ما سعر البداية يخلص</span>
+                {cta.title}
+                <span className="mt-2 block text-primary">{cta.titleAccent}</span>
               </h2>
 
               <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg lg:mx-0">
-                كاشو بيساعدك تعرض منتجاتك، تستقبل طلباتك، وتدير شغلك بشكل
-                منظم من غير تعقيد. ابدأ دلوقتي بسعر الإطلاق قبل ما الأماكن
-                المتاحة تخلص.
+                {cta.subtitle}
               </p>
 
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
                 <Button asChild size="lg" className="h-12 rounded-xl px-8 text-sm font-medium shadow-sm">
                   <Link href="/signup">
-                    ابدأ دلوقتي
+                    {cta.ctaPrimary}
                     <ArrowLeft className="ms-2 size-4.5" />
                   </Link>
                 </Button>
 
                 <Button asChild size="lg" variant="outline" className="h-12 rounded-xl border-border bg-card px-8 text-sm font-medium">
-                  <Link href="#pricing">شوف الأسعار</Link>
+                  <Link href="#pricing">{cta.ctaSecondary}</Link>
                 </Button>
               </div>
 
               <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground lg:justify-start">
-                <span className="inline-flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-primary" />
-                  تسجيل سريع
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-primary" />
-                  إعداد بسيط
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-primary" />
-                  مناسب للتجار في مصر
-                </span>
+                {cta.checks.map((check) => (
+                  <span key={check} className="inline-flex items-center gap-2">
+                    <CheckCircle2 className="size-4 text-primary" />
+                    {check}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -68,21 +66,21 @@ export default function CTASection() {
             <div className="mx-auto w-full max-w-md">
               <div className="rounded-[28px] border border-primary/15 bg-card p-5 shadow-sm">
                 <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-5">
-                  <p className="text-sm font-medium text-muted-foreground">متبقي من عرض البداية</p>
+                  <p className="text-sm font-medium text-muted-foreground">{cta.offerCard.remaining}</p>
 
                   <div className="mt-3 flex items-end justify-between gap-4">
                     <div>
                       <p className="text-4xl font-extrabold tracking-tight text-foreground">17</p>
-                      <p className="mt-1 text-sm text-muted-foreground">تاجر فقط</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{cta.offerCard.merchantsLeft}</p>
                     </div>
                     <div className="rounded-xl border border-primary/15 bg-white px-4 py-2 text-sm font-medium text-primary">
-                      سعر خاص
+                      {cta.offerCard.specialPrice}
                     </div>
                   </div>
 
                   <div className="mt-5">
                     <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">نسبة الحجز</span>
+                      <span className="text-muted-foreground">{cta.offerCard.bookingRate}</span>
                       <span className="font-medium text-foreground">66%</span>
                     </div>
                     <div className="h-2.5 overflow-hidden rounded-xl bg-primary/10">
@@ -91,14 +89,13 @@ export default function CTASection() {
                   </div>
 
                   <p className="mt-5 text-sm leading-7 text-muted-foreground">
-                    بعد انتهاء الأماكن المتاحة، السعر هيرجع للخطة الأساسية.
+                    {cta.offerCard.note}
                   </p>
                 </div>
 
                 <div className="mt-4 rounded-xl border border-border bg-muted/40 p-4">
                   <p className="text-sm text-foreground">
-                    مناسب لو أنت بتبيع من إنستجرام، واتساب، أو صفحات السوشيال
-                    وعايز طريقة أرتب وأسهل لاستقبال الطلبات.
+                    {cta.offerCard.tagline}
                   </p>
                 </div>
               </div>

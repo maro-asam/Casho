@@ -1,29 +1,33 @@
-import {
-  afterItems,
-  beforeItems,
-} from "@/constants/welcome/beforeAfter.constants";
-import { ArrowLeftRight } from "lucide-react";
+"use client";
+
+import { AlertCircle, CheckCircle2, Clock3, Link2, ShoppingCart, ArrowLeftRight } from "lucide-react";
 import FadeIn from "./FadeIn";
+import { useLang } from "../_i18n/LanguageContext";
+
+const BEFORE_ICONS = [AlertCircle, Clock3, Link2];
+const AFTER_ICONS = [ShoppingCart, CheckCircle2, Link2];
 
 export default function BeforeAfterSection() {
+  const { t } = useLang();
+  const ba = t.beforeAfter;
+
   return (
     <section className="py-10 md:py-14 lg:py-20">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-3xl text-center">
           <span className="inline-flex rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-            قبل / بعد
+            {ba.badge}
           </span>
 
           <h2 className="text-3xl md:text-4xl leading-tight text-foreground">
-            الفرق بين البيع التقليدي
+            {ba.title}
             <span className="block bg-linear-to-l mt-4 font-semibold from-primary via-sky-500 to-primary bg-clip-text text-transparent">
-              والبيع عن طريق كاشو
+              {ba.titleAccent}
             </span>
           </h2>
 
           <p className="mt-5 text-base leading-8 text-muted-foreground sm:text-lg">
-            بدل ما تفضل تجمع الطلبات يدويًا وترد على كل عميل بشكل عشوائي، كاشو
-            بتنظم لك العملية من أول عرض المنتج لحد استلام الطلب.
+            {ba.subtitle}
           </p>
         </FadeIn>
 
@@ -35,16 +39,16 @@ export default function BeforeAfterSection() {
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-red-500/80">Before</p>
-                <h3 className="mt-1 text-2xl font-semibold text-red-600">قبل Casho</h3>
+                <h3 className="mt-1 text-2xl font-semibold text-red-600">{ba.beforeLabel}</h3>
               </div>
               <span className="rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-500">
-                عشوائية وتعب
+                {ba.beforeBadge}
               </span>
             </div>
 
             <div className="space-y-4">
-              {beforeItems.map((item, index) => {
-                const Icon = item.icon;
+              {ba.before.map((item, index) => {
+                const Icon = BEFORE_ICONS[index];
                 return (
                   <div
                     key={index}
@@ -68,19 +72,11 @@ export default function BeforeAfterSection() {
 
             <div className="mt-6 rounded-xl border border-red-500/20 bg-background/80 p-4 shadow-sm">
               <div className="space-y-3">
-                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
-                  <p className="text-sm text-red-700">&quot;ممكن تفاصيل المنتج؟&quot;</p>
-                </div>
-                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
-                  <p className="text-sm text-red-700">
-                    &quot;عايز أطلب، ابعتلي السعر والمقاس&quot;
-                  </p>
-                </div>
-                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
-                  <p className="text-sm text-red-700">
-                    &quot;العنوان: ... واسم المنتج كان إيه؟&quot;
-                  </p>
-                </div>
+                {ba.chatLines.map((line, i) => (
+                  <div key={i} className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                    <p className="text-sm text-red-700">&quot;{line}&quot;</p>
+                  </div>
+                ))}
               </div>
             </div>
           </FadeIn>
@@ -102,16 +98,16 @@ export default function BeforeAfterSection() {
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-primary/80">After</p>
-                <h3 className="mt-1 text-2xl font-semibold text-foreground">بعد Casho</h3>
+                <h3 className="mt-1 text-2xl font-semibold text-foreground">{ba.afterLabel}</h3>
               </div>
               <span className="rounded-xl border border-primary/15 bg-primary/10 px-3 py-1 text-xs font-medium text-primary shadow-sm">
-                تنظيم وسرعة
+                {ba.afterBadge}
               </span>
             </div>
 
             <div className="space-y-4">
-              {afterItems.map((item, index) => {
-                const Icon = item.icon;
+              {ba.after.map((item, index) => {
+                const Icon = AFTER_ICONS[index];
                 return (
                   <div
                     key={index}
@@ -136,11 +132,11 @@ export default function BeforeAfterSection() {
             <div className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs text-muted-foreground">معاينة الطلب</p>
-                  <h4 className="mt-1 font-medium text-foreground">طلب جديد #1024</h4>
+                  <p className="text-xs text-muted-foreground">{ba.orderPreview.label}</p>
+                  <h4 className="mt-1 font-medium text-foreground">{ba.orderPreview.title}</h4>
                 </div>
                 <span className="rounded-xl bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                  جديد
+                  {ba.orderPreview.badge}
                 </span>
               </div>
 
@@ -148,21 +144,21 @@ export default function BeforeAfterSection() {
                 <div className="rounded-xl border border-border bg-muted/40 p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-medium text-foreground">تيشيرت أسود</p>
-                      <p className="mt-1 text-sm text-muted-foreground">الكمية: 2</p>
+                      <p className="font-medium text-foreground">{ba.orderPreview.product}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{ba.orderPreview.qty}</p>
                     </div>
-                    <p className="text-sm font-medium text-foreground">450 ج.م</p>
+                    <p className="text-sm font-medium text-foreground">{ba.orderPreview.price}</p>
                   </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-xl border border-border bg-muted/40 p-3">
-                    <p className="text-xs text-muted-foreground">العميل</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">أحمد محمود</p>
+                    <p className="text-xs text-muted-foreground">{ba.orderPreview.customer}</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">{ba.orderPreview.customerName}</p>
                   </div>
                   <div className="rounded-xl border border-border bg-muted/40 p-3">
-                    <p className="text-xs text-muted-foreground">الدفع</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">فودافون كاش</p>
+                    <p className="text-xs text-muted-foreground">{ba.orderPreview.payment}</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">{ba.orderPreview.paymentMethod}</p>
                   </div>
                 </div>
               </div>

@@ -1,28 +1,41 @@
+"use client";
+
 import { Check, Lock } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { plans } from "@/constants/welcome/pricing.constants";
+import { plans as plansPrices } from "@/constants/welcome/pricing.constants";
 import FadeIn from "./FadeIn";
+import { useLang } from "../_i18n/LanguageContext";
 
 export default function PricingSection() {
+  const { t } = useLang();
+  const pr = t.pricing;
+
+  const plans = pr.plans.map((p, i) => ({
+    ...p,
+    price: plansPrices[i].price,
+    highlighted: plansPrices[i].highlighted,
+    locked: plansPrices[i].locked,
+  }));
+
   return (
     <section id="pricing" className="py-10 md:py-14 lg:py-20">
       <div className="wrapper">
         <FadeIn className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-            الأسعار
+            {pr.badge}
           </span>
 
           <h2 className="mt-5 text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
-            ابدأ دلوقتي بسعر مناسب
+            {pr.title}
             <span className="mt-2 block font-semibold bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
-              قبل ما العرض الحالي يخلص
+              {pr.titleAccent}
             </span>
           </h2>
 
           <p className="mt-5 text-base leading-8 text-muted-foreground md:text-lg">
-            حالياً الخطة الأساسية هي المتاحة للاشتراك، وباقي الخطط هتنزل قريب.
+            {pr.subtitle}
           </p>
         </FadeIn>
 
@@ -39,7 +52,7 @@ export default function PricingSection() {
                 plan.locked ? "opacity-55 blur-xs" : "",
               ].join(" ")}
             >
-              {plan.highlighted && plan.badge ? (
+              {plan.highlighted && "badge" in plan && plan.badge ? (
                 <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-primary/20 bg-background px-4 py-1.5 text-xs font-medium text-primary shadow-sm">
                   {plan.badge}
                 </span>
@@ -49,7 +62,7 @@ export default function PricingSection() {
                 <div className="absolute inset-x-0 top-4 z-10 flex justify-center">
                   <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-background/90 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
                     <Lock className="size-3.5" />
-                    قريبًا
+                    {pr.soon}
                   </span>
                 </div>
               ) : null}
@@ -63,7 +76,7 @@ export default function PricingSection() {
                     <span className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
                       {plan.price}
                     </span>
-                    <span className="pb-1 text-sm text-muted-foreground">ج.م {plan.period}</span>
+                    <span className="pb-1 text-sm text-muted-foreground">{pr.currency} {plan.period}</span>
                   </div>
                 </div>
 
@@ -92,9 +105,9 @@ export default function PricingSection() {
                   className="mt-8 h-12 w-full rounded-xl text-sm font-medium"
                 >
                   {plan.locked ? (
-                    <span>قريبًا</span>
+                    <span>{pr.soon}</span>
                   ) : (
-                    <Link href="/register">ابدأ دلوقتي</Link>
+                    <Link href="/register">{pr.startNow}</Link>
                   )}
                 </Button>
               </div>
@@ -104,7 +117,7 @@ export default function PricingSection() {
 
         <FadeIn delay={80} className="mt-6 text-center">
           <p className="text-sm leading-7 text-muted-foreground">
-            بعد انتهاء عرض أول 50 تاجر، هيتم إتاحة الخطط الكاملة بشكل رسمي.
+            {pr.footnote}
           </p>
         </FadeIn>
       </div>

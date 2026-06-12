@@ -2,24 +2,13 @@
 
 import Link from "next/link";
 import { Mail, MapPin, Phone, Store } from "lucide-react";
+import { useLang } from "../_i18n/LanguageContext";
 
-const footerLinks = {
-  product: [
-    { name: "المميزات", href: "#features" },
-    { name: "الأسعار", href: "#pricing" },
-    { name: "الأسئلة الشائعة", href: "#faq" },
-  ],
-  company: [
-    { name: "عن كاشو", href: "#" },
-    { name: "ابدأ دلوقتي", href: "/signup" },
-    { name: "تسجيل الدخول", href: "/login" },
-  ],
-  legal: [
-    { name: "سياسة الخصوصية", href: "/privacy-policy" },
-    { name: "سياسة الاسترداد", href: "/refund-policy" },
-    { name: "الشروط والأحكام", href: "/terms" },
-  ],
-  contact: [
+export default function Footer() {
+  const { t } = useLang();
+  const ft = t.footer;
+
+  const contactItems = [
     { name: "01014344053", href: "tel:01014344053", icon: Phone },
     {
       name: "cashostore0@gmail.com",
@@ -27,18 +16,12 @@ const footerLinks = {
       icon: Mail,
     },
     {
-      name: "58 شارع الحجاز، برج أمون، مصر الجديدة، القاهرة",
+      name: ft.address,
       href: "#",
       icon: MapPin,
     },
-  ],
-  // social: [
-  //   { name: "Facebook", href: "#", icon: Facebook },
-  //   { name: "Instagram", href: "#", icon: Instagram },
-  // ],
-};
+  ];
 
-export default function Footer() {
   return (
     <footer className="border-t border-border/70 bg-background">
       <div className="wrapper py-14">
@@ -52,37 +35,21 @@ export default function Footer() {
               <div>
                 <p className="text-lg font-extrabold text-foreground">كاشو</p>
                 <p className="text-sm text-muted-foreground">
-                  بيع أونلاين بشكل أبسط
+                  {ft.tagline}
                 </p>
               </div>
             </Link>
 
             <p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">
-              كاشو بيساعدك تعمل متجرك أونلاين، تعرض منتجاتك، وتستقبل طلباتك بشكل
-              سهل ومنظم من غير تعقيد.
+              {ft.description}
             </p>
-
-            <div className="mt-6 flex items-center gap-3">
-              {/* {footerLinks.social.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="flex size-10 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
-                  >
-                    <Icon className="size-4.5" />
-                  </Link>
-                );
-              })} */}
-            </div>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
             <div>
-              <h3 className="text-sm font-semibold text-foreground">المنتج</h3>
+              <h3 className="text-sm font-semibold text-foreground">{ft.sections.product}</h3>
               <div className="mt-4 space-y-3">
-                {footerLinks.product.map((link) => (
+                {ft.links.product.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
@@ -95,9 +62,9 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-foreground">الشركة</h3>
+              <h3 className="text-sm font-semibold text-foreground">{ft.sections.company}</h3>
               <div className="mt-4 space-y-3">
-                {footerLinks.company.map((link) => (
+                {ft.links.company.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
@@ -110,9 +77,9 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-foreground">القانوني</h3>
+              <h3 className="text-sm font-semibold text-foreground">{ft.sections.legal}</h3>
               <div className="mt-4 space-y-3">
-                {footerLinks.legal.map((link) => (
+                {ft.links.legal.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
@@ -125,9 +92,9 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-foreground">تواصل معانا</h3>
+              <h3 className="text-sm font-semibold text-foreground">{ft.sections.contact}</h3>
               <div className="mt-4 space-y-3">
-                {footerLinks.contact.map((item) => {
+                {contactItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <Link
@@ -135,7 +102,7 @@ export default function Footer() {
                       href={item.href}
                       className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
-                      <Icon className="size-4" />
+                      <Icon className="size-4 shrink-0" />
                       <span>{item.name}</span>
                     </Link>
                   );
@@ -146,8 +113,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-3 border-t border-border/70 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 كاشو. كل الحقوق محفوظة.</p>
-          <p>مصنوع بحب للتجار في مصر 🇪🇬</p>
+          <p>{ft.copyright}</p>
+          <p>{ft.madeWith}</p>
         </div>
       </div>
     </footer>

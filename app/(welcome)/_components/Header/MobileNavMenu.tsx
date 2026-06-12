@@ -17,6 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/theme/ModeToggle";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import LanguageToggle from "./LanguageToggle";
+import { useLang } from "../../_i18n/LanguageContext";
 
 type MobileNavMenuProps = {
   user: {
@@ -25,14 +27,6 @@ type MobileNavMenuProps = {
     storeSlug: string | null;
   } | null;
 };
-
-const NAV_LINKS = [
-  { name: "الرئيسية", href: "/" },
-  { name: "المميزات", href: "#features" },
-  { name: "الأسعار", href: "#pricing" },
-  { name: "الأسئلة الشائعة", href: "#faq" },
-  { name: "المدونة", href: "/blog" },
-];
 
 const backdropVariants = {
   hidden: { opacity: 0 },
@@ -84,7 +78,16 @@ function UserInitials({ name, email }: { name: string; email: string }) {
 
 export default function MobileNavMenu({ user }: MobileNavMenuProps) {
   const [open, setOpen] = useState(false);
-  const displayName = user?.storeName || user?.email?.split("@")[0] || "حسابي";
+  const { t } = useLang();
+  const displayName = user?.storeName || user?.email?.split("@")[0] || t.navbar.myAccount;
+
+  const NAV_LINKS = [
+    { name: t.nav.home, href: "/" },
+    { name: t.nav.features, href: "#features" },
+    { name: t.nav.pricing, href: "#pricing" },
+    { name: t.nav.faqFull, href: "#faq" },
+    { name: t.nav.blog, href: "/blog" },
+  ];
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -93,6 +96,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
 
   return (
     <div className="flex items-center gap-1">
+      <LanguageToggle />
       <ModeToggle />
 
       <Button
@@ -100,7 +104,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
         size="icon"
         onClick={() => setOpen(true)}
         className="size-9 rounded-lg"
-        aria-label="فتح القائمة"
+        aria-label={t.navbar.openMenu}
       >
         <Menu className="size-5" />
       </Button>
@@ -207,7 +211,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                           variant="outline"
                           className="h-11 w-full justify-between rounded-xl border-border/20"
                         >
-                          <span>لوحة التحكم</span>
+                          <span>{t.navbar.dashboard}</span>
                           <LayoutDashboard className="size-4 text-muted-foreground" />
                         </Button>
                       </Link>
@@ -218,7 +222,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                             variant="outline"
                             className="h-11 w-full justify-between rounded-xl border-border/20"
                           >
-                            <span>عرض المتجر</span>
+                            <span>{t.navbar.viewStore}</span>
                             <Store className="size-4 text-muted-foreground" />
                           </Button>
                         </Link>
@@ -230,7 +234,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                           variant="ghost"
                           className="h-11 w-full justify-between rounded-xl text-destructive/80 hover:bg-destructive/8 hover:text-destructive"
                         >
-                          <span>تسجيل الخروج</span>
+                          <span>{t.navbar.logout}</span>
                           <LogOut className="size-4" />
                         </Button>
                       </form>
@@ -239,7 +243,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                     <div className="flex flex-col gap-2">
                       <Link href="/register" onClick={() => setOpen(false)}>
                         <Button className="group h-11 w-full rounded-xl bg-gradient-to-l from-primary to-primary/80 text-sm font-semibold shadow-lg shadow-primary/20">
-                          ابدأ مجانًا
+                          {t.navbar.startFree}
                           <ArrowLeft className="ms-2 size-4 transition-transform group-hover:-translate-x-0.5" />
                         </Button>
                       </Link>
@@ -248,7 +252,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                           variant="ghost"
                           className="h-11 w-full rounded-xl text-sm text-foreground/70"
                         >
-                          تسجيل دخول
+                          {t.navbar.login}
                         </Button>
                       </Link>
                     </div>
