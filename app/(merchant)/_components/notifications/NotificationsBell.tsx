@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
+import { useSseNotifications } from "@/hooks/use-sse-notifications";
 import {
   Bell,
   CheckCheck,
@@ -109,6 +110,34 @@ export default function NotificationsBell({
     }
   }, []);
 
+  // ── SSE: instant push from the server ──────────────────────────────────────
+  useSseNotifications({
+    onNotification: (incoming) => {
+      // Project to NotificationDTO shape (extra SSE fields like storeId/userId are not needed here)
+      const dto: NotificationDTO = {
+        id: incoming.id,
+        type: incoming.type,
+        title: incoming.title,
+        message: incoming.message,
+        href: incoming.href,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: incoming.data as any,
+        createdAt: incoming.createdAt,
+        readAt: incoming.readAt,
+      };
+      setNotifications((current) => {
+        // Deduplicate in case polling already synced this notification
+        if (current.some((n) => n.id === dto.id)) return current;
+        return [dto, ...current].slice(0, 10);
+      });
+      if (!dto.readAt) {
+        setUnreadCount((c) => c + 1);
+      }
+    },
+  });
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ── Polling (fallback while SSE is active; disabled once SSE is proven stable)
   useEffect(() => {
     void refresh();
 

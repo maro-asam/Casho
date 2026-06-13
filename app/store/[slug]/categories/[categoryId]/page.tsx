@@ -14,6 +14,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SubscriptionStatus } from "@prisma/client";
 
+// ISR: revalidate every 300 seconds — category product lists change infrequently
+export const revalidate = 300;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const categories = await prisma.category.findMany({
+    select: { slug: true, store: { select: { slug: true } } },
+    take: 500,
+  });
+  console.log(`[ISR] generateStaticParams: pre-building ${categories.length} category pages`);
+  return categories.map((c) => ({ slug: c.store.slug, categoryId: c.slug }));
+}
+
 type PageProps = {
   params: Promise<{
     slug: string;
@@ -31,6 +44,8 @@ function formatPrice(price: number) {
 
 export default async function CategoryProducts({ params }: PageProps) {
   const { slug, categoryId } = await params;
+
+  console.log(`[ISR] Rendering category page: "${categoryId}" in store: "${slug}" at ${new Date().toISOString()} (revalidate: ${revalidate}s)`);
 
   const store = await prisma.store.findUnique({
     where: { slug },
@@ -69,7 +84,7 @@ export default async function CategoryProducts({ params }: PageProps) {
 
   const category = await prisma.category.findFirst({
     where: {
-      id: categoryId,
+      slug: categoryId,
       storeId: store.id,
     },
     include: {

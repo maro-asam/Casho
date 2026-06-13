@@ -1,5 +1,6 @@
 import { NotificationType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { broadcastToUser } from "@/lib/sse/sse-manager";
 
 type NotificationDb = typeof prisma | Prisma.TransactionClient;
 
@@ -59,7 +60,7 @@ export async function createNotification(
       resolvedUserId = storeOwner?.userId ?? null;
     }
 
-    return await db.notification.create({
+    const created = await db.notification.create({
       data: {
         userId: resolvedUserId,
         storeId: input.storeId ?? null,
@@ -73,8 +74,27 @@ export async function createNotification(
       },
       select: {
         id: true,
+        createdAt: true,
       },
     });
+
+    // Push to any open SSE connections for this user immediately
+    if (resolvedUserId) {
+      broadcastToUser(resolvedUserId, "notification", {
+        id: created.id,
+        type: input.type,
+        title: input.title,
+        message: input.message,
+        href: input.href ?? null,
+        createdAt: created.createdAt.toISOString(),
+        readAt: null,
+        storeId: input.storeId ?? null,
+        userId: resolvedUserId,
+        data: input.data ?? null,
+      });
+    }
+
+    return { id: created.id };
   } catch (error) {
     console.error("createNotification Error:", {
       type: input.type,

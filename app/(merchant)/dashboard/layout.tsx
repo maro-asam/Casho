@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import DashboardShell from "../_components/main/DashboardShell";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetNotificationsAction } from "@/actions/notifications/notifications.actions";
+import { isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 
 export const metadata: Metadata = {
   title: {
@@ -43,6 +44,10 @@ export default async function DashboardLayout({
       name: true,
       slug: true,
       planSelected: true,
+      onboardingCompleted: true,
+      subscriptionStatus: true,
+      subscriptionEndsAt: true,
+      gracePeriodEndsAt: true,
       settings: {
         select: {
           themeId: true,
@@ -61,10 +66,28 @@ export default async function DashboardLayout({
 
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? headersList.get("next-url") ?? "";
-  const isOnChangePlan = pathname.includes("/change-plan");
 
-  if (!store.planSelected && !isOnChangePlan) {
-    redirect("/dashboard/change-plan?onboarding=1");
+  // Onboarding gate — treat planSelected=true (legacy) as equivalent to onboardingCompleted
+  const onboardingDone = store.onboardingCompleted || store.planSelected;
+  const isOnChangePlan = pathname.includes("/change-plan");
+  const isOnOnboarding = pathname.includes("/onboarding");
+
+  if (!onboardingDone && !isOnChangePlan && !isOnOnboarding) {
+    redirect("/onboarding");
+  }
+
+  // Trial / subscription gate — block dashboard features when demo has expired
+  const isSubscribed = isSubscriptionCurrentlyActive({
+    subscriptionStatus: store.subscriptionStatus,
+    subscriptionEndsAt: store.subscriptionEndsAt,
+    gracePeriodEndsAt: store.gracePeriodEndsAt,
+  });
+
+  const allowedExpiredPaths = ["/balance", "/change-plan", "/trial-expired"];
+  const isOnAllowedExpiredPath = allowedExpiredPaths.some((p) => pathname.includes(p));
+
+  if (!isSubscribed && !isOnAllowedExpiredPath) {
+    redirect("/dashboard/trial-expired");
   }
 
   const { notifications, unreadCount } = await GetNotificationsAction(10);

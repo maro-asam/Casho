@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -62,6 +62,8 @@ type Props = {
 
 export function CompleteGoogleForm({ email, name }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get("ref") ?? "";
   const [state, formAction, isPending] = useActionState(
     RegisterGoogleAction,
     null,
@@ -73,13 +75,14 @@ export function CompleteGoogleForm({ email, name }: Props) {
     if (state?.error) toast.error(state.error);
     if (state?.success) {
       toast.success("تم إنشاء الحساب بنجاح 🎉");
-      router.push("/change-plan");
+      router.push("/onboarding");
       router.refresh();
     }
   }, [state, router]);
 
   return (
     <form action={formAction} className="space-y-5">
+      {refCode && <input type="hidden" name="refCode" value={refCode} />}
       {/* Read-only Google info */}
       <div className="rounded-xl border bg-muted/40 px-4 py-3 text-sm">
         <p className="text-muted-foreground">سجّلت بواسطة Google</p>

@@ -11,6 +11,7 @@ import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { getFieldErrors } from "@/lib/zod";
 import { z } from "zod";
 import type { ActionState } from "./auth.types";
+import { generateReferralCode } from "@/lib/referral";
 
 const PENDING_COOKIE = "pendingGoogleAuth";
 
@@ -56,6 +57,8 @@ export async function RegisterGoogleAction(
     return { error: "بيانات Google غير صالحة، ابدأ من جديد" };
   }
 
+  const refCode = formData.get("refCode")?.toString()?.trim().toUpperCase() ?? "";
+
   const rawData = {
     storeName: formData.get("storeName")?.toString() ?? "",
     country: formData.get("country")?.toString() ?? "",
@@ -80,12 +83,23 @@ export async function RegisterGoogleAction(
       return { success: true, message: "تم تسجيل الدخول" };
     }
 
+    // Resolve referrer
+    let referredById: string | null = null;
+    if (refCode) {
+      const referrer = await prisma.user.findUnique({
+        where: { referralCode: refCode },
+        select: { id: true },
+      });
+      if (referrer) referredById = referrer.id;
+    }
+
     const baseSlug = normalizeStoreSlug(storeName);
     if (!baseSlug) {
       return { error: "اسم المتجر غير صالح", fieldErrors: { storeName: "اكتب اسم متجر صالح" } };
     }
 
-    const freeTrialEndsAt = getFreeTrialEndDate();
+    const now = new Date();
+    const trialEndsAt = getFreeTrialEndDate(now);
 
     const created = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -98,12 +112,17 @@ export async function RegisterGoogleAction(
           googleId: googleData.googleId,
           country,
           businessType,
+          referralCode: generateReferralCode(),
+          referredById: referredById || null,
           stores: {
             create: {
               name: storeName.trim(),
               slug,
               subscriptionStatus: SubscriptionStatus.ACTIVE,
-              subscriptionEndsAt: freeTrialEndsAt,
+              subscriptionEndsAt: trialEndsAt,
+              trialStartDate: now,
+              trialEndDate: trialEndsAt,
+              onboardingCompleted: false,
               balance: 0,
               autoRenew: true,
               planSelected: false,

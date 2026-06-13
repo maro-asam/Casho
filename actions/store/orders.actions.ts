@@ -225,15 +225,22 @@ export async function CreateOrderAction(
     }
   }
 
-  // Apply loyalty points discount
-  const appliedLoyalty = await prisma.appliedLoyaltyPoints.findUnique({
-    where: { guestSessionId_storeId: { guestSessionId, storeId: store.id } },
-    select: { points: true, customerId: true },
-  });
-  const loyaltySettings = await prisma.storeSettings.findUnique({
-    where: { storeId: store.id },
-    select: { loyaltyEnabled: true, loyaltyPointsValuePiasters: true },
-  });
+  // Fetch loyalty settings (all fields needed both for discount calc and post-order award)
+  // and applied loyalty points in parallel — single round trip each, reused after order creation
+  const [appliedLoyalty, loyaltySettings] = await Promise.all([
+    prisma.appliedLoyaltyPoints.findUnique({
+      where: { guestSessionId_storeId: { guestSessionId, storeId: store.id } },
+      select: { points: true, customerId: true },
+    }),
+    prisma.storeSettings.findUnique({
+      where: { storeId: store.id },
+      select: {
+        loyaltyEnabled: true,
+        loyaltyPointsPerEGP: true,
+        loyaltyPointsValuePiasters: true,
+      },
+    }),
+  ]);
   let loyaltyDiscount = 0;
   if (appliedLoyalty && loyaltySettings?.loyaltyEnabled) {
     loyaltyDiscount = appliedLoyalty.points * (loyaltySettings.loyaltyPointsValuePiasters ?? 1);
@@ -310,21 +317,11 @@ export async function CreateOrderAction(
     return created;
   });
 
-  // Award loyalty points after order creation
+  // Award loyalty points after order creation (reuse loyaltySettings + appliedLoyalty from above)
   try {
-    const loyaltySettings = await prisma.storeSettings.findUnique({
-      where: { storeId: store.id },
-      select: { loyaltyEnabled: true, loyaltyPointsPerEGP: true, loyaltyPointsValuePiasters: true },
-    });
-
     if (loyaltySettings?.loyaltyEnabled) {
       const totalEgp = total / 100;
       const pointsEarned = Math.floor(totalEgp * (loyaltySettings.loyaltyPointsPerEGP ?? 1));
-
-      const appliedLoyalty = await prisma.appliedLoyaltyPoints.findUnique({
-        where: { guestSessionId_storeId: { guestSessionId, storeId: store.id } },
-        select: { customerId: true, points: true },
-      });
 
       const customer = await prisma.customer.upsert({
         where: { storeId_phone: { storeId: store.id, phone: data.phone } },

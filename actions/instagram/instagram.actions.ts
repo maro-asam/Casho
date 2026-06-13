@@ -70,11 +70,11 @@ export async function ConnectInstagramAction() {
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { planName: true },
+    select: { id: true },
   });
 
-  if (!store || store.planName !== "PRO") {
-    return redirect("/dashboard/change-plan?upgrade=instagram");
+  if (!store) {
+    return redirect("/dashboard");
   }
 
   const state = crypto.randomBytes(16).toString("hex");

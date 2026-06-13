@@ -26,7 +26,20 @@ import ProductActionsSection from "./_components/ProductActionsSection";
 import ProductCard from "../../_components/shared/ProductCard";
 import BoldProductCard from "../../_components/themes/BoldProductCard";
 
-export const dynamic = "force-dynamic";
+// ISR: revalidate every 120 seconds — product data (price, stock, description) changes occasionally
+export const revalidate = 120;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const products = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { slug: true, store: { select: { slug: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 300,
+  });
+  console.log(`[ISR] generateStaticParams: pre-building ${products.length} product pages`);
+  return products.map((p) => ({ slug: p.store.slug, productSlug: p.slug }));
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -121,6 +134,8 @@ export default async function ProductDetailsRoute({
 }: ProductDetailsRouteProps) {
   const { slug, productSlug } = await params;
   if (!slug || !productSlug) return notFound();
+
+  console.log(`[ISR] Rendering product page: "${productSlug}" in store: "${slug}" at ${new Date().toISOString()} (revalidate: ${revalidate}s)`);
 
   const store = await prisma.store.findUnique({
     where: { slug },

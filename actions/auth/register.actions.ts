@@ -11,6 +11,7 @@ import { createUserSession } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
 import { TrackStoreRegistrationAction } from "@/actions/tracking/tracking.actions";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
+import { generateReferralCode } from "@/lib/referral";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -43,6 +44,8 @@ export async function RegisterAction(
   _prevState: RegisterState | null,
   formData: FormData,
 ): Promise<RegisterState> {
+  const refCode = formData.get("refCode")?.toString()?.trim().toUpperCase() ?? "";
+
   const rawData = {
     storeName: formData.get("storeName")?.toString() ?? "",
     name: formData.get("name")?.toString() ?? "",
@@ -108,8 +111,19 @@ export async function RegisterAction(
       };
     }
 
+    // Resolve referrer if a valid refCode was provided
+    let referredById: string | null = null;
+    if (refCode) {
+      const referrer = await prisma.user.findUnique({
+        where: { referralCode: refCode },
+        select: { id: true },
+      });
+      if (referrer) referredById = referrer.id;
+    }
+
     const hashedPassword = await hashPassword(password);
-    const freeTrialEndsAt = getFreeTrialEndDate();
+    const now = new Date();
+    const trialEndsAt = getFreeTrialEndDate(now);
 
     const created = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -125,14 +139,20 @@ export async function RegisterAction(
           name: name || null,
           country: country || null,
           businessType: businessType || null,
+          referralCode: generateReferralCode(),
+          referredById: referredById || null,
           stores: {
             create: {
               name: storeName.trim(),
               slug,
 
               subscriptionStatus: SubscriptionStatus.ACTIVE,
-              subscriptionEndsAt: freeTrialEndsAt,
+              subscriptionEndsAt: trialEndsAt,
               gracePeriodEndsAt: null,
+
+              trialStartDate: now,
+              trialEndDate: trialEndsAt,
+              onboardingCompleted: false,
 
               balance: 0,
               autoRenew: true,
@@ -175,7 +195,7 @@ export async function RegisterAction(
 
     return {
       success: true,
-      message: "تم إنشاء الحساب والمتجر بنجاح، وبدأت الفترة المجانية لمدة 30 يوم",
+      message: "تم إنشاء الحساب والمتجر بنجاح، لديك 3 أيام تجريبية مجانية",
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

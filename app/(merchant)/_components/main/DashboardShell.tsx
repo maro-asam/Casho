@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CirclePercent,
+  Code2,
   CreditCard,
   ExternalLink,
   Gift,
@@ -232,6 +233,12 @@ export default function DashboardShell({
             href: "/payment-methods",
             icon: CreditCard,
           },
+          {
+            name: "نظام المكافأت",
+            href: "/referral",
+            icon: Gift,
+            badge: "5 جنيه",
+          },
         ],
       },
 
@@ -305,6 +312,11 @@ export default function DashboardShell({
             name: "طرق الشحن",
             href: "/dashboard/shipping",
             icon: Truck,
+          },
+          {
+            name: "مفاتيح API",
+            href: "/dashboard/api-keys",
+            icon: Code2,
           },
           {
             name: "انستجرام",

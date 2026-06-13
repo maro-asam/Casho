@@ -15,6 +15,7 @@ import {
 import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
 import { addMonths } from "date-fns";
 import { requireUserId } from "../auth/require-user-id.actions";
+import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
 
 type ActionResult = {
   success: boolean;
@@ -36,10 +37,9 @@ type AdjustBalanceInput = {
 async function getOwnedStoreOrThrow(storeId: string) {
   const userId = await requireUserId();
 
-  await MustOwnStore(storeId, userId);
-
-  const store = await prisma.store.findUnique({
-    where: { id: storeId },
+  // Single query: ownership check + data fetch combined (avoids duplicate round trip)
+  const store = await prisma.store.findFirst({
+    where: { id: storeId, userId },
     select: {
       id: true,
       slug: true,
@@ -55,7 +55,7 @@ async function getOwnedStoreOrThrow(storeId: string) {
   });
 
   if (!store) {
-    throw new Error("Store not found");
+    throw new Error("غير مصرح لك بالوصول إلى هذا المتجر");
   }
 
   return store;
@@ -265,6 +265,9 @@ export async function ActivateStoreSubscriptionAction(
       monthlyPrice: store.monthlyPrice,
     });
 
+    await grantReferralRewardIfEligible(store.id);
+    await trackPaidReferralLevel(store.id);
+
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/subscription");
     revalidatePath(`/store/${store.slug}`);
@@ -346,6 +349,9 @@ export async function TryRenewStoreSubscriptionAction(
         storeName: store.name,
         monthlyPrice: store.monthlyPrice,
       });
+
+      await grantReferralRewardIfEligible(store.id);
+      await trackPaidReferralLevel(store.id);
 
       revalidatePath("/dashboard");
       revalidatePath("/dashboard/subscription");
@@ -586,6 +592,9 @@ export async function RenewStoreSubscriptionAction(
       storeName: store.name,
       monthlyPrice: store.monthlyPrice,
     });
+
+    await grantReferralRewardIfEligible(store.id);
+    await trackPaidReferralLevel(store.id);
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");

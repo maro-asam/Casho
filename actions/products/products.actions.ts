@@ -93,14 +93,17 @@ async function checkAndNotifyLowStock(
   stock: number,
   storeId: string,
 ) {
-  const settings = await prisma.storeSettings.findUnique({
-    where: { storeId },
-    select: { defaultLowStockThreshold: true },
-  });
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    select: { lowStockThreshold: true },
-  });
+  // Fetch store settings and product threshold in parallel
+  const [settings, product] = await Promise.all([
+    prisma.storeSettings.findUnique({
+      where: { storeId },
+      select: { defaultLowStockThreshold: true },
+    }),
+    prisma.product.findUnique({
+      where: { id: productId },
+      select: { lowStockThreshold: true },
+    }),
+  ]);
   const threshold = product?.lowStockThreshold ?? settings?.defaultLowStockThreshold ?? 5;
 
   if (stock <= threshold) {

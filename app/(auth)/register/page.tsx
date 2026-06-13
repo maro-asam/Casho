@@ -4,7 +4,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -117,6 +117,8 @@ const stepVariants = {
 
 export default function RegisterRoute() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get("ref") ?? "";
   const [state, formAction, isPending] = useActionState(RegisterAction, null);
 
   const [step, setStep] = useState<Step>(1);
@@ -166,7 +168,7 @@ export default function RegisterRoute() {
       toast.success("تم إنشاء الحساب بنجاح");
       setStep(4);
       const timer = setTimeout(() => {
-        router.push("/change-plan?onboarding=1");
+        router.push("/onboarding");
         router.refresh();
       }, 1200);
       return () => clearTimeout(timer);
@@ -505,11 +507,8 @@ export default function RegisterRoute() {
                   <input type="hidden" name="storeName" value={storeName} />
                   <input type="hidden" name="name" value={merchantName} />
                   <input type="hidden" name="country" value={country} />
-                  <input
-                    type="hidden"
-                    name="businessType"
-                    value={businessType}
-                  />
+                  <input type="hidden" name="businessType" value={businessType} />
+                  {refCode && <input type="hidden" name="refCode" value={refCode} />}
 
                   <FormField
                     htmlFor="email"

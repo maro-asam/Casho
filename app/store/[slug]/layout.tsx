@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
-import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import StoreFrontHeader from "./_components/NAVBARS/StoreHeader";
 import StoreFooter from "./_components/shared/StoreFooter";
 import { resolveStoreTheme } from "@/constants/store-themes";
@@ -151,9 +150,6 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
 
   if (!store) return notFound();
 
-  const { items } = await GetCartItemsAction(slug);
-  const cartCount = items.reduce((total, item) => total + item.quantity, 0);
-
   // ── Resolve theme ──────────────────────────────────────────────────────
   // Priority (highest → lowest):
   //   1. themeConfig JSON (full merchant customization)
@@ -211,7 +207,6 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
             logo={store.settings?.logo}
             logoRadius={store.settings?.logoRadius}
             logoSize={store.settings?.logoSize}
-            cartCount={cartCount}
             announcementText={store.settings?.announcementText}
             showStoreName={store.settings?.showStoreName ?? true}
             variant={navbarVariant}

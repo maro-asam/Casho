@@ -1,7 +1,7 @@
 import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
 
 export const DEFAULT_GRACE_PERIOD_DAYS = 3;
-export const FREE_TRIAL_DAYS = 30;
+export const FREE_TRIAL_DAYS = 3;
 
 // ─── Plan Types & Config ────────────────────────────────────────────────────
 
@@ -116,11 +116,8 @@ export const PLAN_LABELS: Record<PlanKey, string> = {
   PRO: "باقة المحترف",
 };
 
-export function getPlanLimits(planName: string): PlanLimits {
-  if (planName === "SUPER") return PLAN_LIMITS.SUPER;
-  if (planName === "GROWTH") return PLAN_LIMITS.GROWTH;
-  if (planName === "PRO") return PLAN_LIMITS.PRO;
-  return PLAN_LIMITS.STARTER;
+export function getPlanLimits(_planName?: string): PlanLimits {
+  return PLAN_LIMITS.SUPER;
 }
 
 export function planHasFeature<K extends keyof PlanLimits>(
@@ -139,6 +136,28 @@ export function addDays(date: Date, days: number) {
 export function getFreeTrialEndDate(fromDate?: Date) {
   const base = fromDate ? new Date(fromDate) : new Date();
   return addDays(base, FREE_TRIAL_DAYS);
+}
+
+export function isTrialActive(params: {
+  trialEndDate: Date | null;
+  subscriptionStatus: SubscriptionStatus;
+  now?: Date;
+}) {
+  const { trialEndDate, subscriptionStatus, now = new Date() } = params;
+  if (subscriptionStatus !== SubscriptionStatus.ACTIVE) return false;
+  if (!trialEndDate) return false;
+  return trialEndDate.getTime() > now.getTime();
+}
+
+export function getTrialDaysLeft(params: {
+  trialEndDate: Date | null;
+  now?: Date;
+}) {
+  const { trialEndDate, now = new Date() } = params;
+  if (!trialEndDate) return 0;
+  const msLeft = trialEndDate.getTime() - now.getTime();
+  if (msLeft <= 0) return 0;
+  return Math.ceil(msLeft / (1000 * 60 * 60 * 24));
 }
 
 export function isSubscriptionCurrentlyActive(params: {
@@ -225,4 +244,5 @@ export const BALANCE_TRANSACTION_LABELS: Record<
   BONUS: "رصيد إضافي",
   MANUAL_ADJUSTMENT: "تعديل يدوي",
   REFUND: "استرجاع رصيد",
+  REFERRAL_REWARD: "مكافأة إحالة",
 };

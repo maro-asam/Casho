@@ -14,6 +14,20 @@ import StoreHome from "./_components/StoreHome";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 
+// ISR: revalidate every 60 seconds — store home content changes infrequently
+export const revalidate = 60;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const stores = await prisma.store.findMany({
+    where: { subscriptionStatus: SubscriptionStatus.ACTIVE },
+    select: { slug: true },
+    take: 200,
+  });
+  console.log(`[ISR] generateStaticParams: pre-building ${stores.length} store home pages`);
+  return stores.map((s) => ({ slug: s.slug }));
+}
+
 type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
 };
@@ -22,6 +36,8 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   const { slug } = await params;
 
   if (!slug) return notFound();
+
+  console.log(`[ISR] Rendering home page for store: "${slug}" at ${new Date().toISOString()} (revalidate: ${revalidate}s)`);
 
   const store = await prisma.store.findUnique({
     where: { slug },
