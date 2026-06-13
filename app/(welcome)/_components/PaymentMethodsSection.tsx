@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import FadeIn from "./FadeIn";
 import { useLang } from "../_i18n/LanguageContext";
+import { Marquee } from "@/components/ui/marquee";
 
 const REGIONS: PaymentRegion[] = ["global", "egypt", "saudi"];
 
@@ -27,89 +28,52 @@ function MiniFeature({ text }: { text: string }) {
   );
 }
 
+function PaymentCard({ method }: { method: (typeof PAYMENT_METHODS)[number] }) {
+  return (
+    <figure
+      className={cn(
+        "group relative w-32 cursor-pointer overflow-hidden text-center  transition-all duration-300 hover:-translate-y-1 ",
+      )}
+    >
+      <div className="mx-auto flex size-16 items-center justify-center">
+        <Image
+          src={method.logo}
+          alt={method.label}
+          width={64}
+          height={64}
+          className="max-h-16 w-auto object-contain transition duration-300 group-hover:scale-105"
+        />
+      </div>
+    </figure>
+  );
+}
+
 export default function PaymentMethodsSection() {
   const { t } = useLang();
-  const pm = t.payments;
+
+  const allMethods = PAYMENT_METHODS;
+  const firstRow = allMethods.slice(0, Math.ceil(allMethods.length / 2));
+  const secondRow = allMethods.slice(Math.ceil(allMethods.length / 2));
 
   return (
-    <section className="relative overflow-hidden rounded-lg border border-primary/15 bg-background px-4 py-10 shadow-sm md:px-8 md:py-14">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.14),transparent_34%)]" />
-
+    <section className="">
       <div className="relative mx-auto max-w-7xl space-y-10">
-        <div className="mx-auto max-w-3xl space-y-4 text-center">
-          <Badge variant="secondary" className="rounded-full px-4 py-1">
-            {pm.badge}
-          </Badge>
+        <FadeIn className="relative flex w-full flex-col items-center justify-center gap-4 overflow-hidden p-6 opacity-70 transition duration-300 hover:opacity-100 ">
+          <Marquee pauseOnHover className="[--duration:30s]">
+            {firstRow.map((method) => (
+              <PaymentCard key={method.key} method={method} />
+            ))}
+          </Marquee>
 
-          <h2 className="text-3xl font-semibold tracking-tight md:text-5xl">
-            {pm.title}
-          </h2>
+          <Marquee reverse pauseOnHover className="[--duration:30s]">
+            {secondRow.map((method) => (
+              <PaymentCard key={method.key} method={method} />
+            ))}
+          </Marquee>
 
-          <p className="text-sm leading-7 text-muted-foreground md:text-base">
-            {pm.subtitle}
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          {REGIONS.map((region, index) => {
-            const methods = PAYMENT_METHODS.filter(
-              (method) => method.region === region,
-            );
-
-            return (
-              <FadeIn
-                key={region}
-                delay={index * 80}
-                className={cn(
-                  "rounded-3xl border bg-linear-to-br p-5 shadow-sm",
-                  REGION_STYLES[region],
-                )}
-              >
-                <div className="mb-5 flex items-center justify-between gap-3">
-                  <div className="text-right">
-                    <h3 className="font-semibold">{PAYMENT_REGION_LABELS[region]}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {methods.length} {pm.methodsCount}
-                    </p>
-                  </div>
-
-                  <div className="flex size-11 items-center justify-center rounded-2xl border bg-background/70 text-lg font-semibold">
-                    {methods.length}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {methods.map((method) => (
-                    <div
-                      key={method.key}
-                      className="group rounded-2xl border bg-background/80 p-4 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
-                    >
-                      <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border bg-card p-3 shadow-sm">
-                        <Image
-                          src={method.logo}
-                          alt={method.label}
-                          width={64}
-                          height={64}
-                          className="max-h-11 w-auto object-contain transition duration-300 group-hover:scale-105"
-                        />
-                      </div>
-
-                      <p className="mt-3 truncate text-sm font-semibold">
-                        {method.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </FadeIn>
-            );
-          })}
-        </div>
-
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-3 rounded-3xl border bg-card/70 p-4 shadow-sm">
-          {pm.miniFeatures.map((f) => (
-            <MiniFeature key={f} text={f} />
-          ))}
-        </div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r from-background"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-linear-to-l from-background"></div>
+        </FadeIn>
       </div>
     </section>
   );

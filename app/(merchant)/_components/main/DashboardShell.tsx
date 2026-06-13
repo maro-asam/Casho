@@ -174,6 +174,67 @@ export default function DashboardShell({
           },
         ],
       },
+
+      {
+        title: "المتجر",
+        links: [
+          { name: "المنتجات", href: "/products", icon: Package },
+          { name: "التصنيفات", href: "/categories", icon: Tag },
+          { name: "البانرات", href: "/banners", icon: ImageIcon },
+          {
+            name: "الكوبونات",
+            href: "/coupons",
+            icon: CirclePercent,
+          },
+          {
+            name: "المراجعات",
+            href: "/reviews",
+            icon: Star,
+          },
+          {
+            name: "نظام النقاط",
+            href: "/loyalty",
+            icon: Gift,
+          },
+        ],
+      },
+      {
+        title: "النمو",
+        links: [
+          {
+            name: "تخصيص المتجر",
+            href: "/customization",
+            icon: PaintRoller,
+          },
+          { name: "إعدادات SEO", href: "/seo", icon: Rocket },
+          { name: "المدونة", href: "/blog", icon: BookOpen },
+          { name: "خدمات إضافية", href: "/services", icon: Layers },
+          { name: "دومين مخصص", href: "/domain", icon: Globe },
+          { name: "QR Code المتجر", href: "/qr-code", icon: QrCode },
+        ],
+      },
+
+      {
+        title: "المالية",
+        links: [
+          {
+            name: "إدارة الرصيد",
+            href: "/balance",
+            icon: BanknoteArrowUp,
+          },
+          {
+            name: "تغيير الخطة",
+            href: "/change-plan",
+            icon: ChartNoAxesCombined,
+          },
+          {
+            name: "بوابات الدفع",
+            href: "/payment-methods",
+            icon: CreditCard,
+          },
+        ],
+      },
+
       {
         title: "إدارة العملاء",
         links: [
@@ -233,65 +294,6 @@ export default function DashboardShell({
             name: "تحويلات الفروع",
             href: "/dashboard/inventory/transfers",
             icon: ArrowLeftRight,
-          },
-        ],
-      },
-      {
-        title: "المتجر",
-        links: [
-          { name: "المنتجات", href: "/products", icon: Package },
-          { name: "التصنيفات", href: "/categories", icon: Tag },
-          { name: "البانرات", href: "/banners", icon: ImageIcon },
-          {
-            name: "الكوبونات",
-            href: "/coupons",
-            icon: CirclePercent,
-          },
-          {
-            name: "المراجعات",
-            href: "/reviews",
-            icon: Star,
-          },
-          {
-            name: "نظام النقاط",
-            href: "/loyalty",
-            icon: Gift,
-          },
-        ],
-      },
-      {
-        title: "النمو",
-        links: [
-          {
-            name: "تخصيص المتجر",
-            href: "/customization",
-            icon: PaintRoller,
-          },
-          { name: "إعدادات SEO", href: "/seo", icon: Rocket },
-          { name: "المدونة", href: "/blog", icon: BookOpen },
-          { name: "خدمات إضافية", href: "/services", icon: Layers },
-          { name: "دومين مخصص", href: "/domain", icon: Globe },
-          { name: "QR Code المتجر", href: "/qr-code", icon: QrCode },
-        ],
-      },
-
-      {
-        title: "المالية",
-        links: [
-          {
-            name: "إدارة الرصيد",
-            href: "/balance",
-            icon: BanknoteArrowUp,
-          },
-          {
-            name: "تغيير الخطة",
-            href: "/change-plan",
-            icon: ChartNoAxesCombined,
-          },
-          {
-            name: "بوابات الدفع",
-            href: "/payment-methods",
-            icon: CreditCard,
           },
         ],
       },
@@ -575,7 +577,9 @@ export default function DashboardShell({
             ) : (
               <ChevronRight className="size-4" />
             )}
-            <span className="text-sm">{isCollapsed ? "توسيع" : "طي القائمة"}</span>
+            <span className="text-sm">
+              {isCollapsed ? "توسيع" : "طي القائمة"}
+            </span>
           </Button>
 
           <div className="flex items-center gap-2">

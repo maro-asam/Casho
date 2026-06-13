@@ -139,6 +139,22 @@ export async function InviteMemberAction(
   const store = await getOwnedStore(user.id);
   if (!store) return { success: false, message: "لا يوجد متجر" };
 
+  // Plan limit: check member count
+  const fullStore = await prisma.store.findUnique({ where: { id: store.id }, select: { planName: true } });
+  if (fullStore) {
+    const { getPlanLimits } = await import("@/lib/subscriptions");
+    const planLimits = getPlanLimits(fullStore.planName);
+    if (planLimits.members !== null) {
+      const memberCount = await prisma.storeMember.count({ where: { storeId: store.id } });
+      if (memberCount >= planLimits.members) {
+        return {
+          success: false,
+          message: `باقتك الحالية تسمح بحد أقصى ${planLimits.members} عضو. يرجى الترقية لإضافة المزيد.`,
+        };
+      }
+    }
+  }
+
   const parsed = InviteSchema.safeParse({
     email: formData.get("email"),
     role: formData.get("role"),

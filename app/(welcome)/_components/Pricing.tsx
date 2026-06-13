@@ -1,12 +1,16 @@
 "use client";
 
-import { Check, Lock } from "lucide-react";
+import { Check, Zap } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { plans as plansPrices } from "@/constants/welcome/pricing.constants";
 import FadeIn from "./FadeIn";
 import { useLang } from "../_i18n/LanguageContext";
+
+const planAccents = [
+  { gradient: "from-sky-500 to-primary", iconBg: "bg-sky-500/15 text-sky-600" },
+];
 
 export default function PricingSection() {
   const { t } = useLang();
@@ -17,6 +21,11 @@ export default function PricingSection() {
     price: plansPrices[i].price,
     highlighted: plansPrices[i].highlighted,
     locked: plansPrices[i].locked,
+    badge:
+      "badge" in plansPrices[i]
+        ? (plansPrices[i] as { badge?: string }).badge
+        : undefined,
+    accent: planAccents[i],
   }));
 
   return (
@@ -39,83 +48,99 @@ export default function PricingSection() {
           </p>
         </FadeIn>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        <div className="mt-14 flex justify-center">
           {plans.map((plan, index) => (
-            <FadeIn
-              key={plan.name}
-              delay={index * 80}
-              className={[
-                "relative rounded-xl border p-6 md:p-7 transition-all",
-                plan.highlighted
-                  ? "border-primary/25 bg-card shadow-xl shadow-primary/10"
-                  : "border-border bg-card/70",
-                plan.locked ? "opacity-55 blur-xs" : "",
-              ].join(" ")}
-            >
-              {plan.highlighted && "badge" in plan && plan.badge ? (
-                <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-primary/20 bg-background px-4 py-1.5 text-xs font-medium text-primary shadow-sm">
-                  {plan.badge}
-                </span>
-              ) : null}
+            <FadeIn key={plan.name} delay={index * 80} className="relative w-full max-w-sm">
+              <div
+                className={[
+                  "relative h-full rounded-2xl border-2 bg-card transition-all duration-200",
+                  plan.highlighted
+                    ? "border-primary/30 shadow-xl shadow-primary/10"
+                    : "border-border",
+                ].join(" ")}
+              >
+                {/* Recommended badge */}
+                {plan.highlighted && plan.badge && (
+                  <div className="absolute -top-3.5 inset-x-0 flex justify-center">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full bg-linear-to-l ${plan.accent.gradient} px-3 py-1 text-xs font-semibold text-white shadow-sm`}
+                    >
+                      <Zap className="size-3" />
+                      {plan.badge}
+                    </span>
+                  </div>
+                )}
 
-              {plan.locked ? (
-                <div className="absolute inset-x-0 top-4 z-10 flex justify-center">
-                  <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-background/90 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
-                    <Lock className="size-3.5" />
-                    {pr.soon}
-                  </span>
-                </div>
-              ) : null}
+                <div className="p-6 md:p-7">
+                  {/* Plan name */}
+                  <div className="mb-4">
+                    <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                      باقة
+                    </p>
+                    <h3 className="mt-0.5 text-xl font-bold text-foreground">
+                      {plan.name}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      {plan.description}
+                    </p>
+                  </div>
 
-              <div className={plan.locked ? "pointer-events-none select-none" : ""}>
-                <div className="text-center">
-                  <h3 className="text-xl font-semibold text-foreground">{plan.name}</h3>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{plan.description}</p>
-
-                  <div className="mt-6 flex items-end justify-center gap-2">
-                    <span className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
+                  {/* Price */}
+                  <div className="mb-6 flex items-end gap-1.5">
+                    <span
+                      className={[
+                        "text-5xl font-extrabold leading-none tracking-tight",
+                        plan.highlighted
+                          ? `bg-linear-to-l ${plan.accent.gradient} bg-clip-text text-transparent`
+                          : "text-foreground",
+                      ].join(" ")}
+                    >
                       {plan.price}
                     </span>
-                    <span className="pb-1 text-sm text-muted-foreground">{pr.currency} {plan.period}</span>
+                    <span className="mb-1.5 text-sm text-muted-foreground">
+                      {pr.currency} {plan.period}
+                    </span>
                   </div>
-                </div>
 
-                <div className="mt-8 space-y-4">
-                  {plan.features.map((feature) => (
-                    <div key={feature} className="flex items-start gap-3">
-                      <div
-                        className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-xl ${
-                          plan.highlighted
-                            ? "bg-primary/10 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        <Check className="size-3.5" />
+                  {/* Divider */}
+                  <div className="mb-5 h-px bg-border" />
+
+                  {/* Features */}
+                  <div className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <div key={feature} className="flex items-center gap-3">
+                        <span
+                          className={[
+                            "flex size-5 shrink-0 items-center justify-center rounded-full",
+                            plan.highlighted
+                              ? `bg-linear-to-br ${plan.accent.gradient} text-white`
+                              : "bg-emerald-500/10 text-emerald-600",
+                          ].join(" ")}
+                        >
+                          <Check className="size-3" />
+                        </span>
+                        <p className="text-sm leading-5 text-foreground/90">
+                          {feature}
+                        </p>
                       </div>
-                      <p className="text-sm leading-7 text-foreground/90">{feature}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-                <Button
-                  asChild={!plan.locked}
-                  size="lg"
-                  variant={plan.highlighted ? "default" : "outline"}
-                  disabled={plan.locked}
-                  className="mt-8 h-12 w-full rounded-xl text-sm font-medium"
-                >
-                  {plan.locked ? (
-                    <span>{pr.soon}</span>
-                  ) : (
+                  <Button
+                    asChild
+                    size="lg"
+                    variant={plan.highlighted ? "default" : "outline"}
+                    className="mt-7 h-11 w-full rounded-xl text-sm font-semibold"
+                  >
                     <Link href="/register">{pr.startNow}</Link>
-                  )}
-                </Button>
+                  </Button>
+                </div>
               </div>
             </FadeIn>
           ))}
         </div>
 
-        <FadeIn delay={80} className="mt-6 text-center">
+        <FadeIn delay={80} className="mt-8 text-center">
           <p className="text-sm leading-7 text-muted-foreground">
             {pr.footnote}
           </p>

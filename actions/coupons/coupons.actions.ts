@@ -47,10 +47,21 @@ export async function CreateCouponAction(
 
     const store = await prisma.store.findFirst({
       where: { userId },
-      select: { id: true },
+      select: { id: true, planName: true },
     });
 
     if (!store) return { error: "لم يتم العثور على المتجر" };
+
+    const { getPlanLimits } = await import("@/lib/subscriptions");
+    const planLimits = getPlanLimits(store.planName);
+    if (planLimits.coupons !== null) {
+      const couponCount = await prisma.coupon.count({ where: { storeId: store.id } });
+      if (couponCount >= planLimits.coupons) {
+        return {
+          error: `باقتك الحالية تسمح بحد أقصى ${planLimits.coupons} كوبون. يرجى الترقية لإضافة المزيد.`,
+        };
+      }
+    }
 
     const code = formData.get("code")?.toString().trim().toUpperCase() || "";
     const type = formData.get("type")?.toString() || "PERCENTAGE";

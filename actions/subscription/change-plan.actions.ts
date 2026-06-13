@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-
-export type PlanKey = "STARTER" | "GROWTH" | "PRO" | "CUSTOM";
+import { PLAN_PRICES, type PlanKey } from "@/lib/subscriptions";
 
 export type ChangePlanFormState = {
   success: boolean;
@@ -14,15 +13,8 @@ export type ChangePlanFormState = {
   };
 };
 
-const PLAN_PRICES: Record<PlanKey, number> = {
-  STARTER: 29900,
-  GROWTH: 49900,
-  PRO: 99900,
-  CUSTOM: 0,
-};
-
 function isValidPlan(plan: string): plan is PlanKey {
-  return plan === "STARTER" || plan === "GROWTH" || plan === "PRO";
+  return plan === "SUPER";
 }
 
 export async function UpdateStorePlanAction(
@@ -47,25 +39,19 @@ export async function UpdateStorePlanAction(
 
     const store = await prisma.store.findFirst({
       where: { userId },
-      select: {
-        id: true,
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
+      select: { id: true },
+      orderBy: { createdAt: "asc" },
     });
 
     if (!store) {
-      return {
-        success: false,
-        message: "المتجر غير موجود",
-      };
+      return { success: false, message: "المتجر غير موجود" };
     }
 
     await prisma.store.update({
       where: { id: store.id },
       data: {
         monthlyPrice: PLAN_PRICES[plan],
+        planName: plan,
         autoRenew,
         planSelected: true,
       },
@@ -76,16 +62,9 @@ export async function UpdateStorePlanAction(
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/settings");
 
-    return {
-      success: true,
-      message: "تم تحديث الباقة بنجاح",
-    };
+    return { success: true, message: "تم تحديث الباقة بنجاح" };
   } catch (error) {
     console.error("UpdateStorePlanAction Error:", error);
-
-    return {
-      success: false,
-      message: "حدث خطأ أثناء تحديث الباقة",
-    };
+    return { success: false, message: "حدث خطأ أثناء تحديث الباقة" };
   }
 }

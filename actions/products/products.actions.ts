@@ -163,11 +163,23 @@ export async function CreateProductAction(
 
     const store = await prisma.store.findFirst({
       where: { userId },
-      select: { id: true },
+      select: { id: true, planName: true },
     });
 
     if (!store) {
       return { success: false, message: "المتجر غير موجود" };
+    }
+
+    const { getPlanLimits } = await import("@/lib/subscriptions");
+    const planLimits = getPlanLimits(store.planName);
+    if (planLimits.products !== null) {
+      const productCount = await prisma.product.count({ where: { storeId: store.id } });
+      if (productCount >= planLimits.products) {
+        return {
+          success: false,
+          message: `باقتك الحالية تسمح بحد أقصى ${planLimits.products} منتج. يرجى الترقية لإضافة المزيد.`,
+        };
+      }
     }
 
     if (!name) {

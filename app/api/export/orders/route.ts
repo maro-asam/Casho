@@ -64,16 +64,21 @@ export async function GET() {
 
     const store = await prisma.store.findFirst({
       where: { userId },
-      select: {
-        id: true,
-        name: true,
-      },
+      select: { id: true, name: true, planName: true },
     });
 
     if (!store) {
       return NextResponse.json(
         { error: "لم يتم العثور على متجر لهذا المستخدم" },
         { status: 404 },
+      );
+    }
+
+    const { getPlanLimits } = await import("@/lib/subscriptions");
+    if (!getPlanLimits(store.planName).exportOrders) {
+      return NextResponse.json(
+        { error: "تصدير الطلبات متاح من باقة النمو فأعلى. يرجى الترقية." },
+        { status: 403 },
       );
     }
 

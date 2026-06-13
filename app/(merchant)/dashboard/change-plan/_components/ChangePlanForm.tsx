@@ -1,35 +1,39 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Check, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
   UpdateStorePlanAction,
-  type PlanKey,
   type ChangePlanFormState,
 } from "@/actions/subscription/change-plan.actions";
 import { useRouter } from "next/navigation";
 
-type PlanItem = {
-  key: PlanKey;
-  title: string;
-  description: string;
-  price: number;
-  features: string[];
-  icon: React.ComponentType<{ className?: string }>;
-  recommended?: boolean;
-};
+const SUPER_PRICE = 29900;
+const SUPER_FEATURES = [
+  "متجر إلكتروني كامل",
+  "منتجات غير محدودة",
+  "أكواد خصم غير محدودة",
+  "طلبات بدون حد",
+  "كل الثيمات",
+  "دومين مخصص",
+  "CRM كامل + تحليلات متقدمة",
+  "نظام نقاط الولاء",
+  "تصدير الطلبات CSV",
+  "نظام POS للمحل",
+  "إدارة المخزون والفروع",
+  "طلبات انستجرام AI",
+  "أعضاء فريق غير محدودين",
+  "دعم فني",
+];
 
 type ChangePlanFormProps = {
-  currentPlan: PlanKey;
-  currentMonthlyPrice: number;
   currentBalance: number;
   autoRenew: boolean;
   isOnboarding?: boolean;
@@ -43,42 +47,17 @@ function formatPrice(value: number) {
   }).format(value / 100);
 }
 
-const plans: PlanItem[] = [
-  {
-    key: "STARTER",
-    title: "باقة البداية",
-    description: "الباقة الأساسية لتشغيل متجرك على كاشو.",
-    price: 29900,
-    icon: ShieldCheck,
-    recommended: true,
-    features: [
-      "متجر إلكتروني كامل",
-      "إدارة المنتجات والطلبات",
-      "لوحة تحكم سهلة",
-    ],
-  },
-];
-
 const initialState: ChangePlanFormState = {
   success: false,
   message: "",
 };
 
-function getPlanFromPrice(price: number): PlanKey {
-  if (price === 29900) return "STARTER";
-  if (price === 99900) return "PRO";
-  return "GROWTH";
-}
-
 export default function ChangePlanForm({
-  currentPlan,
-  currentMonthlyPrice,
   currentBalance,
   autoRenew,
   isOnboarding = false,
 }: ChangePlanFormProps) {
   const router = useRouter();
-  const [selectedPlan, setSelectedPlan] = useState<PlanKey>(currentPlan);
   const [autoRenewEnabled, setAutoRenewEnabled] = useState(autoRenew);
 
   const [state, formAction, isPending] = useActionState(
@@ -88,10 +67,8 @@ export default function ChangePlanForm({
 
   useEffect(() => {
     if (!state.message) return;
-
     if (state.success) {
       toast.success(state.message);
-
       if (isOnboarding) {
         router.replace("/");
         router.refresh();
@@ -101,146 +78,74 @@ export default function ChangePlanForm({
     }
   }, [state, isOnboarding, router]);
 
-  const selectedPlanObject = useMemo(() => {
-    return plans.find((plan) => plan.key === selectedPlan) ?? plans[1];
-  }, [selectedPlan]);
-
-  const isCurrentPlan = selectedPlan === currentPlan;
-  const priceDifference = selectedPlanObject.price - currentMonthlyPrice;
-  const enoughForRenewal = currentBalance >= selectedPlanObject.price;
-  const currentPlanLabel = getPlanFromPrice(currentMonthlyPrice);
+  const enoughForRenewal = currentBalance >= SUPER_PRICE;
 
   return (
     <form action={formAction} className="space-y-6">
-      <input type="hidden" name="plan" value={selectedPlan} />
+      <input type="hidden" name="plan" value="SUPER" />
       <input
         type="hidden"
         name="autoRenew"
         value={autoRenewEnabled ? "true" : "false"}
       />
 
-      <div className="grid gap-4 xl:grid-cols-3">
-        {plans.map((plan) => {
-          const Icon = plan.icon;
-          const active = selectedPlan === plan.key;
-          const current = currentPlanLabel === plan.key;
-
-          return (
-            <button
-              type="button"
-              key={plan.key}
-              onClick={() => setSelectedPlan(plan.key)}
-              className="w-full text-right"
-            >
-              <Card
-                className={cn(
-                  "h-full transition-all",
-                  active && "border-primary ring-1 ring-primary",
-                )}
-              >
-                <CardHeader className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline">{plan.title}</Badge>
-
-                        {plan.recommended && (
-                          <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                            الأنسب
-                          </Badge>
-                        )}
-
-                        {current && (
-                          <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400">
-                            باقتك الحالية
-                          </Badge>
-                        )}
-                      </div>
-
-                      <CardTitle className="text-2xl">
-                        {formatPrice(plan.price)}
-                        <span className="ms-2 text-sm font-normal text-muted-foreground">
-                          / شهريًا
-                        </span>
-                      </CardTitle>
-                    </div>
-
-                    <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Icon className="size-5" />
-                    </div>
-                  </div>
-
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    {plan.description}
-                  </p>
-                </CardHeader>
-
-                <CardContent className="space-y-3">
-                  {plan.features.map((feature) => (
-                    <div
-                      key={feature}
-                      className="flex items-center gap-2 text-sm text-foreground"
-                    >
-                      <Check className="size-4 text-emerald-600" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">ملخص التغيير</CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">
-                  الباقة الحالية
-                </p>
-                <p className="font-semibold">{currentPlanLabel}</p>
+      {/* Plan card */}
+      <div className="mx-auto max-w-sm">
+        <div className="relative rounded-2xl border-2 border-primary bg-card shadow-lg shadow-primary/15">
+          <div className="p-6">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary text-white shadow-md">
+                <ShieldCheck className="size-5" />
               </div>
-
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">
-                  الباقة الجديدة
+              <div>
+                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                  باقة
                 </p>
-                <p className="font-semibold">{selectedPlanObject.title}</p>
-              </div>
-
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">
-                  السعر الحالي
-                </p>
-                <p className="font-semibold">
-                  {formatPrice(currentMonthlyPrice)}
-                </p>
-              </div>
-
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">
-                  السعر بعد التغيير
-                </p>
-                <p className="font-semibold">
-                  {formatPrice(selectedPlanObject.price)}
-                </p>
+                <h3 className="text-lg font-bold leading-tight">سوبر</h3>
               </div>
             </div>
 
-            <div className="rounded-xl border border-dashed p-4">
-              <p className="text-sm leading-6 text-muted-foreground">
-                {priceDifference === 0
-                  ? "أنت مختار نفس الباقة الحالية، ومفيش فرق في السعر."
-                  : priceDifference > 0
-                    ? `التجديد القادم هيكون أعلى بمقدار ${formatPrice(priceDifference)}.`
-                    : `التجديد القادم هيكون أقل بمقدار ${formatPrice(Math.abs(priceDifference))}.`}
-              </p>
+            <div className="mb-2 flex items-end gap-1.5">
+              <span className="text-5xl font-extrabold leading-none tracking-tight text-primary">
+                299
+              </span>
+              <span className="mb-1.5 text-sm text-muted-foreground">
+                ج.م / شهر
+              </span>
+            </div>
+            <p className="mb-5 text-sm leading-5 text-muted-foreground">
+              كل المميزات في خطة واحدة بسعر واحد.
+            </p>
+
+            <div className="mb-4 h-px bg-border" />
+
+            <div className="space-y-2.5">
+              {SUPER_FEATURES.map((feature) => (
+                <div
+                  key={feature}
+                  className="flex items-center gap-2.5 text-sm"
+                >
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                    <Check className="size-3" />
+                  </span>
+                  <span className="font-medium text-foreground">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Summary + balance */}
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">إعدادات الاشتراك</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-xl border bg-muted/30 p-4">
+              <p className="mb-1 text-sm text-muted-foreground">السعر الشهري</p>
+              <p className="font-semibold">{formatPrice(SUPER_PRICE)}</p>
             </div>
 
             <div className="flex items-center justify-between rounded-xl border p-4">
@@ -249,10 +154,9 @@ export default function ChangePlanForm({
                   التجديد التلقائي
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  لو مفعل، هيتم خصم سعر الباقة المختارة تلقائيًا وقت التجديد.
+                  يتم خصم سعر الباقة تلقائيًا عند التجديد.
                 </p>
               </div>
-
               <Switch
                 id="autoRenew"
                 checked={autoRenewEnabled}
@@ -266,24 +170,17 @@ export default function ChangePlanForm({
           <CardHeader>
             <CardTitle className="text-lg">جاهزية الرصيد</CardTitle>
           </CardHeader>
-
           <CardContent className="space-y-4">
             <div className="rounded-xl border bg-muted/30 p-4">
-              <p className="mb-1 text-sm text-muted-foreground">
-                الرصيد الحالي
-              </p>
+              <p className="mb-1 text-sm text-muted-foreground">رصيدك الحالي</p>
               <p className="font-semibold">{formatPrice(currentBalance)}</p>
             </div>
-
             <div className="rounded-xl border bg-muted/30 p-4">
               <p className="mb-1 text-sm text-muted-foreground">
-                المطلوب للتجديد القادم
+                المطلوب للتجديد
               </p>
-              <p className="font-semibold">
-                {formatPrice(selectedPlanObject.price)}
-              </p>
+              <p className="font-semibold">{formatPrice(SUPER_PRICE)}</p>
             </div>
-
             <div
               className={cn(
                 "rounded-xl border p-4 text-sm",
@@ -293,27 +190,24 @@ export default function ChangePlanForm({
               )}
             >
               {enoughForRenewal
-                ? "رصيدك الحالي يكفي للتجديد القادم على الباقة المختارة."
-                : "رصيدك الحالي غير كافٍ للتجديد القادم على الباقة المختارة."}
+                ? "رصيدك يكفي للتجديد."
+                : "رصيدك غير كافٍ — اشحن قبل التجديد."}
             </div>
 
             <Button
               type="submit"
               className="w-full"
               disabled={
-                isPending ||
-                (!isOnboarding &&
-                  isCurrentPlan &&
-                  autoRenewEnabled === autoRenew)
+                isPending || (!isOnboarding && autoRenewEnabled === autoRenew)
               }
             >
               {isPending ? (
                 <>
                   <Loader2 className="ms-2 size-4 animate-spin" />
-                  جاري حفظ التغييرات...
+                  جاري الحفظ...
                 </>
               ) : isOnboarding ? (
-                "اختيار الباقة والدخول للداشبورد"
+                "ابدأ الاشتراك وادخل الداشبورد"
               ) : (
                 "حفظ التغييرات"
               )}

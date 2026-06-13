@@ -1,5 +1,6 @@
 "use client";
 
+import { DiaTextReveal } from "@/components/ui/dia-text-reveal";
 import { useLang } from "../_i18n/LanguageContext";
 
 export default function StatsSection() {
@@ -21,20 +22,22 @@ export default function StatsSection() {
 
       <div className="relative mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center flex flex-col items-center gap-2">
-          <span className="inline-flex rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-            {st.badge}
-          </span>
+          <DiaTextReveal
+            className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-1.5 text-md font-medium"
+            text={st.badge}
+            colors={["#1447e6", "#20bb6b", "#1447e6"]}
+          />
 
           <h2 className="text-3xl md:text-4xl leading-tight tracking-tight text-zinc">
             {st.title}
-            <span className="mt-4 font-semibold block bg-linear-to-l from-sky-500 via-sky-500 to-primary bg-clip-text text-transparent">
+            <span className="mt-4 font-bold block text-primary">
               {st.titleAccent}
             </span>
           </h2>
 
-          <p className="mt-5 text-base leading-8 text-muted-foreground">
+          {/* <p className="mt-5 text-base leading-8 text-muted-foreground">
             {st.subtitle}
-          </p>
+          </p> */}
         </div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">

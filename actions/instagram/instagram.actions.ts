@@ -66,7 +66,16 @@ export type SuggestedOrderDetail = {
 // ─── OAuth ─────────────────────────────────────────────────────────────────
 
 export async function ConnectInstagramAction() {
-  await requireUserId();
+  const userId = await requireUserId();
+
+  const store = await prisma.store.findFirst({
+    where: { userId },
+    select: { planName: true },
+  });
+
+  if (!store || store.planName !== "PRO") {
+    return redirect("/dashboard/change-plan?upgrade=instagram");
+  }
 
   const state = crypto.randomBytes(16).toString("hex");
 

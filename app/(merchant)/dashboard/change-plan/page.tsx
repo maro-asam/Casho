@@ -59,10 +59,14 @@ function getSubscriptionStatusLabel(status: SubscriptionStatus) {
   }
 }
 
-function getPlanKeyFromPrice(
+function getPlanKeyFromStore(
+  planName: string,
   price: number,
-): "STARTER" | "GROWTH" | "PRO" | "CUSTOM" {
-  if (price === 29900) return "STARTER";
+): "SUPER" | "STARTER" | "GROWTH" | "PRO" | "CUSTOM" {
+  if (planName === "SUPER" || planName === "STARTER" || planName === "GROWTH" || planName === "PRO") {
+    return planName;
+  }
+  if (price === 29900) return "SUPER";
   if (price === 49900) return "GROWTH";
   if (price === 99900) return "PRO";
   return "CUSTOM";
@@ -89,6 +93,7 @@ export default async function ChangePlanRoute({
       slug: true,
       balance: true,
       monthlyPrice: true,
+      planName: true,
       autoRenew: true,
       subscriptionStatus: true,
       subscriptionEndsAt: true,
@@ -127,7 +132,7 @@ export default async function ChangePlanRoute({
     );
   }
 
-  const currentPlan = getPlanKeyFromPrice(store.monthlyPrice);
+  const currentPlan = getPlanKeyFromStore(store.planName, store.monthlyPrice);
   const enoughForCurrentRenewal = store.balance >= store.monthlyPrice;
 
   return (
@@ -184,8 +189,6 @@ export default async function ChangePlanRoute({
         <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
           <div className="space-y-4">
             <ChangePlanForm
-              currentPlan={currentPlan}
-              currentMonthlyPrice={store.monthlyPrice}
               currentBalance={store.balance}
               autoRenew={store.autoRenew}
               isOnboarding={isOnboarding}

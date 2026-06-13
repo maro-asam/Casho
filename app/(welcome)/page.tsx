@@ -1,4 +1,3 @@
-import HeroSection from "./_components/Hero";
 import PaymentMethodsSection from "./_components/PaymentMethodsSection";
 import FeaturesSection from "./_components/Features";
 import StatsSection from "./_components/Stats";
@@ -8,6 +7,7 @@ import FAQSection from "./_components/FAQ";
 import CTASection from "./_components/CTA";
 import BlogSection from "./_components/BlogSection";
 import { LandingPageTracker } from "@/components/meta/meta-pixel";
+import { HeroSection } from "./_components/Hero";
 
 export default function Page() {
   return (

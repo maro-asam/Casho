@@ -5,16 +5,28 @@
 @custom-variant dark (&:is(.dark *));
 
 @keyframes scroll-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 @keyframes scroll-right {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
-.scroll-left  { animation: scroll-left  35s linear infinite; }
-.scroll-right { animation: scroll-right 28s linear infinite; }
+.scroll-left {
+  animation: scroll-left 35s linear infinite;
+}
+.scroll-right {
+  animation: scroll-right 28s linear infinite;
+}
 
 :root {
   font-family: var(--font-alyamama);
@@ -79,11 +91,16 @@
   /* shadows */
   --shadow-2xs: 0 1px 2px 0px rgba(0, 0, 0, 0.04);
   --shadow-xs: 0 1px 3px 0px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --shadow: 0 2px 4px 0px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 8px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 30px -5px rgba(0, 0, 0, 0.09), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
+  --shadow-sm:
+    0 1px 3px 0px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow:
+    0 2px 4px 0px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-md:
+    0 4px 8px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg:
+    0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl:
+    0 20px 30px -5px rgba(0, 0, 0, 0.09), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
   --shadow-2xl: 0 24px 48px -12px rgba(0, 0, 0, 0.14);
 }
 
@@ -109,7 +126,7 @@
   --secondary-foreground: #e4e7f0;
 
   --muted: #1c2030;
-  --muted-foreground: #94acf4;
+  --muted-foreground: #eee;
 
   --accent: #1c2030;
   --accent-foreground: #e4e7f1;
@@ -148,11 +165,15 @@
   /* shadows — heavier opacity for dark bg */
   --shadow-2xs: 0 1px 2px 0px hsl(0 0% 0% / 0.3);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.35);
-  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.4), 0 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow-sm:
+    0 1px 3px 0px hsl(0 0% 0% / 0.4), 0 1px 2px -1px hsl(0 0% 0% / 0.3);
   --shadow: 0 2px 4px 0px hsl(0 0% 0% / 0.4), 0 1px 2px -1px hsl(0 0% 0% / 0.3);
-  --shadow-md: 0 4px 8px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
-  --shadow-lg: 0 10px 20px -3px hsl(0 0% 0% / 0.45), 0 4px 8px -4px hsl(0 0% 0% / 0.3);
-  --shadow-xl: 0 20px 30px -5px hsl(0 0% 0% / 0.5), 0 8px 12px -6px hsl(0 0% 0% / 0.3);
+  --shadow-md:
+    0 4px 8px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+  --shadow-lg:
+    0 10px 20px -3px hsl(0 0% 0% / 0.45), 0 4px 8px -4px hsl(0 0% 0% / 0.3);
+  --shadow-xl:
+    0 20px 30px -5px hsl(0 0% 0% / 0.5), 0 8px 12px -6px hsl(0 0% 0% / 0.3);
   --shadow-2xl: 0 24px 48px -12px hsl(0 0% 0% / 0.6);
 }
 
@@ -235,7 +256,59 @@
       transform: translateZ(0) rotate(360deg);
     }
   }
-}
+  --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s)
+    infinite;
+  @keyframes ripple {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+  --animate-aurora: aurora 8s ease-in-out infinite alternate;
+  @keyframes aurora {
+    0% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+    25% {
+      background-position: 50% 100%;
+      transform: rotate(5deg) scale(1.1);
+    }
+    50% {
+      background-position: 100% 50%;
+      transform: rotate(-3deg) scale(0.95);
+    }
+    75% {
+      background-position: 50% 0%;
+      transform: rotate(3deg) scale(1.05);
+    }
+    100% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+  }
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite
+;
+  @keyframes marquee {
+  from {
+    transform: translateX(0);
+    }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+    }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+    }
+  }}
 
 @layer base {
   * {
@@ -380,12 +453,3 @@
   }
 }
 
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(50%);
-  }
-}

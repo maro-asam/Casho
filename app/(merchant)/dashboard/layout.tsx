@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { ReactNode } from "react";
 import { prisma } from "@/lib/prisma";
 import DashboardShell from "../_components/main/DashboardShell";
@@ -41,6 +42,7 @@ export default async function DashboardLayout({
       id: true,
       name: true,
       slug: true,
+      planSelected: true,
       settings: {
         select: {
           themeId: true,
@@ -55,6 +57,14 @@ export default async function DashboardLayout({
 
   if (!store) {
     redirect("/");
+  }
+
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? headersList.get("next-url") ?? "";
+  const isOnChangePlan = pathname.includes("/change-plan");
+
+  if (!store.planSelected && !isOnChangePlan) {
+    redirect("/dashboard/change-plan?onboarding=1");
   }
 
   const { notifications, unreadCount } = await GetNotificationsAction(10);

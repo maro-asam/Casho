@@ -17,16 +17,10 @@ const Navbar = async () => {
         <div className="flex w-full items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="flex size-9 items-center justify-center">
-              <Image
-                src="/trans-logo.svg"
-                width={38}
-                height={38}
-                alt="Casho"
-                className="rounded-lg"
-              />
+            <div className="flex size-10 items-center justify-center">
+              <Image src="/trans-logo.svg" width={100} height={100} alt="Casho" className="dark:invert" />
             </div>
-            <span className="bg-linear-to-l from-primary via-sky-500 to-primary bg-clip-text text-transparent font-black text-2xl">CASHO</span>
+            {/* <span className="bg-linear-to-l from-primary via-sky-500 to-primary bg-clip-text text-transparent font-black text-2xl">CASHO</span> */}
           </Link>
 
           {/* Desktop nav */}

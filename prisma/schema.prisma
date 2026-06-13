@@ -119,6 +119,7 @@ model Store {
 
   balance        Int      @default(0)
   monthlyPrice   Int      @default(29900)
+  planName       String   @default("STARTER")
   planSelected   Boolean  @default(false)
   paymentMethods String[] @default([])
 

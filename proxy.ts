@@ -80,7 +80,12 @@ async function resolveCustomDomain(host: string, origin: string): Promise<string
   }
 }
 
-export async function middleware(req: NextRequest) {
+function withPathname(res: NextResponse, pathname: string): NextResponse {
+  res.headers.set("x-pathname", pathname);
+  return res;
+}
+
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("sessionToken");
   const host = getHost(req);
@@ -127,10 +132,10 @@ export async function middleware(req: NextRequest) {
       const url = req.nextUrl.clone();
       url.pathname =
         pathname === "/" ? "/dashboard" : `/dashboard${pathname}`;
-      return NextResponse.rewrite(url);
+      return withPathname(NextResponse.rewrite(url), url.pathname);
     }
 
-    return NextResponse.next();
+    return withPathname(NextResponse.next(), pathname);
   }
 
   // ─── Protect /dashboard and /builder on other domains (localhost dev) ──────
