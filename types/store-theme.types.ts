@@ -153,6 +153,42 @@ export type CollectionsContent = {
   items: CollectionItem[];
 };
 
+// ─── Visual Builder Section Types ─────────────────────────────────────────────
+// These power the JSON-driven "Hero Banner" and "Rich Text" page sections.
+
+export type HeroBannerSettings = {
+  backgroundImage?: string;
+  headline?: string;
+  subheadline?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  textAlign?: "left" | "center" | "right";
+  overlayOpacity?: number;
+};
+
+export type RichTextSettings = {
+  heading?: string;
+  paragraph?: string;
+  width?: "narrow" | "normal" | "wide" | "full";
+  textAlign?: "left" | "center" | "right";
+  backgroundColor?: string;
+};
+
+// ─── Page Section (generic JSON-array unit used by the visual builder) ────────
+
+export type PageSectionType = "hero-banner" | "rich-text";
+
+export type SectionSettingsMap = {
+  "hero-banner": HeroBannerSettings;
+  "rich-text": RichTextSettings;
+};
+
+export type PageSection<T extends PageSectionType = PageSectionType> = {
+  id: string;
+  type: T;
+  settings: SectionSettingsMap[T];
+};
+
 /** Map of section content; only defined sections are stored */
 export type SectionContentMap = {
   offerStrip?: OfferStripContent;
@@ -164,6 +200,9 @@ export type SectionContentMap = {
   newsletter?: NewsletterContent;
   urgency?: UrgencyContent;
   collections?: CollectionsContent;
+  // ── Visual Builder sections ───────────────────────────────────────────────
+  heroBanner?: HeroBannerSettings;
+  richText?: RichTextSettings;
 };
 
 // ─── Section Visibility ────────────────────────────────────────────────────────
@@ -187,7 +226,10 @@ export type SectionKey =
   | "showAboutBrand"
   | "showNewsletter"
   | "showUrgency"
-  | "showCollections";
+  | "showCollections"
+  // ── Visual Builder ────────────────────────────────────────────────────────
+  | "showHeroBanner"
+  | "showRichText";
 
 /**
  * Recommended default section order for new stores.
@@ -195,6 +237,7 @@ export type SectionKey =
  */
 export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "showHero",
+  "showHeroBanner",
   "showOfferStrip",
   "showSocialProof",
   "showBestSellers",
@@ -206,6 +249,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "showUrgency",
   "showLatestProducts",
   "showAboutBrand",
+  "showRichText",
   "showNewsletter",
 ];
 
@@ -225,6 +269,9 @@ export type HomePageSections = {
   showNewsletter: boolean;
   showUrgency: boolean;
   showCollections: boolean;
+  // ── Visual Builder ────────────────────────────────────────────────────────
+  showHeroBanner: boolean;
+  showRichText: boolean;
   /** Render order — falls back to DEFAULT_SECTION_ORDER */
   sectionOrder?: SectionKey[];
 };

@@ -24,6 +24,8 @@ import {
   Save,
   Plus,
   Trash2,
+  Sparkles,
+  FileText,
 } from "lucide-react";
 import {
   DndContext,
@@ -163,6 +165,21 @@ const SECTION_META: Record<SectionKey, SectionMeta> = {
     description: "جمع الإيميلات بخصم أول طلب",
     category: "funnel",
     badge: "جديد",
+  },
+  // ── Visual Builder ────────────────────────────────────────────────────────
+  showHeroBanner: {
+    icon: Sparkles,
+    label: "بانر مخصص",
+    description: "هيرو بانر احترافي قابل للتصميم الكامل",
+    category: "funnel",
+    badge: "Builder",
+  },
+  showRichText: {
+    icon: FileText,
+    label: "نص غني",
+    description: "كتلة نصية بعنوان وفقرة قابلة للتنسيق",
+    category: "funnel",
+    badge: "Builder",
   },
 };
 
@@ -739,6 +756,8 @@ export default function ThemeSectionsEditor({
     showNewsletter: currentSections.home.showNewsletter ?? false,
     showUrgency: currentSections.home.showUrgency ?? false,
     showCollections: currentSections.home.showCollections ?? false,
+    showHeroBanner: currentSections.home.showHeroBanner ?? false,
+    showRichText: currentSections.home.showRichText ?? false,
   });
 
   const sensors = useSensors(

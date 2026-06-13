@@ -69,6 +69,8 @@ const DEFAULT_SECTIONS: HomePageSections = {
   showNewsletter: false,
   showUrgency: false,
   showCollections: false,
+  showHeroBanner: false,
+  showRichText: false,
 };
 
 export default function StoreHome({

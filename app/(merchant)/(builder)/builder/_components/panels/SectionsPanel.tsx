@@ -44,7 +44,13 @@ import {
   Trash2,
   Layers,
   RefreshCw,
+  Sparkles,
+  FileText,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -87,11 +93,16 @@ const SECTION_META: Record<SectionKey, SectionMeta> = {
   showUrgency:         { icon: Timer,         label: "عرض عاجل",            category: "funnel", badge: "جديد" },
   showAboutBrand:      { icon: Store,         label: "نبذة عن المتجر",     category: "funnel", badge: "جديد" },
   showNewsletter:      { icon: Mail,          label: "الاشتراك البريدي",   category: "funnel", badge: "جديد" },
+  // ── Visual Builder ──────────────────────────────────────────────────────
+  showHeroBanner:      { icon: Sparkles,      label: "بانر مخصص",          category: "funnel", badge: "Builder" },
+  showRichText:        { icon: FileText,      label: "نص غني",              category: "funnel", badge: "Builder" },
 };
 
 const FUNNEL_KEYS: SectionKey[] = [
   "showOfferStrip","showSocialProof","showBestSellers","showCollections",
   "showWhyChooseUs","showTestimonials","showUrgency","showAboutBrand","showNewsletter",
+  // ── Visual Builder ────────────────────────────────────────────────────────
+  "showHeroBanner","showRichText",
 ];
 
 // ─── Inline editors (compact versions for the builder panel) ─────────────────
@@ -322,6 +333,207 @@ function UrgencyEditor({ storeId, content }: { storeId: string; content?: Sectio
   );
 }
 
+// ─── Hero Banner Editor ───────────────────────────────────────────────────────
+
+function AlignButton({
+  value, current, icon: Icon, label, onSelect,
+}: { value: "left" | "center" | "right"; current: string; icon: React.ElementType; label: string; onSelect: (v: "left" | "center" | "right") => void }) {
+  return (
+    <button
+      onClick={() => onSelect(value)}
+      title={label}
+      className={cn(
+        "flex h-8 flex-1 items-center justify-center rounded-md border text-xs font-medium transition-colors",
+        current === value
+          ? "border-primary bg-primary text-primary-foreground"
+          : "bg-background text-muted-foreground hover:bg-muted",
+      )}
+    >
+      <Icon className="size-3.5" />
+    </button>
+  );
+}
+
+function HeroBannerEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["heroBanner"] }) {
+  const [bgImage, setBgImage] = useState(content?.backgroundImage ?? "");
+  const [headline, setHeadline] = useState(content?.headline ?? "مرحباً بك في متجرنا");
+  const [subheadline, setSubheadline] = useState(content?.subheadline ?? "اكتشف أفضل المنتجات بأسعار تنافسية");
+  const [buttonText, setButtonText] = useState(content?.buttonText ?? "تسوق الآن");
+  const [buttonLink, setButtonLink] = useState(content?.buttonLink ?? "/products");
+  const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(content?.textAlign ?? "center");
+  const [overlayOpacity, setOverlayOpacity] = useState([content?.overlayOpacity ?? 50]);
+  const [isPending, startTransition] = useTransition();
+  const { reloadPreview } = useBuilder();
+
+  const save = () =>
+    startTransition(async () => {
+      const res = await UpdateSectionContentAction({
+        storeId,
+        updates: {
+          heroBanner: {
+            backgroundImage: bgImage.trim() || undefined,
+            headline,
+            subheadline,
+            buttonText,
+            buttonLink,
+            textAlign,
+            overlayOpacity: overlayOpacity[0],
+          },
+        },
+      });
+      if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
+      else toast.error(res.message);
+    });
+
+  return (
+    <div className="space-y-2.5">
+      {/* Background image */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">صورة الخلفية</p>
+        <Input
+          value={bgImage}
+          onChange={(e) => setBgImage(e.target.value)}
+          placeholder="https://..."
+          className="h-8 text-xs"
+          dir="ltr"
+        />
+      </div>
+
+      {/* Headline */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">العنوان الرئيسي</p>
+        <Input value={headline} onChange={(e) => setHeadline(e.target.value)} className="h-8 text-xs" />
+      </div>
+
+      {/* Subheadline */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">العنوان الفرعي</p>
+        <Input value={subheadline} onChange={(e) => setSubheadline(e.target.value)} className="h-8 text-xs" />
+      </div>
+
+      {/* Button */}
+      <div className="grid grid-cols-2 gap-1.5">
+        <div className="space-y-1">
+          <p className="text-[10px] font-semibold text-muted-foreground">نص الزر</p>
+          <Input value={buttonText} onChange={(e) => setButtonText(e.target.value)} className="h-8 text-xs" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-[10px] font-semibold text-muted-foreground">رابط الزر</p>
+          <Input value={buttonLink} onChange={(e) => setButtonLink(e.target.value)} className="h-8 text-xs" dir="ltr" />
+        </div>
+      </div>
+
+      {/* Text alignment */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">محاذاة النص</p>
+        <div className="flex gap-1">
+          <AlignButton value="right"  current={textAlign} icon={AlignRight}  label="يمين"  onSelect={setTextAlign} />
+          <AlignButton value="center" current={textAlign} icon={AlignCenter} label="وسط"   onSelect={setTextAlign} />
+          <AlignButton value="left"   current={textAlign} icon={AlignLeft}   label="يسار"  onSelect={setTextAlign} />
+        </div>
+      </div>
+
+      {/* Overlay opacity */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">شفافية الغطاء</p>
+          <span className="text-[10px] tabular-nums text-muted-foreground">{overlayOpacity[0]}%</span>
+        </div>
+        <Slider
+          min={0} max={100} step={5}
+          value={overlayOpacity}
+          onValueChange={setOverlayOpacity}
+        />
+      </div>
+
+      <Button size="sm" className="h-7 w-full gap-1 text-xs" onClick={save} disabled={isPending}>
+        <Save className="size-3" />حفظ
+      </Button>
+    </div>
+  );
+}
+
+// ─── Rich Text Editor ─────────────────────────────────────────────────────────
+
+function RichTextEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["richText"] }) {
+  const [heading, setHeading] = useState(content?.heading ?? "");
+  const [paragraph, setParagraph] = useState(content?.paragraph ?? "");
+  const [width, setWidth] = useState<NonNullable<SectionContentMap["richText"]>["width"]>(content?.width ?? "normal");
+  const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(content?.textAlign ?? "center");
+  const [isPending, startTransition] = useTransition();
+  const { reloadPreview } = useBuilder();
+
+  const WIDTHS = [
+    { value: "narrow", label: "ضيق" },
+    { value: "normal", label: "عادي" },
+    { value: "wide",   label: "واسع" },
+    { value: "full",   label: "كامل" },
+  ] as const;
+
+  const save = () =>
+    startTransition(async () => {
+      const res = await UpdateSectionContentAction({
+        storeId,
+        updates: { richText: { heading, paragraph, width, textAlign } },
+      });
+      if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
+      else toast.error(res.message);
+    });
+
+  return (
+    <div className="space-y-2.5">
+      {/* Heading */}
+      <Input value={heading} onChange={(e) => setHeading(e.target.value)} placeholder="العنوان" className="h-8 text-xs" />
+
+      {/* Paragraph */}
+      <Textarea
+        value={paragraph}
+        onChange={(e) => setParagraph(e.target.value)}
+        placeholder="الفقرة النصية…"
+        className="resize-none text-xs"
+        rows={3}
+      />
+
+      {/* Width */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">عرض المحتوى</p>
+        <div className="grid grid-cols-4 gap-1">
+          {WIDTHS.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setWidth(value)}
+              className={cn(
+                "h-7 rounded-md border text-[10px] font-medium transition-colors",
+                width === value
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Text alignment */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">محاذاة النص</p>
+        <div className="flex gap-1">
+          <AlignButton value="right"  current={textAlign} icon={AlignRight}  label="يمين"  onSelect={setTextAlign} />
+          <AlignButton value="center" current={textAlign} icon={AlignCenter} label="وسط"   onSelect={setTextAlign} />
+          <AlignButton value="left"   current={textAlign} icon={AlignLeft}   label="يسار"  onSelect={setTextAlign} />
+        </div>
+      </div>
+
+      <Button size="sm" className="h-7 w-full gap-1 text-xs" onClick={save} disabled={isPending}>
+        <Save className="size-3" />حفظ
+      </Button>
+    </div>
+  );
+}
+
+// ─── Section editor dispatcher ────────────────────────────────────────────────
+
 function SectionEditor({ sectionKey, storeId, sectionContent }: { sectionKey: SectionKey; storeId: string; sectionContent: SectionContentMap }) {
   switch (sectionKey) {
     case "showOfferStrip":    return <OfferStripEditor storeId={storeId} content={sectionContent.offerStrip} />;
@@ -331,6 +543,8 @@ function SectionEditor({ sectionKey, storeId, sectionContent }: { sectionKey: Se
     case "showAboutBrand":    return <AboutBrandEditor storeId={storeId} content={sectionContent.aboutBrand} />;
     case "showNewsletter":    return <NewsletterEditor storeId={storeId} content={sectionContent.newsletter} />;
     case "showUrgency":       return <UrgencyEditor storeId={storeId} content={sectionContent.urgency} />;
+    case "showHeroBanner":    return <HeroBannerEditor storeId={storeId} content={sectionContent.heroBanner} />;
+    case "showRichText":      return <RichTextEditor storeId={storeId} content={sectionContent.richText} />;
     default:                  return null;
   }
 }
@@ -462,7 +676,7 @@ function DragGhost({ sectionKey }: { sectionKey: SectionKey }) {
   const meta = SECTION_META[sectionKey];
   const Icon = meta.icon;
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-primary/40 bg-background px-3 py-2.5 shadow-2xl ring-2 ring-primary/20 w-[300px]">
+    <div className="flex items-center gap-2 rounded-xl border border-primary/40 bg-background px-3 py-2.5 shadow-2xl ring-2 ring-primary/20 w-75">
       <GripVertical className="size-3.5 text-primary/60" />
       <div className="grid size-7 place-items-center rounded-md bg-primary/10 text-primary">
         <Icon className="size-3.5" />
@@ -495,6 +709,8 @@ export default function SectionsPanel() {
     showNewsletter:       currentSections.home.showNewsletter ?? false,
     showUrgency:          currentSections.home.showUrgency ?? false,
     showCollections:      currentSections.home.showCollections ?? false,
+    showHeroBanner:       currentSections.home.showHeroBanner ?? false,
+    showRichText:         currentSections.home.showRichText ?? false,
   });
 
   const sensors = useSensors(

@@ -41,6 +41,9 @@ const DEFAULT_HOME_SECTIONS = {
   showNewsletter: false,
   showUrgency: false,
   showCollections: false,
+  // ── Visual Builder (off by default — merchant designs as needed) ──────────
+  showHeroBanner: false,
+  showRichText: false,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────

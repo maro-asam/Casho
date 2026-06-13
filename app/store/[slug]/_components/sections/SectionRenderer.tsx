@@ -16,6 +16,8 @@ import AboutBrandSection from "./AboutBrandSection";
 import NewsletterSection from "./NewsletterSection";
 import UrgencySection from "./UrgencySection";
 import CollectionsPreviewSection from "./CollectionsPreviewSection";
+import HeroBannerSection from "./HeroBannerSection";
+import RichTextSection from "./RichTextSection";
 
 type Props = {
   sectionKey: SectionKey;
@@ -76,6 +78,13 @@ export default function SectionRenderer({
           categories={categories}
         />
       );
+
+    // ── Visual Builder sections ────────────────────────────────────────────
+    case "showHeroBanner":
+      return <HeroBannerSection content={sectionContent.heroBanner} />;
+
+    case "showRichText":
+      return <RichTextSection content={sectionContent.richText} />;
 
     // Core sections are handled by each theme Home directly
     default:
