@@ -1,13 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/instagram/token-refresh/run",
-      "schedule": "0 6 * * 1"
-    },
-    {
-      "path": "/api/internal/webhooks/process",
-      "schedule": "* * * * *"
-    }
-  ]
-}
-
+{}
