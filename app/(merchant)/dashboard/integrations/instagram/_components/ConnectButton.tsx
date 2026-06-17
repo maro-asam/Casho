@@ -1,28 +1,15 @@
 "use client";
 
-import { useTransition } from "react";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ConnectInstagramAction } from "@/actions/instagram/instagram.actions";
 
 export function ConnectButton() {
-  const [isPending, startTransition] = useTransition();
-
-  function handleConnect() {
-    startTransition(async () => {
-      await ConnectInstagramAction();
-    });
-  }
-
   return (
-    <Button onClick={handleConnect} disabled={isPending} size="lg" className="">
-      {isPending ? "جاري الاتصال..." : "ربط حساب انستجرام"}
-
-      {isPending ? (
-        <Loader2 className="mr-2 size-5 animate-spin" />
-      ) : (
+    <Button asChild size="lg">
+      <a href="/api/instagram/oauth/initiate">
+        ربط حساب انستجرام
         <Camera className="mr-2 size-5" />
-      )}
+      </a>
     </Button>
   );
 }
