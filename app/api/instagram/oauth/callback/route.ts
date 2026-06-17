@@ -130,9 +130,15 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Clear the CSRF cookie
+    // Clear the CSRF cookie (must specify same domain used when setting it)
+    const cookieDomain =
+      rootDomain !== "localhost" ? `.${rootDomain}` : undefined;
     const response = NextResponse.redirect(`${dashboardUrl}?success=connected`);
-    response.cookies.delete("ig_oauth_state");
+    response.cookies.set("ig_oauth_state", "", {
+      maxAge: 0,
+      path: "/",
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
+    });
 
     return response;
   } catch (err) {

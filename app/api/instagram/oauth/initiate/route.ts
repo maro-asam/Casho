@@ -32,12 +32,18 @@ export async function GET(req: NextRequest) {
 
   const response = NextResponse.redirect(authUrl);
 
+  // Set cookie domain to the root domain (e.g. .casho.store) so it is sent
+  // regardless of which subdomain the OAuth callback lands on.
+  const cookieDomain =
+    rootDomain !== "localhost" ? `.${rootDomain}` : undefined;
+
   response.cookies.set("ig_oauth_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 10,
     path: "/",
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
   });
 
   return response;
