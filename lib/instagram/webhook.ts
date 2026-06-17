@@ -15,7 +15,9 @@ export function verifyWebhookSignature(
   rawBody: string,
   signatureHeader: string | null,
 ): boolean {
-  const appSecret = process.env.META_APP_SECRET;
+  // Instagram Business Login webhooks are signed with INSTAGRAM_APP_SECRET.
+  // Fall back to META_APP_SECRET for legacy setups.
+  const appSecret = process.env.INSTAGRAM_APP_SECRET ?? process.env.META_APP_SECRET;
 
   if (!appSecret || !signatureHeader) {
     return false;

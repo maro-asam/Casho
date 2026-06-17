@@ -78,7 +78,7 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
         title="الطلبات المقترحة من انستجرام"
         description="طلبات اكتشفها الذكاء الاصطناعي من محادثاتك — راجعها واعتمدها"
         actionLabel="إعدادات الربط"
-        actionHref="/instagram"
+        actionHref="/dashboard/integrations/instagram"
       />
 
       {/* Status filter tabs */}
@@ -88,7 +88,7 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
             statusFilter === tab.value || (!statusFilter && !tab.value);
           const href = tab.value
             ? `/dashboard/suggested-orders?status=${tab.value}`
-            : "/suggested-orders";
+            : "/dashboard/suggested-orders";
 
           return (
             <Link key={tab.label} href={href}>

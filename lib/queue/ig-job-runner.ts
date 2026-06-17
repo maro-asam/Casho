@@ -318,13 +318,13 @@ function findBestMatch(
 
   for (const p of products) {
     if (normalize(p.name) === needle) {
-      return { id: p.id, priceInPiasters: Math.round(p.price * 100) };
+      return { id: p.id, priceInPiasters: Math.round(p.price) };
     }
   }
   for (const p of products) {
     const hay = normalize(p.name);
     if (hay.includes(needle) || needle.includes(hay)) {
-      return { id: p.id, priceInPiasters: Math.round(p.price * 100) };
+      return { id: p.id, priceInPiasters: Math.round(p.price) };
     }
   }
   return null;
