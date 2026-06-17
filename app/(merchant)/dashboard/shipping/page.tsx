@@ -31,6 +31,8 @@ export default async function ShippingPage() {
         title="طرق الشحن"
         badge={methods.length}
         description="أضف طرق شحن مختلفة يختار منها العميل عند الدفع"
+        actionLabel="ربط شركات الشحن"
+        actionHref="/dashboard/shipping/integrations"
       />
       <ShippingMethodsClient
         initialMethods={methods}
