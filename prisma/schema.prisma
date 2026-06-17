@@ -232,10 +232,11 @@ model Store {
   customerTags        CustomerTag[]
   customerSegments    CustomerSegment[]
 
-  apiKeys             ApiKey[]
-  webhookEndpoints    WebhookEndpoint[]
-  shipments           Shipment[]
-  apiRequestLogs      ApiRequestLog[]
+  apiKeys               ApiKey[]
+  webhookEndpoints      WebhookEndpoint[]
+  shipments             Shipment[]
+  apiRequestLogs        ApiRequestLog[]
+  shippingIntegrations  ShippingIntegration[]
 
   @@index([userId])
   @@index([subscriptionStatus])
@@ -740,6 +741,10 @@ model Order {
   cashierId   String?
   cashierUser User?     @relation("CashierOrders", fields: [cashierId], references: [id], onDelete: SetNull)
 
+  trackingNumber   String?
+  shippingProvider String?
+  shippingLabelUrl String?
+
   createdAt DateTime @default(now())
 
   items          OrderItem[]
@@ -748,6 +753,7 @@ model Order {
   suggestedOrder SuggestedOrder?
   splitPayments  PosSplitPayment[]
   posReturns     PosReturn[]      @relation("OriginalOrderReturns")
+  shipments      Shipment[]
 
   @@index([storeId, source, createdAt])
   @@index([storeId, status, createdAt])
@@ -1956,6 +1962,31 @@ model WebhookDelivery {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Shipping Integrations (Logistics Engine)
+// ─────────────────────────────────────────────────────────────
+
+enum ShippingProvider {
+  BOSTA
+  ARAMEX
+}
+
+model ShippingIntegration {
+  id          String           @id @default(uuid())
+  storeId     String
+  store       Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  provider    ShippingProvider
+  isActive    Boolean          @default(true)
+  /// AES-256-GCM encrypted JSON string of provider-specific credentials (via lib/secrets.ts)
+  credentials String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([storeId, provider])
+  @@index([storeId])
+  @@index([storeId, isActive])
+}
+
+// ─────────────────────────────────────────────────────────────
 // Shipping
 // ─────────────────────────────────────────────────────────────
 
@@ -1975,6 +2006,7 @@ model Shipment {
   storeId            String
   store              Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
   orderId            String?
+  order              Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
   provider           String
   providerShipmentId String?
   trackingNumber     String?
