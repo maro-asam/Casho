@@ -5,13 +5,6 @@ import { getCurrentSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { UserRole } from "@prisma/client";
 
-/**
- * Guards admin routes using DB-backed role (ADMIN | SUPER_ADMIN).
- * Replaces the previous hardcoded email list approach.
- *
- * Bootstrap: set the first admin by running once in psql:
- *   UPDATE "User" SET role = 'ADMIN' WHERE email = 'your@email.com';
- */
 export async function requireAdmin() {
   const session = await getCurrentSession();
 

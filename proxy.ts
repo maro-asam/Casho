@@ -66,11 +66,14 @@ function isCustomDomain(host: string): boolean {
   return true;
 }
 
-async function resolveCustomDomain(host: string, origin: string): Promise<string | null> {
+async function resolveCustomDomain(
+  host: string,
+  origin: string,
+): Promise<string | null> {
   try {
     const res = await fetch(
       `${origin}/api/internal/domain-lookup?domain=${encodeURIComponent(host)}`,
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60 } },
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -103,11 +106,11 @@ export async function proxy(req: NextRequest) {
     if (process.env.NODE_ENV !== "production") {
       const port = req.nextUrl.port ? `:${req.nextUrl.port}` : "";
       return NextResponse.redirect(
-        `http://app.localhost${port}${pathname}${req.nextUrl.search}`
+        `http://app.localhost${port}${pathname}${req.nextUrl.search}`,
       );
     }
     return NextResponse.redirect(
-      `https://app.${ROOT_DOMAIN}${pathname}${req.nextUrl.search}`
+      `https://app.${ROOT_DOMAIN}${pathname}${req.nextUrl.search}`,
     );
   }
 
@@ -130,8 +133,7 @@ export async function proxy(req: NextRequest) {
       !DIRECT_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))
     ) {
       const url = req.nextUrl.clone();
-      url.pathname =
-        pathname === "/" ? "/dashboard" : `/dashboard${pathname}`;
+      url.pathname = pathname === "/" ? "/dashboard" : `/dashboard${pathname}`;
       return withPathname(NextResponse.rewrite(url), url.pathname);
     }
 
@@ -139,7 +141,10 @@ export async function proxy(req: NextRequest) {
   }
 
   // ─── Protect /dashboard and /builder on other domains (localhost dev) ──────
-  if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/builder"))) {
+  if (
+    !token &&
+    (pathname.startsWith("/dashboard") || pathname.startsWith("/builder"))
+  ) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -151,7 +156,8 @@ export async function proxy(req: NextRequest) {
     const slug = await resolveCustomDomain(host, origin);
     if (slug) {
       const url = req.nextUrl.clone();
-      url.pathname = pathname === "/" ? `/store/${slug}` : `/store/${slug}${pathname}`;
+      url.pathname =
+        pathname === "/" ? `/store/${slug}` : `/store/${slug}${pathname}`;
       return NextResponse.rewrite(url);
     }
     // Unknown custom domain — fall through to 404
