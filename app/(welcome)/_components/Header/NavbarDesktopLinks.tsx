@@ -1,87 +1,64 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useLang } from "../../_i18n/LanguageContext";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { useActiveNavKey, useNavLinks } from "./nav-links";
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.07, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: -8, filter: "blur(4px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
-  },
-};
+const spring = { type: "spring", stiffness: 420, damping: 34 } as const;
 
 export default function NavbarDesktopLinks() {
-  const pathname = usePathname();
+  const links = useNavLinks();
+  const activeKey = useActiveNavKey();
   const [hovered, setHovered] = useState<string | null>(null);
-  const { t } = useLang();
-
-  const NAV_LINKS = [
-    { name: t.nav.home, href: "/" },
-    { name: t.nav.features, href: "#features" },
-    { name: t.nav.pricing, href: "#pricing" },
-    { name: t.nav.faq, href: "#faq" },
-    { name: t.nav.blog, href: "/blog" },
-  ];
-
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    if (href.startsWith("#")) return false;
-    return pathname.startsWith(href);
-  };
 
   return (
-    <motion.nav
-      className="hidden items-center gap-0.5 md:flex"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+    <nav
+      aria-label="Main"
       onMouseLeave={() => setHovered(null)}
+      className="hidden items-center gap-0.5 lg:flex"
     >
-      {NAV_LINKS.map((link) => {
-        const active = isActive(link.href);
-        const showPill = hovered === link.name || (!hovered && active);
+      {links.map((link) => {
+        const active = activeKey === link.key;
 
         return (
-          // @ts-expect-error
-          <motion.div key={link.name} variants={itemVariants} className="relative">
-            <Link
-              href={link.href}
-              onMouseEnter={() => setHovered(link.name)}
-              className={`relative inline-flex items-center justify-center rounded-lg px-3.5 py-2 text-sm font-medium transition-colors duration-200 ${
-                active
-                  ? "text-foreground"
-                  : "text-foreground/60 hover:text-foreground"
-              }`}
-            >
-              {showPill && (
-                <motion.span
-                  layoutId="nav-pill"
-                  className="absolute inset-0 rounded-lg bg-foreground/6"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10">{link.name}</span>
-              {active && (
-                <span className="relative z-10 ms-1.5 inline-flex size-1.5 rounded-full bg-primary" />
-              )}
-            </Link>
-          </motion.div>
+          <Link
+            key={link.key}
+            href={link.href}
+            aria-current={active ? "page" : undefined}
+            onMouseEnter={() => setHovered(link.key)}
+            onFocus={() => setHovered(link.key)}
+            onBlur={() => setHovered(null)}
+            className={cn(
+              "relative isolate rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+              active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {/* Pill that glides between hovered links */}
+            {hovered === link.key && (
+              <motion.span
+                layoutId="welcome-nav-hover"
+                transition={spring}
+                className={cn(
+                  "absolute inset-0 -z-10 rounded-full",
+                  active ? "bg-primary/10" : "bg-foreground/[0.06] dark:bg-white/[0.08]",
+                )}
+              />
+            )}
+
+            {active && (
+              <motion.span
+                layoutId="welcome-nav-active"
+                transition={spring}
+                className="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-primary"
+              />
+            )}
+
+            <span className="relative">{link.name}</span>
+          </Link>
         );
       })}
-    </motion.nav>
+    </nav>
   );
 }

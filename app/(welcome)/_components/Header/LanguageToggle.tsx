@@ -1,23 +1,25 @@
 "use client";
 
+import { Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useLang } from "../../_i18n/LanguageContext";
 
-export default function LanguageToggle() {
+export default function LanguageToggle({ className }: { className?: string }) {
   const { lang, setLang } = useLang();
 
   return (
     <button
+      type="button"
       onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-      className="flex h-9 items-center gap-0.5 rounded-lg border border-border/50 bg-muted/40 px-2.5 text-xs font-bold text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
-      aria-label="Toggle language"
+      className={cn(
+        "inline-flex h-9 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+        className,
+      )}
+      aria-label={lang === "ar" ? "Switch to English" : "التبديل إلى العربية"}
+      title={lang === "ar" ? "English" : "العربية"}
     >
-      <span className={lang === "ar" ? "text-foreground" : "text-foreground/40"}>
-        ع
-      </span>
-      <span className="mx-0.5 text-border">/</span>
-      <span className={lang === "en" ? "text-foreground" : "text-foreground/40"}>
-        EN
-      </span>
+      <Globe className="size-4" />
+      <span className="leading-none">{lang === "ar" ? "EN" : "ع"}</span>
     </button>
   );
 }

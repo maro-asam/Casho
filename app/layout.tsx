@@ -114,7 +114,7 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={cn(cairoFont.className, "font-sans", inter.variable)}
+      className={cn(cairoFont.className, cairoFont.variable, "font-sans", inter.variable)}
       suppressHydrationWarning
     >
       <body

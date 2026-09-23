@@ -15,7 +15,7 @@ export default function FAQSection() {
   const fq = t.faq;
 
   return (
-    <section id="faq" className="py-10 md:py-14 lg:py-20">
+    <section id="faq" className="scroll-mt-28 py-10 md:py-14 lg:py-20">
       <div className="wrapper">
         <FadeIn className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">

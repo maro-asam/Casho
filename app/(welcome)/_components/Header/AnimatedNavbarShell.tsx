@@ -12,7 +12,7 @@ export default function AnimatedNavbarShell({
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -20,20 +20,20 @@ export default function AnimatedNavbarShell({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -16, filter: "blur(10px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
         "mx-auto transition-[max-width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-        scrolled ? "max-w-4xl" : "max-w-full",
+        scrolled ? "max-w-screen-xl" : "max-w-screen-2xl",
       )}
     >
       <div
         className={cn(
-          "flex items-center justify-between px-4 md:px-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "relative flex h-14 items-center rounded-xl px-2.5 ring-1 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-3 md:px-4",
           scrolled
-            ? "rounded-2xl border border-border/15 bg-background/80 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-2xl dark:bg-background/70 dark:shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
-            : "rounded-2xl border border-transparent bg-transparent py-3",
+            ? "bg-background/60 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.25)] ring-border/70 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/50 dark:bg-background/40 dark:ring-white/10 dark:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.7)]"
+            : "bg-transparent ring-border/60 lg:h-16 dark:ring-white/10",
         )}
       >
         {children}

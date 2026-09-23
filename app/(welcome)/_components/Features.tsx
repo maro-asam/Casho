@@ -11,7 +11,7 @@ export default function CashoFeaturesSection() {
   const ft = t.features;
 
   return (
-    <section className="py-24">
+    <section id="features" className="scroll-mt-28 py-24">
       <div className="wrapper">
         <FadeIn className="mx-auto max-w-2xl text-center">
           <span className="inline-flex rounded-xl border border-primary/15 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
