@@ -680,7 +680,7 @@ export function HeroSection() {
       className="relative isolate overflow-hidden rounded-xl pb-12 pt-4 sm:pb-16 sm:pt-8 lg:flex lg:min-h-[calc(100svh-7rem)] lg:items-center lg:pb-20 lg:pt-12"
     >
       {/* <HeroBackdrop /> */}
-      <motion.div aria-hidden className="pointer-events-none absolute inset-0 -z-10" style={{ background: spotlight }} />
+      <motion.div aria-hidden className="pointer-events-none absolute inset-0 -z-10"  />
 
       <div className="mx-auto grid w-full max-w-7xl items-center gap-14 sm:gap-16 sm:px-4 lg:grid-cols-[1.1fr_1fr] lg:gap-12 lg:px-6 xl:gap-16 xl:px-10">
         {/* Copy */}

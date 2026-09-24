@@ -21,7 +21,7 @@ export const translations = {
       openMenu: "فتح القائمة",
     },
     heroMain: {
-      newTag: "جديد",
+      newTag: "كاشو",
       eyebrow: "متجرك أونلاين في أقل من ٣ دقايق",
       titleBefore: "حوّل شغفك لـ",
       titleHighlight: "براند بيبيع",
@@ -220,131 +220,139 @@ export const translations = {
       ],
     },
     pricing: {
-      badge: "الأسعار",
-      title: "باقة واحدة واضحة",
-      titleAccent: "ابدأ بيزنسك دلوقتي",
-      subtitle: "سعر ثابت بمميزات حقيقية — كل اللي محتاجه عشان تبيع أونلاين.",
-      footnote: "30 يوم تجربة مجانية. تقدر تلغي في أي وقت.",
+      badge: "التسعير",
+      title: "خطة واحدة، من غير تعقيد",
+      titleAccent: "كل حاجة تحتاجها من أول يوم",
+      subtitle:
+        "من غير باقات متدرجة ولا مميزات محجوزة لخطط أغلى — سعر واحد واضح، وكل أدوات البيع مفتوحة قدامك.",
       currency: "ج.م",
-      soon: "قريبًا",
-      startNow: "ابدأ دلوقتي",
-      plans: [
-        {
-          name: "باقة سوبر",
-          period: "/ شهر",
-          description: "كل المميزات في خطة واحدة بسعر واحد.",
-          features: [
-            "متجر إلكتروني كامل",
-            "منتجات غير محدودة",
-            "أكواد خصم غير محدودة",
-            "طلبات بدون حد",
-            "كل الثيمات",
-            "دومين مخصص",
-            "CRM كامل + تحليلات متقدمة",
-            "نظام نقاط الولاء",
-            "تصدير الطلبات CSV",
-            "نظام POS للمحل",
-            "إدارة المخزون والفروع",
-            "طلبات انستجرام AI",
-            "أعضاء فريق غير محدودين",
-            "دعم فني",
-          ],
-        },
-      ],
+      startNow: "ابدأ تجربتك المجانية",
+      kicker: "الخطة الوحيدة اللي هتحتاجها",
+      featuresLabel: "من غير أي مفاجآت — كل ده جزء من الباقة",
+      footnote: "الأسعار شاملة الضريبة. تقدر تلغي أو توقف باقتك في أي وقت من لوحة التحكم.",
+      plan: {
+        name: "باقة كاشو الكاملة",
+        period: "شهريًا",
+        description:
+          "كل أدوات البيع والتسويق والإدارة في مكان واحد — بسعر ثابت مهما كبر متجرك.",
+        features: [
+          "متجر إلكتروني كامل",
+          "منتجات غير محدودة",
+          "أكواد خصم غير محدودة",
+          "طلبات بدون حد",
+          "كل الثيمات",
+          "دومين مخصص",
+          "CRM كامل + تحليلات متقدمة",
+          "نظام نقاط الولاء",
+          "تصدير الطلبات CSV",
+          "نظام POS للمحل",
+          "إدارة المخزون والفروع",
+          "طلبات انستجرام AI",
+          "أعضاء فريق غير محدودين",
+          "دعم فني",
+        ],
+      },
+      trust: ["تجربة مجانية 30 يوم", "تقدر تلغي في أي وقت", "من غير بطاقة ائتمان دلوقتي"],
     },
     stats: {
-      badge: "أرقام كــاشو",
-      title: "أرقام بتثبت إن البيع أونلاين",
-      titleAccent: "لازم يكون أسهل",
+      badge: "أداء حقيقي، مش وعود",
+      title: "الأرقام اللي بتشتغل",
+      titleAccent: "مش الأرقام اللي بنحبّ نقولها",
       subtitle:
-        "كاشو بيساعدك تطلق متجرك، تستقبل الطلبات، وتبيع لعملائك في مصر بطريقة أبسط وأسرع ومن غير تعقيد تقني.",
+        "من ثانية ما تفتح متجرك، كاشو بيبقى معاك خطوة بخطوة — وكل رقم هنا طالع من تجار بيبيعوا فعليًا دلوقتي على المنصة.",
       items: [
         {
           value: "24/7",
-          title: "دعم مستمر",
-          description: "فريقنا معاك في أي وقت لمساعدتك في تشغيل متجرك",
+          title: "دعم فوري",
+          description:
+            "فريق كاشو على طول جنبك، من غير ما تستنى ساعات علشان حد يرد عليك",
         },
         {
           value: "55K+",
-          title: "طلبات تمت بنجاح",
+          title: "طلب اتنفّذ بنجاح",
           description:
-            "متاجر على المنصة بتستقبل آلاف الطلبات يوميًا بسهولة وبدون تعقيد",
+            "تجار كاشو بيستقبلوا ويشحنوا آلاف الطلبات كل شهر من غير أي تعقيد",
         },
         {
           value: "5+",
-          title: "وسائل دفع جاهزة",
+          title: "طرق دفع جاهزة",
           description:
-            "فودافون كاش، InstaPay، تحويل بنكي، دفع عند الاستلام، وكاشير أونلاين",
+            "فودافون كاش، إنستاباي، تحويل بنكي، الدفع عند الاستلام، وكاشير أونلاين — شغالين من أول يوم",
         },
         {
           value: "3",
-          title: "دقائق لإطلاق متجرك",
+          title: "دقايق لإطلاق متجرك",
           description:
-            "أنشئ متجرك وابدأ البيع ومشاركة اللينك مع عملائك في أقل من 5 دقايق",
+            "من التسجيل لحد أول لينك تبعته لعملائك، من غير خبرة تقنية ولا تعقيد",
         },
       ],
     },
     beforeAfter: {
-      badge: "قبل / بعد",
-      title: "الفرق بين البيع التقليدي",
-      titleAccent: "والبيع عن طريق كاشو",
+      badge: "التحول اللي بيحصل مع كاشو",
+      title: "من رسايل متلخبطة",
+      titleAccent: "لطلبات منظمة في ثواني",
       subtitle:
-        "بدل ما تفضل تجمع الطلبات يدويًا وترد على كل عميل بشكل عشوائي، كاشو بتنظم لك العملية من أول عرض المنتج لحد استلام الطلب.",
-      beforeLabel: "قبل Casho",
-      beforeBadge: "عشوائية وتعب",
-      afterLabel: "بعد Casho",
-      afterBadge: "تنظيم وسرعة",
-      chatLines: [
-        "ممكن تفاصيل المنتج؟",
-        "عايز أطلب، ابعتلي السعر والمقاس",
-        "العنوان: ... واسم المنتج كان إيه؟",
-      ],
-      orderPreview: {
-        label: "معاينة الطلب",
-        title: "طلب جديد #1024",
-        badge: "جديد",
-        product: "تيشيرت أسود",
-        qty: "الكمية: 2",
-        price: "450 ج.م",
-        customer: "العميل",
-        customerName: "أحمد محمود",
-        payment: "الدفع",
-        paymentMethod: "فودافون كاش",
+        "نفس التاجر، نفس المنتجات — بس تجربة مختلفة تمامًا. كاشو بياخدك من الفوضى اليومية لنظام بيشتغل لوحده.",
+      before: {
+        label: "قبل كاشو",
+        tag: "شات متلخبط",
+        delayHint: "اتأخر الرد 20 دقيقة",
+        chat: [
+          "عايز أطلب التيشيرت الأسود، متوفر مقاس L؟",
+          "لحظة هدور على المخزون 🙏",
+          "لسه؟ وبرضو محتاج أعرف السعر والشحن",
+        ],
+        points: [
+          {
+            title: "طلبات ضايعة بين الشات",
+            description:
+              "كل أوردر بيجيلك رسالة لوحده، وبتفضل تدور على تفاصيله وسط باقي الرسايل",
+          },
+          {
+            title: "وقت بيروح في المتابعة",
+            description:
+              "رد، تأكيد، سؤال عن العنوان، سؤال عن الدفع — وكل ده يدوي ومرهق",
+          },
+          {
+            title: "تجربة مالهاش شكل ثابت",
+            description:
+              "مفيش مكان واحد يشوف فيه العميل منتجاتك بشكل مرتب ومريح",
+          },
+        ],
       },
-      before: [
-        {
-          title: "طلبات متلخبطة في الشات",
-          description:
-            "العميل يبعت order في واتساب أو DM وتفضل تدور على التفاصيل.",
+      after: {
+        label: "بعد كاشو",
+        tag: "لوحة تحكم واحدة",
+        live: "طلب جديد",
+        order: {
+          title: "طلب جديد #1024",
+          product: "تيشيرت أسود — مقاس L",
+          qty: "الكمية: 2",
+          price: "450 ج.م",
+          customerLabel: "العميل",
+          customerName: "أحمد محمود",
+          paymentLabel: "طريقة الدفع",
+          paymentMethod: "فودافون كاش",
+          paidTag: "متأكد الدفع",
         },
-        {
-          title: "وقت ضايع في المتابعة",
-          description:
-            "كل طلب محتاج مراجعة يدوية وردود كتير عشان تتأكد من البيانات.",
-        },
-        {
-          title: "تجربة بيع غير واضحة",
-          description:
-            "مفيش مكان ثابت تعرض فيه منتجاتك بشكل منظم ومريح للعميل.",
-        },
-      ],
-      after: [
-        {
-          title: "طلبات منظمة في مكان واحد",
-          description:
-            "كل الأوردرات بتوصلك ببيانات واضحة ومنظمة بدون لخبطة.",
-        },
-        {
-          title: "متابعة أسهل وأسرع",
-          description:
-            "تعرف الطلبات الجديدة وتديرها من داشبورد بسيطة وواضحة.",
-        },
-        {
-          title: "متجر برابط واحد",
-          description:
-            "اعرض منتجاتك وشارك متجرك بسهولة على واتساب والسوشيال ميديا.",
-        },
-      ],
+        points: [
+          {
+            title: "كل الطلبات في مكان واحد",
+            description:
+              "بيانات العميل، المنتج، والدفع بتوصلك جاهزة ومرتبة من غير ما تسأل",
+          },
+          {
+            title: "متابعة في ثواني مش ساعات",
+            description:
+              "تشوف كل طلب جديد وتتصرف فيه فورًا من لوحة تحكم واضحة",
+          },
+          {
+            title: "متجر برابط واحد بس",
+            description:
+              "تشارك منتجاتك على واتساب والسوشيال ميديا بلينك واحد أنيق",
+          },
+        ],
+      },
     },
     cta: {
       badge: "عرض الإطلاق شغال الآن",
@@ -631,130 +639,138 @@ export const translations = {
     },
     pricing: {
       badge: "Pricing",
-      title: "One simple plan",
-      titleAccent: "Start your business today",
-      subtitle: "A flat price with real features — everything you need to sell online.",
-      footnote: "30-day free trial. Cancel anytime.",
+      title: "One plan, zero complexity",
+      titleAccent: "everything you need from day one",
+      subtitle:
+        "No tiered plans, no features locked behind a pricier tier — one clear price, every selling tool unlocked.",
       currency: "EGP",
-      soon: "Coming Soon",
-      startNow: "Start Now",
-      plans: [
-        {
-          name: "Super",
-          period: "/ mo",
-          description: "Every feature in one plan, one price.",
-          features: [
-            "Full online store",
-            "Unlimited products",
-            "Unlimited discount coupons",
-            "Unlimited orders",
-            "All themes",
-            "Custom domain",
-            "Full CRM + advanced analytics",
-            "Loyalty points system",
-            "CSV order export",
-            "POS system",
-            "Inventory & branch management",
-            "Instagram AI orders",
-            "Unlimited team members",
-            "Customer support",
-          ],
-        },
-      ],
+      startNow: "Start your free trial",
+      kicker: "The only plan you'll need",
+      featuresLabel: "No surprises — it's all part of the plan",
+      footnote: "Prices include tax. Cancel or pause your plan anytime from the dashboard.",
+      plan: {
+        name: "Casho Complete",
+        period: "per month",
+        description:
+          "Every selling, marketing, and management tool in one place — at a flat price, however big your store grows.",
+        features: [
+          "Full online store",
+          "Unlimited products",
+          "Unlimited discount coupons",
+          "Unlimited orders",
+          "All themes",
+          "Custom domain",
+          "Full CRM + advanced analytics",
+          "Loyalty points system",
+          "CSV order export",
+          "POS system",
+          "Inventory & branch management",
+          "Instagram AI orders",
+          "Unlimited team members",
+          "Customer support",
+        ],
+      },
+      trust: ["30-day free trial", "Cancel anytime", "No credit card required now"],
     },
     stats: {
-      badge: "Casho Numbers",
-      title: "Numbers that prove online selling",
-      titleAccent: "should be easier",
+      badge: "Real performance, not promises",
+      title: "Numbers that actually work",
+      titleAccent: "not just numbers we like to say",
       subtitle:
-        "Casho helps you launch your store, receive orders, and sell to your customers in Egypt — simpler, faster, and without technical complexity.",
+        "From the second your store goes live, Casho is with you every step — every number here comes from merchants actually selling on the platform right now.",
       items: [
         {
           value: "24/7",
-          title: "Continuous Support",
-          description: "Our team is with you at any time to help you run your store",
+          title: "Instant Support",
+          description:
+            "The Casho team is always a message away — no waiting hours for a reply",
         },
         {
           value: "55K+",
-          title: "Successful Orders",
+          title: "Orders Fulfilled",
           description:
-            "Stores on the platform receive thousands of orders daily with ease",
+            "Casho merchants receive and ship thousands of orders every month, hassle-free",
         },
         {
           value: "5+",
-          title: "Ready Payment Methods",
+          title: "Payment Methods",
           description:
-            "Vodafone Cash, InstaPay, Bank Transfer, Cash on Delivery, and online cashier",
+            "Vodafone Cash, InstaPay, bank transfer, cash on delivery, and online checkout — live from day one",
         },
         {
           value: "3",
           title: "Minutes to Launch",
           description:
-            "Create your store, start selling, and share your link with customers in under 5 minutes",
+            "From sign-up to your first shareable link, no technical experience required",
         },
       ],
     },
     beforeAfter: {
-      badge: "Before / After",
-      title: "The difference between traditional selling",
-      titleAccent: "and selling with Casho",
+      badge: "The shift that happens with Casho",
+      title: "From scattered messages",
+      titleAccent: "to organized orders in seconds",
       subtitle:
-        "Instead of manually collecting orders and replying to every customer randomly, Casho organizes the entire process from product display to order receipt.",
-      beforeLabel: "Before Casho",
-      beforeBadge: "Chaotic & Tiring",
-      afterLabel: "After Casho",
-      afterBadge: "Organized & Fast",
-      chatLines: [
-        "Can I get the product details?",
-        "I want to order — send me the price and size",
-        "The address is... and what was the product name?",
-      ],
-      orderPreview: {
-        label: "Order Preview",
-        title: "New Order #1024",
-        badge: "New",
-        product: "Black T-Shirt",
-        qty: "Qty: 2",
-        price: "450 EGP",
-        customer: "Customer",
-        customerName: "Ahmed Mahmoud",
-        payment: "Payment",
-        paymentMethod: "Vodafone Cash",
+        "Same merchant, same products — a completely different experience. Casho takes you from daily chaos to a system that runs itself.",
+      before: {
+        label: "Before Casho",
+        tag: "Messy chat",
+        delayHint: "Reply took 20 minutes",
+        chat: [
+          "Hey, is the black t-shirt available in L?",
+          "One sec, let me check stock 🙏",
+          "Still there? Also need the price and shipping",
+        ],
+        points: [
+          {
+            title: "Orders lost in chat",
+            description:
+              "Every order lands as a separate message, and you're stuck digging for details in the thread",
+          },
+          {
+            title: "Time drained on follow-ups",
+            description:
+              "Replies, confirmations, address, payment — all manual, all exhausting",
+          },
+          {
+            title: "No consistent experience",
+            description:
+              "No single place for customers to browse your products in an organized way",
+          },
+        ],
       },
-      before: [
-        {
-          title: "Scattered orders in chat",
-          description:
-            "Customers send orders on WhatsApp or DM and you keep searching for details.",
+      after: {
+        label: "After Casho",
+        tag: "One dashboard",
+        live: "New order",
+        order: {
+          title: "New Order #1024",
+          product: "Black T-Shirt — Size L",
+          qty: "Qty: 2",
+          price: "450 EGP",
+          customerLabel: "Customer",
+          customerName: "Ahmed Mahmoud",
+          paymentLabel: "Payment method",
+          paymentMethod: "Vodafone Cash",
+          paidTag: "Payment confirmed",
         },
-        {
-          title: "Time wasted on follow-ups",
-          description:
-            "Every order needs manual review and many replies to confirm details.",
-        },
-        {
-          title: "No clear selling experience",
-          description:
-            "No fixed place to display your products in an organized way for customers.",
-        },
-      ],
-      after: [
-        {
-          title: "Orders organized in one place",
-          description:
-            "All orders arrive with clear, organized data — no chaos.",
-        },
-        {
-          title: "Easier and faster follow-up",
-          description:
-            "See new orders and manage them from a simple, clear dashboard.",
-        },
-        {
-          title: "Store with one link",
-          description:
-            "Display your products and share your store easily on WhatsApp and social media.",
-        },
-      ],
+        points: [
+          {
+            title: "Every order in one place",
+            description:
+              "Customer, product, and payment details arrive ready and organized — no asking",
+          },
+          {
+            title: "Follow-up in seconds, not hours",
+            description:
+              "See every new order and act on it instantly from a clear dashboard",
+          },
+          {
+            title: "One link, one store",
+            description:
+              "Share your products across WhatsApp and social with a single clean link",
+          },
+        ],
+      },
     },
     cta: {
       badge: "Launch offer active now",

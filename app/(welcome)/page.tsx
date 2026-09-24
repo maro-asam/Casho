@@ -19,7 +19,7 @@ export default function Page() {
         <PaymentMethodsSection />
         <StatsSection />
         <BeforeAfterSection />
-        <FeaturesSection />
+        {/* <FeaturesSection /> */}
         <PricingSection />
         <BlogSection />
         <CTASection />
