@@ -5,6 +5,7 @@ import { PosShiftStatus, PosShiftEntryType, NotificationType } from "@prisma/cli
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { createNotification } from "@/lib/notifications/in-app";
+import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
 
 async function getStoreForUser(userId: string) {
   const store = await prisma.store.findFirst({
@@ -32,6 +33,8 @@ export async function GetActiveShiftAction() {
 export async function OpenShiftAction(openingBalance: number) {
   const userId = await requireUserId();
   const store = await getStoreForUser(userId);
+
+  await assertCanUse(store.id, FEATURE_KEYS.POS);
 
   const existingOpen = await prisma.posShift.findFirst({
     where: { storeId: store.id, status: PosShiftStatus.OPEN },

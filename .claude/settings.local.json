@@ -7,7 +7,12 @@
       "Bash(break)",
       "Bash(curl -s http://localhost:3000/ -o /tmp/welcome.html -w \"%{http_code}\\\\n\")",
       "Bash(disown)",
-      "Bash(curl -s http://localhost:3000/ -o /tmp/welcome2.html -w \"%{http_code}\\\\n\")"
+      "Bash(curl -s http://localhost:3000/ -o /tmp/welcome2.html -w \"%{http_code}\\\\n\")",
+      "Bash(grep -n \"enum SubscriptionStatus\" -A 10 /home/maro/matjar/prisma/schema.prisma; echo \"---STORE---\"; sed -n '/^model Store {/,/^}/p' /home/maro/matjar/prisma/schema.prisma | head -100)",
+      "Bash(npm test *)"
+    ],
+    "additionalDirectories": [
+      "/home/maro/matjar/prisma"
     ]
   }
 }

@@ -22,6 +22,10 @@ import { StockMovementBadge } from "./_components/StockMovementBadge";
 import { InventoryStatCard } from "./_components/InventoryStatCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { hasFeature, checkLimit, FEATURE_KEYS } from "@/lib/entitlements";
+import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
 
 function formatCurrency(egp: number) {
   return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(egp);
@@ -226,7 +230,30 @@ async function RestockRecommendations() {
   );
 }
 
-export default function InventoryDashboardPage() {
+export default async function InventoryDashboardPage() {
+  const userId = await requireUserId();
+  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
+  const inventoryEnabled = store ? await hasFeature(store.id, FEATURE_KEYS.INVENTORY) : false;
+
+  if (!inventoryEnabled) {
+    const { requiredPlan } = store
+      ? await checkLimit(store.id, FEATURE_KEYS.INVENTORY)
+      : { requiredPlan: null };
+    return (
+      <div className="space-y-6 p-6">
+        <div>
+          <h1 className="text-2xl font-bold">إدارة المخزون</h1>
+          <p className="text-sm text-muted-foreground">نظرة شاملة على مخزونك وحركاته</p>
+        </div>
+        <UpgradeRequiredCard
+          title="إدارة المخزون المتقدمة"
+          description="الفروع، الموردون، وطلبات الشراء غير متاحة في باقتك الحالية."
+          requiredPlanSlug={requiredPlan}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}

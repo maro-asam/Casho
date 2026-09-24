@@ -23,7 +23,7 @@ model User {
   email               String               @unique
   phone_number        String?              @unique
   password            String?
-  passwordAlgo        String?              // "argon2id" | "bcrypt" — for migration
+  passwordAlgo        String? // "argon2id" | "bcrypt" — for migration
   googleId            String?              @unique
   name                String?
   country             String?
@@ -47,25 +47,27 @@ model User {
   heldOrders          PosHeldOrder[]       @relation("CashierHeldOrders")
   cashierReturns      PosReturn[]          @relation("CashierReturns")
 
-  createdPurchaseOrders  PurchaseOrder[]      @relation("PurchaseOrderCreatedBy")
-  createdTransfers       StockTransfer[]      @relation("TransferCreatedBy")
-  approvedTransfers      StockTransfer[]      @relation("TransferApprovedBy")
-  inventoryAdjustments   InventoryAdjustment[]
+  createdPurchaseOrders PurchaseOrder[]       @relation("PurchaseOrderCreatedBy")
+  createdTransfers      StockTransfer[]       @relation("TransferCreatedBy")
+  approvedTransfers     StockTransfer[]       @relation("TransferApprovedBy")
+  inventoryAdjustments  InventoryAdjustment[]
 
   // Referral system
-  referralCode                 String?               @unique
-  referredById                 String?
-  referredBy                   User?                 @relation("UserReferrals", fields: [referredById], references: [id])
-  referrals                    User[]                @relation("UserReferrals")
-  referralCredits              Int                   @default(0)
-  referralTransactionsSent     ReferralTransaction[] @relation("ReferrerTransactions")
-  referralTransactionReceived  ReferralTransaction?  @relation("ReferredUserTransaction")
+  referralCode                String?               @unique
+  referredById                String?
+  referredBy                  User?                 @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals                   User[]                @relation("UserReferrals")
+  referralCredits             Int                   @default(0)
+  referralTransactionsSent    ReferralTransaction[] @relation("ReferrerTransactions")
+  referralTransactionReceived ReferralTransaction?  @relation("ReferredUserTransaction")
 
   // Tiered referral system
-  referralSuccessfulPayments   Int                   @default(0)
-  freeMonthsEarned             Int                   @default(0)
-  referralLevel                String                @default("BRONZE")
-  referralRewardLogs           ReferralRewardLog[]
+  referralSuccessfulPayments Int                 @default(0)
+  freeMonthsEarned           Int                 @default(0)
+  referralLevel              String              @default("BRONZE")
+  referralRewardLogs         ReferralRewardLog[]
+
+  planAuditLogs PlanAuditLog[]
 }
 
 model ReferralRewardLog {
@@ -73,7 +75,7 @@ model ReferralRewardLog {
   referrerId  String
   referrer    User     @relation(fields: [referrerId], references: [id])
   triggeredAt DateTime @default(now())
-  type        String   // "FREE_MONTH" | "LEVEL_UP"
+  type        String // "FREE_MONTH" | "LEVEL_UP"
   metadata    Json?
 
   @@index([referrerId])
@@ -136,7 +138,7 @@ model SecurityLog {
   id        String   @id @default(uuid())
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  event     String   // LOGIN_SUCCESS | LOGIN_FAILURE | LOGOUT | PASSWORD_CHANGED | PASSWORD_RESET_REQUESTED | ACCOUNT_LOCKED | SESSION_REVOKED
+  event     String // LOGIN_SUCCESS | LOGIN_FAILURE | LOGOUT | PASSWORD_CHANGED | PASSWORD_RESET_REQUESTED | ACCOUNT_LOCKED | SESSION_REVOKED
   ipAddress String?
   userAgent String?
   metadata  Json?
@@ -161,6 +163,12 @@ model Store {
   planName       String   @default("SUPER")
   planSelected   Boolean  @default(false)
   paymentMethods String[] @default([])
+
+  planId       String?
+  plan         Plan?        @relation(fields: [planId], references: [id])
+  billingCycle BillingCycle @default(MONTHLY)
+
+  planAuditLogs PlanAuditLog[]
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
@@ -197,14 +205,14 @@ model Store {
   storePaymentSettings StorePaymentSettings?
   notifications        Notification[]
 
-  customDomain           String?             @unique
-  customDomainStatus     CustomDomainStatus  @default(PENDING)
+  customDomain            String?            @unique
+  customDomainStatus      CustomDomainStatus @default(PENDING)
   customDomainConnectedAt DateTime?
 
-  instagramConnection  InstagramConnection?
-  suggestedOrders      SuggestedOrder[]
-  igAiUsageLogs        IgAiUsageLog[]
-  reviews              ProductReview[]
+  instagramConnection InstagramConnection?
+  suggestedOrders     SuggestedOrder[]
+  igAiUsageLogs       IgAiUsageLog[]
+  reviews             ProductReview[]
 
   members     StoreMember[]
   invitations StoreInvitation[]
@@ -214,29 +222,29 @@ model Store {
   posReturns     PosReturn[]
   stockMovements StockMovement[]
 
-  branches           Branch[]
-  branchInventory    BranchInventory[]
-  suppliers          Supplier[]
-  purchaseOrders     PurchaseOrder[]
-  stockTransfers     StockTransfer[]
+  branches             Branch[]
+  branchInventory      BranchInventory[]
+  suppliers            Supplier[]
+  purchaseOrders       PurchaseOrder[]
+  stockTransfers       StockTransfer[]
   inventoryAdjustments InventoryAdjustment[]
-  productVariants    ProductVariant[]
-  productSuppliers   ProductSupplier[]
-  purchaseOrderItems PurchaseOrderItem[]
-  transferItems      StockTransferItem[]
-  adjustmentItems    InventoryAdjustmentItem[]
+  productVariants      ProductVariant[]
+  productSuppliers     ProductSupplier[]
+  purchaseOrderItems   PurchaseOrderItem[]
+  transferItems        StockTransferItem[]
+  adjustmentItems      InventoryAdjustmentItem[]
 
-  customerNotes       CustomerNote[]
-  customerWalletTx    CustomerWalletTransaction[]
-  customerTimeline    CustomerTimeline[]
-  customerTags        CustomerTag[]
-  customerSegments    CustomerSegment[]
+  customerNotes    CustomerNote[]
+  customerWalletTx CustomerWalletTransaction[]
+  customerTimeline CustomerTimeline[]
+  customerTags     CustomerTag[]
+  customerSegments CustomerSegment[]
 
-  apiKeys               ApiKey[]
-  webhookEndpoints      WebhookEndpoint[]
-  shipments             Shipment[]
-  apiRequestLogs        ApiRequestLog[]
-  shippingIntegrations  ShippingIntegration[]
+  apiKeys              ApiKey[]
+  webhookEndpoints     WebhookEndpoint[]
+  shipments            Shipment[]
+  apiRequestLogs       ApiRequestLog[]
+  shippingIntegrations ShippingIntegration[]
 
   @@index([userId])
   @@index([subscriptionStatus])
@@ -271,7 +279,7 @@ model StoreSettings {
   /// Full merchant theme customization (ThemeCustomization JSON).
   /// Stores presetId + tokenOverrides + layoutOverrides + sectionOverrides.
   /// When present, takes precedence over themeId / primaryColor / secondaryColor.
-  themeConfig      Json?
+  themeConfig Json?
 
   /// Unpublished draft of the theme customization.
   /// The merchant can preview this before publishing to themeConfig.
@@ -285,7 +293,7 @@ model StoreSettings {
   ogImage        String?
   isIndexed      Boolean  @default(true)
 
-  showStoreName    Boolean  @default(true)
+  showStoreName Boolean @default(true)
 
   announcementText String?
   description      String?
@@ -382,12 +390,12 @@ model Product {
   returnItems         PosReturnItem[]
   stockMovements      StockMovement[]
 
-  variants         ProductVariant[]
-  suppliers        ProductSupplier[]
-  branchInventory  BranchInventory[]
+  variants           ProductVariant[]
+  suppliers          ProductSupplier[]
+  branchInventory    BranchInventory[]
   purchaseOrderItems PurchaseOrderItem[]
-  transferItems    StockTransferItem[]
-  adjustmentItems  InventoryAdjustmentItem[]
+  transferItems      StockTransferItem[]
+  adjustmentItems    InventoryAdjustmentItem[]
 
   @@index([storeId, isActive])
   @@index([storeId, isActive, createdAt])
@@ -709,10 +717,10 @@ model Order {
   status        OrderStatus @default(PENDING)
   paymentMethod String
 
-  subtotal Int
-  shipping Int @default(0)
-  discount Int @default(0)
-  total    Int
+  subtotal    Int
+  shipping    Int  @default(0)
+  discount    Int  @default(0)
+  total       Int
   costTotal   Int?
   profitTotal Int?
 
@@ -749,10 +757,10 @@ model Order {
 
   items          OrderItem[]
   userId         String?
-  user           User?            @relation(fields: [userId], references: [id])
+  user           User?             @relation(fields: [userId], references: [id])
   suggestedOrder SuggestedOrder?
   splitPayments  PosSplitPayment[]
-  posReturns     PosReturn[]      @relation("OriginalOrderReturns")
+  posReturns     PosReturn[]       @relation("OriginalOrderReturns")
   shipments      Shipment[]
 
   @@index([storeId, source, createdAt])
@@ -1026,6 +1034,9 @@ enum NotificationType {
   MEMBER_JOINED
   MEMBER_REMOVED
   OWNERSHIP_TRANSFERRED
+  PLAN_UPGRADED
+  PLAN_DOWNGRADED
+  PLAN_LIMIT_REACHED
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1160,57 +1171,57 @@ enum CustomDomainStatus {
 // ─────────────────────────────────────────────────────────────
 
 model InstagramConnection {
-  id              String             @id @default(uuid())
-  storeId         String             @unique
-  store           Store              @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  id      String @id @default(uuid())
+  storeId String @unique
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  igUserId        String
-  igUsername      String
-  igPageId        String?
-  igPageName      String?
+  igUserId   String
+  igUsername String
+  igPageId   String?
+  igPageName String?
 
   // AES-256-GCM encrypted long-lived token (via lib/secrets.ts encryptSecret)
-  accessTokenEnc  String
+  accessTokenEnc String
 
   tokenExpiresAt  DateTime?
   status          IgConnectionStatus @default(ACTIVE)
   webhookVerified Boolean            @default(false)
   lastSyncAt      DateTime?
 
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  conversations   InstagramConversation[]
+  conversations InstagramConversation[]
 
   @@index([storeId])
   @@index([status])
 }
 
 model InstagramConversation {
-  id               String               @id @default(uuid())
-  connectionId     String
-  connection       InstagramConnection  @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  id           String              @id @default(uuid())
+  connectionId String
+  connection   InstagramConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
 
   storeId          String
-  igConversationId String               @unique
+  igConversationId String @unique
 
   customerIgId       String
   customerIgName     String?
   customerIgUsername String?
 
-  lastMessageAt    DateTime
-  messageCount     Int                  @default(0)
-  status           IgConversationStatus @default(UNPROCESSED)
+  lastMessageAt DateTime
+  messageCount  Int                  @default(0)
+  status        IgConversationStatus @default(UNPROCESSED)
 
-  lastAnalyzedAt   DateTime?
-  analysisVersion  Int                  @default(0)
+  lastAnalyzedAt  DateTime?
+  analysisVersion Int       @default(0)
 
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  messages         InstagramMessage[]
-  suggestedOrders  SuggestedOrder[]
-  jobs             IgProcessingJob[]
+  messages        InstagramMessage[]
+  suggestedOrders SuggestedOrder[]
+  jobs            IgProcessingJob[]
 
   @@index([storeId, status])
   @@index([connectionId, lastMessageAt])
@@ -1221,39 +1232,39 @@ model InstagramMessage {
   conversationId String
   conversation   InstagramConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  igMessageId    String                @unique
+  igMessageId    String   @unique
   fromIgId       String
   isFromBusiness Boolean
-  messageType    String                @default("text")
+  messageType    String   @default("text")
   content        String?
   attachmentUrl  String?
   sentAt         DateTime
 
-  createdAt      DateTime              @default(now())
+  createdAt DateTime @default(now())
 
   @@index([conversationId, sentAt])
 }
 
 model SuggestedOrder {
-  id               String               @id @default(uuid())
-  storeId          String
-  store            Store                @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  conversationId   String
-  conversation     InstagramConversation @relation(fields: [conversationId], references: [id])
+  id             String                @id @default(uuid())
+  storeId        String
+  store          Store                 @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation   InstagramConversation @relation(fields: [conversationId], references: [id])
 
-  customerName     String?
-  customerPhone    String?
-  customerAddress  String?
-  aiNotes          String?
-  confidence       Float
+  customerName    String?
+  customerPhone   String?
+  customerAddress String?
+  aiNotes         String?
+  confidence      Float
 
-  rawAiResponse    Json
+  rawAiResponse Json
 
   // Immutable snapshot of conversation messages at analysis time (for debugging/auditing)
   conversationSnapshot Json?
 
   // Merchant feedback — captured when merchant edits AI fields or rejects with reason
-  merchantEdited   Boolean  @default(false)
+  merchantEdited   Boolean @default(false)
   merchantFeedback Json?
 
   status           SuggestedOrderStatus @default(PENDING)
@@ -1261,15 +1272,15 @@ model SuggestedOrder {
   reviewedByUserId String?
   rejectionReason  String?
 
-  orderId          String?              @unique
-  order            Order?               @relation(fields: [orderId], references: [id])
+  orderId String? @unique
+  order   Order?  @relation(fields: [orderId], references: [id])
 
-  expiresAt        DateTime
+  expiresAt DateTime
 
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  items            SuggestedOrderItem[]
+  items SuggestedOrderItem[]
 
   @@index([storeId, status, createdAt])
   @@index([conversationId])
@@ -1281,16 +1292,16 @@ model SuggestedOrderItem {
   suggestedOrderId String
   suggestedOrder   SuggestedOrder @relation(fields: [suggestedOrderId], references: [id], onDelete: Cascade)
 
-  aiProductName    String
-  aiVariant        String?
-  aiQuantity       Int            @default(1)
+  aiProductName String
+  aiVariant     String?
+  aiQuantity    Int     @default(1)
 
   matchedProductId String?
-  matchedProduct   Product?       @relation(fields: [matchedProductId], references: [id])
+  matchedProduct   Product? @relation(fields: [matchedProductId], references: [id])
   matchedVariant   String?
   unitPrice        Int?
 
-  createdAt        DateTime       @default(now())
+  createdAt DateTime @default(now())
 }
 
 model IgProcessingJob {
@@ -1298,15 +1309,15 @@ model IgProcessingJob {
   conversationId String
   conversation   InstagramConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  status         IgJobStatus           @default(QUEUED)
-  attempts       Int                   @default(0)
-  maxAttempts    Int                   @default(3)
-  lastAttemptAt  DateTime?
-  nextRetryAt    DateTime?
-  errorMessage   String?
+  status        IgJobStatus @default(QUEUED)
+  attempts      Int         @default(0)
+  maxAttempts   Int         @default(3)
+  lastAttemptAt DateTime?
+  nextRetryAt   DateTime?
+  errorMessage  String?
 
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status, nextRetryAt])
   @@index([conversationId])
@@ -1322,13 +1333,13 @@ model IgProcessedWebhookEvent {
 }
 
 model ProductReview {
-  id               String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  productId        String
-  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  storeId          String
-  store            Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   customerName     String
   customerAvatar   String?
@@ -1338,8 +1349,8 @@ model ProductReview {
   verifiedPurchase Boolean  @default(false)
   reviewDate       DateTime @default(now())
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([productId, rating])
   @@index([storeId, createdAt])
@@ -1473,23 +1484,23 @@ enum AdjustmentReason {
 // ─────────────────────────────────────────────────────────────
 
 model PosShift {
-  id               String         @id @default(uuid())
+  id               String          @id @default(uuid())
   storeId          String
-  store            Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store            Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
   cashierId        String
-  cashier          User           @relation("CashierShifts", fields: [cashierId], references: [id])
-  status           PosShiftStatus @default(OPEN)
-  openingBalance   Int            @default(0)
+  cashier          User            @relation("CashierShifts", fields: [cashierId], references: [id])
+  status           PosShiftStatus  @default(OPEN)
+  openingBalance   Int             @default(0)
   closingBalance   Int?
   expectedCash     Int?
   cashDifference   Int?
-  totalSales       Int            @default(0)
-  totalReturns     Int            @default(0)
-  totalDiscount    Int            @default(0)
-  transactionCount Int            @default(0)
-  returnCount      Int            @default(0)
+  totalSales       Int             @default(0)
+  totalReturns     Int             @default(0)
+  totalDiscount    Int             @default(0)
+  transactionCount Int             @default(0)
+  returnCount      Int             @default(0)
   notes            String?
-  openedAt         DateTime       @default(now())
+  openedAt         DateTime        @default(now())
   closedAt         DateTime?
   entries          PosShiftEntry[]
   orders           Order[]
@@ -1621,8 +1632,8 @@ model Branch {
 
   inventory      BranchInventory[]
   movements      StockMovement[]
-  transfersFrom  StockTransfer[]   @relation("TransferFrom")
-  transfersTo    StockTransfer[]   @relation("TransferTo")
+  transfersFrom  StockTransfer[]       @relation("TransferFrom")
+  transfersTo    StockTransfer[]       @relation("TransferTo")
   purchaseOrders PurchaseOrder[]
   adjustments    InventoryAdjustment[]
 
@@ -1637,16 +1648,16 @@ model ProductVariant {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  name       String
-  sku        String?
-  barcode    String?
-  attributes Json
-  price      Float?
-  costPrice  Float?
-  stock      Int     @default(0)
+  name              String
+  sku               String?
+  barcode           String?
+  attributes        Json
+  price             Float?
+  costPrice         Float?
+  stock             Int     @default(0)
   lowStockThreshold Int?
-  imageUrl   String?
-  isActive   Boolean @default(true)
+  imageUrl          String?
+  isActive          Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1664,13 +1675,13 @@ model ProductVariant {
 }
 
 model BranchInventory {
-  id        String  @id @default(uuid())
+  id        String          @id @default(uuid())
   storeId   String
-  store     Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store     Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
   branchId  String
-  branch    Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch    Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
   productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   variantId String?
   variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
@@ -1726,23 +1737,23 @@ model ProductSupplier {
 }
 
 model PurchaseOrder {
-  id          String              @id @default(uuid())
-  storeId     String
-  store       Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  supplierId  String?
-  supplier    Supplier?           @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  branchId    String?
-  branch      Branch?             @relation(fields: [branchId], references: [id], onDelete: SetNull)
-  orderNumber String
-  status      PurchaseOrderStatus @default(DRAFT)
-  notes       String?
-  totalAmount Int                 @default(0)
+  id           String              @id @default(uuid())
+  storeId      String
+  store        Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  supplierId   String?
+  supplier     Supplier?           @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  branchId     String?
+  branch       Branch?             @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  orderNumber  String
+  status       PurchaseOrderStatus @default(DRAFT)
+  notes        String?
+  totalAmount  Int                 @default(0)
   expectedDate DateTime?
-  receivedAt  DateTime?
-  createdById String
-  createdBy   User                @relation("PurchaseOrderCreatedBy", fields: [createdById], references: [id])
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  receivedAt   DateTime?
+  createdById  String
+  createdBy    User                @relation("PurchaseOrderCreatedBy", fields: [createdById], references: [id])
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   items PurchaseOrderItem[]
 
@@ -1753,19 +1764,19 @@ model PurchaseOrder {
 }
 
 model PurchaseOrderItem {
-  id              String        @id @default(uuid())
-  purchaseOrderId String
-  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-  storeId         String
-  store           Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  productId       String
-  product         Product       @relation(fields: [productId], references: [id])
-  variantId       String?
-  variant         ProductVariant? @relation(fields: [variantId], references: [id])
-  quantity        Int
-  receivedQuantity Int          @default(0)
-  unitCost        Int
-  totalCost       Int
+  id               String          @id @default(uuid())
+  purchaseOrderId  String
+  purchaseOrder    PurchaseOrder   @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  storeId          String
+  store            Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product         @relation(fields: [productId], references: [id])
+  variantId        String?
+  variant          ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity         Int
+  receivedQuantity Int             @default(0)
+  unitCost         Int
+  totalCost        Int
 
   @@index([purchaseOrderId])
   @@index([productId])
@@ -1800,18 +1811,18 @@ model StockTransfer {
 }
 
 model StockTransferItem {
-  id                String        @id @default(uuid())
+  id                String          @id @default(uuid())
   transferId        String
-  transfer          StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  transfer          StockTransfer   @relation(fields: [transferId], references: [id], onDelete: Cascade)
   storeId           String
-  store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store             Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
   productId         String
-  product           Product       @relation(fields: [productId], references: [id])
+  product           Product         @relation(fields: [productId], references: [id])
   variantId         String?
   variant           ProductVariant? @relation(fields: [variantId], references: [id])
   requestedQuantity Int
-  shippedQuantity   Int           @default(0)
-  receivedQuantity  Int           @default(0)
+  shippedQuantity   Int             @default(0)
+  receivedQuantity  Int             @default(0)
 
   @@index([transferId])
   @@index([productId])
@@ -1837,15 +1848,15 @@ model InventoryAdjustment {
 }
 
 model InventoryAdjustmentItem {
-  id           String              @id @default(uuid())
-  adjustmentId String
-  adjustment   InventoryAdjustment @relation(fields: [adjustmentId], references: [id], onDelete: Cascade)
-  storeId      String
-  store        Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  productId    String
-  product      Product             @relation(fields: [productId], references: [id])
-  variantId    String?
-  variant      ProductVariant?     @relation(fields: [variantId], references: [id])
+  id             String              @id @default(uuid())
+  adjustmentId   String
+  adjustment     InventoryAdjustment @relation(fields: [adjustmentId], references: [id], onDelete: Cascade)
+  storeId        String
+  store          Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product             @relation(fields: [productId], references: [id])
+  variantId      String?
+  variant        ProductVariant?     @relation(fields: [variantId], references: [id])
   quantityBefore Int
   quantityAfter  Int
   quantityChange Int
@@ -2024,4 +2035,136 @@ model Shipment {
   @@index([orderId])
   @@index([trackingNumber])
   @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Subscription Plans & Entitlements
+// ─────────────────────────────────────────────────────────────
+//
+// Store already IS the subscription record (subscriptionStatus,
+// subscriptionEndsAt, gracePeriodEndsAt, autoRenew, trialStartDate,
+// trialEndDate, balance, monthlyPrice all live on Store already).
+// These models add the *plan configuration* layer on top: which
+// plan a store is on, what that plan includes, and an audit trail
+// of plan/pricing changes. Enforcement logic lives in lib/entitlements.ts.
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+enum FeatureType {
+  BOOLEAN // on/off capability, e.g. custom_domain
+  NUMERIC_LIMIT // a count with a limit, e.g. products, discount_codes
+  PERCENTAGE // a percentage-based configuration value
+  TEXT // free-form configuration value (rare; escape hatch)
+  ENUM // one of a fixed set of configuration values
+}
+
+model Plan {
+  id  String @id @default(uuid())
+  key String @unique // stable code: SILVER | GOLD | PLATINUM (extendable)
+
+  slug        String  @unique
+  name        String
+  description String?
+
+  // Pricing — always integer piasters (1 EGP = 100 piasters), never hardcode
+  // these numbers anywhere else in the app. See CONFIGURE_ME / pricingConfigured.
+  monthlyPrice         Int
+  yearlyPrice          Int
+  currency             String @default("EGP")
+  originalMonthlyPrice Int? // for showing a struck-through "was" price
+  originalYearlyPrice  Int?
+  discountPercent      Int? // optional display-only discount badge
+
+  // false until the founder confirms these are the real, final prices
+  // (seeded prices are clearly-flagged placeholders — see prisma/seed.ts)
+  pricingConfigured Boolean @default(false)
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  planFeatures PlanFeature[]
+  stores       Store[]
+  auditLogs    PlanAuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model Feature {
+  id  String @id @default(uuid())
+  key String @unique // stable machine-readable key, e.g. "discount_codes"
+
+  name        String
+  description String?
+  type        FeatureType
+  unit        String? // e.g. "منتج", "كود خصم" — shown next to numeric limits
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  planFeatures PlanFeature[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model PlanFeature {
+  id String @id @default(uuid())
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  featureId String
+  feature   Feature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  enabled Boolean @default(false)
+
+  // limitValue = null && isUnlimited = true  -> unlimited
+  // limitValue = null && isUnlimited = false -> not applicable (boolean features)
+  // limitValue = N                           -> hard numeric limit
+  limitValue  Int?
+  isUnlimited Boolean @default(false)
+
+  // escape hatch for feature-specific config that doesn't fit limitValue,
+  // e.g. { "maxFileSizeMb": 10 } — deliberately loose, see lib/entitlements.ts
+  configuration Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([planId, featureId])
+  @@index([featureId])
+}
+
+model PlanAuditLog {
+  id String @id @default(uuid())
+
+  actorUserId String?
+  actor       User?   @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  storeId String?
+  store   Store?  @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  planId String?
+  plan   Plan?   @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  // e.g. "plan_created", "plan_updated", "plan_feature_updated",
+  // "subscription_upgraded", "subscription_downgraded", "subscription_canceled"
+  action String
+  before Json?
+  after  Json?
+  note   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([storeId, createdAt])
+  @@index([planId, createdAt])
+  @@index([action, createdAt])
 }

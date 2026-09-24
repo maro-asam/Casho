@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
 import CustomDomainClient from "./_components/CustomDomainClient";
+import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { FEATURE_KEYS } from "@/lib/entitlements";
 
 export const metadata: Metadata = {
   title: "النطاق الخاص",
@@ -18,6 +20,7 @@ export default async function CustomDomainPage() {
   const store = await prisma.store.findFirst({
     where: { userId },
     select: {
+      id: true,
       slug: true,
       customDomain: true,
       customDomainStatus: true,
@@ -35,6 +38,12 @@ export default async function CustomDomainPage() {
         description="اربط نطاقك الخاص لتقديم تجربة احترافية لعملائك"
       />
 
+      <FeatureGate
+        storeId={store.id}
+        feature={FEATURE_KEYS.CUSTOM_DOMAIN}
+        title="النطاق الخاص"
+        description="ربط نطاق خاص بمتجرك غير متاح في باقتك الحالية."
+      >
       <CustomDomainClient
         storeSlug={store.slug}
         initialDomain={store.customDomain}
@@ -45,6 +54,7 @@ export default async function CustomDomainPage() {
         }
         initialConnectedAt={store.customDomainConnectedAt}
       />
+      </FeatureGate>
     </div>
   );
 }

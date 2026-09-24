@@ -9,6 +9,8 @@ import {
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { SubscriptionStatus } from "@prisma/client";
+import { getAllActivePlans, getEntitlementsSnapshot } from "@/lib/entitlements";
+import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,20 +21,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import ChangePlanForm from "./_components/ChangePlanForm";
+import { UsageBar } from "@/components/entitlements/UsageBar";
+import { PlanComparisonClient } from "./_components/PlanComparisonClient";
+import type { PlanForUI } from "./_components/PlanCard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "تغيير الخطة",
+  title: "الباقات والأسعار",
 };
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 2,
-  }).format(value / 100);
-}
 
 function formatDate(date: Date | null) {
   if (!date) return "—";
@@ -59,19 +55,6 @@ function getSubscriptionStatusLabel(status: SubscriptionStatus) {
   }
 }
 
-function getPlanKeyFromStore(
-  planName: string,
-  price: number,
-): "SUPER" | "STARTER" | "GROWTH" | "PRO" | "CUSTOM" {
-  if (planName === "SUPER" || planName === "STARTER" || planName === "GROWTH" || planName === "PRO") {
-    return planName;
-  }
-  if (price === 29900) return "SUPER";
-  if (price === 49900) return "GROWTH";
-  if (price === 99900) return "PRO";
-  return "CUSTOM";
-}
-
 type SearchParams = {
   onboarding?: string | string[];
 };
@@ -93,7 +76,8 @@ export default async function ChangePlanRoute({
       slug: true,
       balance: true,
       monthlyPrice: true,
-      planName: true,
+      billingCycle: true,
+      planId: true,
       autoRenew: true,
       subscriptionStatus: true,
       subscriptionEndsAt: true,
@@ -132,173 +116,179 @@ export default async function ChangePlanRoute({
     );
   }
 
-  const currentPlan = getPlanKeyFromStore(store.planName, store.monthlyPrice);
+  const [allPlans, snapshot] = await Promise.all([
+    getAllActivePlans(),
+    getEntitlementsSnapshot(store.id),
+  ]);
+
+  const plansForUI: PlanForUI[] = allPlans.map((plan) => ({
+    id: plan.id,
+    key: plan.key,
+    slug: plan.slug,
+    name: plan.name,
+    description: plan.description,
+    monthlyPrice: plan.monthlyPrice,
+    yearlyPrice: plan.yearlyPrice,
+    originalMonthlyPrice: plan.originalMonthlyPrice,
+    originalYearlyPrice: plan.originalYearlyPrice,
+    discountPercent: plan.discountPercent,
+    sortOrder: plan.sortOrder,
+    features: plan.planFeatures
+      .filter((pf) => pf.feature.isActive)
+      .sort((a, b) => a.feature.sortOrder - b.feature.sortOrder)
+      .map((pf) => ({
+        key: pf.feature.key,
+        name: pf.feature.name,
+        unit: pf.feature.unit,
+        enabled: pf.enabled,
+        isUnlimited: pf.isUnlimited,
+        limitValue: pf.limitValue,
+      })),
+  }));
+
+  const currentPlan = plansForUI.find((p) => p.id === store.planId) ?? null;
   const enoughForCurrentRenewal = store.balance >= store.monthlyPrice;
 
+  const featureLabelByKey = new Map(
+    plansForUI[0]?.features.map((f) => [f.key, { name: f.name, unit: f.unit }]) ?? [],
+  );
+  const usageRows = Object.entries(snapshot.usage);
+
   return (
-    <div
-      className="min-h-[calc(100vh-120px)]  p-4 md:p-6"
-      dir="rtl"
-    >
-      <div className="mx-auto flex w-full flex-col gap-6">
+    <div className="min-h-[calc(100vh-120px)] space-y-6 p-4 md:p-6" dir="rtl">
+      <Card>
+        <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline">إدارة الباقة</Badge>
+              <Badge className="bg-primary/10 text-primary hover:bg-primary/10">{store.name}</Badge>
+            </div>
+
+            <h1 className="text-2xl font-semibold md:text-3xl">
+              {isOnboarding ? "اختيار الباقة" : "الباقات والأسعار"}
+            </h1>
+
+            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+              {isOnboarding
+                ? "اختار الباقة المناسبة لمتجرك عشان تكمل إعداد الحساب. الاختيار هنا مش خصم فوري."
+                : "اختار الباقة المناسبة لمتجرك. التغيير هنا بيأثر على التجديد القادم، مش خصم فوري."}
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Card>
+              <CardContent className="p-4">
+                <p className="mb-1 text-sm text-muted-foreground">الباقة الحالية</p>
+                <p className="text-xl font-semibold">{currentPlan?.name ?? "—"}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <p className="mb-1 text-sm text-muted-foreground">سعر التجديد القادم</p>
+                <p className="text-xl font-semibold">{formatMoneyFromPiasters(store.monthlyPrice)}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      <PlanComparisonClient
+        plans={plansForUI}
+        currentPlanId={store.planId}
+        currentSortOrder={currentPlan?.sortOrder ?? -1}
+        initialBillingCycle={store.billingCycle}
+      />
+
+      <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
         <Card>
-          <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">إدارة الباقة</Badge>
-                <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                  {store.name}
-                </Badge>
-              </div>
-
-              <h1 className="text-2xl font-semibold md:text-3xl">
-                {isOnboarding ? "اختيار الباقة" : "تغيير الباقة"}
-              </h1>
-
-              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                {isOnboarding
-                  ? "اختار الباقة المناسبة لمتجرك عشان تكمل إعداد الحساب. الاختيار هنا مش خصم فوري."
-                  : "اختار الباقة المناسبة لمتجرك، وحدد هل التجديد التلقائي يفضل شغال ولا لا. التغيير هنا بيأثر على التجديد القادم، مش خصم فوري."}
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Card>
-                <CardContent className="p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    الباقة الحالية
-                  </p>
-                  <p className="text-xl font-semibold">{currentPlan}</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    السعر الشهري الحالي
-                  </p>
-                  <p className="text-xl font-semibold">
-                    {formatPrice(store.monthlyPrice)}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+          <CardHeader>
+            <CardTitle className="text-lg">الاستخدام الحالي</CardTitle>
+            <CardDescription>استخدامك من الموارد المحدودة في باقتك الحالية.</CardDescription>
+          </CardHeader>
+          <CardContent className="divide-y divide-border">
+            {usageRows.length === 0 ? (
+              <p className="py-4 text-sm text-muted-foreground">لا توجد موارد محدودة في باقتك الحالية.</p>
+            ) : (
+              usageRows.map(([key, usage]) => (
+                <UsageBar
+                  key={key}
+                  label={featureLabelByKey.get(key)?.name ?? key}
+                  used={usage.used}
+                  limit={usage.limit}
+                  isUnlimited={usage.isUnlimited}
+                  unit={featureLabelByKey.get(key)?.unit ?? undefined}
+                />
+              ))
+            )}
           </CardContent>
         </Card>
 
-        <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
-          <div className="space-y-4">
-            <ChangePlanForm
-              currentBalance={store.balance}
-              autoRenew={store.autoRenew}
-              isOnboarding={isOnboarding}
-            />
-          </div>
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">وضع الاشتراك الحالي</CardTitle>
+              <CardDescription>ملخص سريع لحالة اشتراك المتجر حاليًا.</CardDescription>
+            </CardHeader>
 
-          <div className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">وضع الاشتراك الحالي</CardTitle>
-                <CardDescription>
-                  ملخص سريع لحالة اشتراك المتجر حاليًا.
-                </CardDescription>
-              </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <p className="mb-1 text-sm text-muted-foreground">حالة الاشتراك</p>
+                <p className="font-semibold">{getSubscriptionStatusLabel(store.subscriptionStatus)}</p>
+              </div>
 
-              <CardContent className="space-y-4">
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    حالة الاشتراك
-                  </p>
-                  <p className="font-semibold">
-                    {getSubscriptionStatusLabel(store.subscriptionStatus)}
-                  </p>
-                </div>
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <p className="mb-1 text-sm text-muted-foreground">نهاية الاشتراك</p>
+                <p className="font-semibold">{formatDate(store.subscriptionEndsAt)}</p>
+              </div>
 
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    نهاية الاشتراك
-                  </p>
-                  <p className="font-semibold">
-                    {formatDate(store.subscriptionEndsAt)}
-                  </p>
-                </div>
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <p className="mb-1 text-sm text-muted-foreground">دورة الفوترة</p>
+                <p className="font-semibold">{store.billingCycle === "YEARLY" ? "سنوية" : "شهرية"}</p>
+              </div>
 
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    نهاية فترة السماح
-                  </p>
-                  <p className="font-semibold">
-                    {formatDate(store.gracePeriodEndsAt)}
-                  </p>
-                </div>
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <p className="mb-1 text-sm text-muted-foreground">التجديد التلقائي</p>
+                <p className="font-semibold">{store.autoRenew ? "مفعل" : "متوقف"}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    التجديد التلقائي
-                  </p>
-                  <p className="font-semibold">
-                    {store.autoRenew ? "مفعل" : "متوقف"}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">حالة الرصيد</CardTitle>
+              <CardDescription>هل الرصيد الحالي يكفي للتجديد على الباقة الحالية؟</CardDescription>
+            </CardHeader>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">حالة الرصيد</CardTitle>
-                <CardDescription>
-                  هل الرصيد الحالي يكفي للتجديد على الباقة الحالية؟
-                </CardDescription>
-              </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <p className="mb-1 text-sm text-muted-foreground">الرصيد الحالي</p>
+                <p className="font-semibold">{formatMoneyFromPiasters(store.balance)}</p>
+              </div>
 
-              <CardContent className="space-y-4">
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    الرصيد الحالي
-                  </p>
-                  <p className="font-semibold">{formatPrice(store.balance)}</p>
-                </div>
-
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    تكلفة التجديد الحالية
-                  </p>
-                  <p className="font-semibold">
-                    {formatPrice(store.monthlyPrice)}
+              <div
+                className={
+                  enoughForCurrentRenewal
+                    ? "rounded-xl border border-emerald-200 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-400"
+                    : "rounded-xl border border-amber-200 bg-amber-500/10 p-4 text-amber-700 dark:text-amber-400"
+                }
+              >
+                <div className="flex items-center gap-2">
+                  {enoughForCurrentRenewal ? <RefreshCcw className="size-4" /> : <AlertTriangle className="size-4" />}
+                  <p className="text-sm font-medium">
+                    {enoughForCurrentRenewal ? "الرصيد الحالي يكفي للتجديد." : "الرصيد الحالي لا يكفي للتجديد."}
                   </p>
                 </div>
+              </div>
 
-                <div
-                  className={
-                    enoughForCurrentRenewal
-                      ? "rounded-xl border border-emerald-200 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-400"
-                      : "rounded-xl border border-amber-200 bg-amber-500/10 p-4 text-amber-700 dark:text-amber-400"
-                  }
-                >
-                  <div className="flex items-center gap-2">
-                    {enoughForCurrentRenewal ? (
-                      <RefreshCcw className="size-4" />
-                    ) : (
-                      <AlertTriangle className="size-4" />
-                    )}
-
-                    <p className="text-sm font-medium">
-                      {enoughForCurrentRenewal
-                        ? "الرصيد الحالي يكفي للتجديد."
-                        : "الرصيد الحالي لا يكفي للتجديد."}
-                    </p>
-                  </div>
-                </div>
-
-                <Button asChild className="w-full">
-                  <Link href="/balance/topup">
-                    <Wallet className="ms-2 size-4" />
-                    شحن رصيد
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+              <Button asChild className="w-full">
+                <Link href="/dashboard/balance/topup">
+                  <Wallet className="ms-2 size-4" />
+                  شحن رصيد
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

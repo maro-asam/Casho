@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "../auth/require-user-id.actions";
+import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -47,20 +48,16 @@ export async function CreateCouponAction(
 
     const store = await prisma.store.findFirst({
       where: { userId },
-      select: { id: true, planName: true },
+      select: { id: true },
     });
 
     if (!store) return { error: "لم يتم العثور على المتجر" };
 
-    const { getPlanLimits } = await import("@/lib/subscriptions");
-    const planLimits = getPlanLimits(store.planName);
-    if (planLimits.coupons !== null) {
-      const couponCount = await prisma.coupon.count({ where: { storeId: store.id } });
-      if (couponCount >= planLimits.coupons) {
-        return {
-          error: `باقتك الحالية تسمح بحد أقصى ${planLimits.coupons} كوبون. يرجى الترقية لإضافة المزيد.`,
-        };
-      }
+    try {
+      await assertCanUse(store.id, FEATURE_KEYS.DISCOUNT_CODES);
+    } catch (error) {
+      if (isEntitlementError(error)) return { error: entitlementErrorMessage(error) };
+      throw error;
     }
 
     const code = formData.get("code")?.toString().trim().toUpperCase() || "";

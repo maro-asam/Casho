@@ -9,6 +9,7 @@ import { requireAuth } from "@/actions/auth/require.actions";
 import { ASSIGNABLE_ROLES, hasPermission } from "@/lib/store/permissions";
 import { logSecurityEvent } from "@/lib/auth/security-log";
 import { createNotification } from "@/lib/notifications/in-app";
+import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -140,19 +141,11 @@ export async function InviteMemberAction(
   if (!store) return { success: false, message: "لا يوجد متجر" };
 
   // Plan limit: check member count
-  const fullStore = await prisma.store.findUnique({ where: { id: store.id }, select: { planName: true } });
-  if (fullStore) {
-    const { getPlanLimits } = await import("@/lib/subscriptions");
-    const planLimits = getPlanLimits(fullStore.planName);
-    if (planLimits.members !== null) {
-      const memberCount = await prisma.storeMember.count({ where: { storeId: store.id } });
-      if (memberCount >= planLimits.members) {
-        return {
-          success: false,
-          message: `باقتك الحالية تسمح بحد أقصى ${planLimits.members} عضو. يرجى الترقية لإضافة المزيد.`,
-        };
-      }
-    }
+  try {
+    await assertCanUse(store.id, FEATURE_KEYS.TEAM_MEMBERS);
+  } catch (error) {
+    if (isEntitlementError(error)) return { success: false, message: entitlementErrorMessage(error) };
+    throw error;
   }
 
   const parsed = InviteSchema.safeParse({

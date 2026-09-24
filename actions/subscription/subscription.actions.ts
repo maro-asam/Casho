@@ -9,11 +9,12 @@ import {
   addDays,
   canChargeMonthlyPlan,
   DEFAULT_GRACE_PERIOD_DAYS,
+  getBillingPeriodDays,
   getNextSubscriptionEndDate,
   normalizeBalanceAmount,
 } from "@/lib/subscriptions";
-import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
-import { addMonths } from "date-fns";
+import { BalanceTransactionType, BillingCycle, SubscriptionStatus } from "@prisma/client";
+import { addMonths, addYears } from "date-fns";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
 
@@ -45,6 +46,7 @@ async function getOwnedStoreOrThrow(storeId: string) {
       slug: true,
       balance: true,
       monthlyPrice: true,
+      billingCycle: true,
       autoRenew: true,
       subscriptionStatus: true,
       subscriptionEndsAt: true,
@@ -234,7 +236,7 @@ export async function ActivateStoreSubscriptionAction(
       const balanceBefore = store.balance;
       const balanceAfter = balanceBefore - store.monthlyPrice;
       const now = new Date();
-      const subscriptionEndsAt = getNextSubscriptionEndDate(now);
+      const subscriptionEndsAt = getNextSubscriptionEndDate(now, getBillingPeriodDays(store.billingCycle));
 
       await tx.store.update({
         where: { id: store.id },
@@ -319,7 +321,7 @@ export async function TryRenewStoreSubscriptionAction(
       await prisma.$transaction(async (tx) => {
         const balanceBefore = store.balance;
         const balanceAfter = balanceBefore - store.monthlyPrice;
-        const nextEndDate = getNextSubscriptionEndDate(now);
+        const nextEndDate = getNextSubscriptionEndDate(now, getBillingPeriodDays(store.billingCycle));
 
         await tx.store.update({
           where: { id: store.id },
@@ -530,6 +532,7 @@ export async function RenewStoreSubscriptionAction(
         name: true,
         balance: true,
         monthlyPrice: true,
+        billingCycle: true,
         subscriptionStatus: true,
         subscriptionEndsAt: true,
         gracePeriodEndsAt: true,
@@ -558,7 +561,8 @@ export async function RenewStoreSubscriptionAction(
         ? store.subscriptionEndsAt
         : now;
 
-    const nextSubscriptionEndDate = addMonths(baseDate, 1);
+    const nextSubscriptionEndDate =
+      store.billingCycle === BillingCycle.YEARLY ? addYears(baseDate, 1) : addMonths(baseDate, 1);
 
     await prisma.$transaction(async (tx) => {
       const balanceBefore = store.balance;

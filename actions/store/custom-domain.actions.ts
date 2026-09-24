@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { revalidatePath } from "next/cache";
+import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
 
 const DOMAIN_REGEX =
   /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
@@ -71,6 +72,13 @@ export async function connectCustomDomainAction(
 
     if (!store) {
       return { success: false, message: "لم يتم العثور على المتجر" };
+    }
+
+    try {
+      await assertCanUse(store.id, FEATURE_KEYS.CUSTOM_DOMAIN);
+    } catch (error) {
+      if (isEntitlementError(error)) return { success: false, message: entitlementErrorMessage(error) };
+      throw error;
     }
 
     const conflict = await prisma.store.findFirst({

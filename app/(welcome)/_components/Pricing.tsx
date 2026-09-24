@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowRight, Check, Clock, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { plans as plansPrices } from "@/constants/welcome/pricing.constants";
+import { cn } from "@/lib/utils";
 import { useLang } from "../_i18n/LanguageContext";
+import { planNameLabel, featureNameLabel } from "./pricing-labels";
 
 const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -21,10 +23,36 @@ const rise = {
 
 const TRUST_ICONS = [Clock, RefreshCw, ShieldCheck];
 
-export default function PricingSection() {
-  const { t } = useLang();
+export type WelcomePlanFeature = {
+  key: string;
+  name: string;
+  unit: string | null;
+  isUnlimited: boolean;
+  limitValue: number | null;
+};
+
+export type WelcomePlan = {
+  id: string;
+  key: string;
+  name: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  originalMonthlyPrice: number | null;
+  discountPercent: number | null;
+  sortOrder: number;
+  features: WelcomePlanFeature[];
+};
+
+function formatPiasters(value: number) {
+  return (value / 100).toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
+export default function PricingSection({ plans }: { plans: WelcomePlan[] }) {
+  const { t, lang } = useLang();
   const pr = t.pricing;
-  const planPrice = plansPrices[0];
+  const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
+
+  if (plans.length === 0) return null;
 
   return (
     <section id="pricing" className="relative isolate scroll-mt-28 overflow-hidden rounded-xl py-16 sm:py-20 lg:py-24">
@@ -63,6 +91,22 @@ export default function PricingSection() {
           >
             {pr.subtitle}
           </motion.p>
+
+          <motion.div variants={rise} custom={0.3} className="mt-2 inline-flex rounded-full border border-border bg-muted/40 p-1">
+            {(["MONTHLY", "YEARLY"] as const).map((cycle) => (
+              <button
+                key={cycle}
+                type="button"
+                onClick={() => setBillingCycle(cycle)}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                  billingCycle === cycle ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground",
+                )}
+              >
+                {cycle === "MONTHLY" ? pr.monthly : pr.yearly}
+              </button>
+            ))}
+          </motion.div>
         </motion.div>
 
         <motion.div
@@ -70,86 +114,92 @@ export default function PricingSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
-          className="relative mx-auto mt-12 max-w-4xl sm:mt-16"
+          className="relative mx-auto mt-12 sm:mt-16"
         >
           <div className="absolute -inset-4 -z-10 hidden rounded-[2rem] bg-primary/10 blur-3xl sm:block" />
 
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-primary/10 ring-1 ring-black/5 dark:ring-white/5">
-            <div aria-hidden className="h-1 w-full bg-linear-to-r from-primary via-sky-400 to-primary" />
+          <div className="grid gap-6 md:grid-cols-3">
+            {plans.map((plan, i) => {
+              const price = billingCycle === "YEARLY" ? plan.yearlyPrice : plan.monthlyPrice;
+              const highlighted = plan.key === "GOLD";
 
-            <div className="grid lg:grid-cols-[21rem_1fr]">
-              {/* Price */}
-              <div className="flex flex-col border-b border-border p-6 sm:p-8 lg:border-b-0 lg:border-e">
-                <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
-                  <Sparkles className="size-3" />
-                  {pr.kicker}
-                </span>
-
-                <h3 className="mt-4 text-xl font-extrabold text-foreground">{pr.plan.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{pr.plan.description}</p>
-
-                <div className="mt-6 flex items-end gap-1.5">
-                  <span className="text-5xl font-black tracking-tight text-foreground">
-                    {planPrice.price}
-                  </span>
-                  <div className="mb-1.5 text-sm leading-4 text-muted-foreground">
-                    <div>{pr.currency}</div>
-                    <div>/ {pr.plan.period}</div>
-                  </div>
-                </div>
-
-                <Button
-                  asChild
-                  size="lg"
-                  className="group mt-6 h-12 w-full rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/35"
+              return (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: i * 0.08, ease: EASE }}
+                  className={cn(
+                    "relative flex flex-col overflow-hidden rounded-2xl border bg-card p-6 shadow-lg sm:p-8",
+                    highlighted ? "border-primary shadow-primary/15 ring-1 ring-primary/20" : "border-border shadow-primary/5",
+                  )}
                 >
-                  <Link href="/register">
-                    {pr.startNow}
-                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" />
-                  </Link>
-                </Button>
+                  {highlighted && (
+                    <span className="absolute -top-px right-6 rounded-b-md bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">
+                      {pr.mostPopular}
+                    </span>
+                  )}
 
-                <p className="mt-3 text-center text-xs leading-5 text-muted-foreground lg:text-start">
-                  {pr.footnote}
-                </p>
-              </div>
+                  <h3 className="text-lg font-extrabold text-foreground">{planNameLabel(plan.key, plan.name, lang)}</h3>
 
-              {/* Features */}
-              <div className="p-6 sm:p-8">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  {pr.featuresLabel}
-                </p>
+                  <div className="mt-4 flex items-end gap-1.5">
+                    <span className="text-4xl font-black tracking-tight text-foreground">{formatPiasters(price)}</span>
+                    <div className="mb-1.5 text-sm leading-4 text-muted-foreground">
+                      <div>{pr.currency}</div>
+                      <div>/ {billingCycle === "YEARLY" ? pr.yearly : pr.monthly}</div>
+                    </div>
+                  </div>
+                  {plan.discountPercent ? (
+                    <p className="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      -{plan.discountPercent}%
+                    </p>
+                  ) : null}
 
-                <div className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                  {pr.plan.features.map((feature, i) => (
-                    <motion.div
-                      key={feature}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-40px" }}
-                      transition={{ duration: 0.4, delay: (i % 7) * 0.04, ease: EASE }}
-                      className="flex items-center gap-2.5"
-                    >
-                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Check className="size-3" strokeWidth={3} />
-                      </span>
-                      <p className="text-sm text-foreground/90">{feature}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
+                  <Button
+                    asChild
+                    size="lg"
+                    className={cn(
+                      "group mt-6 h-11 w-full rounded-xl text-sm font-bold",
+                      highlighted && "shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/35",
+                    )}
+                    variant={highlighted ? "default" : "outline"}
+                  >
+                    <Link href="/register">
+                      {pr.startNow}
+                      <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" />
+                    </Link>
+                  </Button>
+
+                  <div className="mt-6 flex-1 space-y-2.5 border-t border-border pt-6">
+                    {plan.features.map((feature) => (
+                      <div key={feature.key} className="flex items-center gap-2.5">
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <Check className="size-3" strokeWidth={3} />
+                        </span>
+                        <p className="text-sm text-foreground/90">
+                          {featureNameLabel(feature.key, feature.name, lang)}
+                          {feature.isUnlimited ? ` — ${pr.currentFeatures}` : ""}
+                          {!feature.isUnlimited && feature.limitValue !== null
+                            ? ` — ${feature.limitValue.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}${feature.unit ? ` ${feature.unit}` : ""}`
+                            : ""}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
+
+          <p className="mt-6 text-center text-xs leading-5 text-muted-foreground">{pr.footnote}</p>
 
           {/* Trust bar */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
             {pr.trust.map((item, i) => {
               const Icon = TRUST_ICONS[i % TRUST_ICONS.length];
               return (
-                <div
-                  key={item}
-                  className="flex items-center gap-2 text-xs font-medium text-muted-foreground sm:text-sm"
-                >
+                <div key={item} className="flex items-center gap-2 text-xs font-medium text-muted-foreground sm:text-sm">
                   <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Icon className="size-3.5" />
                   </span>

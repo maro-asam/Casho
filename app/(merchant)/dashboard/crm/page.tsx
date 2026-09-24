@@ -21,16 +21,37 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import { CustomerStatusBadge } from "./_components/CustomerHealthBadge";
+import { isEntitlementError } from "@/lib/entitlements";
+import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
 
 export const metadata: Metadata = {
   title: "إدارة العملاء — CRM",
 };
 
 export default async function CRMDashboardPage() {
-  const [stats, birthdays] = await Promise.all([
-    GetCRMDashboardStatsAction(),
-    GetUpcomingBirthdaysAction(14),
-  ]);
+  let stats: Awaited<ReturnType<typeof GetCRMDashboardStatsAction>>;
+  let birthdays: Awaited<ReturnType<typeof GetUpcomingBirthdaysAction>>;
+
+  try {
+    [stats, birthdays] = await Promise.all([
+      GetCRMDashboardStatsAction(),
+      GetUpcomingBirthdaysAction(14),
+    ]);
+  } catch (error) {
+    if (isEntitlementError(error)) {
+      return (
+        <div className="space-y-8" dir="rtl">
+          <DashboardSectionHeader icon={UserCircle} title="إدارة العملاء (CRM)" description="تتبع وفهم وطوّر علاقاتك مع عملائك" />
+          <UpgradeRequiredCard
+            title="إدارة العملاء (CRM)"
+            description="نظام إدارة العملاء غير متاح في باقتك الحالية."
+            requiredPlanSlug={error.requiredPlan}
+          />
+        </div>
+      );
+    }
+    throw error;
+  }
 
   return (
     <div className="space-y-8" dir="rtl">

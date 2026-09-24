@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { CustomerStatus } from "@prisma/client";
 import { computeHealthScore } from "@/lib/crm/health-score";
+import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
 
 const PAGE_SIZE = 20;
 
@@ -14,6 +15,7 @@ async function getStoreId(userId: string) {
     select: { id: true },
   });
   if (!store) throw new Error("المتجر غير موجود");
+  await assertCanUse(store.id, FEATURE_KEYS.CRM);
   return store.id;
 }
 

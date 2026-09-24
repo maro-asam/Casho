@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
 
 async function getStoreForUser(userId: string) {
   const store = await prisma.store.findFirst({
@@ -60,6 +61,7 @@ export async function CreateBranchAction(data: {
 }) {
   const userId = await requireUserId();
   const store = await getStoreForUser(userId);
+  await assertCanUse(store.id, FEATURE_KEYS.INVENTORY);
 
   if (!data.name?.trim()) throw new Error("اسم الفرع مطلوب");
 

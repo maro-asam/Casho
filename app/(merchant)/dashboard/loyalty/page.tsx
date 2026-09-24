@@ -4,6 +4,8 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 import LoyaltyDashboardClient from "./_components/LoyaltyDashboardClient";
+import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { FEATURE_KEYS } from "@/lib/entitlements";
 
 export const metadata: Metadata = {
   title: "نظام النقاط والمكافآت",
@@ -54,10 +56,18 @@ export default async function LoyaltyPage() {
         badge={totalCustomers}
         description="فعّل برنامج الولاء وتابع نقاط عملائك"
       />
-      <LoyaltyDashboardClient
-        settings={store?.settings ?? null}
-        customers={customers}
-      />
+      {store ? (
+        <FeatureGate
+          storeId={store.id}
+          feature={FEATURE_KEYS.LOYALTY}
+          title="نظام النقاط والمكافآت"
+          description="برنامج نقاط الولاء غير متاح في باقتك الحالية."
+        >
+          <LoyaltyDashboardClient settings={store.settings} customers={customers} />
+        </FeatureGate>
+      ) : (
+        <LoyaltyDashboardClient settings={null} customers={customers} />
+      )}
     </div>
   );
 }

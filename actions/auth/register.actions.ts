@@ -12,6 +12,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { TrackStoreRegistrationAction } from "@/actions/tracking/tracking.actions";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { generateReferralCode } from "@/lib/referral";
+import { getDefaultTrialPlanId } from "@/lib/entitlements";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -124,6 +125,7 @@ export async function RegisterAction(
     const hashedPassword = await hashPassword(password);
     const now = new Date();
     const trialEndsAt = getFreeTrialEndDate(now);
+    const trialPlanId = await getDefaultTrialPlanId();
 
     const created = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -157,6 +159,7 @@ export async function RegisterAction(
               balance: 0,
               autoRenew: true,
               planSelected: false,
+              planId: trialPlanId,
             },
           },
         },

@@ -13,6 +13,10 @@ import DashboardSectionHeader from "../../_components/main/DashboardSectionHeade
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { hasFeature, checkLimit, FEATURE_KEYS } from "@/lib/entitlements";
+import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
 
 export const metadata: Metadata = {
   title: "الكارتات المتروكة",
@@ -38,6 +42,26 @@ function formatRelativeTime(date: Date) {
 }
 
 export default async function AbandonedCartsPage() {
+  const userId = await requireUserId();
+  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
+  const enabled = store ? await hasFeature(store.id, FEATURE_KEYS.ABANDONED_CART) : false;
+
+  if (!enabled) {
+    const { requiredPlan } = store
+      ? await checkLimit(store.id, FEATURE_KEYS.ABANDONED_CART)
+      : { requiredPlan: null };
+    return (
+      <div className="space-y-6" dir="rtl">
+        <DashboardSectionHeader icon={ShoppingCart} title="الكارتات المتروكة" description="متابعة السلات التي تركها العملاء قبل إتمام الشراء" />
+        <UpgradeRequiredCard
+          title="الكارتات المتروكة"
+          description="تقرير السلات المتروكة غير متاح في باقتك الحالية."
+          requiredPlanSlug={requiredPlan}
+        />
+      </div>
+    );
+  }
+
   const { carts, totalValue, totalCarts } = await GetAbandonedCartsAction();
 
   const statCards = [

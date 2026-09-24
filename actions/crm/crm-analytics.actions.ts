@@ -3,10 +3,14 @@
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { computeHealthScore } from "@/lib/crm/health-score";
+import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
 
 async function getStoreId(userId: string) {
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
   if (!store) throw new Error("المتجر غير موجود");
+  // Base CRM dashboard stats only need CRM; GetCRMAnalyticsAction additionally
+  // requires CRM_ADVANCED below since it's the "advanced analytics" surface.
+  await assertCanUse(store.id, FEATURE_KEYS.CRM);
   return store.id;
 }
 
@@ -164,6 +168,7 @@ export async function GetCRMDashboardStatsAction() {
 export async function GetCRMAnalyticsAction(period: 30 | 60 | 90 | 365 = 30) {
   const userId = await requireUserId();
   const storeId = await getStoreId(userId);
+  await assertCanUse(storeId, FEATURE_KEYS.CRM_ADVANCED);
 
   const periodStart = new Date(Date.now() - period * 24 * 60 * 60 * 1000);
 

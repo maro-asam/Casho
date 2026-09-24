@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { OrderStatus } from "@prisma/client";
+import { hasFeature, FEATURE_KEYS } from "@/lib/entitlements";
 
 function getStatusLabel(status: OrderStatus) {
   switch (status) {
@@ -64,7 +65,7 @@ export async function GET() {
 
     const store = await prisma.store.findFirst({
       where: { userId },
-      select: { id: true, name: true, planName: true },
+      select: { id: true, name: true },
     });
 
     if (!store) {
@@ -74,10 +75,9 @@ export async function GET() {
       );
     }
 
-    const { getPlanLimits } = await import("@/lib/subscriptions");
-    if (!getPlanLimits(store.planName).exportOrders) {
+    if (!(await hasFeature(store.id, FEATURE_KEYS.ORDER_EXPORT))) {
       return NextResponse.json(
-        { error: "تصدير الطلبات متاح من باقة النمو فأعلى. يرجى الترقية." },
+        { code: "FEATURE_NOT_AVAILABLE", feature: FEATURE_KEYS.ORDER_EXPORT, error: "تصدير الطلبات غير متاح في باقتك الحالية. يرجى الترقية." },
         { status: 403 },
       );
     }

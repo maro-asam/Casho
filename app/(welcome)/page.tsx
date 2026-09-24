@@ -8,8 +8,32 @@ import CTASection from "./_components/CTA";
 import BlogSection from "./_components/BlogSection";
 import { LandingPageTracker } from "@/components/meta/meta-pixel";
 import { HeroSection } from "./_components/Hero";
+import { getAllActivePlans } from "@/lib/entitlements";
+import type { WelcomePlan } from "./_components/Pricing";
 
-export default function Page() {
+export default async function Page() {
+  const allPlans = await getAllActivePlans();
+  const plans: WelcomePlan[] = allPlans.map((plan) => ({
+    id: plan.id,
+    key: plan.key,
+    name: plan.name,
+    monthlyPrice: plan.monthlyPrice,
+    yearlyPrice: plan.yearlyPrice,
+    originalMonthlyPrice: plan.originalMonthlyPrice,
+    discountPercent: plan.discountPercent,
+    sortOrder: plan.sortOrder,
+    features: plan.planFeatures
+      .filter((pf) => pf.enabled && pf.feature.isActive)
+      .sort((a, b) => a.feature.sortOrder - b.feature.sortOrder)
+      .map((pf) => ({
+        key: pf.feature.key,
+        name: pf.feature.name,
+        unit: pf.feature.unit,
+        isUnlimited: pf.isUnlimited,
+        limitValue: pf.limitValue,
+      })),
+  }));
+
   return (
     <>
       <LandingPageTracker />
@@ -20,7 +44,7 @@ export default function Page() {
         <StatsSection />
         <BeforeAfterSection />
         {/* <FeaturesSection /> */}
-        <PricingSection />
+        <PricingSection plans={plans} />
         <BlogSection />
         <CTASection />
         <FAQSection />

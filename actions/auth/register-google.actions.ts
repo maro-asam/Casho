@@ -8,6 +8,7 @@ import { createUserSession } from "@/lib/auth/session";
 import { verifyPendingGoogleAuth } from "@/lib/auth/pending-google-auth";
 import { normalizeStoreSlug } from "@/lib/store/slug";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
+import { getDefaultTrialPlanId } from "@/lib/entitlements";
 import { getFieldErrors } from "@/lib/zod";
 import { z } from "zod";
 import type { ActionState } from "./auth.types";
@@ -100,6 +101,7 @@ export async function RegisterGoogleAction(
 
     const now = new Date();
     const trialEndsAt = getFreeTrialEndDate(now);
+    const trialPlanId = await getDefaultTrialPlanId();
 
     const created = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -126,6 +128,7 @@ export async function RegisterGoogleAction(
               balance: 0,
               autoRenew: true,
               planSelected: false,
+              planId: trialPlanId,
             },
           },
         },

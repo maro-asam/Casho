@@ -8,6 +8,7 @@ import {
 } from "@/lib/ai/marketing-assistant";
 import { featureFlags } from "@/lib/feature-flags";
 import { prisma } from "@/lib/prisma";
+import { hasFeature, FEATURE_KEYS } from "@/lib/entitlements";
 
 export type GenerateMarketingResult =
   | { ok: true;  content: MarketingContent }
@@ -38,12 +39,17 @@ export async function generateMarketingAction(
       name:        true,
       description: true,
       price:       true,
+      storeId:     true,
       category:    { select: { name: true } },
     },
   });
 
   if (!product) {
     return { ok: false, error: "المنتج غير موجود أو غير مصرح لك بالوصول إليه" };
+  }
+
+  if (!(await hasFeature(product.storeId, FEATURE_KEYS.AI))) {
+    return { ok: false, error: "الذكاء الاصطناعي غير متاح في باقتك الحالية. يرجى الترقية." };
   }
 
   const result: MarketingResult = await generateMarketingContent(
@@ -74,7 +80,14 @@ export async function generateMarketingFromDataAction(input: {
   }
 
   // Auth check — must be a logged-in merchant
-  await requireUserId();
+  const userId = await requireUserId();
+
+  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
+  if (!store) return { ok: false, error: "المتجر غير موجود" };
+
+  if (!(await hasFeature(store.id, FEATURE_KEYS.AI))) {
+    return { ok: false, error: "الذكاء الاصطناعي غير متاح في باقتك الحالية. يرجى الترقية." };
+  }
 
   const result: MarketingResult = await generateMarketingContent({
     title:         input.title,

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
+import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
 
 export async function GetTelegramStatusAction() {
   const userId = await requireUserId();
@@ -32,7 +33,14 @@ export async function GenerateLinkTokenAction() {
     where: { userId },
     select: { id: true },
   });
-  if (!store) return { success: false };
+  if (!store) return { success: false, message: "المتجر غير موجود" };
+
+  try {
+    await assertCanUse(store.id, FEATURE_KEYS.TELEGRAM);
+  } catch (error) {
+    if (isEntitlementError(error)) return { success: false, message: entitlementErrorMessage(error) };
+    throw error;
+  }
 
   const token = randomBytes(5).toString("hex"); // 10-char hex token
 

@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { hasFeature, FEATURE_KEYS } from "@/lib/entitlements";
 
 const ABANDONED_AFTER_MS = 2 * 60 * 60 * 1000; // 2 hours
 
@@ -38,6 +39,10 @@ export async function GetAbandonedCartsAction(): Promise<{
   });
 
   if (!store) return { carts: [], totalValue: 0, totalCarts: 0 };
+
+  if (!(await hasFeature(store.id, FEATURE_KEYS.ABANDONED_CART))) {
+    return { carts: [], totalValue: 0, totalCarts: 0 };
+  }
 
   const cutoff = new Date(Date.now() - ABANDONED_AFTER_MS);
 

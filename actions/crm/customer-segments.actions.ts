@@ -4,10 +4,12 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { Prisma, SegmentType } from "@prisma/client";
+import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
 
 async function getStoreId(userId: string) {
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
   if (!store) throw new Error("المتجر غير موجود");
+  await assertCanUse(store.id, FEATURE_KEYS.CRM_ADVANCED);
   return store.id;
 }
 

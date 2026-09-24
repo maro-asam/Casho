@@ -214,9 +214,14 @@ export function canChargeMonthlyPlan(params: {
   return params.balance >= params.monthlyPrice;
 }
 
-export function getNextSubscriptionEndDate(fromDate?: Date) {
+export function getNextSubscriptionEndDate(fromDate?: Date, periodDays: number = 30) {
   const base = fromDate ? new Date(fromDate) : new Date();
-  return addDays(base, 30);
+  return addDays(base, periodDays);
+}
+
+/** Renewal period length for a billing cycle — used by the balance-ledger renewal engine in actions/subscription. */
+export function getBillingPeriodDays(billingCycle: "MONTHLY" | "YEARLY"): number {
+  return billingCycle === "YEARLY" ? 365 : 30;
 }
 
 export function normalizeBalanceAmount(amount: number) {

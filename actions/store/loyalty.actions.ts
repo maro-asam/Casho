@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "../auth/require-user-id.actions";
+import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
 
 const LOYALTY_COOKIE_KEY = "loyalty_phone";
 
@@ -154,6 +155,17 @@ export async function UpdateLoyaltySettingsAction(formData: FormData) {
   const loyaltyPointsPerEGP = Number(formData.get("loyaltyPointsPerEGP") ?? 1);
   const loyaltyPointsValuePiasters = Number(formData.get("loyaltyPointsValuePiasters") ?? 1);
   const loyaltyMinRedemption = Number(formData.get("loyaltyMinRedemption") ?? 100);
+
+  // Turning the program OFF is always allowed; turning it ON (or keeping it
+  // on) requires the plan to include loyalty.
+  if (loyaltyEnabled) {
+    try {
+      await assertCanUse(store.id, FEATURE_KEYS.LOYALTY);
+    } catch (error) {
+      if (isEntitlementError(error)) return { success: false, message: entitlementErrorMessage(error) };
+      throw error;
+    }
+  }
 
   await prisma.storeSettings.update({
     where: { id: store.settings.id },

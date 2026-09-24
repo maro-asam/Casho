@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { PurchaseOrderStatus, StockMovementType, NotificationType } from "@prisma/client";
+import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
 import { createNotification } from "@/lib/notifications/in-app";
 
 async function getStoreForUser(userId: string) {
@@ -36,6 +37,7 @@ export async function CreatePurchaseOrderAction(data: {
 }) {
   const userId = await requireUserId();
   const store = await getStoreForUser(userId);
+  await assertCanUse(store.id, FEATURE_KEYS.INVENTORY);
 
   if (!data.items.length) throw new Error("يجب إضافة منتج واحد على الأقل");
 

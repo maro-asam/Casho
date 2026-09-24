@@ -4,6 +4,8 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 import TelegramConnect from "./_components/TelegramConnect";
+import { FeatureGate } from "@/components/entitlements/FeatureGate";
+import { FEATURE_KEYS } from "@/lib/entitlements";
 
 export const metadata: Metadata = {
   title: "ربط تيليجرام",
@@ -16,6 +18,7 @@ export default async function TelegramPage() {
   const store = await prisma.store.findFirst({
     where: { userId },
     select: {
+      id: true,
       settings: {
         select: {
           telegramChatId: true,
@@ -32,11 +35,22 @@ export default async function TelegramPage() {
         title="ربط تيليجرام"
         description="احصل على إشعارات فورية لكل طلب جديد مباشرة على تيليجرام"
       />
-      <TelegramConnect
-        linked={!!store?.settings?.telegramChatId}
-        chatId={store?.settings?.telegramChatId ?? null}
-        linkToken={store?.settings?.telegramLinkToken ?? null}
-      />
+      {store ? (
+        <FeatureGate
+          storeId={store.id}
+          feature={FEATURE_KEYS.TELEGRAM}
+          title="ربط تيليجرام"
+          description="تكامل تيليجرام غير متاح في باقتك الحالية."
+        >
+          <TelegramConnect
+            linked={!!store.settings?.telegramChatId}
+            chatId={store.settings?.telegramChatId ?? null}
+            linkToken={store.settings?.telegramLinkToken ?? null}
+          />
+        </FeatureGate>
+      ) : (
+        <TelegramConnect linked={false} chatId={null} linkToken={null} />
+      )}
     </div>
   );
 }

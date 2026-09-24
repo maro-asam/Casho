@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { addMonths } from "date-fns";
+import { addMonths, addYears } from "date-fns";
 
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./admin-guard.actions";
@@ -9,11 +9,13 @@ import {
   addDays,
   canChargeMonthlyPlan,
   DEFAULT_GRACE_PERIOD_DAYS,
+  getBillingPeriodDays,
   getNextSubscriptionEndDate,
   normalizeBalanceAmount,
 } from "@/lib/subscriptions";
 import {
   BalanceTransactionType,
+  BillingCycle,
   SubscriptionStatus,
 } from "@prisma/client";
 
@@ -44,6 +46,7 @@ async function getAdminStoreOrThrow(storeId: string) {
       slug: true,
       balance: true,
       monthlyPrice: true,
+      billingCycle: true,
       autoRenew: true,
       subscriptionStatus: true,
       subscriptionEndsAt: true,
@@ -207,7 +210,7 @@ export async function adminActivateStoreSubscriptionAction(
       const balanceBefore = store.balance;
       const balanceAfter = balanceBefore - store.monthlyPrice;
       const now = new Date();
-      const subscriptionEndsAt = getNextSubscriptionEndDate(now);
+      const subscriptionEndsAt = getNextSubscriptionEndDate(now, getBillingPeriodDays(store.billingCycle));
 
       await tx.store.update({
         where: { id: store.id },
@@ -280,7 +283,7 @@ export async function adminTryRenewStoreSubscriptionAction(
       await prisma.$transaction(async (tx) => {
         const balanceBefore = store.balance;
         const balanceAfter = balanceBefore - store.monthlyPrice;
-        const nextEndDate = getNextSubscriptionEndDate(now);
+        const nextEndDate = getNextSubscriptionEndDate(now, getBillingPeriodDays(store.billingCycle));
 
         await tx.store.update({
           where: { id: store.id },
@@ -479,10 +482,13 @@ export async function adminRenewStoreSubscriptionAction(
       const balanceAfter = balanceBefore - store.monthlyPrice;
       const now = new Date();
 
+      const isYearly = store.billingCycle === BillingCycle.YEARLY;
       const nextEndDate =
         store.subscriptionEndsAt && store.subscriptionEndsAt.getTime() > now.getTime()
-          ? addMonths(store.subscriptionEndsAt, 1)
-          : getNextSubscriptionEndDate(now);
+          ? isYearly
+            ? addYears(store.subscriptionEndsAt, 1)
+            : addMonths(store.subscriptionEndsAt, 1)
+          : getNextSubscriptionEndDate(now, getBillingPeriodDays(store.billingCycle));
 
       await tx.store.update({
         where: { id: store.id },

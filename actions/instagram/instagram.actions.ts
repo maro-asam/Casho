@@ -11,6 +11,7 @@ import { buildAuthorizationUrl } from "@/lib/instagram/oauth";
 import { syncConversations } from "@/lib/instagram/sync";
 import { logger } from "@/lib/logger";
 import { SuggestedOrderStatus } from "@prisma/client";
+import { hasFeature, assertCanUse, FEATURE_KEYS, isEntitlementError } from "@/lib/entitlements";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -75,6 +76,10 @@ export async function ConnectInstagramAction() {
 
   if (!store) {
     return redirect("/dashboard");
+  }
+
+  if (!(await hasFeature(store.id, FEATURE_KEYS.AI))) {
+    return redirect("/dashboard/change-plan");
   }
 
   const state = crypto.randomBytes(16).toString("hex");
@@ -332,6 +337,13 @@ export async function ApproveSuggestedOrderAction(input: ApproveInput) {
   });
 
   if (!store) return { success: false, error: "المتجر غير موجود" };
+
+  try {
+    await assertCanUse(store.id, FEATURE_KEYS.AI);
+  } catch (error) {
+    if (isEntitlementError(error)) return { success: false, error: error.message };
+    throw error;
+  }
 
   const suggestion = await prisma.suggestedOrder.findFirst({
     where: { id: input.suggestedOrderId, storeId: store.id },
