@@ -2,16 +2,9 @@ import { Metadata } from "next";
 import { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "كــاشو - انشاء وتسجيل حساب جديد",
+  title: "كاشو | تسجيل الدخول وإنشاء حساب",
 };
-export default async function AuthLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  return (
-    <div className="mx-auto">
-      <main className=" relative">{children}</main>
-    </div>
-  );
+
+export default function AuthLayout({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }

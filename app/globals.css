@@ -236,6 +236,16 @@
   --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite
     alternate;
   --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  /* Hero: one-shot highlight when a demo sale lands. */
+  --animate-hero-flash: hero-flash 1.6s ease-out forwards;
+  @keyframes hero-flash {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
   @keyframes shimmer-slide {
     to {
       transform: translate(calc(100cqw - 100%), 0);
