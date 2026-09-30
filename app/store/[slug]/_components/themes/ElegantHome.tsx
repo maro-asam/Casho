@@ -12,6 +12,7 @@ import {
   type SectionContentMap,
 } from "@/types/store-theme.types";
 import SectionRenderer from "../sections/SectionRenderer";
+import { SoldOutOverlay, isSoldOut } from "../shared/SoldOutOverlay";
 
 // ─── Elegant Section Header — centered with decorative lines ─────
 function ElegantSectionHeader({ title, href }: { title: string; href: string }) {
@@ -174,6 +175,7 @@ function ElegantProductCard({
     >
       {/* Image — aspect ratio from merchant layout setting */}
       <div className="relative overflow-hidden" style={{ aspectRatio: "var(--store-img-ratio, 3 / 4)" }}>
+        {isSoldOut(product) && <SoldOutOverlay />}
         {product.image ? (
           <Image
             src={product.image}

@@ -1,140 +1,78 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import type { OrderStatus } from "@prisma/client";
 
-import { cn } from "@/lib/utils";
 import { UpdateOrderStatusAction } from "@/actions/store/orders.actions";
-
-import { Button } from "@/components/ui/button";
+import { toneDot } from "@/components/saas-page";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-  CommandEmpty,
-} from "@/components/ui/command";
-import { OrderStatus } from "@prisma/client";
-
-const orderStatuses: {
-  value: OrderStatus;
-  label: string;
-  dotClass: string;
-}[] = [
-  { value: "PENDING", label: "معلق", dotClass: "bg-amber-500" },
-  { value: "PAID", label: "مدفوع", dotClass: "bg-sky-500" },
-  { value: "SHIPPED", label: "تم الشحن", dotClass: "bg-violet-500" },
-  { value: "DELIVERED", label: "وصل", dotClass: "bg-emerald-500" },
-  { value: "CANCELED", label: "ملغي", dotClass: "bg-rose-500" },
-];
-
-function getStatus(status: OrderStatus) {
-  return orderStatuses.find((s) => s.value === status);
-}
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { ORDER_STATUSES, ORDER_STATUS_META } from "./order-meta";
 
 interface OrderStatusSelectProps {
   orderId: string;
   storeId: string;
   currentStatus: OrderStatus;
+  className?: string;
 }
 
-export function OrderStatusSelect({
-  orderId,
-  storeId,
-  currentStatus,
-}: OrderStatusSelectProps) {
-  const [open, setOpen] = React.useState(false);
+/** Status shown as a pill that opens a menu to change it (optimistic, rolls back on error). */
+export function OrderStatusSelect({ orderId, storeId, currentStatus, className }: OrderStatusSelectProps) {
   const [value, setValue] = React.useState<OrderStatus>(currentStatus);
   const [pending, startTransition] = React.useTransition();
+  const current = ORDER_STATUS_META[value];
 
-  const handleSelect = (newStatus: OrderStatus) => {
-    if (newStatus === value) {
-      setOpen(false);
-      return;
-    }
-
-    const oldValue = value;
-    setValue(newStatus);
-    setOpen(false);
+  const handleSelect = (next: OrderStatus) => {
+    if (next === value) return;
+    const previous = value;
+    setValue(next);
 
     startTransition(async () => {
       try {
-        await UpdateOrderStatusAction(orderId, storeId, newStatus);
-        toast.success("تم تحديث حالة الطلب");
+        await UpdateOrderStatusAction(orderId, storeId, next);
+        toast.success(`الطلب بقى "${ORDER_STATUS_META[next].label}"`);
       } catch {
-        setValue(oldValue);
-        toast.error("حصل خطأ أثناء تحديث الحالة");
+        setValue(previous);
+        toast.error("مقدرناش نغيّر حالة الطلب، جرّب تاني.");
       }
     });
   };
 
-  const current = getStatus(value);
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-36 justify-between rounded-xl border-border text-xs"
-          disabled={pending}
-        >
-          {pending ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="size-3 animate-spin" />
-              جاري...
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <span
-                className={cn("size-2 shrink-0 rounded-full", current?.dotClass)}
-              />
-              {current?.label}
-            </span>
-          )}
-          <ChevronsUpDown className="size-3 shrink-0 opacity-40" />
-        </Button>
-      </PopoverTrigger>
+    <DropdownMenu dir="rtl" modal={false}>
+      <DropdownMenuTrigger
+        disabled={pending}
+        aria-label={`حالة الطلب: ${current.label}. تغيير الحالة`}
+        className={cn(
+          "relative z-10 inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2 text-xs font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 data-[state=open]:bg-muted",
+          className,
+        )}
+      >
+        {pending ? (
+          <Loader2 className="size-3 animate-spin" />
+        ) : (
+          <span aria-hidden className={cn("size-1.5 rounded-full", toneDot(current.tone))} />
+        )}
+        {current.label}
+        <ChevronDown className="size-3 opacity-50" />
+      </DropdownMenuTrigger>
 
-      <PopoverContent className="w-40 p-1" align="end">
-        <Command>
-          <CommandList>
-            <CommandEmpty>لا توجد حالات</CommandEmpty>
-            <CommandGroup>
-              {orderStatuses.map((status) => (
-                <CommandItem
-                  key={status.value}
-                  value={status.label}
-                  onSelect={() => handleSelect(status.value)}
-                  className="cursor-pointer rounded-lg px-2 py-1.5 text-sm"
-                >
-                  <span className="flex flex-1 items-center gap-2">
-                    <span
-                      className={cn(
-                        "size-2 shrink-0 rounded-full",
-                        status.dotClass,
-                      )}
-                    />
-                    {status.label}
-                  </span>
-                  <Check
-                    className={cn(
-                      "size-3.5 text-primary",
-                      value === status.value ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+      <DropdownMenuContent align="start" className="w-44">
+        {ORDER_STATUSES.map((status) => (
+          <DropdownMenuItem key={status.value} onSelect={() => handleSelect(status.value)} className="gap-2">
+            <span aria-hidden className={cn("size-1.5 rounded-full", toneDot(status.tone))} />
+            <span className="flex-1">{status.label}</span>
+            {status.value === value && <Check className="size-3.5 text-primary" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

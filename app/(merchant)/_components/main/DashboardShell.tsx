@@ -1,109 +1,43 @@
 "use client";
 
-import {
-  useMemo,
-  useState,
-  useSyncExternalStore,
-  type ComponentType,
-  type ReactNode,
-} from "react";
-import Link from "next/link";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import {
-  BanknoteArrowUp,
-  Bell,
-  BookOpen,
-  Camera,
-  ChartNoAxesCombined,
-  ChevronLeft,
-  ChevronRight,
-  CirclePercent,
-  Code2,
-  CreditCard,
-  ExternalLink,
-  Gift,
-  Globe,
-  Headset,
-  ImageIcon,
-  Layers,
-  LayoutDashboard,
-  QrCode,
-  Menu,
-  MessageSquare,
-  Music2,
-  Package,
-  PaintRoller,
-  Phone,
-  Rocket,
-  ScreenShare,
-  Send,
-  Settings,
-  ShoppingCart,
-  Star,
-  Store,
-  Tag,
-  Timer,
-  Truck,
-  MonitorCheck,
-  Warehouse,
-  ArrowLeftRight,
-  ClipboardList,
-  Users,
-  UserCircle,
-  Sparkles,
-  Layers2,
-} from "lucide-react";
+import { Menu } from "lucide-react";
 
-import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
-import DashboardSearch from "@/app/(merchant)/_components/main/DashboardSearch";
-import NotificationsBell from "@/app/(merchant)/_components/notifications/NotificationsBell";
-// import QuickCustomizeSheet from "@/app/(merchant)/_components/main/QuickCustomizeSheet";
 import type { NotificationDTO } from "@/actions/notifications/notifications.actions";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { ModeToggle } from "@/theme/ModeToggle";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import DashboardSidebar from "./DashboardSidebar";
+import DashboardTopbar from "./DashboardTopbar";
+import { findActiveNav } from "./dashboard-nav";
 
 interface DashboardShellProps {
   store: {
     id: string;
     name: string;
     slug: string;
-    settings: {
-      themeId: string | null;
-      fontId: string | null;
-      navbarVariant: string | null;
-      primaryColor: string | null;
-      secondaryColor: string | null;
-    } | null;
   };
   initialNotifications: NotificationDTO[];
   initialUnreadCount: number;
   children: ReactNode;
 }
 
-type DashboardLink = {
-  name: string;
-  href: string;
-  icon: ComponentType<{ className?: string }>;
-  count?: number;
-  disabled?: boolean;
-  badge?: string;
-};
-
-type NavSection = {
-  title: string;
-  links: DashboardLink[];
-};
-
 const COLLAPSED_KEY = "casho-sidebar-collapsed";
+
+function subscribeStorage(callback: () => void) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+function readCollapsed() {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
 
 export default function DashboardShell({
   store,
@@ -112,517 +46,71 @@ export default function DashboardShell({
   children,
 }: DashboardShellProps) {
   const pathname = usePathname();
+  const active = findActiveNav(pathname);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const isCollapsed = useSyncExternalStore(
-    (cb) => {
-      window.addEventListener("storage", cb);
-      return () => window.removeEventListener("storage", cb);
-    },
-    () => localStorage.getItem(COLLAPSED_KEY) === "true",
-    () => false,
-  );
+  const isCollapsed = useSyncExternalStore(subscribeStorage, readCollapsed, () => false);
 
-  const toggle = () => {
-    const next = !(localStorage.getItem(COLLAPSED_KEY) === "true");
-    localStorage.setItem(COLLAPSED_KEY, String(next));
+  const toggleCollapsed = () => {
+    try {
+      localStorage.setItem(COLLAPSED_KEY, String(!readCollapsed()));
+    } catch {
+      // Storage blocked — nothing to persist.
+    }
     window.dispatchEvent(new Event("storage"));
   };
 
-  const storeInitials = useMemo(() => {
-    return store.name
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
-  }, [store.name]);
-
-  const sections: NavSection[] = useMemo(
-    () => [
-      {
-        title: "التشغيل",
-        links: [
-          { name: "نظرة عامة", href: "/", icon: LayoutDashboard },
-          {
-            name: "نقطة البيع",
-            href: "/pos",
-            icon: MonitorCheck,
-            badge: "POS",
-          },
-          {
-            name: "الإشعارات",
-            href: "/notifications",
-            icon: Bell,
-            count: initialUnreadCount,
-          },
-          { name: "الطلبات", href: "/orders", icon: ShoppingCart },
-          {
-            name: "الكارتات المتروكة",
-            href: "/abandoned-carts",
-            icon: Timer,
-          },
-          {
-            name: "طلبات انستجرام",
-            href: "/suggested-orders",
-            icon: Send,
-            badge: "AI",
-          },
-          {
-            name: "التقارير",
-            href: "/reports",
-            icon: ChartNoAxesCombined,
-          },
-        ],
-      },
-
-      {
-        title: "المتجر",
-        links: [
-          { name: "المنتجات", href: "/products", icon: Package },
-          { name: "التصنيفات", href: "/categories", icon: Tag },
-          { name: "البانرات", href: "/banners", icon: ImageIcon },
-          {
-            name: "الكوبونات",
-            href: "/coupons",
-            icon: CirclePercent,
-          },
-          {
-            name: "المراجعات",
-            href: "/reviews",
-            icon: Star,
-          },
-          {
-            name: "نظام النقاط",
-            href: "/loyalty",
-            icon: Gift,
-          },
-        ],
-      },
-      {
-        title: "النمو",
-        links: [
-          {
-            name: "تخصيص المتجر",
-            href: "/customization",
-            icon: PaintRoller,
-          },
-          { name: "إعدادات SEO", href: "/seo", icon: Rocket },
-          { name: "المدونة", href: "/blog", icon: BookOpen },
-          { name: "خدمات إضافية", href: "/services", icon: Layers },
-          { name: "دومين مخصص", href: "/domain", icon: Globe },
-          { name: "QR Code المتجر", href: "/qr-code", icon: QrCode },
-        ],
-      },
-
-      {
-        title: "المالية",
-        links: [
-          {
-            name: "إدارة الرصيد",
-            href: "/balance",
-            icon: BanknoteArrowUp,
-          },
-          {
-            name: "تغيير الخطة",
-            href: "/change-plan",
-            icon: ChartNoAxesCombined,
-          },
-          {
-            name: "بوابات الدفع",
-            href: "/payment-methods",
-            icon: CreditCard,
-          },
-          {
-            name: "نظام المكافأت",
-            href: "/referral",
-            icon: Gift,
-            badge: "5 جنيه",
-          },
-        ],
-      },
-
-      {
-        title: "إدارة العملاء",
-        links: [
-          {
-            name: "لوحة CRM",
-            href: "/dashboard/crm",
-            icon: UserCircle,
-            badge: "NEW",
-          },
-          {
-            name: "العملاء",
-            href: "/dashboard/crm/customers",
-            icon: Users,
-          },
-          {
-            name: "الشرائح",
-            href: "/dashboard/crm/segments",
-            icon: Layers2,
-          },
-          {
-            name: "العلامات",
-            href: "/dashboard/crm/tags",
-            icon: Tag,
-          },
-          {
-            name: "التحليلات",
-            href: "/dashboard/crm/analytics",
-            icon: Sparkles,
-          },
-        ],
-      },
-      {
-        title: "المخزون",
-        links: [
-          {
-            name: "إدارة المخزون",
-            href: "/dashboard/inventory",
-            icon: Warehouse,
-            badge: "NEW",
-          },
-          {
-            name: "حركات المخزون",
-            href: "/dashboard/inventory/movements",
-            icon: ClipboardList,
-          },
-          {
-            name: "الموردون",
-            href: "/dashboard/inventory/suppliers",
-            icon: Users,
-          },
-          {
-            name: "طلبات الشراء",
-            href: "/dashboard/inventory/purchase-orders",
-            icon: ShoppingCart,
-          },
-          {
-            name: "تحويلات الفروع",
-            href: "/dashboard/inventory/transfers",
-            icon: ArrowLeftRight,
-          },
-        ],
-      },
-
-      {
-        title: "الربط",
-        links: [
-          {
-            name: "طرق الشحن",
-            href: "/dashboard/shipping",
-            icon: Truck,
-          },
-          {
-            name: "مفاتيح API",
-            href: "/dashboard/api-keys",
-            icon: Code2,
-          },
-          {
-            name: "انستجرام",
-            href: "/integrations/instagram",
-            icon: Camera,
-            badge: "AI",
-          },
-          {
-            name: "Facebook Messenger",
-            href: "/integrations/facebook",
-            icon: MessageSquare,
-            disabled: true,
-            badge: "Soon",
-          },
-          {
-            name: "واتساب",
-            href: "/integrations/whatsapp",
-            icon: Phone,
-            disabled: true,
-            badge: "Soon",
-          },
-          {
-            name: "تيك توك",
-            href: "/integrations/tiktok",
-            icon: Music2,
-            disabled: true,
-            badge: "Soon",
-          },
-        ],
-      },
-      {
-        title: "الدعم",
-        links: [
-          { name: "مركز المساعدة", href: "/support", icon: Headset },
-          { name: "الإعدادات", href: "/settings", icon: Settings },
-
-          {
-            name: "ربط تيليجرام",
-            href: "/dashboard/telegram",
-            icon: Send,
-          },
-          {
-            name: "الحملات التسويقية",
-            href: "/marketing-campaigns",
-            icon: ScreenShare,
-            disabled: true,
-            badge: "Soon",
-          },
-        ],
-      },
-    ],
-    [initialUnreadCount],
-  );
-
-  const isActive = (href: string, disabled?: boolean) => {
-    if (disabled) return false;
-    return href === "/" ? pathname === "/" : pathname.startsWith(href);
-  };
-
-  const sidebarContent = (collapsed: boolean) => (
-    <div className="flex h-full flex-col bg-card">
-      {/* Store header */}
-      <div
-        className={cn(
-          "flex h-14 shrink-0 items-center border-b border-border",
-          collapsed ? "justify-center px-2" : "gap-3 px-4",
-        )}
-      >
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
-          {storeInitials || <Store className="size-4" />}
-        </div>
-        {!collapsed && (
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold leading-tight">
-              {store.name}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {store.slug}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav
-        className="flex-1 overflow-y-auto py-3"
-        style={{ padding: collapsed ? "12px 8px" : "12px 8px" }}
-      >
-        <div className={cn("space-y-5", collapsed && "space-y-2")}>
-          {sections.map((section) => (
-            <div key={section.title}>
-              {!collapsed && (
-                <p className="mb-1 px-2 text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-                  {section.title}
-                </p>
-              )}
-              {collapsed && <div className="my-2 h-px bg-border/50" />}
-              <div className="space-y-0.5">
-                {section.links.map((link) => {
-                  const Icon = link.icon;
-                  const active = isActive(link.href, link.disabled);
-
-                  if (link.disabled) {
-                    return (
-                      <div
-                        key={link.name}
-                        title={link.name}
-                        className={cn(
-                          "flex cursor-not-allowed items-center rounded-md px-2 py-1.5 text-sm text-muted-foreground/40",
-                          collapsed ? "justify-center" : "gap-2.5",
-                        )}
-                      >
-                        <Icon className="size-4 shrink-0" />
-                        {!collapsed && (
-                          <>
-                            <span className="flex-1 truncate">{link.name}</span>
-                            {link.badge && (
-                              <Badge
-                                variant="secondary"
-                                className="px-1.5 py-0 text-[10px] font-medium"
-                              >
-                                {link.badge}
-                              </Badge>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      key={link.name}
-                      href={link.href}
-                      title={collapsed ? link.name : undefined}
-                      className={cn(
-                        "relative flex items-center rounded-md px-2 py-1.5 text-[15px] font-medium transition-colors",
-                        collapsed ? "justify-center" : "gap-2.5",
-                        active
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      )}
-                    >
-                      <Icon className="size-4 shrink-0" />
-                      {!collapsed && (
-                        <>
-                          <span className="flex-1 truncate">{link.name}</span>
-                          {!!link.count && link.count > 0 && (
-                            <span
-                              className={cn(
-                                "flex min-w-4.5 items-center justify-center rounded-lg px-1.5 text-[10px] font-bold",
-                                active
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-primary/10 text-primary",
-                              )}
-                            >
-                              {link.count > 99 ? "99+" : link.count}
-                            </span>
-                          )}
-                        </>
-                      )}
-                      {collapsed && !!link.count && link.count > 0 && (
-                        <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-primary" />
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </nav>
-
-      {/* Footer */}
-      <div className="shrink-0 border-t border-border p-2 space-y-0.5">
-        {!collapsed && (
-          <>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="h-9 w-full justify-start gap-2.5 px-2 text-muted-foreground hover:text-foreground"
-            >
-              <Link href="/settings">
-                <Settings className="size-4" />
-                إعدادات المتجر
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="h-9 w-full justify-start gap-2.5 px-2 text-muted-foreground hover:text-foreground"
-            >
-              <Link
-                href={buildStoreUrl(store.slug)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <ExternalLink className="size-4" />
-                زيارة المتجر
-              </Link>
-            </Button>
-          </>
-        )}
-        <LogoutButton collapsed={collapsed} />
-      </div>
-    </div>
+  const mobileMenu = (
+    <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label="فتح القائمة" className="-ms-2 size-9 md:hidden">
+          <Menu className="size-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-72 border-sidebar-border p-0 [&>button]:hidden">
+        <SheetTitle className="sr-only">قائمة التنقل</SheetTitle>
+        {/* Keyed by path so expanded groups follow the page that's open. */}
+        <DashboardSidebar key={pathname} store={store} active={active} onNavigate={() => setMobileOpen(false)} />
+      </SheetContent>
+    </Sheet>
   );
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground">
-      {/* Mobile header */}
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background px-4 md:hidden">
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-9">
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-65 p-0 [&>button]:hidden">
-            <SheetTitle className="sr-only">قائمة التنقل</SheetTitle>
-            <div className="h-full" onClick={() => setMobileOpen(false)}>
-              {sidebarContent(false)}
-            </div>
-          </SheetContent>
-        </Sheet>
+    <TooltipProvider delayDuration={300}>
+      <div dir="rtl" className="min-h-screen bg-background text-foreground">
+        {/* Desktop sidebar */}
+        <aside
+          className={cn(
+            "fixed inset-y-0 start-0 z-40 hidden overflow-hidden border-e border-sidebar-border transition-[width] duration-200 ease-out md:block",
+            isCollapsed ? "w-16" : "w-64",
+          )}
+        >
+          <DashboardSidebar
+            store={store}
+            active={active}
+            collapsed={isCollapsed}
+            onToggleCollapsed={toggleCollapsed}
+          />
+        </aside>
 
-        <Link href="/" className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold">
-            {store.name}
-          </span>
-        </Link>
+        <div
+          className={cn(
+            "flex min-h-screen flex-col transition-[padding] duration-200 ease-out",
+            isCollapsed ? "md:ps-16" : "md:ps-64",
+          )}
+        >
+          <DashboardTopbar
+            store={store}
+            active={active}
+            initialNotifications={initialNotifications}
+            initialUnreadCount={initialUnreadCount}
+            menuSlot={mobileMenu}
+          />
 
-        <NotificationsBell
-          initialNotifications={initialNotifications}
-          initialUnreadCount={initialUnreadCount}
-        />
-        <ModeToggle />
-      </header>
-
-      {/* Desktop sidebar */}
-      <aside
-        className={cn(
-          "fixed inset-y-0 right-0 z-20 hidden border-l border-border md:block transition-all duration-300 ease-in-out overflow-hidden",
-          isCollapsed ? "w-16" : "w-65",
-        )}
-      >
-        {sidebarContent(isCollapsed)}
-      </aside>
-
-      {/* Main content */}
-      <main
-        className={cn(
-          "flex min-h-screen flex-col transition-all duration-300 ease-in-out",
-          isCollapsed ? "md:pr-16" : "md:pr-65",
-        )}
-      >
-        {/* Desktop topbar */}
-        <header className="sticky top-0 z-10 hidden h-14 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur-sm md:flex">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggle}
-            title={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
-            className="gap-2 px-2 text-muted-foreground hover:text-foreground"
-          >
-            {isCollapsed ? (
-              <ChevronLeft className="size-4" />
-            ) : (
-              <ChevronRight className="size-4" />
-            )}
-            <span className="text-sm">
-              {isCollapsed ? "توسيع" : "طي القائمة"}
-            </span>
-          </Button>
-
-          <div className="flex items-center gap-2">
-            <DashboardSearch />
-
-            <NotificationsBell
-              initialNotifications={initialNotifications}
-              initialUnreadCount={initialUnreadCount}
-            />
-            <ModeToggle />
-
-            {/* <QuickCustomizeSheet storeId={store.id} settings={store.settings} /> */}
-
-            <Button asChild variant="outline" className="gap-1.5 text-xs">
-              <Link
-                href={buildStoreUrl(store.slug)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <ExternalLink className="size-3.5" />
-                زيارة المتجر
-              </Link>
-            </Button>
-          </div>
-        </header>
-
-        {/* Page content */}
-        <div className="mx-auto w-full max-w-385 flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">
-          {children}
+          <main id="main-content" className="mx-auto w-full max-w-385 flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">
+            {children}
+          </main>
         </div>
-      </main>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }

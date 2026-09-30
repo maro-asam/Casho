@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { transliterate } from "@/lib/utils";
 import { redirect } from "next/navigation";
@@ -446,37 +445,64 @@ export async function UpdateProductAction(
   redirect("/dashboard/products");
 }
 
-export async function DeleteProductAction(productId: string) {
-  const userId = (await cookies()).get("sessionToken")?.value;
-  if (!userId) {
-    throw new Error("Unauthorized");
+export type ProductMutationResult =
+  | { ok: true }
+  | { ok: false; code: "NOT_FOUND" | "HAS_ORDERS" | "FAILED"; message: string };
+
+async function findOwnedProduct(productId: string) {
+  const userId = await requireUserId();
+  return prisma.product.findFirst({
+    where: { id: productId, store: { userId } },
+    select: { id: true, _count: { select: { orderItems: true } } },
+  });
+}
+
+/**
+ * Deletes a product that was never ordered. Ordered products are kept for
+ * order history and reports — the merchant should hide them instead.
+ */
+export async function DeleteProductAction(productId: string): Promise<ProductMutationResult> {
+  const product = await findOwnedProduct(productId);
+  if (!product) return { ok: false, code: "NOT_FOUND", message: "المنتج مش موجود." };
+
+  if (product._count.orderItems > 0) {
+    return {
+      ok: false,
+      code: "HAS_ORDERS",
+      message: "المنتج ده موجود في طلبات قديمة فمينفعش يتمسح. تقدر تخفيه بدل كده.",
+    };
   }
 
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-
-  if (!store) {
-    throw new Error("Store not found");
+  try {
+    await prisma.$transaction([
+      prisma.cartItem.deleteMany({ where: { productId: product.id } }),
+      prisma.product.delete({ where: { id: product.id } }),
+    ]);
+  } catch (error) {
+    console.error("DeleteProductAction error:", error);
+    return { ok: false, code: "FAILED", message: "مقدرناش نمسح المنتج. جرّب تخفيه بدل كده." };
   }
-
-  const product = await prisma.product.findFirst({
-    where: {
-      id: productId,
-      storeId: store.id,
-    },
-    select: { id: true },
-  });
-
-  if (!product) {
-    throw new Error("Product not found");
-  }
-
-  await prisma.product.delete({
-    where: { id: product.id },
-  });
 
   revalidatePath("/dashboard/products");
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+/** Quick toggles from the products table (show/hide, featured). */
+export async function SetProductFlagsAction(
+  productId: string,
+  flags: { isActive?: boolean; isFeatured?: boolean },
+): Promise<ProductMutationResult> {
+  const product = await findOwnedProduct(productId);
+  if (!product) return { ok: false, code: "NOT_FOUND", message: "المنتج مش موجود." };
+
+  const data: { isActive?: boolean; isFeatured?: boolean } = {};
+  if (typeof flags.isActive === "boolean") data.isActive = flags.isActive;
+  if (typeof flags.isFeatured === "boolean") data.isFeatured = flags.isFeatured;
+
+  await prisma.product.update({ where: { id: product.id }, data });
+
+  revalidatePath("/dashboard/products");
+  revalidatePath("/dashboard");
+  return { ok: true };
 }

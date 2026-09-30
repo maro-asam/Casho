@@ -130,7 +130,7 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
           ) : (
             <div className="divide-y divide-border">
               {shift.orders.map((order) => (
-                <Link key={order.id} href={`/dashboard/orders?order=${order.id}`}>
+                <Link key={order.id} href={`/dashboard/orders/${order.id}`}>
                   <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors">
                     <div>
                       <p className="text-sm font-medium">{order.fullName}</p>

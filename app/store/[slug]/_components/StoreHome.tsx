@@ -14,6 +14,7 @@ export type Product = {
   compareAtPrice: number | null;
   image: string;
   isFeatured: boolean;
+  stock?: number;
   isActive?: boolean;
   category: { name: string; slug: string; image: string | null } | null;
 };

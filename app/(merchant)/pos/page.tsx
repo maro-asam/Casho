@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetActiveShiftAction } from "@/actions/pos/shift.actions";
-import { GetPosCategoriesAction } from "@/actions/pos/pos.actions";
+import { GetHeldOrdersAction, GetPosCategoriesAction } from "@/actions/pos/pos.actions";
 import PosTerminal from "./_components/PosTerminal";
 
 export default async function PosPage() {
@@ -26,13 +26,14 @@ export default async function PosPage() {
 
   if (!store) redirect("/");
 
-  const [activeShift, categories, cashierUser] = await Promise.all([
+  const [activeShift, categories, cashierUser, heldOrders] = await Promise.all([
     GetActiveShiftAction(),
     GetPosCategoriesAction(),
     prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true },
     }),
+    GetHeldOrdersAction(),
   ]);
 
   return (
@@ -47,6 +48,7 @@ export default async function PosPage() {
         openedAt: activeShift.openedAt.toISOString(),
       } : null}
       categories={categories}
+      initialHeldCount={heldOrders.length}
     />
   );
 }

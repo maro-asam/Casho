@@ -304,8 +304,10 @@ export async function CompletePOSSaleAction(input: {
         items: {
           create: input.cartItems.map((item) => {
             const dbProduct = productMap.get(item.productId)!;
-            const costPiasters = Math.round((dbProduct.costPrice ?? 0) * 100);
-            const itemProfit = item.price * item.quantity - item.discountAmount - costPiasters * item.quantity;
+            // null (not 0) when the product has no cost, so reports don't show 100% margin.
+            const costPiasters = dbProduct.costPrice == null ? null : Math.round(dbProduct.costPrice * 100);
+            const itemProfit =
+              costPiasters === null ? null : item.price * item.quantity - item.discountAmount - costPiasters * item.quantity;
             return {
               productId: item.productId,
               price: item.price,
@@ -331,10 +333,14 @@ export async function CompletePOSSaleAction(input: {
     for (const item of input.cartItems) {
       const product = productMap.get(item.productId)!;
 
-      await tx.product.update({
-        where: { id: item.productId },
+      // Conditional decrement: another register may have sold the last pieces meanwhile.
+      const taken = await tx.product.updateMany({
+        where: { id: item.productId, stock: { gte: item.quantity } },
         data: { stock: { decrement: item.quantity } },
       });
+      if (taken.count === 0) {
+        throw new Error(`الكمية المطلوبة من "${product.name}" مبقتش متاحة في المخزون`);
+      }
 
       await tx.stockMovement.create({
         data: {

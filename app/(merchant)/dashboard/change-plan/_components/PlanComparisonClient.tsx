@@ -21,7 +21,7 @@ export function PlanComparisonClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-center">
+      <div className="flex flex-wrap items-center justify-center gap-2">
         <div className="inline-flex rounded-full border border-border bg-muted/40 p-1">
           {(["MONTHLY", "YEARLY"] as const).map((cycle) => (
             <button
@@ -29,17 +29,22 @@ export function PlanComparisonClient({
               type="button"
               onClick={() => setBillingCycle(cycle)}
               className={cn(
-                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                billingCycle === cycle ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground",
+                "rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 motion-safe:active:scale-95",
+                billingCycle === cycle ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
               )}
             >
               {cycle === "MONTHLY" ? "شهري" : "سنوي"}
             </button>
           ))}
         </div>
+        {billingCycle === "YEARLY" && (
+          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            وفّر أكتر مع الاشتراك السنوي
+          </span>
+        )}
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid items-stretch gap-5 md:grid-cols-3">
         {plans.map((plan) => (
           <PlanCard
             key={plan.id}

@@ -93,6 +93,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           image: true,
           isFeatured: true,
           isActive: true,
+          stock: true,
           category: {
             select: {
               name: true,
@@ -159,6 +160,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           image: true,
           isFeatured: true,
           isActive: true,
+          stock: true,
           category: {
             select: { name: true, slug: true, image: true },
           },

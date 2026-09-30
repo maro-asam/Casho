@@ -46,7 +46,7 @@ export default async function Page() {
         {/* <FeaturesSection /> */}
         <PricingSection plans={plans} />
         <BlogSection />
-        <CTASection />
+        {/* <CTASection /> */}
         <FAQSection />
       </div>
     </>

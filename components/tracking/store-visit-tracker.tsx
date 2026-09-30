@@ -7,11 +7,15 @@ type StoreVisitTrackerProps = {
   storeId: string;
 };
 
+/** Mounted once in the storefront layout, so client-side navigation doesn't re-count. */
 export function StoreVisitTracker({ storeId }: StoreVisitTrackerProps) {
   const trackedRef = useRef(false);
 
   useEffect(() => {
     if (!storeId || trackedRef.current) return;
+
+    // Skip the dashboard's builder preview (iframe) and automated browsers.
+    if (window !== window.top || navigator.webdriver) return;
 
     trackedRef.current = true;
 

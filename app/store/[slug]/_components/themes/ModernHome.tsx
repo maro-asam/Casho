@@ -7,6 +7,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { StoreHomeProps } from "../StoreHome";
 import { DEFAULT_SECTION_ORDER, type SectionKey, type SectionContentMap } from "@/types/store-theme.types";
 import SectionRenderer from "../sections/SectionRenderer";
+import { SoldOutOverlay, isSoldOut } from "../shared/SoldOutOverlay";
 
 // ─── Modern Section Header — bold with left accent bar ────────────
 function ModernSectionHeader({ title, href }: { title: string; href: string }) {
@@ -237,6 +238,7 @@ function ModernProductCard({
     >
       {/* Image — aspect ratio from merchant layout setting */}
       <div className="relative overflow-hidden" style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}>
+        {isSoldOut(product) && <SoldOutOverlay />}
         {product.image ? (
           <Image
             src={product.image}

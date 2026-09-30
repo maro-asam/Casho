@@ -4,6 +4,7 @@ import Link from "next/link";
 import AddToCartButton from "../../cart/_components/AddToCartButton";
 import { formatPrice } from "@/lib/utils";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { SoldOutOverlay, isSoldOut } from "./SoldOutOverlay";
 
 type ProductCardProps = {
   product: {
@@ -14,6 +15,7 @@ type ProductCardProps = {
     compareAtPrice?: number | null;
     image: string;
     isFeatured?: boolean;
+    stock?: number;
     category?: { name: string; slug: string } | null;
   };
   storeSlug: string;
@@ -39,6 +41,7 @@ export default function ProductCard({ product, storeSlug }: ProductCardProps) {
         href={href}
         className="block overflow-hidden rounded-2xl bg-[--store-card] relative"
       >
+        {isSoldOut(product) && <SoldOutOverlay />}
         <div
           className="relative w-full"
           style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}
@@ -103,6 +106,7 @@ export default function ProductCard({ product, storeSlug }: ProductCardProps) {
             variant="outline"
             storeSlug={storeSlug}
             productId={product.id}
+            soldOut={isSoldOut(product)}
             style={{ borderRadius: "var(--store-btn-radius, 0.5rem)" }}
           />
         </div>

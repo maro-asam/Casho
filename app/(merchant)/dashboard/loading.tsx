@@ -1,62 +1,48 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Mirrors the overview layout so nothing jumps when data arrives.
 export default function DashboardLoading() {
   return (
-    <div dir="rtl" className="space-y-6">
-      <Card className="overflow-hidden rounded-[2.25rem] border-border/70 bg-background/80 shadow-sm shadow-black/5">
-        <CardContent className="p-5 sm:p-6 lg:p-7">
-          <div className="grid gap-8 xl:grid-cols-[1.35fr_0.65fr]">
-            <div className="space-y-5">
-              <div className="flex flex-wrap gap-2">
-                <Skeleton className="h-7 w-36 rounded-full" />
-                <Skeleton className="h-7 w-28 rounded-full" />
-                <Skeleton className="h-7 w-24 rounded-full" />
-              </div>
-              <div className="space-y-3">
-                <Skeleton className="h-4 w-48 rounded-full" />
-                <Skeleton className="h-11 w-full max-w-2xl rounded-2xl" />
-                <Skeleton className="h-11 w-full max-w-xl rounded-2xl" />
-                <Skeleton className="h-5 w-full max-w-lg rounded-full" />
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Skeleton className="h-11 w-36 rounded-2xl" />
-                <Skeleton className="h-11 w-32 rounded-2xl" />
-                <Skeleton className="h-11 w-32 rounded-2xl" />
-              </div>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <Skeleton className="h-32 rounded-[1.75rem]" />
-              <Skeleton className="h-32 rounded-[1.75rem]" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div dir="rtl" className="space-y-6" aria-busy="true" aria-label="جاري تحميل نظرة عامة">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-7 w-32" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-56 rounded-lg" />
+          <Skeleton className="h-9 w-28 rounded-lg" />
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <Card key={index} className="border-border/70 bg-background/80 shadow-sm">
-            <CardContent className="space-y-5 p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <Skeleton className="h-3 w-20 rounded-full" />
-                  <Skeleton className="h-4 w-28 rounded-full" />
-                </div>
-                <Skeleton className="size-11 rounded-2xl" />
-              </div>
-              <Skeleton className="h-8 w-32 rounded-2xl" />
-              <div className="flex items-center justify-between gap-3">
-                <Skeleton className="h-7 w-20 rounded-full" />
-                <Skeleton className="h-4 w-24 rounded-full" />
-              </div>
-            </CardContent>
-          </Card>
+      <Skeleton className="h-40 rounded-xl" />
+
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:[&>:last-child]:col-span-2 xl:[&>:last-child]:col-span-1">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="space-y-3 bg-card p-5">
+            <div className="flex justify-between">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-5 w-12 rounded-md" />
+            </div>
+            <Skeleton className="h-7 w-28" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-3 w-36" />
+          </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
-        <Skeleton className="h-[450px] xl:col-span-3" />
-        <Skeleton className="h-[450px] xl:col-span-2" />
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <Skeleton className="h-[26rem] rounded-xl xl:col-span-2" />
+        <div className="space-y-6">
+          <Skeleton className="h-44 rounded-xl" />
+          <Skeleton className="h-56 rounded-xl" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <Skeleton className="h-80 rounded-xl xl:col-span-2" />
+        <Skeleton className="h-80 rounded-xl" />
       </div>
     </div>
   );

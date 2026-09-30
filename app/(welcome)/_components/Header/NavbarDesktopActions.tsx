@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ChevronDown,
-  LayoutDashboard,
-  LogOut,
-  Store,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown, LayoutDashboard, LogOut, Store } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogoutAction } from "@/actions/auth/logout.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { cn } from "@/lib/utils";
 import LanguageToggle from "./LanguageToggle";
 import ThemeToggle from "./ThemeToggle";
 import { useLang } from "../../_i18n/LanguageContext";
@@ -50,7 +44,10 @@ export function UserAvatar({
 
   return (
     <div
-      className={`flex shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/70 font-bold text-primary-foreground ${className}`}
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground",
+        className,
+      )}
     >
       {initials || email[0].toUpperCase()}
     </div>
@@ -65,31 +62,27 @@ export default function NavbarDesktopActions({ user }: Props) {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center">
+      <div className="flex items-center gap-0.5">
         <LanguageToggle />
         <ThemeToggle />
       </div>
 
-      <span aria-hidden className="h-5 w-px bg-border dark:bg-white/10" />
+      <span aria-hidden className="mx-1 h-5 w-px bg-border" />
 
       {user ? (
         <DropdownMenu dir={lang === "ar" ? "rtl" : "ltr"} modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="h-10 gap-2 rounded-full border border-border/70 bg-background ps-1 pe-3 text-sm font-semibold shadow-xs hover:bg-muted/60 data-[state=open]:bg-muted/60 dark:border-white/10"
+              className="h-9 gap-2 rounded-lg ps-1 pe-2.5 text-sm font-medium hover:bg-muted data-[state=open]:bg-muted"
             >
-              <UserAvatar name={displayName} email={user.email} className="size-8 text-[11px]" />
+              <UserAvatar name={displayName} email={user.email} className="size-7 text-[11px]" />
               <span className="max-w-28 truncate">{displayName}</span>
-              <ChevronDown className="size-3.5 text-muted-foreground transition-transform duration-200 [[data-state=open]_&]:rotate-180" />
+              <ChevronDown className="size-3.5 text-muted-foreground transition-transform duration-200 in-data-[state=open]:rotate-180" />
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent
-            align="end"
-            sideOffset={10}
-            className="w-64 rounded-xl border-border/60 bg-popover/95 p-1.5 shadow-xl backdrop-blur-xl"
-          >
+          <DropdownMenuContent align="end" sideOffset={8} className="w-64 rounded-xl p-1.5">
             <div className="flex items-center gap-3 px-2.5 py-2.5 text-start">
               <UserAvatar name={displayName} email={user.email} className="size-9 text-xs" />
               <div className="min-w-0">
@@ -121,7 +114,7 @@ export default function NavbarDesktopActions({ user }: Props) {
             <form action={LogoutAction}>
               <button
                 type="submit"
-                className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-destructive outline-none transition-colors hover:bg-destructive/10"
+                className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-destructive outline-none transition-colors hover:bg-destructive/10 focus-visible:bg-destructive/10"
               >
                 <LogOut className="size-4" />
                 <span>{t.navbar.logout}</span>
@@ -131,20 +124,14 @@ export default function NavbarDesktopActions({ user }: Props) {
         </DropdownMenu>
       ) : (
         <>
-          <Link
-            href="/login"
-            className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground dark:hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          >
-            {t.navbar.login}
-          </Link>
+          <Button asChild variant="ghost" className="h-9 rounded-lg px-3.5 text-sm font-medium">
+            <Link href="/login">{t.navbar.login}</Link>
+          </Button>
 
-          <Button
-            asChild
-            className="group h-10 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_-8px] shadow-primary/60 transition-all hover:bg-primary/90 hover:shadow-primary/80"
-          >
-            <Link href="/register" className="flex items-center gap-1.5">
+          <Button asChild className="group h-9 gap-1.5 rounded-lg px-4 text-sm font-semibold">
+            <Link href="/register">
               {t.navbar.startFree}
-              <Arrow className={`size-4 transition-transform duration-200 ${nudge}`} />
+              <Arrow className={cn("size-4 transition-transform duration-200", nudge)} />
             </Link>
           </Button>
         </>

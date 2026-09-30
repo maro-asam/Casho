@@ -12,6 +12,7 @@ import { getStoreFont } from "@/constants/arabic-fonts";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import { StoreBuilderBridge } from "./_components/StoreBuilderBridge";
+import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
 
 type LayoutProps = {
   children: ReactNode;
@@ -125,6 +126,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   const store = await prisma.store.findUnique({
     where: { slug },
     select: {
+      id: true,
       name: true,
       slug: true,
       showPoweredByCasho: true,
@@ -200,6 +202,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
       */}
       <StoreThemeProvider theme={resolvedTheme}>
         <StoreBuilderBridge />
+        <StoreVisitTracker storeId={store.id} />
         <div dir={storeDir} className="store-theme-root min-h-screen">
           <StoreFrontHeader
             storeName={store.name}

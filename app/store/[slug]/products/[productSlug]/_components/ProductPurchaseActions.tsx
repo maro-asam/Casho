@@ -60,18 +60,22 @@ export default function ProductPurchaseActions({
     }
     startCartTransition(async () => {
       try {
-        let allOk = true;
+        let added = 0;
+        let failure: string | null = null;
         for (let i = 0; i < qty; i++) {
           const res = await AddToCartAction(storeSlug, productId, selectedFeatures);
           if (!res?.success) {
-            allOk = false;
+            failure = res && "message" in res && res.message ? res.message : "حدث خطأ أثناء الإضافة";
             break;
           }
+          added++;
         }
-        if (allOk) {
+        if (!failure) {
           toast.success(qty > 1 ? `تم إضافة ${qty} قطع إلى العربة` : "تم إضافة المنتج إلى العربة");
+        } else if (added > 0) {
+          toast.warning(`اتضاف ${added} بس. ${failure}`);
         } else {
-          toast.error("حدث خطأ أثناء الإضافة");
+          toast.error(failure);
         }
       } catch {
         toast.error("حدث خطأ أثناء الإضافة");
@@ -91,7 +95,7 @@ export default function ProductPurchaseActions({
           router.push(`/store/${storeSlug}/checkout`);
           router.refresh();
         } else {
-          toast.error("حدث خطأ أثناء التنفيذ");
+          toast.error(res && "message" in res && res.message ? res.message : "حدث خطأ أثناء التنفيذ");
         }
       } catch {
         toast.error("حدث خطأ أثناء التنفيذ");

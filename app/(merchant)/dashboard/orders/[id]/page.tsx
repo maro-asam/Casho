@@ -1,524 +1,378 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import {
-  ArrowRight,
-  CalendarDays,
-  CreditCard,
-  MapPin,
-  Package,
-  Phone,
-  ShoppingBag,
-  User,
-  CircleDollarSign,
-  Hash,
-  ShoppingCart,
-  Truck,
-  Tag,
-} from "lucide-react";
-
-import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@prisma/client";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { ArrowRight, MessageCircle, Package, Phone, UserRound } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-
-import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-import ExportInvoiceButton from "@/app/(merchant)/dashboard/orders/_components/export-invoice-button";
-import { OrderStatusSelect } from "@/app/(merchant)/dashboard/orders/_components/order-status-select";
+import { StatusPill } from "@/components/saas-page";
+import { prisma } from "@/lib/prisma";
+import ExportInvoiceButton from "../_components/export-invoice-button";
+import { ORDER_CHANNELS, ORDER_STATUS_META, paymentMethodLabel } from "../_components/order-meta";
+import { CopyButton } from "./_components/copy-button";
+import { OrderProgress } from "./_components/order-progress";
 
 export const metadata: Metadata = {
   title: "تفاصيل الطلب",
 };
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-  }).format(price / 100);
+const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const nf = new Intl.NumberFormat("ar-EG");
+const longDate = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", dateStyle: "long", timeStyle: "short" });
+const shortDate = new Intl.DateTimeFormat("ar-EG", {
+  timeZone: "Africa/Cairo",
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+const formatMoney = (piasters: number) => money.format(piasters / 100);
+
+const FEATURE_LABELS: Record<string, string> = { size: "المقاس", color: "اللون" };
+
+/** Egyptian mobile → international digits for wa.me (01xxxxxxxxx → 201xxxxxxxxx). */
+function whatsappNumber(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("20")) return digits;
+  if (digits.startsWith("0")) return `2${digits}`;
+  return digits;
 }
 
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("ar-EG", {
-    dateStyle: "long",
-    timeStyle: "short",
-  }).format(new Date(date));
+/* ── Small layout primitives for this page ───────────────────────────── */
+
+function Panel({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between gap-2 px-5 pt-4 pb-3">
+        <h2 className="text-sm font-semibold">{title}</h2>
+        {action}
+      </div>
+      <div className="px-5 pb-5">{children}</div>
+    </section>
+  );
 }
 
-function getStatusConfig(status: OrderStatus) {
-  const config: Record<
-    OrderStatus,
-    { label: string; className: string; dot: string }
-  > = {
-    PENDING: {
-      label: "معلق",
-      className:
-        "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",
-      dot: "bg-amber-500",
-    },
-    PAID: {
-      label: "مدفوع",
-      className:
-        "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800",
-      dot: "bg-sky-500",
-    },
-    SHIPPED: {
-      label: "تم الشحن",
-      className:
-        "bg-violet-500/10 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800",
-      dot: "bg-violet-500",
-    },
-    DELIVERED: {
-      label: "تم التوصيل",
-      className:
-        "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
-      dot: "bg-emerald-500",
-    },
-    CANCELED: {
-      label: "ملغي",
-      className:
-        "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800",
-      dot: "bg-rose-500",
-    },
-  };
-  return config[status];
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-2 text-sm first:pt-0 last:pb-0">
+      <dt className="shrink-0 text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 text-end font-medium">{children}</dd>
+    </div>
+  );
 }
 
-function getPaymentMethodLabel(method: string) {
-  const map: Record<string, string> = {
-    cash_on_delivery: "الدفع عند الاستلام",
-    instapay: "إنستاباي",
-    vodafone_cash: "فودافون كاش",
-    bank_transfer: "تحويل بنكي",
-  };
-  return map[method] ?? method;
-}
-
-export default async function OrderDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, name: true },
+    select: { id: true },
   });
-
   if (!store) notFound();
 
   const order = await prisma.order.findFirst({
     where: { id, storeId: store.id },
     include: {
-      store: { select: { id: true, name: true, slug: true } },
+      store: { select: { name: true, slug: true } },
+      shippingMethod: { select: { name: true } },
+      cashierUser: { select: { name: true, email: true } },
+      shipments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { provider: true, trackingNumber: true, courierName: true },
+      },
       items: {
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-              slug: true,
-            },
-          },
-        },
+        include: { product: { select: { id: true, name: true, image: true, slug: true } } },
       },
     },
   });
-
   if (!order) notFound();
 
-  const statusConfig = getStatusConfig(order.status);
+  const previousOrders = await prisma.order.count({
+    where: { storeId: store.id, phone: order.phone, id: { not: order.id } },
+  });
+
+  const shortId = order.id.slice(0, 8).toUpperCase();
+  const status = ORDER_STATUS_META[order.status];
+  const channel = ORDER_CHANNELS[order.source];
+  const ChannelIcon = channel.icon;
+  const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const shipment = order.shipments[0];
+  const trackingNumber = order.trackingNumber ?? shipment?.trackingNumber ?? null;
+  const shippingProvider = order.shippingProvider ?? shipment?.courierName ?? shipment?.provider ?? null;
+  const isPaid =
+    Boolean(order.paidAt) ||
+    order.paymentStatus === "PAID" ||
+    (order.paymentMethod !== "cash_on_delivery" && ["PAID", "SHIPPED", "DELIVERED"].includes(order.status)) ||
+    order.status === "DELIVERED";
 
   return (
     <div className="space-y-6" dir="rtl">
       {/* Header */}
-      <DashboardSectionHeader
-        icon={ShoppingCart}
-        title={`طلب #${order.id.slice(0, 8).toUpperCase()}`}
-        description={`مُقدَّم بتاريخ ${formatDate(order.createdAt)}`}
-      />
+      <div className="space-y-3">
+        <Link
+          href="/orders"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowRight className="size-4" />
+          الطلبات
+        </Link>
 
-      {/* Action bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background p-3 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "size-2 rounded-full",
-              statusConfig.dot,
-            )}
-          />
-          <span className="text-sm font-medium">{statusConfig.label}</span>
-          <Separator orientation="vertical" className="mx-1 h-4" />
-          <OrderStatusSelect
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0 space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">
+                طلب{" "}
+                <span className="font-mono font-bold" dir="ltr">
+                  #{shortId}
+                </span>
+              </h1>
+              <StatusPill tone={status.tone}>{status.label}</StatusPill>
+              <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                <ChannelIcon className="size-3.5" />
+                {channel.label}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {longDate.format(order.createdAt)} · {nf.format(itemCount)} قطعة · {formatMoney(order.total)}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+            <ExportInvoiceButton orderId={order.id} />
+          </div>
+        </header>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Main column */}
+        <div className="space-y-6 lg:col-span-2">
+          <OrderProgress
             orderId={order.id}
             storeId={store.id}
-            currentStatus={order.status}
+            status={order.status}
+            source={order.source}
+            paymentMethod={order.paymentMethod}
+            createdAtLabel={shortDate.format(order.createdAt)}
+            paidAtLabel={order.paidAt ? shortDate.format(order.paidAt) : null}
           />
-        </div>
 
-        <div className="flex items-center gap-2">
-          <ExportInvoiceButton
-            order={{
-              id: order.id,
-              createdAt: order.createdAt,
-              fullName: order.fullName,
-              phone: order.phone,
-              address: order.address,
-              paymentMethod: order.paymentMethod,
-              subtotal: order.subtotal,
-              shipping: order.shipping,
-              total: order.total,
-              status: order.status,
-              store: { name: order.store.name, slug: order.store.slug },
-              items: order.items.map((item) => ({
-                id: item.id,
-                quantity: item.quantity,
-                price: item.price,
-                product: { name: item.product.name, slug: item.product.slug },
-              })),
-            }}
-          />
-          <Button asChild variant="outline" className="rounded-xl">
-            <Link href="/orders">
-              <ArrowRight className="me-1.5 size-4" />
-              الطلبات
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Summary stats */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "رقم الطلب",
-            value: `#${order.id.slice(0, 8).toUpperCase()}`,
-            icon: Hash,
-            accent: "bg-primary/10 text-primary",
-          },
-          {
-            label: "حالة الطلب",
-            value: statusConfig.label,
-            icon: ShoppingBag,
-            accent: cn("border", statusConfig.className),
-            isStatus: true,
-          },
-          {
-            label: "طريقة الدفع",
-            value: getPaymentMethodLabel(order.paymentMethod),
-            icon: CreditCard,
-            accent: "bg-primary/10 text-primary",
-          },
-          {
-            label: "إجمالي الطلب",
-            value: formatPrice(order.total),
-            icon: CircleDollarSign,
-            accent: "bg-primary/10 text-primary",
-            highlight: true,
-          },
-        ].map((card) => {
-          const Icon = card.icon;
-          return (
-            <Card key={card.label} className="rounded-xl shadow-sm">
-              <CardContent className="flex items-center gap-4 p-4">
-                <div
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-                    card.isStatus ? card.accent : "bg-primary/10 text-primary",
-                  )}
-                >
-                  <Icon className="size-4.5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">{card.label}</p>
-                  <p
-                    className={cn(
-                      "mt-0.5 truncate text-sm font-bold",
-                      card.highlight && "text-primary",
-                    )}
-                  >
-                    {card.value}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Customer + Order meta */}
-      <div className="grid gap-6 xl:grid-cols-3">
-        {/* Customer info */}
-        <Card className="rounded-xl shadow-sm xl:col-span-2">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <User className="size-4" />
+          {/* Items + totals */}
+          <section aria-labelledby="order-items-title" className="rounded-xl border border-border bg-card">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3">
+              <h2 id="order-items-title" className="text-sm font-semibold">
+                المنتجات
+              </h2>
+              <span className="text-xs text-muted-foreground">
+                {nf.format(order.items.length)} منتج · {nf.format(itemCount)} قطعة
               </span>
-              بيانات العميل
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <User className="size-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">الاسم الكامل</p>
-                  <p className="truncate font-semibold">{order.fullName}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Phone className="size-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">رقم الهاتف</p>
-                  <p className="truncate font-semibold" dir="ltr">
-                    {order.phone}
-                  </p>
-                </div>
-              </div>
             </div>
 
-            <div className="flex items-start gap-3 rounded-xl border bg-muted/30 p-3.5">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <MapPin className="size-4" />
+            {order.items.length === 0 ? (
+              <p className="mx-5 mb-5 rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                مفيش منتجات في الطلب ده.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border border-y border-border">
+                {order.items.map((item) => {
+                  const features = Object.entries((item.selectedFeatures as Record<string, string> | null) ?? {});
+                  return (
+                    <li key={item.id} className="flex items-center gap-4 px-5 py-3">
+                      <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                        {item.product.image ? (
+                          <Image src={item.product.image} alt="" fill sizes="48px" className="object-cover" />
+                        ) : (
+                          <Package className="absolute inset-0 m-auto size-5 text-muted-foreground/50" />
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          href={`/products/${item.product.id}/edit`}
+                          className="block truncate text-sm font-medium hover:underline"
+                        >
+                          {item.product.name}
+                        </Link>
+                        {features.length > 0 && (
+                          <p className="truncate text-xs text-muted-foreground">
+                            {features.map(([key, val]) => `${FEATURE_LABELS[key] ?? key}: ${val}`).join(" · ")}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {nf.format(item.quantity)} × {formatMoney(item.price)}
+                        </p>
+                      </div>
+
+                      <p className="shrink-0 text-sm font-semibold tabular-nums">
+                        {formatMoney(item.price * item.quantity)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            <dl className="space-y-2 px-5 py-4 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">الإجمالي الفرعي</dt>
+                <dd className="tabular-nums">{formatMoney(order.subtotal)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">
+                  الشحن{order.shippingMethod ? ` (${order.shippingMethod.name})` : ""}
+                </dt>
+                <dd className="tabular-nums">{order.shipping > 0 ? formatMoney(order.shipping) : "مجاني"}</dd>
+              </div>
+              {order.discount > 0 && (
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">
+                    الخصم
+                    {order.couponCode && (
+                      <span className="ms-1.5 rounded bg-muted px-1.5 py-px font-mono text-xs" dir="ltr">
+                        {order.couponCode}
+                      </span>
+                    )}
+                  </dt>
+                  <dd className="tabular-nums text-emerald-700 dark:text-emerald-400">−{formatMoney(order.discount)}</dd>
+                </div>
+              )}
+              <div className="flex items-baseline justify-between border-t border-border pt-3">
+                <dt className="font-semibold">الإجمالي</dt>
+                <dd className="text-lg font-bold tabular-nums">{formatMoney(order.total)}</dd>
+              </div>
+              {order.profitTotal !== null && (
+                <div className="flex justify-between text-xs">
+                  <dt className="text-muted-foreground">ربحك من الطلب</dt>
+                  <dd className="font-medium tabular-nums">{formatMoney(order.profitTotal)}</dd>
+                </div>
+              )}
+            </dl>
+          </section>
+
+          {order.notes && (
+            <Panel title="ملاحظات العميل">
+              <p className="whitespace-pre-line text-sm leading-7">{order.notes}</p>
+            </Panel>
+          )}
+        </div>
+
+        {/* Side column */}
+        <div className="space-y-6">
+          <Panel
+            title="العميل"
+            action={
+              order.customerId ? (
+                <Link href={`/crm/customers/${order.customerId}`} className="text-xs font-medium text-primary hover:underline">
+                  ملف العميل
+                </Link>
+              ) : undefined
+            }
+          >
+            <div className="flex items-center gap-3">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+                <UserRound className="size-5" />
               </span>
-              <div>
-                <p className="text-xs text-muted-foreground">عنوان التوصيل</p>
-                <p className="mt-0.5 font-semibold leading-relaxed">
-                  {order.address}
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{order.fullName}</p>
+                <p className="text-xs text-muted-foreground">
+                  {previousOrders > 0 ? `${nf.format(previousOrders)} طلب قبل كده` : "أول طلب ليه"}
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Order meta */}
-        <Card className="rounded-xl shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Package className="size-4" />
+            <div className="mt-4 flex items-center justify-between gap-2 rounded-lg bg-muted/50 px-3 py-2">
+              <span className="text-sm font-medium tabular-nums" dir="ltr">
+                {order.phone}
               </span>
-              تفاصيل الطلب
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-2">
-            {[
-              {
-                icon: ShoppingBag,
-                label: "المتجر",
-                value: order.store.name,
-              },
-              {
-                icon: CalendarDays,
-                label: "تاريخ الطلب",
-                value: formatDate(order.createdAt),
-              },
-              {
-                icon: CreditCard,
-                label: "طريقة الدفع",
-                value: getPaymentMethodLabel(order.paymentMethod),
-              },
-              {
-                icon: Package,
-                label: "عدد المنتجات",
-                value: `${order.items.length} ${order.items.length === 1 ? "منتج" : "منتجات"}`,
-              },
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground shadow-sm">
-                    <Icon className="size-3.5" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground">{item.label}</p>
-                    <p className="truncate text-sm font-semibold">
-                      {item.value}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-
-            {order.couponCode && (
-              <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-950/30">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
-                  <Tag className="size-3.5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground">كوبون خصم</p>
-                  <p className="truncate font-mono text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-                    {order.couponCode}
-                  </p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Products */}
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Package className="size-4" />
-            </span>
-            منتجات الطلب
-            <Badge variant="secondary" className="ms-auto rounded-lg text-xs">
-              {order.items.length}
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          {order.items.length === 0 ? (
-            <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-              لا توجد منتجات داخل هذا الطلب
-            </div>
-          ) : (
-            <div className="divide-y rounded-xl border">
-              {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/30"
-                >
-                  {/* Product image */}
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border bg-muted">
-                    {item.product.image ? (
-                      <Image
-                        src={item.product.image}
-                        alt={item.product.name}
-                        fill
-                        className="object-cover"
-                        sizes="56px"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <Package className="size-5 text-muted-foreground/40" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Name + meta */}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold">
-                      {item.product.name}
-                    </p>
-                    {item.selectedFeatures &&
-                      Object.keys(
-                        item.selectedFeatures as Record<string, string>,
-                      ).length > 0 && (
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {Object.entries(
-                            item.selectedFeatures as Record<string, string>,
-                          ).map(([key, val]) => (
-                            <span
-                              key={key}
-                              className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-                            >
-                              {key === "size"
-                                ? "المقاس"
-                                : key === "color"
-                                  ? "اللون"
-                                  : key}
-                              : {val}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {item.quantity} × {formatPrice(item.price)}
-                    </p>
-                  </div>
-
-                  {/* Line total */}
-                  <div className="shrink-0 rounded-xl bg-primary/10 px-3.5 py-2 text-center">
-                    <p className="text-[11px] text-muted-foreground">
-                      الإجمالي
-                    </p>
-                    <p className="text-sm font-bold text-primary">
-                      {formatPrice(item.price * item.quantity)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Financial summary */}
-      <div className="flex justify-end">
-        <Card className="w-full rounded-xl shadow-sm xl:max-w-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Truck className="size-4" />
-              </span>
-              الملخص المالي
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-2">
-            <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
-              <span className="text-sm text-muted-foreground">
-                المجموع الفرعي
-              </span>
-              <span className="font-semibold">{formatPrice(order.subtotal)}</span>
+              <CopyButton value={order.phone} label="رقم الموبايل" />
             </div>
 
-            <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
-              <span className="text-sm text-muted-foreground">رسوم الشحن</span>
-              <span className="font-semibold">{formatPrice(order.shipping)}</span>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button asChild variant="outline" size="sm" className="h-9 gap-1.5">
+                <a href={`tel:${order.phone}`}>
+                  <Phone className="size-4" />
+                  اتصال
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="h-9 gap-1.5">
+                <a href={`https://wa.me/${whatsappNumber(order.phone)}`} target="_blank" rel="noreferrer">
+                  <MessageCircle className="size-4" />
+                  واتساب
+                </a>
+              </Button>
             </div>
+          </Panel>
 
-            {order.discount > 0 && (
-              <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/30">
-                <span className="flex items-center gap-1.5 text-sm text-emerald-700 dark:text-emerald-300">
-                  <Tag className="size-3.5" />
-                  خصم
-                  {order.couponCode && (
-                    <span className="font-mono text-xs">
-                      ({order.couponCode})
+          <Panel title={order.source === "POS" ? "الاستلام" : "الشحن"}>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm leading-7">{order.address || "—"}</p>
+              {order.address && <CopyButton value={order.address} label="العنوان" />}
+            </div>
+            {(order.shippingMethod || trackingNumber || shippingProvider) && (
+              <dl className="mt-3 divide-y divide-border border-t border-border pt-3">
+                {order.shippingMethod && <Field label="طريقة الشحن">{order.shippingMethod.name}</Field>}
+                {shippingProvider && <Field label="شركة الشحن">{shippingProvider}</Field>}
+                {trackingNumber && (
+                  <Field label="رقم التتبع">
+                    <span className="inline-flex items-center gap-1">
+                      <span className="font-mono" dir="ltr">
+                        {trackingNumber}
+                      </span>
+                      <CopyButton value={trackingNumber} label="رقم التتبع" className="size-6" />
                     </span>
-                  )}
-                </span>
-                <span className="font-semibold text-emerald-700 dark:text-emerald-300">
-                  -{formatPrice(order.discount)}
-                </span>
-              </div>
+                  </Field>
+                )}
+              </dl>
             )}
+          </Panel>
 
-            <Separator />
+          <Panel title="الدفع">
+            <dl className="divide-y divide-border">
+              <Field label="الطريقة">{paymentMethodLabel(order.paymentMethod)}</Field>
+              <Field label="الحالة">
+                <StatusPill tone={isPaid ? "success" : "warning"}>
+                  {isPaid ? "مدفوع" : order.paymentMethod === "cash_on_delivery" ? "هيتدفع عند الاستلام" : "مستني الدفع"}
+                </StatusPill>
+              </Field>
+              {order.paidAt && <Field label="اتدفع في">{shortDate.format(order.paidAt)}</Field>}
+              {order.paymentReference && (
+                <Field label="المرجع">
+                  <span className="font-mono text-xs" dir="ltr">
+                    {order.paymentReference}
+                  </span>
+                </Field>
+              )}
+            </dl>
+          </Panel>
 
-            <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-4 py-3.5">
-              <span className="font-bold">الإجمالي النهائي</span>
-              <span className="text-xl font-extrabold text-primary">
-                {formatPrice(order.total)}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+          <Panel title="تفاصيل إضافية">
+            <dl className="divide-y divide-border">
+              <Field label="القناة">{channel.label}</Field>
+              {order.cashierUser && <Field label="الكاشير">{order.cashierUser.name ?? order.cashierUser.email}</Field>}
+              {order.couponCode && (
+                <Field label="كوبون">
+                  <span className="font-mono" dir="ltr">
+                    {order.couponCode}
+                  </span>
+                </Field>
+              )}
+              {!!order.pointsEarned && <Field label="نقاط اكتسبها">{nf.format(order.pointsEarned)}</Field>}
+              {!!order.pointsRedeemed && <Field label="نقاط استخدمها">{nf.format(order.pointsRedeemed)}</Field>}
+              <Field label="رقم الطلب الكامل">
+                <span className="inline-flex items-center gap-1">
+                  <span className="max-w-32 truncate font-mono text-xs" dir="ltr">
+                    {order.id}
+                  </span>
+                  <CopyButton value={order.id} label="رقم الطلب" className="size-6" />
+                </span>
+              </Field>
+            </dl>
+          </Panel>
+        </div>
       </div>
     </div>
   );

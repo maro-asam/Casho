@@ -29,6 +29,7 @@ export async function getStoreWithCategoriesAndProducts(
           price: true,
           image: true,
           slug: true,
+          stock: true,
         },
       },
     },

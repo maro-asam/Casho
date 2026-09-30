@@ -23,6 +23,12 @@ import {
 } from "@/lib/notifications/in-app";
 import { sendWhatsAppOrderNotification } from "@/lib/notifications/whatsapp";
 import { sendTelegramMarkdown } from "@/lib/notifications/telegram";
+import {
+  OutOfStockError,
+  adjustStockForOrderStatus,
+  fitCartToStock,
+  takeStockForOrder,
+} from "@/lib/inventory/order-stock";
 
 const kashierAllowedMethodKeys = new Set(
   KASHIER_ALLOWED_METHODS.map((method) => method.key),
@@ -60,6 +66,32 @@ function toKashierAllowedMethods(methods: string[]) {
   return methods.filter((method): method is KashierAllowedMethod => {
     return kashierAllowedMethodKeys.has(method as KashierAllowedMethod);
   });
+}
+
+/** Same alert the POS sends, now also for online sales. Never breaks the order flow. */
+async function notifyLowStock(storeId: string, productIds: string[]) {
+  try {
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds }, storeId },
+      select: { id: true, name: true, stock: true, lowStockThreshold: true },
+    });
+    for (const product of products) {
+      if (product.stock > (product.lowStockThreshold ?? 5)) continue;
+      await createNotification({
+        storeId,
+        type: NotificationType.LOW_STOCK,
+        title: product.stock <= 0 ? "منتج خلص من المخزون" : "تنبيه مخزون منخفض",
+        message:
+          product.stock <= 0
+            ? `"${product.name}" خلص وبقى يظهر للعملاء "نفد المخزون".`
+            : `"${product.name}" فاضل منه ${product.stock} قطعة بس.`,
+        href: `/dashboard/products/${product.id}/edit`,
+        data: { productId: product.id, stock: product.stock },
+      });
+    }
+  } catch {
+    // silent — never break the main flow
+  }
 }
 
 export async function CreateOrderAction(
@@ -130,6 +162,8 @@ export async function CreateOrderAction(
             price: true,
             name: true,
             wholesaleOptions: true,
+            stock: true,
+            isActive: true,
           },
         },
       },
@@ -162,6 +196,20 @@ export async function CreateOrderAction(
   ]);
 
   if (cartItems.length === 0) throw new Error("Cart is empty");
+
+  // Never sell what isn't there: fit the cart to live stock and send the
+  // customer back to review it (the cart page explains what changed).
+  const cartQtyByProduct = new Map<string, number>();
+  for (const item of cartItems) {
+    cartQtyByProduct.set(item.productId, (cartQtyByProduct.get(item.productId) ?? 0) + item.quantity);
+  }
+  const cartHasStockProblem = cartItems.some(
+    (item) => !item.product.isActive || (cartQtyByProduct.get(item.productId) ?? 0) > item.product.stock,
+  );
+  if (cartHasStockProblem) {
+    await fitCartToStock(store.id, guestSessionId);
+    redirect(`/store/${store.slug}/cart?stock=changed`);
+  }
 
   const subtotal = cartItems.reduce((acc, item) => {
     const tiers = item.product.wholesaleOptions as
@@ -249,7 +297,9 @@ export async function CreateOrderAction(
 
   const total = Math.max(0, subtotal + shipping - discount);
 
-  const order = await prisma.$transaction(async (tx) => {
+  let order: { id: string };
+  try {
+  order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
         guestSessionId,
@@ -296,6 +346,14 @@ export async function CreateOrderAction(
       select: { id: true },
     });
 
+    // Rolls the whole order back if someone else bought the last pieces meanwhile.
+    await takeStockForOrder(tx, {
+      storeId: store.id,
+      orderId: created.id,
+      lines: cartItems.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+      note: `طلب أونلاين #${created.id.slice(0, 8).toUpperCase()}`,
+    });
+
     if (couponIdToUse) {
       await tx.coupon.update({
         where: { id: couponIdToUse },
@@ -316,6 +374,13 @@ export async function CreateOrderAction(
 
     return created;
   });
+  } catch (error) {
+    if (!(error instanceof OutOfStockError)) throw error;
+    await fitCartToStock(store.id, guestSessionId);
+    redirect(`/store/${store.slug}/cart?stock=changed`);
+  }
+
+  await notifyLowStock(store.id, [...cartQtyByProduct.keys()]);
 
   // Award loyalty points after order creation (reuse loyaltySettings + appliedLoyalty from above)
   try {
@@ -357,7 +422,7 @@ export async function CreateOrderAction(
     type: NotificationType.NEW_ORDER,
     title: "طلب جديد وصل",
     message: `وصلك طلب جديد من ${data.fullName} بقيمة ${formatPiastersAsEgp(total)}.`,
-    href: `/dashboard/orders?order=${order.id}`,
+    href: `/dashboard/orders/${order.id}`,
     data: {
       orderId: order.id,
       storeId: store.id,
@@ -515,9 +580,21 @@ export async function UpdateOrderStatusAction(
     throw new Error("Order not found");
   }
 
-  await prisma.order.update({
-    where: { id: orderId },
-    data: { status },
+  const wasCanceled = order.status === OrderStatus.CANCELED;
+  const willBeCanceled = status === OrderStatus.CANCELED;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.order.update({
+      where: { id: orderId },
+      data: { status },
+    });
+
+    // Canceled orders give their items back to stock; undoing a cancel takes them again.
+    if (!wasCanceled && willBeCanceled) {
+      await adjustStockForOrderStatus(tx, { storeId, orderId, direction: "restock", userId });
+    } else if (wasCanceled && !willBeCanceled) {
+      await adjustStockForOrderStatus(tx, { storeId, orderId, direction: "take", userId });
+    }
   });
 
   if (order.status !== status) {
@@ -527,7 +604,7 @@ export async function UpdateOrderStatusAction(
       type: NotificationType.ORDER_STATUS_CHANGED,
       title: "تم تحديث حالة الطلب",
       message: `طلب ${order.fullName} أصبح ${orderStatusLabels[status] ?? status}.`,
-      href: `/dashboard/orders?order=${order.id}`,
+      href: `/dashboard/orders/${order.id}`,
       data: {
         orderId: order.id,
         previousStatus: order.status,
@@ -539,6 +616,8 @@ export async function UpdateOrderStatusAction(
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/orders");
+  revalidatePath(`/dashboard/orders/${orderId}`);
+  revalidatePath("/dashboard/products");
   revalidatePath("/dashboard/notifications");
   revalidatePath(`/store/${store.slug}`);
 

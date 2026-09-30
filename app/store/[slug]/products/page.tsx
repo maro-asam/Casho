@@ -164,6 +164,7 @@ export default async function StoreProductsRoute({
         price: true,
         image: true,
         isFeatured: true,
+        stock: true,
         category: {
           select: {
             name: true,
@@ -190,6 +191,7 @@ export default async function StoreProductsRoute({
         price: true,
         image: true,
         isFeatured: true,
+        stock: true,
         category: {
           select: {
             name: true,

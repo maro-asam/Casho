@@ -43,8 +43,8 @@ const panelVariants: Variants = {
     transition: {
       duration: 0.25,
       ease: [0.22, 1, 0.36, 1],
-      staggerChildren: 0.04,
-      delayChildren: 0.03,
+      
+      
     },
   },
   exit: { opacity: 0, y: -8, scale: 0.98, transition: { duration: 0.15, ease: "easeOut" } },
@@ -84,7 +84,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
         variant="ghost"
         size="icon"
         onClick={() => setOpen(true)}
-        className="size-9 rounded-full border border-border/70 bg-background/70 shadow-xs hover:bg-muted/60 dark:border-white/10 sm:size-10"
+        className="size-9 rounded-lg border border-border bg-background hover:bg-muted"
         aria-label={t.navbar.openMenu}
         aria-expanded={open}
       >
@@ -105,14 +105,14 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
             <motion.div
               role="dialog"
               aria-modal="true"
-              className="fixed inset-x-2 top-2 z-90 flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-2xl sm:inset-x-3 sm:top-3 sm:max-h-[calc(100dvh-1.5rem)] border border-border/60 bg-background shadow-2xl dark:border-white/10"
+              className="fixed inset-x-2 top-2 z-90 flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-xl border border-border bg-background shadow-xl sm:inset-x-3 sm:top-3 sm:max-h-[calc(100dvh-1.5rem)]"
               variants={panelVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
               {/* Header */}
-              <div className="flex h-14 shrink-0 items-center justify-between border-b border-border/60 px-3 sm:px-4">
+              <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-3 sm:px-4">
                 <NavbarBrand onClick={close} />
 
                 <div className="flex items-center gap-0.5">
@@ -121,7 +121,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                     variant="ghost"
                     size="icon"
                     onClick={close}
-                    className="size-9 rounded-full"
+                    className="size-9 rounded-lg"
                     aria-label="Close"
                   >
                     <X className="size-4" />
@@ -141,17 +141,17 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                           onClick={close}
                           aria-current={active ? "page" : undefined}
                           className={cn(
-                            "group flex items-center justify-between rounded-xl px-3 py-3 text-[15px] font-medium transition-colors",
+                            "flex items-center justify-between rounded-lg px-3 py-3 text-[15px] font-medium transition-colors",
                             active
-                              ? "bg-primary/8 text-primary"
-                              : "text-foreground/80 hover:bg-foreground/5 hover:text-foreground",
+                              ? "bg-muted text-foreground"
+                              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                           )}
                         >
                           <span>{link.name}</span>
                           <Chevron
                             className={cn(
                               "size-4 transition-transform",
-                              active ? "text-primary/60" : "text-muted-foreground/50",
+                              active ? "text-foreground/60" : "text-muted-foreground/50",
                             )}
                           />
                         </Link>
@@ -160,13 +160,13 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                   })}
                 </nav>
 
-                <div className="my-3 h-px bg-border/60" />
+                <div className="my-3 h-px bg-border" />
 
                 {/* Account / CTA */}
                 <motion.div variants={itemVariants}>
                   {user ? (
                     <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5">
+                      <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5">
                         <UserAvatar name={displayName} email={user.email} className="size-9 text-xs" />
                         <div className="min-w-0 text-start">
                           <p className="truncate text-sm font-semibold">{displayName}</p>
@@ -175,14 +175,14 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <Button asChild variant="outline" className="h-11 gap-2 rounded-xl">
+                        <Button asChild variant="outline" className="h-11 gap-2 rounded-lg">
                           <Link href={buildStoreUrl("app")} onClick={close}>
                             <LayoutDashboard className="size-4" />
                             {t.navbar.dashboard}
                           </Link>
                         </Button>
                         {user.storeSlug ? (
-                          <Button asChild variant="outline" className="h-11 gap-2 rounded-xl">
+                          <Button asChild variant="outline" className="h-11 gap-2 rounded-lg">
                             <Link href={buildStoreUrl(user.storeSlug)} onClick={close}>
                               <Store className="size-4" />
                               {t.navbar.viewStore}
@@ -197,7 +197,7 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                         <Button
                           type="submit"
                           variant="ghost"
-                          className="h-11 w-full gap-2 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          className="h-11 w-full gap-2 rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive"
                         >
                           <LogOut className="size-4" />
                           {t.navbar.logout}
@@ -206,12 +206,12 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
-                      <Button asChild variant="outline" className="h-11 rounded-xl text-sm">
+                      <Button asChild variant="outline" className="h-11 rounded-lg text-sm">
                         <Link href="/login" onClick={close}>
                           {t.navbar.login}
                         </Link>
                       </Button>
-                      <Button asChild className="group h-11 gap-1.5 rounded-xl text-sm font-semibold shadow-sm shadow-primary/25">
+                      <Button asChild className="h-11 gap-1.5 rounded-lg text-sm font-semibold">
                         <Link href="/register" onClick={close}>
                           {t.navbar.startFree}
                           <Arrow className="size-4" />

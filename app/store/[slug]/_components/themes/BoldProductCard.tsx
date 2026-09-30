@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import AddToCartButton from "../../cart/_components/AddToCartButton";
+import { SoldOutOverlay, isSoldOut } from "../shared/SoldOutOverlay";
 
 type BoldProductCardProps = {
   product: {
@@ -14,6 +15,7 @@ type BoldProductCardProps = {
     compareAtPrice?: number | null;
     image: string;
     isFeatured?: boolean;
+    stock?: number;
     category?: { name: string; slug: string } | null;
   };
   storeSlug: string;
@@ -31,6 +33,7 @@ export default function BoldProductCard({ product, storeSlug }: BoldProductCardP
     <div className="group flex flex-col" dir="rtl">
       {/* Image — aspect ratio from merchant layout setting */}
       <Link href={href} className="relative block overflow-hidden" style={{ aspectRatio: "var(--store-img-ratio, 4 / 5)" }}>
+        {isSoldOut(product) && <SoldOutOverlay />}
         <Image
           src={product.image || "/images/product-placeholder.png"}
           alt={product.name}
@@ -66,6 +69,7 @@ export default function BoldProductCard({ product, storeSlug }: BoldProductCardP
             size="sm"
             storeSlug={storeSlug}
             productId={product.id}
+            soldOut={isSoldOut(product)}
             className="w-full border-0 bg-black/90 text-xs font-semibold uppercase tracking-widest text-white hover:bg-black"
             style={{ borderRadius: "var(--store-btn-radius, 0px)" }}
           />

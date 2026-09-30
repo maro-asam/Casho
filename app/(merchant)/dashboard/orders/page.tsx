@@ -1,431 +1,191 @@
 import Link from "next/link";
-import { Metadata } from "next";
-import {
-  FolderOpen,
-  ShoppingCart,
-  Store,
-  Phone,
-  CreditCard,
-  Eye,
-  ChevronRight,
-  ChevronLeft,
-  Clock3,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import type { Metadata } from "next";
+import type { OrderStatus } from "@prisma/client";
+import { SearchX, ShoppingCart, Store } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@prisma/client";
-
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import { OrderStatusSelect } from "./_components/order-status-select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  SelectFilter,
+  readPage,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
+import { prisma } from "@/lib/prisma";
+import { ExportOrdersButton } from "./_components/export-orders-button";
+import { buildOrderWhere, parseOrderFilters } from "./_components/order-filters";
+import { ORDER_CHANNELS, ORDER_STATUSES } from "./_components/order-meta";
+import { OrdersTable, type OrderRow } from "./_components/orders-table";
 
 export const metadata: Metadata = {
   title: "الطلبات",
 };
 
-const PAGE_SIZE = 10;
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 0,
-  }).format(price / 100);
-}
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("ar-EG", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(date));
-}
-
-function getStatusLabel(status: OrderStatus) {
-  const labels: Record<OrderStatus, string> = {
-    PENDING: "معلق",
-    PAID: "مدفوع",
-    SHIPPED: "تم الشحن",
-    DELIVERED: "وصل",
-    CANCELED: "ملغي",
-  };
-  return labels[status];
-}
-
-function getPaymentMethodLabel(method: string) {
-  switch (method) {
-    case "cash_on_delivery":
-      return "كاش عند الاستلام";
-    case "instapay":
-      return "إنستاباي";
-    case "vodafone_cash":
-      return "فودافون كاش";
-    default:
-      return method;
-  }
-}
-
-function getStatusClassName(status: OrderStatus) {
-  const classes: Record<OrderStatus, string> = {
-    PENDING:
-      "bg-amber-500/10 text-amber-700 hover:bg-amber-500/10 dark:text-amber-300",
-    PAID: "bg-sky-500/10 text-sky-700 hover:bg-sky-500/10 dark:text-sky-300",
-    SHIPPED:
-      "bg-violet-500/10 text-violet-700 hover:bg-violet-500/10 dark:text-violet-300",
-    DELIVERED:
-      "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300",
-    CANCELED:
-      "bg-rose-500/10 text-rose-700 hover:bg-rose-500/10 dark:text-rose-300",
-  };
-  return classes[status];
-}
+const PAGE_SIZE = 20;
+const BASE_PATH = "/orders";
 
 type OrdersRouteProps = {
-  searchParams?: Promise<{ page?: string }>;
+  searchParams?: Promise<SearchParamsRecord>;
 };
 
 const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
   const userId = await requireUserId();
-  const resolvedSearchParams = await searchParams;
-  const currentPage = Math.max(1, Number(resolvedSearchParams?.page) || 1);
-  const skip = (currentPage - 1) * PAGE_SIZE;
+  const params = await searchParams;
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, name: true },
+    select: { id: true },
   });
 
   if (!store) {
     return (
-      <div className="p-6" dir="rtl">
-        <Card className="border-dashed border-border/40">
-          <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
-              <Store className="size-6" />
-            </div>
-            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              يجب إنشاء متجر أولًا حتى تتمكن من متابعة الطلبات وإدارتها.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول عشان تستقبل الطلبات وتتابعها من هنا."
+        className="rounded-xl border border-dashed border-border"
+      />
     );
   }
 
-  const [totalOrders, pendingCount, deliveredCount, canceledCount, orders] =
-    await Promise.all([
-      prisma.order.count({ where: { storeId: store.id } }),
-      prisma.order.count({ where: { storeId: store.id, status: "PENDING" } }),
-      prisma.order.count({ where: { storeId: store.id, status: "DELIVERED" } }),
-      prisma.order.count({ where: { storeId: store.id, status: "CANCELED" } }),
-      prisma.order.findMany({
-        where: { storeId: store.id },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: PAGE_SIZE,
-        include: {
-          items: {
-            include: {
-              product: { select: { name: true } },
-            },
-          },
-        },
-      }),
-    ]);
+  // ── Filters (all in the URL so every view is shareable) ──────────────
+  const filters = parseOrderFilters(params);
+  const { q, status, source } = filters;
+  const baseWhere = buildOrderWhere(store.id, filters, { withStatus: false });
 
-  const totalPages = Math.ceil(totalOrders / PAGE_SIZE);
+  // Tab counts respect search + channel, so they always match what the tab shows.
+  const statusCounts = await prisma.order.groupBy({
+    by: ["status"],
+    where: baseWhere,
+    _count: { _all: true },
+  });
+  const countFor = (s: OrderStatus) => statusCounts.find((c) => c.status === s)?._count._all ?? 0;
+  const allCount = statusCounts.reduce((sum, c) => sum + c._count._all, 0);
+  const total = status ? countFor(status) : allCount;
 
-  const statCards = [
-    {
-      label: "إجمالي الطلبات",
-      value: totalOrders,
-      icon: ShoppingCart,
-      className: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-    },
-    {
-      label: "معلق",
-      value: pendingCount,
-      icon: Clock3,
-      className: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    },
-    {
-      label: "مكتمل",
-      value: deliveredCount,
-      icon: CheckCircle2,
-      className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    },
-    {
-      label: "ملغي",
-      value: canceledCount,
-      icon: XCircle,
-      className: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-    },
-  ];
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(readPage(params), totalPages);
+
+  const [orders, storeHasOrders] = await Promise.all([
+    prisma.order.findMany({
+      where: buildOrderWhere(store.id, filters),
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      select: {
+        id: true,
+        fullName: true,
+        phone: true,
+        status: true,
+        source: true,
+        total: true,
+        paymentMethod: true,
+        createdAt: true,
+        items: { select: { quantity: true, product: { select: { name: true } } } },
+      },
+    }),
+    // Only needed to tell "no orders yet" apart from "no matches".
+    allCount > 0 ? Promise.resolve(true) : prisma.order.count({ where: { storeId: store.id } }).then((n) => n > 0),
+  ]);
+
+  const rows: OrderRow[] = orders.map((order) => ({
+    id: order.id,
+    fullName: order.fullName,
+    phone: order.phone,
+    status: order.status,
+    source: order.source,
+    total: order.total,
+    paymentMethod: order.paymentMethod,
+    createdAt: order.createdAt,
+    itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
+    firstProduct: order.items[0]?.product.name ?? null,
+    otherProducts: Math.max(0, order.items.length - 1),
+  }));
+
+  const hasFilters = Boolean(q || status || source);
 
   return (
     <div className="space-y-6" dir="rtl">
-      <DashboardSectionHeader
-        icon={ShoppingCart}
+      <PageHeader
         title="الطلبات"
-        badge={totalOrders}
-        description={
-          <>
-            متابعة وإدارة طلبات متجر{" "}
-            <span className="font-semibold text-foreground">{store.name}</span>
-          </>
-        }
-        actionLabel="تصدير CSV"
-        actionHref="/api/export/orders"
+        description="تابع طلبات المتجر الأونلاين والكاشير وغيّر حالتها من مكان واحد."
+        actions={<ExportOrdersButton />}
       />
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card
-              key={stat.label}
-              className="border-border  shadow-sm"
-            >
-              <div className="p-5">
-                <div
-                  className={cn(
-                    "mb-3 grid size-9 place-items-center rounded-xl",
-                    stat.className,
-                  )}
-                >
-                  <Icon className="size-4.5" />
-                </div>
-                <p className="text-2xl font-bold">
-                  {new Intl.NumberFormat("ar-EG").format(stat.value)}
-                </p>
-                <p className="mt-1 text-xs font-medium text-muted-foreground">
-                  {stat.label}
-                </p>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {orders.length === 0 ? (
-        <Card className=" border-dashed border-border/40 shadow-sm">
-          <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
-            <div className="mb-4 grid size-16 place-items-center rounded-2xl bg-muted text-muted-foreground">
-              <FolderOpen className="size-7" />
-            </div>
-            <h2 className="text-xl font-bold">لا توجد طلبات حتى الآن</h2>
-            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              لما العملاء يبدأوا يطلبوا من المتجر، الطلبات هتظهر هنا وتقدر
-              تتابع حالتها بسهولة.
-            </p>
-          </CardContent>
-        </Card>
+      {!storeHasOrders ? (
+        <div className="rounded-xl border border-dashed border-border">
+          <EmptyState
+            icon={ShoppingCart}
+            title="لسه مفيش طلبات"
+            description="أول ما عميل يطلب من متجرك أو تبيع من الكاشير، الطلب هيظهر هنا وتقدر تتابعه لحد ما يتسلّم."
+            action={
+              <Button asChild variant="outline" size="sm">
+                <Link href="/pos">افتح الكاشير</Link>
+              </Button>
+            }
+          />
+        </div>
       ) : (
-        <>
-          <Card className="border-border shadow-sm ">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border/30 hover:bg-transparent">
-                      <TableHead className="ps-6 text-right text-xs font-medium text-muted-foreground">
-                        الطلب
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        العميل
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        المنتجات
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        المبلغ
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        الحالة
-                      </TableHead>
-                      <TableHead className="pe-6" />
-                    </TableRow>
-                  </TableHeader>
+        <div className="space-y-4">
+          <FilterTabs
+            label="حالة الطلب"
+            param="status"
+            basePath={BASE_PATH}
+            searchParams={params}
+            tabs={[
+              { label: "الكل", count: allCount },
+              ...ORDER_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
+            ]}
+          />
 
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow
-                        key={order.id}
-                        className="border-border/30 transition-colors hover:bg-muted/20"
-                      >
-                        <TableCell className="py-4 ps-6">
-                          <Link
-                            href={`/dashboard/orders/${order.id}`}
-                            className="text-sm font-bold text-primary hover:underline"
-                          >
-                            #{order.id.slice(0, 8)}
-                          </Link>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {formatDate(order.createdAt)}
-                          </p>
-                        </TableCell>
-
-                        <TableCell className="py-4">
-                          <p className="text-sm font-medium">{order.fullName}</p>
-                          <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                            <Phone className="size-3 shrink-0" />
-                            <span>{order.phone}</span>
-                          </div>
-                        </TableCell>
-
-                        <TableCell className="py-4">
-                          <p className="text-sm font-medium">
-                            {order.items.length} منتج
-                          </p>
-                          {order.items[0] && (
-                            <p className="mt-0.5 max-w-44 truncate text-xs text-muted-foreground">
-                              {order.items[0].product.name}
-                              {order.items.length > 1 &&
-                                ` +${order.items.length - 1}`}
-                            </p>
-                          )}
-                        </TableCell>
-
-                        <TableCell className="py-4">
-                          <p className="text-sm font-bold">
-                            {formatPrice(order.total)}
-                          </p>
-                          <Badge
-                            variant="outline"
-                            className="mt-1 gap-1 rounded-full border-border px-2 py-0 text-[11px]"
-                          >
-                            <CreditCard className="size-2.5" />
-                            {getPaymentMethodLabel(order.paymentMethod)}
-                          </Badge>
-                        </TableCell>
-
-                        <TableCell className="py-4">
-                          <div className="space-y-2">
-                            <Badge
-                              className={cn(
-                                "rounded-full border-0 text-xs",
-                                getStatusClassName(order.status),
-                              )}
-                            >
-                              {getStatusLabel(order.status)}
-                            </Badge>
-                            <div>
-                              <OrderStatusSelect
-                                orderId={order.id}
-                                storeId={store.id}
-                                currentStatus={order.status}
-                              />
-                            </div>
-                          </div>
-                        </TableCell>
-
-                        <TableCell className="pe-6 py-4">
-                          <Button
-                            asChild
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-xl"
-                          >
-                            <Link href={`/dashboard/orders/${order.id}`}>
-                              <Eye className="size-4" />
-                            </Link>
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-
-          {totalPages > 1 && (
-            <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-border/30 bg-background px-5 py-4 sm:flex-row">
-              <p className="text-sm text-muted-foreground">
-                الصفحة{" "}
-                <span className="font-bold text-foreground">{currentPage}</span>{" "}
-                من{" "}
-                <span className="font-bold text-foreground">{totalPages}</span>
-              </p>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage <= 1}
-                  className="rounded-xl"
-                >
-                  <Link
-                    href={
-                      currentPage > 1
-                        ? `/dashboard/orders?page=${currentPage - 1}`
-                        : "#"
-                    }
-                  >
-                    <ChevronRight className="ml-1 size-4" />
-                    السابق
-                  </Link>
-                </Button>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }).map((_, index) => {
-                    const page = index + 1;
-                    const isActive = page === currentPage;
-                    return (
-                      <Button
-                        key={page}
-                        asChild
-                        variant={isActive ? "default" : "ghost"}
-                        size="sm"
-                        className="h-8 w-8 rounded-xl p-0"
-                      >
-                        <Link href={`/dashboard/orders?page=${page}`}>
-                          {page}
-                        </Link>
-                      </Button>
-                    );
-                  })}
-                </div>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage >= totalPages}
-                  className="rounded-xl"
-                >
-                  <Link
-                    href={
-                      currentPage < totalPages
-                        ? `/dashboard/orders?page=${currentPage + 1}`
-                        : "#"
-                    }
-                  >
-                    التالي
-                    <ChevronLeft className="mr-1 size-4" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          )}
-        </>
+          <DataCard
+            toolbar={
+              <>
+                <SearchInput placeholder="ابحث بالاسم أو الموبايل أو رقم الطلب" />
+                <SelectFilter
+                  label="القناة"
+                  param="source"
+                  allLabel="كل القنوات"
+                  options={Object.entries(ORDER_CHANNELS).map(([value, { label }]) => ({ value, label }))}
+                />
+              </>
+            }
+            footer={
+              total > 0 ? (
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={total}
+                  basePath={BASE_PATH}
+                  searchParams={params}
+                  noun="طلب"
+                />
+              ) : undefined
+            }
+          >
+            {rows.length > 0 ? (
+              <OrdersTable orders={rows} storeId={store.id} />
+            ) : (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش طلبات بالفلاتر دي"
+                description={q ? `مفيش نتايج لـ "${q}". جرّب اسم أو رقم تاني.` : "جرّب حالة أو قناة تانية."}
+                action={
+                  hasFilters && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                    </Button>
+                  )
+                }
+              />
+            )}
+          </DataCard>
+        </div>
       )}
     </div>
   );

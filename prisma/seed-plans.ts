@@ -4,14 +4,14 @@
 //
 // Run with: npx tsx prisma/seed-plans.ts
 //
-// IMPORTANT: the exact Silver/Gold/Platinum prices below are PLACEHOLDERS.
-// The handwritten spec gave ambiguous price pairs (300/450, 500/600, 700/800
-// EGP) that could be monthly/yearly or old/new pricing — we could not
-// confirm which, so we read them as "new price / old price" (a discount)
-// and derived a placeholder yearly price (10x monthly, i.e. 2 months free,
-// a common SaaS convention). Every Plan row has `pricingConfigured: false`
-// until the founder confirms real numbers in the admin Plan editor —
-// nothing here should be treated as final.
+// IMPORTANT: annual prices are confirmed by the founder — Silver 4899 EGP,
+// Gold 6799 EGP, Platinum 9099 EGP. Monthly prices are still PLACEHOLDERS
+// (the handwritten spec gave ambiguous price pairs — 300/450, 500/600,
+// 700/800 EGP — that could be monthly/yearly or old/new pricing; we read
+// them as "new price / old price" and kept the higher number as
+// originalMonthlyPrice for a discount badge). Every Plan row has
+// `pricingConfigured: false` until the founder also confirms the monthly
+// numbers in the admin Plan editor.
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { FeatureType, PrismaClient } from "@prisma/client";
@@ -139,15 +139,15 @@ const PLANS: PlanSeed[] = [
     slug: "silver",
     name: "سيلفر",
     description: "الباقة الأساسية لبدء متجرك الإلكتروني.",
-    monthlyPrice: 30_000, // 300 EGP placeholder
-    yearlyPrice: 300_000, // 3000 EGP placeholder (10x monthly)
+    monthlyPrice: 30_000, // 300 EGP placeholder — still unconfirmed, see pricingConfigured
+    yearlyPrice: 489_900, // 4899 EGP — confirmed by founder
     originalMonthlyPrice: 45_000, // 450 EGP — the other handwritten reading
     discountPercent: 33,
     sortOrder: 1,
     features: {
-      [FEATURE_KEYS.PRODUCTS]: { enabled: true, limitValue: 100 },
-      [FEATURE_KEYS.DISCOUNT_CODES]: { enabled: true, limitValue: 5 },
-      [FEATURE_KEYS.TEAM_MEMBERS]: { enabled: true, limitValue: 0 },
+      [FEATURE_KEYS.PRODUCTS]: { enabled: true, isUnlimited: true },
+      [FEATURE_KEYS.DISCOUNT_CODES]: { enabled: true, limitValue: 3 },
+      [FEATURE_KEYS.TEAM_MEMBERS]: { enabled: true, limitValue: 1 },
       [FEATURE_KEYS.BUNDLES]: { enabled: false },
       [FEATURE_KEYS.CUSTOM_DOMAIN]: { enabled: false },
       [FEATURE_KEYS.ORDER_EXPORT]: { enabled: false },
@@ -174,14 +174,14 @@ const PLANS: PlanSeed[] = [
     slug: "gold",
     name: "جولد",
     description: "للمتاجر النامية التي تحتاج مميزات وتكاملات أكثر.",
-    monthlyPrice: 50_000, // 500 EGP placeholder
-    yearlyPrice: 500_000, // 5000 EGP placeholder
+    monthlyPrice: 50_000, // 500 EGP placeholder — still unconfirmed, see pricingConfigured
+    yearlyPrice: 679_900, // 6799 EGP — confirmed by founder
     originalMonthlyPrice: 60_000, // 600 EGP
     discountPercent: 17,
     sortOrder: 2,
     features: {
-      [FEATURE_KEYS.PRODUCTS]: { enabled: true, limitValue: 1000 },
-      [FEATURE_KEYS.DISCOUNT_CODES]: { enabled: true, limitValue: 50 },
+      [FEATURE_KEYS.PRODUCTS]: { enabled: true, isUnlimited: true },
+      [FEATURE_KEYS.DISCOUNT_CODES]: { enabled: true, limitValue: 10 },
       [FEATURE_KEYS.TEAM_MEMBERS]: { enabled: true, limitValue: 3 },
       [FEATURE_KEYS.BUNDLES]: { enabled: true, limitValue: 10 },
       [FEATURE_KEYS.CUSTOM_DOMAIN]: { enabled: true },
@@ -209,8 +209,8 @@ const PLANS: PlanSeed[] = [
     slug: "platinum",
     name: "بلاتينيوم",
     description: "كل مميزات كاشو بدون حدود، مع دعم ذو أولوية.",
-    monthlyPrice: 70_000, // 700 EGP placeholder
-    yearlyPrice: 700_000, // 7000 EGP placeholder
+    monthlyPrice: 70_000, // 700 EGP placeholder — still unconfirmed, see pricingConfigured
+    yearlyPrice: 909_900, // 9099 EGP — confirmed by founder
     originalMonthlyPrice: 80_000, // 800 EGP
     discountPercent: 13,
     sortOrder: 3,

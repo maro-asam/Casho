@@ -193,6 +193,7 @@ export default async function ProductDetailsRoute({
         compareAtPrice: true,
         image: true,
         isFeatured: true,
+        stock: true,
         category: { select: { name: true, slug: true } },
       },
     }),

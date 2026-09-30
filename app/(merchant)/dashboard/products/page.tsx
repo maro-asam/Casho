@@ -1,153 +1,89 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { Metadata } from "next";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  FolderOpen,
-  Package,
-  Plus,
-  Star,
-  Store,
-  Upload,
-} from "lucide-react";
+import type { Metadata } from "next";
+import { Package, Plus, SearchX, Store, Upload } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import ProductsTable from "./_components/ProductsTable";
-import ProductFilters from "./_components/ProductFilters";
+import {
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  SelectFilter,
+  readPage,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
+import { prisma } from "@/lib/prisma";
+import { baseProductWhere, parseProductFilters, productWhere, viewWhere } from "./_components/product-filters";
+import { ProductsTable, type ProductRow } from "./_components/products-table";
 
 export const metadata: Metadata = {
   title: "المنتجات",
   description: "إدارة منتجات المتجر وعرضها وتعديلها وحذفها",
 };
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 20;
+const BASE_PATH = "/products";
 
-type StatCardProps = {
-  icon: React.ElementType;
-  label: string;
-  value: number;
-  variant: "default" | "success" | "warning";
+type ProductsRouteProps = {
+  searchParams?: Promise<SearchParamsRecord>;
 };
 
-function StatCard({ icon: Icon, label, value, variant }: StatCardProps) {
-  const iconClass = {
-    default: "bg-muted text-muted-foreground",
-    success:
-      "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400",
-    warning:
-      "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400",
-  }[variant];
-
-  return (
-    <Card className="rounded-xl shadow-sm">
-      <CardContent className="flex items-center gap-3 p-4">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
-        >
-          <Icon className="size-4.5" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-xl font-bold leading-none">{value}</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {label}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-type MerchantProductsRouteProps = {
-  searchParams?: Promise<{
-    page?: string;
-    q?: string;
-    category?: string;
-    status?: string;
-  }>;
-};
-
-const MerchantProductsRoute = async ({
-  searchParams,
-}: MerchantProductsRouteProps) => {
+export default async function ProductsRoute({ searchParams }: ProductsRouteProps) {
   const userId = await requireUserId();
-  const resolved = await searchParams;
-
-  const currentPage = Math.max(Number(resolved?.page || "1"), 1);
-  const q = resolved?.q?.trim() ?? "";
-  const categoryFilter = resolved?.category?.trim() ?? "";
-  const statusFilter = resolved?.status ?? "";
+  const params = await searchParams;
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, name: true },
+    select: { id: true, slug: true },
   });
 
   if (!store) {
     return (
-      <div className="p-6" dir="rtl">
-        <Card className="rounded-xl border-dashed">
-          <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-              <Store className="size-6 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              يجب إنشاء متجر أولًا حتى تتمكن من إدارة المنتجات وإضافتها.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول عشان تضيف منتجاتك وتبدأ تبيع."
+        className="rounded-xl border border-dashed border-border"
+      />
     );
   }
 
-  const [totalProducts, activeCount, outOfStockCount, featuredCount, categories] =
-    await Promise.all([
-      prisma.product.count({ where: { storeId: store.id } }),
-      prisma.product.count({ where: { storeId: store.id, isActive: true } }),
-      prisma.product.count({
-        where: { storeId: store.id, stock: 0, isActive: true },
-      }),
-      prisma.product.count({ where: { storeId: store.id, isFeatured: true } }),
-      prisma.category.findMany({
-        where: { storeId: store.id },
-        select: { id: true, name: true },
-        orderBy: { name: "asc" },
-      }),
-    ]);
+  const filters = parseProductFilters(params);
+  const base = baseProductWhere(store.id, filters);
 
-  const where = {
-    storeId: store.id,
-    ...(q && { name: { contains: q, mode: "insensitive" as const } }),
-    ...(categoryFilter && { categoryId: categoryFilter }),
-    ...(statusFilter === "active"
-      ? { isActive: true }
-      : statusFilter === "inactive"
-        ? { isActive: false }
-        : {}),
-  };
+  // Tab counts share search + category with the list, so each number matches its tab.
+  const [allCount, activeCount, hiddenCount, lowCount, outCount, categories, storeProductCount] = await Promise.all([
+    prisma.product.count({ where: base }),
+    prisma.product.count({ where: { AND: [base, viewWhere("active")] } }),
+    prisma.product.count({ where: { AND: [base, viewWhere("hidden")] } }),
+    prisma.product.count({ where: { AND: [base, viewWhere("low")] } }),
+    prisma.product.count({ where: { AND: [base, viewWhere("out")] } }),
+    prisma.category.findMany({
+      where: { storeId: store.id },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.product.count({ where: { storeId: store.id } }),
+  ]);
 
-  const filteredTotal = await prisma.product.count({ where });
-  const totalPages = Math.ceil(filteredTotal / PAGE_SIZE);
-  const safePage = Math.min(currentPage, Math.max(totalPages, 1));
-  const skip = (safePage - 1) * PAGE_SIZE;
+  const viewCounts = { active: activeCount, hidden: hiddenCount, low: lowCount, out: outCount };
+  const listTotal = filters.view ? viewCounts[filters.view] : allCount;
+  const totalPages = Math.max(1, Math.ceil(listTotal / PAGE_SIZE));
+  const page = Math.min(readPage(params), totalPages);
 
   const products = await prisma.product.findMany({
-    where,
+    where: productWhere(store.id, filters),
     orderBy: { createdAt: "desc" },
-    skip,
+    skip: (page - 1) * PAGE_SIZE,
     take: PAGE_SIZE,
     select: {
       id: true,
       name: true,
       slug: true,
+      sku: true,
       price: true,
       compareAtPrice: true,
       stock: true,
@@ -160,196 +96,146 @@ const MerchantProductsRoute = async ({
     },
   });
 
-  const buildPageUrl = (page: number) => {
-    const params = new URLSearchParams();
-    if (q) params.set("q", q);
-    if (categoryFilter) params.set("category", categoryFilter);
-    if (statusFilter) params.set("status", statusFilter);
-    params.set("page", String(page));
-    return `/dashboard/products?${params.toString()}`;
-  };
+  // Units sold (excluding canceled orders) for just the products on this page.
+  const sold = products.length
+    ? await prisma.orderItem.groupBy({
+        by: ["productId"],
+        where: { productId: { in: products.map((p) => p.id) }, order: { status: { not: "CANCELED" } } },
+        _sum: { quantity: true },
+      })
+    : [];
+  const soldById = new Map(sold.map((s) => [s.productId, s._sum.quantity ?? 0]));
+
+  const rows: ProductRow[] = products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    sku: product.sku,
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    stock: product.stock,
+    lowStockThreshold: product.lowStockThreshold,
+    image: product.image,
+    isActive: product.isActive,
+    isFeatured: product.isFeatured,
+    type: product.type,
+    categoryName: product.category.name,
+    soldCount: soldById.get(product.id) ?? 0,
+  }));
+
+  const hasFilters = Boolean(filters.q || filters.category || filters.view);
 
   return (
     <div className="space-y-6" dir="rtl">
-      <DashboardSectionHeader
-        icon={Package}
+      <PageHeader
         title="المنتجات"
-        badge={totalProducts}
-        description={
+        description="كل منتجاتك في مكان واحد: الأسعار، المخزون، وإيه اللي ظاهر في المتجر."
+        actions={
           <>
-            إدارة منتجات متجر{" "}
-            <span className="font-semibold text-foreground">{store.name}</span>
-          </>
-        }
-        actionLabel="إضافة منتج"
-        actionHref="/products/new"
-      />
-
-      {totalProducts > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard
-            icon={Package}
-            label="إجمالي المنتجات"
-            value={totalProducts}
-            variant="default"
-          />
-          <StatCard
-            icon={CheckCircle2}
-            label="منتجات نشطة"
-            value={activeCount}
-            variant="success"
-          />
-          <StatCard
-            icon={AlertTriangle}
-            label="نفاد المخزون"
-            value={outOfStockCount}
-            variant={outOfStockCount > 0 ? "warning" : "default"}
-          />
-          <StatCard
-            icon={Star}
-            label="منتجات مميزة"
-            value={featuredCount}
-            variant="default"
-          />
-        </div>
-      )}
-
-      {totalProducts === 0 ? (
-        <Card className="rounded-xl border-dashed shadow-sm">
-          <CardContent className="flex min-h-90 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
-              <FolderOpen className="size-7 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-semibold">لا توجد منتجات بعد</h2>
-            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              ابدأ بإضافة أول منتج داخل متجرك ليظهر للعملاء وتبدأ في إدارة
-              منتجاتك بشكل أفضل.
-            </p>
-            <Button asChild className="mt-6 rounded-xl">
-              <Link href="/products/new">
-                <Plus className="ms-2 size-4" />
-                إضافة أول منتج
+            <Button asChild variant="outline" className="h-9 gap-1.5">
+              <Link href="/products/import">
+                <Upload className="size-4" />
+                استيراد
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+            <Button asChild className="h-9 gap-1.5">
+              <Link href="/products/new">
+                <Plus className="size-4" />
+                إضافة منتج
+              </Link>
+            </Button>
+          </>
+        }
+      />
+
+      {storeProductCount === 0 ? (
+        <div className="rounded-xl border border-dashed border-border">
+          <EmptyState
+            icon={Package}
+            title="لسه مضفتش منتجات"
+            description="ضيف أول منتج بالصور والسعر والكمية، أو استورد منتجاتك مرة واحدة من ملف Excel أو CSV."
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button asChild variant="outline" size="sm" className="gap-1.5">
+                  <Link href="/products/import">
+                    <Upload className="size-4" />
+                    استيراد من ملف
+                  </Link>
+                </Button>
+                <Button asChild size="sm" className="gap-1.5">
+                  <Link href="/products/new">
+                    <Plus className="size-4" />
+                    إضافة أول منتج
+                  </Link>
+                </Button>
+              </div>
+            }
+          />
+        </div>
       ) : (
-        <>
-          <Suspense
-            fallback={
-              <div className="h-10 animate-pulse rounded-xl bg-muted" />
+        <div className="space-y-4">
+          <FilterTabs
+            label="عرض المنتجات"
+            param="view"
+            basePath={BASE_PATH}
+            searchParams={params}
+            tabs={[
+              { label: "الكل", count: allCount },
+              { label: "ظاهر في المتجر", value: "active", count: activeCount },
+              { label: "مخفي", value: "hidden", count: hiddenCount },
+              { label: "مخزون قليل", value: "low", count: lowCount },
+              { label: "نفد", value: "out", count: outCount },
+            ]}
+          />
+
+          <DataCard
+            toolbar={
+              <>
+                <SearchInput placeholder="ابحث بالاسم أو SKU أو الباركود" />
+                {categories.length > 0 && (
+                  <SelectFilter
+                    label="التصنيف"
+                    param="category"
+                    allLabel="كل التصنيفات"
+                    options={categories.map((c) => ({ value: c.id, label: c.name }))}
+                  />
+                )}
+              </>
+            }
+            footer={
+              listTotal > 0 ? (
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={listTotal}
+                  basePath={BASE_PATH}
+                  searchParams={params}
+                  noun="منتج"
+                />
+              ) : undefined
             }
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <ProductFilters categories={categories} />
-              <Button asChild variant="outline" size="sm" className="rounded-xl gap-1.5">
-                <Link href="/dashboard/products/import">
-                  <Upload className="size-4" />
-                  استيراد CSV
-                </Link>
-              </Button>
-            </div>
-          </Suspense>
-
-          {products.length === 0 ? (
-            <Card className="rounded-xl border-dashed">
-              <CardContent className="flex min-h-52 flex-col items-center justify-center text-center">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                  <FolderOpen className="size-5 text-muted-foreground" />
-                </div>
-                <h3 className="font-semibold">لا توجد نتائج</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  جرب تغيير الفلاتر أو كلمة البحث
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <ProductsTable products={products} />
-
-              {totalPages > 1 && (
-                <div className="flex flex-col gap-3 rounded-xl border bg-background p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    عرض{" "}
-                    <span className="font-medium text-foreground">
-                      {skip + 1}–{Math.min(skip + PAGE_SIZE, filteredTotal)}
-                    </span>{" "}
-                    من{" "}
-                    <span className="font-medium text-foreground">
-                      {filteredTotal}
-                    </span>{" "}
-                    منتج
-                  </p>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className="rounded-xl"
-                      disabled={safePage <= 1}
-                    >
-                      <Link
-                        href={buildPageUrl(safePage - 1)}
-                        aria-disabled={safePage <= 1}
-                        className={
-                          safePage <= 1 ? "pointer-events-none opacity-50" : ""
-                        }
-                      >
-                        <ChevronRight className="me-1 size-4" />
-                        السابق
-                      </Link>
+            {rows.length > 0 ? (
+              <ProductsTable products={rows} storeSlug={store.slug} />
+            ) : (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش منتجات بالفلاتر دي"
+                description={
+                  filters.q ? `مفيش نتايج لـ "${filters.q}". جرّب اسم أو SKU تاني.` : "جرّب تبويب أو تصنيف تاني."
+                }
+                action={
+                  hasFilters && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
                     </Button>
-
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(totalPages, 7) }).map(
-                        (_, i) => {
-                          const page = i + 1;
-                          const isActive = page === safePage;
-                          return (
-                            <Button
-                              key={page}
-                              asChild
-                              variant={isActive ? "default" : "outline"}
-                              size="icon"
-                              className="h-8 w-8 rounded-lg text-xs"
-                            >
-                              <Link href={buildPageUrl(page)}>{page}</Link>
-                            </Button>
-                          );
-                        },
-                      )}
-                    </div>
-
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className="rounded-xl"
-                      disabled={safePage >= totalPages}
-                    >
-                      <Link
-                        href={buildPageUrl(safePage + 1)}
-                        aria-disabled={safePage >= totalPages}
-                        className={
-                          safePage >= totalPages
-                            ? "pointer-events-none opacity-50"
-                            : ""
-                        }
-                      >
-                        التالي
-                        <ChevronLeft className="ms-1 size-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </>
+                  )
+                }
+              />
+            )}
+          </DataCard>
+        </div>
       )}
     </div>
   );
-};
-
-export default MerchantProductsRoute;
+}

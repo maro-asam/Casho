@@ -1,0 +1,144 @@
+import Link from "next/link";
+import type { OrderSource, OrderStatus } from "@prisma/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ORDER_CHANNELS, paymentMethodLabel } from "./order-meta";
+import { OrderStatusSelect } from "./order-status-select";
+
+export type OrderRow = {
+  id: string;
+  fullName: string;
+  phone: string;
+  status: OrderStatus;
+  source: OrderSource;
+  total: number;
+  paymentMethod: string;
+  createdAt: Date;
+  itemCount: number;
+  firstProduct: string | null;
+  otherProducts: number;
+};
+
+const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
+const nf = new Intl.NumberFormat("ar-EG");
+const dateFormat = new Intl.DateTimeFormat("ar-EG", {
+  timeZone: "Africa/Cairo",
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+const orderHref = (id: string) => `/orders/${id}`;
+const shortId = (id: string) => `#${id.slice(0, 8)}`;
+
+function Channel({ source }: { source: OrderSource }) {
+  const { label, icon: Icon } = ORDER_CHANNELS[source];
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+      <Icon className="size-3.5" />
+      {label}
+    </span>
+  );
+}
+
+function Products({ order }: { order: OrderRow }) {
+  return (
+    <div className="min-w-0">
+      <p className="max-w-52 truncate text-sm">
+        {order.firstProduct ?? "—"}
+        {order.otherProducts > 0 && <span className="text-muted-foreground"> +{nf.format(order.otherProducts)}</span>}
+      </p>
+      <p className="text-xs text-muted-foreground">{nf.format(order.itemCount)} قطعة</p>
+    </div>
+  );
+}
+
+/** Desktop: table. Mobile: stacked rows — same data, same row link. */
+export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: string }) {
+  return (
+    <>
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/40 hover:bg-muted/40">
+              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">الطلب</TableHead>
+              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">العميل</TableHead>
+              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">
+                المنتجات
+              </TableHead>
+              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground xl:table-cell">
+                القناة
+              </TableHead>
+              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الحالة</TableHead>
+              <TableHead className="h-10 pe-4 text-left text-xs font-medium text-muted-foreground">المبلغ</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => (
+              // The order link stretches over the whole row; the status menu sits above it (z-10).
+              <TableRow key={order.id} className="relative">
+                <TableCell className="py-3 ps-4">
+                  <Link
+                    href={orderHref(order.id)}
+                    className="font-mono text-sm font-medium after:absolute after:inset-0 hover:underline focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
+                    dir="ltr"
+                  >
+                    {shortId(order.id)}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">{dateFormat.format(order.createdAt)}</p>
+                </TableCell>
+                <TableCell className="py-3">
+                  <p className="max-w-44 truncate text-sm font-medium">{order.fullName}</p>
+                  <p className="text-xs text-muted-foreground tabular-nums" dir="ltr">
+                    {order.phone}
+                  </p>
+                </TableCell>
+                <TableCell className="hidden py-3 lg:table-cell">
+                  <Products order={order} />
+                </TableCell>
+                <TableCell className="hidden py-3 xl:table-cell">
+                  <Channel source={order.source} />
+                </TableCell>
+                <TableCell className="py-3">
+                  <OrderStatusSelect orderId={order.id} storeId={storeId} currentStatus={order.status} />
+                </TableCell>
+                <TableCell className="py-3 pe-4 text-left">
+                  <p className="text-sm font-semibold tabular-nums">{money.format(order.total / 100)}</p>
+                  <p className="text-xs text-muted-foreground">{paymentMethodLabel(order.paymentMethod)}</p>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <ul className="divide-y divide-border md:hidden">
+        {orders.map((order) => (
+          <li key={order.id} className="relative space-y-2 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <Link
+                  href={orderHref(order.id)}
+                  className="block truncate text-sm font-medium after:absolute after:inset-0 focus-visible:outline-none"
+                >
+                  {order.fullName}
+                </Link>
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-mono" dir="ltr">
+                    {shortId(order.id)}
+                  </span>{" "}
+                  · {dateFormat.format(order.createdAt)}
+                </p>
+              </div>
+              <p className="shrink-0 text-sm font-semibold tabular-nums">{money.format(order.total / 100)}</p>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <OrderStatusSelect orderId={order.id} storeId={storeId} currentStatus={order.status} />
+              <Channel source={order.source} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}

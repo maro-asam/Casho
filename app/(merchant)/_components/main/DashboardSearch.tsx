@@ -2,27 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  BanknoteArrowUp,
-  Bell,
-  BookOpen,
-  ChartNoAxesCombined,
-  CheckCircle2,
-  CirclePercent,
-  CreditCard,
-  Headset,
-  ImageIcon,
-  LayoutDashboard,
-  Package,
-  PackagePlus,
-  PaintRoller,
-  Plus,
-  Rocket,
-  Settings,
-  ShoppingCart,
-  Tag,
-  TagsIcon,
-} from "lucide-react";
+import { CheckCircle2, PackagePlus, Plus, Search, TagsIcon, type LucideIcon } from "lucide-react";
 
 import {
   Command,
@@ -33,49 +13,34 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
+import { NAV_FOOTER, NAV_SECTIONS } from "./dashboard-nav";
 
-type SearchItem = {
-  label: string;
-  href: string;
-  icon: React.ElementType;
-  group: string;
-  shortcut?: string;
-};
-
-const items: SearchItem[] = [
-  // التشغيل
-  { label: "نظرة عامة", href: "/", icon: LayoutDashboard, group: "التشغيل" },
-  { label: "الإشعارات", href: "/notifications", icon: Bell, group: "التشغيل" },
-  { label: "الطلبات", href: "/orders", icon: ShoppingCart, group: "التشغيل" },
-  { label: "التقارير", href: "/reports", icon: ChartNoAxesCombined, group: "التشغيل" },
-  // المتجر
-  { label: "المنتجات", href: "/products", icon: Package, group: "المتجر" },
-  { label: "التصنيفات", href: "/categories", icon: Tag, group: "المتجر" },
-  { label: "البانرات", href: "/banners", icon: ImageIcon, group: "المتجر" },
-  { label: "الكوبونات", href: "/coupons", icon: CirclePercent, group: "المتجر" },
-  // النمو
-  { label: "تخصيص المتجر", href: "/customization", icon: PaintRoller, group: "النمو" },
-  { label: "إعدادات SEO", href: "/seo", icon: Rocket, group: "النمو" },
-  { label: "المدونة", href: "/blog", icon: BookOpen, group: "النمو" },
-  // المالية
-  { label: "إدارة الرصيد", href: "/balance", icon: BanknoteArrowUp, group: "المالية" },
-  { label: "تغيير الخطة", href: "/change-plan", icon: ChartNoAxesCombined, group: "المالية" },
-  { label: "بوابات الدفع", href: "/payment-methods", icon: CreditCard, group: "المالية" },
-  { label: "الإعدادات", href: "/settings", icon: Settings, group: "المالية" },
-  // الدعم
-  { label: "مركز المساعدة", href: "/support", icon: Headset, group: "الدعم" },
-];
+type SearchItem = { label: string; href: string; icon?: LucideIcon };
 
 const quickActions: SearchItem[] = [
-  { label: "إضافة منتج جديد", href: "/products/new", icon: PackagePlus, group: "إجراءات سريعة" },
-  { label: "إضافة تصنيف", href: "/categories/new", icon: TagsIcon, group: "إجراءات سريعة" },
-  { label: "إضافة كوبون", href: "/coupons/new", icon: Plus, group: "إجراءات سريعة" },
-  { label: "الطلبات المكتملة", href: "/orders?status=DELIVERED", icon: CheckCircle2, group: "إجراءات سريعة" },
+  { label: "إضافة منتج جديد", href: "/products/new", icon: PackagePlus },
+  { label: "إضافة تصنيف", href: "/categories/new", icon: TagsIcon },
+  { label: "إضافة كوبون", href: "/coupons/new", icon: Plus },
+  { label: "الطلبات المكتملة", href: "/orders?status=DELIVERED", icon: CheckCircle2 },
 ];
 
-const groups = [...new Set(items.map((i) => i.group))];
+// Same pages as the sidebar, sub-pages flattened under their parent's name.
+const pageGroups = [
+  ...NAV_SECTIONS.map((section) => ({ title: section.title ?? "الرئيسية", items: section.items })),
+  { title: "الحساب والدعم", items: NAV_FOOTER },
+].map(({ title, items }) => ({
+  title,
+  items: items.flatMap<SearchItem>((item) =>
+    item.children
+      ? item.children.map((child) => ({ label: `${item.name} · ${child.name}`, href: child.href, icon: item.icon }))
+      : [{ label: item.name, href: item.href, icon: item.icon }],
+  ),
+}));
+
+function isMac() {
+  return typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+}
 
 export default function DashboardSearch() {
   const [open, setOpen] = useState(false);
@@ -83,7 +48,7 @@ export default function DashboardSearch() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((v) => !v);
       }
@@ -97,56 +62,51 @@ export default function DashboardSearch() {
     router.push(href);
   };
 
+  const renderItem = (item: SearchItem) => {
+    const Icon = item.icon;
+    return (
+      <CommandItem key={item.href + item.label} value={item.label} onSelect={() => run(item.href)}>
+        {Icon && <Icon />}
+        {item.label}
+      </CommandItem>
+    );
+  };
+
   return (
     <>
+      {/* Icon on small screens, search field look from md up */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-8 min-w-50 items-center gap-2 rounded-md border border-input bg-muted/40 px-3 text-xs text-muted-foreground transition-colors hover:bg-muted lg:min-w-60"
+        aria-label="بحث سريع"
+        className="grid size-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:flex md:h-9 md:w-56 md:items-center md:gap-2 md:border md:border-input md:bg-muted/40 md:px-3 lg:w-64"
       >
-        <span className="flex-1 text-right">بحث سريع...</span>
-        <kbd className="rounded border bg-background px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-          ⌘K
+        <Search className="size-4 shrink-0" />
+        <span className="hidden flex-1 text-start text-sm md:block">ابحث عن صفحة...</span>
+        <kbd
+          className="hidden rounded border border-border bg-background px-1.5 py-0.5 font-sans text-[10px] font-medium md:block"
+          dir="ltr"
+          suppressHydrationWarning
+        >
+          {isMac() ? "⌘K" : "Ctrl K"}
         </kbd>
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen} title="بحث سريع" description="ابحث عن صفحة أو إجراء">
         <Command>
-        <CommandInput placeholder="ابحث عن صفحة أو إجراء..." />
-        <CommandList>
-          <CommandEmpty>لا توجد نتائج.</CommandEmpty>
+          <CommandInput placeholder="ابحث عن صفحة أو إجراء..." />
+          <CommandList>
+            <CommandEmpty>مفيش نتايج.</CommandEmpty>
 
-          <CommandGroup heading="إجراءات سريعة">
-            {quickActions.map((item) => {
-              const Icon = item.icon;
-              return (
-                <CommandItem key={item.href} onSelect={() => run(item.href)}>
-                  <Icon />
-                  {item.label}
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
+            <CommandGroup heading="إجراءات سريعة">{quickActions.map(renderItem)}</CommandGroup>
 
-          <CommandSeparator />
-
-          {groups.map((group) => (
-            <CommandGroup key={group} heading={group}>
-              {items
-                .filter((i) => i.group === group)
-                .map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <CommandItem key={item.href} onSelect={() => run(item.href)}>
-                      <Icon />
-                      {item.label}
-                      {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
-                    </CommandItem>
-                  );
-                })}
-            </CommandGroup>
-          ))}
-        </CommandList>
+            {pageGroups.map((group) => (
+              <div key={group.title}>
+                <CommandSeparator />
+                <CommandGroup heading={group.title}>{group.items.map(renderItem)}</CommandGroup>
+              </div>
+            ))}
+          </CommandList>
         </Command>
       </CommandDialog>
     </>

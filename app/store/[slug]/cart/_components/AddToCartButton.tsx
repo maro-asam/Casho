@@ -21,6 +21,8 @@ type AddToCartButtonProps = {
     | "destructive";
   className?: string;
   style?: CSSProperties;
+  /** Renders a disabled "نفد المخزون" button instead of add-to-cart. */
+  soldOut?: boolean;
 };
 
 const AddToCartButton = ({
@@ -30,6 +32,7 @@ const AddToCartButton = ({
   variant = "default",
   className,
   style,
+  soldOut,
 }: AddToCartButtonProps) => {
   const [isPending, startTransition] = useTransition();
 
@@ -41,7 +44,7 @@ const AddToCartButton = ({
         if (res?.success) {
           toast.success("تم اضافة المنتج الي العربة");
         } else {
-          toast.error("حدث خطأ اثناء اضافة المنتج");
+          toast.error(res && "message" in res && res.message ? res.message : "حدث خطأ اثناء اضافة المنتج");
         }
       } catch (error) {
         toast.error("حدث خطأ اثناء اضافة المنتج");
@@ -49,6 +52,14 @@ const AddToCartButton = ({
       }
     });
   };
+
+  if (soldOut) {
+    return (
+      <Button size={size} variant={variant} disabled className={className} style={style}>
+        نفد المخزون
+      </Button>
+    );
+  }
 
   return (
     <Button

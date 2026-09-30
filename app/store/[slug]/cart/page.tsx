@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  AlertTriangle,
   ArrowLeft,
   BadgePercent,
   CheckCircle2,
@@ -72,7 +73,7 @@ export default async function CartPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ couponStatus?: string; couponMessage?: string }>;
+  searchParams?: Promise<{ couponStatus?: string; couponMessage?: string; stock?: string }>;
 }) {
   const { slug } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
@@ -115,6 +116,22 @@ export default async function CartPage({
             </Button>
           </div>
         </div>
+
+        {resolvedSearchParams?.stock === "changed" && (
+          <div
+            role="alert"
+            className="mb-6 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+          >
+            <AlertTriangle className="mt-0.5 size-5 shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-sm font-semibold">عدّلنا سلتك على حسب المتاح</p>
+              <p className="text-sm">
+                في منتجات خلصت أو الكمية المتاحة منها بقت أقل من اللي طلبته، فشلناها أو قلّلنا الكمية. راجع السلة
+                وكمّل الطلب.
+              </p>
+            </div>
+          </div>
+        )}
 
         {items.length === 0 ? (
           <Card className="overflow-hidden rounded-xl border-0">
@@ -278,6 +295,8 @@ export default async function CartPage({
                                     size="icon"
                                     className="rounded-xl"
                                     aria-label="زيادة الكمية"
+                                    disabled={item.quantity >= item.product.stock}
+                                    title={item.quantity >= item.product.stock ? "مفيش كمية أكتر متاحة" : undefined}
                                   >
                                     <Plus className="size-4" />
                                   </Button>

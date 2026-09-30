@@ -111,7 +111,7 @@ export default function BeforeAfterSection() {
   );
 
   return (
-    <section className="relative isolate overflow-hidden rounded-xl py-16 sm:py-20 lg:py-24">
+    <section id="why" className="relative isolate scroll-mt-28 overflow-hidden rounded-xl py-16 sm:py-20 lg:py-24">
       {/* <TransformBackdrop /  > */}
 
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10">

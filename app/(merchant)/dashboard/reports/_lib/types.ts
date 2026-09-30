@@ -1,135 +1,179 @@
-export type ReportPeriod = 7 | 30 | 90 | 365;
+import type { OrderSource, OrderStatus } from "@prisma/client";
+import type { Granularity, RangePreset } from "./range";
 
-export type DailyDataPoint = {
-  date: string;
+// All money values are piasters.
+
+export type ReportTab = "overview" | "sales" | "products" | "customers" | "inventory" | "pos" | "coupons";
+
+export type Delta = { current: number; previous: number };
+
+export type SeriesPoint = {
+  key: string;
   label: string;
-  revenue: number;
+  netSales: number;
   orders: number;
-  visits: number;
+  profit: number;
+  visitors: number;
+  prevNetSales: number;
+  prevOrders: number;
+  prevProfit: number;
+  prevVisitors: number;
 };
 
-export type StatusDataPoint = {
-  name: string;
-  value: number;
-  status: string;
-};
+export type Insight = { tone: "positive" | "warning" | "info"; text: string };
 
-export type PaymentMethodData = {
-  method: string;
-  label: string;
-  orders: number;
-  revenue: number;
-};
-
-export type DayOfWeekData = {
-  day: string;
-  orders: number;
-  revenue: number;
-};
-
-export type HourlyData = {
-  hour: string;
-  orders: number;
-};
-
-export type ProductStatItem = {
+export type ProductRow = {
   id: string;
   name: string;
+  image: string;
   category: string;
-  sold: number;
-  revenue: number;
+  units: number;
+  netSales: number;
+  /** null when the product has no cost price. */
+  profit: number | null;
+  margin: number | null;
+  share: number;
   stock: number;
-  performance: number;
 };
 
-export type CategoryData = {
+export type InventoryRow = {
+  id: string;
   name: string;
-  revenue: number;
-  orders: number;
+  image: string;
+  stock: number;
+  /** Units sold per day over the last 90 days. */
+  dailyRate: number;
+  daysLeft: number | null;
+  valueCost: number | null;
+  valueRetail: number;
+  lastSoldAt: Date | null;
 };
 
 export type TopCustomer = {
+  key: string;
+  customerId: string | null;
+  name: string;
   phone: string;
-  name: string;
   orders: number;
-  totalSpend: number;
-};
-
-export type LowStockProduct = {
-  id: string;
-  name: string;
-  category: string;
-  stock: number;
-  threshold: number;
-};
-
-export type ReviewDistributionItem = {
-  rating: number;
-  count: number;
-};
-
-export type CouponReportItem = {
-  id: string;
-  code: string;
-  type: string;
-  value: number;
-  usedThisPeriod: number;
-  totalDiscount: number;
-  isActive: boolean;
-  expiresAt: Date | null;
+  spend: number;
+  lastOrderAt: Date;
+  isNew: boolean;
 };
 
 export type ReportsData = {
-  period: ReportPeriod;
-  storeName: string;
+  range: {
+    preset: RangePreset;
+    fromKey: string;
+    toKey: string;
+    days: number;
+    granularity: Granularity;
+    label: string;
+    previousLabel: string;
+  };
+  /** False only for a store that has never received an order. */
+  hasEverSold: boolean;
 
   kpis: {
-    revenue: { current: number; previous: number };
-    netSales: { current: number; previous: number };
-    orders: { current: number; previous: number };
-    visits: { current: number; previous: number };
-    conversionRate: { current: number; previous: number };
-    aov: { current: number; previous: number };
-    cancelRate: { current: number; previous: number };
-    totalDiscount: { current: number; previous: number };
+    netSales: Delta;
+    grossProfit: Delta;
+    orders: Delta;
+    aov: Delta;
+    visitors: Delta;
+    conversion: Delta;
+    customers: Delta;
+    cancelRate: Delta;
   };
 
-  dailyData: DailyDataPoint[];
-  statusData: StatusDataPoint[];
-  paymentMethodData: PaymentMethodData[];
-  dayOfWeekData: DayOfWeekData[];
-  hourlyData: HourlyData[];
+  pnl: {
+    grossSales: Delta;
+    discounts: Delta;
+    returns: Delta;
+    netSales: Delta;
+    cogs: number;
+    grossProfit: Delta;
+    margin: Delta;
+    shipping: number;
+    /** Share (0–1) of net sales whose cost is known. */
+    costCoverage: number;
+    productsMissingCost: number;
+    units: Delta;
+    itemsPerOrder: number;
+    collected: number;
+    outstanding: number;
+    outstandingOrders: number;
+    canceledOrders: number;
+    canceledValue: number;
+    visits: number;
+  };
 
-  topProductsByRevenue: ProductStatItem[];
-  topProductsByQuantity: ProductStatItem[];
-  categoryData: CategoryData[];
-  productsWithNoSales: { id: string; name: string; category: string; stock: number }[];
+  series: SeriesPoint[];
+  channels: { source: OrderSource; orders: number; netSales: number; aov: number; share: number }[];
+  payments: { method: string; label: string; amount: number; count: number; share: number }[];
+  statuses: { status: OrderStatus; count: number; value: number }[];
+  /** [weekday 0=Sunday][hour 0–23] → orders. */
+  heatmap: number[][];
+  weekdays: { weekday: number; orders: number; netSales: number }[];
 
-  customerStats: {
-    total: number;
-    newThisPeriod: number;
-    withOrders: number;
+  products: ProductRow[];
+  productsSoldCount: number;
+  /** How many products make 80% of net sales. */
+  concentration: { products: number; share: number } | null;
+  categories: { name: string; units: number; netSales: number; profit: number | null; share: number }[];
+  unsold: { id: string; name: string; image: string; category: string; stock: number; valueRetail: number }[];
+  unsoldCount: number;
+
+  customers: {
+    unique: Delta;
+    new: number;
+    returning: number;
+    repeatRate: number;
+    avgSpend: number;
+    newRevenue: number;
+    returningRevenue: number;
+    walkInOrders: number;
+    walkInSales: number;
+    crmTotal: number;
+    crmNew: number;
   };
   topCustomers: TopCustomer[];
-  loyaltyStats: {
-    totalEarned: number;
-    totalRedeemed: number;
-  };
+  loyalty: { earned: number; redeemed: number };
 
-  inventoryStats: {
+  inventory: {
     activeProducts: number;
-    lowStock: number;
+    units: number;
+    valueCost: number;
+    valueRetail: number;
+    productsMissingCost: number;
     outOfStock: number;
+    lowStock: number;
+    deadStockValue: number;
+    deadStockCount: number;
   };
-  lowStockProducts: LowStockProduct[];
+  runningOut: InventoryRow[];
+  deadStock: InventoryRow[];
+  outOfStock: { id: string; name: string; image: string; lastSoldAt: Date | null; dailyRate: number }[];
 
-  reviewStats: {
-    total: number;
-    avgRating: number;
-    distribution: ReviewDistributionItem[];
-  };
+  reviews: { periodCount: number; total: number; average: number; distribution: { rating: number; count: number }[] };
 
-  couponData: CouponReportItem[];
-  totalDiscount: number;
-  discountPercentage: number;
+  pos: {
+    orders: number;
+    netSales: number;
+    cashiers: { id: string; name: string; orders: number; netSales: number; aov: number; discounts: number }[];
+    shifts: { count: number; open: number; netDifference: number; shortageShifts: number; shortage: number; overage: number };
+    returns: { count: number; amount: number; rate: number; topProducts: { name: string; quantity: number; amount: number }[] };
+  } | null;
+
+  coupons: {
+    code: string;
+    type: "PERCENTAGE" | "FIXED";
+    value: number;
+    status: "active" | "inactive" | "expired" | "used_up";
+    uses: number;
+    discount: number;
+    sales: number;
+    customers: number;
+  }[];
+  couponShare: number;
+
+  insights: Insight[];
 };

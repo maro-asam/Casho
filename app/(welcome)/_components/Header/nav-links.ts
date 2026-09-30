@@ -6,13 +6,13 @@ import { useLang } from "../../_i18n/LanguageContext";
 
 export type NavLink = { key: string; name: string; href: string };
 
-const SECTION_IDS = ["features", "pricing", "faq"];
+// Landing-page sections that have a nav link, in page order.
+const SECTION_IDS = ["why", "pricing", "faq"];
 
 export function useNavLinks(variant: "short" | "full" = "short"): NavLink[] {
   const { t } = useLang();
   return [
-    { key: "home", name: t.nav.home, href: "/" },
-    { key: "features", name: t.nav.features, href: "/#features" },
+    { key: "why", name: t.nav.why, href: "/#why" },
     { key: "pricing", name: t.nav.pricing, href: "/#pricing" },
     { key: "faq", name: variant === "full" ? t.nav.faqFull : t.nav.faq, href: "/#faq" },
     { key: "blog", name: t.nav.blog, href: "/blog" },
@@ -25,10 +25,7 @@ export function useActiveNavKey(): string | null {
   const [section, setSection] = useState<string | null>(null);
 
   useEffect(() => {
-    if (pathname !== "/") {
-      setSection(null);
-      return;
-    }
+    if (pathname !== "/") return;
 
     const onScroll = () => {
       // A section is "active" once its top has passed ~35% of the viewport.
@@ -46,7 +43,7 @@ export function useActiveNavKey(): string | null {
     return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
 
-  if (pathname === "/") return section ?? "home";
+  if (pathname === "/") return section;
   if (pathname.startsWith("/blog")) return "blog";
   return null;
 }

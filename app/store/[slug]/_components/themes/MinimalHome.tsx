@@ -6,6 +6,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { StoreHomeProps } from "../StoreHome";
 import { type SectionContentMap } from "@/types/store-theme.types";
 import SectionRenderer from "../sections/SectionRenderer";
+import { SoldOutOverlay, isSoldOut } from "../shared/SoldOutOverlay";
 
 // ─── Minimal Section Label ────────────────────────────────────────
 function MinimalLabel({ title, href }: { title: string; href: string }) {
@@ -118,6 +119,7 @@ function MinimalProductCard({
         className="relative overflow-hidden bg-neutral-50"
         style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}
       >
+        {isSoldOut(product) && <SoldOutOverlay />}
         {product.image ? (
           <Image
             src={product.image}

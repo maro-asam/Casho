@@ -52,10 +52,23 @@ export async function AddToCartAction(
       storeId: store.id,
       isActive: true,
     },
-    select: { id: true, name: true, sizes: true, colors: true },
+    select: { id: true, name: true, sizes: true, colors: true, stock: true },
   });
 
   if (!product) throw new Error("Product not found");
+
+  if (product.stock <= 0) {
+    return { success: false, message: "المنتج ده نفد من المخزون" };
+  }
+
+  // Stock is per product, across every size/color row already in the cart.
+  const inCart = await prisma.cartItem.aggregate({
+    where: { guestSessionId, productId, storeId: store.id },
+    _sum: { quantity: true },
+  });
+  if ((inCart._sum.quantity ?? 0) + 1 > product.stock) {
+    return { success: false, message: `المتاح من المنتج ده ${product.stock} قطعة بس، وكلهم في سلتك.` };
+  }
 
   // Server-side validation of feature values against product data
   if (selectedFeatures?.size && !product.sizes.includes(selectedFeatures.size)) {
@@ -339,6 +352,7 @@ export async function GetCartItemsAction(storeSlug: string) {
             price: true,
             image: true,
             wholesaleOptions: true,
+            stock: true,
           },
         },
       },
@@ -468,6 +482,9 @@ export async function UpdateCartItemQtyAction(
     select: {
       id: true,
       quantity: true,
+      productId: true,
+      storeId: true,
+      product: { select: { stock: true } },
     },
   });
 
@@ -492,6 +509,14 @@ export async function UpdateCartItemQtyAction(
     revalidatePath(`/store/${storeSlug}/cart`);
     revalidatePath(`/store/${storeSlug}`);
     return { success: true };
+  }
+
+  const inCart = await prisma.cartItem.aggregate({
+    where: { guestSessionId, productId: cartItem.productId, storeId: cartItem.storeId },
+    _sum: { quantity: true },
+  });
+  if ((inCart._sum.quantity ?? 0) + 1 > cartItem.product.stock) {
+    return { success: false, message: `المتاح ${Math.max(0, cartItem.product.stock)} قطعة بس` };
   }
 
   await prisma.cartItem.update({

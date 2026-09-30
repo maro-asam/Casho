@@ -107,55 +107,56 @@
 .dark {
   --radius: 0.625rem;
 
-  /* backgrounds */
-  --background: #0d0f16;
-  --foreground: #e4e7f0;
+  /* backgrounds — deep navy derived from the primary hue; surfaces get
+     lighter as they elevate (background < card < popover < muted) */
+  --background: #0b0f1a;
+  --foreground: #e6e9f2;
 
-  --card: #13161f;
-  --card-foreground: #e4e7f0;
+  --card: #111726;
+  --card-foreground: #e6e9f2;
 
-  --popover: #13161f;
-  --popover-foreground: #e4e7f1;
+  --popover: #151c2e;
+  --popover-foreground: #e6e9f2;
 
-  /* primary — same #20bb6b */
-  --primary: #20bb6b;
+  /* primary — #1447e6 lifted for dark bg: white text 4.7:1, on bg 4.1:1 */
+  --primary: #3366ff;
   --primary-foreground: #ffffff;
 
   /* neutrals */
-  --secondary: #1c2030;
-  --secondary-foreground: #e4e7f0;
+  --secondary: #1a2235;
+  --secondary-foreground: #e6e9f2;
 
-  --muted: #1c2030;
-  --muted-foreground: #eee;
+  --muted: #1a2235;
+  --muted-foreground: #94a0b8;
 
-  --accent: #1c2030;
-  --accent-foreground: #e4e7f1;
+  --accent: #1d2740;
+  --accent-foreground: #e6e9f2;
 
   /* alerts */
   --destructive: oklch(0.65 0.22 22);
   --destructive-foreground: #ffffff;
 
   /* borders & inputs */
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: #1447e6;
+  --border: #212a3f;
+  --input: #29334b;
+  --ring: #3366ff;
 
   /* charts */
   --chart-1: #60a5fa;
-  --chart-2: #4b7cf7;
+  --chart-2: #3366ff;
   --chart-3: #34d399;
   --chart-4: #a78bfa;
   --chart-5: #fbbf24;
 
   /* sidebar */
-  --sidebar: #13161f;
-  --sidebar-foreground: #e4e7f0;
-  --sidebar-primary: #1447e6;
+  --sidebar: #0e1322;
+  --sidebar-foreground: #e6e9f2;
+  --sidebar-primary: #3366ff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1c2030;
-  --sidebar-accent-foreground: #e4e7f0;
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: #1447e6;
+  --sidebar-accent: #1a2235;
+  --sidebar-accent-foreground: #e6e9f2;
+  --sidebar-border: #212a3f;
+  --sidebar-ring: #3366ff;
 
   /* typography */
   --font-sans: DM Sans, ui-sans-serif, sans-serif, system-ui;
