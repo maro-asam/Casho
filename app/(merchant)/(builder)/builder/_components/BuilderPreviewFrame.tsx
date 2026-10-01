@@ -1,119 +1,94 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Smartphone, Tablet, Monitor } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBuilder, type PreviewDevice } from "./BuilderContext";
 
-// ─── Device specs ─────────────────────────────────────────────────────────────
-
-const DEVICE_SPECS: Record<
-  PreviewDevice,
-  { width: number | null; height: number | null; label: string; icon: React.ElementType }
-> = {
-  mobile: {
-    width: 390,
-    height: 844,
-    label: "iPhone 15 Pro — 390×844",
-    icon: Smartphone,
-  },
-  tablet: {
-    width: 768,
-    height: 1024,
-    label: "iPad — 768×1024",
-    icon: Tablet,
-  },
-  desktop: {
-    width: null,
-    height: null,
-    label: "Desktop",
-    icon: Monitor,
-  },
+/** Real viewport sizes the store is rendered at, then scaled to fit the canvas. */
+const DEVICE_SPECS: Record<PreviewDevice, { width: number; height: number | null; label: string }> = {
+  mobile: { width: 390, height: 844, label: "موبايل · ٣٩٠" },
+  tablet: { width: 820, height: 1180, label: "تابلت · ٨٢٠" },
+  desktop: { width: 1440, height: null, label: "كمبيوتر · ١٤٤٠" },
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const PAD = 32;
 
 export default function BuilderPreviewFrame() {
-  const { storeSlug, previewDevice, previewKey, previewFrameRef } = useBuilder();
+  const { storeSlug, previewDevice, previewKey, previewFrameRef, previewPath, setPreviewPath } = useBuilder();
+  const canvas = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ width: 0, height: 0 });
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const spec = DEVICE_SPECS[previewDevice];
-  const DeviceIcon = spec.icon;
-  const previewUrl = `/store/${storeSlug}`;
+  const prefix = `/store/${storeSlug}`;
 
-  const isDesktop = previewDevice === "desktop";
-  const isMobile = previewDevice === "mobile";
-  const isTablet = previewDevice === "tablet";
+  useEffect(() => {
+    const el = canvas.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setBox({ width: entry.contentRect.width, height: entry.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Fit width (and height for framed devices); never upscale.
+  const availW = Math.max(1, box.width - PAD * 2);
+  const availH = Math.max(1, box.height - PAD - 24);
+  const scale = Math.min(1, availW / spec.width, spec.height ? availH / spec.height : 1);
+  const frameHeight = spec.height ? spec.height * scale : availH;
+  const viewportH = spec.height ?? availH / scale;
+
+  const src = `${prefix}${previewPath === "/" ? "" : previewPath}`;
+  const frameKey = `${previewKey}-${previewDevice}-${src}`;
+  const loading = loadedKey !== frameKey;
+
+  function onLoad() {
+    setLoadedKey(frameKey);
+    // Keep the page switcher in sync when the merchant clicks around inside the store.
+    try {
+      const path = previewFrameRef.current?.contentWindow?.location.pathname;
+      if (path?.startsWith(prefix)) {
+        const storePath = path.slice(prefix.length) || "/";
+        if (storePath !== previewPath) setPreviewPath(storePath);
+      }
+    } catch {
+      // cross-origin — ignore
+    }
+  }
 
   return (
-    <div className="relative flex flex-1 flex-col items-center overflow-auto bg-neutral-100 dark:bg-neutral-900 p-3 pb-6 gap-3">
-      {/* ── Device label ──────────────────────────────────────────────────── */}
-      <div className="flex shrink-0 items-center gap-2 pt-1">
-        <DeviceIcon className="size-3.5 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">{spec.label}</span>
-      </div>
+    <div ref={canvas} className="relative flex min-w-0 flex-1 flex-col items-center overflow-hidden bg-[radial-gradient(circle,var(--color-border)_1px,transparent_1px)] bg-muted/40 [background-size:16px_16px]">
+      <p className="mt-3 h-6 shrink-0 text-[11px] tabular-nums text-muted-foreground">
+        {spec.label}
+        {scale < 0.999 && ` · ${Math.round(scale * 100)}٪`}
+      </p>
 
-      {/* ── Device frame ──────────────────────────────────────────────────── */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={previewDevice}
-          initial={{ opacity: 0, scale: 0.96, y: 6 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: -6 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+      {box.width > 0 && (
+        <div
           className={cn(
-            "overflow-hidden shadow-2xl",
-            isMobile && "rounded-[2.5rem] ring-[8px] ring-neutral-800 dark:ring-neutral-700",
-            isTablet && "rounded-[1.75rem] ring-4 ring-neutral-300 dark:ring-neutral-600",
-            isDesktop && "rounded-xl ring-1 ring-border w-full max-w-full",
+            "relative shrink-0 overflow-hidden bg-background shadow-2xl transition-[width,height] duration-300",
+            previewDevice === "mobile" && "rounded-[2.25rem] ring-[7px] ring-neutral-900",
+            previewDevice === "tablet" && "rounded-[1.5rem] ring-[6px] ring-neutral-800",
+            previewDevice === "desktop" && "rounded-lg ring-1 ring-border",
           )}
-          style={spec.width ? { width: spec.width, maxWidth: "100%" } : { width: "100%" }}
+          style={{ width: spec.width * scale, height: frameHeight }}
         >
-          {/* Mobile notch bar */}
-          {isMobile && (
-            <div className="flex h-8 items-center justify-center bg-neutral-800 dark:bg-neutral-700">
-              <div className="h-4 w-24 rounded-full bg-neutral-900 dark:bg-neutral-800" />
-            </div>
-          )}
-
-          {/* Tablet camera bar */}
-          {isTablet && (
-            <div className="flex h-6 items-center justify-center bg-neutral-300 dark:bg-neutral-600">
-              <div className="size-2 rounded-full bg-neutral-400 dark:bg-neutral-700" />
-            </div>
-          )}
-
-          {/* Desktop browser chrome */}
-          {isDesktop && (
-            <div className="flex h-9 items-center gap-2 border-b bg-muted/60 px-3">
-              <div className="flex gap-1.5">
-                <div className="size-2.5 rounded-full bg-red-400/60" />
-                <div className="size-2.5 rounded-full bg-yellow-400/60" />
-                <div className="size-2.5 rounded-full bg-green-400/60" />
-              </div>
-              <div className="flex-1 rounded-md bg-background/70 h-5 px-2 flex items-center">
-                <span className="text-[10px] text-muted-foreground truncate">
-                  {storeSlug}.casho.store
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* The actual iframe */}
           <iframe
             ref={previewFrameRef}
-            key={previewKey}
-            src={previewUrl}
-            className={cn(
-              "w-full border-0 bg-white",
-              isMobile && "h-[780px]",
-              isTablet && "h-[980px]",
-              isDesktop && "min-h-[800px]",
-            )}
-            style={isDesktop ? { height: "calc(100vh - 12rem)" } : undefined}
+            key={frameKey}
+            src={src}
             title="معاينة المتجر"
-            sandbox="allow-same-origin allow-scripts allow-forms"
+            onLoad={onLoad}
+            className="absolute left-0 top-0 origin-top-left border-0 bg-white"
+            style={{ width: spec.width, height: viewportH, transform: `scale(${scale})` }}
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
           />
-        </motion.div>
-      </AnimatePresence>
+          {loading && (
+            <div className="absolute inset-0 grid place-items-center bg-background/70 backdrop-blur-[1px]">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

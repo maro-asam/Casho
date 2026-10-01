@@ -1,3 +1,6 @@
+import { isStorefrontOpen } from "@/lib/subscriptions";
+import type { Metadata } from "next";
+import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -12,7 +15,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { SubscriptionStatus } from "@prisma/client";
 
 // ISR: revalidate every 300 seconds — category product lists change infrequently
 export const revalidate = 300;
@@ -42,6 +44,22 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug, categoryId } = await params;
+  const category = await prisma.category.findFirst({
+    where: { slug: categoryId, store: { slug } },
+    select: { name: true, image: true, store: { select: { name: true } }, _count: { select: { products: { where: { isActive: true } } } } },
+  });
+  if (!category) return {};
+  return storePageMetadata({
+    title: category.name,
+    description: `تسوّق ${category.name} من ${category.store.name} — ${new Intl.NumberFormat("ar-EG").format(category._count.products)} منتج، اطلب أونلاين بسهولة.`,
+    path: `/categories/${categoryId}`,
+    image: category.image,
+    storeName: category.store.name,
+  });
+}
+
 export default async function CategoryProducts({ params }: PageProps) {
   const { slug, categoryId } = await params;
 
@@ -59,7 +77,7 @@ export default async function CategoryProducts({ params }: PageProps) {
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
+  if (!isStorefrontOpen(store.subscriptionStatus)) {
     return (
       <div
         className="wrapper min-h-[70vh] flex items-center justify-center"

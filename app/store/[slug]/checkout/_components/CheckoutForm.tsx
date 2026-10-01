@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { SaveCheckoutContactAction } from "@/actions/store/cart-recovery.actions";
 import { useFormStatus } from "react-dom";
 import {
   CheckCircle2,
@@ -86,23 +87,42 @@ function PaymentMethodLogo({
 export default function CheckoutForm({
   paymentMethods,
   action,
+  storeSlug,
 }: {
   paymentMethods: PaymentMethod[];
   action: (formData: FormData) => void;
+  storeSlug: string;
 }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const lastSaved = useRef("");
+
+  // Keep what the customer typed so an unfinished checkout can be followed up
+  // from "abandoned carts". Fire-and-forget; never blocks the form.
+  function captureContact() {
+    const form = formRef.current;
+    if (!form) return;
+    const data = new FormData(form);
+    const payload = {
+      fullName: String(data.get("fullName") ?? ""),
+      phone: String(data.get("phone") ?? ""),
+      address: String(data.get("address") ?? ""),
+    };
+    const key = JSON.stringify(payload);
+    if (key === lastSaved.current || (!payload.phone.trim() && !payload.fullName.trim())) return;
+    lastSaved.current = key;
+    SaveCheckoutContactAction(storeSlug, payload).catch(() => {});
+  }
+
   const defaultPaymentMethod = useMemo(() => {
-    return (
-      paymentMethods.find((method) => method.key === "cash_on_delivery")?.key ||
-      paymentMethods[0]?.key ||
-      "cash_on_delivery"
-    );
+    // The merchant orders the methods; the first one is the preselected default.
+    return paymentMethods[0]?.key || "cash_on_delivery";
   }, [paymentMethods]);
 
   const [paymentMethod, setPaymentMethod] =
     useState<string>(defaultPaymentMethod);
 
   return (
-    <form action={action} className="space-y-6" dir="rtl">
+    <form ref={formRef} action={action} onBlur={captureContact} className="space-y-6" dir="rtl">
       <div className="space-y-2 text-right">
         <h2 className="text-2xl font-semibold">بيانات الطلب</h2>
 
@@ -142,6 +162,9 @@ export default function CheckoutForm({
               id="phone"
               name="phone"
               inputMode="tel"
+              onChange={(e) => {
+                if (e.target.value.replace(/\D/g, "").length >= 11) captureContact();
+              }}
               placeholder="مثال: 01012345678"
               required
               className="h-12 rounded-xl pr-10 text-right"

@@ -1,3 +1,4 @@
+import { isStorefrontOpen } from "@/lib/subscriptions";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -16,7 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice, cn } from "@/lib/utils";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { SubscriptionStatus } from "@prisma/client";
+import type { Metadata } from "next";
+import { storePageMetadata } from "@/lib/seo/page-meta";
+import { absoluteUrl, isPlaceholderImage, jsonLd, metaText, storeBaseUrl } from "@/lib/seo/store-seo";
 
 import ProductGallery from "../_components/ProductGallery";
 import ProductTabs from "./_components/ProductTabs";
@@ -39,6 +42,36 @@ export async function generateStaticParams() {
   });
   console.log(`[ISR] generateStaticParams: pre-building ${products.length} product pages`);
   return products.map((p) => ({ slug: p.store.slug, productSlug: p.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; productSlug: string }> }): Promise<Metadata> {
+  const { slug, productSlug } = await params;
+  const product = await prisma.product.findFirst({
+    where: { slug: productSlug, isActive: true, store: { slug } },
+    select: {
+      name: true,
+      description: true,
+      image: true,
+      price: true,
+      category: { select: { name: true } },
+      store: { select: { name: true } },
+    },
+  });
+  if (!product) return {};
+
+  const price = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(product.price);
+  // No description? Build a useful one instead of falling back to the store's.
+  const description =
+    metaText(product.description) ||
+    `اشتري ${product.name} من ${product.store.name} بسعر ${price} جنيه${product.category ? ` — ${product.category.name}` : ""}. اطلب أونلاين والدفع عند الاستلام.`;
+
+  return storePageMetadata({
+    title: product.name,
+    description,
+    path: `/products/${productSlug}`,
+    image: isPlaceholderImage(product.image) ? null : product.image,
+    storeName: product.store.name,
+  });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -144,11 +177,13 @@ export default async function ProductDetailsRoute({
       name: true,
       slug: true,
       subscriptionStatus: true,
+      customDomain: true,
+      customDomainStatus: true,
       settings: { select: { themeId: true } },
     },
   });
 
-  if (!store || store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
+  if (!store || !isStorefrontOpen(store.subscriptionStatus)) {
     return notFound();
   }
 
@@ -225,11 +260,60 @@ export default async function ProductDetailsRoute({
     reviews,
   };
 
-  if (themeId === "bold") {
-    return <BoldProductPage {...props} />;
-  }
+  // Structured data → price, stock and stars right in Google results.
+  const base = storeBaseUrl(store);
+  const productUrl = `${base}/products/${product.slug}`;
+  const images = gallery.filter((src) => !isPlaceholderImage(src)).map((src) => absoluteUrl(src, base)).filter(Boolean);
+  const avg = getAvgRating(reviews);
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      ...(images.length && { image: images }),
+      ...(product.description && { description: metaText(product.description, 5000) }),
+      ...(product.sku && { sku: product.sku }),
+      ...(product.category && { category: product.category.name }),
+      brand: { "@type": "Brand", name: store.name },
+      offers: {
+        "@type": "Offer",
+        url: productUrl,
+        priceCurrency: "EGP",
+        price: product.price.toFixed(2),
+        availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@type": "Organization", name: store.name },
+      },
+      ...(reviews.length > 0 && {
+        aggregateRating: { "@type": "AggregateRating", ratingValue: avg.toFixed(1), reviewCount: reviews.length },
+        review: reviews.slice(0, 5).map((r) => ({
+          "@type": "Review",
+          author: { "@type": "Person", name: r.customerName },
+          datePublished: r.reviewDate.toISOString().slice(0, 10),
+          reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 },
+          reviewBody: r.content,
+        })),
+      }),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: store.name, item: base },
+        ...(product.category
+          ? [{ "@type": "ListItem", position: 2, name: product.category.name, item: `${base}/categories/${product.category.slug}` }]
+          : []),
+        { "@type": "ListItem", position: product.category ? 3 : 2, name: product.name, item: productUrl },
+      ],
+    },
+  ];
 
-  return <StandardProductPage {...props} themeId={themeId} />;
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
+      {themeId === "bold" ? <BoldProductPage {...props} /> : <StandardProductPage {...props} themeId={themeId} />}
+    </>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

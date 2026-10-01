@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -21,6 +22,8 @@ function formatEGPFromCents(cents: number) {
     maximumFractionDigits: 2,
   }).format(cents / 100);
 }
+
+export const metadata: Metadata = { title: "تم الطلب", robots: { index: false, follow: false } };
 
 export default async function OrderSuccessPage({
   params,

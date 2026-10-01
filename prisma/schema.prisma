@@ -178,6 +178,8 @@ model Store {
   orders     Order[]
   categories Category[]
   banners    Banner[]
+  popups     StorePopup[]
+  cartRecoveries CartRecovery[]
   settings   StoreSettings?
   visits     Visit[]
 
@@ -292,8 +294,14 @@ model StoreSettings {
   ogDescription  String?
   ogImage        String?
   isIndexed      Boolean  @default(true)
+  /// Google Search Console HTML-tag verification code (the `content` value only).
+  googleSiteVerification String?
 
   showStoreName Boolean @default(true)
+
+  /// Storefront conversion widgets (WhatsApp button, live purchase toasts…).
+  /// Shape: ConversionConfig in lib/conversion/conversion-config.ts
+  conversionConfig Json?
 
   announcementText String?
   description      String?
@@ -417,6 +425,65 @@ model Banner {
   createdAt DateTime @default(now())
 
   @@index([storeId, isActive])
+}
+
+/// Marketing popup shown on the storefront (discount reveal, lead capture, announcement).
+/// Content/design/trigger settings live in `config` (PopupConfig in lib/popups/popup-config.ts).
+model StorePopup {
+  id      String @id @default(uuid())
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  name     String
+  type     String  @default("discount")
+  isActive Boolean @default(false)
+  priority Int     @default(0)
+  config   Json
+
+  startsAt DateTime?
+  endsAt   DateTime?
+
+  views       Int @default(0)
+  clicks      Int @default(0)
+  conversions Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId, isActive])
+}
+
+/// Contact + recovery state for a guest cart (one per store × guest session).
+/// Contact details are captured while the customer types them at checkout.
+model CartRecovery {
+  id             String @id @default(uuid())
+  storeId        String
+  store          Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  guestSessionId String
+
+  fullName String?
+  phone    String?
+  address  String?
+
+  /// Public token for the "restore my cart" link.
+  token             String  @unique
+  /// Session the cart was restored into (another device) — still counts as recovered.
+  restoredSessionId String?
+
+  contactedAt  DateTime?
+  contactCount Int       @default(0)
+  convertedAt  DateTime?
+  orderId      String?
+  /// Order total in piasters.
+  orderTotal   Int?
+  dismissedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, guestSessionId])
+  @@index([storeId, updatedAt])
+  @@index([restoredSessionId])
 }
 
 model CartItem {

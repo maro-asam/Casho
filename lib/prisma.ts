@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -58,7 +58,21 @@ function createPrismaClient(): PrismaClient {
   return client;
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+/**
+ * Dev keeps the client on globalThis across hot reloads. After `prisma generate`
+ * that cached instance is from the old schema and is missing new models — so
+ * throw it away when any current model has no delegate on it.
+ */
+function isStale(client: PrismaClient) {
+  return Object.values(Prisma.ModelName).some(
+    (model) => !(model.charAt(0).toLowerCase() + model.slice(1) in client),
+  );
+}
+
+const cached = globalForPrisma.prisma;
+if (cached && isStale(cached)) void cached.$disconnect().catch(() => {});
+
+export const prisma = cached && !isStale(cached) ? cached : createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;

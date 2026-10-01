@@ -21,7 +21,7 @@ type SearchItem = { label: string; href: string; icon?: LucideIcon };
 const quickActions: SearchItem[] = [
   { label: "إضافة منتج جديد", href: "/products/new", icon: PackagePlus },
   { label: "إضافة تصنيف", href: "/categories/new", icon: TagsIcon },
-  { label: "إضافة كوبون", href: "/coupons/new", icon: Plus },
+  { label: "كود خصم جديد", href: "/coupons?new=1", icon: Plus },
   { label: "الطلبات المكتملة", href: "/orders?status=DELIVERED", icon: CheckCircle2 },
 ];
 

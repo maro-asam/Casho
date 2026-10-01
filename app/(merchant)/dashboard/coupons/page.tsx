@@ -1,542 +1,238 @@
 import Link from "next/link";
-import { Metadata } from "next";
-import { revalidatePath } from "next/cache";
-import {
-  BadgePercent,
-  ChevronLeft,
-  ChevronRight,
-  CircleDollarSign,
-  FolderOpen,
-  Percent,
-  Plus,
-  ShieldCheck,
-  Store,
-  TicketPercent,
-  Trash2,
-  XCircle,
-  ToggleLeft,
-  ToggleRight,
-  Clock,
-} from "lucide-react";
+import type { Metadata } from "next";
+import type { Prisma } from "@prisma/client";
+import { Plus, SearchX, Store, TicketPercent } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import {
-  DeleteCouponAction,
-  ToggleCouponStatusAction,
-} from "@/actions/coupons/coupons.actions";
-
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  SelectFilter,
+  hrefWith,
+  readPage,
+  readParam,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import { cn } from "@/lib/utils";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { COUPON_STATUSES, couponStatus, couponStatusWhere, isCouponStatus } from "@/lib/coupons/coupon-status";
+import { readPopupConfig } from "@/lib/popups/popup-config";
+import { prisma } from "@/lib/prisma";
+import { UrlCouponDialog, type EditableCoupon } from "./_components/coupon-form-dialog";
+import { CouponsTable, type CouponRow } from "./_components/coupons-table";
 
 export const metadata: Metadata = {
-  title: "الكوبونات",
+  title: "أكواد الخصم",
 };
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 20;
+const BASE_PATH = "/coupons";
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
-function formatDate(date: Date | null) {
-  if (!date) return "—";
-  return new Intl.DateTimeFormat("ar-EG", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
-
-type MerchantCouponsRouteProps = {
-  searchParams?: Promise<{
-    page?: string;
-  }>;
+type CouponsRouteProps = {
+  searchParams?: Promise<SearchParamsRecord>;
 };
 
-const Coupons = async ({ searchParams }: MerchantCouponsRouteProps) => {
+export default async function CouponsRoute({ searchParams }: CouponsRouteProps) {
   const userId = await requireUserId();
-  const resolvedSearchParams = await searchParams;
+  const params = await searchParams;
 
-  const currentPage = Math.max(Number(resolvedSearchParams?.page || "1"), 1);
-
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true, name: true, slug: true },
-  });
+  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true } });
 
   if (!store) {
     return (
-      <div className="space-y-6 p-6" dir="rtl">
-        <Card className="rounded-xl border-dashed">
-          <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
-              <Store className="size-6" />
-            </div>
-            <h2 className="text-xl font-bold">لم يتم العثور على متجر</h2>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              لازم يكون عندك متجر أولًا علشان تقدر تنشئ وتدير كوبونات الخصم.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول وبعدها اعمل أكواد خصم لعملائك."
+        className="rounded-xl border border-dashed border-border"
+      />
     );
   }
 
+  // ── Filters (all in the URL so every view is shareable) ──────────────
+  const q = readParam(params, "q")?.toUpperCase();
+  const statusParam = readParam(params, "status");
+  const status = isCouponStatus(statusParam) ? statusParam : undefined;
+  const typeParam = readParam(params, "type");
+  const type = typeParam === "PERCENTAGE" || typeParam === "FIXED" ? typeParam : undefined;
+  const editId = readParam(params, "edit");
+  const dialogMode = editId ? "edit" : readParam(params, "new") ? "new" : null;
   const now = new Date();
+  const limitField = prisma.coupon.fields.usageLimit;
 
-  const [totalCoupons, activeCoupons, inactiveCoupons, expiredCoupons] =
-    await Promise.all([
-      prisma.coupon.count({ where: { storeId: store.id } }),
-      prisma.coupon.count({
-        where: {
-          storeId: store.id,
-          isActive: true,
-          OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-        },
-      }),
-      prisma.coupon.count({
-        where: { storeId: store.id, isActive: false },
-      }),
-      prisma.coupon.count({
-        where: {
-          storeId: store.id,
-          expiresAt: { lte: now },
-        },
-      }),
-    ]);
+  const baseWhere: Prisma.CouponWhereInput = {
+    storeId: store.id,
+    ...(q && { code: { contains: q, mode: "insensitive" } }),
+    ...(type && { type }),
+  };
 
-  const totalPages = Math.ceil(totalCoupons / PAGE_SIZE);
-  const safePage = Math.min(currentPage, Math.max(totalPages, 1));
-  const skip = (safePage - 1) * PAGE_SIZE;
+  // Tab counts share search + type with the list, so each number matches its tab.
+  const [statusCounts, storeCouponCount, editRow] = await Promise.all([
+    Promise.all(COUPON_STATUSES.map((s) => prisma.coupon.count({ where: { AND: [baseWhere, couponStatusWhere(s.value, now, limitField)] } }))),
+    prisma.coupon.count({ where: { storeId: store.id } }),
+    editId ? prisma.coupon.findFirst({ where: { id: editId, storeId: store.id } }) : Promise.resolve(null),
+  ]);
+  const countFor = (s: string) => statusCounts[COUPON_STATUSES.findIndex((x) => x.value === s)] ?? 0;
+  const allCount = statusCounts.reduce((a, b) => a + b, 0);
+  const total = status ? countFor(status) : allCount;
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(readPage(params), totalPages);
 
   const coupons = await prisma.coupon.findMany({
-    where: { storeId: store.id },
-    orderBy: { createdAt: "desc" },
-    skip,
+    where: status ? { AND: [baseWhere, couponStatusWhere(status, now, limitField)] } : baseWhere,
+    orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+    skip: (page - 1) * PAGE_SIZE,
     take: PAGE_SIZE,
-    select: {
-      id: true,
-      code: true,
-      type: true,
-      value: true,
-      isActive: true,
-      minSubtotal: true,
-      maxDiscount: true,
-      usageLimit: true,
-      usedCount: true,
-      startsAt: true,
-      expiresAt: true,
-      createdAt: true,
-    },
   });
 
-  const statCards = [
-    {
-      label: "إجمالي الكوبونات",
-      value: totalCoupons,
-      icon: TicketPercent,
-      className: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-    },
-    {
-      label: "نشط",
-      value: activeCoupons,
-      icon: ShieldCheck,
-      className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    },
-    {
-      label: "غير نشط",
-      value: inactiveCoupons,
-      icon: XCircle,
-      className: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    },
-    {
-      label: "منتهي الصلاحية",
-      value: expiredCoupons,
-      icon: Clock,
-      className: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-    },
-  ];
+  // Real sales per code + popups that hand the code out.
+  const codes = coupons.map((c) => c.code);
+  const [revenueRows, popups] = await Promise.all([
+    codes.length
+      ? prisma.order.groupBy({
+          by: ["couponCode"],
+          where: { storeId: store.id, couponCode: { in: codes }, status: { not: "CANCELED" } },
+          _sum: { total: true },
+        })
+      : Promise.resolve([]),
+    (async () => prisma.storePopup.findMany({ where: { storeId: store.id, type: "discount" }, select: { name: true, config: true } }))().catch(
+      () => [],
+    ),
+  ]);
+
+  const rows: CouponRow[] = coupons.map((c) => ({
+    id: c.id,
+    code: c.code,
+    type: c.type,
+    value: c.value,
+    minSubtotal: c.minSubtotal,
+    maxDiscount: c.maxDiscount,
+    usageLimit: c.usageLimit,
+    usedCount: c.usedCount,
+    startsAt: c.startsAt,
+    expiresAt: c.expiresAt,
+    isActive: c.isActive,
+    status: couponStatus(c, now),
+    revenue: revenueRows.find((r) => r.couponCode === c.code)?._sum.total ?? 0,
+    popupNames: popups.filter((p) => readPopupConfig(p.config).content.couponCode === c.code).map((p) => p.name),
+  }));
+
+  const editing: EditableCoupon | null = editRow
+    ? {
+        id: editRow.id,
+        code: editRow.code,
+        type: editRow.type,
+        value: editRow.value,
+        minSubtotal: editRow.minSubtotal,
+        maxDiscount: editRow.maxDiscount,
+        usageLimit: editRow.usageLimit,
+        usedCount: editRow.usedCount,
+        startsAt: editRow.startsAt?.toISOString() ?? null,
+        expiresAt: editRow.expiresAt?.toISOString() ?? null,
+        isActive: editRow.isActive,
+      }
+    : null;
+
+  const hasFilters = Boolean(q || status || type);
+  const currentPage = readParam(params, "page");
+  const newHref = hrefWith(BASE_PATH, params, { new: 1, edit: null, page: currentPage });
+  const editHref = (id: string) => hrefWith(BASE_PATH, params, { edit: id, new: null, page: currentPage });
+  const storeUrl = buildStoreUrl(store.slug);
+  const shareUrl = (code: string) => `${storeUrl}/?coupon=${encodeURIComponent(code)}`;
 
   return (
     <div className="space-y-6" dir="rtl">
-      <DashboardSectionHeader
-        icon={TicketPercent}
-        title="الكوبونات"
-        badge={totalCoupons}
-        description={
-          <>
-            إدارة كوبونات الخصم الخاصة بمتجر{" "}
-            <span className="font-semibold text-foreground">{store.name}</span>
-          </>
+      <PageHeader
+        title="أكواد الخصم"
+        description="اعمل أكواد للعروض والمؤثرين وحملات الواتساب — وكل كود ليه لينك بيطبّقه لوحده في السلة."
+        actions={
+          storeCouponCount > 0 && (
+            <Button asChild size="sm" className="gap-1.5">
+              <Link href={newHref} scroll={false}>
+                <Plus className="size-4" />
+                كود جديد
+              </Link>
+            </Button>
+          )
         }
-        actionLabel="إضافة كوبون جديد"
-        actionHref="/coupons/new"
       />
 
-      {totalCoupons > 0 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {statCards.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card
-                key={stat.label}
-                className="border-border bg-card shadow-sm"
-              >
-                <div className="p-5">
-                  <div
-                    className={cn(
-                      "mb-3 grid size-9 place-items-center rounded-xl",
-                      stat.className,
-                    )}
-                  >
-                    <Icon className="size-4.5" />
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {new Intl.NumberFormat("ar-EG").format(stat.value)}
-                  </p>
-                  <p className="mt-1 text-xs font-medium text-muted-foreground">
-                    {stat.label}
-                  </p>
-                </div>
-              </Card>
-            );
-          })}
+      {storeCouponCount === 0 ? (
+        <div className="rounded-xl border border-dashed border-border">
+          <EmptyState
+            icon={TicketPercent}
+            title="لسه معملتش أكواد خصم"
+            description="ابدأ بكود ترحيب لأول طلب، أو كود لمؤثر وتابع هو جاب كام طلب ومبيعات قد إيه."
+            action={
+              <Button asChild size="sm" className="gap-1.5">
+                <Link href={newHref} scroll={false}>
+                  <Plus className="size-4" />
+                  اعمل أول كود
+                </Link>
+              </Button>
+            }
+          />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <FilterTabs
+            label="حالة الكود"
+            param="status"
+            basePath={BASE_PATH}
+            searchParams={params}
+            tabs={[
+              { label: "الكل", count: allCount },
+              ...COUPON_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
+            ]}
+          />
+
+          <DataCard
+            toolbar={
+              <>
+                <SearchInput placeholder="ابحث بالكود" />
+                <SelectFilter
+                  label="نوع الخصم"
+                  param="type"
+                  allLabel="كل الأنواع"
+                  options={[
+                    { value: "PERCENTAGE", label: "نسبة مئوية" },
+                    { value: "FIXED", label: "مبلغ ثابت" },
+                  ]}
+                />
+              </>
+            }
+            footer={
+              total > 0 ? (
+                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="كود" />
+              ) : undefined
+            }
+          >
+            {rows.length > 0 ? (
+              <CouponsTable coupons={rows} editHref={editHref} shareUrl={shareUrl} />
+            ) : (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش أكواد بالفلاتر دي"
+                description={q ? `مفيش كود فيه "${q}".` : "جرّب حالة أو نوع تاني."}
+                action={
+                  hasFilters && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                    </Button>
+                  )
+                }
+              />
+            )}
+          </DataCard>
         </div>
       )}
 
-      {totalCoupons === 0 ? (
-        <Card className="rounded-xl border-dashed border-border/40 shadow-sm">
-          <CardContent className="flex min-h-90 flex-col items-center justify-center text-center">
-            <div className="mb-4 grid size-16 place-items-center rounded-2xl bg-muted text-muted-foreground">
-              <FolderOpen className="size-7" />
-            </div>
-            <h2 className="text-xl font-bold">لا توجد كوبونات بعد</h2>
-            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              ابدأ بإضافة أول كوبون خصم لمتجرك علشان تشجع العملاء على الشراء
-              وتزود المبيعات.
-            </p>
-            <Button asChild className="mt-6 ">
-              <Link href="/coupons/new">
-                <Plus className="ms-2 size-4" />
-                إضافة أول كوبون
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <Card className="border-border shadow-sm">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border/30 hover:bg-transparent">
-                      <TableHead className="ps-6 text-right text-xs font-medium text-muted-foreground">
-                        الكوبون
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        النوع والقيمة
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        الشروط
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        الاستخدام
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        المدة
-                      </TableHead>
-                      <TableHead className="text-right text-xs font-medium text-muted-foreground">
-                        الحالة
-                      </TableHead>
-                      <TableHead className="pe-6" />
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody>
-                    {coupons.map((coupon) => {
-                      const isExpired =
-                        coupon.expiresAt && new Date(coupon.expiresAt) < now;
-                      const isActiveAndValid = coupon.isActive && !isExpired;
-
-                      return (
-                        <TableRow
-                          key={coupon.id}
-                          className="border-border/30 transition-colors hover:bg-muted/20"
-                        >
-                          <TableCell className="py-4 ps-6">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={cn(
-                                  "grid size-10 shrink-0 place-items-center rounded-xl",
-                                  isActiveAndValid
-                                    ? "bg-primary/10 text-primary"
-                                    : "bg-muted text-muted-foreground",
-                                )}
-                              >
-                                <BadgePercent className="size-5" />
-                              </div>
-                              <div>
-                                <p className="font-bold uppercase tracking-wider">
-                                  {coupon.code}
-                                </p>
-                                <p className="mt-0.5 text-xs text-muted-foreground">
-                                  {formatDate(coupon.createdAt)}
-                                </p>
-                              </div>
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="py-4">
-                            <div className="space-y-1.5">
-                              {coupon.type === "PERCENTAGE" ? (
-                                <Badge
-                                  variant="outline"
-                                  className="gap-1 rounded-full border-border px-2 py-0 text-[11px]"
-                                >
-                                  <Percent className="size-2.5" />
-                                  نسبة مئوية
-                                </Badge>
-                              ) : (
-                                <Badge
-                                  variant="outline"
-                                  className="gap-1 rounded-full border-border px-2 py-0 text-[11px]"
-                                >
-                                  <CircleDollarSign className="size-2.5" />
-                                  خصم ثابت
-                                </Badge>
-                              )}
-                              <p className="text-sm font-bold">
-                                {coupon.type === "PERCENTAGE"
-                                  ? `${coupon.value}%`
-                                  : formatPrice(coupon.value)}
-                              </p>
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="py-4">
-                            <div className="space-y-1 text-xs text-muted-foreground">
-                              <p>
-                                الحد الأدنى:{" "}
-                                <span className="font-medium text-foreground">
-                                  {coupon.minSubtotal
-                                    ? formatPrice(coupon.minSubtotal)
-                                    : "—"}
-                                </span>
-                              </p>
-                              <p>
-                                أقصى خصم:{" "}
-                                <span className="font-medium text-foreground">
-                                  {coupon.maxDiscount
-                                    ? formatPrice(coupon.maxDiscount)
-                                    : "—"}
-                                </span>
-                              </p>
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="py-4">
-                            <div className="space-y-1 text-xs">
-                              <p>
-                                <span className="font-bold text-foreground">
-                                  {coupon.usedCount}
-                                </span>{" "}
-                                <span className="text-muted-foreground">
-                                  مرة
-                                </span>
-                              </p>
-                              <p className="text-muted-foreground">
-                                الحد:{" "}
-                                <span className="font-medium text-foreground">
-                                  {coupon.usageLimit ?? "غير محدود"}
-                                </span>
-                              </p>
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="py-4">
-                            <div className="space-y-1 text-xs text-muted-foreground">
-                              <p>
-                                من:{" "}
-                                <span className="font-medium text-foreground">
-                                  {formatDate(coupon.startsAt)}
-                                </span>
-                              </p>
-                              <p>
-                                إلى:{" "}
-                                <span className="font-medium text-foreground">
-                                  {formatDate(coupon.expiresAt)}
-                                </span>
-                              </p>
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="py-4">
-                            {isActiveAndValid ? (
-                              <Badge className="gap-1 rounded-full border-0 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400">
-                                <ShieldCheck className="size-3" />
-                                نشط
-                              </Badge>
-                            ) : isExpired ? (
-                              <Badge className="rounded-full border-0 bg-rose-500/10 text-rose-700 hover:bg-rose-500/10 dark:text-rose-400">
-                                منتهي
-                              </Badge>
-                            ) : (
-                              <Badge className="rounded-full border-0 bg-amber-500/10 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400">
-                                غير نشط
-                              </Badge>
-                            )}
-                          </TableCell>
-
-                          <TableCell className="pe-6 py-4">
-                            <div className="flex items-center gap-1.5">
-                              <form
-                                action={async () => {
-                                  "use server";
-                                  await ToggleCouponStatusAction(coupon.id);
-                                  revalidatePath("/dashboard/coupons");
-                                }}
-                              >
-                                <Button
-                                  type="submit"
-                                  variant="ghost"
-                                  size="sm"
-                                  className={cn(
-                                    "h-8 rounded-xl px-3 text-xs",
-                                    coupon.isActive
-                                      ? "text-amber-600 hover:bg-amber-500/10 hover:text-amber-700"
-                                      : "text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700",
-                                  )}
-                                >
-                                  {coupon.isActive ? (
-                                    <ToggleRight className="ms-1 size-3.5" />
-                                  ) : (
-                                    <ToggleLeft className="ms-1 size-3.5" />
-                                  )}
-                                  {coupon.isActive ? "تعطيل" : "تفعيل"}
-                                </Button>
-                              </form>
-
-                              <form
-                                action={async () => {
-                                  "use server";
-                                  await DeleteCouponAction(coupon.id);
-                                  revalidatePath("/dashboard/coupons");
-                                }}
-                              >
-                                <Button
-                                  type="submit"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600"
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              </form>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-
-          {totalPages > 1 && (
-            <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-border/30 bg-background px-5 py-4 sm:flex-row">
-              <p className="text-sm text-muted-foreground">
-                الصفحة{" "}
-                <span className="font-bold text-foreground">{safePage}</span> من{" "}
-                <span className="font-bold text-foreground">{totalPages}</span>
-              </p>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl"
-                  disabled={safePage <= 1}
-                >
-                  <Link
-                    href={`/dashboard/coupons?page=${safePage - 1}`}
-                    aria-disabled={safePage <= 1}
-                    className={
-                      safePage <= 1 ? "pointer-events-none opacity-50" : ""
-                    }
-                  >
-                    <ChevronRight className="me-1 size-4" />
-                    السابق
-                  </Link>
-                </Button>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(totalPages, 7) }).map(
-                    (_, i) => {
-                      const page = i + 1;
-                      const isActive = page === safePage;
-                      return (
-                        <Button
-                          key={page}
-                          asChild
-                          variant={isActive ? "default" : "ghost"}
-                          size="sm"
-                          className="h-8 w-8 rounded-xl p-0"
-                        >
-                          <Link href={`/dashboard/coupons?page=${page}`}>
-                            {page}
-                          </Link>
-                        </Button>
-                      );
-                    },
-                  )}
-                </div>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl"
-                  disabled={safePage >= totalPages}
-                >
-                  <Link
-                    href={`/dashboard/coupons?page=${safePage + 1}`}
-                    aria-disabled={safePage >= totalPages}
-                    className={
-                      safePage >= totalPages
-                        ? "pointer-events-none opacity-50"
-                        : ""
-                    }
-                  >
-                    التالي
-                    <ChevronLeft className="ms-1 size-4" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
+      <UrlCouponDialog mode={dialogMode} coupon={editing} />
     </div>
   );
-};
-
-export default Coupons;
+}

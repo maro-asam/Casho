@@ -1,14 +1,13 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
-import { Clock, CreditCard, MessageCircle, Zap } from "lucide-react";
+import { Clock, MessageCircle, PauseCircle, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
-import { formatMoneyFromPiasters } from "@/lib/subscriptions";
+import { formatMoney } from "@/lib/balance-ui/meta";
 
 export const metadata: Metadata = {
-  title: "انتهت الفترة التجريبية | كاشو",
+  title: "الاشتراك متوقف",
   robots: { index: false, follow: false },
 };
 
@@ -19,95 +18,82 @@ export default async function TrialExpiredPage() {
     where: { userId },
     select: {
       monthlyPrice: true,
-      planName: true,
+      billingCycle: true,
       balance: true,
+      trialEndDate: true,
+      subscriptionEndsAt: true,
+      autoRenew: true,
+      plan: { select: { name: true } },
+      _count: { select: { balanceTransactions: { where: { type: "SUBSCRIPTION_CHARGE" } } } },
     },
     orderBy: { createdAt: "asc" },
   });
 
-  const monthlyPrice = store?.monthlyPrice ?? 29900;
+  const price = store?.monthlyPrice ?? 0;
   const balance = store?.balance ?? 0;
-  const needed = Math.max(0, monthlyPrice - balance);
+  const shortfall = Math.max(0, price - balance);
+  const neverPaid = (store?._count.balanceTransactions ?? 0) === 0 && !!store?.trialEndDate;
+  const cycleWord = store?.billingCycle === "YEARLY" ? "سنة" : "شهر";
+  const Icon = neverPaid ? Clock : PauseCircle;
 
   return (
-    <div dir="rtl" className="flex min-h-[calc(100vh-56px)] flex-col items-center justify-center px-6 py-16">
+    <div dir="rtl" className="flex min-h-[calc(100vh-120px)] flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
-        {/* Icon */}
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-          <Clock className="h-10 w-10 text-amber-600 dark:text-amber-400" />
+        <div className="mx-auto mb-5 grid size-16 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+          <Icon className="size-8" />
         </div>
 
-        {/* Heading */}
-        <h1 className="text-2xl font-bold">انتهت فترتك التجريبية</h1>
-        <p className="mt-3 text-muted-foreground">
-          الفترة التجريبية المجانية لمدة 3 أيام قد انتهت. لمواصلة البيع وإدارة متجرك،
-          يلزم تفعيل الاشتراك الشهري.
+        <h1 className="text-2xl font-bold">{neverPaid ? "التجربة المجانية خلصت" : "اشتراكك متوقف"}</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          {neverPaid
+            ? "كل حاجة عملتها في متجرك محفوظة زي ما هي. فعّل اشتراكك وكمّل من مكان ما وقفت."
+            : "متجرك مش بيستقبل طلبات دلوقتي، بس كل بياناتك محفوظة. اشحن وهيرجع يشتغل فورًا."}
         </p>
 
-        {/* Plan info */}
-        <div className="mt-8 rounded-2xl border border-border bg-card p-5 text-right shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              <span className="font-semibold">باقة سوبر</span>
+        <div className="mt-6 rounded-xl border border-border bg-card p-4 text-start">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs text-muted-foreground">باقتك</p>
+              <p className="font-semibold">{store?.plan?.name ?? "—"}</p>
             </div>
-            <span className="text-lg font-bold text-primary">
-              {formatMoneyFromPiasters(monthlyPrice)} / شهر
-            </span>
+            <p className="text-lg font-bold tabular-nums">
+              {formatMoney(price)} <span className="text-sm font-normal text-muted-foreground">/ {cycleWord}</span>
+            </p>
           </div>
-
-          <ul className="mt-4 space-y-1.5 text-sm text-muted-foreground">
-            {[
-              "منتجات غير محدودة",
-              "طلبات غير محدودة",
-              "جميع الثيمات",
-              "تكامل كاشير",
-              "إدارة المخزون",
-              "دعم على مدار الساعة",
-            ].map((f) => (
-              <li key={f} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                {f}
-              </li>
-            ))}
-          </ul>
-
-          {balance > 0 && (
-            <div className="mt-4 rounded-xl bg-muted/50 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">رصيدك الحالي: </span>
-              <span className="font-bold">{formatMoneyFromPiasters(balance)}</span>
-              {needed > 0 && (
-                <span className="mr-2 text-muted-foreground">
-                  (تحتاج {formatMoneyFromPiasters(needed)} إضافية)
-                </span>
-              )}
+          <dl className="mt-3 space-y-1.5 border-t border-border pt-3 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">رصيدك</dt>
+              <dd className="font-medium tabular-nums">{formatMoney(balance)}</dd>
             </div>
+            {shortfall > 0 && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">ناقصك</dt>
+                <dd className="font-medium tabular-nums text-amber-700 dark:text-amber-400">{formatMoney(shortfall)}</dd>
+              </div>
+            )}
+          </dl>
+          {shortfall > 0 && store?.autoRenew && (
+            <p className="mt-3 text-xs text-muted-foreground">أول ما الرصيد يوصل، الاشتراك بيتفعّل لوحده.</p>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="mt-6 flex flex-col gap-3">
-          <Button asChild size="lg" className="w-full font-bold">
-            <Link href="/dashboard/balance">
-              <CreditCard className="ml-2 h-4 w-4" />
-              شحن الرصيد وتفعيل الاشتراك
+        <div className="mt-5 flex flex-col gap-2">
+          <Button asChild size="lg" className="w-full gap-2">
+            <Link href={shortfall > 0 ? `/balance/topup?amount=${Math.ceil(shortfall / 100)}` : "/change-plan"}>
+              <Wallet className="size-4" />
+              {shortfall > 0 ? `اشحن ${formatMoney(shortfall)} وفعّل` : "فعّل اشتراكك من الرصيد"}
             </Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="w-full">
-            <Link href="/dashboard/change-plan">
-              عرض تفاصيل الباقة
-            </Link>
+            <Link href="/change-plan">قارن الباقات واختار</Link>
           </Button>
         </div>
 
-        {/* Support */}
-        <p className="mt-8 text-xs text-muted-foreground">
-          تحتاج مساعدة؟{" "}
-          <Link
-            href="/dashboard/support"
-            className="font-medium text-primary underline-offset-2 hover:underline"
-          >
-            تواصل مع الدعم
+        <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+          <MessageCircle className="size-3.5" />
+          محتاج مساعدة؟
+          <Link href="/support" className="font-medium text-primary underline-offset-2 hover:underline">
+            كلّم الدعم
           </Link>
         </p>
       </div>

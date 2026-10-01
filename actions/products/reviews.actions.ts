@@ -4,257 +4,150 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "../auth/require-user-id.actions";
 
-export type ReviewFormState = {
-  success: boolean;
-  message: string;
-  warnings?: string[];
-  errors?: Partial<Record<string, string[]>>;
+export type ReviewMutationResult =
+  | { ok: true; id: string }
+  | { ok: false; code: "NOT_FOUND" | "INVALID" | "LIMIT" | "FAILED"; message: string };
+
+export type ReviewInput = {
+  productId: string;
+  customerName: string;
+  customerAvatar?: string | null;
+  rating: number;
+  title?: string | null;
+  content: string;
+  /** YYYY-MM-DD */
+  reviewDate?: string | null;
+  /**
+   * The order this review came from. The only way to get the "verified
+   * purchase" badge — it must be a real order of this store containing this product.
+   */
+  orderId?: string | null;
+  /** Edit only: drop an existing verified badge. */
+  removeVerified?: boolean;
 };
 
-async function getAntiAbuseWarnings(
-  storeId: string,
-  productId: string,
-  rating: number,
-  content: string,
-  customerName: string,
-  reviewDate: Date,
-  excludeReviewId?: string,
-): Promise<string[]> {
-  const warnings: string[] = [];
+export type ReviewOrderOption = { id: string; fullName: string; createdAt: string };
 
-  const existing = await prisma.productReview.findMany({
-    where: {
-      productId,
-      storeId,
-      ...(excludeReviewId ? { NOT: { id: excludeReviewId } } : {}),
-    },
-    select: {
-      rating: true,
-      content: true,
-      customerName: true,
-      reviewDate: true,
-    },
+const MAX_PER_PRODUCT = 50;
+
+async function ownedStore() {
+  const userId = await requireUserId();
+  return prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true } });
+}
+
+function revalidateReviews(storeSlug: string, productSlug?: string) {
+  revalidatePath("/dashboard/reviews");
+  if (productSlug) revalidatePath(`/store/${storeSlug}/products/${productSlug}`);
+}
+
+function validate(input: ReviewInput) {
+  const customerName = String(input.customerName ?? "").trim();
+  const content = String(input.content ?? "").trim();
+  const title = String(input.title ?? "").trim() || null;
+  const customerAvatar = String(input.customerAvatar ?? "").trim() || null;
+  const rating = Math.round(Number(input.rating));
+
+  if (customerName.length < 2) return { error: "اكتب اسم العميل (حرفين على الأقل)." } as const;
+  if (customerName.length > 60) return { error: "اسم العميل طويل." } as const;
+  if (!(rating >= 1 && rating <= 5)) return { error: "اختار التقييم من ١ لـ ٥ نجوم." } as const;
+  if (content.length < 10) return { error: "نص المراجعة قصير (١٠ حروف على الأقل)." } as const;
+  if (content.length > 2000) return { error: "نص المراجعة طويل (٢٠٠٠ حرف بالكتير)." } as const;
+  if (title && title.length > 100) return { error: "العنوان طويل." } as const;
+  if (customerAvatar && !/^https?:\/\/\S+$/i.test(customerAvatar)) return { error: "رابط صورة العميل مش صحيح." } as const;
+
+  let reviewDate = new Date();
+  if (input.reviewDate) {
+    reviewDate = new Date(`${input.reviewDate}T12:00:00+02:00`);
+    if (Number.isNaN(reviewDate.getTime())) return { error: "التاريخ مش صحيح." } as const;
+    if (reviewDate.getTime() > Date.now() + 86400_000) return { error: "تاريخ المراجعة مينفعش يكون في المستقبل." } as const;
+  }
+
+  return { data: { customerName, content, title, customerAvatar, rating, reviewDate } } as const;
+}
+
+/** A real, non-canceled order of this store that contains the product. */
+async function findVerifyingOrder(storeId: string, productId: string, orderId: string) {
+  return prisma.order.findFirst({
+    where: { id: orderId, storeId, status: { not: "CANCELED" }, items: { some: { productId } } },
+    select: { id: true, createdAt: true },
   });
+}
 
-  const allRatings = [...existing.map((r) => r.rating), rating];
-  const fiveStarCount = allRatings.filter((r) => r === 5).length;
-  const pctFiveStars = (fiveStarCount / allRatings.length) * 100;
+export async function SaveReviewAction(reviewId: string | null, input: ReviewInput): Promise<ReviewMutationResult> {
+  const store = await ownedStore();
+  if (!store) return { ok: false, code: "NOT_FOUND", message: "المتجر مش موجود." };
 
-  if (allRatings.length >= 2 && allRatings.every((r) => r === 5)) {
-    warnings.push("جميع المراجعات بتقييم 5 نجوم — سيبدو مريباً للعملاء");
-  } else if (allRatings.length >= 3 && pctFiveStars > 80) {
-    warnings.push(
-      `${Math.round(pctFiveStars)}% من المراجعات بتقييم 5 نجوم — يُنصح بتنويع التقييمات`,
-    );
+  const existing = reviewId
+    ? await prisma.productReview.findFirst({
+        where: { id: reviewId, storeId: store.id },
+        select: { id: true, productId: true, verifiedPurchase: true },
+      })
+    : null;
+  if (reviewId && !existing) return { ok: false, code: "NOT_FOUND", message: "المراجعة مش موجودة." };
+
+  const productId = existing?.productId ?? String(input.productId ?? "");
+  const product = await prisma.product.findFirst({ where: { id: productId, storeId: store.id }, select: { id: true, slug: true } });
+  if (!product) return { ok: false, code: "INVALID", message: "اختار منتج من منتجاتك." };
+
+  const parsed = validate(input);
+  if ("error" in parsed) return { ok: false, code: "INVALID", message: parsed.error! };
+  const data = { ...parsed.data };
+
+  let verifiedPurchase = existing?.verifiedPurchase ?? false;
+  if (input.removeVerified) verifiedPurchase = false;
+  if (input.orderId) {
+    const order = await findVerifyingOrder(store.id, product.id, input.orderId);
+    if (!order) return { ok: false, code: "INVALID", message: "الطلب ده مش فيه المنتج ده أو اتلغى." };
+    if (data.reviewDate < order.createdAt) data.reviewDate = order.createdAt; // can't review before buying
+    verifiedPurchase = true;
   }
 
-  const sameNameCount = existing.filter(
-    (r) =>
-      r.customerName.trim().toLowerCase() ===
-      customerName.trim().toLowerCase(),
-  ).length;
-  if (sameNameCount >= 2) {
-    warnings.push(
-      `الاسم "${customerName}" مكرر أكثر من مرتين — قد يبدو غير طبيعي`,
-    );
-  }
-
-  const normalizedContent = content.trim().toLowerCase();
-  const hasDuplicateContent = existing.some(
-    (r) => r.content.trim().toLowerCase() === normalizedContent,
-  );
-  if (hasDuplicateContent) {
-    warnings.push("محتوى هذه المراجعة مطابق لمراجعة موجودة مسبقاً");
-  }
-
-  if (existing.length >= 3) {
-    const allDates = [...existing.map((r) => r.reviewDate), reviewDate];
-    const min = Math.min(...allDates.map((d) => d.getTime()));
-    const max = Math.max(...allDates.map((d) => d.getTime()));
-    const spanDays = (max - min) / (1000 * 60 * 60 * 24);
-    if (spanDays < 7) {
-      warnings.push(
-        "تواريخ المراجعات متقاربة جداً — يُنصح بتوزيعها على فترة زمنية أطول",
-      );
+  if (!existing) {
+    const count = await prisma.productReview.count({ where: { productId: product.id, storeId: store.id } });
+    if (count >= MAX_PER_PRODUCT) {
+      return { ok: false, code: "LIMIT", message: `وصلت للحد الأقصى (${MAX_PER_PRODUCT} مراجعة) للمنتج ده.` };
     }
   }
 
-  return warnings;
-}
-
-function parseReviewFormData(formData: FormData) {
-  const customerName = String(formData.get("customerName") ?? "").trim();
-  const customerAvatar =
-    String(formData.get("customerAvatar") ?? "").trim() || null;
-  const rating = Number(formData.get("rating") ?? "0");
-  const title = String(formData.get("title") ?? "").trim() || null;
-  const content = String(formData.get("content") ?? "").trim();
-  const verifiedPurchase = formData.get("verifiedPurchase") === "true";
-  const reviewDateRaw = String(formData.get("reviewDate") ?? "").trim();
-  return { customerName, customerAvatar, rating, title, content, verifiedPurchase, reviewDateRaw };
-}
-
-function validateReviewFields(fields: ReturnType<typeof parseReviewFormData>): string | null {
-  const { customerName, rating, content, reviewDateRaw } = fields;
-  if (!customerName || customerName.length < 2)
-    return "اسم العميل قصير جداً (2 أحرف على الأقل)";
-  if (customerName.length > 60) return "اسم العميل طويل جداً";
-  if (!rating || rating < 1 || rating > 5)
-    return "التقييم يجب أن يكون من 1 إلى 5 نجوم";
-  if (!content || content.length < 20)
-    return "المراجعة قصيرة جداً (20 حرف على الأقل)";
-  if (content.length > 2000) return "المراجعة طويلة جداً (الحد الأقصى 2000 حرف)";
-  if (reviewDateRaw && isNaN(new Date(reviewDateRaw).getTime()))
-    return "تاريخ المراجعة غير صحيح";
-  return null;
-}
-
-export async function CreateReviewAction(
-  _prevState: ReviewFormState,
-  formData: FormData,
-): Promise<ReviewFormState> {
-  const userId = await requireUserId();
-
   try {
-    const productId = String(formData.get("productId") ?? "").trim();
-    if (!productId) return { success: false, message: "المنتج مطلوب" };
-
-    const fields = parseReviewFormData(formData);
-    const validationError = validateReviewFields(fields);
-    if (validationError) return { success: false, message: validationError };
-
-    const { customerName, customerAvatar, rating, title, content, verifiedPurchase, reviewDateRaw } = fields;
-    const reviewDate = reviewDateRaw ? new Date(reviewDateRaw) : new Date();
-
-    const store = await prisma.store.findFirst({
-      where: { userId },
-      select: { id: true },
-    });
-    if (!store) return { success: false, message: "المتجر غير موجود" };
-
-    const product = await prisma.product.findFirst({
-      where: { id: productId, storeId: store.id },
-      select: { id: true },
-    });
-    if (!product) return { success: false, message: "المنتج غير موجود أو لا ينتمي لمتجرك" };
-
-    const reviewCount = await prisma.productReview.count({
-      where: { productId, storeId: store.id },
-    });
-    if (reviewCount >= 50) {
-      return {
-        success: false,
-        message: "وصلت للحد الأقصى من المراجعات لهذا المنتج (50 مراجعة)",
-      };
-    }
-
-    const warnings = await getAntiAbuseWarnings(
-      store.id,
-      productId,
-      rating,
-      content,
-      customerName,
-      reviewDate,
-    );
-
-    await prisma.productReview.create({
-      data: {
-        productId,
-        storeId: store.id,
-        customerName,
-        customerAvatar,
-        rating,
-        title,
-        content,
-        verifiedPurchase,
-        reviewDate,
-      },
-    });
-
-    revalidatePath("/dashboard/reviews");
-
-    return {
-      success: true,
-      message: "تم إضافة المراجعة بنجاح",
-      warnings: warnings.length > 0 ? warnings : undefined,
-    };
+    const saved = existing
+      ? await prisma.productReview.update({ where: { id: existing.id }, data: { ...data, verifiedPurchase }, select: { id: true } })
+      : await prisma.productReview.create({
+          data: { ...data, verifiedPurchase, productId: product.id, storeId: store.id },
+          select: { id: true },
+        });
+    revalidateReviews(store.slug, product.slug);
+    return { ok: true, id: saved.id };
   } catch (error) {
-    console.error("CreateReviewAction Error:", error);
-    return { success: false, message: "حدث خطأ أثناء إضافة المراجعة" };
+    console.error("SaveReviewAction error:", error);
+    return { ok: false, code: "FAILED", message: "مقدرناش نحفظ المراجعة. جرّب تاني." };
   }
 }
 
-export async function UpdateReviewAction(
-  reviewId: string,
-  _prevState: ReviewFormState,
-  formData: FormData,
-): Promise<ReviewFormState> {
-  const userId = await requireUserId();
-
-  try {
-    const fields = parseReviewFormData(formData);
-    const validationError = validateReviewFields(fields);
-    if (validationError) return { success: false, message: validationError };
-
-    const { customerName, customerAvatar, rating, title, content, verifiedPurchase, reviewDateRaw } = fields;
-    const reviewDate = reviewDateRaw ? new Date(reviewDateRaw) : new Date();
-
-    const store = await prisma.store.findFirst({
-      where: { userId },
-      select: { id: true },
-    });
-    if (!store) return { success: false, message: "المتجر غير موجود" };
-
-    const review = await prisma.productReview.findFirst({
-      where: { id: reviewId, storeId: store.id },
-      select: { id: true, productId: true },
-    });
-    if (!review) return { success: false, message: "المراجعة غير موجودة" };
-
-    const warnings = await getAntiAbuseWarnings(
-      store.id,
-      review.productId,
-      rating,
-      content,
-      customerName,
-      reviewDate,
-      reviewId,
-    );
-
-    await prisma.productReview.update({
-      where: { id: reviewId },
-      data: { customerName, customerAvatar, rating, title, content, verifiedPurchase, reviewDate },
-    });
-
-    revalidatePath("/dashboard/reviews");
-
-    return {
-      success: true,
-      message: "تم تعديل المراجعة بنجاح",
-      warnings: warnings.length > 0 ? warnings : undefined,
-    };
-  } catch (error) {
-    console.error("UpdateReviewAction Error:", error);
-    return { success: false, message: "حدث خطأ أثناء تعديل المراجعة" };
-  }
-}
-
-export async function DeleteReviewAction(reviewId: string): Promise<void> {
-  const userId = await requireUserId();
-
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!store) throw new Error("Store not found");
+export async function DeleteReviewAction(reviewId: string): Promise<ReviewMutationResult> {
+  const store = await ownedStore();
+  if (!store) return { ok: false, code: "NOT_FOUND", message: "المتجر مش موجود." };
 
   const review = await prisma.productReview.findFirst({
     where: { id: reviewId, storeId: store.id },
-    select: { id: true },
+    select: { id: true, product: { select: { slug: true } } },
   });
-  if (!review) throw new Error("Review not found");
+  if (!review) return { ok: false, code: "NOT_FOUND", message: "المراجعة مش موجودة." };
 
   await prisma.productReview.delete({ where: { id: review.id } });
+  revalidateReviews(store.slug, review.product.slug);
+  return { ok: true, id: review.id };
+}
 
-  revalidatePath("/dashboard/reviews");
+/** Recent real orders containing the product — to link a review to its purchase. */
+export async function GetReviewOrderOptionsAction(productId: string): Promise<ReviewOrderOption[]> {
+  const store = await ownedStore();
+  if (!store || typeof productId !== "string") return [];
+  const orders = await prisma.order.findMany({
+    where: { storeId: store.id, status: { not: "CANCELED" }, items: { some: { productId } } },
+    orderBy: { createdAt: "desc" },
+    take: 40,
+    select: { id: true, fullName: true, createdAt: true },
+  });
+  return orders.map((o) => ({ id: o.id, fullName: o.fullName, createdAt: o.createdAt.toISOString() }));
 }

@@ -1,95 +1,78 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
-import { storeSeoSchema } from "@/validations/store-seo.schema";
 
-export type SeoSettingsState = {
-  success: boolean;
-  message: string;
-  errors?: Record<string, string[]>;
-};
+const optionalText = (max: number, label: string) =>
+  z.string().trim().max(max, `${label} لازم يكون أقل من ${max} حرف`).optional().default("");
 
-function parseKeywords(value: string | undefined) {
-  if (!value?.trim()) return [];
+const seoSchema = z.object({
+  seoTitle: optionalText(70, "العنوان"),
+  seoDescription: optionalText(170, "الوصف"),
+  ogTitle: optionalText(90, "عنوان المشاركة"),
+  ogDescription: optionalText(200, "وصف المشاركة"),
+  ogImage: z
+    .string()
+    .trim()
+    .optional()
+    .default("")
+    .refine((v) => !v || /^https?:\/\/\S+$/i.test(v), "رابط صورة المشاركة مش صحيح"),
+  /** Accepts the raw code or the whole <meta …> tag Google gives you. */
+  googleSiteVerification: z.string().trim().max(400).optional().default(""),
+  isIndexed: z.boolean(),
+});
 
-  return value
-    .split(",")
-    .map((keyword) => keyword.trim())
-    .filter(Boolean)
-    .filter((keyword, index, arr) => arr.indexOf(keyword) === index);
+export type SeoInput = z.input<typeof seoSchema>;
+export type SeoSaveResult = { ok: true; verification: string | null } | { ok: false; message: string; field?: string };
+
+/** `<meta name="google-site-verification" content="abc" />` → "abc". */
+function extractVerification(raw: string) {
+  if (!raw) return null;
+  const fromTag = raw.match(/content\s*=\s*["']([^"']+)["']/i)?.[1];
+  const code = (fromTag ?? raw).trim();
+  return /^[A-Za-z0-9_-]{10,100}$/.test(code) ? code : undefined;
 }
 
-export async function UpdateStoreSeoAction(
-  storeId: string,
-  prevState: SeoSettingsState | null,
-  formData: FormData,
-): Promise<SeoSettingsState> {
-  try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
+export async function SaveStoreSeoAction(storeId: string, input: SeoInput): Promise<SeoSaveResult> {
+  const userId = await requireUserId();
+  const store = await MustOwnStore(storeId, userId);
 
-    const rawData = {
-      seoTitle: String(formData.get("seoTitle") ?? ""),
-      seoDescription: String(formData.get("seoDescription") ?? ""),
-      seoKeywords: String(formData.get("seoKeywords") ?? ""),
-      ogTitle: String(formData.get("ogTitle") ?? ""),
-      ogDescription: String(formData.get("ogDescription") ?? ""),
-      ogImage: String(formData.get("ogImage") ?? ""),
-      isIndexed: formData.get("isIndexed") === "on",
-    };
+  const parsed = seoSchema.safeParse(input);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    return { ok: false, message: issue?.message ?? "في بيانات مش صحيحة", field: issue?.path[0]?.toString() };
+  }
+  const data = parsed.data;
 
-    const parsed = storeSeoSchema.safeParse(rawData);
-
-    if (!parsed.success) {
-      return {
-        success: false,
-        message: "فيه بيانات محتاجة تتراجع",
-        errors: parsed.error.flatten().fieldErrors,
-      };
-    }
-
-    const data = parsed.data;
-
-    await prisma.storeSettings.upsert({
-      where: { storeId },
-      update: {
-        seoTitle: data.seoTitle || null,
-        seoDescription: data.seoDescription || null,
-        seoKeywords: parseKeywords(data.seoKeywords),
-        ogTitle: data.ogTitle || null,
-        ogDescription: data.ogDescription || null,
-        ogImage: data.ogImage || null,
-        isIndexed: data.isIndexed,
-      },
-      create: {
-        storeId,
-        seoTitle: data.seoTitle || null,
-        seoDescription: data.seoDescription || null,
-        seoKeywords: parseKeywords(data.seoKeywords),
-        ogTitle: data.ogTitle || null,
-        ogDescription: data.ogDescription || null,
-        ogImage: data.ogImage || null,
-        isIndexed: data.isIndexed,
-      },
-    });
-
-    revalidatePath("/dashboard/settings/seo");
-    revalidatePath("/dashboard/settings");
-    revalidatePath("/store/[slug]", "layout");
-
+  const verification = extractVerification(data.googleSiteVerification);
+  if (verification === undefined) {
     return {
-      success: true,
-      message: "تم حفظ إعدادات الـ SEO بنجاح",
-    };
-  } catch (error) {
-    console.error("UpdateStoreSeoAction Error:", error);
-
-    return {
-      success: false,
-      message: "حصل خطأ أثناء حفظ إعدادات الـ SEO",
+      ok: false,
+      field: "googleSiteVerification",
+      message: "كود التحقق مش واضح — الصق الـ meta tag اللي جوجل اداهولك كامل.",
     };
   }
+
+  const values = {
+    seoTitle: data.seoTitle || null,
+    seoDescription: data.seoDescription || null,
+    ogTitle: data.ogTitle || null,
+    ogDescription: data.ogDescription || null,
+    ogImage: data.ogImage || null,
+    googleSiteVerification: verification,
+    isIndexed: data.isIndexed,
+  };
+
+  await prisma.storeSettings.upsert({
+    where: { storeId },
+    update: values,
+    create: { storeId, ...values },
+  });
+
+  revalidatePath("/dashboard/seo");
+  revalidatePath(`/store/${store.slug}`, "layout");
+  return { ok: true, verification };
 }

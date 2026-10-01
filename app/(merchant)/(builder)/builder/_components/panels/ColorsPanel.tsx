@@ -47,11 +47,11 @@ function ColorSwatch({
 // ─── Panel ────────────────────────────────────────────────────────────────────
 
 export default function ColorsPanel() {
-  const { storeId, currentThemeId, sendThemeUpdate, reloadPreview } = useBuilder();
+  const { storeId, currentThemeId, primaryColor, secondaryColor, sendThemeUpdate, reloadPreview } = useBuilder();
   const [isPending, startTransition] = useTransition();
 
-  // Resolve default colors from current theme preset
-  const resolved = resolveStoreTheme(currentThemeId, null, null, null);
+  // Start from the store's current colors (theme preset + merchant overrides).
+  const resolved = resolveStoreTheme(currentThemeId, null, primaryColor, secondaryColor);
   const tokens = resolved.tokens;
 
   const [primary, setPrimary] = useState(tokens.primary);

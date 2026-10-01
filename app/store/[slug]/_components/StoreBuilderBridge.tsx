@@ -23,11 +23,12 @@ export function StoreBuilderBridge() {
       const { cssVars } = event.data;
       if (!cssVars || typeof cssVars !== "object") return;
 
-      const root = document.documentElement;
+      // Theme vars are declared on .store-theme-root (see layout), which beats
+      // anything set on <html> — so apply them there as well.
+      const targets = [document.documentElement, ...document.querySelectorAll<HTMLElement>(".store-theme-root")];
       for (const [property, value] of Object.entries(cssVars)) {
-        if (typeof value === "string") {
-          root.style.setProperty(property, value);
-        }
+        if (typeof value !== "string" || !property.startsWith("--")) continue;
+        for (const el of targets) el.style.setProperty(property, value);
       }
     }
 

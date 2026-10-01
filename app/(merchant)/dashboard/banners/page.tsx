@@ -1,214 +1,196 @@
 import Link from "next/link";
-import Image from "next/image";
-import { ImageIcon, Plus, Eye, EyeOff, LayoutPanelTop } from "lucide-react";
+import type { Metadata } from "next";
+import type { Prisma } from "@prisma/client";
+import { GalleryHorizontal, Plus, SearchX, Store } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
-import { GetBannersAction } from "@/actions/admin/banner.actions";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import DeleteBannerButton from "./_components/DeleteBannerButton";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Metadata } from "next";
+import { Button } from "@/components/ui/button";
+import {
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  hrefWith,
+  readPage,
+  readParam,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { prisma } from "@/lib/prisma";
+import { UrlBannerDialog } from "./_components/banner-form-dialog";
+import { BannersTable } from "./_components/banners-table";
 
 export const metadata: Metadata = {
-  title: "إدارة البانرز",
+  title: "البانرز",
 };
 
-type StatCardProps = {
-  icon: React.ElementType;
-  label: string;
-  value: number;
-  variant: "default" | "success" | "warning";
+const PAGE_SIZE = 20;
+const BASE_PATH = "/banners";
+
+const STATUSES = {
+  active: { label: "ظاهرة", isActive: true },
+  hidden: { label: "مخفية", isActive: false },
+} as const;
+type Status = keyof typeof STATUSES;
+const isStatus = (v: string | undefined): v is Status => !!v && v in STATUSES;
+
+type BannersRouteProps = {
+  searchParams?: Promise<SearchParamsRecord>;
 };
 
-function StatCard({ icon: Icon, label, value, variant }: StatCardProps) {
-  const iconClass = {
-    default: "bg-muted text-muted-foreground",
-    success:
-      "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400",
-    warning:
-      "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400",
-  }[variant];
-
-  return (
-    <Card className="rounded-xl shadow-sm">
-      <CardContent className="flex items-center gap-3 p-4">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
-        >
-          <Icon className="size-4.5" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-xl font-bold leading-none">{value}</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {label}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-export default async function BannersPage() {
+export default async function BannersRoute({ searchParams }: BannersRouteProps) {
   const userId = await requireUserId();
+  const params = await searchParams;
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, name: true },
+    select: { id: true, slug: true },
   });
 
   if (!store) {
     return (
-      <div className="p-6" dir="rtl">
-        <Card className="rounded-xl border-dashed">
-          <CardContent className="flex min-h-55 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-              <ImageIcon className="size-6 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-semibold">لم يتم العثور على متجر</h2>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              يجب إنشاء متجر أولًا حتى تتمكن من إدارة البانرز وعرض العروض
-              والإعلانات داخل متجرك.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول عشان تقدر تضيف بانرز للصفحة الرئيسية."
+        className="rounded-xl border border-dashed border-border"
+      />
     );
   }
 
-  const banners = await GetBannersAction(store.id);
-  const totalBanners = banners.length;
-  const activeBanners = banners.filter((b) => b.isActive).length;
-  const inactiveBanners = totalBanners - activeBanners;
+  // ── Filters (all in the URL so every view is shareable) ──────────────
+  const q = readParam(params, "q");
+  const statusParam = readParam(params, "status");
+  const status = isStatus(statusParam) ? statusParam : undefined;
+  const editId = readParam(params, "edit");
+  const dialogMode = editId ? "edit" : readParam(params, "new") ? "new" : null;
+
+  const baseWhere: Prisma.BannerWhereInput = {
+    storeId: store.id,
+    ...(q && { title: { contains: q, mode: "insensitive" } }),
+  };
+
+  // Tab counts respect search, so each number matches what its tab shows.
+  const [statusCounts, storeBannerCount, editBanner] = await Promise.all([
+    prisma.banner.groupBy({ by: ["isActive"], where: baseWhere, _count: { _all: true } }),
+    prisma.banner.count({ where: { storeId: store.id } }),
+    editId
+      ? prisma.banner.findFirst({
+          where: { id: editId, storeId: store.id },
+          select: { id: true, title: true, image: true, isActive: true },
+        })
+      : Promise.resolve(null),
+  ]);
+  const countFor = (isActive: boolean) => statusCounts.find((c) => c.isActive === isActive)?._count._all ?? 0;
+  const allCount = countFor(true) + countFor(false);
+  const total = status ? countFor(STATUSES[status].isActive) : allCount;
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(readPage(params), totalPages);
+
+  const banners = await prisma.banner.findMany({
+    where: { ...baseWhere, ...(status && { isActive: STATUSES[status].isActive }) },
+    // Same order as the storefront slider.
+    orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    select: { id: true, title: true, image: true, isActive: true, createdAt: true },
+  });
+
+  const hasFilters = Boolean(q || status);
+  const currentPage = readParam(params, "page");
+  const newHref = hrefWith(BASE_PATH, params, { new: 1, edit: null, page: currentPage });
+  const editHref = (id: string) => hrefWith(BASE_PATH, params, { edit: id, new: null, page: currentPage });
 
   return (
     <div className="space-y-6" dir="rtl">
-      <DashboardSectionHeader
-        icon={LayoutPanelTop}
-        title="إدارة البانرز"
-        badge={totalBanners}
-        description={
-          <>
-            بانرز متجر{" "}
-            <span className="font-semibold text-foreground">{store.name}</span>
-          </>
-        }
-        actionLabel="إضافة بانر"
-        actionHref="/banners/new"
-      />
-
-      {totalBanners > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatCard
-            icon={LayoutPanelTop}
-            label="إجمالي البانرز"
-            value={totalBanners}
-            variant="default"
-          />
-          <StatCard
-            icon={Eye}
-            label="بانرز نشطة"
-            value={activeBanners}
-            variant="success"
-          />
-          <StatCard
-            icon={EyeOff}
-            label="بانرز مخفية"
-            value={inactiveBanners}
-            variant={inactiveBanners > 0 ? "warning" : "default"}
-          />
-        </div>
-      )}
-
-      {banners.length === 0 ? (
-        <Card className="rounded-xl border-dashed shadow-sm">
-          <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
-              <LayoutPanelTop className="size-7 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-semibold">لا توجد بانرز بعد</h2>
-            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              أضف أول بانر لعرض العروض أو الإعلانات أو الرسائل المهمة بشكل
-              واضح وجذاب داخل متجرك.
-            </p>
-            <Button asChild className="mt-6 rounded-xl">
-              <Link href="/banners/new">
-                <Plus className="me-2 size-4" />
-                إضافة أول بانر
+      <PageHeader
+        title="البانرز"
+        description="الصور اللي بتظهر أعلى الصفحة الرئيسية لمتجرك — للعروض والإعلانات."
+        actions={
+          storeBannerCount > 0 && (
+            <Button asChild size="sm" className="gap-1.5">
+              <Link href={newHref} scroll={false}>
+                <Plus className="size-4" />
+                بانر جديد
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+          )
+        }
+      />
+
+      {storeBannerCount === 0 ? (
+        <div className="rounded-xl border border-dashed border-border">
+          <EmptyState
+            icon={GalleryHorizontal}
+            title="لسه مفيش بانرز"
+            description="ضيف بانر لعرض أو خصم، وهيظهر أول حاجة في الصفحة الرئيسية لمتجرك."
+            action={
+              <Button asChild size="sm" className="gap-1.5">
+                <Link href={newHref} scroll={false}>
+                  <Plus className="size-4" />
+                  ضيف أول بانر
+                </Link>
+              </Button>
+            }
+          />
+        </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {banners.map((banner, index) => (
-            <Card
-              key={banner.id}
-              className="group overflow-hidden rounded-xl border bg-background p-0 shadow-sm transition-shadow hover:shadow-md"
-            >
-              {/* Image */}
-              <div className="relative aspect-video w-full overflow-hidden bg-muted">
-                <Image
-                  src={banner.image}
-                  alt={banner.title}
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  fill
+        <div className="space-y-4">
+          <FilterTabs
+            label="حالة البانر"
+            param="status"
+            basePath={BASE_PATH}
+            searchParams={params}
+            tabs={[
+              { label: "الكل", count: allCount },
+              ...Object.entries(STATUSES).map(([value, s]) => ({ label: s.label, value, count: countFor(s.isActive) })),
+            ]}
+          />
+
+          <DataCard
+            toolbar={<SearchInput placeholder="ابحث بعنوان البانر" />}
+            footer={
+              total > 0 ? (
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={total}
+                  basePath={BASE_PATH}
+                  searchParams={params}
+                  noun="بانر"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
-
-                {/* Index badge */}
-                <div className="absolute inset-s-3 top-3">
-                  <Badge className="rounded-lg bg-black/50 text-white backdrop-blur-sm hover:bg-black/50">
-                    #{index + 1}
-                  </Badge>
-                </div>
-
-                {/* Status badge */}
-                <div className="absolute inset-e-3 top-3">
-                  {banner.isActive ? (
-                    <Badge className="rounded-lg bg-emerald-500/90 text-white backdrop-blur-sm hover:bg-emerald-500/90">
-                      <Eye className="me-1 size-3" />
-                      نشط
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="secondary"
-                      className="rounded-lg backdrop-blur-sm"
-                    >
-                      <EyeOff className="me-1 size-3" />
-                      مخفي
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              {/* Content */}
-              <CardContent className="p-4">
-                <div className="mb-3 space-y-1">
-                  <h3 className="truncate font-semibold">{banner.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    أُضيف في{" "}
-                    {new Date(banner.createdAt).toLocaleDateString("ar-EG", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-
-                <DeleteBannerButton
-                  bannerId={banner.id}
-                  storeId={store.id}
-                  bannerTitle={banner.title}
-                />
-              </CardContent>
-            </Card>
-          ))}
+              ) : undefined
+            }
+          >
+            {banners.length > 0 ? (
+              <BannersTable
+                banners={banners}
+                storeId={store.id}
+                storefrontUrl={buildStoreUrl(store.slug)}
+                editHref={editHref}
+              />
+            ) : (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش بانرز بالفلاتر دي"
+                description={q ? `مفيش نتايج لـ "${q}". جرّب عنوان تاني.` : "جرّب تبويب تاني."}
+                action={
+                  hasFilters && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                    </Button>
+                  )
+                }
+              />
+            )}
+          </DataCard>
         </div>
       )}
+
+      <UrlBannerDialog storeId={store.id} mode={dialogMode} banner={editBanner} />
     </div>
   );
 }

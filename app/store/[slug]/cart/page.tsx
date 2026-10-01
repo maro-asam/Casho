@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { PendingCouponApplier } from "./_components/PendingCouponApplier";
+import { CartRestorer } from "./_components/CartRestorer";
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -68,6 +73,8 @@ function getEffectiveUnitPrice(
   return price;
 }
 
+export const metadata: Metadata = { title: "السلة", robots: { index: false, follow: false } };
+
 export default async function CartPage({
   params,
   searchParams,
@@ -85,6 +92,9 @@ export default async function CartPage({
 
   return (
     <div className="min-h-[calc(100vh-80px)] max-w-screen-2xl mx-auto" dir="rtl">
+      <Suspense fallback={null}>
+        <CartRestorer storeSlug={slug} />
+      </Suspense>
       <div className="mx-auto w-full py-8">
         <div className="mb-8 flex flex-col gap-4 rounded-xl border bg-background p-6 shadow-sm md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
@@ -430,10 +440,11 @@ export default async function CartPage({
                         ) : (
                           <XCircle className="size-4" />
                         )}
-                        <span>{decodeURIComponent(couponMessage)}</span>
+                        <span>{couponMessage}</span>
                       </div>
                     ) : null}
 
+                    {!appliedCoupon && items.length > 0 && <PendingCouponApplier storeSlug={slug} />}
                     {appliedCoupon ? (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between rounded-xl border bg-background px-3 py-3">
@@ -464,7 +475,13 @@ export default async function CartPage({
                       <form
                         action={async (formData) => {
                           "use server";
-                          await ApplyCouponAction(slug, formData);
+                          const result = await ApplyCouponAction(slug, formData);
+                          // Show the outcome — invalid / expired codes used to fail silently.
+                          const params = new URLSearchParams({
+                            couponStatus: result.success ? "success" : "error",
+                            couponMessage: (result.success ? result.message : result.error) ?? "",
+                          });
+                          redirect(`/store/${slug}/cart?${params.toString()}`);
                         }}
                         className="flex flex-col gap-2 sm:flex-row"
                       >

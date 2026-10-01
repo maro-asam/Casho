@@ -1,3 +1,7 @@
+import { isStorefrontOpen } from "@/lib/subscriptions";
+import type { Metadata } from "next";
+import { storePageMetadata } from "@/lib/seo/page-meta";
+import { prisma } from "@/lib/prisma";
 import { getStoreCategories } from "@/lib/store.queries";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,7 +17,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SubscriptionStatus } from "@prisma/client";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await prisma.store.findUnique({ where: { slug }, select: { name: true } });
+  return storePageMetadata({
+    title: "التصنيفات",
+    description: store ? `تصفّح كل تصنيفات ${store.name}.` : undefined,
+    path: "/categories",
+    storeName: store?.name,
+  });
+}
 
 export default async function StoreCategoriesPage({
   params,
@@ -27,7 +41,7 @@ export default async function StoreCategoriesPage({
 
   const { store, categories } = data;
 
-  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
+  if (!isStorefrontOpen(store.subscriptionStatus)) {
     return (
       <div
         className="wrapper min-h-[70vh] flex items-center justify-center py-10 max-w-screen-2xl mx-auto"

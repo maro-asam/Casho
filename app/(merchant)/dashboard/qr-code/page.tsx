@@ -1,73 +1,90 @@
-import { Metadata } from "next";
-import { QrCode, Store } from "lucide-react";
+import type { Metadata } from "next";
+import { Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { EmptyState, PageHeader } from "@/components/saas-page";
+import { resolveStoreTheme } from "@/constants/store-themes";
+import { couponStatusWhere, formatCouponValue } from "@/lib/coupons/coupon-status";
 import { prisma } from "@/lib/prisma";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import QrCodeGenerator from "./_components/QrCodeGenerator";
+import { storeBaseUrl } from "@/lib/seo/store-seo";
+import type { ThemeCustomization } from "@/types/store-theme.types";
+import { QrStudio } from "./_components/qr-studio";
 
 export const metadata: Metadata = {
-  title: "QR Code المتجر",
-  description: "أنشئ QR code لمتجرك بأشكال وألوان مختلفة",
+  title: "QR Code",
 };
 
-export default async function QrCodePage() {
+export default async function QrCodeRoute() {
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { name: true, slug: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      customDomain: true,
+      customDomainStatus: true,
+      settings: { select: { logo: true, whatsappNumber: true, themeId: true, themeConfig: true, primaryColor: true, secondaryColor: true } },
+    },
   });
 
   if (!store) {
     return (
-      <div dir="rtl">
-        <Card className="rounded-xl border-dashed">
-          <CardContent className="flex min-h-55 flex-col items-center justify-center gap-3 text-center">
-            <Store className="size-12 text-muted-foreground" />
-            <div>
-              <h2 className="text-xl font-semibold">لا يوجد متجر</h2>
-              <p className="text-sm text-muted-foreground">
-                يجب إنشاء متجر أولًا قبل توليد QR code.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول وبعدها اعمل QR يوصّل العملاء ليه."
+        className="rounded-xl border border-dashed border-border"
+      />
     );
   }
 
-  const storeUrl = buildStoreUrl(store.slug);
+  const now = new Date();
+  const [products, categories, coupons] = await Promise.all([
+    prisma.product.findMany({
+      where: { storeId: store.id, isActive: true },
+      orderBy: { createdAt: "desc" },
+      take: 300,
+      select: { slug: true, name: true },
+    }),
+    prisma.category.findMany({
+      where: { storeId: store.id, products: { some: { isActive: true } } },
+      orderBy: { name: "asc" },
+      select: { slug: true, name: true },
+    }),
+    prisma.coupon.findMany({
+      where: { AND: [{ storeId: store.id }, couponStatusWhere("active", now, prisma.coupon.fields.usageLimit)] },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+      select: { code: true, type: true, value: true },
+    }),
+  ]);
+
+  const settings = store.settings;
+  const theme = resolveStoreTheme(
+    (settings?.themeConfig as ThemeCustomization | null)?.presetId ?? settings?.themeId,
+    settings?.themeConfig as ThemeCustomization | null,
+    settings?.primaryColor,
+    settings?.secondaryColor,
+  );
 
   return (
-    <div dir="rtl" className="space-y-6">
-      <DashboardSectionHeader
-        icon={QrCode}
-        title="QR Code المتجر"
-        description={
-          <>
-            اصنع QR code لمتجر{" "}
-            <span className="font-semibold text-foreground">{store.name}</span>{" "}
-            بتصميمك المفضل وحمّله بصيغة PNG أو SVG
-          </>
-        }
+    <div className="space-y-6" dir="rtl">
+      <PageHeader
+        title="QR Code"
+        description="اطبعه على الكياس والكروت والمنيو — العميل يمسحه ويوصل للمتجر أو منتج أو عرض على طول."
       />
-
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-xl text-primary font-semibold">
-            تخصيص الـ QR Code
-          </CardTitle>
-          <CardDescription>
-            اختار شكل النقاط والزوايا والألوان، ثم حمّل الملف جاهزًا للطباعة أو النشر.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <QrCodeGenerator storeUrl={storeUrl} storeName={store.name} />
-        </CardContent>
-      </Card>
+      <QrStudio
+        storeName={store.name}
+        baseUrl={storeBaseUrl(store)}
+        logo={settings?.logo ?? null}
+        brandColor={theme.tokens.primary}
+        whatsapp={settings?.whatsappNumber ?? null}
+        products={products}
+        categories={categories}
+        coupons={coupons.map((c) => ({ code: c.code, label: formatCouponValue(c.type, c.value) }))}
+      />
     </div>
   );
 }

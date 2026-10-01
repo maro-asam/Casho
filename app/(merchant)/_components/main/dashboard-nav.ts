@@ -75,10 +75,10 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     title: "التسويق",
     items: [
-      { name: "الكوبونات", href: "/coupons", icon: CirclePercent },
+      { name: "أكواد الخصم", href: "/coupons", icon: CirclePercent },
       { name: "الكارتات المتروكة", href: "/abandoned-carts", icon: Timer },
       { name: "نظام النقاط", href: "/loyalty", icon: Gift },
-      { name: "إعدادات SEO", href: "/seo", icon: Rocket },
+      { name: "الظهور في جوجل", href: "/seo", icon: Rocket },
       { name: "QR Code المتجر", href: "/qr-code", icon: QrCode },
     ],
   },

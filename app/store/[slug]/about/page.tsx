@@ -1,3 +1,6 @@
+import { isStorefrontOpen } from "@/lib/subscriptions";
+import type { Metadata } from "next";
+import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -21,11 +24,21 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SubscriptionStatus } from "@prisma/client";
 
 type AboutStoreRouteProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await prisma.store.findUnique({ where: { slug }, select: { name: true } });
+  return storePageMetadata({
+    title: "من نحن",
+    description: store ? `تعرّف على ${store.name} وطرق التواصل معانا.` : undefined,
+    path: "/about",
+    storeName: store?.name,
+  });
+}
 
 export default async function AboutStoreRoute({
   params,
@@ -51,7 +64,7 @@ export default async function AboutStoreRoute({
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
+  if (!isStorefrontOpen(store.subscriptionStatus)) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"

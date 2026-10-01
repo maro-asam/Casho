@@ -9,7 +9,7 @@ import {
   isKashierPaid,
   kashierAmountToPiasters,
 } from "@/lib/kashier";
-import { TryRenewStoreSubscriptionAction } from "@/actions/subscription/subscription.actions";
+import { renewIfDue } from "@/lib/billing/renewal";
 import {
   createNotification,
   formatPiastersAsEgp,
@@ -147,7 +147,7 @@ async function handleTopupCallback(req: NextRequest) {
       note: `شحن رصيد عبر Kashier — مرجع: ${paymentReference ?? topupRequest.id}`,
     });
 
-    await TryRenewStoreSubscriptionAction(topupRequest.storeId);
+    await renewIfDue(topupRequest.storeId, { includeInactive: true }).catch((e) => console.error("[topup] renewal", e));
 
     await createNotification({
       storeId: topupRequest.storeId,

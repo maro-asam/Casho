@@ -44,7 +44,7 @@ export function UsageBar({
       {reached ? (
         <p className="text-xs text-destructive">
           وصلت للحد الأقصى.{" "}
-          <Link href="/dashboard/change-plan" className="underline underline-offset-2">
+          <Link href="/change-plan" className="underline underline-offset-2">
             قم بالترقية
           </Link>{" "}
           لإضافة المزيد.

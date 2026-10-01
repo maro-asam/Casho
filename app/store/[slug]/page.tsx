@@ -1,3 +1,6 @@
+import { isStorefrontOpen } from "@/lib/subscriptions";
+import type { Metadata } from "next";
+import { absoluteUrl, jsonLd, metaText, storeBaseUrl } from "@/lib/seo/store-seo";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Store as StoreIcon } from "lucide-react";
@@ -31,6 +34,62 @@ export async function generateStaticParams() {
 type StoreHomeRouteProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  // Title/description come from the layout (store SEO settings); just pin the canonical.
+  return { alternates: { canonical: "/" }, openGraph: { url: "/" } };
+}
+
+/** Homepage structured data: the store as an online business + its site (sitelinks search box). */
+async function StoreJsonLd({ slug }: { slug: string }) {
+  const store = await prisma.store.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+      slug: true,
+      customDomain: true,
+      customDomainStatus: true,
+      settings: { select: { logo: true, seoDescription: true, description: true, instagram: true, facebook: true, tiktok: true, whatsappNumber: true, email: true } },
+    },
+  });
+  if (!store) return null;
+  const base = storeBaseUrl(store);
+  const s = store.settings;
+  const sameAs = [s?.instagram, s?.facebook, s?.tiktok].filter((v): v is string => Boolean(v && /^https?:\/\//.test(v)));
+  const data = [
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      name: store.name,
+      url: base,
+      ...(s?.logo && { logo: absoluteUrl(s.logo, base) }),
+      ...((s?.seoDescription || s?.description) && { description: metaText(s?.seoDescription || s?.description, 300) }),
+      ...(sameAs.length && { sameAs }),
+      ...((s?.whatsappNumber || s?.email) && {
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer service",
+          ...(s?.whatsappNumber && { telephone: s.whatsappNumber }),
+          ...(s?.email && { email: s.email }),
+          areaServed: "EG",
+          availableLanguage: ["ar"],
+        },
+      }),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: store.name,
+      url: base,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${base}/products?search={search_term_string}` },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ];
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(data) }} />;
+}
 
 export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   const { slug } = await params;
@@ -180,7 +239,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
     }
   }
 
-  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
+  if (!isStorefrontOpen(store.subscriptionStatus)) {
     return (
       <div
         className="flex min-h-[70vh] items-center justify-center px-4"
@@ -205,6 +264,8 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   }
 
   return (
+    <>
+    <StoreJsonLd slug={slug} />
     <StoreHome
       store={{
         ...store,
@@ -219,5 +280,6 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       sections={sections}
       sectionContent={sectionContent}
     />
+    </>
   );
 }

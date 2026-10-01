@@ -1,125 +1,221 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { BalanceTransactionType, BillingCycle, NotificationType, SubscriptionStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { BillingCycle } from "@prisma/client";
 import { previewPlanChange, type PlanChangePreview } from "@/lib/entitlements";
-import { createStoreNotification } from "@/lib/notifications/in-app";
+import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
+import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
+import { quotePlanChange, type PlanQuote } from "@/lib/billing/plan-quote";
 
-async function getOwnedStoreWithPlan(userId: string) {
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true, slug: true, planId: true, billingCycle: true },
-    orderBy: { createdAt: "asc" },
-  });
-  if (!store) throw new Error("المتجر غير موجود");
-  return store;
+const STORE_BILLING_SELECT = {
+  id: true,
+  slug: true,
+  planId: true,
+  balance: true,
+  monthlyPrice: true,
+  billingCycle: true,
+  autoRenew: true,
+  subscriptionStatus: true,
+  subscriptionEndsAt: true,
+  trialEndDate: true,
+  plan: { select: { name: true, sortOrder: true } },
+} as const;
+
+async function getOwnedStore(userId: string) {
+  return prisma.store.findFirst({ where: { userId }, select: STORE_BILLING_SELECT, orderBy: { createdAt: "asc" } });
 }
 
 function parseBillingCycle(value: string): BillingCycle {
   return value === "YEARLY" ? BillingCycle.YEARLY : BillingCycle.MONTHLY;
 }
 
+const cycleWord = (cycle: BillingCycle) => (cycle === "YEARLY" ? "سنوي" : "شهري");
+
 export type PreviewPlanChangeResult =
-  | { success: true; preview: PlanChangePreview }
+  | { success: true; preview: PlanChangePreview; quote: PlanQuote; balance: number }
   | { success: false; message: string };
 
-/** Fetches the feature diff + downgrade overage warning for the confirmation modal (spec sections 13/14). */
-export async function PreviewPlanChangeAction(
-  targetPlanId: string,
-): Promise<PreviewPlanChangeResult> {
+/** Feature diff + downgrade overages + exact money effect, for the confirmation dialog. */
+export async function PreviewPlanChangeAction(targetPlanId: string, billingCycleInput: string = "MONTHLY"): Promise<PreviewPlanChangeResult> {
   try {
     const userId = await requireUserId();
-    const store = await getOwnedStoreWithPlan(userId);
+    const store = await getOwnedStore(userId);
+    if (!store) return { success: false, message: "مش لاقيين متجرك" };
 
-    const preview = await previewPlanChange(store.id, targetPlanId);
-    return { success: true, preview };
+    const target = await prisma.plan.findFirst({
+      where: { id: targetPlanId, isActive: true },
+      select: { id: true, monthlyPrice: true, yearlyPrice: true },
+    });
+    if (!target) return { success: false, message: "الباقة دي مش متاحة دلوقتي" };
+
+    const preview = await previewPlanChange(store.id, target.id);
+    const quote = quotePlanChange(store, target, parseBillingCycle(billingCycleInput));
+    return { success: true, preview, quote, balance: store.balance };
   } catch (error) {
     console.error("PreviewPlanChangeAction Error:", error);
-    return { success: false, message: "حدث خطأ أثناء تحضير معاينة الباقة" };
+    return { success: false, message: "مقدرناش نجهّز تفاصيل التغيير. جرّب تاني." };
   }
 }
 
 export type ConfirmPlanChangeResult = {
   success: boolean;
   message: string;
+  /** Set when the balance doesn't cover the change — amount to top up, piasters. */
+  shortfall?: number;
 };
 
 /**
- * The actual plan-switch mutation. Never deletes existing data on a
- * downgrade (spec section 14) — it only changes which plan's limits apply
- * going forward; assertCanUse already blocks further creation once usage
- * exceeds the new plan's limit.
+ * Applies a plan change with real money semantics (see lib/billing/plan-quote):
+ * trial = free switch, running period = prorated difference now, no running
+ * period = full charge + new period. Never deletes data on a downgrade — the
+ * entitlement checks just stop new creation above the new limits.
  */
-export async function ConfirmPlanChangeAction(
-  targetPlanId: string,
-  billingCycleInput: string,
-): Promise<ConfirmPlanChangeResult> {
+export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycleInput: string): Promise<ConfirmPlanChangeResult> {
   try {
     const userId = await requireUserId();
-    const store = await getOwnedStoreWithPlan(userId);
     const billingCycle = parseBillingCycle(billingCycleInput);
 
-    const targetPlan = await prisma.plan.findUnique({
+    const target = await prisma.plan.findFirst({
       where: { id: targetPlanId, isActive: true },
+      select: { id: true, key: true, name: true, sortOrder: true, monthlyPrice: true, yearlyPrice: true },
     });
-    if (!targetPlan) {
-      return { success: false, message: "الباقة المطلوبة غير متاحة" };
-    }
+    if (!target) return { success: false, message: "الباقة دي مش متاحة دلوقتي" };
 
-    const price = billingCycle === BillingCycle.YEARLY ? targetPlan.yearlyPrice : targetPlan.monthlyPrice;
-    const direction =
-      !store.planId
-        ? "initial"
-        : store.planId === targetPlan.id && store.billingCycle === billingCycle
-          ? "same"
-          : "change";
+    const outcome = await prisma.$transaction(async (tx) => {
+      const store = await tx.store.findFirst({ where: { userId }, select: STORE_BILLING_SELECT, orderBy: { createdAt: "asc" } });
+      if (!store) return { kind: "error" as const, message: "مش لاقيين متجرك" };
 
-    if (direction === "same") {
-      return { success: true, message: "أنت مشترك في هذه الباقة بالفعل" };
-    }
+      const now = new Date();
+      const quote = quotePlanChange(store, target, billingCycle, now);
+      if (quote.mode === "same") return { kind: "same" as const };
 
-    await prisma.$transaction(async (tx) => {
-      await tx.store.update({
-        where: { id: store.id },
-        data: {
-          planId: targetPlan.id,
-          billingCycle,
-          monthlyPrice: price,
-          planName: targetPlan.key,
-          planSelected: true,
-        },
-      });
+      const planData = {
+        planId: target.id,
+        billingCycle,
+        monthlyPrice: quote.price,
+        planName: target.key,
+        planSelected: true,
+      };
 
+      // Not enough balance: a lapsed store still records its choice (so the next
+      // top-up activates the right plan); a running period changes nothing.
+      if (quote.shortfall > 0) {
+        if (quote.mode === "activate") {
+          await tx.store.update({ where: { id: store.id }, data: { ...planData, autoRenew: true } });
+          return { kind: "saved" as const, store, quote };
+        }
+        return { kind: "short" as const, quote };
+      }
+
+      if (quote.charge !== 0) {
+        const res = await tx.store.updateMany({
+          where: { id: store.id, balance: { gte: quote.charge } },
+          data: {
+            ...planData,
+            balance: { decrement: quote.charge },
+            subscriptionStatus: SubscriptionStatus.ACTIVE,
+            subscriptionEndsAt: quote.periodEndsAt,
+            gracePeriodEndsAt: null,
+            ...(quote.mode === "activate" && { autoRenew: true }),
+          },
+        });
+        if (res.count !== 1) return { kind: "short" as const, quote };
+
+        const fresh = await tx.store.findUniqueOrThrow({ where: { id: store.id }, select: { balance: true } });
+        const refund = quote.charge < 0;
+        await tx.balanceTransaction.create({
+          data: {
+            storeId: store.id,
+            type: refund ? BalanceTransactionType.REFUND : BalanceTransactionType.SUBSCRIPTION_CHARGE,
+            amount: -quote.charge,
+            balanceBefore: fresh.balance + quote.charge,
+            balanceAfter: fresh.balance,
+            note:
+              quote.mode === "activate"
+                ? `اشتراك باقة ${target.name} (${cycleWord(billingCycle)})`
+                : refund
+                  ? `الرصيد المتبقي من باقة ${store.plan?.name ?? "السابقة"} بعد التحويل لـ ${target.name}`
+                  : `التحويل لباقة ${target.name} (${cycleWord(billingCycle)}) — بعد خصم المتبقي من باقتك`,
+          },
+        });
+      } else {
+        await tx.store.update({
+          where: { id: store.id },
+          data: {
+            ...planData,
+            ...(quote.mode !== "trial" && {
+              subscriptionStatus: SubscriptionStatus.ACTIVE,
+              subscriptionEndsAt: quote.periodEndsAt,
+              gracePeriodEndsAt: null,
+            }),
+          },
+        });
+      }
+
+      const direction = !store.plan ? "selected" : store.planId === target.id && store.billingCycle === billingCycle ? "activated" : target.sortOrder > store.plan.sortOrder ? "upgraded" : target.sortOrder < store.plan.sortOrder ? "downgraded" : "cycle_changed";
       await tx.planAuditLog.create({
         data: {
           actorUserId: userId,
           storeId: store.id,
-          planId: targetPlan.id,
-          action: direction === "initial" ? "subscription_plan_selected" : "subscription_plan_changed",
-          before: { planId: store.planId, billingCycle: store.billingCycle },
-          after: { planId: targetPlan.id, billingCycle },
+          planId: target.id,
+          action: `subscription_${direction}`,
+          before: { planId: store.planId, billingCycle: store.billingCycle, price: store.monthlyPrice },
+          after: { planId: target.id, billingCycle, price: quote.price, charge: quote.charge, mode: quote.mode },
         },
       });
+
+      return { kind: "applied" as const, store, quote, direction };
     });
 
+    if (outcome.kind === "error") return { success: false, message: outcome.message };
+    if (outcome.kind === "same") return { success: true, message: "إنت مشترك في الباقة دي بالفعل" };
+    if (outcome.kind === "short") {
+      return {
+        success: false,
+        shortfall: outcome.quote.shortfall,
+        message: `رصيدك ناقص ${formatPiastersAsEgp(outcome.quote.shortfall)} عشان تنفّذ التغيير ده`,
+      };
+    }
+
+    const { store, quote } = outcome;
+    revalidatePath("/dashboard", "layout");
+    revalidatePath(`/store/${store.slug}`, "layout");
+
+    if (outcome.kind === "saved") {
+      return {
+        success: true,
+        shortfall: quote.shortfall,
+        message: `اخترنا ${target.name} — اشحن ${formatPiastersAsEgp(quote.shortfall)} والاشتراك هيتفعّل تلقائي`,
+      };
+    }
+
+    const downgraded = outcome.direction === "downgraded";
     await createStoreNotification({
       storeId: store.id,
-      type: "PLAN_UPGRADED",
-      title: "تم تحديث الباقة",
-      message: `تم تحديث باقتك إلى ${targetPlan.name} (${billingCycle === "YEARLY" ? "سنوي" : "شهري"}).`,
-      href: "/dashboard/change-plan",
+      type: downgraded ? NotificationType.PLAN_DOWNGRADED : NotificationType.PLAN_UPGRADED,
+      title: "باقتك اتحدثت",
+      message: `إنت دلوقتي على باقة ${target.name} (${cycleWord(billingCycle)}).`,
+      href: "/change-plan",
     });
 
-    revalidatePath("/dashboard/change-plan");
-    revalidatePath("/dashboard/balance");
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/settings");
+    if (quote.charge > 0) {
+      await grantReferralRewardIfEligible(store.id).catch((e) => console.error("[plan] referral", e));
+      await trackPaidReferralLevel(store.id).catch((e) => console.error("[plan] referral level", e));
+    }
 
-    return { success: true, message: "تم تحديث الباقة بنجاح" };
+    const message =
+      quote.mode === "trial"
+        ? `تمام! إنت على ${target.name} — مفيش أي خصم لحد ما التجربة تخلص`
+        : quote.charge > 0
+          ? `تم التحويل لـ ${target.name} واتخصم ${formatPiastersAsEgp(quote.charge)}`
+          : quote.charge < 0
+            ? `تم التحويل لـ ${target.name} ورجعنالك ${formatPiastersAsEgp(-quote.charge)} في رصيدك`
+            : `تم التحويل لـ ${target.name}`;
+    return { success: true, message };
   } catch (error) {
     console.error("ConfirmPlanChangeAction Error:", error);
-    return { success: false, message: "حدث خطأ أثناء تحديث الباقة" };
+    return { success: false, message: "حصلت مشكلة وإحنا بنغيّر الباقة. جرّب تاني." };
   }
 }

@@ -7,6 +7,7 @@ import DashboardShell from "../_components/main/DashboardShell";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetNotificationsAction } from "@/actions/notifications/notifications.actions";
 import { isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
+import { renewIfDue } from "@/lib/billing/renewal";
 
 export const metadata: Metadata = {
   title: {
@@ -37,7 +38,7 @@ export default async function DashboardLayout({
   children: ReactNode;
 }) {
   const userId = await requireUserId();
-  const store = await prisma.store.findFirst({
+  const storeQuery = {
     where: { userId },
     select: {
       id: true,
@@ -58,7 +59,18 @@ export default async function DashboardLayout({
         },
       },
     },
-  });
+  } as const;
+  let store = await prisma.store.findFirst(storeQuery);
+
+  // Renew (or move to grace / past due) the moment the merchant shows up, so
+  // billing never depends on the cron alone.
+  if (store?.subscriptionEndsAt && store.subscriptionEndsAt.getTime() <= Date.now()) {
+    const outcome = await renewIfDue(store.id).catch((error) => {
+      console.error("[dashboard] renewal", error);
+      return "none" as const;
+    });
+    if (outcome !== "none") store = await prisma.store.findFirst(storeQuery);
+  }
 
   if (!store) {
     redirect("/");

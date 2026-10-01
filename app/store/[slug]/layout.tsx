@@ -12,7 +12,11 @@ import { getStoreFont } from "@/constants/arabic-fonts";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import { StoreBuilderBridge } from "./_components/StoreBuilderBridge";
+import { CustomDomainLinks } from "./_components/CustomDomainLinks";
+import { CouponLinkCapture } from "./_components/CouponLinkCapture";
+import { Suspense } from "react";
 import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
+import { StoreConversionLayer } from "./_components/conversion/StoreConversionLayer";
 
 type LayoutProps = {
   children: ReactNode;
@@ -57,6 +61,8 @@ export async function generateMetadata({
     select: {
       name: true,
       slug: true,
+      customDomain: true,
+      customDomainStatus: true,
       settings: {
         select: {
           seoTitle: true,
@@ -67,6 +73,7 @@ export async function generateMetadata({
           ogImage: true,
           isIndexed: true,
           logo: true,
+          googleSiteVerification: true,
         },
       },
     },
@@ -79,23 +86,28 @@ export async function generateMetadata({
     store.settings?.seoDescription ||
     `تصفح منتجات ${store.name} واطلب بسهولة من خلال المتجر الإلكتروني.`;
 
-  const url = buildStoreUrl(store.slug);
+  // A live custom domain is the store's real address — tell search engines so.
+  const url =
+    store.customDomain && store.customDomainStatus === "ACTIVE" ? `https://${store.customDomain}` : buildStoreUrl(store.slug);
   const image =
     getAbsoluteImageUrl(store.settings?.ogImage) ||
     getAbsoluteImageUrl(store.settings?.logo);
 
   const isIndexed = store.settings?.isIndexed ?? true;
 
+  const logo = getAbsoluteImageUrl(store.settings?.logo);
+
   return {
-    title,
+    // Relative canonicals/OG urls on child pages resolve against the store's real address.
+    metadataBase: new URL(url),
+    // Pages set their own title; the store name is appended — "Product | Store".
+    title: { default: title, template: `%s | ${store.name}` },
     description,
-    icons: {
-      icon: image || "/favicon.ico",
-      shortcut: image || "/favicon.ico",
-      apple: image || "/favicon.ico",
-    },
+    applicationName: store.name,
+    icons: logo ? { icon: logo, shortcut: logo, apple: logo } : undefined,
     keywords: store.settings?.seoKeywords ?? [],
-    alternates: { canonical: url },
+    // No canonical here: it would be inherited by every page and point them all at the home page.
+    ...(store.settings?.googleSiteVerification && { verification: { google: store.settings.googleSiteVerification } }),
     robots: isIndexed
       ? { index: true, follow: true }
       : { index: false, follow: false, nocache: true },
@@ -202,6 +214,10 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
       */}
       <StoreThemeProvider theme={resolvedTheme}>
         <StoreBuilderBridge />
+        <CustomDomainLinks storeSlug={store.slug} />
+        <Suspense fallback={null}>
+          <CouponLinkCapture storeSlug={store.slug} />
+        </Suspense>
         <StoreVisitTracker storeId={store.id} />
         <div dir={storeDir} className="store-theme-root min-h-screen">
           <StoreFrontHeader
@@ -223,6 +239,11 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
             showPoweredByCasho={
               store.poweredByRemovalEnabled ? store.showPoweredByCasho : true
             }
+          />
+
+          <StoreConversionLayer
+            storeId={store.id}
+            storeSlug={store.slug}
           />
         </div>
       </StoreThemeProvider>

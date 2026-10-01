@@ -1,541 +1,378 @@
 import Link from "next/link";
-import { Metadata } from "next";
-import {
-  AlertTriangle,
-  ArrowDownLeft,
-  ArrowUpRight,
-  BadgeDollarSign,
-  CalendarClock,
-  Gift,
-  Plus,
-  RefreshCcw,
-  Wallet,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import type { Metadata } from "next";
+import { AlertTriangle, ArrowLeft, CheckCircle2, Gift, History, Plus, Store, XCircle } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-
-import { Badge } from "@/components/ui/badge";
+import { EmptyState, PageHeader, StatusPill, readParam, type SearchParamsRecord } from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import RenewSubscriptionModal from "./_components/RenewSubscriptionModal";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { METHOD_LABELS, TOPUP_STATUS, formatMoney, formatSigned, txMeta } from "@/lib/balance-ui/meta";
+import { prisma } from "@/lib/prisma";
+import { getBillingPeriodDays } from "@/lib/subscriptions";
 import { cn } from "@/lib/utils";
+import { AutoRenewSwitch } from "./_components/auto-renew-switch";
+import RenewSubscriptionModal from "./_components/RenewSubscriptionModal";
 
 export const metadata: Metadata = {
-  title: "إدارة الرصيد",
+  title: "الرصيد والاشتراك",
 };
 
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 2,
-  }).format(value / 100);
-}
+const nf = new Intl.NumberFormat("ar-EG");
+const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
+const dtf = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
-function formatDate(date: Date | null) {
-  if (!date) return "—";
-  return new Intl.DateTimeFormat("ar-EG", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function getSubscriptionStatusLabel(status: SubscriptionStatus) {
-  switch (status) {
-    case SubscriptionStatus.ACTIVE:       return "نشط";
-    case SubscriptionStatus.GRACE_PERIOD: return "فترة سماح";
-    case SubscriptionStatus.PAST_DUE:     return "متأخر";
-    case SubscriptionStatus.CANCELED:     return "ملغي";
-    case SubscriptionStatus.INACTIVE:
-    default:                              return "غير مفعل";
-  }
-}
-
-function getSubscriptionStatusBadgeClass(status: SubscriptionStatus) {
-  switch (status) {
-    case SubscriptionStatus.ACTIVE:
-      return "border-emerald-200 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400";
-    case SubscriptionStatus.GRACE_PERIOD:
-      return "border-amber-200 bg-amber-500/10 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400";
-    case SubscriptionStatus.PAST_DUE:
-      return "border-rose-200 bg-rose-500/10 text-rose-700 hover:bg-rose-500/10 dark:text-rose-400";
-    case SubscriptionStatus.CANCELED:
-      return "border-zinc-200 bg-zinc-500/10 text-zinc-700 hover:bg-zinc-500/10 dark:text-zinc-400";
-    default:
-      return "border-primary/20 bg-primary/10 text-primary hover:bg-primary/10";
-  }
-}
-
-function getTransactionLabel(type: BalanceTransactionType) {
-  switch (type) {
-    case BalanceTransactionType.TOPUP:                return "شحن رصيد";
-    case BalanceTransactionType.SUBSCRIPTION_CHARGE:  return "خصم اشتراك";
-    case BalanceTransactionType.BONUS:                return "رصيد إضافي";
-    case BalanceTransactionType.MANUAL_ADJUSTMENT:    return "تعديل يدوي";
-    case BalanceTransactionType.REFUND:               return "استرجاع رصيد";
-    default:                                          return type;
-  }
-}
-
-function getTransactionStyles(type: BalanceTransactionType): {
-  icon: LucideIcon;
-  iconClass: string;
-  iconBg: string;
-} {
-  switch (type) {
-    case BalanceTransactionType.TOPUP:
-      return { icon: ArrowDownLeft, iconClass: "text-emerald-600", iconBg: "bg-emerald-500/10" };
-    case BalanceTransactionType.SUBSCRIPTION_CHARGE:
-      return { icon: ArrowUpRight, iconClass: "text-rose-600", iconBg: "bg-rose-500/10" };
-    case BalanceTransactionType.BONUS:
-      return { icon: Gift, iconClass: "text-primary", iconBg: "bg-primary/10" };
-    case BalanceTransactionType.REFUND:
-      return { icon: RefreshCcw, iconClass: "text-amber-600", iconBg: "bg-amber-500/10" };
-    case BalanceTransactionType.MANUAL_ADJUSTMENT:
-    default:
-      return { icon: RefreshCcw, iconClass: "text-muted-foreground", iconBg: "bg-muted" };
-  }
-}
-
-type QuickStatCardProps = {
-  title: string;
-  value: string;
-  description: string;
-  icon: LucideIcon;
+const STATUS: Record<string, { label: string; tone: "success" | "warning" | "danger" | "neutral" }> = {
+  ACTIVE: { label: "نشط", tone: "success" },
+  GRACE_PERIOD: { label: "فترة سماح", tone: "warning" },
+  PAST_DUE: { label: "متأخر", tone: "danger" },
+  CANCELED: { label: "ملغي", tone: "neutral" },
+  INACTIVE: { label: "غير مفعّل", tone: "neutral" },
 };
 
-function QuickStatCard({ title, value, description, icon: Icon }: QuickStatCardProps) {
-  return (
-    <Card className="border-border/60 shadow-sm">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-        <div className="space-y-1">
-          <CardDescription className="text-xs">{title}</CardDescription>
-          <CardTitle className="text-xl font-bold md:text-2xl">{value}</CardTitle>
-        </div>
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="size-5" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  );
-}
+const TOPUP_RESULT = {
+  success: { icon: CheckCircle2, tone: "border-emerald-500/30 bg-emerald-500/5 text-emerald-800 dark:text-emerald-300", text: "الدفع تم بنجاح والرصيد اتضاف لمحفظتك." },
+  failed: { icon: XCircle, tone: "border-rose-500/30 bg-rose-500/5 text-rose-800 dark:text-rose-300", text: "الدفع ما تمش ومفيش أي مبلغ اتخصم. جرّب تاني أو استخدم تحويل يدوي." },
+  invalid: { icon: AlertTriangle, tone: "border-amber-500/30 bg-amber-500/5 text-amber-800 dark:text-amber-300", text: "مقدرناش نتأكد من عملية الدفع. لو المبلغ اتخصم من حسابك كلّمنا من الدعم." },
+} as const;
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium">{value}</span>
-    </div>
-  );
-}
+const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400_000);
+const KASHIER_STALE_MS = 60 * 60 * 1000;
 
-export default async function BalanceRoute() {
+type BalanceRouteProps = { searchParams?: Promise<SearchParamsRecord> };
+
+export default async function BalanceRoute({ searchParams }: BalanceRouteProps) {
   const userId = await requireUserId();
+  const params = await searchParams;
 
   const store = await prisma.store.findFirst({
     where: { userId },
     select: {
       id: true,
-      name: true,
-      slug: true,
       balance: true,
       monthlyPrice: true,
       autoRenew: true,
+      billingCycle: true,
       subscriptionStatus: true,
       subscriptionEndsAt: true,
       gracePeriodEndsAt: true,
-      balanceTransactions: {
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        select: {
-          id: true,
-          type: true,
-          amount: true,
-          note: true,
-          createdAt: true,
-          balanceBefore: true,
-          balanceAfter: true,
-        },
-      },
+      plan: { select: { name: true } },
     },
   });
 
   if (!store) {
     return (
-      <div dir="rtl">
-        <Card className="border-border/60 shadow-sm">
-          <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-4 p-8 text-center">
-            <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
-              <Wallet className="size-6" />
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-semibold">لا يوجد متجر بعد</h1>
-              <p className="max-w-md text-sm leading-6 text-muted-foreground">
-                أنشئ متجرك أولًا عشان تقدر تتابع الرصيد، الاشتراك، وسجل الحركات المالية.
-              </p>
-            </div>
-            <Button asChild className="rounded-xl">
-              <Link href="/">الرجوع للوحة التحكم</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول عشان تتابع الرصيد والاشتراك."
+        className="rounded-xl border border-dashed border-border"
+      />
     );
   }
 
-  const statusLabel = getSubscriptionStatusLabel(store.subscriptionStatus);
-  const enoughForRenewal = store.balance >= store.monthlyPrice;
-  const remainingAfterRenewal = store.balance - store.monthlyPrice;
-  const amountNeeded = Math.max(store.monthlyPrice - store.balance, 0);
-  const renewalProgress =
-    store.monthlyPrice > 0
-      ? Math.min(100, Math.round((store.balance / store.monthlyPrice) * 100))
-      : 0;
+  const now = new Date();
+  const yearAgo = addDays(now, -365);
+  const [transactions, requests, totals] = await Promise.all([
+    prisma.balanceTransaction.findMany({
+      where: { storeId: store.id },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: { id: true, type: true, amount: true, note: true, balanceAfter: true, createdAt: true },
+    }),
+    prisma.topupRequest.findMany({
+      where: { storeId: store.id, OR: [{ status: "PENDING" }, { status: "REJECTED", updatedAt: { gte: addDays(now, -14) } }] },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, amount: true, method: true, status: true, createdAt: true, transferRef: true },
+    }),
+    prisma.balanceTransaction.groupBy({
+      by: ["type"],
+      where: { storeId: store.id, createdAt: { gte: yearAgo } },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  // Online-payment attempts that never came back are noise, not "pending".
+  const visibleRequests = requests.filter((r) => r.method !== "KASHIER" || now.getTime() - r.createdAt.getTime() < KASHIER_STALE_MS);
+
+  // ── Runway: how far the balance carries the subscription ────────────
+  const price = store.monthlyPrice;
+  const periodDays = getBillingPeriodDays(store.billingCycle);
+  const cycleWord = store.billingCycle === "YEARLY" ? "سنة" : "شهر";
+  const renewals = price > 0 ? Math.floor(store.balance / price) : 0;
+  const nextRenewal = store.subscriptionEndsAt;
+  const coveredUntil = nextRenewal ? addDays(nextRenewal, renewals * periodDays) : null;
+  const shortBy = Math.max(0, price - store.balance);
+  const daysToRenewal = nextRenewal ? Math.ceil((nextRenewal.getTime() - now.getTime()) / 86400_000) : null;
+  const urgent = shortBy > 0 && daysToRenewal !== null && daysToRenewal <= 7;
+  const slots = 12;
+
+  const sumOf = (...types: string[]) => totals.filter((t) => types.includes(t.type)).reduce((s, t) => s + Math.abs(t._sum.amount ?? 0), 0);
+  const toppedUp = sumOf("TOPUP");
+  const spent = sumOf("SUBSCRIPTION_CHARGE");
+  const gifts = sumOf("BONUS", "REFERRAL_REWARD");
+
+  const topupResult = readParam(params, "topup");
+  const result = topupResult && topupResult in TOPUP_RESULT ? TOPUP_RESULT[topupResult as keyof typeof TOPUP_RESULT] : null;
+  const status = STATUS[store.subscriptionStatus] ?? STATUS.INACTIVE;
 
   return (
     <div className="space-y-6" dir="rtl">
-      {/* ── Hero Header ── */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/60 px-6 py-7 shadow-sm">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/8 blur-3xl" />
-        <div className="pointer-events-none absolute -left-10 bottom-0 h-36 w-36 rounded-full bg-sky-500/8 blur-3xl" />
-
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-start gap-4">
-            <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-              <Wallet className="size-6" />
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight">إدارة الرصيد</h1>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                    getSubscriptionStatusBadgeClass(store.subscriptionStatus),
-                  )}
-                >
-                  {statusLabel}
-                </Badge>
-              </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                راقب الرصيد، اعرف موعد التجديد، وشوف آخر الحركات المالية بشكل منظم وواضح.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex shrink-0 flex-wrap gap-3">
-            <Button asChild className="">
-              <Link href={`/dashboard/balance/topup?storeId=${store.id}`}>
-                شحن رصيد
-                <Plus className="ms-2 size-4" />
+      <PageHeader
+        title="الرصيد والاشتراك"
+        description="رصيد محفظتك بيجدد اشتراك المتجر تلقائي — اشحن مرة وانسى."
+        actions={
+          <>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link href="/balance/history">
+                <History className="size-4" />
+                سجل الحركات
               </Link>
             </Button>
-            <RenewSubscriptionModal
-              storeId={store.id}
-              balance={store.balance}
-              monthlyPrice={store.monthlyPrice}
-              subscriptionStatus={store.subscriptionStatus}
-              subscriptionEndsAt={store.subscriptionEndsAt}
-              gracePeriodEndsAt={store.gracePeriodEndsAt}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ── Balance + Stats ── */}
-      <div className="grid gap-5 lg:grid-cols-3">
-        {/* Balance Card */}
-        <Card className="overflow-hidden border-border/60 shadow-sm lg:col-span-2 p-0">
-          <CardContent className="flex h-full flex-col justify-between gap-0 p-0">
-            <div className="relative bg-linear-to-br from-primary/8 via-background to-background p-6">
-              <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 -translate-y-1/3 translate-x-1/4 rounded-full bg-primary/8 blur-2xl" />
-
-              <div className="relative flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">الرصيد الحالي</p>
-                  <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                    {formatPrice(store.balance)}
-                  </h2>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {enoughForRenewal
-                      ? `بعد التجديد القادم هيتبقى ${formatPrice(remainingAfterRenewal)}`
-                      : `محتاج ${formatPrice(amountNeeded)} إضافية عشان التجديد القادم`}
-                  </p>
-                </div>
-
-                <div
-                  className={cn(
-                    "grid size-14 shrink-0 place-items-center rounded-2xl",
-                    enoughForRenewal
-                      ? "bg-emerald-500/10 text-emerald-600"
-                      : "bg-amber-500/10 text-amber-600",
-                  )}
-                >
-                  {enoughForRenewal ? (
-                    <Wallet className="size-6" />
-                  ) : (
-                    <AlertTriangle className="size-6" />
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3 p-6 pt-2">
-              <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="text-muted-foreground">جاهزية الرصيد للتجديد</span>
-                <span className="font-semibold">{renewalProgress}%</span>
-              </div>
-              <Progress value={renewalProgress} className="h-2" />
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                {enoughForRenewal
-                  ? "ممتاز، رصيدك الحالي يكفي للتجديد القادم بدون أي مشكلة."
-                  : "الرصيد الحالي أقل من المطلوب. اشحن رصيدًا إضافيًا قبل موعد التجديد لتجنب توقف المتجر."}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Stats Column */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-          <QuickStatCard
-            title="سعر التجديد الشهري"
-            value={formatPrice(store.monthlyPrice)}
-            description="المبلغ المطلوب لتجديد اشتراك المتجر."
-            icon={BadgeDollarSign}
-          />
-          <QuickStatCard
-            title="التجديد القادم"
-            value={formatDate(store.subscriptionEndsAt)}
-            description={
-              store.autoRenew ? "التجديد التلقائي مفعل حاليًا." : "التجديد التلقائي متوقف حاليًا."
-            }
-            icon={CalendarClock}
-          />
-        </div>
-      </div>
-
-      {/* ── Subscription Details + Quick Actions ── */}
-      <div className="grid gap-5 xl:grid-cols-[1fr_0.9fr]">
-        <Card className="border-border/60 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                <CalendarClock className="size-4" />
-              </div>
-              <div>
-                <CardTitle className="text-base">تفاصيل الاشتراك</CardTitle>
-                <CardDescription>ملخص سريع لأهم بيانات الرصيد والاشتراك.</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2.5">
-            <InfoRow label="اسم المتجر" value={store.name} />
-            <InfoRow label="حالة الاشتراك" value={statusLabel} />
-            <InfoRow label="التجديد التلقائي" value={store.autoRenew ? "مفعل" : "متوقف"} />
-            <InfoRow label="المبلغ المطلوب للتجديد" value={formatPrice(store.monthlyPrice)} />
-            <InfoRow label="موعد التجديد القادم" value={formatDate(store.subscriptionEndsAt)} />
-            <InfoRow label="نهاية فترة السماح" value={formatDate(store.gracePeriodEndsAt)} />
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/60 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Zap className="size-4" />
-              </div>
-              <div>
-                <CardTitle className="text-base">إجراءات سريعة</CardTitle>
-                <CardDescription>أهم العمليات اللي ممكن تحتاجها بسرعة.</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button asChild className="h-11 w-full justify-between ">
-              <Link href={`/dashboard/balance/topup?storeId=${store.id}`}>
-                <span>شحن رصيد جديد</span>
+            <Button asChild size="sm" className="gap-1.5">
+              <Link href="/balance/topup">
                 <Plus className="size-4" />
+                شحن رصيد
               </Link>
             </Button>
+          </>
+        }
+      />
 
-            <RenewSubscriptionModal
-              className="w-full"
-              storeId={store.id}
-              balance={store.balance}
-              monthlyPrice={store.monthlyPrice}
-              subscriptionStatus={store.subscriptionStatus}
-              subscriptionEndsAt={store.subscriptionEndsAt}
-              gracePeriodEndsAt={store.gracePeriodEndsAt}
-            />
+      {result && (
+        <div className={cn("flex items-center gap-3 rounded-xl border p-4 text-sm", result.tone)} role="status">
+          <result.icon className="size-5 shrink-0" />
+          {result.text}
+        </div>
+      )}
 
-            <Button asChild variant="outline" className="h-11 w-full justify-between ">
-              <Link href={`/store/${store.slug}`}>
-                <span>فتح المتجر</span>
-                <ArrowUpRight className="size-4" />
-              </Link>
-            </Button>
-
-            {!enoughForRenewal && (
-              <div className="rounded-xl border border-amber-200 bg-amber-500/5 p-4">
-                <p className="mb-1 text-sm font-semibold text-amber-700 dark:text-amber-400">
-                  تنبيه مهم
-                </p>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  الرصيد الحالي لا يكفي للتجديد. اشحن{" "}
-                  <span className="font-medium text-foreground">{formatPrice(amountNeeded)}</span>{" "}
-                  على الأقل قبل الموعد القادم.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ── Transaction History ── */}
-      <Card className="border-border/60 shadow-sm">
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <ArrowDownLeft className="size-4" />
-            </div>
-            <div>
-              <CardTitle className="text-base">آخر الحركات المالية</CardTitle>
-              <CardDescription>آخر عمليات الشحن والخصم والتعديلات على الرصيد.</CardDescription>
-            </div>
-          </div>
-          <Button asChild variant="outline" className="shrink-0 ">
-            <Link href="/balance/history">عرض الكل</Link>
-          </Button>
-        </CardHeader>
-
-        <CardContent>
-          {store.balanceTransactions.length === 0 ? (
-            <div className="flex min-h-60 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/70 p-6 text-center">
-              <div className="grid size-12 place-items-center rounded-xl bg-muted text-muted-foreground">
-                <Wallet className="size-5" />
-              </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_21rem]">
+        <div className="min-w-0 space-y-6">
+          {/* ── Balance + runway ─────────────────────────────────── */}
+          <section className="rounded-xl border border-border bg-card">
+            <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-1">
-                <h3 className="font-semibold">لا توجد حركات مالية بعد</h3>
+                <p className="text-sm text-muted-foreground">رصيد المحفظة</p>
+                <p className="text-4xl font-bold tracking-tight tabular-nums">{formatMoney(store.balance)}</p>
                 <p className="text-sm text-muted-foreground">
-                  أول ما تضيف رصيد أو يتم خصم اشتراك، هتظهر الحركات هنا.
+                  {price > 0 &&
+                    (renewals > 0 ? (
+                      <>
+                        يكفي <span className="font-medium text-foreground">{nf.format(renewals)} تجديد</span>
+                        {coveredUntil && (
+                          <>
+                            {" "}
+                            — متجرك مغطّي لحد <span className="font-medium text-foreground">{df.format(coveredUntil)}</span>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        ناقصك <span className="font-medium text-foreground">{formatMoney(shortBy)}</span> للتجديد الجاي
+                      </>
+                    ))}
                 </p>
               </div>
+              {shortBy > 0 && (
+                <Button asChild variant={urgent ? "default" : "outline"} className="gap-1.5">
+                  <Link href={`/balance/topup?amount=${Math.ceil(shortBy / 100)}`}>
+                    <Plus className="size-4" />
+                    اشحن {formatMoney(Math.ceil(shortBy / 100) * 100)}
+                  </Link>
+                </Button>
+              )}
             </div>
-          ) : (
-            <>
-              {/* Desktop table */}
-              <div className="hidden overflow-hidden rounded-xl border border-border/60 md:block">
-                <div className="grid grid-cols-[1.5fr_1fr_1.3fr_2fr] border-b bg-muted/40 px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  <div>النوع</div>
-                  <div>المبلغ</div>
-                  <div>التاريخ</div>
-                  <div>ملاحظة</div>
+
+            {price > 0 && (
+              <div className="border-t border-border px-5 py-4">
+                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>كل مربع = تجديد {cycleWord} بـ {formatMoney(price)}</span>
+                  <span className="tabular-nums">
+                    {nf.format(Math.min(renewals, slots))}
+                    {renewals > slots && "+"} من {nf.format(slots)}
+                  </span>
                 </div>
-                <div className="divide-y">
-                  {store.balanceTransactions.map((transaction) => {
-                    const styles = getTransactionStyles(transaction.type);
-                    const Icon = styles.icon;
-                    const isPositive = transaction.amount > 0;
-
+                <div className="grid grid-cols-12 gap-1" role="img" aria-label={`الرصيد يغطي ${renewals} تجديد`}>
+                  {Array.from({ length: slots }).map((_, i) => {
+                    const partial = i === renewals ? (store.balance % price) / price : 0;
                     return (
-                      <div
-                        key={transaction.id}
-                        className="grid grid-cols-[1.5fr_1fr_1.3fr_2fr] items-center gap-3 px-4 py-3.5 transition-colors hover:bg-muted/20"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={cn("grid size-9 shrink-0 place-items-center rounded-xl", styles.iconBg)}>
-                            <Icon className={cn("size-4", styles.iconClass)} />
-                          </div>
-                          <span className="text-sm font-medium">
-                            {getTransactionLabel(transaction.type)}
-                          </span>
-                        </div>
-
-                        <div
-                          className={cn(
-                            "text-sm font-semibold",
-                            isPositive ? "text-emerald-600" : "text-rose-600",
-                          )}
-                        >
-                          {isPositive ? "+" : ""}
-                          {formatPrice(transaction.amount)}
-                        </div>
-
-                        <div className="text-sm text-muted-foreground">
-                          {formatDate(transaction.createdAt)}
-                        </div>
-
-                        <div className="text-sm text-muted-foreground">
-                          {transaction.note || "—"}
-                        </div>
-                      </div>
+                      <span key={i} className="relative h-2.5 overflow-hidden rounded-sm bg-muted">
+                        {i < renewals && <span className="absolute inset-0 bg-primary" />}
+                        {partial > 0 && <span className="absolute inset-y-0 start-0 bg-primary/40" style={{ width: `${partial * 100}%` }} />}
+                      </span>
                     );
                   })}
                 </div>
               </div>
+            )}
 
-              {/* Mobile cards */}
-              <div className="grid gap-3 md:hidden">
-                {store.balanceTransactions.map((transaction) => {
-                  const styles = getTransactionStyles(transaction.type);
-                  const Icon = styles.icon;
-                  const isPositive = transaction.amount > 0;
-
-                  return (
-                    <div
-                      key={transaction.id}
-                      className="flex items-start justify-between gap-3 rounded-xl border border-border/60 p-4"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={cn("grid size-10 shrink-0 place-items-center rounded-xl", styles.iconBg)}>
-                          <Icon className={cn("size-4", styles.iconClass)} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {getTransactionLabel(transaction.type)}
-                          </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {formatDate(transaction.createdAt)}
-                          </p>
-                          {transaction.note && (
-                            <p className="mt-0.5 text-xs text-muted-foreground">
-                              {transaction.note}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <span
-                        className={cn(
-                          "shrink-0 text-sm font-semibold",
-                          isPositive ? "text-emerald-600" : "text-rose-600",
-                        )}
-                      >
-                        {isPositive ? "+" : ""}
-                        {formatPrice(transaction.amount)}
-                      </span>
-                    </div>
-                  );
-                })}
+            {urgent && (
+              <div className="flex items-center gap-2 border-t border-amber-500/30 bg-amber-500/5 px-5 py-3 text-sm text-amber-800 dark:text-amber-300">
+                <AlertTriangle className="size-4 shrink-0" />
+                التجديد {daysToRenewal! <= 0 ? "النهارده" : `بعد ${nf.format(daysToRenewal!)} يوم`} والرصيد مش كفاية — اشحن عشان المتجر ميقفش.
               </div>
-            </>
+            )}
+          </section>
+
+          {/* ── Topup requests in flight ─────────────────────────── */}
+          {visibleRequests.length > 0 && (
+            <section className="overflow-hidden rounded-xl border border-border bg-card">
+              <div className="border-b border-border px-4 py-3">
+                <h2 className="text-sm font-semibold">طلبات الشحن</h2>
+                <p className="text-xs text-muted-foreground">التحويلات اليدوية بتتراجع عادةً في خلال ساعات العمل.</p>
+              </div>
+              <ul className="divide-y divide-border">
+                {visibleRequests.map((r) => (
+                  <li key={r.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium tabular-nums">{formatMoney(r.amount)}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {METHOD_LABELS[r.method]} · {dtf.format(r.createdAt)}
+                        {r.transferRef && (
+                          <>
+                            {" · "}
+                            <span className="font-mono" dir="ltr">
+                              {r.transferRef}
+                            </span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    <StatusPill tone={TOPUP_STATUS[r.status].tone}>{TOPUP_STATUS[r.status].label}</StatusPill>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
-        </CardContent>
-      </Card>
+
+          {/* ── Recent activity ──────────────────────────────────── */}
+          <section className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <h2 className="text-sm font-semibold">آخر الحركات</h2>
+              {transactions.length > 0 && (
+                <Button asChild variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                  <Link href="/balance/history">
+                    كل الحركات
+                    <ArrowLeft className="size-3.5" />
+                  </Link>
+                </Button>
+              )}
+            </div>
+            {transactions.length === 0 ? (
+              <EmptyState icon={History} title="لسه مفيش حركات" description="أول ما تشحن أو يتجدد الاشتراك هتلاقي التفاصيل هنا." />
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">الحركة</TableHead>
+                    <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground sm:table-cell">التاريخ</TableHead>
+                    <TableHead className="h-10 text-left text-xs font-medium text-muted-foreground">المبلغ</TableHead>
+                    <TableHead className="hidden h-10 pe-4 text-left text-xs font-medium text-muted-foreground md:table-cell">الرصيد بعدها</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((t) => {
+                    const meta = txMeta(t.type);
+                    return (
+                      <TableRow key={t.id}>
+                        <TableCell className="py-3 ps-4">
+                          <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
+                          {t.note && <p className="mt-1 max-w-72 truncate text-xs text-muted-foreground">{t.note}</p>}
+                        </TableCell>
+                        <TableCell className="hidden py-3 text-sm text-muted-foreground sm:table-cell">{dtf.format(t.createdAt)}</TableCell>
+                        <TableCell
+                          className={cn(
+                            "py-3 text-left text-sm font-semibold tabular-nums",
+                            t.amount > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-foreground",
+                          )}
+                          dir="ltr"
+                        >
+                          {formatSigned(t.amount)}
+                        </TableCell>
+                        <TableCell className="hidden py-3 pe-4 text-left text-sm text-muted-foreground tabular-nums md:table-cell">
+                          {formatMoney(t.balanceAfter)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </section>
+        </div>
+
+        {/* ── Side: subscription + year summary ──────────────────── */}
+        <aside className="space-y-4 xl:sticky xl:top-20 xl:self-start">
+          <section className="rounded-xl border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <div>
+                <p className="text-xs text-muted-foreground">الباقة</p>
+                <p className="font-semibold">{store.plan?.name ?? "الباقة الحالية"}</p>
+              </div>
+              <StatusPill tone={status.tone}>{status.label}</StatusPill>
+            </div>
+            <dl className="space-y-2.5 px-4 py-3 text-sm">
+              <Row label={`سعر ال${cycleWord}`} value={formatMoney(price)} />
+              <Row label="التجديد الجاي" value={nextRenewal ? df.format(nextRenewal) : "—"} />
+              {store.subscriptionStatus === "GRACE_PERIOD" && store.gracePeriodEndsAt && (
+                <Row label="آخر يوم في السماح" value={df.format(store.gracePeriodEndsAt)} warn />
+              )}
+            </dl>
+            <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-border px-4 py-3">
+              <span>
+                <span className="block text-sm font-medium">التجديد التلقائي</span>
+                <span className="block text-xs text-muted-foreground">بنجدد من الرصيد في الميعاد من غير ما تعمل حاجة.</span>
+              </span>
+              <AutoRenewSwitch storeId={store.id} initial={store.autoRenew} />
+            </label>
+            <div className="flex flex-wrap gap-2 border-t border-border p-3">
+              <RenewSubscriptionModal
+                storeId={store.id}
+                balance={store.balance}
+                monthlyPrice={store.monthlyPrice}
+                subscriptionStatus={store.subscriptionStatus}
+                subscriptionEndsAt={store.subscriptionEndsAt}
+                gracePeriodEndsAt={store.gracePeriodEndsAt}
+              />
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/change-plan">غيّر الباقة</Link>
+              </Button>
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-border bg-card px-4 py-3">
+            <p className="mb-2 text-xs text-muted-foreground">آخر ١٢ شهر</p>
+            <dl className="space-y-2 text-sm">
+              <Row label="شحنت" value={formatMoney(toppedUp)} />
+              <Row label="اتجدد بيه الاشتراك" value={formatMoney(spent)} />
+              {gifts > 0 && <Row label="رصيد هدية ومكافآت" value={formatMoney(gifts)} />}
+            </dl>
+          </section>
+
+          <Link
+            href="/referral"
+            className="group flex items-center gap-3 rounded-xl border border-dashed border-border p-4 transition-colors hover:border-primary/40 hover:bg-primary/[0.03]"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+              <Gift className="size-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-medium">اشحن ببلاش</span>
+              <span className="block text-xs text-muted-foreground">ادعي تاجر لكاشو وخد رصيد مكافأة لما يشترك.</span>
+            </span>
+            <ArrowLeft className="size-4 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+          </Link>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className={cn("font-medium tabular-nums", warn && "text-amber-700 dark:text-amber-400")}>{value}</dd>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { isStorefrontOpen } from "@/lib/subscriptions";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -16,7 +17,6 @@ import EmptyProductsState from "./_components/EmptyProductsState";
 import ProductsPagination from "./_components/ProductsPagination";
 import ProductsSidebarFilters from "./_components/ProductSidebarFilters";
 import ProductsMobileFilters from "./_components/ProductsMobileFilters";
-import { SubscriptionStatus } from "@prisma/client";
 
 type StoreProductsRouteProps = {
   params: Promise<{ slug: string }>;
@@ -44,10 +44,11 @@ export async function generateMetadata({
   });
 
   return {
-    title: store ? `منتجات ${store.name}` : "المنتجات",
-    description: store
-      ? `تصفح منتجات متجر ${store.name}`
-      : "تصفح المنتجات المتاحة",
+    title: "كل المنتجات",
+    description: store ? `تصفح كل منتجات ${store.name} واطلب أونلاين بسهولة.` : "تصفح المنتجات المتاحة",
+    // Filters/sorting/pages are variations of the same listing.
+    alternates: { canonical: "/products" },
+    openGraph: { url: "/products" },
   };
 }
 
@@ -91,7 +92,7 @@ export default async function StoreProductsRoute({
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
+  if (!isStorefrontOpen(store.subscriptionStatus)) {
     return (
       <div
         dir="rtl"

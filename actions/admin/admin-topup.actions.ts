@@ -8,7 +8,7 @@ import {
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { TryRenewStoreSubscriptionAction } from "@/actions/subscription/subscription.actions";
+import { renewIfDue } from "@/lib/billing/renewal";
 import {
   createNotification,
   formatPiastersAsEgp,
@@ -87,7 +87,7 @@ export async function approveTopupRequestAction(
       });
     });
 
-    await TryRenewStoreSubscriptionAction(topupRequest.storeId);
+    await renewIfDue(topupRequest.storeId, { includeInactive: true }).catch((e) => console.error("[topup] renewal", e));
 
     await createNotification({
       storeId: topupRequest.storeId,

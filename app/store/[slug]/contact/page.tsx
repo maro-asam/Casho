@@ -1,12 +1,25 @@
+import { isStorefrontOpen } from "@/lib/subscriptions";
+import type { Metadata } from "next";
+import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Phone, MapPin, Mail, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { SubscriptionStatus } from "@prisma/client";
 
 type StoreContactRouteProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await prisma.store.findUnique({ where: { slug }, select: { name: true } });
+  return storePageMetadata({
+    title: "تواصل معنا",
+    description: store ? `تواصل مع ${store.name} — واتساب وسوشيال ميديا.` : undefined,
+    path: "/contact",
+    storeName: store?.name,
+  });
+}
 
 export default async function StoreContactRoute({
   params,
@@ -30,7 +43,7 @@ export default async function StoreContactRoute({
 
   if (!store) return notFound();
 
-  if (store.subscriptionStatus !== SubscriptionStatus.ACTIVE) {
+  if (!isStorefrontOpen(store.subscriptionStatus)) {
     return (
       <div className="min-h-screen flex items-center justify-center" dir="rtl">
         <div className="border rounded-xl p-10 text-center">

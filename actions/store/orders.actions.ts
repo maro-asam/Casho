@@ -1,5 +1,7 @@
 "use server";
 
+import { markCartConverted } from "@/lib/cart-recovery/abandoned";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -381,6 +383,7 @@ export async function CreateOrderAction(
   }
 
   await notifyLowStock(store.id, [...cartQtyByProduct.keys()]);
+  await markCartConverted(store.id, guestSessionId, { id: order.id, total, fullName: data.fullName, phone: data.phone });
 
   // Award loyalty points after order creation (reuse loyaltySettings + appliedLoyalty from above)
   try {

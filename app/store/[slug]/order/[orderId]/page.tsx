@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -22,6 +23,7 @@ import {
 
 import { MustSession } from "@/actions/auth/auth-helpers.actions";
 import { prisma } from "@/lib/prisma";
+import { getPaymentMethodLabel as getCatalogueLabel, isManualPaymentMethod } from "@/constants/welcome/payment-methods";
 
 import {
   Card,
@@ -99,20 +101,8 @@ function getStatusMeta(status?: string | null) {
 }
 
 function getPaymentMethodLabel(method?: string | null) {
-  switch (method) {
-    case "cash_on_delivery":
-      return "الدفع عند الاستلام";
-    case "vodafone_cash":
-      return "فودافون كاش";
-    case "instapay":
-      return "InstaPay";
-    case "bank_transfer":
-      return "تحويل بنكي";
-    case "kashier":
-      return "Kashier";
-    default:
-      return method || "غير محدد";
-  }
+  if (!method) return "غير محدد";
+  return getCatalogueLabel(method);
 }
 
 function getPaymentStatusLabel(status?: string | null) {
@@ -180,58 +170,53 @@ function getPaymentBanner(payment?: string) {
 }
 
 type ManualPaymentSettings = {
+  manualPaymentDetails?: unknown;
   vodafoneCashNumber?: string | null;
   instapayAddress?: string | null;
   bankTransferDetails?: string | null;
 } | null;
 
-function manualInstructionFor(
-  method?: string | null,
-  settings?: ManualPaymentSettings,
-) {
-  switch (method) {
-    case "vodafone_cash":
-      return settings?.vodafoneCashNumber
-        ? {
-            title: "حول على فودافون كاش",
-            description: "بعد التحويل احتفظ بصورة الإيصال للتواصل مع المتجر.",
-            value: settings.vodafoneCashNumber,
-            icon: Smartphone,
-          }
-        : null;
+const MANUAL_ICONS: Record<string, typeof Smartphone> = {
+  vodafone_cash: Smartphone,
+  stc_pay: Smartphone,
+  instapay: Building2,
+  bank_transfer: Landmark,
+  saudi_bank_transfer: Landmark,
+};
 
-    case "instapay":
-      return settings?.instapayAddress
-        ? {
-            title: "حول عن طريق InstaPay",
-            description: "استخدم بيانات InstaPay التالية لإتمام التحويل.",
-            value: settings.instapayAddress,
-            icon: Building2,
-          }
-        : null;
+function manualDetailFor(method: string, settings?: ManualPaymentSettings) {
+  const map = settings?.manualPaymentDetails;
+  const fromMap = map && typeof map === "object" && !Array.isArray(map) ? (map as Record<string, unknown>)[method] : null;
+  if (typeof fromMap === "string" && fromMap.trim()) return fromMap.trim();
+  // Legacy columns, from before the per-method map existed.
+  if (method === "vodafone_cash") return settings?.vodafoneCashNumber ?? null;
+  if (method === "instapay") return settings?.instapayAddress ?? null;
+  if (method === "bank_transfer") return settings?.bankTransferDetails ?? null;
+  return null;
+}
 
-    case "bank_transfer":
-      return settings?.bankTransferDetails
-        ? {
-            title: "بيانات التحويل البنكي",
-            description:
-              "استخدم بيانات الحساب التالية، ثم تواصل مع المتجر بصورة التحويل.",
-            value: settings.bankTransferDetails,
-            icon: Landmark,
-          }
-        : null;
+function manualInstructionFor(method?: string | null, settings?: ManualPaymentSettings) {
+  if (!method) return null;
 
-    case "cash_on_delivery":
-      return {
-        title: "الدفع عند الاستلام",
-        description: "هتدفع قيمة الطلب لمندوب الشحن عند الاستلام.",
-        value: null,
-        icon: Banknote,
-      };
-
-    default:
-      return null;
+  if (method === "cash_on_delivery") {
+    return {
+      title: "الدفع عند الاستلام",
+      description: "هتدفع قيمة الطلب لمندوب الشحن عند الاستلام.",
+      value: null,
+      icon: Banknote,
+    };
   }
+
+  if (!isManualPaymentMethod(method)) return null;
+  const value = manualDetailFor(method, settings);
+  if (!value) return null;
+
+  return {
+    title: `ادفع عن طريق ${getCatalogueLabel(method)}`,
+    description: "استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال لحد ما المتجر يأكد طلبك.",
+    value,
+    icon: MANUAL_ICONS[method] ?? Banknote,
+  };
 }
 
 function ManualPaymentInstructions({
@@ -270,6 +255,8 @@ function ManualPaymentInstructions({
 
 const ORDER_STEPS = ["تم الطلب", "قيد المراجعة", "جاري التجهيز", "تم التسليم"];
 
+export const metadata: Metadata = { title: "تفاصيل الطلب", robots: { index: false, follow: false } };
+
 export default async function OrderDetailsPage({
   params,
   searchParams,
@@ -304,6 +291,7 @@ export default async function OrderDetailsPage({
           name: true,
           storePaymentSettings: {
             select: {
+              manualPaymentDetails: true,
               vodafoneCashNumber: true,
               instapayAddress: true,
               bankTransferDetails: true,

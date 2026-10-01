@@ -134,3 +134,8 @@ export const BALANCE_TRANSACTION_LABELS: Record<
   REFUND: "استرجاع رصيد",
   REFERRAL_REWARD: "مكافأة إحالة",
 };
+
+/** Storefront stays open while the merchant is in the grace period — that's what grace is for. */
+export function isStorefrontOpen(status: SubscriptionStatus) {
+  return status === SubscriptionStatus.ACTIVE || status === SubscriptionStatus.GRACE_PERIOD;
+}

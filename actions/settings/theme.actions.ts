@@ -45,6 +45,9 @@ async function upsertThemeConfig(storeId: string, config: ThemeCustomization, ex
     update: { themeConfig: config, ...extras },
     create: { storeId, themeConfig: config, ...extras },
   });
+  // Edits are live — make sure the storefront (ISR) picks them up right away.
+  const store = await prisma.store.findUnique({ where: { id: storeId }, select: { slug: true } });
+  if (store) revalidatePath(`/store/${store.slug}`, "layout");
 }
 
 // ─── Theme preset ─────────────────────────────────────────────────────────────
@@ -149,37 +152,27 @@ export async function PublishThemeFromDraftAction({
 }): Promise<ActionResult> {
   try {
     const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
+    const store = await MustOwnStore(storeId, userId);
 
+    // Every editor action already writes the live themeConfig. Copying the old
+    // draft over it (as this used to do) silently reverted newer changes, so
+    // "publish" now just snapshots the live config and refreshes the store.
     const settings = await prisma.storeSettings.findUnique({
       where: { storeId },
-      select: { draftThemeConfig: true, themeId: true },
+      select: { themeConfig: true },
     });
-
-    const draft = settings?.draftThemeConfig as ThemeCustomization | null;
-
-    if (!draft) return { success: true, message: "المتجر محدّث بالفعل" };
-
-    const storeInfo = await prisma.store.findUnique({
-      where: { id: storeId },
-      select: { slug: true },
-    });
-
-    await prisma.storeSettings.update({
-      where: { storeId },
-      data: {
-        themeConfig: draft,
-        ...(isThemePresetId(draft.presetId) ? { themeId: draft.presetId } : {}),
-        ...(draft.tokenOverrides?.primary ? { primaryColor: draft.tokenOverrides.primary } : {}),
-        ...(draft.tokenOverrides?.secondary ? { secondaryColor: draft.tokenOverrides.secondary } : {}),
-      },
-    });
+    if (settings?.themeConfig) {
+      await prisma.storeSettings.update({
+        where: { storeId },
+        data: { draftThemeConfig: settings.themeConfig },
+      });
+    }
 
     revalidatePath("/dashboard/customization");
     revalidatePath("/builder");
-    if (storeInfo?.slug) revalidatePath(`/store/${storeInfo.slug}`);
+    revalidatePath(`/store/${store.slug}`, "layout");
 
-    return { success: true, message: "تم نشر التغييرات بنجاح 🎉" };
+    return { success: true, message: "المتجر اتحدّث بآخر تعديلاتك 🎉" };
   } catch (error) {
     console.error("PublishThemeFromDraftAction:", error);
     return { success: false, message: "حصل خطأ أثناء النشر" };
@@ -242,14 +235,24 @@ export async function UpdateStoreColorsAction(input: {
     const store = await prisma.store.findUnique({ where: { id: storeId }, select: { slug: true } });
     if (!store) return { success: false, message: "المتجر غير موجود" };
 
+    // themeConfig.tokenOverrides wins over the flat fields when resolving the
+    // theme, so keep both in sync — otherwise a color once saved from the
+    // visual builder would silently ignore every later change made here.
+    const current = await getThemeConfig(storeId);
+    const tokenOverrides = { ...(current.tokenOverrides ?? {}) };
+    tokenOverrides.primary = primaryColor;
+    tokenOverrides.secondary = secondaryColor;
+    delete tokenOverrides.primaryForeground;
+    delete tokenOverrides.secondaryForeground;
+
     await prisma.storeSettings.upsert({
       where: { storeId },
-      update: { primaryColor, secondaryColor },
-      create: { storeId, primaryColor, secondaryColor },
+      update: { primaryColor, secondaryColor, themeConfig: { ...current, tokenOverrides } },
+      create: { storeId, primaryColor, secondaryColor, themeConfig: { ...current, tokenOverrides } },
     });
 
     revalidatePath("/dashboard/customization");
-    revalidatePath(`/store/${store.slug}`);
+    revalidatePath(`/store/${store.slug}`, "layout");
 
     return { success: true, message: "تم حفظ الألوان بنجاح" };
   } catch {

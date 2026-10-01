@@ -1,204 +1,218 @@
-import { Metadata } from "next";
-import {
-  ShoppingCart,
-  Package,
-  FolderOpen,
-  Clock,
-  TrendingDown,
-  Hash,
-} from "lucide-react";
+import Link from "next/link";
+import type { Metadata } from "next";
+import { SearchX, ShoppingCart, Store } from "lucide-react";
 
-import { GetAbandonedCartsAction } from "@/actions/store/abandoned-cart.actions";
-import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { hasFeature, checkLimit, FEATURE_KEYS } from "@/lib/entitlements";
 import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
+import {
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  SelectFilter,
+  hrefWith,
+  readPage,
+  readParam,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
+import { Button } from "@/components/ui/button";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { loadAbandonedCarts, type RecoveryStatus } from "@/lib/cart-recovery/abandoned";
+import { couponStatusWhere, formatCouponValue } from "@/lib/coupons/coupon-status";
+import { checkLimit, FEATURE_KEYS, hasFeature } from "@/lib/entitlements";
+import { prisma } from "@/lib/prisma";
+import { CartsTable } from "./_components/carts-table";
+import { RecoverDialog } from "./_components/recover-dialog";
+import { RECOVERY_STATUSES } from "./_components/recovery-meta";
 
 export const metadata: Metadata = {
-  title: "الكارتات المتروكة",
+  title: "السلات المتروكة",
 };
 
-function formatPrice(piasters: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 0,
-  }).format(piasters / 100);
-}
+const PAGE_SIZE = 20;
+const BASE_PATH = "/abandoned-carts";
+const PERIODS = [
+  { value: "1", label: "آخر ٢٤ ساعة" },
+  { value: "7", label: "آخر ٧ أيام" },
+  { value: "90", label: "آخر ٩٠ يوم" },
+];
+const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
+const nf = new Intl.NumberFormat("ar-EG");
+const DESCRIPTION = "عملاء حطّوا منتجات في السلة ومكمّلوش — ابعتلهم رسالة بلينك يرجّع سلتهم زي ما هي.";
 
-function formatRelativeTime(date: Date) {
-  const diffMs = Date.now() - new Date(date).getTime();
-  const diffH = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffD = Math.floor(diffH / 24);
+type AbandonedCartsRouteProps = {
+  searchParams?: Promise<SearchParamsRecord>;
+};
 
-  if (diffD >= 1) {
-    return `منذ ${diffD} ${diffD === 1 ? "يوم" : "أيام"}`;
-  }
-  return `منذ ${diffH} ${diffH === 1 ? "ساعة" : "ساعات"}`;
-}
-
-export default async function AbandonedCartsPage() {
+export default async function AbandonedCartsRoute({ searchParams }: AbandonedCartsRouteProps) {
   const userId = await requireUserId();
-  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
-  const enabled = store ? await hasFeature(store.id, FEATURE_KEYS.ABANDONED_CART) : false;
+  const params = await searchParams;
 
-  if (!enabled) {
-    const { requiredPlan } = store
-      ? await checkLimit(store.id, FEATURE_KEYS.ABANDONED_CART)
-      : { requiredPlan: null };
+  const store = await prisma.store.findFirst({
+    where: { userId },
+    select: { id: true, slug: true, name: true, customDomain: true, customDomainStatus: true },
+  });
+
+  if (!store) {
+    return (
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول عشان تتابع السلات المتروكة."
+        className="rounded-xl border border-dashed border-border"
+      />
+    );
+  }
+
+  if (!(await hasFeature(store.id, FEATURE_KEYS.ABANDONED_CART))) {
+    const { requiredPlan } = await checkLimit(store.id, FEATURE_KEYS.ABANDONED_CART);
     return (
       <div className="space-y-6" dir="rtl">
-        <DashboardSectionHeader icon={ShoppingCart} title="الكارتات المتروكة" description="متابعة السلات التي تركها العملاء قبل إتمام الشراء" />
-        <UpgradeRequiredCard
-          title="الكارتات المتروكة"
-          description="تقرير السلات المتروكة غير متاح في باقتك الحالية."
-          requiredPlanSlug={requiredPlan}
-        />
+        <PageHeader title="السلات المتروكة" description={DESCRIPTION} />
+        <UpgradeRequiredCard title="السلات المتروكة" description="متابعة واسترجاع السلات المتروكة مش متاحة في باقتك الحالية." requiredPlanSlug={requiredPlan} />
       </div>
     );
   }
 
-  const { carts, totalValue, totalCarts } = await GetAbandonedCartsAction();
+  // ── Filters (all in the URL so every view is shareable) ──────────────
+  const q = readParam(params, "q")?.toLowerCase();
+  const statusParam = readParam(params, "status");
+  const status = RECOVERY_STATUSES.some((s) => s.value === statusParam) ? (statusParam as RecoveryStatus) : undefined;
+  const periodParam = readParam(params, "days");
+  const days = PERIODS.some((p) => p.value === periodParam) ? Number(periodParam) : 30;
+  const openKey = readParam(params, "cart");
 
-  const statCards = [
-    {
-      label: "كارتات متروكة",
-      value: new Intl.NumberFormat("ar-EG").format(totalCarts),
-      icon: ShoppingCart,
-      className: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-    },
-    {
-      label: "قيمة متروكة",
-      value: formatPrice(totalValue),
-      icon: TrendingDown,
-      className: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-    },
-    {
-      label: "متوسط قيمة الكارت",
-      value:
-        totalCarts > 0 ? formatPrice(Math.round(totalValue / totalCarts)) : "—",
-      icon: Hash,
-      className: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
-    },
-  ];
+  const now = new Date();
+  const [all, coupons] = await Promise.all([
+    loadAbandonedCarts(store.id, days),
+    prisma.coupon.findMany({
+      where: { AND: [{ storeId: store.id }, couponStatusWhere("active", now, prisma.coupon.fields.usageLimit)] },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: { code: true, type: true, value: true },
+    }),
+  ]);
+
+  const searched = q
+    ? all.filter(
+        (c) =>
+          c.fullName?.toLowerCase().includes(q) ||
+          c.phone?.includes(q) ||
+          c.items.some((i) => i.name.toLowerCase().includes(q)),
+      )
+    : all;
+
+  // Tab counts share search + period with the list, so each number matches its tab.
+  const countFor = (s: RecoveryStatus) => searched.filter((c) => c.status === s).length;
+  const filtered = status ? searched.filter((c) => c.status === status) : searched;
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(readPage(params), totalPages);
+  const rows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const open = all.filter((c) => c.status !== "recovered");
+  const recovered = all.filter((c) => c.status === "recovered");
+  const openValue = open.reduce((s, c) => s + c.value, 0);
+  const recoveredValue = recovered.reduce((s, c) => s + c.value, 0);
+  const openCart = openKey ? (all.find((c) => c.key === openKey && c.status !== "recovered") ?? all.find((c) => c.key === openKey) ?? null) : null;
+
+  const storeBaseUrl =
+    store.customDomain && store.customDomainStatus === "ACTIVE" ? `https://${store.customDomain}` : buildStoreUrl(store.slug);
+  const currentPage = readParam(params, "page");
+  const openHref = (key: string) => hrefWith(BASE_PATH, params, { cart: key, page: currentPage });
+  const hasFilters = Boolean(q || status || periodParam);
+  const periodLabel = PERIODS.find((p) => Number(p.value) === days)?.label ?? "آخر ٣٠ يوم";
 
   return (
     <div className="space-y-6" dir="rtl">
-      <DashboardSectionHeader
-        icon={ShoppingCart}
-        title="الكارتات المتروكة"
-        badge={totalCarts}
-        description="كارتات أضاف فيها عملاء منتجات ولم يكملوا الشراء (أكثر من ساعتين)"
+      <PageHeader
+        title="السلات المتروكة"
+        description={
+          all.length ? (
+            <>
+              {periodLabel}:{" "}
+              <span className="font-medium text-foreground">
+                {nf.format(open.length)} سلة بـ {money.format(openValue / 100)}
+              </span>{" "}
+              مستنية
+              {recovered.length > 0 && (
+                <>
+                  {" "}
+                  · رجّعت{" "}
+                  <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                    {nf.format(recovered.length)} بـ {money.format(recoveredValue / 100)}
+                  </span>
+                </>
+              )}
+            </>
+          ) : (
+            DESCRIPTION
+          )
+        }
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.label} className="border-border shadow-sm">
-              <div className="p-5">
-                <div
-                  className={cn(
-                    "mb-3 grid size-9 place-items-center rounded-xl",
-                    stat.className,
-                  )}
-                >
-                  <Icon className="size-4.5" />
-                </div>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="mt-1 text-xs font-medium text-muted-foreground">
-                  {stat.label}
-                </p>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {carts.length === 0 ? (
-        <Card className="border-dashed border-border/40 shadow-sm">
-          <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
-            <div className="mb-4 grid size-16 place-items-center rounded-2xl bg-muted text-muted-foreground">
-              <FolderOpen className="size-7" />
-            </div>
-            <h2 className="text-xl font-bold">لا توجد كارتات متروكة</h2>
-            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              لما عميل يضيف منتجات للكارت ومايكملش الشراء بعد ساعتين، الكارت
-              هيظهر هنا.
-            </p>
-          </CardContent>
-        </Card>
+      {all.length === 0 && !hasFilters ? (
+        <div className="rounded-xl border border-dashed border-border">
+          <EmptyState
+            icon={ShoppingCart}
+            title="مفيش سلات متروكة"
+            description="أول ما عميل يسيب منتجات في السلة أكتر من ساعة من غير ما يطلب، هتظهر هنا — ولو كتب رقمه في صفحة الدفع هتقدر تبعتله على الواتساب بضغطة."
+          />
+        </div>
       ) : (
-        <div className="space-y-3">
-          {carts.map((cart) => (
-            <Card
-              key={cart.sessionId}
-              className="border-border shadow-sm transition-colors hover:bg-muted/20"
-            >
-              <CardContent className="p-5">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0 flex-1 space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className="gap-1.5 rounded-full border-border px-2.5 py-0.5 text-xs text-muted-foreground"
-                      >
-                        <Clock className="size-3" />
-                        {formatRelativeTime(cart.abandonedAt)}
-                      </Badge>
-                      <Badge
-                        variant="secondary"
-                        className="rounded-full px-2.5 py-0.5 text-xs"
-                      >
-                        <Package className="me-1 size-3" />
-                        {cart.itemCount}{" "}
-                        {cart.itemCount === 1 ? "منتج" : "منتجات"}
-                      </Badge>
-                    </div>
+        <div className="space-y-4">
+          <FilterTabs
+            label="حالة السلة"
+            param="status"
+            basePath={BASE_PATH}
+            searchParams={params}
+            tabs={[
+              { label: "الكل", count: searched.length },
+              ...RECOVERY_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
+            ]}
+          />
 
-                    <div className="flex flex-wrap gap-2">
-                      {cart.items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center gap-2 rounded-xl border border-border/50 bg-muted/40 px-3 py-2 text-sm"
-                        >
-                          {item.product.images[0] && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={item.product.images[0]}
-                              alt={item.product.name}
-                              className="size-8 rounded-lg object-cover"
-                            />
-                          )}
-                          <div>
-                            <p className="max-w-36 truncate font-medium leading-tight">
-                              {item.product.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {item.quantity} × {formatPrice(item.product.price)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="shrink-0 text-start sm:text-end">
-                    <p className="text-xl font-bold text-foreground">
-                      {formatPrice(cart.total)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">قيمة الكارت</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          <DataCard
+            toolbar={
+              <>
+                <SearchInput placeholder="ابحث بالاسم أو الموبايل أو المنتج" />
+                <SelectFilter label="الفترة" param="days" allLabel="آخر ٣٠ يوم" options={PERIODS} />
+              </>
+            }
+            footer={
+              total > 0 ? (
+                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="سلة" />
+              ) : undefined
+            }
+          >
+            {rows.length > 0 ? (
+              <CartsTable carts={rows} openHref={openHref} now={now.getTime()} />
+            ) : (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش سلات بالفلاتر دي"
+                description={q ? `مفيش نتايج لـ "${q}".` : "جرّب حالة أو فترة تانية."}
+                action={
+                  hasFilters && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                    </Button>
+                  )
+                }
+              />
+            )}
+          </DataCard>
         </div>
       )}
+
+      <RecoverDialog
+        cart={openCart}
+        storeName={store.name}
+        storeBaseUrl={storeBaseUrl}
+        coupons={coupons.map((c) => ({ code: c.code, label: formatCouponValue(c.type, c.value) }))}
+      />
     </div>
   );
 }

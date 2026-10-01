@@ -6,7 +6,8 @@ import { z } from "zod";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
-import { encryptSecret, maskSecret } from "@/lib/secrets";
+import { decryptSecret, encryptSecret, maskSecret } from "@/lib/secrets";
+import { createMerchantKashierHppUrl } from "@/lib/kashier-merchant";
 import {
   PAYMENT_METHODS,
   KASHIER_ALLOWED_METHODS,
@@ -14,87 +15,8 @@ import {
   type PaymentMethodKey,
 } from "@/constants/welcome/payment-methods";
 
-const kashierAllowedMethodValues = [
-  "card",
-  "wallet",
-  "bank_installments",
-] as const;
-
-const paymentMethodKeys = PAYMENT_METHODS.map((method) => method.key) as [
-  PaymentMethodKey,
-  ...PaymentMethodKey[],
-];
-
-const manualPaymentMethodKeys = PAYMENT_METHODS.filter(
-  (method) => method.manual,
-).map((method) => method.key);
-
-const paymentMethodsSettingsSchema = z
-  .object({
-    storeId: z.string().min(1, "معرف المتجر مطلوب"),
-
-    enabledPaymentMethods: z
-      .array(z.enum(paymentMethodKeys))
-      .min(1, "فعّل طريقة دفع واحدة على الأقل"),
-
-    manualPaymentDetails: z.record(z.string(), z.string()).default({}),
-
-    kashierMode: z.enum(["TEST", "LIVE"]),
-    kashierMerchantId: z
-      .string()
-      .trim()
-      .max(80, "Merchant ID طويل جدًا")
-      .optional(),
-    kashierApiKey: z
-      .string()
-      .trim()
-      .max(500, "Payment API Key طويل جدًا")
-      .optional(),
-    kashierAllowedMethods: z.array(z.enum(kashierAllowedMethodValues)),
-  })
-  .superRefine((data, ctx) => {
-    const kashierSelected = data.enabledPaymentMethods.includes("kashier");
-
-    if (kashierSelected && !data.kashierMerchantId?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["kashierMerchantId"],
-        message: "Merchant ID مطلوب لتفعيل Kashier",
-      });
-    }
-
-    if (kashierSelected && data.kashierAllowedMethods.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["kashierAllowedMethods"],
-        message: "اختار طريقة واحدة على الأقل داخل Kashier",
-      });
-    }
-
-    for (const methodKey of data.enabledPaymentMethods) {
-      if (!manualPaymentMethodKeys.includes(methodKey)) continue;
-
-      const value = data.manualPaymentDetails[methodKey]?.trim();
-
-      if (!value) {
-        const method = PAYMENT_METHODS.find((item) => item.key === methodKey);
-
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [`manual_${methodKey}`],
-          message: `اكتب بيانات التحويل الخاصة بـ ${
-            method?.label ?? methodKey
-          }`,
-        });
-      }
-    }
-  });
-
-export type PaymentMethodsFormState = {
-  success: boolean;
-  message: string;
-  errors?: Record<string, string[]>;
-};
+const kashierAllowedKeys = KASHIER_ALLOWED_METHODS.map((m) => m.key) as [KashierAllowedMethod, ...KashierAllowedMethod[]];
+const manualPaymentMethodKeys = PAYMENT_METHODS.filter((method) => method.manual).map((method) => method.key);
 
 export type ManualPaymentDetails = Record<string, string>;
 
@@ -103,19 +25,9 @@ export type PaymentMethodsSettingsData = {
   storeName: string;
   storeSlug: string;
 
+  /** Ordered — the first one is preselected at checkout. */
   enabledPaymentMethods: PaymentMethodKey[];
   manualPaymentDetails: ManualPaymentDetails;
-
-  cashOnDeliveryEnabled: boolean;
-
-  vodafoneCashEnabled: boolean;
-  vodafoneCashNumber: string;
-
-  instapayEnabled: boolean;
-  instapayAddress: string;
-
-  bankTransferEnabled: boolean;
-  bankTransferDetails: string;
 
   kashierEnabled: boolean;
   kashierMode: "TEST" | "LIVE";
@@ -123,15 +35,6 @@ export type PaymentMethodsSettingsData = {
   kashierApiKeyHint: string | null;
   kashierAllowedMethods: KashierAllowedMethod[];
 };
-
-function formString(formData: FormData, key: string) {
-  return String(formData.get(key) ?? "").trim();
-}
-
-function emptyToNull(value?: string) {
-  const trimmed = value?.trim() ?? "";
-  return trimmed.length ? trimmed : null;
-}
 
 function isPaymentMethodKey(value: string): value is PaymentMethodKey {
   return PAYMENT_METHODS.some((method) => method.key === value);
@@ -141,174 +44,92 @@ function isKashierAllowedMethod(value: string): value is KashierAllowedMethod {
   return KASHIER_ALLOWED_METHODS.some((method) => method.key === value);
 }
 
-function getEnabledPaymentMethods(formData: FormData): PaymentMethodKey[] {
-  return formData
-    .getAll("enabledPaymentMethods")
-    .map(String)
-    .filter(isPaymentMethodKey);
-}
-
-function getManualPaymentDetails(formData: FormData): ManualPaymentDetails {
-  const details: ManualPaymentDetails = {};
-
-  for (const method of PAYMENT_METHODS) {
-    if (!method.manual) continue;
-
-    const value = formString(formData, `manual_${method.key}`);
-
-    if (value) {
-      details[method.key] = value;
-    }
-  }
-
-  return details;
+function normalizeEnabledPaymentMethods(paymentMethods: string[] | null | undefined): PaymentMethodKey[] {
+  const normalized = [...new Set((paymentMethods ?? []).filter(isPaymentMethodKey))];
+  return normalized.length > 0 ? normalized : ["cash_on_delivery"];
 }
 
 function normalizeManualPaymentDetails(value: unknown): ManualPaymentDetails {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return {};
-  }
-
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const details: ManualPaymentDetails = {};
-
   for (const [key, rawValue] of Object.entries(value)) {
-    if (typeof rawValue === "string") {
-      details[key] = rawValue;
-    }
+    if (typeof rawValue === "string") details[key] = rawValue;
   }
-
   return details;
 }
 
-function normalizeEnabledPaymentMethods(
-  paymentMethods: string[] | null | undefined,
-): PaymentMethodKey[] {
-  const normalized = (paymentMethods ?? []).filter(isPaymentMethodKey);
-
-  if (normalized.length > 0) {
-    return normalized;
-  }
-
-  return ["cash_on_delivery"];
+function emptyToNull(value?: string | null) {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length ? trimmed : null;
 }
 
-function getDefaultKashierAllowedMethods(
-  methods: string[] | null | undefined,
-): KashierAllowedMethod[] {
-  const normalized = (methods ?? []).filter(isKashierAllowedMethod);
-
-  if (normalized.length > 0) {
-    return normalized;
-  }
-
-  return ["card", "wallet"];
+function revalidateStorePayments(slug: string) {
+  revalidatePath("/dashboard/payment-methods");
+  revalidatePath(`/store/${slug}`, "layout");
 }
 
-function getManualValue(
-  manualPaymentDetails: ManualPaymentDetails,
-  key: PaymentMethodKey,
-) {
-  return emptyToNull(manualPaymentDetails[key]);
-}
-
-export async function GetPaymentMethodsSettingsAction(): Promise<PaymentMethodsSettingsData> {
+async function getOwnedStore() {
   const userId = await requireUserId();
-
-  const store = await prisma.store.findFirst({
+  return prisma.store.findFirst({
     where: { userId },
+    orderBy: { createdAt: "asc" },
     select: {
       id: true,
       name: true,
       slug: true,
       paymentMethods: true,
+      settings: { select: { primaryColor: true } },
       storePaymentSettings: {
         select: {
           enabledPaymentMethods: true,
           manualPaymentDetails: true,
-
-          cashOnDeliveryEnabled: true,
-
-          vodafoneCashEnabled: true,
           vodafoneCashNumber: true,
-
-          instapayEnabled: true,
           instapayAddress: true,
-
-          bankTransferEnabled: true,
           bankTransferDetails: true,
-
           kashierEnabled: true,
           kashierMode: true,
           kashierMerchantId: true,
+          kashierApiKeyEncrypted: true,
           kashierApiKeyHint: true,
           kashierAllowedMethods: true,
         },
       },
     },
   });
+}
 
-  if (!store) {
-    redirect("/");
-  }
+export async function GetPaymentMethodsSettingsAction(): Promise<PaymentMethodsSettingsData> {
+  const store = await getOwnedStore();
+  if (!store) redirect("/");
 
   const settings = store.storePaymentSettings;
-
   const enabledPaymentMethods = normalizeEnabledPaymentMethods(
-    settings?.enabledPaymentMethods?.length
-      ? settings.enabledPaymentMethods
-      : store.paymentMethods,
+    settings?.enabledPaymentMethods?.length ? settings.enabledPaymentMethods : store.paymentMethods,
   );
 
-  const manualPaymentDetails = normalizeManualPaymentDetails(
-    settings?.manualPaymentDetails,
-  );
+  // Legacy columns predate the JSON map — fold them in so nothing typed before is lost.
+  const manualPaymentDetails = normalizeManualPaymentDetails(settings?.manualPaymentDetails);
+  if (settings?.vodafoneCashNumber && !manualPaymentDetails.vodafone_cash) manualPaymentDetails.vodafone_cash = settings.vodafoneCashNumber;
+  if (settings?.instapayAddress && !manualPaymentDetails.instapay) manualPaymentDetails.instapay = settings.instapayAddress;
+  if (settings?.bankTransferDetails && !manualPaymentDetails.bank_transfer) manualPaymentDetails.bank_transfer = settings.bankTransferDetails;
 
-  if (settings?.vodafoneCashNumber && !manualPaymentDetails.vodafone_cash) {
-    manualPaymentDetails.vodafone_cash = settings.vodafoneCashNumber;
-  }
-
-  if (settings?.instapayAddress && !manualPaymentDetails.instapay) {
-    manualPaymentDetails.instapay = settings.instapayAddress;
-  }
-
-  if (settings?.bankTransferDetails && !manualPaymentDetails.bank_transfer) {
-    manualPaymentDetails.bank_transfer = settings.bankTransferDetails;
-  }
-
-  const kashierAllowedMethods = getDefaultKashierAllowedMethods(
-    settings?.kashierAllowedMethods,
-  );
+  const allowed = (settings?.kashierAllowedMethods ?? []).filter(isKashierAllowedMethod);
 
   return {
     storeId: store.id,
     storeName: store.name,
     storeSlug: store.slug,
-
     enabledPaymentMethods,
     manualPaymentDetails,
-
-    cashOnDeliveryEnabled: enabledPaymentMethods.includes("cash_on_delivery"),
-
-    vodafoneCashEnabled: enabledPaymentMethods.includes("vodafone_cash"),
-    vodafoneCashNumber:
-      manualPaymentDetails.vodafone_cash ?? settings?.vodafoneCashNumber ?? "",
-
-    instapayEnabled: enabledPaymentMethods.includes("instapay"),
-    instapayAddress:
-      manualPaymentDetails.instapay ?? settings?.instapayAddress ?? "",
-
-    bankTransferEnabled: enabledPaymentMethods.includes("bank_transfer"),
-    bankTransferDetails:
-      manualPaymentDetails.bank_transfer ?? settings?.bankTransferDetails ?? "",
-
     kashierEnabled: enabledPaymentMethods.includes("kashier"),
     kashierMode: settings?.kashierMode ?? "TEST",
     kashierMerchantId: settings?.kashierMerchantId ?? "",
-    kashierApiKeyHint: settings?.kashierApiKeyHint ?? null,
-    kashierAllowedMethods,
+    kashierApiKeyHint: settings?.kashierApiKeyEncrypted ? (settings.kashierApiKeyHint ?? "••••") : null,
+    kashierAllowedMethods: allowed.length ? allowed : ["card", "wallet"],
   };
 }
 
+/** Methods shown at checkout, in the merchant's order (first = preselected). */
 export async function GetStoreCheckoutPaymentMethodsAction(storeSlug: string) {
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
@@ -320,219 +141,258 @@ export async function GetStoreCheckoutPaymentMethodsAction(storeSlug: string) {
           kashierEnabled: true,
           kashierMerchantId: true,
           kashierApiKeyEncrypted: true,
+          kashierAllowedMethods: true,
         },
       },
     },
   });
 
   if (!store) return [];
+  const s = store.storePaymentSettings;
+  const enabledKeys = normalizeEnabledPaymentMethods(s?.enabledPaymentMethods?.length ? s.enabledPaymentMethods : store.paymentMethods);
+  const kashierUsable = Boolean(s?.kashierEnabled && s.kashierMerchantId && s.kashierApiKeyEncrypted && s.kashierAllowedMethods.some(isKashierAllowedMethod));
 
-  const enabledKeys = normalizeEnabledPaymentMethods(
-    store.storePaymentSettings?.enabledPaymentMethods?.length
-      ? store.storePaymentSettings.enabledPaymentMethods
-      : store.paymentMethods,
-  );
-
-  return PAYMENT_METHODS.filter((method) => {
-    if (!enabledKeys.includes(method.key)) return false;
-
-    if (method.key !== "kashier") return true;
-
-    return Boolean(
-      store.storePaymentSettings?.kashierEnabled &&
-      store.storePaymentSettings?.kashierMerchantId &&
-      store.storePaymentSettings?.kashierApiKeyEncrypted,
-    );
-  }).map((method) => ({
-    key: method.key,
-    label: method.label,
-  }));
+  return enabledKeys
+    .filter((key) => key !== "kashier" || kashierUsable)
+    .map((key) => PAYMENT_METHODS.find((m) => m.key === key)!)
+    .map((method) => ({ key: method.key, label: method.label }));
 }
 
-export async function UpdatePaymentMethodsAction(
-  _prevState: PaymentMethodsFormState | null,
-  formData: FormData,
-): Promise<PaymentMethodsFormState> {
+// ─── Mutations — each change saves on its own ─────────────────────────────
+
+export type PaymentActionResult = {
+  success: boolean;
+  message: string;
+  errors?: Record<string, string>;
+  /** The method can't be turned on before it's set up — open its setup panel. */
+  needsSetup?: boolean;
+};
+
+type OwnedStore = NonNullable<Awaited<ReturnType<typeof getOwnedStore>>>;
+
+function currentEnabled(store: OwnedStore) {
+  return normalizeEnabledPaymentMethods(store.storePaymentSettings?.enabledPaymentMethods?.length ? store.storePaymentSettings.enabledPaymentMethods : store.paymentMethods);
+}
+
+function currentDetails(store: OwnedStore) {
+  const s = store.storePaymentSettings;
+  const details = normalizeManualPaymentDetails(s?.manualPaymentDetails);
+  if (s?.vodafoneCashNumber && !details.vodafone_cash) details.vodafone_cash = s.vodafoneCashNumber;
+  if (s?.instapayAddress && !details.instapay) details.instapay = s.instapayAddress;
+  if (s?.bankTransferDetails && !details.bank_transfer) details.bank_transfer = s.bankTransferDetails;
+  return details;
+}
+
+const kashierReady = (store: OwnedStore) =>
+  Boolean(store.storePaymentSettings?.kashierMerchantId && store.storePaymentSettings.kashierApiKeyEncrypted && store.storePaymentSettings.kashierAllowedMethods.length);
+
+/** Writes the enabled list + details and keeps the legacy per-method columns in sync. */
+async function writeSettings(
+  store: OwnedStore,
+  enabled: PaymentMethodKey[],
+  details: ManualPaymentDetails,
+  extra: Record<string, unknown> = {},
+) {
+  const fields = {
+    enabledPaymentMethods: enabled,
+    manualPaymentDetails: details,
+    cashOnDeliveryEnabled: enabled.includes("cash_on_delivery"),
+    vodafoneCashEnabled: enabled.includes("vodafone_cash"),
+    vodafoneCashNumber: emptyToNull(details.vodafone_cash),
+    instapayEnabled: enabled.includes("instapay"),
+    instapayAddress: emptyToNull(details.instapay),
+    bankTransferEnabled: enabled.includes("bank_transfer"),
+    bankTransferDetails: emptyToNull(details.bank_transfer),
+    kashierEnabled: enabled.includes("kashier"),
+    ...extra,
+  };
+  await prisma.$transaction([
+    prisma.store.update({ where: { id: store.id }, data: { paymentMethods: enabled } }),
+    prisma.storePaymentSettings.upsert({ where: { storeId: store.id }, update: fields, create: { storeId: store.id, ...fields } }),
+  ]);
+  revalidateStorePayments(store.slug);
+}
+
+export async function TogglePaymentMethodAction(key: string, on: boolean): Promise<PaymentActionResult> {
   try {
-    const enabledPaymentMethods = getEnabledPaymentMethods(formData);
-    const manualPaymentDetails = getManualPaymentDetails(formData);
+    if (!isPaymentMethodKey(key)) return { success: false, message: "طريقة دفع مش معروفة" };
+    const store = await getOwnedStore();
+    if (!store) return { success: false, message: "مش لاقيين متجرك" };
 
-    const rawData = {
-      storeId: formString(formData, "storeId"),
-      enabledPaymentMethods,
-      manualPaymentDetails,
+    const enabled = currentEnabled(store);
+    const details = currentDetails(store);
 
-      kashierMode: formString(formData, "kashierMode") || "TEST",
-      kashierMerchantId: formString(formData, "kashierMerchantId"),
-      kashierApiKey: formString(formData, "kashierApiKey"),
-      kashierAllowedMethods: formData
-        .getAll("kashierAllowedMethods")
-        .map(String),
-    };
+    if (on) {
+      if (key === "kashier" && !kashierReady(store)) return { success: false, needsSetup: true, message: "اربط حساب Kashier الأول" };
+      if (manualPaymentMethodKeys.includes(key) && !details[key]?.trim())
+        return { success: false, needsSetup: true, message: "اكتب البيانات اللي العميل هيحوّل عليها الأول" };
+      if (!enabled.includes(key)) enabled.push(key);
+    } else {
+      if (enabled.length === 1 && enabled[0] === key) return { success: false, message: "لازم تسيب طريقة دفع واحدة على الأقل" };
+      enabled.splice(enabled.indexOf(key), 1);
+    }
 
-    const parsed = paymentMethodsSettingsSchema.safeParse(rawData);
+    await writeSettings(store, enabled, details);
+    const label = PAYMENT_METHODS.find((m) => m.key === key)?.label ?? key;
+    return { success: true, message: on ? `${label} ظاهر دلوقتي في صفحة الدفع` : `${label} اتشال من صفحة الدفع` };
+  } catch (error) {
+    console.error("TogglePaymentMethodAction error:", error);
+    return { success: false, message: "مقدرناش نحفظ. جرّب تاني." };
+  }
+}
 
+export async function SaveManualMethodAction(key: string, value: string): Promise<PaymentActionResult> {
+  try {
+    if (!isPaymentMethodKey(key) || !manualPaymentMethodKeys.includes(key)) return { success: false, message: "طريقة دفع مش معروفة" };
+    const text = value.trim();
+    if (!text) return { success: false, message: "اكتب البيانات الأول", errors: { details: "اكتب البيانات اللي العميل هيحوّل عليها" } };
+    if (text.length > 1000) return { success: false, message: "التعليمات طويلة أوي", errors: { details: "خليها أقل من ١٠٠٠ حرف" } };
+
+    const store = await getOwnedStore();
+    if (!store) return { success: false, message: "مش لاقيين متجرك" };
+
+    const enabled = currentEnabled(store);
+    const details = { ...currentDetails(store), [key]: text };
+    if (!enabled.includes(key)) enabled.push(key);
+
+    await writeSettings(store, enabled, details);
+    return { success: true, message: "اتحفظ وظاهر في صفحة الدفع" };
+  } catch (error) {
+    console.error("SaveManualMethodAction error:", error);
+    return { success: false, message: "مقدرناش نحفظ. جرّب تاني." };
+  }
+}
+
+const kashierSchema = z.object({
+  merchantId: z.string().trim().min(1, "اكتب الـ Merchant ID").max(80, "Merchant ID طويل أوي"),
+  apiKey: z.string().trim().max(500, "API Key طويل أوي").optional(),
+  allowedMethods: z.array(z.enum(kashierAllowedKeys)).min(1, "اختار طريقة واحدة على الأقل"),
+  mode: z.enum(["TEST", "LIVE"]),
+});
+
+export async function SaveKashierAction(input: z.input<typeof kashierSchema>): Promise<PaymentActionResult> {
+  try {
+    const parsed = kashierSchema.safeParse(input);
     if (!parsed.success) {
-      return {
-        success: false,
-        message: "راجع بيانات طرق الدفع",
-        errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
-      };
+      const errors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) errors[String(issue.path[0])] ??= issue.message;
+      return { success: false, message: "في بيانات ناقصة", errors };
     }
 
-    const userId = await requireUserId();
+    const store = await getOwnedStore();
+    if (!store) return { success: false, message: "مش لاقيين متجرك" };
+
     const data = parsed.data;
-
-    const store = await prisma.store.findFirst({
-      where: {
-        id: data.storeId,
-        userId,
-      },
-      select: {
-        id: true,
-        slug: true,
-        storePaymentSettings: {
-          select: {
-            kashierApiKeyEncrypted: true,
-          },
-        },
-      },
-    });
-
-    if (!store) {
-      return {
-        success: false,
-        message: "غير مصرح لك بتعديل إعدادات هذا المتجر",
-      };
+    if (!data.apiKey && !store.storePaymentSettings?.kashierApiKeyEncrypted) {
+      return { success: false, message: "محتاجين الـ API Key", errors: { apiKey: "الصق الـ Payment API Key" } };
     }
 
-    const kashierEnabled = data.enabledPaymentMethods.includes("kashier");
+    const enabled = currentEnabled(store);
+    if (!enabled.includes("kashier")) enabled.unshift("kashier");
 
-    const hasExistingKashierApiKey = Boolean(
-      store.storePaymentSettings?.kashierApiKeyEncrypted,
-    );
-
-    if (kashierEnabled && !data.kashierApiKey && !hasExistingKashierApiKey) {
-      return {
-        success: false,
-        message: "أضف Payment API Key أول مرة لتفعيل Kashier",
-        errors: {
-          kashierApiKey: ["Payment API Key مطلوب أول مرة لتفعيل Kashier"],
-        },
-      };
-    }
-
-    const encryptedApiKey = data.kashierApiKey
-      ? encryptSecret(data.kashierApiKey)
-      : undefined;
-
-    const apiKeyHint = data.kashierApiKey
-      ? maskSecret(data.kashierApiKey)
-      : undefined;
-
-    await prisma.$transaction(async (tx) => {
-      await tx.store.update({
-        where: { id: store.id },
-        data: {
-          paymentMethods: data.enabledPaymentMethods,
-        },
-      });
-
-      await tx.storePaymentSettings.upsert({
-        where: { storeId: store.id },
-        update: {
-          enabledPaymentMethods: data.enabledPaymentMethods,
-          manualPaymentDetails: data.manualPaymentDetails,
-
-          cashOnDeliveryEnabled:
-            data.enabledPaymentMethods.includes("cash_on_delivery"),
-
-          vodafoneCashEnabled:
-            data.enabledPaymentMethods.includes("vodafone_cash"),
-          vodafoneCashNumber: getManualValue(
-            data.manualPaymentDetails,
-            "vodafone_cash",
-          ),
-
-          instapayEnabled: data.enabledPaymentMethods.includes("instapay"),
-          instapayAddress: getManualValue(
-            data.manualPaymentDetails,
-            "instapay",
-          ),
-
-          bankTransferEnabled:
-            data.enabledPaymentMethods.includes("bank_transfer"),
-          bankTransferDetails: getManualValue(
-            data.manualPaymentDetails,
-            "bank_transfer",
-          ),
-
-          kashierEnabled,
-          kashierMode: data.kashierMode,
-          kashierMerchantId: emptyToNull(data.kashierMerchantId),
-          kashierAllowedMethods: data.kashierAllowedMethods,
-
-          ...(encryptedApiKey
-            ? {
-                kashierApiKeyEncrypted: encryptedApiKey,
-                kashierApiKeyHint: apiKeyHint,
-              }
-            : {}),
-        },
-        create: {
-          storeId: store.id,
-
-          enabledPaymentMethods: data.enabledPaymentMethods,
-          manualPaymentDetails: data.manualPaymentDetails,
-
-          cashOnDeliveryEnabled:
-            data.enabledPaymentMethods.includes("cash_on_delivery"),
-
-          vodafoneCashEnabled:
-            data.enabledPaymentMethods.includes("vodafone_cash"),
-          vodafoneCashNumber: getManualValue(
-            data.manualPaymentDetails,
-            "vodafone_cash",
-          ),
-
-          instapayEnabled: data.enabledPaymentMethods.includes("instapay"),
-          instapayAddress: getManualValue(
-            data.manualPaymentDetails,
-            "instapay",
-          ),
-
-          bankTransferEnabled:
-            data.enabledPaymentMethods.includes("bank_transfer"),
-          bankTransferDetails: getManualValue(
-            data.manualPaymentDetails,
-            "bank_transfer",
-          ),
-
-          kashierEnabled,
-          kashierMode: data.kashierMode,
-          kashierMerchantId: emptyToNull(data.kashierMerchantId),
-          kashierAllowedMethods: data.kashierAllowedMethods,
-          kashierApiKeyEncrypted: encryptedApiKey ?? null,
-          kashierApiKeyHint: apiKeyHint ?? null,
-        },
-      });
+    await writeSettings(store, enabled, currentDetails(store), {
+      kashierMode: data.mode,
+      kashierMerchantId: data.merchantId,
+      kashierAllowedMethods: data.allowedMethods,
+      ...(data.apiKey && { kashierApiKeyEncrypted: encryptSecret(data.apiKey), kashierApiKeyHint: maskSecret(data.apiKey) }),
     });
-
-    revalidatePath("/dashboard/payment-methods");
-    revalidatePath("/dashboard/payment-gateways");
-    revalidatePath(`/store/${store.slug}`);
-    revalidatePath(`/store/${store.slug}/checkout`);
 
     return {
       success: true,
-      message: "تم حفظ طرق الدفع بنجاح",
+      message: data.mode === "LIVE" ? "Kashier شغال — عملاءك يقدروا يدفعوا أونلاين" : "اتحفظ في وضع التجربة — جرّب عملية دفع وبعدها حوّل للايف",
     };
   } catch (error) {
-    console.error("UpdatePaymentMethodsAction error:", error);
+    console.error("SaveKashierAction error:", error);
+    return { success: false, message: "مقدرناش نحفظ. جرّب تاني." };
+  }
+}
 
-    return {
-      success: false,
-      message: "حدث خطأ أثناء حفظ طرق الدفع",
-    };
+export async function ReorderPaymentMethodsAction(keys: string[]): Promise<PaymentActionResult> {
+  try {
+    const store = await getOwnedStore();
+    if (!store) return { success: false, message: "مش لاقيين متجرك" };
+
+    const enabled = currentEnabled(store);
+    const ordered = keys.filter((k): k is PaymentMethodKey => isPaymentMethodKey(k) && enabled.includes(k));
+    // Anything enabled but missing from the request keeps its place at the end.
+    const next = [...new Set([...ordered, ...enabled])];
+
+    await writeSettings(store, next, currentDetails(store));
+    return { success: true, message: "الترتيب اتحفظ" };
+  } catch (error) {
+    console.error("ReorderPaymentMethodsAction error:", error);
+    return { success: false, message: "مقدرناش نحفظ الترتيب" };
+  }
+}
+
+/** Removes the Kashier credentials entirely and takes it off checkout. */
+export async function DisconnectKashierAction(): Promise<PaymentActionResult> {
+  try {
+    const store = await getOwnedStore();
+    if (!store) return { success: false, message: "مش لاقيين متجرك" };
+
+    const current = normalizeEnabledPaymentMethods(store.storePaymentSettings?.enabledPaymentMethods ?? store.paymentMethods);
+    const remaining = current.filter((k) => k !== "kashier");
+    const enabled: PaymentMethodKey[] = remaining.length ? remaining : ["cash_on_delivery"];
+
+    await prisma.$transaction([
+      prisma.store.update({ where: { id: store.id }, data: { paymentMethods: enabled } }),
+      prisma.storePaymentSettings.upsert({
+        where: { storeId: store.id },
+        update: {
+          enabledPaymentMethods: enabled,
+          cashOnDeliveryEnabled: enabled.includes("cash_on_delivery"),
+          kashierEnabled: false,
+          kashierMode: "TEST",
+          kashierMerchantId: null,
+          kashierApiKeyEncrypted: null,
+          kashierApiKeyHint: null,
+          kashierAllowedMethods: [],
+        },
+        create: { storeId: store.id, enabledPaymentMethods: enabled },
+      }),
+    ]);
+
+    revalidateStorePayments(store.slug);
+    return { success: true, message: "Kashier اتفصل ومش هيظهر في صفحة الدفع" };
+  } catch (error) {
+    console.error("DisconnectKashierAction error:", error);
+    return { success: false, message: "مقدرناش نفصل Kashier. جرّب تاني." };
+  }
+}
+
+/**
+ * Opens a real 1 EGP Kashier checkout in TEST mode with the saved credentials.
+ * The return route verifies Kashier's signature with the saved API key, so a
+ * successful round trip proves both the Merchant ID and the key are right.
+ */
+export async function StartKashierTestPaymentAction(): Promise<{ success: true; url: string } | { success: false; message: string }> {
+  try {
+    const store = await getOwnedStore();
+    const s = store?.storePaymentSettings;
+    if (!store || !s?.kashierMerchantId || !s.kashierApiKeyEncrypted) {
+      return { success: false, message: "احفظ الـ Merchant ID والـ API Key الأول" };
+    }
+
+    const appUrl = (process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
+    if (!appUrl) return { success: false, message: "التجربة مش متاحة دلوقتي. كلّم الدعم." };
+
+    const allowed = s.kashierAllowedMethods.filter(isKashierAllowedMethod);
+    const url = createMerchantKashierHppUrl({
+      checkoutUrl: process.env.KASHIER_CHECKOUT_URL,
+      merchantId: s.kashierMerchantId,
+      paymentApiKey: decryptSecret(s.kashierApiKeyEncrypted),
+      mode: "test",
+      orderId: `kt_${store.id}_${Date.now()}`,
+      amountInPiasters: 100,
+      merchantRedirect: `${appUrl}/api/payments/kashier/test-return`,
+      allowedMethods: allowed.length ? allowed : ["card"],
+      display: "ar",
+      brandColor: store.settings?.primaryColor ?? undefined,
+    });
+    return { success: true, url };
+  } catch (error) {
+    console.error("StartKashierTestPaymentAction error:", error);
+    return { success: false, message: "مقدرناش نجهّز عملية التجربة. اتأكد من البيانات وجرّب تاني." };
   }
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 
@@ -25,6 +26,8 @@ function isValidPaymentMethod(
 ): value is PaymentMethodKey {
   return enabledMethods.some((method) => method.key === value);
 }
+
+export const metadata: Metadata = { title: "إتمام الطلب", robots: { index: false, follow: false } };
 
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const { slug } = await params;
@@ -109,6 +112,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
             <CheckoutForm
               paymentMethods={paymentMethods}
               action={handleCreateOrder}
+              storeSlug={slug}
             />
 
             {/* Order summary sidebar */}

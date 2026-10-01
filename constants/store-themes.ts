@@ -4,11 +4,13 @@
 //  Each preset = tokens + layout config + section defaults.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { hexToRgb, readableOn } from "@/lib/theme/contrast";
 import type {
   ThemePreset,
   ThemePresetId,
   ThemeCustomization,
   ResolvedTheme,
+  ThemeTokens,
 } from "@/types/store-theme.types";
 import { THEME_PRESET_IDS, isThemePresetId } from "@/types/store-theme.types";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
@@ -493,6 +495,26 @@ export function getStoreTheme(themeId?: string | null): StoreTheme {
 }
 
 /** Build a ResolvedTheme from a preset id + optional merchant customization JSON */
+/**
+ * When the merchant swaps primary/secondary, the preset's text colors may no
+ * longer be readable on them (e.g. white on yellow). Pick a readable one —
+ * unless the merchant set the foreground explicitly.
+ */
+function withReadableForegrounds(
+  tokens: ThemeTokens,
+  presetTokens: ThemeTokens,
+  explicit?: Partial<ThemeTokens>,
+): ThemeTokens {
+  const next = { ...tokens };
+  if (tokens.primary !== presetTokens.primary && !explicit?.primaryForeground && hexToRgb(tokens.primary)) {
+    next.primaryForeground = readableOn(tokens.primary);
+  }
+  if (tokens.secondary !== presetTokens.secondary && !explicit?.secondaryForeground && hexToRgb(tokens.secondary)) {
+    next.secondaryForeground = readableOn(tokens.secondary);
+  }
+  return next;
+}
+
 export function resolveStoreTheme(
   presetId: string | null | undefined,
   customization: ThemeCustomization | null | undefined,
@@ -501,12 +523,16 @@ export function resolveStoreTheme(
 ): ResolvedTheme {
   const preset = getThemePreset(presetId);
 
-  const tokens = {
-    ...preset.tokens,
-    ...(primaryColorOverride ? { primary: primaryColorOverride } : {}),
-    ...(secondaryColorOverride ? { secondary: secondaryColorOverride } : {}),
-    ...(customization?.tokenOverrides ?? {}),
-  };
+  const tokens = withReadableForegrounds(
+    {
+      ...preset.tokens,
+      ...(primaryColorOverride ? { primary: primaryColorOverride } : {}),
+      ...(secondaryColorOverride ? { secondary: secondaryColorOverride } : {}),
+      ...(customization?.tokenOverrides ?? {}),
+    },
+    preset.tokens,
+    customization?.tokenOverrides,
+  );
 
   const layout = {
     ...preset.layout,

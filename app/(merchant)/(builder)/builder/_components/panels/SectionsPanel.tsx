@@ -752,7 +752,6 @@ export default function SectionsPanel() {
   const allFunnelKeys = [...funnelKeys, ...missingFunnel];
 
   const rowProps = (key: SectionKey) => ({
-    key,
     sectionKey: key,
     isOn: !!visibility[key as keyof typeof visibility],
     isPending,
@@ -800,7 +799,7 @@ export default function SectionsPanel() {
                 أساسية
               </p>
               <div className="divide-y divide-border rounded-xl border overflow-hidden">
-                {coreKeys.map((k) => <SortableRow {...rowProps(k)} />)}
+                {coreKeys.map((k) => <SortableRow key={k} {...rowProps(k)} />)}
               </div>
             </div>
 
@@ -808,12 +807,12 @@ export default function SectionsPanel() {
             <div className="px-3 pt-3 pb-4">
               <div className="flex items-center gap-2 mb-1.5 px-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Sales Funnel
+                  أقسام البيع
                 </p>
                 <Badge variant="default" className="h-3.5 px-1 text-[9px] font-bold">جديد</Badge>
               </div>
               <div className="divide-y divide-border rounded-xl border overflow-hidden">
-                {allFunnelKeys.map((k) => <SortableRow {...rowProps(k)} />)}
+                {allFunnelKeys.map((k) => <SortableRow key={k} {...rowProps(k)} />)}
               </div>
             </div>
           </SortableContext>

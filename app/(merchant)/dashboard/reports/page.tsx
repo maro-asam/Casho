@@ -26,7 +26,7 @@ const TABS: { value: ReportTab; label: string }[] = [
   { value: "customers", label: "العملاء" },
   { value: "inventory", label: "المخزون" },
   { value: "pos", label: "الكاشير" },
-  { value: "coupons", label: "الكوبونات" },
+  { value: "coupons", label: "أكواد الخصم" },
 ];
 
 export default async function ReportsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {

@@ -48,7 +48,7 @@ export function UpgradeRequiredCard({
       </CardHeader>
       <CardContent>
         <Button asChild size="sm">
-          <Link href="/dashboard/change-plan">
+          <Link href={requiredPlanSlug ? `/change-plan?plan=${requiredPlanSlug}` : "/change-plan"}>
             <Sparkles className="size-4" />
             ترقية الباقة
           </Link>

@@ -1,105 +1,89 @@
 import type { Metadata } from "next";
-import { Banknote, CreditCard, ShieldCheck, WalletCards, type LucideIcon } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, XCircle } from "lucide-react";
 
 import { GetPaymentMethodsSettingsAction } from "@/actions/payment-methods/payment-methods.actions";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader, readParam, type SearchParamsRecord } from "@/components/saas-page";
+import { Button } from "@/components/ui/button";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
-import PaymentMethodsForm from "./_components/PaymentMethodsForm";
+import { MethodPerformance, type MethodStat } from "./_components/method-performance";
+import { PaymentsStudio } from "./_components/payments-studio";
 
 export const metadata: Metadata = {
-  title: "طرق الدفع",
+  title: "بوابات الدفع",
 };
 
-function StatCard({
-  title,
-  value,
-  description,
-  icon: Icon,
-  valueClass,
-}: {
-  title: string;
-  value: string;
-  description: string;
-  icon: LucideIcon;
-  valueClass?: string;
-}) {
-  return (
-    <Card className="border-border/60 shadow-sm">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-        <div className="space-y-1">
-          <CardDescription className="text-xs">{title}</CardDescription>
-          <CardTitle className={cn("text-xl font-bold md:text-2xl", valueClass)}>{value}</CardTitle>
-        </div>
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="size-5" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  );
-}
+const PERIOD_DAYS = 90;
 
-export default async function PaymentMethodsPage() {
+const TEST_RESULT = {
+  ok: {
+    icon: CheckCircle2,
+    tone: "border-emerald-500/30 bg-emerald-500/5 text-emerald-800 dark:text-emerald-300",
+    text: "الربط مع Kashier سليم — العملية التجريبية رجعت وإمضاؤها صحيح. حوّل للايف لما تكون جاهز.",
+  },
+  declined: {
+    icon: AlertTriangle,
+    tone: "border-amber-500/30 bg-amber-500/5 text-amber-800 dark:text-amber-300",
+    text: "الربط سليم، بس العملية التجريبية اترفضت أو اتلغت. ده طبيعي لو قفلت الصفحة أو استخدمت كارت تجربة مرفوض.",
+  },
+  invalid: {
+    icon: XCircle,
+    tone: "border-rose-500/30 bg-rose-500/5 text-rose-800 dark:text-rose-300",
+    text: "مقدرناش نتأكد من رد Kashier — غالبًا الـ API Key مش بتاع نفس الـ Merchant ID. انسخهم تاني من لوحة Kashier.",
+  },
+} as const;
+
+const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
+
+export default async function PaymentMethodsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  const params = await searchParams;
   const settings = await GetPaymentMethodsSettingsAction();
 
-  const activeManualMethods = settings.enabledPaymentMethods.filter(
-    (m) => m !== "kashier",
-  ).length;
-  const kashierActive = settings.enabledPaymentMethods.includes("kashier");
+  const grouped = await prisma.order.groupBy({
+    by: ["paymentMethod", "status"],
+    where: { storeId: settings.storeId, createdAt: { gte: daysAgo(PERIOD_DAYS) } },
+    _count: { _all: true },
+    _sum: { total: true },
+  });
+
+  const byMethod = new Map<string, MethodStat>();
+  for (const g of grouped) {
+    const s = byMethod.get(g.paymentMethod) ?? { key: g.paymentMethod, orders: 0, revenue: 0, canceled: 0 };
+    s.orders += g._count._all;
+    if (g.status === "CANCELED") s.canceled += g._count._all;
+    else s.revenue += g._sum.total ?? 0;
+    byMethod.set(g.paymentMethod, s);
+  }
+
+  const testParam = readParam(params, "kashier_test");
+  const test = testParam && testParam in TEST_RESULT ? TEST_RESULT[testParam as keyof typeof TEST_RESULT] : null;
 
   return (
-    <div className="space-y-6" dir="rtl">
-      {/* ── Hero ── */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/60 px-6 py-7 shadow-sm">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/8 blur-3xl" />
-        <div className="pointer-events-none absolute -left-10 bottom-0 h-36 w-36 rounded-full bg-sky-500/8 blur-3xl" />
+    <div className="space-y-8" dir="rtl">
+      <PageHeader
+        title="بوابات الدفع"
+        description="اختار إزاي عملاءك يدفعوا ورتّب ظهورهم — أي تغيير بيوصل صفحة الدفع في متجرك على طول."
+        actions={
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <a href={buildStoreUrl(settings.storeSlug, "/products")} target="_blank" rel="noreferrer">
+              <ExternalLink className="size-4" />
+              افتح متجرك
+            </a>
+          </Button>
+        }
+      />
 
-        <div className="relative flex items-start gap-4">
-          <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-            <WalletCards className="size-6" />
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight">طرق الدفع</h1>
-              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-xs">
-                {settings.storeName}
-              </Badge>
-            </div>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              فعّل وسائل الدفع اللي هتظهر في متجرك — يدوية، محلية، أو بوابة دفع أونلاين.
-            </p>
-          </div>
+      {test && (
+        <div role="status" className={cn("flex items-start gap-2.5 rounded-xl border p-4 text-sm leading-6", test.tone)}>
+          <test.icon className="mt-0.5 size-4 shrink-0" />
+          {test.text}
         </div>
-      </div>
+      )}
 
-      {/* ── Stats ── */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          title="الطرق اليدوية المفعلة"
-          value={String(activeManualMethods)}
-          description="تحويلات بنكية ومحافظ إلكترونية ستظهر في الـ checkout."
-          icon={Banknote}
-        />
-        <StatCard
-          title="بوابة الدفع الأونلاين"
-          value={kashierActive ? "مفعل" : "متوقف"}
-          description="Kashier — دفع بالكارت أو المحفظة الرقمية بدون تحويل يدوي."
-          icon={CreditCard}
-          valueClass={kashierActive ? "text-emerald-600" : "text-muted-foreground"}
-        />
-        <StatCard
-          title="إجمالي طرق الدفع"
-          value={String(settings.enabledPaymentMethods.length)}
-          description="وسائل دفع ظاهرة حاليًا للعملاء في صفحة الدفع."
-          icon={ShieldCheck}
-        />
-      </div>
+      <PaymentsStudio initial={settings} />
 
-      {/* ── Form ── */}
-      <PaymentMethodsForm initialSettings={settings} />
+      <MethodPerformance stats={[...byMethod.values()]} periodDays={PERIOD_DAYS} />
     </div>
   );
 }

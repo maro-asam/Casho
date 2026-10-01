@@ -1,79 +1,63 @@
 import Link from "next/link";
-import {
-  ArrowRightLeft,
-  Wallet,
-  AlertTriangle,
-  RefreshCcw,
-} from "lucide-react";
+import type { Metadata } from "next";
+import { ArrowDown, ArrowUp, Check, History, Minus, Repeat, Store, Wallet } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { SubscriptionStatus } from "@prisma/client";
-import { getAllActivePlans, getEntitlementsSnapshot } from "@/lib/entitlements";
-import { formatMoneyFromPiasters } from "@/lib/subscriptions";
-
-import { Badge } from "@/components/ui/badge";
+import { EmptyState, PageHeader } from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { UsageBar } from "@/components/entitlements/UsageBar";
-import { PlanComparisonClient } from "./_components/PlanComparisonClient";
-import type { PlanForUI } from "./_components/PlanCard";
-import { Metadata } from "next";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { hasRunningPaidPeriod, isInTrial } from "@/lib/billing/plan-quote";
+import { formatMoney } from "@/lib/balance-ui/meta";
+import { getAllActivePlans, getEntitlementsSnapshot, PLAN_KEYS } from "@/lib/entitlements";
+import { prisma } from "@/lib/prisma";
+import { cn } from "@/lib/utils";
+import { PlanPicker } from "./_components/plan-picker";
+import { featureValueLabel, nf, type PlanForUI } from "./_components/plan-types";
+import { SubscriptionHero } from "./_components/subscription-hero";
 
 export const metadata: Metadata = {
-  title: "الباقات والأسعار",
+  title: "الباقة والاشتراك",
 };
 
-function formatDate(date: Date | null) {
-  if (!date) return "—";
+const dtf = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
 
-  return new Intl.DateTimeFormat("ar-EG", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function getSubscriptionStatusLabel(status: SubscriptionStatus) {
-  switch (status) {
-    case SubscriptionStatus.ACTIVE:
-      return "نشط";
-    case SubscriptionStatus.GRACE_PERIOD:
-      return "فترة سماح";
-    case SubscriptionStatus.PAST_DUE:
-      return "متأخر";
-    case SubscriptionStatus.CANCELED:
-      return "ملغي";
-    case SubscriptionStatus.INACTIVE:
-    default:
-      return "غير مفعل";
-  }
-}
-
-type SearchParams = {
-  onboarding?: string | string[];
+const HISTORY_LABEL: Record<string, { label: string; icon: typeof ArrowUp }> = {
+  subscription_upgraded: { label: "ترقية", icon: ArrowUp },
+  subscription_downgraded: { label: "نزول", icon: ArrowDown },
+  subscription_cycle_changed: { label: "تغيير دورة الدفع", icon: Repeat },
+  subscription_selected: { label: "اختيار باقة", icon: Check },
+  subscription_activated: { label: "تفعيل الاشتراك", icon: Check },
+  subscription_plan_selected: { label: "اختيار باقة", icon: Check },
+  subscription_plan_changed: { label: "تغيير الباقة", icon: Repeat },
 };
 
-export default async function ChangePlanRoute({
-  searchParams,
-}: {
-  searchParams?: Promise<SearchParams> | SearchParams;
-}) {
-  const params = await Promise.resolve(searchParams);
+const FAQ = [
+  {
+    q: "لو رقّيت في نص الشهر هدفع كام؟",
+    a: "بنحسب الأيام اللي فاضلة من باقتك الحالية ونخصم قيمتها من سعر الباقة الجديدة، وتبدأ فترة جديدة كاملة من النهارده. بتشوف المبلغ بالظبط قبل ما تأكد.",
+  },
+  {
+    q: "لو نزلت باقة هخسر منتجاتي؟",
+    a: "لأ، مفيش أي حاجة بتتمسح. لو عندك أكتر من حد الباقة الجديدة هتفضل موجودة، بس مش هتقدر تضيف جديد. وقيمة الأيام المتبقية بترجعلك رصيد.",
+  },
+  {
+    q: "إيه اللي بيحصل لو الرصيد خلص؟",
+    a: "بنبعتلك تنبيه قبل التجديد بـ ٣ أيام. لو الرصيد مكفاش، المتجر بيفضل شغال ٣ أيام سماح. بعدها بيتوقف لحد ما تشحن، ولما تشحن بيرجع يشتغل لوحده.",
+  },
+  {
+    q: "أقدر أوقف الاشتراك؟",
+    a: "اقفل التجديد التلقائي في أي وقت. الاشتراك هيفضل شغال لآخر يوم إنت دافعه، ورصيدك بيفضل محفوظ.",
+  },
+];
 
+export default async function ChangePlanRoute() {
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
     where: { userId },
+    orderBy: { createdAt: "asc" },
     select: {
       id: true,
-      name: true,
-      slug: true,
       balance: true,
       monthlyPrice: true,
       billingCycle: true,
@@ -82,46 +66,36 @@ export default async function ChangePlanRoute({
       subscriptionStatus: true,
       subscriptionEndsAt: true,
       gracePeriodEndsAt: true,
-      planSelected: true,
-    },
-    orderBy: {
-      createdAt: "asc",
+      trialStartDate: true,
+      trialEndDate: true,
+      plan: { select: { name: true, key: true } },
     },
   });
 
-  const isOnboarding = params?.onboarding === "1" || !store?.planSelected;
-
   if (!store) {
     return (
-      <div className="min-h-[calc(100vh-120px)] " dir="rtl">
-        <Card>
-          <CardContent className="flex min-h-80 flex-col items-center justify-center gap-4 text-center">
-            <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <ArrowRightLeft className="size-6" />
-            </div>
-
-            <div className="space-y-2">
-              <h1 className="text-2xl font-semibold">لا يوجد متجر بعد</h1>
-              <p className="text-sm text-muted-foreground">
-                لازم يكون عندك متجر أولًا عشان تقدر تغيّر الباقة.
-              </p>
-            </div>
-
-            <Button asChild>
-              <Link href="/">الرجوع للداشبورد</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="لسه معندكش متجر"
+        description="أنشئ متجرك الأول عشان تختار باقتك."
+        className="rounded-xl border border-dashed border-border"
+      />
     );
   }
 
-  const [allPlans, snapshot] = await Promise.all([
+  const now = new Date();
+  const [allPlans, snapshot, history] = await Promise.all([
     getAllActivePlans(),
     getEntitlementsSnapshot(store.id),
+    prisma.planAuditLog.findMany({
+      where: { storeId: store.id, action: { startsWith: "subscription_" } },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      select: { id: true, action: true, before: true, after: true, createdAt: true, plan: { select: { name: true } } },
+    }),
   ]);
 
-  const plansForUI: PlanForUI[] = allPlans.map((plan) => ({
+  const plans: PlanForUI[] = allPlans.map((plan) => ({
     id: plan.id,
     key: plan.key,
     slug: plan.slug,
@@ -131,7 +105,6 @@ export default async function ChangePlanRoute({
     yearlyPrice: plan.yearlyPrice,
     originalMonthlyPrice: plan.originalMonthlyPrice,
     originalYearlyPrice: plan.originalYearlyPrice,
-    discountPercent: plan.discountPercent,
     sortOrder: plan.sortOrder,
     features: plan.planFeatures
       .filter((pf) => pf.feature.isActive)
@@ -145,151 +118,241 @@ export default async function ChangePlanRoute({
         limitValue: pf.limitValue,
       })),
   }));
+  const planById = new Map(plans.map((p) => [p.id, p]));
+  const currentPlan = store.planId ? (planById.get(store.planId) ?? null) : null;
+  const inTrial = isInTrial(store, now);
+  const covered = inTrial || hasRunningPaidPeriod(store, now);
 
-  const currentPlan = plansForUI.find((p) => p.id === store.planId) ?? null;
-  const enoughForCurrentRenewal = store.balance >= store.monthlyPrice;
+  // ── Usage of counted resources (only features shown to merchants) ──
+  const featureMeta = new Map(plans[0]?.features.map((f) => [f.key, f]) ?? []);
+  const usage = Object.entries(snapshot.usage)
+    .filter(([key]) => featureMeta.has(key))
+    .map(([key, u]) => ({ key, name: featureMeta.get(key)!.name, unit: featureMeta.get(key)!.unit, ...u }));
 
-  const featureLabelByKey = new Map(
-    plansForUI[0]?.features.map((f) => [f.key, { name: f.name, unit: f.unit }]) ?? [],
-  );
-  const usageRows = Object.entries(snapshot.usage);
+  // ── Recommendation: the cheapest higher plan that fixes a resource near its limit ──
+  let recommendedPlanId: string | null = null;
+  let recommendReason: string | null = null;
+  const tight = usage
+    .filter((u) => !u.isUnlimited && u.limit !== null && u.limit > 0 && u.used / u.limit >= 0.8)
+    .sort((a, b) => b.used / b.limit! - a.used / a.limit!)[0];
+  if (tight && currentPlan) {
+    const better = plans.find((p) => {
+      if (p.sortOrder <= currentPlan.sortOrder) return false;
+      const f = p.features.find((x) => x.key === tight.key);
+      return f?.enabled && (f.isUnlimited || (f.limitValue ?? 0) > tight.used);
+    });
+    if (better) {
+      recommendedPlanId = better.id;
+      const f = better.features.find((x) => x.key === tight.key)!;
+      recommendReason = `إنت مستخدم ${nf.format(tight.used)} من ${nf.format(tight.limit!)} ${tight.unit ?? ""} — ${better.name} فيها ${f.isUnlimited ? "عدد غير محدود" : nf.format(f.limitValue!)}.`;
+    }
+  }
+  if (!recommendedPlanId) {
+    const gold = plans.find((p) => p.key === PLAN_KEYS.GOLD);
+    if (gold && (inTrial || !currentPlan || currentPlan.sortOrder < gold.sortOrder)) recommendedPlanId = gold.id;
+  }
 
   return (
-    <div className="min-h-[calc(100vh-120px)] space-y-6 p-4 md:p-6" dir="rtl">
-      <Card>
-        <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">إدارة الباقة</Badge>
-              <Badge className="bg-primary/10 text-primary hover:bg-primary/10">{store.name}</Badge>
-            </div>
-
-            <h1 className="text-2xl font-semibold md:text-3xl">
-              {isOnboarding ? "اختيار الباقة" : "الباقات والأسعار"}
-            </h1>
-
-            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-              {isOnboarding
-                ? "اختار الباقة المناسبة لمتجرك عشان تكمل إعداد الحساب. الاختيار هنا مش خصم فوري."
-                : "اختار الباقة المناسبة لمتجرك. التغيير هنا بيأثر على التجديد القادم، مش خصم فوري."}
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Card>
-              <CardContent className="p-4">
-                <p className="mb-1 text-sm text-muted-foreground">الباقة الحالية</p>
-                <p className="text-xl font-semibold">{currentPlan?.name ?? "—"}</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <p className="mb-1 text-sm text-muted-foreground">سعر التجديد القادم</p>
-                <p className="text-xl font-semibold">{formatMoneyFromPiasters(store.monthlyPrice)}</p>
-              </CardContent>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
-
-      <PlanComparisonClient
-        plans={plansForUI}
-        currentPlanId={store.planId}
-        currentSortOrder={currentPlan?.sortOrder ?? -1}
-        initialBillingCycle={store.billingCycle}
+    <div className="space-y-8" dir="rtl">
+      <PageHeader
+        title="الباقة والاشتراك"
+        description="باقتك، تجديدك، واستخدامك في مكان واحد — وأي تغيير بتشوف تمنه بالظبط قبل ما تأكد."
+        actions={
+          <>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link href="/balance/history">
+                <History className="size-4" />
+                سجل الرصيد
+              </Link>
+            </Button>
+            <Button asChild size="sm" className="gap-1.5">
+              <Link href="/balance/topup">
+                <Wallet className="size-4" />
+                شحن رصيد
+              </Link>
+            </Button>
+          </>
+        }
       />
 
-      <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">الاستخدام الحالي</CardTitle>
-            <CardDescription>استخدامك من الموارد المحدودة في باقتك الحالية.</CardDescription>
-          </CardHeader>
-          <CardContent className="divide-y divide-border">
-            {usageRows.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">لا توجد موارد محدودة في باقتك الحالية.</p>
-            ) : (
-              usageRows.map(([key, usage]) => (
-                <UsageBar
-                  key={key}
-                  label={featureLabelByKey.get(key)?.name ?? key}
-                  used={usage.used}
-                  limit={usage.limit}
-                  isUnlimited={usage.isUnlimited}
-                  unit={featureLabelByKey.get(key)?.unit ?? undefined}
-                />
-              ))
-            )}
-          </CardContent>
-        </Card>
+      <SubscriptionHero store={store} plan={store.plan} inTrial={inTrial} now={now} />
 
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">وضع الاشتراك الحالي</CardTitle>
-              <CardDescription>ملخص سريع لحالة اشتراك المتجر حاليًا.</CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">حالة الاشتراك</p>
-                <p className="font-semibold">{getSubscriptionStatusLabel(store.subscriptionStatus)}</p>
-              </div>
-
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">نهاية الاشتراك</p>
-                <p className="font-semibold">{formatDate(store.subscriptionEndsAt)}</p>
-              </div>
-
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">دورة الفوترة</p>
-                <p className="font-semibold">{store.billingCycle === "YEARLY" ? "سنوية" : "شهرية"}</p>
-              </div>
-
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">التجديد التلقائي</p>
-                <p className="font-semibold">{store.autoRenew ? "مفعل" : "متوقف"}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">حالة الرصيد</CardTitle>
-              <CardDescription>هل الرصيد الحالي يكفي للتجديد على الباقة الحالية؟</CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <div className="rounded-xl border bg-muted/30 p-4">
-                <p className="mb-1 text-sm text-muted-foreground">الرصيد الحالي</p>
-                <p className="font-semibold">{formatMoneyFromPiasters(store.balance)}</p>
-              </div>
-
-              <div
-                className={
-                  enoughForCurrentRenewal
-                    ? "rounded-xl border border-emerald-200 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-400"
-                    : "rounded-xl border border-amber-200 bg-amber-500/10 p-4 text-amber-700 dark:text-amber-400"
-                }
-              >
-                <div className="flex items-center gap-2">
-                  {enoughForCurrentRenewal ? <RefreshCcw className="size-4" /> : <AlertTriangle className="size-4" />}
-                  <p className="text-sm font-medium">
-                    {enoughForCurrentRenewal ? "الرصيد الحالي يكفي للتجديد." : "الرصيد الحالي لا يكفي للتجديد."}
+      {usage.length > 0 && (
+        <section aria-labelledby="usage-title" className="space-y-3">
+          <h2 id="usage-title" className="text-base font-semibold">
+            استخدامك من الباقة
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {usage.map((u) => {
+              const pct = u.isUnlimited || !u.limit ? 0 : Math.min(100, Math.round((u.used / u.limit) * 100));
+              const full = !u.isUnlimited && u.limit !== null && u.used >= u.limit;
+              const near = !full && pct >= 80;
+              return (
+                <div key={u.key} className="rounded-xl border border-border bg-card p-4">
+                  <p className="text-sm text-muted-foreground">{u.name}</p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums">
+                    {nf.format(u.used)}
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {" "}
+                      / {u.isUnlimited ? "غير محدود" : u.limit === null || u.limit === 0 ? "مش متاح" : nf.format(u.limit)}
+                    </span>
                   </p>
+                  {!u.isUnlimited && !!u.limit && (
+                    <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={cn("h-full rounded-full", full ? "bg-destructive" : near ? "bg-amber-500" : "bg-primary")}
+                        style={{ width: `${Math.max(2, pct)}%` }}
+                      />
+                    </div>
+                  )}
+                  {(full || near) && (
+                    <p className={cn("mt-2 text-xs", full ? "text-destructive" : "text-amber-700 dark:text-amber-400")}>
+                      {full ? "وصلت للحد — رقّي عشان تضيف أكتر." : `مستخدم ${nf.format(pct)}٪ من الحد.`}
+                    </p>
+                  )}
                 </div>
-              </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-              <Button asChild className="w-full">
-                <Link href="/dashboard/balance/topup">
-                  <Wallet className="ms-2 size-4" />
-                  شحن رصيد
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      <PlanPicker
+        plans={plans}
+        currentPlanId={store.planId}
+        currentCycle={store.billingCycle}
+        recommendedPlanId={recommendedPlanId}
+        recommendReason={recommendReason}
+        inTrial={inTrial}
+        covered={covered}
+      />
+
+      {plans.length > 0 && (
+        <section aria-labelledby="compare-title" className="space-y-3">
+          <h2 id="compare-title" className="text-base font-semibold">
+            قارن كل المميزات
+          </h2>
+          <div className="overflow-x-auto rounded-xl border border-border bg-card">
+            <Table className="min-w-[560px]">
+              <TableHeader>
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
+                  <TableHead className="h-10 ps-4 text-xs font-medium text-muted-foreground">الميزة</TableHead>
+                  {plans.map((p) => (
+                    <TableHead
+                      key={p.id}
+                      className={cn("h-10 text-center text-xs font-medium last:pe-4", p.id === store.planId ? "text-primary" : "text-muted-foreground")}
+                    >
+                      {p.name}
+                      {p.id === store.planId && <span className="block text-[10px] font-normal">باقتك</span>}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {plans[0].features.map((f) => (
+                  <TableRow key={f.key}>
+                    <TableCell className="py-3 ps-4 text-sm">{f.name}</TableCell>
+                    {plans.map((p) => {
+                      const pf = p.features.find((x) => x.key === f.key);
+                      const value = pf ? featureValueLabel(pf) : null;
+                      return (
+                        <TableCell key={p.id} className={cn("py-3 text-center text-sm last:pe-4", p.id === store.planId && "bg-primary/[0.03]")}>
+                          {!pf?.enabled ? (
+                            <Minus className="mx-auto size-4 text-muted-foreground/50" aria-label="مش متاح" />
+                          ) : value ? (
+                            <span className="tabular-nums">{value}</span>
+                          ) : (
+                            <Check className="mx-auto size-4 text-primary" aria-label="متاح" />
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+                <TableRow className="hover:bg-transparent">
+                  <TableCell className="py-3 ps-4 text-sm font-medium">السعر الشهري</TableCell>
+                  {plans.map((p) => (
+                    <TableCell key={p.id} className={cn("py-3 text-center text-sm font-medium tabular-nums last:pe-4", p.id === store.planId && "bg-primary/[0.03]")}>
+                      {formatMoney(p.monthlyPrice)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </section>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section aria-labelledby="history-title" className="space-y-3">
+          <h2 id="history-title" className="text-base font-semibold">
+            تغييرات الباقة
+          </h2>
+          <div className="rounded-xl border border-border bg-card">
+            {history.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-muted-foreground">لسه ما غيّرتش باقتك.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {history.map((h) => {
+                  const meta = HISTORY_LABEL[h.action] ?? { label: "تحديث", icon: Repeat };
+                  const before = (h.before ?? {}) as { planId?: string | null; billingCycle?: string };
+                  const after = (h.after ?? {}) as { billingCycle?: string; charge?: number };
+                  const fromName = before.planId ? planById.get(before.planId)?.name : null;
+                  const Icon = meta.icon;
+                  return (
+                    <li key={h.id} className="flex items-center gap-3 px-4 py-3">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                        <Icon className="size-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {meta.label}
+                          {h.plan?.name && (
+                            <span className="font-normal text-muted-foreground">
+                              {" "}
+                              · {fromName && fromName !== h.plan.name ? `${fromName} ← ` : ""}
+                              {h.plan.name}
+                              {after.billingCycle && ` (${after.billingCycle === "YEARLY" ? "سنوي" : "شهري"})`}
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{dtf.format(h.createdAt)}</p>
+                      </div>
+                      {typeof after.charge === "number" && after.charge !== 0 && (
+                        <span
+                          className={cn(
+                            "shrink-0 text-sm font-medium tabular-nums",
+                            after.charge < 0 ? "text-emerald-700 dark:text-emerald-400" : "text-foreground",
+                          )}
+                        >
+                          {after.charge < 0 ? "+" : "−"}
+                          {formatMoney(Math.abs(after.charge))}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </section>
+
+        <section aria-labelledby="faq-title" className="space-y-3">
+          <h2 id="faq-title" className="text-base font-semibold">
+            إزاي الفلوس بتتحسب؟
+          </h2>
+          <div className="divide-y divide-border rounded-xl border border-border bg-card">
+            {FAQ.map((item) => (
+              <details key={item.q} className="group px-4 py-3 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium">
+                  {item.q}
+                  <span className="text-muted-foreground transition-transform group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
