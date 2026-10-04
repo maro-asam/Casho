@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
-import StoreFrontHeader from "./_components/NAVBARS/StoreHeader";
-import StoreFooter from "./_components/shared/StoreFooter";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import { buildThemeCSSString } from "@/lib/theme/build-css-vars";
 import { StoreThemeProvider } from "./_context/StoreThemeContext";
@@ -17,6 +15,9 @@ import { CouponLinkCapture } from "./_components/CouponLinkCapture";
 import { Suspense } from "react";
 import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
 import { StoreConversionLayer } from "./_components/conversion/StoreConversionLayer";
+import { getStorefrontTheme } from "./_themes";
+import type { StoreShell } from "./_themes/types";
+import { getStoreCategoryLinks } from "./_lib/storefront";
 
 type LayoutProps = {
   children: ReactNode;
@@ -157,6 +158,12 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           announcementText: true,
           themeConfig: true,
           showStoreName: true,
+          description: true,
+          email: true,
+          whatsappNumber: true,
+          instagram: true,
+          facebook: true,
+          tiktok: true,
         },
       },
     },
@@ -193,6 +200,32 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   // ── CSS custom properties ──────────────────────────────────────────────
   const themeCSS = buildThemeCSSString(resolvedTheme, font.family, resolvedTheme.darkTokens);
 
+  // ── Theme components + shared chrome data ───────────────────────────────
+  const theme = getStorefrontTheme(resolvedTheme.id);
+  const settings = store.settings;
+  const shell: StoreShell = {
+    id: store.id,
+    name: store.name,
+    slug: store.slug,
+    logo: settings?.logo ?? null,
+    logoRadius: settings?.logoRadius ?? 8,
+    logoSize: settings?.logoSize ?? 80,
+    showStoreName: settings?.showStoreName ?? true,
+    announcementText: settings?.announcementText ?? null,
+    description: settings?.description ?? null,
+    contact: {
+      email: settings?.email ?? null,
+      whatsapp: settings?.whatsappNumber ?? null,
+      instagram: settings?.instagram ?? null,
+      facebook: settings?.facebook ?? null,
+      tiktok: settings?.tiktok ?? null,
+    },
+    categories: await getStoreCategoryLinks(store.id),
+    navbarVariant,
+    showPoweredByCasho: store.poweredByRemovalEnabled ? store.showPoweredByCasho : true,
+    dir: storeDir,
+  };
+
   return (
     <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -219,27 +252,20 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           <CouponLinkCapture storeSlug={store.slug} />
         </Suspense>
         <StoreVisitTracker storeId={store.id} />
-        <div dir={storeDir} className="store-theme-root min-h-screen">
-          <StoreFrontHeader
-            storeName={store.name}
-            storeSlug={store.slug}
-            logo={store.settings?.logo}
-            logoRadius={store.settings?.logoRadius}
-            logoSize={store.settings?.logoSize}
-            announcementText={store.settings?.announcementText}
-            showStoreName={store.settings?.showStoreName ?? true}
-            variant={navbarVariant}
-          />
+        <div dir={storeDir} className={`store-theme-root ${theme.rootClassName} flex min-h-dvh flex-col`}>
+          <a
+            href="#store-main"
+            className="sr-only z-50 rounded-md bg-background px-4 py-2 font-semibold focus:not-sr-only focus:fixed focus:start-3 focus:top-3"
+          >
+            انتقل للمحتوى
+          </a>
+          <theme.Header shell={shell} />
 
-          <main className="min-h-screen">{children}</main>
+          <main id="store-main" className="flex-1">
+            {children}
+          </main>
 
-          <StoreFooter
-            storeName={store.name}
-            storeSlug={store.slug}
-            showPoweredByCasho={
-              store.poweredByRemovalEnabled ? store.showPoweredByCasho : true
-            }
-          />
+          <theme.Footer shell={shell} />
 
           <StoreConversionLayer
             storeId={store.id}

@@ -1,5 +1,6 @@
 import { StockMovementType, type Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { findDefaultBranchId, adjustBranchQuantity } from "./branch-stock";
 
 type Tx = Prisma.TransactionClient;
 type Line = { productId: string; quantity: number };
@@ -27,6 +28,8 @@ export async function takeStockForOrder(
   { storeId, orderId, lines, note }: { storeId: string; orderId: string; lines: Line[]; note: string },
 ) {
   const failed: string[] = [];
+  // Online orders ship from the main branch; its row follows Product.stock.
+  const branchId = await findDefaultBranchId(tx, storeId);
 
   for (const [productId, quantity] of sumByProduct(lines)) {
     const before = await tx.product.findUnique({ where: { id: productId }, select: { stock: true } });
@@ -38,10 +41,12 @@ export async function takeStockForOrder(
       failed.push(productId);
       continue;
     }
+    if (branchId) await adjustBranchQuantity(tx, { storeId, branchId, productId, delta: -quantity });
     await tx.stockMovement.create({
       data: {
         storeId,
         productId,
+        branchId,
         type: StockMovementType.SALE,
         quantity: -quantity,
         stockBefore: before.stock,
@@ -66,6 +71,9 @@ export async function adjustStockForOrderStatus(
 ) {
   const items = await tx.orderItem.findMany({ where: { orderId }, select: { productId: true, quantity: true } });
   const sign = direction === "restock" ? 1 : -1;
+  const order = await tx.order.findUnique({ where: { id: orderId }, select: { branchId: true } });
+  // POS sales go back to their branch; online orders to the main branch.
+  const branchId = order?.branchId ?? (await findDefaultBranchId(tx, storeId));
 
   for (const [productId, quantity] of sumByProduct(items)) {
     const product = await tx.product.update({
@@ -73,10 +81,12 @@ export async function adjustStockForOrderStatus(
       data: { stock: { increment: sign * quantity } },
       select: { stock: true },
     });
+    if (branchId) await adjustBranchQuantity(tx, { storeId, branchId, productId, delta: sign * quantity });
     await tx.stockMovement.create({
       data: {
         storeId,
         productId,
+        branchId,
         type: direction === "restock" ? StockMovementType.RETURN : StockMovementType.SALE,
         quantity: sign * quantity,
         stockBefore: product.stock - sign * quantity,

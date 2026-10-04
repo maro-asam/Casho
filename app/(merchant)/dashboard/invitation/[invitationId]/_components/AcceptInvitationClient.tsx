@@ -18,7 +18,8 @@ export default function AcceptInvitationClient({ invitationId }: Props) {
       const res = await AcceptInvitationAction(invitationId);
       if (res.success) {
         toast.success(res.message);
-        router.push("/dashboard");
+        // Team members work from the POS of the store that invited them.
+        router.push("/pos");
       } else {
         toast.error(res.message);
       }

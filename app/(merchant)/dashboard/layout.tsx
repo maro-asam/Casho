@@ -73,7 +73,9 @@ export default async function DashboardLayout({
   }
 
   if (!store) {
-    redirect("/");
+    // Team members (cashiers) don't own a store: their workspace is the POS.
+    const membership = await prisma.storeMember.findFirst({ where: { userId }, select: { id: true } });
+    redirect(membership ? "/pos" : "/");
   }
 
   const headersList = await headers();

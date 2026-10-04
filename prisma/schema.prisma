@@ -173,15 +173,15 @@ model Store {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  products   Product[]
-  cartItems  CartItem[]
-  orders     Order[]
-  categories Category[]
-  banners    Banner[]
-  popups     StorePopup[]
+  products       Product[]
+  cartItems      CartItem[]
+  orders         Order[]
+  categories     Category[]
+  banners        Banner[]
+  popups         StorePopup[]
   cartRecoveries CartRecovery[]
-  settings   StoreSettings?
-  visits     Visit[]
+  settings       StoreSettings?
+  visits         Visit[]
 
   balanceTransactions BalanceTransaction[]
   topupRequests       TopupRequest[]
@@ -287,13 +287,13 @@ model StoreSettings {
   /// The merchant can preview this before publishing to themeConfig.
   draftThemeConfig Json?
 
-  seoTitle       String?
-  seoDescription String?
-  seoKeywords    String[]
-  ogTitle        String?
-  ogDescription  String?
-  ogImage        String?
-  isIndexed      Boolean  @default(true)
+  seoTitle               String?
+  seoDescription         String?
+  seoKeywords            String[]
+  ogTitle                String?
+  ogDescription          String?
+  ogImage                String?
+  isIndexed              Boolean  @default(true)
   /// Google Search Console HTML-tag verification code (the `content` value only).
   googleSiteVerification String?
 
@@ -813,6 +813,9 @@ model Order {
 
   posShiftId  String?
   posShift    PosShift? @relation(fields: [posShiftId], references: [id], onDelete: SetNull)
+  /// Set for POS sales (the branch of the shift). Online orders have no branch.
+  branchId    String?
+  branch      Branch?   @relation(fields: [branchId], references: [id], onDelete: Restrict)
   cashierId   String?
   cashierUser User?     @relation("CashierOrders", fields: [cashierId], references: [id], onDelete: SetNull)
 
@@ -836,6 +839,7 @@ model Order {
   @@index([customerId])
   @@index([guestSessionId, storeId])
   @@index([posShiftId])
+  @@index([branchId, createdAt])
 }
 
 model OrderItem {
@@ -1104,6 +1108,8 @@ enum NotificationType {
   PLAN_UPGRADED
   PLAN_DOWNGRADED
   PLAN_LIMIT_REACHED
+  SHIFT_OPENED
+  SHIFT_CLOSED
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1437,9 +1443,25 @@ model StoreMember {
   role     StoreRole
   joinedAt DateTime  @default(now())
 
+  /// true = can work in every branch of the store (existing members keep full access).
+  allBranches Boolean             @default(true)
+  branches    StoreMemberBranch[]
+
   @@unique([userId, storeId])
   @@index([storeId])
   @@index([userId])
+}
+
+/// Branches a member is limited to when StoreMember.allBranches is false.
+model StoreMemberBranch {
+  memberId  String
+  member    StoreMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  branchId  String
+  branch    Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@id([memberId, branchId])
+  @@index([branchId])
 }
 
 model StoreInvitation {
@@ -1554,6 +1576,8 @@ model PosShift {
   id               String          @id @default(uuid())
   storeId          String
   store            Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  branchId         String?
+  branch           Branch?         @relation(fields: [branchId], references: [id], onDelete: Restrict)
   cashierId        String
   cashier          User            @relation("CashierShifts", fields: [cashierId], references: [id])
   status           PosShiftStatus  @default(OPEN)
@@ -1571,10 +1595,13 @@ model PosShift {
   closedAt         DateTime?
   entries          PosShiftEntry[]
   orders           Order[]
+  returns          PosReturn[]
 
   @@index([storeId, status])
   @@index([cashierId, openedAt])
   @@index([storeId, openedAt])
+  @@index([branchId, status])
+  @@index([branchId, openedAt])
 }
 
 model PosShiftEntry {
@@ -1593,6 +1620,8 @@ model PosHeldOrder {
   id        String   @id @default(uuid())
   storeId   String
   store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  branchId  String?
+  branch    Branch?  @relation(fields: [branchId], references: [id], onDelete: Cascade)
   cashierId String
   cashier   User     @relation("CashierHeldOrders", fields: [cashierId], references: [id])
   label     String?
@@ -1605,6 +1634,7 @@ model PosHeldOrder {
 
   @@index([storeId, cashierId])
   @@index([storeId, createdAt])
+  @@index([branchId, createdAt])
 }
 
 model PosSplitPayment {
@@ -1623,6 +1653,12 @@ model PosReturn {
   id              String          @id @default(uuid())
   storeId         String
   store           Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  /// Branch the goods went back into (the original sale's branch).
+  branchId        String?
+  branch          Branch?         @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  /// Shift whose drawer paid the refund.
+  shiftId         String?
+  shift           PosShift?       @relation(fields: [shiftId], references: [id], onDelete: SetNull)
   originalOrderId String
   originalOrder   Order           @relation("OriginalOrderReturns", fields: [originalOrderId], references: [id])
   cashierId       String?
@@ -1640,6 +1676,8 @@ model PosReturn {
 
   @@index([storeId, createdAt])
   @@index([originalOrderId])
+  @@index([branchId, createdAt])
+  @@index([shiftId])
 }
 
 model PosReturnItem {
@@ -1703,6 +1741,11 @@ model Branch {
   transfersTo    StockTransfer[]       @relation("TransferTo")
   purchaseOrders PurchaseOrder[]
   adjustments    InventoryAdjustment[]
+  shifts         PosShift[]
+  orders         Order[]
+  posReturns     PosReturn[]
+  heldOrders     PosHeldOrder[]
+  members        StoreMemberBranch[]
 
   @@index([storeId])
   @@index([storeId, isDefault])

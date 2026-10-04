@@ -158,6 +158,17 @@ export type ReportsData = {
   pos: {
     orders: number;
     netSales: number;
+    /** Per-branch breakdown; empty for single-branch views. */
+    branches: {
+      id: string;
+      name: string;
+      orders: number;
+      netSales: number;
+      returns: number;
+      shifts: number;
+      openShifts: number;
+      cashDifference: number;
+    }[];
     cashiers: { id: string; name: string; orders: number; netSales: number; aov: number; discounts: number }[];
     shifts: { count: number; open: number; netDifference: number; shortageShifts: number; shortage: number; overage: number };
     returns: { count: number; amount: number; rate: number; topProducts: { name: string; quantity: number; amount: number }[] };

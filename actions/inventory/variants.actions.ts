@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { syncDefaultBranch } from "@/lib/inventory/branch-stock";
 
 async function getStoreForUser(userId: string) {
   const store = await prisma.store.findFirst({
@@ -86,6 +87,7 @@ export async function CreateVariantAction(data: {
         stock: { increment: data.stock ?? 0 },
       },
     });
+    await syncDefaultBranch(tx, { storeId: store.id, productId: data.productId, delta: data.stock ?? 0 });
 
     return created;
   });
@@ -155,6 +157,7 @@ export async function DeleteVariantAction(variantId: string) {
     });
     const totalStock = remaining.reduce((s, v) => s + v.stock, 0);
 
+    const before = await tx.product.findUniqueOrThrow({ where: { id: variant.productId }, select: { stock: true } });
     await tx.product.update({
       where: { id: variant.productId },
       data: {
@@ -162,6 +165,7 @@ export async function DeleteVariantAction(variantId: string) {
         hasVariants: remaining.length > 0,
       },
     });
+    await syncDefaultBranch(tx, { storeId: store.id, productId: variant.productId, delta: totalStock - before.stock });
   });
 
   revalidatePath(`/dashboard/products/${variant.productId}/edit`);

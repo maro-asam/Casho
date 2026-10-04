@@ -1,67 +1,111 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { PosShiftStatus, PosShiftEntryType, NotificationType } from "@prisma/client";
+import { PosShiftStatus, PosShiftEntryType, NotificationType, OrderSource, PosReturnStatus, type Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { createNotification } from "@/lib/notifications/in-app";
 import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
+import { canManageOthersShifts, requirePosContext } from "@/lib/pos/pos-context";
+import { expectedDrawerCash } from "@/lib/pos/cash";
+import { BranchAccessError, requireBranchScope, type BranchAccessContext } from "@/lib/store/branch-context";
 
-async function getStoreForUser(userId: string) {
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true, name: true, slug: true },
+const egp = (piasters: number) => `${(piasters / 100).toFixed(2)} ج`;
+
+/**
+ * Shifts this user may see: their own, plus — for owners/managers — every shift
+ * in the branches they can access.
+ */
+function visibleShiftsWhere(ctx: BranchAccessContext): Prisma.PosShiftWhereInput {
+  if (canManageOthersShifts(ctx)) return { storeId: ctx.storeId, branchId: { in: ctx.branches.map((b) => b.id) } };
+  return { storeId: ctx.storeId, cashierId: ctx.userId };
+}
+
+/** Cash that should be in the drawer: float + cash part of sales + cash in/out − cash refunds. */
+async function computeExpectedCash(tx: Prisma.TransactionClient, shift: { id: string; openingBalance: number }) {
+  const [orders, entries, refunds] = await Promise.all([
+    tx.order.findMany({
+      where: { posShiftId: shift.id, source: OrderSource.POS },
+      select: { total: true, paymentMethod: true, splitPayments: { select: { paymentMethod: true, amount: true } } },
+    }),
+    tx.posShiftEntry.aggregate({
+      where: { shiftId: shift.id, type: { in: [PosShiftEntryType.CASH_IN, PosShiftEntryType.CASH_OUT] } },
+      _sum: { amount: true },
+    }),
+    tx.posReturn.aggregate({
+      where: { shiftId: shift.id, status: PosReturnStatus.COMPLETED, refundMethod: "cash" },
+      _sum: { refundAmount: true },
+    }),
+  ]);
+
+  return expectedDrawerCash({
+    openingBalance: shift.openingBalance,
+    orders,
+    cashMovements: entries._sum.amount ?? 0,
+    cashRefunds: refunds._sum.refundAmount ?? 0,
   });
-  if (!store) throw new Error("المتجر غير موجود");
-  return store;
 }
 
 export async function GetActiveShiftAction() {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
+  if (!ctx.shift) return null;
 
-  return prisma.posShift.findFirst({
-    where: { storeId: store.id, status: PosShiftStatus.OPEN },
+  return prisma.posShift.findUnique({
+    where: { id: ctx.shift.id },
     include: {
       cashier: { select: { id: true, name: true, email: true } },
+      branch: { select: { id: true, name: true } },
       entries: { orderBy: { createdAt: "desc" }, take: 20 },
     },
-    orderBy: { openedAt: "desc" },
   });
 }
 
 export async function OpenShiftAction(openingBalance: number) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
+  await assertCanUse(ctx.storeId, FEATURE_KEYS.POS);
 
-  await assertCanUse(store.id, FEATURE_KEYS.POS);
-
-  const existingOpen = await prisma.posShift.findFirst({
-    where: { storeId: store.id, status: PosShiftStatus.OPEN },
-    select: { id: true },
-  });
-  if (existingOpen) throw new Error("يوجد وردية مفتوحة بالفعل");
+  if (ctx.shift) throw new Error("عندك وردية مفتوحة بالفعل");
+  if (!Number.isFinite(openingBalance) || openingBalance < 0) throw new Error("رصيد الافتتاح غير صالح");
 
   const openingBalancePiasters = Math.round(openingBalance * 100);
 
-  const shift = await prisma.posShift.create({
-    data: {
-      storeId: store.id,
-      cashierId: userId,
-      status: PosShiftStatus.OPEN,
-      openingBalance: openingBalancePiasters,
-      entries: {
-        create: {
-          type: PosShiftEntryType.OPENING_FLOAT,
-          amount: openingBalancePiasters,
-          note: "رصيد افتتاح الوردية",
+  let shift;
+  try {
+    shift = await prisma.posShift.create({
+      data: {
+        storeId: ctx.storeId,
+        branchId: ctx.branch.id,
+        cashierId: ctx.userId,
+        status: PosShiftStatus.OPEN,
+        openingBalance: openingBalancePiasters,
+        entries: {
+          create: {
+            type: PosShiftEntryType.OPENING_FLOAT,
+            amount: openingBalancePiasters,
+            note: "رصيد افتتاح الوردية",
+          },
         },
       },
-    },
-    include: {
-      cashier: { select: { id: true, name: true, email: true } },
-    },
-  });
+      include: {
+        cashier: { select: { id: true, name: true, email: true } },
+        branch: { select: { id: true, name: true } },
+      },
+    });
+  } catch (error) {
+    // Unique index: one open shift per cashier (double click / two tabs).
+    if ((error as { code?: string }).code === "P2002") throw new Error("عندك وردية مفتوحة بالفعل");
+    throw error;
+  }
+
+  if (!ctx.isOwner) {
+    await createNotification({
+      storeId: ctx.storeId,
+      type: NotificationType.SHIFT_OPENED,
+      title: `وردية جديدة — ${ctx.branch.name}`,
+      message: `${shift.cashier.name || shift.cashier.email} فتح وردية في فرع ${ctx.branch.name} برصيد ${egp(openingBalancePiasters)}.`,
+      href: `/pos/shifts/${shift.id}`,
+      data: { shiftId: shift.id, branchId: ctx.branch.id },
+    });
+  }
 
   revalidatePath("/pos");
   return shift;
@@ -72,52 +116,67 @@ export async function CloseShiftAction(input: {
   closingBalance: number;
   notes?: string;
 }) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
+  if (!Number.isFinite(input.closingBalance) || input.closingBalance < 0) throw new Error("المبلغ غير صالح");
 
+  const isOwn = ctx.shift?.id === input.shiftId;
   const shift = await prisma.posShift.findFirst({
-    where: { id: input.shiftId, storeId: store.id, status: PosShiftStatus.OPEN },
+    where: {
+      id: input.shiftId,
+      status: PosShiftStatus.OPEN,
+      ...(isOwn ? { storeId: ctx.storeId } : visibleShiftsWhere(ctx)),
+    },
     include: {
-      orders: {
-        where: { source: "POS" },
-        select: { total: true, discount: true },
-      },
+      branch: { select: { name: true } },
+      cashier: { select: { name: true, email: true } },
     },
   });
   if (!shift) throw new Error("الوردية غير موجودة أو مغلقة بالفعل");
 
   const closingBalancePiasters = Math.round(input.closingBalance * 100);
 
-  const cashSales = shift.orders.reduce((sum, o) => sum + o.total, 0);
-  const expectedCash = shift.openingBalance + cashSales - shift.totalReturns;
-  const cashDifference = closingBalancePiasters - expectedCash;
+  const closedShift = await prisma.$transaction(async (tx) => {
+    const expectedCash = await computeExpectedCash(tx, shift);
+    const cashDifference = closingBalancePiasters - expectedCash;
 
-  const closedShift = await prisma.posShift.update({
-    where: { id: shift.id },
-    data: {
-      status: PosShiftStatus.CLOSED,
-      closingBalance: closingBalancePiasters,
-      expectedCash,
-      cashDifference,
-      closedAt: new Date(),
-      notes: input.notes,
-      entries: {
-        create: {
-          type: PosShiftEntryType.CLOSING_COUNT,
-          amount: closingBalancePiasters,
-          note: `إغلاق الوردية — العجز/الزيادة: ${cashDifference >= 0 ? "+" : ""}${(cashDifference / 100).toFixed(2)} ج`,
-        },
+    // Guarded update: two people closing the same shift at once — only one wins.
+    const res = await tx.posShift.updateMany({
+      where: { id: shift.id, status: PosShiftStatus.OPEN },
+      data: {
+        status: PosShiftStatus.CLOSED,
+        closingBalance: closingBalancePiasters,
+        expectedCash,
+        cashDifference,
+        closedAt: new Date(),
+        notes: input.notes,
       },
-    },
+    });
+    if (res.count === 0) throw new Error("الوردية اتقفلت بالفعل");
+
+    await tx.posShiftEntry.create({
+      data: {
+        shiftId: shift.id,
+        type: PosShiftEntryType.CLOSING_COUNT,
+        amount: closingBalancePiasters,
+        note: `إغلاق الوردية — العجز/الزيادة: ${cashDifference >= 0 ? "+" : ""}${(cashDifference / 100).toFixed(2)} ج${isOwn ? "" : " (أغلقها المدير)"}`,
+      },
+    });
+
+    return tx.posShift.findUniqueOrThrow({ where: { id: shift.id } });
   });
 
+  const diff = closedShift.cashDifference ?? 0;
+  const branchName = shift.branch?.name ?? "الفرع الرئيسي";
   await createNotification({
-    storeId: store.id,
-    userId,
-    type: NotificationType.SYSTEM,
-    title: "تم إغلاق الوردية",
-    message: `وردية بإجمالي مبيعات ${(shift.totalSales / 100).toFixed(2)} ج تم إغلاقها بنجاح.`,
+    storeId: ctx.storeId,
+    type: NotificationType.SHIFT_CLOSED,
+    title: diff < 0 ? `عجز في وردية — ${branchName}` : `تم إغلاق وردية — ${branchName}`,
+    message:
+      `وردية ${shift.cashier.name || shift.cashier.email} في فرع ${branchName}: ` +
+      `مبيعات ${egp(shift.totalSales)} · ${shift.transactionCount} فاتورة` +
+      (diff === 0 ? " · الدرج مظبوط." : ` · ${diff < 0 ? "عجز" : "زيادة"} ${egp(Math.abs(diff))}.`),
     href: `/pos/shifts/${shift.id}`,
+    data: { shiftId: shift.id, branchId: shift.branchId, cashDifference: diff },
   });
 
   revalidatePath("/pos");
@@ -131,20 +190,17 @@ export async function AddCashMovementAction(input: {
   amount: number;
   note?: string;
 }) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
-  const shift = await prisma.posShift.findFirst({
-    where: { id: input.shiftId, storeId: store.id, status: PosShiftStatus.OPEN },
-    select: { id: true },
-  });
-  if (!shift) throw new Error("الوردية غير موجودة أو مغلقة");
+  // Only into your own drawer.
+  if (!ctx.shift || ctx.shift.id !== input.shiftId) throw new Error("الوردية غير موجودة أو مغلقة");
+  if (!Number.isFinite(input.amount)) throw new Error("المبلغ غير صالح");
 
   const amountPiasters = Math.round(Math.abs(input.amount) * 100);
 
   await prisma.posShiftEntry.create({
     data: {
-      shiftId: shift.id,
+      shiftId: ctx.shift.id,
       type: input.type === "CASH_IN" ? PosShiftEntryType.CASH_IN : PosShiftEntryType.CASH_OUT,
       amount: input.type === "CASH_IN" ? amountPiasters : -amountPiasters,
       note: input.note,
@@ -155,30 +211,38 @@ export async function AddCashMovementAction(input: {
   return { success: true };
 }
 
-export async function GetShiftsAction(limit = 20) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+export async function GetShiftsAction(limit = 20, branch?: string | null) {
+  const ctx = await requireBranchScope("use_pos", branch, "pos");
+  const where: Prisma.PosShiftWhereInput = canManageOthersShifts(ctx)
+    ? { storeId: ctx.storeId, branchId: { in: ctx.scope.branchIds ?? ctx.branches.map((b) => b.id) } }
+    : { storeId: ctx.storeId, cashierId: ctx.userId };
 
-  return prisma.posShift.findMany({
-    where: { storeId: store.id },
+  const shifts = await prisma.posShift.findMany({
+    where,
     include: {
       cashier: { select: { id: true, name: true, email: true } },
+      branch: { select: { id: true, name: true } },
       _count: { select: { orders: true } },
     },
     orderBy: { openedAt: "desc" },
     take: limit,
   });
+  return { shifts, scope: ctx.scope, branches: ctx.branches, canSeeAll: canManageOthersShifts(ctx) };
 }
 
 export async function GetShiftByIdAction(shiftId: string) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
-
-  return prisma.posShift.findFirst({
-    where: { id: shiftId, storeId: store.id },
+  const ctx = await requireBranchScope("use_pos", undefined, "pos");
+  const shift = await prisma.posShift.findFirst({
+    where: { id: shiftId, ...visibleShiftsWhere(ctx) },
     include: {
       cashier: { select: { id: true, name: true, email: true } },
+      branch: { select: { id: true, name: true } },
       entries: { orderBy: { createdAt: "asc" } },
+      returns: {
+        where: { status: PosReturnStatus.COMPLETED },
+        select: { id: true, refundAmount: true, refundMethod: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      },
       orders: {
         where: { source: "POS" },
         select: {
@@ -195,4 +259,7 @@ export async function GetShiftByIdAction(shiftId: string) {
       },
     },
   });
+  if (!shift) return null;
+  if (!canManageOthersShifts(ctx) && shift.cashierId !== ctx.userId) throw new BranchAccessError();
+  return shift;
 }

@@ -5,14 +5,13 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { AdjustmentReason, StockMovementType } from "@prisma/client";
 import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
+import { adjustBranchQuantity, changeBranchStock, getBranchQuantities } from "@/lib/inventory/branch-stock";
+import { assertBranchAllowed, getDefaultBranch, requireBranchAccess } from "@/lib/store/branch-context";
 
-async function getStoreForUser(userId: string) {
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!store) throw new Error("المتجر غير موجود");
-  return store;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function getStoreForUser(_userId: string) {
+  const ctx = await requireBranchAccess("manage_inventory");
+  return { id: ctx.storeId, ctx };
 }
 
 export type AdjustmentItem = {
@@ -34,7 +33,14 @@ export async function CreateAdjustmentAction(data: {
 
   if (!data.items.length) throw new Error("يجب إضافة منتج واحد على الأقل");
 
+  // Counts are per branch: the chosen one, or the main branch.
+  const branchId = data.branchId || (await getDefaultBranch(store.id)).id;
+  assertBranchAllowed(store.ctx, branchId);
+
   const productIds = data.items.map((i) => i.productId);
+  if (new Set(productIds.filter((_, i) => !data.items[i].variantId)).size !== data.items.filter((i) => !i.variantId).length) {
+    throw new Error("المنتج مكرر في التسوية");
+  }
   const products = await prisma.product.findMany({
     where: { id: { in: productIds }, storeId: store.id },
     select: { id: true, name: true, stock: true },
@@ -64,29 +70,38 @@ export async function CreateAdjustmentAction(data: {
       data: {
         storeId: store.id,
         userId,
-        branchId: data.branchId || null,
+        branchId,
         reason: data.reason,
         notes: data.notes?.trim() || null,
         reference: data.reference?.trim() || null,
       },
     });
 
+    const branchQty = await getBranchQuantities(tx, branchId, productIds);
+
     for (const item of data.items) {
-      const product = productMap.get(item.productId)!;
       let currentStock: number;
-      let stockField: "product" | "variant" = "product";
+      let change: number;
 
       if (item.variantId) {
+        // Variant counts are store-wide; the product total moves by the same amount
+        // and that amount is booked on this branch.
         const variant = variantMap.get(item.variantId)!;
         currentStock = variant.stock;
-        stockField = "variant";
+        change = item.newQuantity - currentStock;
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: item.newQuantity },
+        });
+        await tx.product.update({ where: { id: item.productId }, data: { stock: { increment: change } } });
+        await adjustBranchQuantity(tx, { storeId: store.id, branchId, productId: item.productId, delta: change });
       } else {
-        currentStock = product.stock;
+        // The count is what is physically on this branch's shelf.
+        currentStock = branchQty.get(item.productId) ?? 0;
+        change = item.newQuantity - currentStock;
+        await changeBranchStock(tx, { storeId: store.id, branchId, productId: item.productId, delta: change });
       }
 
-      const change = item.newQuantity - currentStock;
-
-      // Create adjustment item record
       await tx.inventoryAdjustmentItem.create({
         data: {
           adjustmentId: created.id,
@@ -99,39 +114,12 @@ export async function CreateAdjustmentAction(data: {
         },
       });
 
-      // Update actual stock
-      if (item.variantId) {
-        await tx.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: item.newQuantity },
-        });
-        // Recalculate product total from all variants
-        const allVariants = await tx.productVariant.findMany({
-          where: { productId: item.productId },
-          select: { stock: true, id: true },
-        });
-        const totalStock = allVariants.reduce(
-          (s, v) => s + (v.id === item.variantId ? item.newQuantity : v.stock),
-          0,
-        );
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: totalStock },
-        });
-      } else {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: item.newQuantity },
-        });
-      }
-
-      // Record stock movement
       await tx.stockMovement.create({
         data: {
           storeId: store.id,
           productId: item.productId,
           variantId: item.variantId || null,
-          branchId: data.branchId || null,
+          branchId,
           type: StockMovementType.ADJUSTMENT,
           quantity: change,
           stockBefore: currentStock,

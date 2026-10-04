@@ -6,6 +6,7 @@ import { ORDER_CHANNELS, ORDER_STATUS_META } from "@/app/(merchant)/dashboard/or
 import { parseRange } from "@/app/(merchant)/dashboard/reports/_lib/range";
 import { getReportsData } from "@/app/(merchant)/dashboard/reports/_lib/reports-data";
 import { prisma } from "@/lib/prisma";
+import { requireBranchScope } from "@/lib/store/branch-context";
 
 type Cell = string | number | null;
 
@@ -36,7 +37,9 @@ export async function GET(request: NextRequest) {
       from: sp.get("from") ?? undefined,
       to: sp.get("to") ?? undefined,
     });
-    const d = await getReportsData(store.id, range);
+    // Same branch scope as the reports page (re-validated server side).
+    const { scope } = await requireBranchScope("view_analytics", sp.get("branch"));
+    const d = await getReportsData(store.id, range, scope.branchIds);
     const { kpis, pnl } = d;
 
     const wb = XLSX.utils.book_new();
@@ -45,7 +48,7 @@ export async function GET(request: NextRequest) {
       wb,
       sheet(
         [
-          [`تقرير ${store.name}`],
+          [`تقرير ${store.name}${scope.branch ? ` — ${scope.branch.name}` : ""}`],
           ["الفترة", d.range.label],
           ["مقارنة بـ", d.range.previousLabel],
           [],

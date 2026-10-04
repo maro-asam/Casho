@@ -54,6 +54,53 @@ export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
         />
       </div>
 
+      {pos.branches.length > 0 && (
+        <Panel title="الفروع" description="مبيعات وورديات كل فرع في الفترة دي" contentClassName="p-0">
+          <ReportTable
+            head={
+              <>
+                <th>الفرع</th>
+                <th className="text-left!">الفواتير</th>
+                <th className="text-left!">المبيعات</th>
+                <th className="text-left!">المرتجعات</th>
+                <th className="text-left!">الورديات</th>
+                <th className="text-left!">فرق الكاش</th>
+              </>
+            }
+          >
+            {pos.branches.map((b) => (
+              <tr key={b.id}>
+                <td>
+                  <span className="flex items-center gap-2 font-medium">
+                    <Store className="size-4 text-muted-foreground" />
+                    {b.name}
+                  </span>
+                </td>
+                <td className="text-left tabular-nums">{formatNumber(b.orders)}</td>
+                <td className="text-left font-medium tabular-nums">{formatMoney(b.netSales)}</td>
+                <td className="text-left tabular-nums text-muted-foreground">{formatMoney(b.returns)}</td>
+                <td className="text-left tabular-nums">
+                  {formatNumber(b.shifts)}
+                  {b.openShifts > 0 && (
+                    <span className="ms-1 text-xs text-amber-600 dark:text-amber-400">({formatNumber(b.openShifts)} مفتوحة)</span>
+                  )}
+                </td>
+                <td
+                  className={cn(
+                    "text-left tabular-nums",
+                    b.cashDifference < 0 && "text-rose-600 dark:text-rose-400",
+                    b.cashDifference > 0 && "text-emerald-600 dark:text-emerald-400",
+                  )}
+                >
+                  {b.cashDifference > 0 ? "+" : ""}
+                  {formatMoney(b.cashDifference)}
+                </td>
+              </tr>
+            ))}
+          </ReportTable>
+        </Panel>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel
           title="أداء الكاشير"

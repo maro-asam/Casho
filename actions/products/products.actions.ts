@@ -1,5 +1,6 @@
 "use server";
 
+import { seedDefaultBranchRows, syncDefaultBranch } from "@/lib/inventory/branch-stock";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { transliterate } from "@/lib/utils";
@@ -254,6 +255,7 @@ export async function CreateProductAction(
       },
       select: { id: true },
     });
+    await seedDefaultBranchRows(prisma, store.id);
 
     await checkAndNotifyLowStock(created.id, name, stock, store.id);
 
@@ -383,6 +385,7 @@ export async function UpdateProductAction(
       select: {
         id: true,
         slug: true,
+        stock: true,
       },
     });
 
@@ -399,38 +402,42 @@ export async function UpdateProductAction(
       nextSlug = `${normalizedName}-${crypto.randomUUID().slice(0, 6)}`;
     }
 
-    await prisma.product.update({
-      where: { id: product.id },
-      data: {
-        name,
-        slug: nextSlug,
-        description,
-        price,
-        compareAtPrice,
-        costPrice,
-        sku,
-        barcode,
-        image,
-        images,
-        brand,
-        stock,
-        lowStockThreshold,
-        sizes,
-        colors,
-        tags,
-        weight,
-        isActive,
-        isFeatured,
-        hasVariants,
-        type,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        bundleItems: bundleItems as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        attributes: attributes as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        wholesaleOptions: wholesaleOptions as any,
-        categoryId: category.id,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.product.update({
+        where: { id: product.id },
+        data: {
+          name,
+          slug: nextSlug,
+          description,
+          price,
+          compareAtPrice,
+          costPrice,
+          sku,
+          barcode,
+          image,
+          images,
+          brand,
+          stock,
+          lowStockThreshold,
+          sizes,
+          colors,
+          tags,
+          weight,
+          isActive,
+          isFeatured,
+          hasVariants,
+          type,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          bundleItems: bundleItems as any,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          attributes: attributes as any,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          wholesaleOptions: wholesaleOptions as any,
+          categoryId: category.id,
+        },
+      });
+      // The form edits the store-wide total; the difference lands in the main branch.
+      await syncDefaultBranch(tx, { storeId: store.id, productId: product.id, delta: stock - product.stock });
     });
 
     await checkAndNotifyLowStock(product.id, name, stock, store.id);

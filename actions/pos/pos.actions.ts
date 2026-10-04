@@ -1,29 +1,26 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { OrderSource, OrderStatus, PosShiftStatus, StockMovementType } from "@prisma/client";
+import { OrderSource, OrderStatus, StockMovementType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { createNotification } from "@/lib/notifications/in-app";
 import { NotificationType } from "@prisma/client";
+import { assertCanSellInBranch, requirePosContext } from "@/lib/pos/pos-context";
+import { changeBranchStock, getBranchQuantities } from "@/lib/inventory/branch-stock";
 
-async function getStoreForUser(userId: string) {
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true, name: true, slug: true },
-  });
-  if (!store) throw new Error("المتجر غير موجود");
-  return store;
+/** Replaces Product.stock (store-wide) with what this branch actually has. */
+async function withBranchStock<T extends { id: string; stock: number }>(branchId: string, products: T[]): Promise<T[]> {
+  const qty = await getBranchQuantities(prisma, branchId, products.map((p) => p.id));
+  return products.map((p) => ({ ...p, stock: qty.get(p.id) ?? 0 }));
 }
 
 // ─── Product Search ───────────────────────────────────────────
 
 export async function SearchPosProductsAction(query: string, categoryId?: string) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   const where = {
-    storeId: store.id,
+    storeId: ctx.storeId,
     isActive: true,
     ...(categoryId ? { categoryId } : {}),
     ...(query.trim()
@@ -37,7 +34,7 @@ export async function SearchPosProductsAction(query: string, categoryId?: string
       : {}),
   };
 
-  return prisma.product.findMany({
+  const products = await prisma.product.findMany({
     where,
     select: {
       id: true,
@@ -55,26 +52,25 @@ export async function SearchPosProductsAction(query: string, categoryId?: string
     orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
     take: 60,
   });
+  return withBranchStock(ctx.branch.id, products);
 }
 
 export async function GetPosCategoriesAction() {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   return prisma.category.findMany({
-    where: { storeId: store.id },
+    where: { storeId: ctx.storeId },
     select: { id: true, name: true, _count: { select: { products: true } } },
     orderBy: { name: "asc" },
   });
 }
 
 export async function FindProductByBarcodeAction(barcode: string) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
-  return prisma.product.findFirst({
+  const product = await prisma.product.findFirst({
     where: {
-      storeId: store.id,
+      storeId: ctx.storeId,
       isActive: true,
       OR: [{ barcode }, { sku: barcode }],
     },
@@ -90,6 +86,7 @@ export async function FindProductByBarcodeAction(barcode: string) {
       barcode: true,
     },
   });
+  return product ? (await withBranchStock(ctx.branch.id, [product]))[0] : null;
 }
 
 // ─── Hold Orders ──────────────────────────────────────────────
@@ -117,8 +114,7 @@ export async function HoldOrderAction(input: {
   label?: string;
   cartData: HeldCartData;
 }) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   const itemCount = input.cartData.items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = input.cartData.items.reduce(
@@ -128,8 +124,9 @@ export async function HoldOrderAction(input: {
 
   const held = await prisma.posHeldOrder.create({
     data: {
-      storeId: store.id,
-      cashierId: userId,
+      storeId: ctx.storeId,
+      branchId: ctx.branch.id,
+      cashierId: ctx.userId,
       label: input.label ?? `طلب ${new Date().toLocaleTimeString("ar-EG")}`,
       cartData: input.cartData as object,
       itemCount,
@@ -142,11 +139,10 @@ export async function HoldOrderAction(input: {
 }
 
 export async function GetHeldOrdersAction() {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   return prisma.posHeldOrder.findMany({
-    where: { storeId: store.id },
+    where: { storeId: ctx.storeId, branchId: ctx.branch.id },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -161,11 +157,10 @@ export async function GetHeldOrdersAction() {
 }
 
 export async function ResumeHeldOrderAction(heldOrderId: string): Promise<HeldCartData> {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   const held = await prisma.posHeldOrder.findFirst({
-    where: { id: heldOrderId, storeId: store.id },
+    where: { id: heldOrderId, storeId: ctx.storeId, branchId: ctx.branch.id },
     select: { id: true, cartData: true },
   });
   if (!held) throw new Error("الطلب المعلق غير موجود");
@@ -177,11 +172,10 @@ export async function ResumeHeldOrderAction(heldOrderId: string): Promise<HeldCa
 }
 
 export async function DeleteHeldOrderAction(heldOrderId: string) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   await prisma.posHeldOrder.deleteMany({
-    where: { id: heldOrderId, storeId: store.id },
+    where: { id: heldOrderId, storeId: ctx.storeId, branchId: ctx.branch.id },
   });
   revalidatePath("/pos");
   return { success: true };
@@ -205,6 +199,7 @@ export type SplitPaymentEntry = {
 };
 
 export async function CompletePOSSaleAction(input: {
+  /** Kept for older clients; the sale always goes to the cashier's own open shift. */
   shiftId?: string;
   cartItems: PosCartItem[];
   invoiceDiscount: { type: "percentage" | "fixed"; value: number } | null;
@@ -212,34 +207,44 @@ export async function CompletePOSSaleAction(input: {
   customer?: { name: string; phone: string };
   notes?: string;
 }) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
+  const { userId, storeId } = ctx;
 
   if (input.cartItems.length === 0) throw new Error("السلة فارغة");
 
-  // Validate shift if provided
-  if (input.shiftId) {
-    const shift = await prisma.posShift.findFirst({
-      where: { id: input.shiftId, storeId: store.id, status: PosShiftStatus.OPEN },
-      select: { id: true },
-    });
-    if (!shift) throw new Error("الوردية غير موجودة أو مغلقة");
-  }
+  // The shift (and so the branch) comes from the server, never from the client.
+  const shift = ctx.shift;
+  if (!shift) throw new Error("افتح وردية الأول عشان تقدر تبيع");
+  if (input.shiftId && input.shiftId !== shift.id) throw new Error("الوردية دي مش ورديتك المفتوحة — حدّث الصفحة");
+  assertCanSellInBranch(ctx);
+  const branchId = shift.branchId;
 
-  // Verify products and stock in DB (don't trust client)
-  const productIds = input.cartItems.map((i) => i.productId);
+  // Verify products, prices and stock in DB (don't trust client)
+  const productIds = [...new Set(input.cartItems.map((i) => i.productId))];
   const products = await prisma.product.findMany({
-    where: { id: { in: productIds }, storeId: store.id, isActive: true },
-    select: { id: true, price: true, costPrice: true, stock: true, name: true },
+    where: { id: { in: productIds }, storeId, isActive: true },
+    select: { id: true, price: true, costPrice: true, name: true, lowStockThreshold: true },
   });
-
   const productMap = new Map(products.map((p) => [p.id, p]));
+  const branchStock = await getBranchQuantities(prisma, branchId, productIds);
 
+  const wanted = new Map<string, number>();
   for (const item of input.cartItems) {
     const product = productMap.get(item.productId);
     if (!product) throw new Error(`المنتج غير موجود: ${item.productId}`);
-    if (product.stock < item.quantity) {
-      throw new Error(`المخزون غير كافٍ للمنتج: ${product.name} (متاح: ${product.stock})`);
+    if (!Number.isInteger(item.quantity) || item.quantity <= 0) throw new Error("كمية غير صالحة");
+    if (item.price !== Math.round(product.price * 100)) {
+      throw new Error(`سعر "${product.name}" اتغير — حدّث الصفحة`);
+    }
+    if (item.discountAmount < 0 || item.discountAmount > item.price * item.quantity) {
+      throw new Error(`خصم غير صالح على "${product.name}"`);
+    }
+    wanted.set(item.productId, (wanted.get(item.productId) ?? 0) + item.quantity);
+  }
+  for (const [productId, qty] of wanted) {
+    const available = branchStock.get(productId) ?? 0;
+    if (available < qty) {
+      throw new Error(`المخزون غير كافٍ في الفرع للمنتج: ${productMap.get(productId)!.name} (متاح: ${available})`);
     }
   }
 
@@ -252,9 +257,10 @@ export async function CompletePOSSaleAction(input: {
   let invoiceDiscountAmount = 0;
   if (input.invoiceDiscount) {
     if (input.invoiceDiscount.type === "percentage") {
-      invoiceDiscountAmount = Math.round(subtotal * (input.invoiceDiscount.value / 100));
+      const pct = Math.min(100, Math.max(0, input.invoiceDiscount.value));
+      invoiceDiscountAmount = Math.round(subtotal * (pct / 100));
     } else {
-      invoiceDiscountAmount = Math.min(Math.round(input.invoiceDiscount.value * 100), subtotal);
+      invoiceDiscountAmount = Math.min(Math.max(0, Math.round(input.invoiceDiscount.value * 100)), subtotal);
     }
   }
 
@@ -262,13 +268,14 @@ export async function CompletePOSSaleAction(input: {
   const totalDiscount = itemDiscounts + invoiceDiscountAmount;
   const total = Math.max(0, subtotal - invoiceDiscountAmount);
 
-  const costTotal = input.cartItems.reduce(
-    (sum, item) => sum + Math.round((item.costPrice ?? 0) * item.quantity),
-    0,
-  );
+  const costTotal = input.cartItems.reduce((sum, item) => {
+    const cost = productMap.get(item.productId)!.costPrice;
+    return sum + Math.round((cost ?? 0) * 100) * item.quantity;
+  }, 0);
   const profitTotal = total - costTotal;
 
   // Validate payments cover the total
+  if (input.payments.some((p) => !Number.isFinite(p.amount) || p.amount < 0)) throw new Error("مبلغ دفع غير صالح");
   const totalPaid = input.payments.reduce((sum, p) => sum + p.amount, 0);
   if (totalPaid < total) {
     throw new Error(`المبلغ المدفوع (${(totalPaid / 100).toFixed(2)}) أقل من الإجمالي (${(total / 100).toFixed(2)})`);
@@ -277,12 +284,15 @@ export async function CompletePOSSaleAction(input: {
   // Determine primary payment method label
   const primaryPayment = input.payments[0]?.paymentMethod ?? "cash";
 
+  const lowStock: { id: string; name: string; left: number; threshold: number }[] = [];
+
   const order = await prisma.$transaction(async (tx) => {
     // Create the order
     const created = await tx.order.create({
       data: {
         guestSessionId: `pos-${userId}-${Date.now()}`,
-        storeId: store.id,
+        storeId,
+        branchId,
         source: OrderSource.POS,
         status: OrderStatus.PAID,
         paymentMethod: primaryPayment,
@@ -300,7 +310,7 @@ export async function CompletePOSSaleAction(input: {
         phone: input.customer?.phone ?? "-",
         address: "بيع مباشر",
         cashierId: userId,
-        ...(input.shiftId ? { posShiftId: input.shiftId } : {}),
+        posShiftId: shift.id,
         items: {
           create: input.cartItems.map((item) => {
             const dbProduct = productMap.get(item.productId)!;
@@ -329,71 +339,59 @@ export async function CompletePOSSaleAction(input: {
       select: { id: true, total: true },
     });
 
-    // Decrement stock and record movements
-    for (const item of input.cartItems) {
-      const product = productMap.get(item.productId)!;
-
-      // Conditional decrement: another register may have sold the last pieces meanwhile.
-      const taken = await tx.product.updateMany({
-        where: { id: item.productId, stock: { gte: item.quantity } },
-        data: { stock: { decrement: item.quantity } },
-      });
-      if (taken.count === 0) {
-        throw new Error(`الكمية المطلوبة من "${product.name}" مبقتش متاحة في المخزون`);
+    // Take stock from this branch only. Conditional: another register in the same
+    // branch may have sold the last pieces meanwhile.
+    for (const [productId, quantity] of wanted) {
+      const product = productMap.get(productId)!;
+      const moved = await changeBranchStock(tx, { storeId, branchId, productId, delta: -quantity, requireAvailable: true });
+      if (!moved) {
+        throw new Error(`الكمية المطلوبة من "${product.name}" مبقتش متاحة في الفرع`);
       }
 
       await tx.stockMovement.create({
         data: {
-          storeId: store.id,
-          productId: item.productId,
+          storeId,
+          branchId,
+          productId,
           type: StockMovementType.SALE,
-          quantity: -item.quantity,
-          stockBefore: product.stock,
-          stockAfter: product.stock - item.quantity,
+          quantity: -quantity,
+          stockBefore: moved.before,
+          stockAfter: moved.after,
           reference: created.id,
           note: `بيع POS — فاتورة #${created.id.slice(-6).toUpperCase()}`,
           userId,
         },
       });
+
+      const threshold = product.lowStockThreshold ?? 5;
+      if (moved.after <= threshold) lowStock.push({ id: productId, name: product.name, left: moved.after, threshold });
     }
 
-    // Update shift totals
-    if (input.shiftId) {
-      await tx.posShift.update({
-        where: { id: input.shiftId },
-        data: {
-          totalSales: { increment: total },
-          totalDiscount: { increment: totalDiscount },
-          transactionCount: { increment: 1 },
-        },
-      });
-    }
+    await tx.posShift.update({
+      where: { id: shift.id },
+      data: {
+        totalSales: { increment: total },
+        totalDiscount: { increment: totalDiscount },
+        transactionCount: { increment: 1 },
+      },
+    });
 
     return created;
   });
 
-  // Low stock notifications (fire-and-forget)
-  try {
-    for (const item of input.cartItems) {
-      const updated = await prisma.product.findUnique({
-        where: { id: item.productId },
-        select: { id: true, name: true, stock: true, lowStockThreshold: true },
-      });
-      const threshold = updated?.lowStockThreshold ?? 5;
-      if (updated && updated.stock <= threshold) {
-        await createNotification({
-          storeId: store.id,
-          userId,
-          type: NotificationType.LOW_STOCK,
-          title: "تنبيه مخزون منخفض",
-          message: `المنتج "${updated.name}" وصل للحد الأدنى (${updated.stock} قطعة متبقية).`,
-          href: `/dashboard/products/${updated.id}/edit`,
-          data: { productId: updated.id, stock: updated.stock },
-        });
-      }
-    }
-  } catch {
-    // silent — never break the main flow
+  // Low stock notifications for the store owner (createNotification never throws)
+  for (const p of lowStock) {
+    await createNotification({
+      storeId,
+      type: p.left <= 0 ? NotificationType.OUT_OF_STOCK : NotificationType.LOW_STOCK,
+      title: p.left <= 0 ? `نفد المخزون — ${ctx.branch.name}` : `تنبيه مخزون منخفض — ${ctx.branch.name}`,
+      message:
+        p.left <= 0
+          ? `المنتج "${p.name}" خلص من فرع ${ctx.branch.name}.`
+          : `المنتج "${p.name}" وصل للحد الأدنى في فرع ${ctx.branch.name} (${p.left} قطعة متبقية).`,
+      href: `/dashboard/products/${p.id}/edit`,
+      data: { productId: p.id, stock: p.left, branchId },
+    });
   }
 
   revalidatePath("/dashboard");
@@ -407,11 +405,10 @@ export async function CompletePOSSaleAction(input: {
 // ─── Get POS Order (for receipt) ─────────────────────────────
 
 export async function GetPOSOrderAction(orderId: string) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   return prisma.order.findFirst({
-    where: { id: orderId, storeId: store.id, source: "POS" },
+    where: { id: orderId, storeId: ctx.storeId, source: "POS", branchId: { in: ctx.branches.map((b) => b.id) } },
     include: {
       items: {
         include: {
@@ -420,18 +417,18 @@ export async function GetPOSOrderAction(orderId: string) {
       },
       splitPayments: true,
       cashierUser: { select: { id: true, name: true } },
+      branch: { select: { id: true, name: true, address: true, phone: true } },
     },
   });
 }
 
-// ─── Low Stock Dashboard ──────────────────────────────────────
+// ─── Low Stock (current branch) ───────────────────────────────
 
 export async function GetLowStockProductsAction() {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   const settings = await prisma.storeSettings.findUnique({
-    where: { storeId: store.id },
+    where: { storeId: ctx.storeId },
     select: { defaultLowStockThreshold: true },
   });
   const defaultThreshold = settings?.defaultLowStockThreshold ?? 5;
@@ -439,13 +436,15 @@ export async function GetLowStockProductsAction() {
   return prisma.$queryRaw<
     { id: string; name: string; stock: number; threshold: number; image: string }[]
   >`
-    SELECT id, name, stock,
-           COALESCE("lowStockThreshold", ${defaultThreshold}) as threshold,
-           image
-    FROM "Product"
-    WHERE "storeId" = ${store.id}
-      AND "isActive" = true
-      AND stock <= COALESCE("lowStockThreshold", ${defaultThreshold})
+    SELECT p.id, p.name, COALESCE(bi.quantity, 0) AS stock,
+           COALESCE(p."lowStockThreshold", ${defaultThreshold}) as threshold,
+           p.image
+    FROM "Product" p
+    LEFT JOIN "BranchInventory" bi
+      ON bi."productId" = p.id AND bi."branchId" = ${ctx.branch.id} AND bi."variantId" IS NULL
+    WHERE p."storeId" = ${ctx.storeId}
+      AND p."isActive" = true
+      AND COALESCE(bi.quantity, 0) <= COALESCE(p."lowStockThreshold", ${defaultThreshold})
     ORDER BY stock ASC
     LIMIT 20
   `;

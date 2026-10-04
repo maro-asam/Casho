@@ -36,7 +36,9 @@ export async function AddToCartAction(
   storeSlug: string,
   productId: string,
   selectedFeatures?: Record<string, string>,
+  quantity = 1,
 ) {
+  const qty = Math.max(1, Math.floor(Number(quantity) || 1));
   const { guestSessionId } = await MustSession();
 
   const store = await prisma.store.findUnique({
@@ -66,8 +68,16 @@ export async function AddToCartAction(
     where: { guestSessionId, productId, storeId: store.id },
     _sum: { quantity: true },
   });
-  if ((inCart._sum.quantity ?? 0) + 1 > product.stock) {
-    return { success: false, message: `المتاح من المنتج ده ${product.stock} قطعة بس، وكلهم في سلتك.` };
+  const alreadyInCart = inCart._sum.quantity ?? 0;
+  if (alreadyInCart + qty > product.stock) {
+    const left = product.stock - alreadyInCart;
+    return {
+      success: false,
+      message:
+        left > 0
+          ? `المتاح تضيفه من المنتج ده ${left} قطعة بس.`
+          : `المتاح من المنتج ده ${product.stock} قطعة بس، وكلهم في سلتك.`,
+    };
   }
 
   // Server-side validation of feature values against product data
@@ -101,7 +111,7 @@ export async function AddToCartAction(
   if (matchingItem) {
     await prisma.cartItem.update({
       where: { id: matchingItem.id },
-      data: { quantity: { increment: 1 } },
+      data: { quantity: { increment: qty } },
     });
   } else {
     await prisma.cartItem.create({
@@ -109,7 +119,7 @@ export async function AddToCartAction(
         guestSessionId,
         storeId: store.id,
         productId,
-        quantity: 1,
+        quantity: qty,
         ...(normalizedFeatures ? { selectedFeatures: normalizedFeatures } : {}),
       },
     });
@@ -349,6 +359,7 @@ export async function GetCartItemsAction(storeSlug: string) {
           select: {
             id: true,
             name: true,
+            slug: true,
             price: true,
             image: true,
             wholesaleOptions: true,
@@ -400,7 +411,8 @@ export async function GetCartItemsAction(storeSlug: string) {
   if (items.length > 0) {
     if (shippingMethods.length > 0) {
       const selected = shippingMethods.find((m) => m.id === selectedShippingMethodId);
-      shipping = selected ? selected.price : (shippingMethods[0]?.price ?? 0);
+      // Shipping methods are stored in piasters; the cart summary is in EGP.
+      shipping = (selected ? selected.price : (shippingMethods[0]?.price ?? 0)) / 100;
     } else {
       shipping = store.settings?.shippingPrice ?? 0;
     }
@@ -429,11 +441,11 @@ export async function GetCartItemsAction(storeSlug: string) {
     }
   }
 
-  // Apply loyalty points discount
+  // Apply loyalty points discount (point value is in piasters; summary is in EGP)
   const loyaltyPointsValue = store.settings?.loyaltyPointsValuePiasters ?? 1;
   const loyaltyDiscount =
     store.settings?.loyaltyEnabled && appliedLoyalty
-      ? appliedLoyalty.points * loyaltyPointsValue
+      ? (appliedLoyalty.points * loyaltyPointsValue) / 100
       : 0;
   discount += loyaltyDiscount;
 

@@ -59,10 +59,14 @@ import {
   type InvitationDTO,
 } from "@/actions/store/members.actions";
 import { ROLE_LABELS, ROLE_COLORS } from "@/lib/store/permissions";
+import { MemberBranchesDialog, type BranchOption, type MemberBranchAccess } from "./MemberBranchesDialog";
 
 type Props = {
   members: MemberDTO[];
   pendingInvitations: InvitationDTO[];
+  /** Branch assignment — only shown for stores with more than one branch. */
+  branches?: BranchOption[];
+  branchAccess?: Record<string, MemberBranchAccess>;
 };
 
 function RoleBadge({ role }: { role: StoreRole }) {
@@ -98,8 +102,18 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-export default function StoreMembers({ members: initialMembers, pendingInvitations: initialInvitations }: Props) {
+export default function StoreMembers({
+  members: initialMembers,
+  pendingInvitations: initialInvitations,
+  branches = [],
+  branchAccess: initialBranchAccess = {},
+}: Props) {
   const [members, setMembers] = useState(initialMembers);
+  const [branchAccess, setBranchAccess] = useState(initialBranchAccess);
+  const [branchesMemberId, setBranchesMemberId] = useState<string | null>(null);
+  const multiBranch = branches.length > 1;
+  const branchName = new Map(branches.map((b) => [b.id, b.name]));
+  const branchesMember = members.find((m) => m.id === branchesMemberId);
   const [invitations, setInvitations] = useState(initialInvitations);
   const [isPending, startTransition] = useTransition();
 
@@ -353,7 +367,17 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
                   </Badge>
                 )}
               </div>
-              <p className="mt-0.5 text-xs text-muted-foreground truncate">{member.email}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground truncate">
+                {member.email}
+                {multiBranch && member.role !== "STORE_OWNER" && branchAccess[member.id] && (
+                  <>
+                    {" · "}
+                    {branchAccess[member.id].allBranches
+                      ? "كل الفروع"
+                      : branchAccess[member.id].branchIds.map((id) => branchName.get(id)).filter(Boolean).join("، ")}
+                  </>
+                )}
+              </p>
             </div>
 
             {/* Actions — only for non-owner, non-current members */}
@@ -381,6 +405,9 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
                     تغيير إلى{" "}
                     {member.role === "STORE_MANAGER" ? "موظف" : "مدير"}
                   </DropdownMenuItem>
+                  {multiBranch && (
+                    <DropdownMenuItem onClick={() => setBranchesMemberId(member.id)}>الفروع المسموحة</DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-amber-600"
@@ -405,6 +432,19 @@ export default function StoreMembers({ members: initialMembers, pendingInvitatio
             )}
           </div>
         ))}
+
+        {branchesMember && branchAccess[branchesMember.id] && (
+          <MemberBranchesDialog
+            key={branchesMember.id}
+            open
+            onOpenChange={(open) => !open && setBranchesMemberId(null)}
+            memberId={branchesMember.id}
+            memberName={branchesMember.name ?? branchesMember.email}
+            branches={branches}
+            access={branchAccess[branchesMember.id]}
+            onSaved={(access) => setBranchAccess((prev) => ({ ...prev, [branchesMember.id]: access }))}
+          />
+        )}
 
         {members.length === 0 && (
           <p className="py-4 text-center text-sm text-muted-foreground">

@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/auth/session";
@@ -11,15 +12,29 @@ export type StoreContext = {
 };
 
 /**
- * Finds the store the current user owns or is a member of.
+ * The store the user picked to work in (an employee also owns the store created at
+ * sign-up). Only a preference — it is re-validated against ownership/membership.
+ */
+export const ACTIVE_STORE_COOKIE = "activeStore";
+
+/**
+ * Finds the store the current user owns or is a member of — the picked store
+ * first when the user still has access to it.
  * Returns the store ID + the user's role in that store.
  * Redirects to /login if unauthenticated, /dashboard if no store access.
  */
-export async function requireStoreContext(): Promise<StoreContext> {
+export async function requireStoreContext({ usePicked = false }: { usePicked?: boolean } = {}): Promise<StoreContext> {
   const session = await getCurrentSession();
   if (!session?.user) redirect("/login");
 
   const userId = session.user.id;
+
+  // Only the POS follows the picked store; the dashboard is always the user's own store.
+  const picked = usePicked ? (await cookies()).get(ACTIVE_STORE_COOKIE)?.value : undefined;
+  if (picked) {
+    const ctx = await resolveStoreAccess(userId, picked);
+    if (ctx) return ctx;
+  }
 
   // Primary check: owned store
   const ownedStore = await prisma.store.findFirst({
@@ -117,4 +132,35 @@ export async function getStoreMembership(
   if (!membership) return null;
 
   return { userId, storeId, role: membership.role, isOwner: false };
+}
+
+async function resolveStoreAccess(userId: string, storeId: string): Promise<StoreContext | null> {
+  const store = await prisma.store.findUnique({ where: { id: storeId }, select: { userId: true } });
+  if (!store) return null;
+  if (store.userId === userId) return { userId, storeId, role: "STORE_OWNER", isOwner: true };
+  const membership = await prisma.storeMember.findUnique({
+    where: { userId_storeId: { userId, storeId } },
+    select: { role: true },
+  });
+  return membership ? { userId, storeId, role: membership.role, isOwner: false } : null;
+}
+
+/** Stores the current user can work in (owned first, then memberships). */
+export async function listUserStores(userId: string) {
+  const [owned, memberships] = await Promise.all([
+    prisma.store.findMany({ where: { userId }, select: { id: true, name: true }, orderBy: { createdAt: "asc" } }),
+    prisma.storeMember.findMany({
+      where: { userId },
+      select: { role: true, store: { select: { id: true, name: true } } },
+      orderBy: { joinedAt: "asc" },
+    }),
+  ]);
+  return [
+    ...owned.map((s) => ({ ...s, isOwner: true })),
+    ...memberships.filter((m) => !owned.some((o) => o.id === m.store.id)).map((m) => ({ ...m.store, isOwner: false })),
+  ];
+}
+
+export async function canUseStore(userId: string, storeId: string) {
+  return (await resolveStoreAccess(userId, storeId)) !== null;
 }

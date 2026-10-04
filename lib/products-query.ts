@@ -55,10 +55,8 @@ export function normalizeProductsQueryParams(
   };
 }
 
-export function buildProductsUrl(
-  storeSlug: string,
-  params: Partial<ProductsQuery>,
-) {
+/** "?search=…&page=2" (or "") for a products listing query. */
+export function productsQueryString(params: Partial<ProductsQuery>) {
   const query = new URLSearchParams();
 
   if (params.search) query.set("search", params.search);
@@ -74,7 +72,14 @@ export function buildProductsUrl(
   if (params.page && params.page > 1) query.set("page", String(params.page));
 
   const qs = query.toString();
-  return `/store/${storeSlug}/products${qs ? `?${qs}` : ""}`;
+  return qs ? `?${qs}` : "";
+}
+
+export function buildProductsUrl(
+  storeSlug: string,
+  params: Partial<ProductsQuery>,
+) {
+  return `/store/${storeSlug}/products${productsQueryString(params)}`;
 }
 
 export function getSortOptionLabel(sort: ProductsQuery["sort"]) {

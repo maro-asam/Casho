@@ -6,14 +6,13 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { PurchaseOrderStatus, StockMovementType, NotificationType } from "@prisma/client";
 import { assertCanUse, FEATURE_KEYS } from "@/lib/entitlements";
 import { createNotification } from "@/lib/notifications/in-app";
+import { changeBranchStock } from "@/lib/inventory/branch-stock";
+import { assertBranchAllowed, getDefaultBranch, requireBranchAccess } from "@/lib/store/branch-context";
 
-async function getStoreForUser(userId: string) {
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!store) throw new Error("المتجر غير موجود");
-  return store;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function getStoreForUser(_userId: string) {
+  const ctx = await requireBranchAccess("manage_inventory");
+  return { id: ctx.storeId, ctx };
 }
 
 async function nextPONumber(storeId: string): Promise<string> {
@@ -50,6 +49,10 @@ export async function CreatePurchaseOrderAction(data: {
     throw new Error("بعض المنتجات غير موجودة");
   }
 
+  // Goods are received into a branch: the chosen one, or the main branch.
+  const branchId = data.branchId || (await getDefaultBranch(store.id)).id;
+  assertBranchAllowed(store.ctx, branchId);
+
   const totalAmount = data.items.reduce((s, i) => s + i.quantity * i.unitCost, 0);
   const orderNumber = await nextPONumber(store.id);
 
@@ -57,7 +60,7 @@ export async function CreatePurchaseOrderAction(data: {
     data: {
       storeId: store.id,
       supplierId: data.supplierId || null,
-      branchId: data.branchId || null,
+      branchId,
       orderNumber,
       status: PurchaseOrderStatus.DRAFT,
       notes: data.notes?.trim() || null,
@@ -137,6 +140,9 @@ export async function ReceivePOItemsAction(data: {
     throw new Error("تم استلام أمر الشراء بالكامل بالفعل");
   }
 
+  const branchId = po.branchId ?? (await getDefaultBranch(store.id)).id;
+  const branch = assertBranchAllowed(store.ctx, branchId);
+
   const itemMap = new Map(po.items.map((i) => [i.id, i]));
 
   await prisma.$transaction(async (tx) => {
@@ -155,88 +161,41 @@ export async function ReceivePOItemsAction(data: {
         data: { receivedQuantity: { increment: actualReceived } },
       });
 
-      // Update product/variant stock
+      // Into the receiving branch and the store total.
+      const moved = await changeBranchStock(tx, {
+        storeId: store.id,
+        branchId,
+        productId: item.productId,
+        delta: actualReceived,
+      });
+
       if (item.variantId) {
-        const variant = await tx.productVariant.findUnique({
-          where: { id: item.variantId },
-          select: { stock: true },
-        });
-        const newVariantStock = (variant?.stock ?? 0) + actualReceived;
         await tx.productVariant.update({
           where: { id: item.variantId },
           data: { stock: { increment: actualReceived } },
         });
-        const allVariants = await tx.productVariant.findMany({
-          where: { productId: item.productId },
-          select: { stock: true },
-        });
-        const totalStock = allVariants.reduce((s, v) => s + v.stock, 0);
-        const product = await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: totalStock },
-          select: { stock: true },
-        });
-        await tx.stockMovement.create({
-          data: {
-            storeId: store.id,
-            productId: item.productId,
-            variantId: item.variantId,
-            branchId: po.branchId,
-            type: StockMovementType.PURCHASE,
-            quantity: actualReceived,
-            stockBefore: product.stock - actualReceived,
-            stockAfter: product.stock,
-            reference: po.id,
-            note: `استلام من أمر شراء #${po.id.slice(-6).toUpperCase()}`,
-            userId,
-          },
-        });
-      } else {
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-          select: { stock: true },
-        });
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { increment: actualReceived } },
-        });
-        await tx.stockMovement.create({
-          data: {
-            storeId: store.id,
-            productId: item.productId,
-            branchId: po.branchId,
-            type: StockMovementType.PURCHASE,
-            quantity: actualReceived,
-            stockBefore: product?.stock ?? 0,
-            stockAfter: (product?.stock ?? 0) + actualReceived,
-            reference: po.id,
-            note: `استلام من أمر شراء #${po.id.slice(-6).toUpperCase()}`,
-            userId,
-          },
-        });
-      }
-
-      // Update branch inventory if branch is set
-      if (po.branchId) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (tx.branchInventory.upsert as any)({
-          where: {
-            branchId_productId_variantId: {
-              branchId: po.branchId,
-              productId: item.productId,
-              variantId: item.variantId ?? null,
-            },
-          },
-          create: {
-            storeId: store.id,
-            branchId: po.branchId,
-            productId: item.productId,
-            variantId: item.variantId ?? null,
-            quantity: actualReceived,
-          },
+        await tx.branchInventory.upsert({
+          where: { branchId_productId_variantId: { branchId, productId: item.productId, variantId: item.variantId } },
+          create: { storeId: store.id, branchId, productId: item.productId, variantId: item.variantId, quantity: actualReceived },
           update: { quantity: { increment: actualReceived } },
         });
       }
+
+      await tx.stockMovement.create({
+        data: {
+          storeId: store.id,
+          productId: item.productId,
+          variantId: item.variantId,
+          branchId,
+          type: StockMovementType.PURCHASE,
+          quantity: actualReceived,
+          stockBefore: moved!.before,
+          stockAfter: moved!.after,
+          reference: po.id,
+          note: `استلام من أمر شراء #${po.id.slice(-6).toUpperCase()}`,
+          userId,
+        },
+      });
     }
 
     // Recalculate PO status
@@ -267,10 +226,9 @@ export async function ReceivePOItemsAction(data: {
   try {
     await createNotification({
       storeId: store.id,
-      userId,
       type: NotificationType.PURCHASE_ORDER_RECEIVED,
-      title: "تم استلام أمر الشراء",
-      message: `تم تحديث المخزون بناءً على أمر الشراء #${po.id.slice(-6).toUpperCase()}`,
+      title: `تم استلام أمر الشراء — ${branch.name}`,
+      message: `تم تحديث مخزون فرع ${branch.name} بناءً على أمر الشراء #${po.id.slice(-6).toUpperCase()}`,
       href: `/dashboard/inventory/purchase-orders/${po.id}`,
     });
   } catch {

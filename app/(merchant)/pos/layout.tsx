@@ -2,7 +2,8 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { prisma } from "@/lib/prisma";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { requireStoreContext } from "@/lib/store/store-guard";
+import { hasPermission } from "@/lib/store/permissions";
 import { hasFeature, checkLimit, FEATURE_KEYS } from "@/lib/entitlements";
 import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
 
@@ -12,10 +13,12 @@ export const metadata: Metadata = {
 };
 
 export default async function PosLayout({ children }: { children: ReactNode }) {
-  const userId = await requireUserId();
+  // Owners and team members (cashiers) alike; branch access is checked per action.
+  const ctx = await requireStoreContext({ usePicked: true });
+  if (!ctx.isOwner && !hasPermission(ctx.role, "use_pos")) redirect("/dashboard");
 
-  const store = await prisma.store.findFirst({
-    where: { userId },
+  const store = await prisma.store.findUnique({
+    where: { id: ctx.storeId },
     select: { id: true, name: true, slug: true },
   });
 

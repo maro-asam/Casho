@@ -9,7 +9,9 @@
       "Bash(disown)",
       "Bash(curl -s http://localhost:3000/ -o /tmp/welcome2.html -w \"%{http_code}\\\\n\")",
       "Bash(grep -n \"enum SubscriptionStatus\" -A 10 /home/maro/matjar/prisma/schema.prisma; echo \"---STORE---\"; sed -n '/^model Store {/,/^}/p' /home/maro/matjar/prisma/schema.prisma | head -100)",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(grep -n \"^  [a-z]*: {$\\\\|    name:\\\\|    description:\\\\|colorScheme\\\\|navbar:\\\\|heroStyle\\\\|productCardStyle\" constants/store-themes.ts)",
+      "Bash(npx -y skills add nicohodt/claude-code-ui-ux-skill --agent claude-code)"
     ],
     "additionalDirectories": [
       "/home/maro/matjar/prisma"

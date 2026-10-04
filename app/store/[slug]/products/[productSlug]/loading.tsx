@@ -1,5 +1,5 @@
-import ProductDetailsSkeleton from "../_components/ProductDetailsSkeleton";
+import { ProductSkeleton } from "../../_themes/classic/states";
 
 export default function Loading() {
-  return <ProductDetailsSkeleton />;
+  return <ProductSkeleton />;
 }

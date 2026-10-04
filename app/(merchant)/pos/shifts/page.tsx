@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetShiftsAction } from "@/actions/pos/shift.actions";
+import { BranchSwitcher } from "@/components/branch/BranchSwitcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, AlertCircle } from "lucide-react";
@@ -12,11 +10,8 @@ function egp(p: number) {
 }
 
 export default async function ShiftsPage() {
-  const userId = await requireUserId();
-  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
-  if (!store) redirect("/");
-
-  const shifts = await GetShiftsAction(50);
+  const { shifts, scope, branches, canSeeAll } = await GetShiftsAction(50);
+  const multiBranch = branches.length > 1;
 
   return (
     <div className="min-h-screen bg-background p-6" dir="rtl">
@@ -28,8 +23,20 @@ export default async function ShiftsPage() {
           </Button>
           <div>
             <h1 className="text-xl font-bold">تقارير الورديات</h1>
-            <p className="text-sm text-muted-foreground">{shifts.length} وردية</p>
+            <p className="text-sm text-muted-foreground">
+              {shifts.length} وردية
+              {canSeeAll ? (multiBranch ? ` · ${scope.branch ? scope.branch.name : "كل الفروع"}` : "") : " · وردياتك"}
+            </p>
           </div>
+          {canSeeAll && (
+            <BranchSwitcher
+              surface="pos"
+              className="ms-auto"
+              branches={branches}
+              value={scope.branch?.id ?? "all"}
+              allowAll
+            />
+          )}
         </div>
 
         {/* Shifts list */}
@@ -58,6 +65,9 @@ export default async function ShiftsPage() {
                           <span className="text-sm font-medium">
                             {shift.cashier?.name ?? shift.cashier?.email ?? "—"}
                           </span>
+                          {multiBranch && shift.branch && (
+                            <Badge variant="outline" className="text-[10px]">{shift.branch.name}</Badge>
+                          )}
                           <span className="text-xs text-muted-foreground">
                             {new Date(shift.openedAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
                           </span>
@@ -92,7 +102,7 @@ export default async function ShiftsPage() {
                       </div>
                       <div className="rounded-lg bg-muted/40 p-2 text-center">
                         <p className="text-[10px] text-muted-foreground">
-                          {isOpen ? "النقدية المتوقعة" : "رصيد الإغلاق"}
+                          {isOpen ? "المبيعات + الافتتاح" : "رصيد الإغلاق"}
                         </p>
                         <p className="text-sm font-bold">
                           {isOpen

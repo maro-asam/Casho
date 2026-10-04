@@ -24,6 +24,14 @@ export default async function BranchesPage() {
         <NewBranchDialog />
       </div>
 
+      <p className="text-sm text-muted-foreground">
+        كل فرع ليه مخزونه وورديّاته ومبيعات الكاشير بتاعته. حدد مين من فريقك يشتغل في أنهي فرع من{" "}
+        <Link href="/dashboard/settings" className="font-medium text-primary hover:underline">
+          الإعدادات ← فريق العمل
+        </Link>
+        . الفرع اللي عليه حركات بيتقفل (إيقاف) بدل ما يتمسح عشان السجل يفضل محفوظ.
+      </p>
+
       {branches.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center">
           <Warehouse className="mx-auto mb-3 size-10 text-muted-foreground/40" />
@@ -55,6 +63,12 @@ export default async function BranchesPage() {
                   )}
                   <p className="mt-2 text-xs text-muted-foreground">
                     {branch._count.inventory} صنف في المخزون
+                    {branch._count.shifts > 0 && (
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        {" · "}
+                        {branch._count.shifts} وردية شغالة دلوقتي
+                      </span>
+                    )}
                   </p>
                 </div>
                 <BranchActions branch={branch} />

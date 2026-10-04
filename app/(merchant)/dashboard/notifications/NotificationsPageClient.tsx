@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   Bell,
   CheckCheck,
+  Clock,
   CircleDollarSign,
   Inbox,
   MessageCircle,
@@ -54,6 +55,9 @@ const notificationIcons: Partial<
   STORE_PAST_DUE: Bell,
   SYSTEM: Bell,
   LOW_STOCK: AlertTriangle,
+  OUT_OF_STOCK: AlertTriangle,
+  SHIFT_OPENED: Clock,
+  SHIFT_CLOSED: Clock,
 };
 
 const notificationIconColors: Partial<Record<NotificationDTO["type"], string>> = {
@@ -73,6 +77,9 @@ const notificationIconColors: Partial<Record<NotificationDTO["type"], string>> =
   POWERED_BY_REJECTED: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
   SYSTEM: "bg-muted text-muted-foreground",
   LOW_STOCK: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+  OUT_OF_STOCK: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  SHIFT_OPENED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  SHIFT_CLOSED: "bg-slate-500/10 text-slate-600 dark:text-slate-400",
 };
 
 function formatDate(dateIso: string) {

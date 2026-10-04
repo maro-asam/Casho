@@ -11,7 +11,10 @@ export type StorePermission =
   | "transfer_ownership"
   | "delete_store"
   | "view_orders"
-  | "update_order_status";
+  | "update_order_status"
+  | "use_pos"
+  | "manage_inventory"
+  | "manage_branches";
 
 const ROLE_PERMISSIONS: Record<StoreRole, StorePermission[]> = {
   STORE_OWNER: [
@@ -26,6 +29,9 @@ const ROLE_PERMISSIONS: Record<StoreRole, StorePermission[]> = {
     "delete_store",
     "view_orders",
     "update_order_status",
+    "use_pos",
+    "manage_inventory",
+    "manage_branches",
   ],
   STORE_MANAGER: [
     "manage_products",
@@ -34,11 +40,14 @@ const ROLE_PERMISSIONS: Record<StoreRole, StorePermission[]> = {
     "view_analytics",
     "view_orders",
     "update_order_status",
+    "use_pos",
+    "manage_inventory",
   ],
   STORE_STAFF: [
     "view_orders",
     "update_order_status",
     "manage_customers",
+    "use_pos",
   ],
 };
 

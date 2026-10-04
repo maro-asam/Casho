@@ -1,22 +1,11 @@
 import { isStorefrontOpen } from "@/lib/subscriptions";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { Metadata } from "next";
 
-import {
-  buildProductsUrl,
-  getSortOptionLabel,
-  normalizeProductsQueryParams,
-} from "@/lib/products-query";
-import ProductCard from "@/app/store/[slug]/_components/shared/ProductCard";
-
-import ProductsToolbar from "./_components/ProductsToolbar";
-import ActiveFiltersBar from "./_components/ActiveFiltersBar";
-import EmptyProductsState from "./_components/EmptyProductsState";
-import ProductsPagination from "./_components/ProductsPagination";
-import ProductsSidebarFilters from "./_components/ProductSidebarFilters";
-import ProductsMobileFilters from "./_components/ProductsMobileFilters";
+import { normalizeProductsQueryParams } from "@/lib/products-query";
+import { getStorefrontTheme } from "../_themes";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreThemeId, toProductCards } from "../_lib/storefront";
 
 type StoreProductsRouteProps = {
   params: Promise<{ slug: string }>;
@@ -70,67 +59,24 @@ export default async function StoreProductsRoute({
       name: true,
       slug: true,
       subscriptionStatus: true,
-      categories: {
-        orderBy: { name: "asc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          _count: {
-            select: {
-              products: {
-                where: {
-                  isActive: true,
-                },
-              },
-            },
-          },
-        },
-      },
+      settings: { select: { storeLanguage: true } },
     },
   });
 
   if (!store) return notFound();
 
+  const theme = getStorefrontTheme(await getStoreThemeId(slug));
+
   if (!isStorefrontOpen(store.subscriptionStatus)) {
-    return (
-      <div
-        dir="rtl"
-        className="flex min-h-[60vh] items-center justify-center px-4"
-      >
-        <div className="w-full max-w-xl rounded-xl border bg-card p-8 text-center shadow-sm">
-          <h1 className="mb-3 text-2xl font-semibold">هذا المتجر غير مفعل</h1>
-          <p className="text-muted-foreground">
-            لا يمكن عرض المنتجات حاليًا لأن اشتراك المتجر غير نشط.
-          </p>
-        </div>
-      </div>
-    );
+    return <theme.StoreClosed storeSlug={store.slug} />;
   }
 
-  const baseWhere = {
+  const where = {
     storeId: store.id,
     isActive: true,
-    ...(query.search
-      ? {
-          name: {
-            contains: query.search,
-            mode: "insensitive" as const,
-          },
-        }
-      : {}),
-    ...(query.category
-      ? {
-          category: {
-            slug: query.category,
-          },
-        }
-      : {}),
-    ...(query.featured
-      ? {
-          isFeatured: true,
-        }
-      : {}),
+    ...(query.search ? { name: { contains: query.search, mode: "insensitive" as const } } : {}),
+    ...(query.category ? { category: { slug: query.category } } : {}),
+    ...(query.featured ? { isFeatured: true } : {}),
     ...((query.minPrice > 0 || query.maxPrice > 0) && {
       price: {
         ...(query.minPrice > 0 ? { gte: query.minPrice } : {}),
@@ -152,148 +98,40 @@ export default async function StoreProductsRoute({
               ? { name: "desc" as const }
               : { createdAt: "desc" as const };
 
-  const [products, totalProducts] = await Promise.all([
+  const [rows, total, categories, bounds] = await Promise.all([
     prisma.product.findMany({
-      where: baseWhere,
+      where,
       orderBy,
       skip: (query.page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        image: true,
-        isFeatured: true,
-        stock: true,
-        category: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-      },
+      select: PRODUCT_CARD_SELECT,
     }),
-    prisma.product.count({
-      where: baseWhere,
-    }),
-    prisma.product.findMany({
-      where: {
-        storeId: store.id,
-        isActive: true,
-        isFeatured: true,
-      },
-      take: 4,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        image: true,
-        isFeatured: true,
-        stock: true,
-        category: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-      },
+    prisma.product.count({ where }),
+    getStoreCategoryLinks(store.id),
+    prisma.product.aggregate({
+      where: { storeId: store.id, isActive: true },
+      _min: { price: true },
+      _max: { price: true },
     }),
   ]);
 
-  const totalPages = Math.max(1, Math.ceil(totalProducts / PAGE_SIZE));
-  const showingFrom =
-    totalProducts === 0 ? 0 : (query.page - 1) * PAGE_SIZE + 1;
-  const showingTo = Math.min(query.page * PAGE_SIZE, totalProducts);
-
-  const hasFilters =
-    !!query.search ||
-    !!query.category ||
-    query.featured ||
-    query.minPrice > 0 ||
-    query.maxPrice > 0 ||
-    query.sort !== "newest";
+  const products = await toProductCards(rows);
 
   return (
-    <div dir="rtl" className="w-full py-6 max-w-screen-2xl mx-auto">
-      <div className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <Link href={`/store/${store.slug}`} className="hover:text-foreground">
-          الرئيسية
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">المنتجات</span>
-      </div>
-
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-5">
-          <h1 className="text-3xl font-semibold md:text-4xl">
-            كل منتجات <span className="text-primary">{store.name}</span>
-          </h1>
-          <p className="text-muted-foreground">
-            عرض {showingFrom}-{showingTo} من أصل {totalProducts} منتج
-            {query.sort !== "newest"
-              ? ` • ترتيب: ${getSortOptionLabel(query.sort)}`
-              : ""}
-          </p>
-        </div>
-
-        <ProductsMobileFilters
-          storeSlug={store.slug}
-          categories={store.categories}
-          currentQuery={query}
-        />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-        <aside className="hidden lg:block">
-          <ProductsSidebarFilters
-            storeSlug={store.slug}
-            categories={store.categories}
-            currentQuery={query}
-          />
-        </aside>
-
-        <section className="space-y-5">
-          <ProductsToolbar storeSlug={store.slug} currentQuery={query} />
-
-          {hasFilters && (
-            <ActiveFiltersBar
-              storeSlug={store.slug}
-              currentQuery={query}
-              categories={store.categories}
-            />
-          )}
-
-          {products.length === 0 ? (
-            <EmptyProductsState storeSlug={store.slug} />
-          ) : (
-            <>
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    storeSlug={store.slug}
-                  />
-                ))}
-              </div>
-
-              <ProductsPagination
-                currentPage={query.page}
-                totalPages={totalPages}
-                buildHref={(page) =>
-                  buildProductsUrl(store.slug, {
-                    ...query,
-                    page,
-                  })
-                }
-              />
-            </>
-          )}
-        </section>
-      </div>
-    </div>
+    <theme.ProductListing
+      store={{ name: store.name, slug: store.slug }}
+      products={products}
+      categories={categories.filter((c) => c.productCount > 0 || c.slug === query.category)}
+      query={query}
+      total={total}
+      totalPages={Math.max(1, Math.ceil(total / PAGE_SIZE))}
+      pageSize={PAGE_SIZE}
+      priceBounds={
+        bounds._min.price !== null && bounds._max.price !== null
+          ? { min: bounds._min.price, max: bounds._max.price }
+          : null
+      }
+      dir={store.settings?.storeLanguage === "en" ? "ltr" : "rtl"}
+    />
   );
 }

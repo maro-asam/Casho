@@ -35,6 +35,7 @@ const orderSelect = {
   fullName: true,
   customerId: true,
   cashierId: true,
+  branchId: true,
   items: { select: { productId: true, price: true, costPrice: true, quantity: true, discountAmount: true } },
   splitPayments: { select: { paymentMethod: true, amount: true } },
 } satisfies Prisma.OrderSelect;
@@ -43,6 +44,7 @@ type ReportOrder = Prisma.OrderGetPayload<{ select: typeof orderSelect }>;
 
 const returnSelect = {
   refundAmount: true,
+  branchId: true,
   createdAt: true,
   originalOrder: { select: { source: true, cashierId: true } },
   items: { select: { productId: true, quantity: true, unitPrice: true } },
@@ -188,8 +190,18 @@ const visitBucketFormat: Record<Granularity, string> = { hour: "FMHH24", day: "Y
 
 // ── Loader ──────────────────────────────────────────────────────
 
-export async function getReportsData(storeId: string, range: ReportRange): Promise<ReportsData> {
+/**
+ * @param branchIds null = the whole store (online + every branch). Otherwise only
+ *   those branches: their POS sales, returns, shifts and shelf stock. Customers,
+ *   reviews, coupons and loyalty are business-level and stay store-wide.
+ */
+export async function getReportsData(
+  storeId: string,
+  range: ReportRange,
+  branchIds: string[] | null = null,
+): Promise<ReportsData> {
   const now = new Date();
+  const inBranches = branchIds ? { branchId: { in: branchIds } } : {};
   const velocitySince = new Date(now.getTime() - VELOCITY_DAYS * DAY_MS);
   const cairoTs = Prisma.sql`(("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Cairo')`;
 
@@ -214,20 +226,20 @@ export async function getReportsData(storeId: string, range: ReportRange): Promi
   ] = await Promise.all([
     prisma.store.findUnique({ where: { id: storeId }, select: { settings: { select: { defaultLowStockThreshold: true } } } }),
     prisma.order.findMany({
-      where: { storeId, createdAt: { gte: range.from, lt: range.to } },
+      where: { storeId, ...inBranches, createdAt: { gte: range.from, lt: range.to } },
       select: orderSelect,
       orderBy: { createdAt: "asc" },
     }),
     prisma.order.findMany({
-      where: { storeId, createdAt: { gte: range.prevFrom, lt: range.prevTo } },
+      where: { storeId, ...inBranches, createdAt: { gte: range.prevFrom, lt: range.prevTo } },
       select: orderSelect,
     }),
     prisma.posReturn.findMany({
-      where: { storeId, status: PosReturnStatus.COMPLETED, createdAt: { gte: range.from, lt: range.to } },
+      where: { storeId, ...inBranches, status: PosReturnStatus.COMPLETED, createdAt: { gte: range.from, lt: range.to } },
       select: returnSelect,
     }),
     prisma.posReturn.findMany({
-      where: { storeId, status: PosReturnStatus.COMPLETED, createdAt: { gte: range.prevFrom, lt: range.prevTo } },
+      where: { storeId, ...inBranches, status: PosReturnStatus.COMPLETED, createdAt: { gte: range.prevFrom, lt: range.prevTo } },
       select: returnSelect,
     }),
     // Visits can be large, so they are bucketed in the database.
@@ -264,7 +276,7 @@ export async function getReportsData(storeId: string, range: ReportRange): Promi
     // Sales speed for "runs out in N days" — independent of the chosen range.
     prisma.orderItem.groupBy({
       by: ["productId"],
-      where: { order: { storeId, status: { not: OrderStatus.CANCELED } }, createdAt: { gte: velocitySince } },
+      where: { order: { storeId, ...inBranches, status: { not: OrderStatus.CANCELED } }, createdAt: { gte: velocitySince } },
       _sum: { quantity: true },
       _max: { createdAt: true },
     }),
@@ -283,10 +295,26 @@ export async function getReportsData(storeId: string, range: ReportRange): Promi
       _sum: { points: true },
     }),
     prisma.posShift.findMany({
-      where: { storeId, openedAt: { gte: range.from, lt: range.to } },
-      select: { status: true, cashDifference: true },
+      where: { storeId, ...inBranches, openedAt: { gte: range.from, lt: range.to } },
+      select: { status: true, cashDifference: true, branchId: true },
     }),
   ]);
+
+  const [branchRows, branchStock] = await Promise.all([
+    prisma.branch.findMany({ where: { storeId }, select: { id: true, name: true }, orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }] }),
+    // Shelf stock of the selected branches replaces the store-wide total.
+    branchIds
+      ? prisma.branchInventory.groupBy({
+          by: ["productId"],
+          where: { branchId: { in: branchIds }, variantId: null },
+          _sum: { quantity: true },
+        })
+      : Promise.resolve(null),
+  ]);
+  if (branchStock) {
+    const qty = new Map(branchStock.map((r) => [r.productId, r._sum.quantity ?? 0]));
+    for (const p of productRows) p.stock = qty.get(p.id) ?? 0;
+  }
 
   const products = new Map<string, ProductInfo>(
     productRows.map((p) => [
@@ -305,12 +333,15 @@ export async function getReportsData(storeId: string, range: ReportRange): Promi
   const prev = summarize(prevOrders, prevReturns, products);
   const valid = orders.filter((o) => o.status !== OrderStatus.CANCELED);
 
-  const visits = {
-    current: Number(visitTotals?.visits ?? 0),
-    visitors: Number(visitTotals?.visitors ?? 0),
-    prevVisits: Number(visitTotals?.prev_visits ?? 0),
-    prevVisitors: Number(visitTotals?.prev_visitors ?? 0),
-  };
+  // Storefront traffic belongs to no branch: only shown for the whole store.
+  const visits = branchIds
+    ? { current: 0, visitors: 0, prevVisits: 0, prevVisitors: 0 }
+    : {
+        current: Number(visitTotals?.visits ?? 0),
+        visitors: Number(visitTotals?.visitors ?? 0),
+        prevVisits: Number(visitTotals?.prev_visits ?? 0),
+        prevVisitors: Number(visitTotals?.prev_visitors ?? 0),
+      };
   const conversion = (online: number, visitors: number) => (visitors > 0 ? (online / visitors) * 100 : 0);
 
   // ── Time series (previous period aligned by position) ─────────
@@ -671,9 +702,29 @@ export async function getReportsData(storeId: string, range: ReportRange): Promi
 
     const closed = shifts.filter((s) => s.status === PosShiftStatus.CLOSED && s.cashDifference !== null);
     const posNet = posOrders.reduce((s, o) => s + o.total, 0);
+
+    // Side by side per branch — every figure is a plain sum within one branch.
+    const shownBranches = branchRows.filter((b) => !branchIds || branchIds.includes(b.id));
+    const byBranch = shownBranches.map((b) => {
+      const bOrders = posOrders.filter((o) => o.branchId === b.id);
+      const bShifts = shifts.filter((s) => s.branchId === b.id);
+      const bReturns = returns.filter((r) => r.branchId === b.id);
+      return {
+        id: b.id,
+        name: b.name,
+        orders: bOrders.length,
+        netSales: bOrders.reduce((s, o) => s + o.total, 0),
+        returns: bReturns.reduce((s, r) => s + r.refundAmount, 0),
+        shifts: bShifts.length,
+        openShifts: bShifts.filter((s) => s.status === PosShiftStatus.OPEN).length,
+        cashDifference: bShifts.reduce((s, x) => s + (x.status === PosShiftStatus.CLOSED ? (x.cashDifference ?? 0) : 0), 0),
+      };
+    });
+
     pos = {
       orders: posOrders.length,
       netSales: posNet,
+      branches: byBranch.length > 1 ? byBranch.sort((a, b) => b.netSales - a.netSales) : [],
       cashiers: [...cashierMap.entries()]
         .map(([id, c]) => ({
           id,

@@ -53,14 +53,19 @@ type AdjustmentRow = {
 export function NewAdjustmentForm({
   branches,
   products,
+  branchStock,
 }: {
   branches: Branch[];
   products: Product[];
+  /** productId → branchId → quantity on that branch's shelf. */
+  branchStock: Record<string, Record<string, number>>;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [reason, setReason] = useState<AdjustmentReason | "">("");
-  const [branchId, setBranchId] = useState("");
+  // Counts are per branch; the main branch is preselected.
+  const [branchId, setBranchId] = useState(branches.find((b) => b.isDefault)?.id ?? branches[0]?.id ?? "");
+  const shelf = (productId: string) => branchStock[productId]?.[branchId] ?? 0;
   const [notes, setNotes] = useState("");
   const [reference, setReference] = useState("");
   const [rows, setRows] = useState<AdjustmentRow[]>([]);
@@ -80,8 +85,8 @@ export function NewAdjustmentForm({
         productId: product.id,
         name: product.name,
         image: product.image,
-        currentStock: product.stock,
-        newQuantity: product.stock,
+        currentStock: shelf(product.id),
+        newQuantity: shelf(product.id),
       },
     ]);
     setSearch("");
@@ -143,12 +148,23 @@ export function NewAdjustmentForm({
           {branches.length > 0 && (
             <div className="space-y-1.5">
               <Label>الفرع</Label>
-              <Select value={branchId} onValueChange={setBranchId}>
+              <Select
+                value={branchId}
+                onValueChange={(next) => {
+                  setBranchId(next);
+                  // Re-read the counts for the newly picked branch.
+                  setRows((prev) =>
+                    prev.map((r) => {
+                      const q = branchStock[r.productId]?.[next] ?? 0;
+                      return { ...r, currentStock: q, newQuantity: q };
+                    }),
+                  );
+                }}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="كل الفروع" />
+                  <SelectValue placeholder="الفرع" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">كل الفروع</SelectItem>
                   {branches.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
                       {b.name} {b.isDefault && "(افتراضي)"}

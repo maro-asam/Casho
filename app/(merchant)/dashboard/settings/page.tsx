@@ -22,6 +22,7 @@ import StoreMembers from "./_components/StoreMembers";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetActiveSessionsAction } from "@/actions/auth/sessions.actions";
 import { GetStoreMembersAction } from "@/actions/store/members.actions";
+import { GetMemberBranchAccessAction } from "@/actions/inventory/branches.actions";
 
 export const metadata: Metadata = {
   title: "إعدادات المتجر",
@@ -30,9 +31,10 @@ export const metadata: Metadata = {
 
 export default async function SettingsRoute() {
   const userId = await requireUserId();
-  const [sessions, { members, pendingInvitations }] = await Promise.all([
+  const [sessions, { members, pendingInvitations }, branchAccess] = await Promise.all([
     GetActiveSessionsAction(),
     GetStoreMembersAction(),
+    GetMemberBranchAccessAction().catch(() => null),
   ]);
 
   const store = await prisma.store.findFirst({
@@ -112,7 +114,12 @@ export default async function SettingsRoute() {
 
       {/* ── Store Members ── */}
       <div className="">
-        <StoreMembers members={members} pendingInvitations={pendingInvitations} />
+        <StoreMembers
+          members={members}
+          pendingInvitations={pendingInvitations}
+          branches={branchAccess?.branches}
+          branchAccess={branchAccess?.members}
+        />
       </div>
 
       {/* ── Active Sessions ── */}

@@ -3,17 +3,9 @@ import type { Metadata } from "next";
 import { absoluteUrl, jsonLd, metaText, storeBaseUrl } from "@/lib/seo/store-seo";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { Store as StoreIcon } from "lucide-react";
-
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-
 import { SubscriptionStatus } from "@prisma/client";
-import StoreHome from "./_components/StoreHome";
+import { getStorefrontTheme } from "./_themes";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, toProductCards } from "./_lib/storefront";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 
@@ -96,8 +88,6 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
 
   if (!slug) return notFound();
 
-  console.log(`[ISR] Rendering home page for store: "${slug}" at ${new Date().toISOString()} (revalidate: ${revalidate}s)`);
-
   const store = await prisma.store.findUnique({
     where: { slug },
     select: {
@@ -105,62 +95,20 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       name: true,
       slug: true,
       subscriptionStatus: true,
-
       settings: {
         select: {
           themeId: true,
           description: true,
-          coverImage: true,
-          logo: true,
           primaryColor: true,
           secondaryColor: true,
           themeConfig: true,
+          storeLanguage: true,
         },
       },
-
-      categories: {
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          image: true,
-        },
-      },
-
       banners: {
         where: { isActive: true },
         orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          image: true,
-          isActive: true,
-        },
-      },
-
-      products: {
-        where: { isActive: true },
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          price: true,
-          compareAtPrice: true,
-          image: true,
-          isFeatured: true,
-          isActive: true,
-          stock: true,
-          category: {
-            select: {
-              name: true,
-              slug: true,
-              image: true,
-            },
-          },
-        },
+        select: { id: true, title: true, image: true },
       },
     },
   });
@@ -175,111 +123,77 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
     store.settings?.primaryColor,
     store.settings?.secondaryColor,
   );
+  const theme = getStorefrontTheme(resolvedTheme.id);
   const sections = resolvedTheme.sections.home;
   const sectionContent = resolvedTheme.sectionContent;
 
-  // ── Best sellers query (only if section is enabled) ───────────────────────
-  let bestSellers: Array<{
-    id: string;
-    name: string;
-    slug: string;
-    price: number;
-    compareAtPrice: number | null;
-    image: string;
-    isFeatured: boolean;
-    isActive: boolean;
-    salesCount: number;
-    category: { name: string; slug: string; image: string | null } | null;
-  }> = [];
-
-  if (sections.showBestSellers) {
-    const maxProducts = sectionContent.bestSellers?.maxProducts ?? 8;
-
-    // Count sold units per product in this store's orders
-    const topItems = await prisma.orderItem.groupBy({
-      by: ["productId"],
-      where: {
-        order: { storeId: store.id },
-      },
-      _sum: { quantity: true },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: maxProducts,
-    });
-
-    if (topItems.length > 0) {
-      const productIds = topItems.map((t) => t.productId);
-      const products = await prisma.product.findMany({
-        where: { id: { in: productIds }, isActive: true },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          price: true,
-          compareAtPrice: true,
-          image: true,
-          isFeatured: true,
-          isActive: true,
-          stock: true,
-          category: {
-            select: { name: true, slug: true, image: true },
-          },
-        },
-      });
-
-      // Re-order by sales count and attach count
-      bestSellers = productIds
-        .map((id) => {
-          const product = products.find((p) => p.id === id);
-          if (!product) return null;
-          const salesCount =
-            topItems.find((t) => t.productId === id)?._sum.quantity ?? 0;
-          return { ...product, salesCount };
-        })
-        .filter(Boolean) as typeof bestSellers;
-    }
-  }
-
   if (!isStorefrontOpen(store.subscriptionStatus)) {
-    return (
-      <div
-        className="flex min-h-[70vh] items-center justify-center px-4"
-        dir="rtl"
-      >
-        <Card className="w-full max-w-lg rounded-xl shadow-sm">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-xl bg-muted">
-              <StoreIcon className="size-7 text-muted-foreground" />
-            </div>
-
-            <CardTitle className="text-2xl">هذا المتجر غير مُفعّل</CardTitle>
-
-            <CardDescription className="text-sm leading-6">
-              يحتاج صاحب المتجر إلى تفعيل الاشتراك حتى يظهر المتجر للزوار بشكل
-              كامل.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
+    return <theme.StoreClosed storeSlug={store.slug} />;
   }
+
+  const activeProducts = { storeId: store.id, isActive: true };
+
+  const [categories, featuredRows, latestRows, bestSellerRows] = await Promise.all([
+    getStoreCategoryLinks(store.id),
+    prisma.product.findMany({
+      where: { ...activeProducts, isFeatured: true },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: PRODUCT_CARD_SELECT,
+    }),
+    prisma.product.findMany({
+      where: activeProducts,
+      orderBy: { createdAt: "desc" },
+      take: 16,
+      select: PRODUCT_CARD_SELECT,
+    }),
+    sections.showBestSellers ? getBestSellerRows(store.id, sectionContent.bestSellers?.maxProducts ?? 8) : [],
+  ]);
+
+  // "New arrivals" shouldn't repeat the featured row — unless that leaves too little to show.
+  const featuredIds = new Set(sections.showFeaturedProducts ? featuredRows.map((p) => p.id) : []);
+  const freshRows = latestRows.filter((p) => !featuredIds.has(p.id));
+  const latestShown = (freshRows.length >= 4 ? freshRows : latestRows).slice(0, 8);
+
+  const [featured, latest, bestSellers] = await Promise.all([
+    toProductCards(featuredRows),
+    toProductCards(latestShown),
+    toProductCards(bestSellerRows),
+  ]);
 
   return (
     <>
-    <StoreJsonLd slug={slug} />
-    <StoreHome
-      store={{
-        ...store,
-        bestSellers,
-        // Override themeId with the resolved preset so StoreHome always uses
-        // the same theme that the layout used for CSS vars (themeConfig.presetId
-        // takes priority over the legacy themeId field).
-        settings: store.settings
-          ? { ...store.settings, themeId: resolvedTheme.id }
-          : null,
-      }}
-      sections={sections}
-      sectionContent={sectionContent}
-    />
+      <StoreJsonLd slug={slug} />
+      <theme.Home
+        store={{ id: store.id, name: store.name, slug: store.slug, description: store.settings?.description ?? null }}
+        dir={store.settings?.storeLanguage === "en" ? "ltr" : "rtl"}
+        banners={store.banners}
+        categories={categories}
+        featured={featured}
+        latest={latest}
+        bestSellers={bestSellers}
+        sections={sections}
+        sectionContent={sectionContent}
+        layout={resolvedTheme.layout}
+      />
     </>
   );
+}
+
+/** Top-selling active products, ordered by units sold. */
+async function getBestSellerRows(storeId: string, take: number) {
+  const top = await prisma.orderItem.groupBy({
+    by: ["productId"],
+    where: { order: { storeId } },
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: "desc" } },
+    take,
+  });
+  if (top.length === 0) return [];
+  const ids = top.map((t) => t.productId);
+  const rows = await prisma.product.findMany({
+    where: { id: { in: ids }, isActive: true },
+    select: PRODUCT_CARD_SELECT,
+  });
+  return ids.map((id) => rows.find((r) => r.id === id)).filter((r): r is (typeof rows)[number] => !!r);
 }

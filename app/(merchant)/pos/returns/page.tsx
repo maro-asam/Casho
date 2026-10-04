@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { requirePosContext } from "@/lib/pos/pos-context";
 import { GetReturnsAction } from "@/actions/pos/returns.actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,9 +7,8 @@ import { ArrowRight, RotateCcw } from "lucide-react";
 import ReturnsClient from "./_components/ReturnsClient";
 
 export default async function ReturnsPage() {
-  const userId = await requireUserId();
-  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
-  if (!store) redirect("/");
+  const ctx = await requirePosContext();
+  const store = { id: ctx.storeId };
 
   const returns = await GetReturnsAction(100);
 
@@ -60,6 +57,7 @@ export default async function ReturnsPage() {
                       {ret.originalOrder.fullName} ·{" "}
                       {new Date(ret.createdAt).toLocaleString("ar-EG")} ·{" "}
                       الكاشير: {ret.cashier?.name ?? "—"}
+                      {ctx.branches.length > 1 && ret.branch && ` · ${ret.branch.name}`}
                     </p>
                     {ret.reason && (
                       <p className="mt-1 text-xs text-muted-foreground">السبب: {ret.reason}</p>

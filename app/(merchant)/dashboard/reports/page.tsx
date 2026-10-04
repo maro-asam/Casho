@@ -5,6 +5,8 @@ import { BarChart3, Download } from "lucide-react";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { EmptyState, FilterTabs, PageHeader, readParam, type SearchParamsRecord } from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
+import { BranchSwitcher } from "@/components/branch/BranchSwitcher";
+import { requireBranchScope } from "@/lib/store/branch-context";
 import { prisma } from "@/lib/prisma";
 import { cairoDayKey, parseRange } from "./_lib/range";
 import { getReportsData } from "./_lib/reports-data";
@@ -42,7 +44,9 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
     to: readParam(params, "to"),
     period: readParam(params, "period"),
   });
-  const data = await getReportsData(store.id, range);
+  const { scope, branches } = await requireBranchScope("view_analytics");
+  const data = await getReportsData(store.id, range, scope.branchIds);
+  const multiBranch = branches.length > 1;
 
   const rawTab = readParam(params, "tab");
   const tabs = TABS.filter((t) => t.value !== "pos" || data.pos);
@@ -50,7 +54,7 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
   const rawSort = readParam(params, "sort");
   const sort: ProductSort = PRODUCT_SORTS.includes(rawSort as ProductSort) ? (rawSort as ProductSort) : "sales";
 
-  const exportQuery = new URLSearchParams({ range: range.preset });
+  const exportQuery = new URLSearchParams({ range: range.preset, branch: scope.branch?.id ?? "all" });
   if (range.preset === "custom") {
     exportQuery.set("from", range.fromKey);
     exportQuery.set("to", range.toKey);
@@ -62,12 +66,17 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
         title="التقارير"
         description={
           <>
+            {multiBranch && <span className="font-medium text-foreground">{scope.branch ? scope.branch.name : "كل الفروع"} · </span>}
             {data.range.label}
             <span className="text-muted-foreground/70"> · مقارنة بـ {data.range.previousLabel}</span>
+            {scope.branch && multiBranch && (
+              <span className="block text-xs text-muted-foreground/70">مبيعات الكاشير في الفرع ده بس — طلبات المتجر الأونلاين بتظهر في «كل الفروع».</span>
+            )}
           </>
         }
         actions={
           <>
+            <BranchSwitcher branches={branches} value={scope.branch?.id ?? "all"} allowAll />
             <RangePicker preset={range.preset} fromKey={range.fromKey} toKey={range.toKey} todayKey={cairoDayKey(new Date())} />
             {data.hasEverSold && (
               <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 text-xs">

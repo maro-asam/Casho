@@ -16,7 +16,12 @@ export type SecurityEvent =
   | "ACCOUNT_LOCKED"
   | "SESSION_REVOKED"
   | "ALL_SESSIONS_REVOKED"
-  | "ROLE_CHANGED";
+  | "ROLE_CHANGED"
+  | "BRANCH_CREATED"
+  | "BRANCH_ACTIVATED"
+  | "BRANCH_DEACTIVATED"
+  | "BRANCH_DELETED"
+  | "MEMBER_BRANCHES_CHANGED";
 
 export function logSecurityEvent(opts: {
   event: SecurityEvent;

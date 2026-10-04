@@ -1,15 +1,14 @@
 /**
  * SectionRenderer
  *
- * Renders one of the 9 Sales-Funnel sections by key.
- * Shared across ALL theme Home components so changes propagate everywhere.
+ * Renders the merchant-configurable content sections by key.
+ * Product sections (featured, latest, best sellers) are rendered by each
+ * theme's Home with its own product card.
  */
 import type { SectionKey, SectionContentMap } from "@/types/store-theme.types";
-import type { StoreHomeProps, BestSellerProduct, Category } from "../StoreHome";
 
 import OfferStripSection from "./OfferStripSection";
 import SocialProofSection from "./SocialProofSection";
-import BestSellersSection from "./BestSellersSection";
 import WhyChooseUsSection from "./WhyChooseUsSection";
 import TestimonialsSection from "./TestimonialsSection";
 import AboutBrandSection from "./AboutBrandSection";
@@ -21,10 +20,9 @@ import RichTextSection from "./RichTextSection";
 
 type Props = {
   sectionKey: SectionKey;
-  store: StoreHomeProps["store"];
+  store: { name: string; slug: string };
   sectionContent: SectionContentMap;
-  categories?: Category[];
-  bestSellers?: BestSellerProduct[];
+  categories?: Array<{ name: string; slug: string; image?: string | null }>;
 };
 
 export default function SectionRenderer({
@@ -32,7 +30,6 @@ export default function SectionRenderer({
   store,
   sectionContent,
   categories = [],
-  bestSellers = [],
 }: Props) {
   switch (sectionKey) {
     case "showOfferStrip":
@@ -40,15 +37,6 @@ export default function SectionRenderer({
 
     case "showSocialProof":
       return <SocialProofSection content={sectionContent.socialProof} />;
-
-    case "showBestSellers":
-      return (
-        <BestSellersSection
-          products={bestSellers}
-          storeSlug={store.slug}
-          content={sectionContent.bestSellers}
-        />
-      );
 
     case "showWhyChooseUs":
       return <WhyChooseUsSection content={sectionContent.whyChooseUs} />;

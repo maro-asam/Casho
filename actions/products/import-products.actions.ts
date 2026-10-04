@@ -1,5 +1,6 @@
 "use server";
 
+import { seedDefaultBranchRows } from "@/lib/inventory/branch-stock";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { transliterate } from "@/lib/utils";
@@ -158,6 +159,7 @@ export async function ConfirmImportAction(
   });
 
   await prisma.product.createMany({ data, skipDuplicates: true });
+  await seedDefaultBranchRows(prisma, store.id);
 
   return { success: true, imported: data.length };
 }

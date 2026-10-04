@@ -27,6 +27,8 @@ import CartPanel, { calcTotals } from "./CartPanel";
 import HeldOrdersDialog from "./HeldOrdersDialog";
 import ProductGrid from "./ProductGrid";
 import ShiftModal from "./ShiftModal";
+import { BranchSwitcher } from "@/components/branch/BranchSwitcher";
+import { StoreSwitcher } from "@/components/branch/StoreSwitcher";
 import { egp } from "./pos-format";
 
 // ─── Cart state ───────────────────────────────────────────────
@@ -183,9 +185,26 @@ type Props = {
   activeShift: Shift | null;
   categories: { id: string; name: string; _count: { products: number } }[];
   initialHeldCount: number;
+  /** The branch this POS sells from (stock, held orders and the shift belong to it). */
+  branch: { id: string; name: string };
+  branches: { id: string; name: string }[];
+  /** A shift is open: the branch can't change until it is closed. */
+  branchLocked: boolean;
+  /** Stores this user can work in (own + memberships). */
+  stores: { id: string; name: string; isOwner: boolean }[];
 };
 
-export default function PosTerminal({ store, cashier, activeShift: initialShift, categories, initialHeldCount }: Props) {
+export default function PosTerminal({
+  store,
+  cashier,
+  activeShift: initialShift,
+  categories,
+  initialHeldCount,
+  branch,
+  branches,
+  branchLocked,
+  stores,
+}: Props) {
   const [cart, dispatch] = useReducer(cartReducer, initialCart);
   const [activeShift, setActiveShift] = useState(initialShift);
   const [search, setSearch] = useState("");
@@ -348,8 +367,20 @@ export default function PosTerminal({ store, cashier, activeShift: initialShift,
 
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold leading-tight">{store.name}</p>
-            <p className="text-xs text-muted-foreground">نقطة البيع · {cashier.name ?? cashier.email}</p>
+            <p className="text-xs text-muted-foreground">
+              نقطة البيع · {branches.length > 1 ? `${branch.name} · ` : ""}
+              {cashier.name ?? cashier.email}
+            </p>
           </div>
+
+          <StoreSwitcher stores={stores} value={store.id} className="hidden md:flex" />
+          <BranchSwitcher
+            surface="pos"
+            branches={branches}
+            value={branch.id}
+            lockedReason={branchLocked || activeShift ? "الفرع مربوط بالوردية المفتوحة — اقفلها عشان تغيّر الفرع" : undefined}
+            className="hidden sm:flex"
+          />
 
           <button
             type="button"

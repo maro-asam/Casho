@@ -8,18 +8,25 @@ import { NewAdjustmentForm } from "./_components/NewAdjustmentForm";
 
 async function getProducts(userId: string) {
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
-  if (!store) return [];
-  return prisma.product.findMany({
+  if (!store) return { products: [], branchStock: {} };
+  const products = await prisma.product.findMany({
     where: { storeId: store.id, isActive: true },
     select: { id: true, name: true, image: true, sku: true, stock: true },
     orderBy: { name: "asc" },
     take: 500,
   });
+  const rows = await prisma.branchInventory.findMany({
+    where: { storeId: store.id, variantId: null, productId: { in: products.map((p) => p.id) } },
+    select: { productId: true, branchId: true, quantity: true },
+  });
+  const branchStock: Record<string, Record<string, number>> = {};
+  for (const r of rows) (branchStock[r.productId] ??= {})[r.branchId] = r.quantity;
+  return { products, branchStock };
 }
 
 export default async function NewAdjustmentPage() {
   const userId = await requireUserId();
-  const [branches, products] = await Promise.all([
+  const [branches, { products, branchStock }] = await Promise.all([
     GetBranchesAction(),
     getProducts(userId),
   ]);
@@ -35,7 +42,7 @@ export default async function NewAdjustmentPage() {
         </Link>
         <h1 className="text-xl font-bold">تسوية مخزون جديدة</h1>
       </div>
-      <NewAdjustmentForm branches={branches} products={products} />
+      <NewAdjustmentForm branches={branches.filter((b) => b.isActive)} products={products} branchStock={branchStock} />
     </div>
   );
 }

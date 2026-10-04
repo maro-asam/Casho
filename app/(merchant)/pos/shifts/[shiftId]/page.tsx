@@ -23,6 +23,12 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
   if (!shift) notFound();
 
   const isOpen = shift.status === "OPEN";
+  const cashMoves = shift.entries
+    .filter((e) => e.type === "CASH_IN" || e.type === "CASH_OUT")
+    .reduce((s, e) => s + e.amount, 0);
+  const cashRefunds = shift.returns.filter((r) => r.refundMethod === "cash").reduce((s, r) => s + r.refundAmount, 0);
+  // Same formula as closing: float + cash sales + cash in/out − cash refunds.
+  const cashSales = (shift.expectedCash ?? 0) - shift.openingBalance - cashMoves + cashRefunds;
   const profitTotal = shift.orders.reduce((s, o) => s + (o.profitTotal ?? 0), 0);
   const ordersByPayment = shift.orders.reduce<Record<string, number>>((acc, o) => {
     const method = o.splitPayments.length > 0
@@ -48,7 +54,8 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
               </Badge>
             </h1>
             <p className="text-sm text-muted-foreground">
-              {shift.cashier?.name} ·{" "}
+              {shift.cashier?.name ?? shift.cashier?.email} ·{" "}
+              {shift.branch && `${shift.branch.name} · `}
               {new Date(shift.openedAt).toLocaleString("ar-EG")}
               {shift.closedAt && ` → ${new Date(shift.closedAt).toLocaleTimeString("ar-EG")}`}
             </p>
@@ -77,8 +84,9 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
             <div className="space-y-1.5 text-sm">
               {[
                 ["رصيد الافتتاح", egp(shift.openingBalance)],
-                ["+ المبيعات النقدية", egp(shift.totalSales)],
-                ["− المرتجعات", egp(shift.totalReturns)],
+                ["+ المبيعات النقدية", egp(cashSales)],
+                ["± إيداع / سحب نقدي", egp(cashMoves)],
+                ["− مرتجعات نقدية", egp(cashRefunds)],
                 ["= النقدية المتوقعة", egp(shift.expectedCash ?? 0)],
                 ["النقدية الفعلية", egp(shift.closingBalance ?? 0)],
               ].map(([label, val]) => (

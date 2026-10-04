@@ -4,14 +4,13 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { TransferStatus, StockMovementType } from "@prisma/client";
+import { changeBranchStock } from "@/lib/inventory/branch-stock";
+import { assertBranchAllowed, requireBranchAccess } from "@/lib/store/branch-context";
 
-async function getStoreForUser(userId: string) {
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!store) throw new Error("المتجر غير موجود");
-  return store;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function getStoreForUser(_userId: string) {
+  const ctx = await requireBranchAccess("manage_inventory");
+  return { id: ctx.storeId, ctx };
 }
 
 export type TransferItem = {
@@ -40,7 +39,8 @@ export async function CreateTransferAction(data: {
     prisma.branch.findFirst({ where: { id: data.toBranchId, storeId: store.id } }),
   ]);
   if (!fromBranch) throw new Error("فرع الإرسال غير موجود");
-  if (!toBranch) throw new Error("فرع الاستلام غير موجود");
+  if (!toBranch || !toBranch.isActive) throw new Error("فرع الاستلام غير موجود");
+  assertBranchAllowed(store.ctx, fromBranch.id);
 
   const transfer = await prisma.stockTransfer.create({
     data: {
@@ -111,70 +111,62 @@ export async function ShipTransferAction(data: {
   if (transfer.status !== TransferStatus.APPROVED) {
     throw new Error("يجب الموافقة على الطلب قبل الشحن");
   }
+  assertBranchAllowed(store.ctx, transfer.fromBranchId);
 
   const itemMap = new Map(transfer.items.map((i) => [i.id, i]));
 
   await prisma.$transaction(async (tx) => {
+    // Claim the transfer first so a double submit can't ship (and deduct) twice.
+    const claimed = await tx.stockTransfer.updateMany({
+      where: { id: transfer.id, status: TransferStatus.APPROVED },
+      data: { status: TransferStatus.SHIPPED, shippedAt: new Date() },
+    });
+    if (claimed.count === 0) throw new Error("طلب التحويل اتشحن بالفعل");
+
     for (const shipped of data.shippedItems) {
       const item = itemMap.get(shipped.itemId);
       if (!item || shipped.shippedQuantity <= 0) continue;
+      const qty = Math.min(Math.floor(shipped.shippedQuantity), item.requestedQuantity);
+      if (qty <= 0) continue;
 
       await tx.stockTransferItem.update({
         where: { id: shipped.itemId },
-        data: { shippedQuantity: shipped.shippedQuantity },
+        data: { shippedQuantity: qty },
       });
 
-      // Deduct from source branch inventory
-      await tx.branchInventory.updateMany({
-        where: {
-          branchId: transfer.fromBranchId,
-          productId: item.productId,
-          variantId: item.variantId ?? null,
-        },
-        data: { quantity: { decrement: shipped.shippedQuantity } },
+      // Leaves the source branch (and the store total) while it is on the way.
+      const moved = await changeBranchStock(tx, {
+        storeId: store.id,
+        branchId: transfer.fromBranchId,
+        productId: item.productId,
+        delta: -qty,
+        requireAvailable: true,
       });
+      if (!moved) throw new Error("الكمية المشحونة أكبر من المتاح في فرع الإرسال");
 
-      // Record TRANSFER_OUT movement
       if (item.variantId) {
-        const variant = await tx.productVariant.findUnique({
-          where: { id: item.variantId },
-          select: { stock: true },
+        await tx.branchInventory.updateMany({
+          where: { branchId: transfer.fromBranchId, productId: item.productId, variantId: item.variantId },
+          data: { quantity: { decrement: qty } },
         });
-        await tx.stockMovement.create({
-          data: {
-            storeId: store.id,
-            productId: item.productId,
-            variantId: item.variantId,
-            branchId: transfer.fromBranchId,
-            type: StockMovementType.TRANSFER_OUT,
-            quantity: -shipped.shippedQuantity,
-            stockBefore: variant?.stock ?? 0,
-            stockAfter: (variant?.stock ?? 0) - shipped.shippedQuantity,
-            reference: transfer.id,
-            note: `تحويل خارجي — ${transfer.id.slice(-6).toUpperCase()}`,
-            userId,
-          },
-        });
-      } else {
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-          select: { stock: true },
-        });
-        await tx.stockMovement.create({
-          data: {
-            storeId: store.id,
-            productId: item.productId,
-            branchId: transfer.fromBranchId,
-            type: StockMovementType.TRANSFER_OUT,
-            quantity: -shipped.shippedQuantity,
-            stockBefore: product?.stock ?? 0,
-            stockAfter: (product?.stock ?? 0) - shipped.shippedQuantity,
-            reference: transfer.id,
-            note: `تحويل خارجي — ${transfer.id.slice(-6).toUpperCase()}`,
-            userId,
-          },
-        });
+        await tx.productVariant.update({ where: { id: item.variantId }, data: { stock: { decrement: qty } } });
       }
+
+      await tx.stockMovement.create({
+        data: {
+          storeId: store.id,
+          productId: item.productId,
+          variantId: item.variantId,
+          branchId: transfer.fromBranchId,
+          type: StockMovementType.TRANSFER_OUT,
+          quantity: -qty,
+          stockBefore: moved.before,
+          stockAfter: moved.after,
+          reference: transfer.id,
+          note: `تحويل خارجي — ${transfer.id.slice(-6).toUpperCase()}`,
+          userId,
+        },
+      });
     }
 
     await tx.stockTransfer.update({
@@ -215,6 +207,7 @@ export async function ReceiveTransferAction(data: {
   if (transfer.status !== TransferStatus.SHIPPED) {
     throw new Error("يجب شحن الطلب أولاً");
   }
+  assertBranchAllowed(store.ctx, transfer.toBranchId);
 
   const itemMap = new Map(transfer.items.map((i) => [i.id, i]));
 
@@ -231,66 +224,50 @@ export async function ReceiveTransferAction(data: {
         data: { receivedQuantity: { increment: actual } },
       });
 
-      // Add to destination branch inventory & product total
-      await tx.branchInventory.upsert({
-        where: {
-          branchId_productId_variantId: {
-            branchId: transfer.toBranchId,
-            productId: item.productId,
-            variantId: item.variantId ?? null,
-          },
-        },
-        create: {
-          storeId: store.id,
-          branchId: transfer.toBranchId,
-          productId: item.productId,
-          variantId: item.variantId ?? null,
-          quantity: actual,
-        },
-        update: { quantity: { increment: actual } },
-      } as Parameters<typeof tx.branchInventory.upsert>[0]);
+      // Arrives in the destination branch (and back into the store total).
+      const moved = await changeBranchStock(tx, {
+        storeId: store.id,
+        branchId: transfer.toBranchId,
+        productId: item.productId,
+        delta: actual,
+      });
 
-      // Record TRANSFER_IN movement
       if (item.variantId) {
-        const variant = await tx.productVariant.findUnique({
-          where: { id: item.variantId },
-          select: { stock: true },
-        });
-        await tx.stockMovement.create({
-          data: {
+        await tx.branchInventory.upsert({
+          where: {
+            branchId_productId_variantId: {
+              branchId: transfer.toBranchId,
+              productId: item.productId,
+              variantId: item.variantId,
+            },
+          },
+          create: {
             storeId: store.id,
+            branchId: transfer.toBranchId,
             productId: item.productId,
             variantId: item.variantId,
-            branchId: transfer.toBranchId,
-            type: StockMovementType.TRANSFER_IN,
             quantity: actual,
-            stockBefore: variant?.stock ?? 0,
-            stockAfter: (variant?.stock ?? 0) + actual,
-            reference: transfer.id,
-            note: `تحويل داخلي — ${transfer.id.slice(-6).toUpperCase()}`,
-            userId,
           },
+          update: { quantity: { increment: actual } },
         });
-      } else {
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-          select: { stock: true },
-        });
-        await tx.stockMovement.create({
-          data: {
-            storeId: store.id,
-            productId: item.productId,
-            branchId: transfer.toBranchId,
-            type: StockMovementType.TRANSFER_IN,
-            quantity: actual,
-            stockBefore: product?.stock ?? 0,
-            stockAfter: (product?.stock ?? 0) + actual,
-            reference: transfer.id,
-            note: `تحويل داخلي — ${transfer.id.slice(-6).toUpperCase()}`,
-            userId,
-          },
-        });
+        await tx.productVariant.update({ where: { id: item.variantId }, data: { stock: { increment: actual } } });
       }
+
+      await tx.stockMovement.create({
+        data: {
+          storeId: store.id,
+          productId: item.productId,
+          variantId: item.variantId,
+          branchId: transfer.toBranchId,
+          type: StockMovementType.TRANSFER_IN,
+          quantity: actual,
+          stockBefore: moved!.before,
+          stockAfter: moved!.after,
+          reference: transfer.id,
+          note: `تحويل داخلي — ${transfer.id.slice(-6).toUpperCase()}`,
+          userId,
+        },
+      });
     }
 
     // Check if fully received

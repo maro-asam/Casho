@@ -3,18 +3,8 @@ import type { Metadata } from "next";
 import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  ArrowRight,
-  Package,
-  Store as StoreIcon,
-  FolderOpen,
-} from "lucide-react";
-
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { getStorefrontTheme } from "../../_themes";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreThemeId, toProductCards } from "../../_lib/storefront";
 
 // ISR: revalidate every 300 seconds — category product lists change infrequently
 export const revalidate = 300;
@@ -36,14 +26,6 @@ type PageProps = {
   }>;
 };
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("ar-EG", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, categoryId } = await params;
   const category = await prisma.category.findFirst({
@@ -63,154 +45,34 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CategoryProducts({ params }: PageProps) {
   const { slug, categoryId } = await params;
 
-  console.log(`[ISR] Rendering category page: "${categoryId}" in store: "${slug}" at ${new Date().toISOString()} (revalidate: ${revalidate}s)`);
-
   const store = await prisma.store.findUnique({
     where: { slug },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      subscriptionStatus: true,
-    },
+    select: { id: true, name: true, slug: true, subscriptionStatus: true },
   });
-
   if (!store) return notFound();
 
-  if (!isStorefrontOpen(store.subscriptionStatus)) {
-    return (
-      <div
-        className="wrapper min-h-[70vh] flex items-center justify-center"
-        dir="rtl"
-      >
-        <Card className="p-10 text-center rounded-xl">
-          <h1 className="text-xl font-semibold mb-2">المتجر غير مفعل</h1>
-          <p className="text-sm text-muted-foreground mb-5">
-            لا يمكن عرض المنتجات حاليًا
-          </p>
+  const theme = getStorefrontTheme(await getStoreThemeId(slug));
 
-          <Button asChild>
-            <Link href={`/store/${store.slug}`}>
-              <ArrowRight className="size-4" />
-              الرجوع للمتجر
-            </Link>
-          </Button>
-        </Card>
-      </div>
-    );
+  if (!isStorefrontOpen(store.subscriptionStatus)) {
+    return <theme.StoreClosed storeSlug={store.slug} />;
   }
 
-  const category = await prisma.category.findFirst({
-    where: {
-      slug: categoryId,
-      storeId: store.id,
-    },
-    include: {
-      products: {
-        where: { isActive: true },
-        orderBy: { createdAt: "desc" },
-      },
-    },
-  });
-
+  const categories = await getStoreCategoryLinks(store.id);
+  const category = categories.find((c) => c.slug === categoryId);
   if (!category) return notFound();
 
+  const rows = await prisma.product.findMany({
+    where: { storeId: store.id, categoryId: category.id, isActive: true },
+    orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
+    select: PRODUCT_CARD_SELECT,
+  });
+
   return (
-    <div className="wrapper py-10 max-w-screen-2xl mx-auto space-y-8" dir="rtl">
-      {/* HEADER */}
-      <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-2">
-          <Badge className="rounded-xl px-3 py-1">
-            <FolderOpen className="size-4" />
-            تصنيف
-          </Badge>
-
-          <h1 className="text-3xl font-semibold">{category.name}</h1>
-
-          <p className="text-sm text-muted-foreground">
-            متجر: {store.name} • عدد المنتجات: {category.products.length}
-          </p>
-        </div>
-
-        <Button asChild variant="outline" className="rounded-xl">
-          <Link href={`/store/${store.slug}`}>
-            <ArrowRight className="size-4" />
-            الرجوع للمتجر
-          </Link>
-        </Button>
-      </section>
-
-      {/* EMPTY */}
-      {category.products.length === 0 ? (
-        <Card className="rounded-xl border-dashed">
-          <CardContent className="flex min-h-75 flex-col items-center justify-center text-center p-10 space-y-4">
-            <div className="flex size-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Package className="size-8" />
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold">
-                لا توجد منتجات في هذا التصنيف
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-md leading-7">
-                يبدو أنه لم يتم إضافة أي منتجات هنا بعد.
-              </p>
-            </div>
-
-            <Button asChild>
-              <Link href={`/store/${store.slug}`}>
-                <StoreIcon className="size-4" />
-                تصفح باقي المنتجات
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        /* PRODUCTS GRID */
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {category.products.map((product) => (
-            <Link
-              key={product.id}
-              href={`/store/${store.slug}/products/${product.slug}`}
-              className="group"
-            >
-              <Card className="overflow-hidden rounded-xl transition-all hover:-translate-y-1 hover:shadow-xl">
-                <CardContent className="p-0">
-                  {/* IMAGE */}
-                  <div className="relative aspect-square overflow-hidden">
-                    <Image
-                      src={
-                        product.image ||
-                        "https://placehold.co/600x600?text=No+Image"
-                      }
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-
-                  {/* CONTENT */}
-                  <div className="p-4 space-y-3">
-                    <h3 className="font-semibold line-clamp-2 leading-snug">
-                      {product.name}
-                    </h3>
-
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-primary">
-                        {formatPrice(product.price)}
-                      </span>
-
-                      <span className="text-xs text-muted-foreground">
-                        عرض المنتج →
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </section>
-      )}
-    </div>
+    <theme.Category
+      store={{ name: store.name, slug: store.slug }}
+      category={category}
+      products={await toProductCards(rows)}
+      otherCategories={categories.filter((c) => c.id !== category.id && c.productCount > 0)}
+    />
   );
 }

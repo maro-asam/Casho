@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "skills": {
+    "banner-design": {
+      "source": "nicohodt/claude-code-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/banner-design/SKILL.md",
+      "computedHash": "691838a35f72b7aa47cff269e1c8f00e4b16d89435c2cf2e67ca4cb4704ec8de"
+    },
+    "brand": {
+      "source": "nicohodt/claude-code-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/brand/SKILL.md",
+      "computedHash": "4a29351a0bc96324e62e0c2e087aa6faa903514b2916de05929b342d0aa9d696"
+    },
+    "design": {
+      "source": "nicohodt/claude-code-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design/SKILL.md",
+      "computedHash": "7f55be1586a0d045beadd2bdb149f43731d452e789cb1b0ecdd2662b5101b8b3"
+    },
+    "design-system": {
+      "source": "nicohodt/claude-code-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/design-system/SKILL.md",
+      "computedHash": "6f7ad298e6257d91c324e21c3499a454f8bf2e39e0254a81da2819ecff802f96"
+    },
+    "slides": {
+      "source": "nicohodt/claude-code-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/slides/SKILL.md",
+      "computedHash": "91bf8a75cc65674800800f3d2e0c619a1dc1deaae9b849926597a944fef13a42"
+    },
+    "ui-styling": {
+      "source": "nicohodt/claude-code-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-styling/SKILL.md",
+      "computedHash": "2330cdff2e7352377fef56081f8da4dc2d6c2b7401aeeafde36351511af36036"
+    },
+    "ui-ux-pro-max": {
+      "source": "nicohodt/claude-code-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "computedHash": "afeacd92130e12374e0ae220a2e0eeafb7607ec6e0e203b7d9aaf8b2742c535a"
+    }
+  }
+}

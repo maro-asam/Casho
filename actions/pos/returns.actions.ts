@@ -3,24 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { PosReturnType, PosReturnStatus, StockMovementType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { changeBranchStock } from "@/lib/inventory/branch-stock";
+import { assertCanSellInBranch, canManageOthersShifts, requirePosContext, type PosContext } from "@/lib/pos/pos-context";
+import { BranchAccessError } from "@/lib/store/branch-context";
 
-async function getStoreForUser(userId: string) {
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true, name: true, slug: true },
-  });
-  if (!store) throw new Error("المتجر غير موجود");
-  return store;
-}
-
-export async function GetOrderForReturnAction(orderId: string) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
-
+/**
+ * A sale can be returned in the branch that sold it. Online orders (no branch)
+ * can be returned at any counter; the goods enter the cashier's branch.
+ */
+async function findReturnableOrder(ctx: PosContext, orderId: string) {
   const order = await prisma.order.findFirst({
-    where: { id: orderId, storeId: store.id },
+    where: { id: orderId, storeId: ctx.storeId },
     include: {
+      branch: { select: { id: true, name: true } },
       items: {
         include: {
           product: { select: { id: true, name: true, image: true, sku: true } },
@@ -32,16 +27,26 @@ export async function GetOrderForReturnAction(orderId: string) {
       },
     },
   });
-
   if (!order) throw new Error("الطلب غير موجود");
+  if (order.branchId && order.branchId !== ctx.branch.id) {
+    // Don't reveal other branches' sales to someone who can't access them.
+    if (!ctx.branches.some((b) => b.id === order.branchId)) throw new Error("الطلب غير موجود");
+    throw new BranchAccessError(`الفاتورة دي من فرع ${order.branch?.name} — المرتجع يتعمل في نفس الفرع`);
+  }
   return order;
+}
+
+export async function GetOrderForReturnAction(orderId: string) {
+  const ctx = await requirePosContext();
+  return findReturnableOrder(ctx, orderId);
 }
 
 export type ReturnItemInput = {
   orderItemId?: string;
   productId: string;
   quantity: number;
-  unitPrice: number;
+  /** Ignored — the refund price always comes from the original sale. */
+  unitPrice?: number;
   reason?: string;
 };
 
@@ -53,62 +58,60 @@ export async function ProcessReturnAction(input: {
   refundMethod?: string;
   notes?: string;
 }) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
+  assertCanSellInBranch(ctx);
+  const { userId, storeId } = ctx;
 
-  const originalOrder = await prisma.order.findFirst({
-    where: { id: input.originalOrderId, storeId: store.id },
-    include: {
-      items: {
-        include: { product: { select: { id: true, name: true, stock: true } } },
-      },
-      posReturns: {
-        where: { status: PosReturnStatus.COMPLETED },
-        include: { items: { select: { productId: true, quantity: true } } },
-      },
-    },
-  });
+  const originalOrder = await findReturnableOrder(ctx, input.originalOrderId);
+  const branchId = originalOrder.branchId ?? ctx.branch.id;
 
-  if (!originalOrder) throw new Error("الطلب الأصلي غير موجود");
+  if (!input.items.length) throw new Error("اختار منتج واحد على الأقل");
 
-  // Validate quantities — can't return more than original minus already returned
-  for (const returnItem of input.items) {
-    const orderItem = originalOrder.items.find((i) => i.productId === returnItem.productId);
-    if (!orderItem) throw new Error(`المنتج غير موجود في الطلب الأصلي`);
+  // Validate quantities — can't return more than original minus already returned.
+  // Refund price = what the customer actually paid per piece (after item discount).
+  const lines = input.items.map((returnItem) => {
+    const orderItems = originalOrder.items.filter((i) => i.productId === returnItem.productId);
+    if (!orderItems.length) throw new Error(`المنتج غير موجود في الطلب الأصلي`);
+    if (!Number.isInteger(returnItem.quantity) || returnItem.quantity <= 0) throw new Error("كمية غير صالحة");
 
+    const sold = orderItems.reduce((s, i) => s + i.quantity, 0);
+    const paid = orderItems.reduce((s, i) => s + i.price * i.quantity - (i.discountAmount ?? 0), 0);
     const alreadyReturned = originalOrder.posReturns
       .flatMap((r) => r.items)
       .filter((i) => i.productId === returnItem.productId)
       .reduce((sum, i) => sum + i.quantity, 0);
 
-    const returnable = orderItem.quantity - alreadyReturned;
+    const returnable = sold - alreadyReturned;
     if (returnItem.quantity > returnable) {
       throw new Error(
         `لا يمكن إرجاع ${returnItem.quantity} قطعة — القابل للإرجاع: ${returnable}`,
       );
     }
-  }
+    return { ...returnItem, unitPrice: Math.round(paid / sold) };
+  });
 
-  const refundAmount = input.items.reduce(
-    (sum, i) => sum + i.unitPrice * i.quantity,
-    0,
-  );
+  const refundAmount = lines.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+  const refundMethod = input.refundMethod ?? "cash";
+  // The refund comes out of the cashier's drawer.
+  const shiftId = ctx.shift?.id ?? null;
 
   const posReturn = await prisma.$transaction(async (tx) => {
     const created = await tx.posReturn.create({
       data: {
-        storeId: store.id,
+        storeId,
+        branchId,
+        shiftId,
         originalOrderId: input.originalOrderId,
         cashierId: userId,
         type: PosReturnType[input.type],
         status: PosReturnStatus.COMPLETED,
         reason: input.reason,
         refundAmount,
-        refundMethod: input.refundMethod ?? "cash",
+        refundMethod,
         notes: input.notes,
         processedAt: new Date(),
         items: {
-          create: input.items.map((i) => ({
+          create: lines.map((i) => ({
             productId: i.productId,
             quantity: i.quantity,
             unitPrice: i.unitPrice,
@@ -118,28 +121,30 @@ export async function ProcessReturnAction(input: {
       },
     });
 
-    // Restock products
-    for (const item of input.items) {
-      const orderItem = originalOrder.items.find((i) => i.productId === item.productId);
-      if (!orderItem) continue;
-
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { increment: item.quantity } },
-      });
+    // Restock into the branch the goods came back to
+    for (const item of lines) {
+      const moved = await changeBranchStock(tx, { storeId, branchId, productId: item.productId, delta: item.quantity });
 
       await tx.stockMovement.create({
         data: {
-          storeId: store.id,
+          storeId,
+          branchId,
           productId: item.productId,
           type: StockMovementType.RETURN,
           quantity: item.quantity,
-          stockBefore: orderItem.product.stock,
-          stockAfter: orderItem.product.stock + item.quantity,
+          stockBefore: moved!.before,
+          stockAfter: moved!.after,
           reference: created.id,
           note: `إرجاع — طلب #${input.originalOrderId.slice(-6).toUpperCase()}`,
           userId,
         },
+      });
+    }
+
+    if (shiftId) {
+      await tx.posShift.update({
+        where: { id: shiftId },
+        data: { totalReturns: { increment: refundAmount }, returnCount: { increment: 1 } },
       });
     }
 
@@ -152,14 +157,16 @@ export async function ProcessReturnAction(input: {
 }
 
 export async function GetReturnsAction(limit = 50) {
-  const userId = await requireUserId();
-  const store = await getStoreForUser(userId);
+  const ctx = await requirePosContext();
 
   return prisma.posReturn.findMany({
-    where: { storeId: store.id },
+    where: canManageOthersShifts(ctx)
+      ? { storeId: ctx.storeId, branchId: { in: ctx.branches.map((b) => b.id) } }
+      : { storeId: ctx.storeId, branchId: ctx.branch.id },
     include: {
       originalOrder: { select: { id: true, fullName: true, createdAt: true } },
       cashier: { select: { name: true } },
+      branch: { select: { name: true } },
       items: {
         include: { product: { select: { name: true, image: true } } },
       },

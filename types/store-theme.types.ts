@@ -5,20 +5,26 @@
 
 // ─── Preset IDs ──────────────────────────────────────────────────────────────
 
-export const THEME_PRESET_IDS = [
-  "default",
-  "bold",
-  "elegant",
-  "modern",
-  "minimal",
-  "dark",
-] as const;
+export const THEME_PRESET_IDS = ["default"] as const;
 
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 
 export function isThemePresetId(value: unknown): value is ThemePresetId {
   return THEME_PRESET_IDS.includes(value as ThemePresetId);
 }
+
+// ─── Theme Categories (by business type) ───────────────────────────────────
+
+export const THEME_CATEGORY_IDS = [
+  "general",
+  "fashion",
+  "electronics",
+  "beauty",
+  "food",
+  "home",
+] as const;
+
+export type ThemeCategoryId = (typeof THEME_CATEGORY_IDS)[number];
 
 // ─── Design Tokens ───────────────────────────────────────────────────────────
 
@@ -287,6 +293,8 @@ export type ThemePreset = {
   name: string;
   description: string;
   colorScheme: "light" | "dark";
+  /** Business types this theme suits — a theme can belong to several. */
+  categories: ThemeCategoryId[];
   tokens: ThemeTokens;
   /** Tokens to apply when the user activates dark mode (overrides `tokens`). */
   darkTokens?: Partial<ThemeTokens>;

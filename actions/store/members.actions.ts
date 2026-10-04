@@ -6,6 +6,7 @@ import { StoreRole } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/actions/auth/require.actions";
+import { SwitchStoreAction } from "./workspace.actions";
 import { ASSIGNABLE_ROLES, hasPermission } from "@/lib/store/permissions";
 import { logSecurityEvent } from "@/lib/auth/security-log";
 import { createNotification } from "@/lib/notifications/in-app";
@@ -392,6 +393,7 @@ export async function AcceptInvitationAction(
       where: { id: invitationId },
       data: { acceptedAt: new Date() },
     });
+    await SwitchStoreAction(invitation.storeId);
     return { success: true, message: "أنت عضو بالفعل في هذا المتجر", storeId: invitation.storeId };
   }
 
@@ -413,6 +415,9 @@ export async function AcceptInvitationAction(
     message: `${user.name ?? user.email} انضم إلى متجر ${invitation.store.name}`,
     href: "/dashboard/settings",
   });
+
+  // Work in the store that invited you from now on (switchable from the POS).
+  await SwitchStoreAction(invitation.storeId);
 
   revalidatePath("/dashboard");
   return { success: true, message: "تم قبول الدعوة بنجاح", storeId: invitation.storeId };

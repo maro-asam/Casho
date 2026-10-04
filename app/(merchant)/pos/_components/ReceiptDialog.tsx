@@ -29,6 +29,10 @@ export default function ReceiptDialog({ open, onClose, orderId, store, cashierNa
     if (!order) return;
 
     const receiptNo = orderId.slice(-6).toUpperCase();
+    const esc = (v: string) => v.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+    const branchHtml = order.branch
+      ? `<div style="text-align:center;font-size:11px">${esc(order.branch.name)}${order.branch.address ? ` — ${esc(order.branch.address)}` : ""}${order.branch.phone ? `<br/>${esc(order.branch.phone)}` : ""}</div>`
+      : "";
     const dateStr = new Date(order.createdAt).toLocaleString("ar-EG", {
       year: "numeric", month: "2-digit", day: "2-digit",
       hour: "2-digit", minute: "2-digit",
@@ -184,6 +188,7 @@ export default function ReceiptDialog({ open, onClose, orderId, store, cashierNa
     <!-- Header -->
     <div class="header">
       <div class="store-name">${store.name}</div>
+      ${branchHtml}
       <div class="receipt-title">فاتورة بيع — نقطة البيع</div>
     </div>
 
@@ -314,6 +319,7 @@ export default function ReceiptDialog({ open, onClose, orderId, store, cashierNa
           className="receipt rounded-lg border border-dashed border-border p-4 bg-muted/20 text-sm space-y-2"
         >
           <div className="center bold text-base">{store.name}</div>
+          {order?.branch && <div className="center text-xs text-muted-foreground">{order.branch.name}</div>}
           <div className="center text-xs text-muted-foreground">
             فاتورة #{orderId.slice(-6).toUpperCase()}
           </div>

@@ -1,0 +1,218 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Classic storefront theme — design system
+   Everything here is scoped to `.theme-classic`, so no other theme, the
+   dashboard, admin or POS can be affected by it.
+
+   Colors come from the merchant-resolved store tokens (--background,
+   --primary, …) injected by the store layout. This file only adds what
+   Classic needs on top: semantic status colors, radii, control sizes and
+   the layout scale.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.theme-classic {
+  /* Layout */
+  --c-container: 80rem;            /* 1280px */
+  --c-gutter: 1rem;                /* 16px on phones */
+  --c-section-y: 2.5rem;           /* vertical rhythm between home sections */
+  --c-header-h: 3.5rem;            /* 56px main bar on phones */
+
+  /* Shape — follows the merchant radius, capped so Classic stays crisp */
+  --c-radius-sm: min(calc(var(--store-radius, 0.625rem) * 0.6), 0.5rem);
+  --c-radius: min(var(--store-radius, 0.625rem), 0.875rem);
+  --c-radius-lg: min(calc(var(--store-radius, 0.625rem) * 1.6), 1.25rem);
+  --c-btn-radius: var(--store-btn-radius, 0.5rem);
+
+  /* Controls (all touch targets are ≥ 44px except dense desktop chips) */
+  --c-control-sm: 2.25rem;         /* 36px */
+  --c-control: 2.75rem;            /* 44px */
+  --c-control-lg: 3rem;            /* 48px */
+
+  /* Semantic status colors */
+  --c-sale: #d92d20;
+  --c-sale-soft: #fef3f2;
+  --c-sale-solid: #d92d20;          /* badge fill — white text on it in both modes */
+  --c-success: #067647;
+  --c-success-soft: #ecfdf3;
+  --c-warning: #b54708;
+  --c-warning-soft: #fffaeb;
+  --c-danger: #b42318;
+  --c-rating: #f59e0b;
+
+  /* Surfaces */
+  --c-subtle: color-mix(in srgb, var(--foreground) 3%, var(--background));
+  --c-overlay: rgb(0 0 0 / 0.45);
+  --c-shadow-pop: 0 12px 32px -12px rgb(16 24 40 / 0.18), 0 4px 8px -4px rgb(16 24 40 / 0.06);
+
+  /* Motion (merchant "animations" setting → --store-motion) */
+  --c-motion: var(--store-motion, 250ms);
+  --c-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  background: var(--background);
+  color: var(--foreground);
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 640px) {
+  .theme-classic {
+    --c-gutter: 1.5rem;
+    --c-section-y: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-classic {
+    --c-gutter: 2rem;
+    --c-section-y: 3.5rem;
+    --c-header-h: 4.5rem;
+  }
+}
+
+.dark .theme-classic {
+  --c-sale: #f97066;
+  --c-sale-soft: rgb(217 45 32 / 0.14);
+  --c-success: #47cd89;
+  --c-success-soft: rgb(6 118 71 / 0.18);
+  --c-warning: #fdb022;
+  --c-warning-soft: rgb(181 71 8 / 0.18);
+  --c-danger: #f97066;
+  --c-subtle: color-mix(in srgb, var(--foreground) 5%, var(--background));
+  --c-shadow-pop: 0 12px 32px -12px rgb(0 0 0 / 0.6);
+}
+
+/* The app sets `* { font-weight: 300 }` globally. Classic owns its type
+   scale, so let weights inherit from the theme root instead. Kept in the
+   base layer so Tailwind's font-* utilities still win. */
+@layer base {
+  .theme-classic *,
+  .classic-portal * {
+    font-weight: inherit;
+  }
+  .classic-portal {
+    font-weight: 400;
+  }
+}
+
+/* Primitives live in the components layer so Tailwind utilities
+   (lg:grid, lg:mx-0, …) can still override them per use. */
+@layer components {
+/* ─── Primitives ──────────────────────────────────────────────────────────── */
+
+.c-container {
+  width: 100%;
+  max-width: var(--c-container);
+  margin-inline: auto;
+  padding-inline: var(--c-gutter);
+}
+
+.c-section {
+  padding-block: calc(var(--c-section-y) / 2);
+}
+
+/* Visible, consistent keyboard focus everywhere in the theme */
+.theme-classic :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+.classic-portal :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--c-radius-sm);
+}
+
+/* Horizontal rails (categories on phones, thumbnails) */
+.c-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.c-rail::-webkit-scrollbar {
+  display: none;
+}
+.c-rail > * {
+  scroll-snap-align: start;
+}
+
+/* Bleed a rail to the screen edges on phones while keeping the gutter */
+.c-bleed {
+  margin-inline: calc(var(--c-gutter) * -1);
+  padding-inline: var(--c-gutter);
+  scroll-padding-inline: var(--c-gutter);
+}
+
+/* Product grid — 2 columns on phones, merchant column count on desktop */
+.c-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 0.75rem;
+  row-gap: 1.75rem;
+}
+@media (min-width: 640px) {
+  .c-product-grid {
+    grid-template-columns: repeat(min(var(--store-grid-cols, 4), 3), minmax(0, 1fr));
+    column-gap: 1.25rem;
+    row-gap: 2.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .c-product-grid {
+    grid-template-columns: repeat(var(--store-grid-cols, 4), minmax(0, 1fr));
+  }
+  .c-product-grid[data-cols="3"] {
+    grid-template-columns: repeat(min(var(--store-grid-cols, 4), 3), minmax(0, 1fr));
+  }
+}
+
+/* Image placeholder shimmer while product images load */
+.c-img-bg {
+  background-color: var(--c-subtle);
+}
+
+/* Native <details> accordions (footer on phones) */
+.c-accordion > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.c-accordion > summary::-webkit-details-marker {
+  display: none;
+}
+.c-accordion[open] > summary .c-accordion-icon {
+  transform: rotate(180deg);
+}
+.c-accordion-icon {
+  transition: transform var(--c-motion) var(--c-ease);
+}
+
+/* Room for the fixed mobile purchase / checkout bar */
+.c-has-bottom-bar {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .c-has-bottom-bar {
+    padding-bottom: 0;
+  }
+}
+}
+
+@keyframes c-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.c-fade-up {
+  animation: c-fade-up var(--c-motion) var(--c-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-classic *,
+  .theme-classic *::before,
+  .theme-classic *::after,
+  .classic-portal *,
+  .classic-portal *::before,
+  .classic-portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
