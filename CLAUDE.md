@@ -71,9 +71,9 @@ Kashier is the Egyptian payment gateway used for balance topups. Integration in 
 
 ### Store Themes
 
-Each store can select a theme (`StoreSettings.themeId`, or `themeConfig.presetId`). Presets (tokens, layout, sections) are in [constants/store-themes.ts](constants/store-themes.ts) — currently only `default` (Classic).
+Each store can select a theme (`StoreSettings.themeId`, or `themeConfig.presetId`). Presets (tokens, layout, sections) are in [constants/store-themes.ts](constants/store-themes.ts) — `default` (Classic) and `riwaq` (Riwaq, editorial paper/ink/arches — see its `DESIGN.md`).
 
-The storefront UI lives in [app/store/[slug]/_themes/](app/store/[slug]/_themes/): `types.ts` is the theme contract (view-model props per page), `index.ts` is the registry (`getStorefrontTheme(id)`), and each theme is a folder (`classic/`) with its own scoped CSS (`.theme-classic`). Route files under `app/store/[slug]/` only load data (helpers in `_lib/storefront.ts`) and render `theme.Home`, `theme.ProductListing`, `theme.Product`, `theme.Cart`, etc. Themes never query the DB; they call the existing store actions.
+The storefront UI lives in [app/store/[slug]/_themes/](app/store/[slug]/_themes/): `types.ts` is the theme contract (view-model props per page), `index.ts` is the registry (`getStorefrontTheme(id)`), and each theme is a folder (`classic/`, `riwaq/`) with its own scoped CSS (`.theme-classic`, `.theme-riwaq`). Theme-agnostic helpers (cart events, store paths, social links, price tiers, sort options, filter query builder, cart-count hook, `SubmitButton`) live in `_themes/shared/` — themes import from there, never from each other. `loading.tsx` / `not-found.tsx` render `ThemeState`, which picks the active theme's skeleton from context; a new theme must add its states there. Route files under `app/store/[slug]/` only load data (helpers in `_lib/storefront.ts`) and render `theme.Home`, `theme.ProductListing`, `theme.Product`, `theme.Cart`, etc. Themes never query the DB; they call the existing store actions.
 
 ### Notifications
 

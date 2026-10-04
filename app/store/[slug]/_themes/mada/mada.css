@@ -1,0 +1,737 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Mada (مدى) storefront theme — design system
+   Premium, modular commerce: airy chalk canvas, pine green with a chartreuse
+   signal, softly rounded media, pill controls, Alexandria display type.
+   Scoped to `.theme-mada` (and `.md-portal` for drawers/dialogs rendered
+   outside the store root). Colors come from the merchant-resolved store
+   tokens; this file maps them to Mada's vocabulary and adds components.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.theme-mada,
+.md-portal {
+  --md-bg: var(--background);
+  --md-ink: var(--foreground);
+  --md-surface: var(--card);
+  --md-studio: var(--muted);              /* product image backdrop */
+  --md-quiet: var(--muted-foreground);
+  --md-line: var(--border);
+  --md-line-strong: color-mix(in srgb, var(--md-ink) 22%, transparent);
+  --md-brand: var(--primary);
+  --md-brand-ink: var(--primary-foreground);
+  --md-signal: var(--accent);
+  --md-signal-ink: var(--accent-foreground);
+  --md-sale: #b42318;
+  --md-success: #2f6b1f;
+  --md-warn: #9a5b00;
+  --md-star: #f2a516;
+  --md-scrim: rgb(12 17 15 / 0.5);
+  --md-shadow-pop: var(--store-shadow-md);
+  --md-shadow-float: var(--store-shadow-lg);
+
+  --md-display: var(--font-mada-display), "Cairo", sans-serif;
+
+  --md-wrap: 92rem;            /* 1472px */
+  --md-gutter: 1rem;
+  --md-section: 3.5rem;
+  --md-header-h: 4rem;
+  --md-radius: 1.125rem;       /* media */
+  --md-radius-sm: 0.75rem;
+  --md-control: 3rem;
+  --md-control-sm: 2.75rem;
+
+  --md-dur: var(--store-motion, 250ms);
+  --md-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --md-start-x: 100%;
+  --md-dir: 1;
+
+  background: var(--md-bg);
+  color: var(--md-ink);
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+.theme-mada[dir="ltr"],
+.md-portal[dir="ltr"] {
+  --md-start-x: 0%;
+  --md-dir: -1;
+}
+
+@media (min-width: 640px) {
+  .theme-mada,
+  .md-portal {
+    --md-gutter: 1.5rem;
+    --md-section: 4.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .theme-mada,
+  .md-portal {
+    --md-gutter: 2.5rem;
+    --md-section: 6rem;
+    --md-header-h: 4.75rem;
+  }
+}
+
+.dark .theme-mada,
+.dark .md-portal {
+  --md-sale: #ff8a7a;
+  --md-success: #9fd27a;
+  --md-warn: #f0b24a;
+  --md-scrim: rgb(0 0 0 / 0.6);
+}
+
+@layer base {
+  .theme-mada *,
+  .md-portal * {
+    font-weight: inherit;
+  }
+  .md-portal {
+    font-weight: 400;
+  }
+  .theme-mada svg.lucide,
+  .md-portal svg.lucide {
+    stroke-width: 1.75;
+  }
+  .theme-mada :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  .md-portal :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--md-brand);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+}
+
+@layer components {
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+
+.md-wrap {
+  width: 100%;
+  max-width: var(--md-wrap);
+  margin-inline: auto;
+  padding-inline: var(--md-gutter);
+}
+.md-section {
+  padding-block: calc(var(--md-section) / 2);
+}
+.md-bleed {
+  margin-inline: calc(var(--md-gutter) * -1);
+  padding-inline: var(--md-gutter);
+  scroll-padding-inline: var(--md-gutter);
+}
+.md-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.md-rail::-webkit-scrollbar {
+  display: none;
+}
+.md-rail > * {
+  scroll-snap-align: start;
+}
+.md-has-bar {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .md-has-bar {
+    padding-bottom: 0;
+  }
+}
+
+/* ─── Type ──────────────────────────────────────────────────────────────── */
+
+.md-face {
+  font-family: var(--md-display);
+}
+.md-hero-title {
+  font-family: var(--md-display);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 6.5vw, 5.5rem);
+  line-height: 1.12;
+}
+.md-h1 {
+  font-family: var(--md-display);
+  font-weight: 700;
+  font-size: clamp(1.875rem, 4.2vw, 3.25rem);
+  line-height: 1.2;
+}
+.md-h2 {
+  font-family: var(--md-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.8vw, 2.375rem);
+  line-height: 1.25;
+}
+.md-h3 {
+  font-family: var(--md-display);
+  font-weight: 600;
+  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  line-height: 1.4;
+}
+.md-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+  padding-inline: 0.75rem;
+  border-radius: 999px;
+  background: var(--md-signal);
+  color: var(--md-signal-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.md-price {
+  font-family: var(--md-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.md-prose {
+  max-width: 68ch;
+  line-height: 1.95;
+  white-space: pre-line;
+  color: color-mix(in srgb, var(--md-ink) 86%, transparent);
+}
+
+/* ─── Buttons (pills) ───────────────────────────────────────────────────── */
+
+.md-btn {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--md-control);
+  padding-inline: 1.5rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: background-color var(--md-dur) var(--md-ease), color var(--md-dur) var(--md-ease),
+    border-color var(--md-dur) var(--md-ease), transform 120ms var(--md-ease), box-shadow var(--md-dur) var(--md-ease);
+}
+.md-btn:active {
+  transform: scale(0.98);
+}
+.md-btn:disabled,
+.md-btn[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.md-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+.md-btn--brand {
+  background: var(--md-brand);
+  color: var(--md-brand-ink);
+}
+.md-btn--brand:hover {
+  background: color-mix(in srgb, var(--md-brand) 86%, var(--md-ink));
+  box-shadow: var(--md-shadow-pop);
+}
+.md-btn--signal {
+  background: var(--md-signal);
+  color: var(--md-signal-ink);
+}
+.md-btn--signal:hover {
+  background: color-mix(in srgb, var(--md-signal) 85%, var(--md-ink));
+}
+.md-btn--outline {
+  border-color: var(--md-line-strong);
+  color: var(--md-ink);
+  background: transparent;
+}
+.md-btn--outline:hover {
+  border-color: var(--md-ink);
+  background: var(--md-surface);
+}
+.md-btn--light {
+  background: #fff;
+  color: #121714;
+}
+.md-btn--light:hover {
+  background: var(--md-signal);
+}
+.md-btn--ghost {
+  background: transparent;
+  color: inherit;
+  padding-inline: 0.875rem;
+}
+.md-btn--ghost:hover {
+  background: color-mix(in srgb, var(--md-ink) 6%, transparent);
+}
+.md-btn--sm {
+  min-height: var(--md-control-sm);
+  padding-inline: 1.125rem;
+  font-size: 0.875rem;
+}
+.md-btn--lg {
+  min-height: 3.5rem;
+  padding-inline: 2rem;
+  font-size: 1rem;
+}
+.md-btn--icon {
+  width: var(--md-control-sm);
+  min-height: var(--md-control-sm);
+  padding-inline: 0;
+}
+.md-btn--full {
+  width: 100%;
+}
+
+/* Round floating icon button (cards, galleries) */
+.md-fab {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: var(--md-surface);
+  color: var(--md-ink);
+  box-shadow: 0 4px 14px -6px rgb(18 23 20 / 0.28);
+  transition: transform var(--md-dur) var(--md-ease), background-color var(--md-dur), color var(--md-dur), opacity var(--md-dur);
+}
+.md-fab:hover {
+  transform: scale(1.06);
+}
+.md-fab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+.md-fab[aria-pressed="true"] {
+  color: var(--md-sale);
+}
+.md-fab[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
+/* ─── Fields ────────────────────────────────────────────────────────────── */
+
+.md-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--md-control);
+  padding-inline: 1rem;
+  border: 1px solid var(--md-line);
+  border-radius: 0.875rem;
+  background: var(--md-surface);
+  color: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--md-dur), box-shadow var(--md-dur);
+  appearance: none;
+}
+.md-field::placeholder {
+  color: var(--md-quiet);
+}
+.md-field:hover {
+  border-color: var(--md-line-strong);
+}
+.md-field:focus,
+.md-field:focus-visible {
+  outline: none;
+  border-color: var(--md-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-brand) 18%, transparent);
+}
+.md-field::-webkit-search-cancel-button,
+.md-field::-webkit-inner-spin-button,
+.md-field::-webkit-outer-spin-button {
+  appearance: none;
+}
+.md-field[type="number"] {
+  -moz-appearance: textfield;
+}
+textarea.md-field {
+  padding-block: 0.75rem;
+  line-height: 1.8;
+}
+
+/* ─── Chips & swatches ──────────────────────────────────────────────────── */
+
+.md-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--md-control-sm);
+  min-width: var(--md-control-sm);
+  padding-inline: 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--md-line);
+  background: var(--md-surface);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--md-dur), background-color var(--md-dur), color var(--md-dur);
+}
+.md-chip:hover {
+  border-color: var(--md-ink);
+}
+.md-chip[aria-checked="true"],
+.md-chip[aria-pressed="true"],
+.md-chip[aria-current="page"] {
+  background: var(--md-ink);
+  border-color: var(--md-ink);
+  color: var(--md-bg);
+}
+.md-chip[data-error="true"] {
+  border-color: var(--md-sale);
+}
+
+.md-swatch {
+  display: inline-block;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+}
+.md-swatch-btn {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  transition: border-color var(--md-dur);
+}
+.md-swatch-btn:hover {
+  border-color: var(--md-line-strong);
+}
+.md-swatch-btn[aria-checked="true"] {
+  border-color: var(--md-ink);
+}
+
+/* ─── Badges ────────────────────────────────────────────────────────────── */
+
+.md-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding-inline: 0.625rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.md-badge--sale {
+  background: var(--md-sale);
+  color: #fff;
+}
+.md-badge--new {
+  background: var(--md-signal);
+  color: var(--md-signal-ink);
+}
+.md-badge--ink {
+  background: var(--md-ink);
+  color: var(--md-bg);
+}
+.md-badge--soft {
+  background: var(--md-surface);
+  color: var(--md-ink);
+}
+
+/* ─── Media ─────────────────────────────────────────────────────────────── */
+
+.md-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--md-radius);
+  background: var(--md-studio);
+  isolation: isolate;
+}
+
+/* Product card image swap on hover (pointer devices only) */
+.md-card-img-2 {
+  opacity: 0;
+  transition: opacity 500ms var(--md-ease), transform 900ms var(--md-ease);
+}
+.md-card-img-1 {
+  transition: opacity 500ms var(--md-ease), transform 900ms var(--md-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .md-card:hover .md-card-img-2 {
+    opacity: 1;
+  }
+  .md-card:hover .md-card-img-1.has-swap {
+    opacity: 0;
+  }
+  .md-card:hover .md-card-img-1,
+  .md-card:hover .md-card-img-2 {
+    transform: scale(1.04);
+  }
+  /* Actions float in on hover; always visible on touch */
+  .md-card-actions {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity var(--md-dur) var(--md-ease), transform var(--md-dur) var(--md-ease);
+  }
+  .md-card:hover .md-card-actions,
+  .md-card:focus-within .md-card-actions {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── Listing grid (columns follow sidebar + density preferences) ──────── */
+
+.md-pgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 0.75rem;
+  row-gap: 2rem;
+}
+@media (min-width: 640px) {
+  .md-pgrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 1.25rem;
+    row-gap: 2.5rem;
+  }
+}
+@media (max-width: 639px) {
+  [data-mcols="1"] .md-pgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  [data-mcols="1"] .md-pgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  [data-cols="dense"] .md-pgrid,
+  [data-sidebar="false"] .md-pgrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  [data-sidebar="false"][data-cols="dense"] .md-pgrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* Show controls only to pointer (mouse) or touch devices */
+.md-pointer-only {
+  display: none !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .md-pointer-only {
+    display: flex !important;
+  }
+  .md-touch-only {
+    display: none !important;
+  }
+}
+
+/* ─── Panels ────────────────────────────────────────────────────────────── */
+
+.md-panel {
+  background: var(--md-surface);
+  border-radius: 1.5rem;
+}
+
+/* Drawer + dialog motion (Radix data-state) */
+.md-drawer[data-state="open"] {
+  animation: md-drawer-in 380ms var(--md-ease) both;
+}
+.md-drawer[data-state="closed"] {
+  animation: md-drawer-out 240ms var(--md-ease) both;
+}
+.md-drawer--start[data-state="open"] {
+  animation-name: md-drawer-in-start;
+}
+.md-drawer--start[data-state="closed"] {
+  animation-name: md-drawer-out-start;
+}
+.md-sheet[data-state="open"] {
+  animation: md-sheet-in 380ms var(--md-ease) both;
+}
+.md-sheet[data-state="closed"] {
+  animation: md-sheet-out 220ms var(--md-ease) both;
+}
+.md-scrim[data-state="open"] {
+  animation: md-fade 260ms ease-out both;
+}
+.md-scrim[data-state="closed"] {
+  animation: md-fade 200ms ease-in reverse both;
+}
+.md-pop[data-state="open"] {
+  animation: md-pop 260ms var(--md-ease) both;
+}
+
+/* ─── Details ───────────────────────────────────────────────────────────── */
+
+.md-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.md-details > summary::-webkit-details-marker {
+  display: none;
+}
+.md-details-icon {
+  transition: transform var(--md-dur) var(--md-ease);
+}
+.md-details[open] > summary .md-details-icon {
+  transform: rotate(180deg);
+}
+
+/* ─── Skeleton ──────────────────────────────────────────────────────────── */
+
+.md-skel {
+  background: linear-gradient(90deg, var(--md-studio) 25%, color-mix(in srgb, var(--md-studio) 55%, var(--md-surface)) 50%, var(--md-studio) 75%);
+  background-size: 300% 100%;
+  animation: md-shimmer 1.6s ease-in-out infinite;
+  border-radius: 0.75rem;
+}
+}
+
+/* Shared checkout form inherits Mada's softer field radius */
+.md-checkout :where(.rounded-xl, .rounded-2xl) {
+  border-radius: var(--md-radius);
+}
+
+/* ─── Keyframes ─────────────────────────────────────────────────────────── */
+
+@keyframes md-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes md-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes md-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+/* Drawers open from the reading end (cart) or start (menu) */
+@keyframes md-drawer-in {
+  from { transform: translateX(calc(-100% * var(--md-dir))); }
+  to { transform: none; }
+}
+@keyframes md-drawer-out {
+  to { transform: translateX(calc(-100% * var(--md-dir))); }
+}
+@keyframes md-drawer-in-start {
+  from { transform: translateX(calc(100% * var(--md-dir))); }
+  to { transform: none; }
+}
+@keyframes md-drawer-out-start {
+  to { transform: translateX(calc(100% * var(--md-dir))); }
+}
+@keyframes md-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes md-sheet-out {
+  to { transform: translateY(100%); }
+}
+@keyframes md-shimmer {
+  to { background-position: -150% 0; }
+}
+@keyframes md-marquee {
+  to { transform: translateX(calc(50% * var(--md-dir))); }
+}
+@keyframes md-bump {
+  40% { transform: scale(1.3); }
+}
+
+.md-rise {
+  animation: md-rise 600ms var(--md-ease) both;
+}
+.md-stagger > * {
+  animation: md-rise 480ms var(--md-ease) both;
+  animation-delay: calc(var(--i, 0) * 40ms + 60ms);
+}
+.md-bump {
+  animation: md-bump 420ms var(--md-ease);
+}
+.md-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: md-marquee 38s linear infinite;
+}
+.md-marquee:hover .md-marquee-track {
+  animation-play-state: paused;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .md-reveal {
+      animation: md-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-mada *,
+  .theme-mada *::before,
+  .theme-mada *::after,
+  .md-portal *,
+  .md-portal *::before,
+  .md-portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .md-marquee-track {
+    animation: none !important;
+  }
+}
+
+/* ─── Toasts (rendered outside the store root) ──────────────────────────── */
+
+.md-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: var(--width, 356px);
+  max-width: calc(100vw - 2rem);
+  padding: 0.75rem 0.875rem;
+  border-radius: 1rem;
+  background: #123b30;
+  color: #f2f7ec;
+  box-shadow: 0 20px 44px -18px rgb(18 59 48 / 0.6);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.md-toast [data-title] {
+  font-weight: 700;
+}
+.md-toast [data-description] {
+  color: #b9c8bf;
+  font-size: 0.8125rem;
+}
+.md-toast [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #d5ee6a;
+  color: #121714;
+}
+.md-toast [data-button] {
+  margin-inline-start: auto;
+  min-height: 2.25rem;
+  padding-inline: 0.875rem;
+  border-radius: 999px;
+  background: #d5ee6a;
+  color: #121714;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.md-toast--error {
+  background: #3a1410;
+}
+.md-toast--error [data-icon] {
+  background: #ff8a7a;
+}

@@ -1,0 +1,813 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Riwaq (رواق) storefront theme — design system
+   An editorial storefront inspired by the arcades of old souqs: warm paper,
+   ink, one terracotta accent, hairline rules instead of cards, and arches as
+   the signature frame. Everything is scoped to `.theme-riwaq` (and
+   `.rq-portal` for sheets/dialogs rendered outside the store root).
+
+   Colors come from the merchant-resolved store tokens (--background,
+   --foreground, --primary, …). This file maps them to Riwaq's own vocabulary
+   and adds type, shape, motion and the component primitives.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.theme-riwaq,
+.rq-portal {
+  /* Color vocabulary */
+  --rq-paper: var(--background);
+  --rq-ink: var(--foreground);
+  --rq-sheet: var(--popover);
+  --rq-plate: var(--card);
+  --rq-quiet: var(--muted-foreground);
+  --rq-rule: var(--border);
+  --rq-rule-strong: color-mix(in srgb, var(--rq-ink) 28%, transparent);
+  --rq-accent: var(--primary);
+  --rq-accent-ink: var(--primary-foreground);
+  --rq-accent-soft: var(--accent);
+  --rq-accent-soft-ink: var(--accent-foreground);
+  --rq-sale: #b0261c;
+  --rq-success: #3f6212;
+  --rq-warn: #8a4b00;
+  --rq-star: #b7791f;
+  --rq-scrim: rgb(29 26 22 / 0.55);
+  --rq-footer-bg: var(--rq-ink);
+  --rq-footer-ink: var(--rq-paper);
+
+  /* Type */
+  --rq-display: var(--font-riwaq-display), "Cairo", serif;
+
+  /* Layout */
+  --rq-wrap: 90rem;                 /* 1440px */
+  --rq-gutter: 1rem;
+  --rq-section: 4rem;
+  --rq-bar-h: 3.5rem;
+
+  /* Controls — every touch target is ≥ 44px */
+  --rq-control-sm: 2.75rem;          /* 44px */
+  --rq-control: 3rem;                /* 48px */
+  --rq-control-lg: 3.5rem;           /* 56px */
+
+  /* Motion (merchant "animations" setting → --store-motion) */
+  --rq-dur: var(--store-motion, 250ms);
+  --rq-ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --rq-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Writing direction helpers (RTL default) */
+  --rq-start-x: 100%;
+  --rq-origin-start: right;
+  --rq-dir: 1;
+
+  background: var(--rq-paper);
+  color: var(--rq-ink);
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+.theme-riwaq[dir="ltr"],
+.rq-portal[dir="ltr"] {
+  --rq-start-x: 0%;
+  --rq-origin-start: left;
+  --rq-dir: -1;
+}
+
+@media (min-width: 640px) {
+  .theme-riwaq,
+  .rq-portal {
+    --rq-gutter: 1.5rem;
+    --rq-section: 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-riwaq,
+  .rq-portal {
+    --rq-gutter: 2.5rem;
+    --rq-section: 7rem;
+    --rq-bar-h: 4rem;
+  }
+}
+
+.dark .theme-riwaq,
+.dark .rq-portal {
+  --rq-sale: #f07a6a;
+  --rq-success: #9bc26a;
+  --rq-warn: #e2a54a;
+  --rq-star: #e3b04b;
+  --rq-scrim: rgb(0 0 0 / 0.65);
+  --rq-footer-bg: color-mix(in srgb, #000 45%, var(--rq-paper));
+  --rq-footer-ink: var(--rq-ink);
+}
+
+/* The app sets `* { font-weight: 300 }` globally. Riwaq owns its type scale,
+   so weights inherit from the theme root. Kept in the base layer so
+   Tailwind's font-* utilities still win. */
+@layer base {
+  .theme-riwaq *,
+  .rq-portal * {
+    font-weight: inherit;
+  }
+  .rq-portal {
+    font-weight: 400;
+  }
+  /* Finer icon strokes everywhere in the theme */
+  .theme-riwaq svg.lucide,
+  .rq-portal svg.lucide {
+    stroke-width: 1.5;
+  }
+}
+
+@layer components {
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+
+.rq-wrap {
+  width: 100%;
+  max-width: var(--rq-wrap);
+  margin-inline: auto;
+  padding-inline: var(--rq-gutter);
+}
+
+.rq-section {
+  padding-block: calc(var(--rq-section) / 2);
+}
+
+/* Bleed a horizontal rail to the screen edge while keeping the gutter */
+.rq-bleed {
+  margin-inline: calc(var(--rq-gutter) * -1);
+  padding-inline: var(--rq-gutter);
+  scroll-padding-inline: var(--rq-gutter);
+}
+
+.rq-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.rq-rail::-webkit-scrollbar {
+  display: none;
+}
+.rq-rail > * {
+  scroll-snap-align: start;
+}
+
+/* Room for the fixed mobile purchase / checkout bar */
+.rq-has-bar {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .rq-has-bar {
+    padding-bottom: 0;
+  }
+}
+
+/* ─── Type ──────────────────────────────────────────────────────────────── */
+/* Arabic never gets letter-spacing or uppercase — it breaks letter joining.
+   Tracking is only used on Latin numerals via .rq-num. */
+
+.rq-face {
+  font-family: var(--rq-display);
+}
+
+.rq-display,
+.rq-h1,
+.rq-h2,
+.rq-h3,
+.rq-price,
+.rq-num {
+  font-family: var(--rq-display);
+  font-weight: 600;
+}
+
+.rq-display {
+  font-size: clamp(2.625rem, 10vw, 7rem);
+  line-height: 1.08;
+}
+.rq-h1 {
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.15;
+}
+.rq-h2 {
+  font-size: clamp(1.625rem, 3.6vw, 2.625rem);
+  line-height: 1.2;
+}
+.rq-h3 {
+  font-size: clamp(1.1875rem, 1.8vw, 1.5rem);
+  line-height: 1.35;
+}
+.rq-h4 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.rq-body {
+  font-size: 1rem;
+  line-height: 1.85;
+}
+.rq-small {
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+.rq-caption {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--rq-quiet);
+}
+.rq-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--rq-quiet);
+}
+.rq-num {
+  font-variant-numeric: tabular-nums;
+}
+.rq-price {
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* Small superscript counts next to titles and nav items: "تصنيفات ¹²" */
+.rq-sup {
+  font-family: var(--rq-display);
+  font-size: max(0.6em, 0.6875rem);
+  font-weight: 500;
+  vertical-align: super;
+  line-height: 0;
+  margin-inline-start: 0.2em;
+  color: var(--rq-quiet);
+}
+
+.rq-prose {
+  max-width: 65ch;
+  font-size: 1rem;
+  line-height: 1.95;
+  white-space: pre-line;
+  color: color-mix(in srgb, var(--rq-ink) 88%, transparent);
+}
+
+/* ─── Rules ─────────────────────────────────────────────────────────────── */
+
+.rq-rule {
+  height: 1px;
+  border: 0;
+  background: var(--rq-rule);
+}
+.rq-rule-ink {
+  height: 1px;
+  border: 0;
+  background: var(--rq-ink);
+}
+
+/* ─── Links ─────────────────────────────────────────────────────────────── */
+/* The underline draws in from the reading start. */
+
+.rq-link {
+  background: linear-gradient(currentColor, currentColor) no-repeat;
+  background-size: 0% 1px;
+  background-position: var(--rq-start-x) 100%;
+  padding-bottom: 2px;
+  transition: background-size calc(var(--rq-dur) * 1.4) var(--rq-ease-out), color var(--rq-dur) var(--rq-ease);
+}
+.rq-link:hover,
+.rq-link[aria-current="page"],
+.rq-link:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Arrow that nudges toward the reading end on hover */
+.rq-arrow {
+  display: inline-block;
+  transition: transform var(--rq-dur) var(--rq-ease-out);
+}
+:where(a, button):hover > .rq-arrow,
+:where(a, button):hover .rq-arrow {
+  transform: translateX(calc(-4px * var(--rq-dir)));
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+/* Rectangular, ink-filled, with a color sweep from the reading start. */
+
+.rq-btn {
+  --rq-sweep: var(--rq-accent);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: var(--rq-control);
+  padding-inline: 1.5rem;
+  border: 1px solid transparent;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: color var(--rq-dur) var(--rq-ease), border-color var(--rq-dur) var(--rq-ease), opacity var(--rq-dur);
+}
+.rq-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--rq-sweep);
+  transform: scaleX(0);
+  transform-origin: var(--rq-origin-start);
+  transition: transform calc(var(--rq-dur) * 1.5) var(--rq-ease-out);
+}
+.rq-btn:hover::before {
+  transform: scaleX(1);
+}
+.rq-btn:active {
+  transform: translateY(1px);
+}
+.rq-btn:disabled,
+.rq-btn[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.rq-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.rq-btn--ink {
+  background: var(--rq-ink);
+  color: var(--rq-paper);
+}
+.rq-btn--ink:hover {
+  color: var(--rq-accent-ink);
+}
+
+.rq-btn--accent {
+  --rq-sweep: var(--rq-ink);
+  background: var(--rq-accent);
+  color: var(--rq-accent-ink);
+}
+.rq-btn--accent:hover {
+  color: var(--rq-paper);
+}
+
+.rq-btn--line {
+  --rq-sweep: var(--rq-ink);
+  border-color: var(--rq-ink);
+  color: var(--rq-ink);
+  background: transparent;
+}
+.rq-btn--line:hover {
+  color: var(--rq-paper);
+}
+
+/* Text button — header actions, "remove", "clear" */
+.rq-btn--text {
+  min-height: var(--rq-control-sm);
+  padding-inline: 0.5rem;
+  background: transparent;
+  color: inherit;
+}
+.rq-btn--text::before {
+  display: none;
+}
+.rq-btn--text:hover {
+  color: var(--rq-accent);
+}
+
+.rq-btn--sm {
+  min-height: var(--rq-control-sm);
+  padding-inline: 1rem;
+  font-size: 0.875rem;
+}
+.rq-btn--lg {
+  min-height: var(--rq-control-lg);
+  padding-inline: 2rem;
+  font-size: 1rem;
+}
+.rq-btn--icon {
+  width: var(--rq-control-sm);
+  padding-inline: 0;
+}
+.rq-btn--full {
+  width: 100%;
+}
+
+/* ─── Fields ────────────────────────────────────────────────────────────── */
+/* Underlined, like writing on a printed form. */
+
+.rq-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--rq-control);
+  padding-inline: 0;
+  border: 0;
+  border-bottom: 1px solid var(--rq-rule-strong);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--rq-dur) var(--rq-ease), box-shadow var(--rq-dur) var(--rq-ease);
+  appearance: none;
+}
+.rq-field::placeholder {
+  color: var(--rq-quiet);
+}
+.rq-field:hover {
+  border-bottom-color: var(--rq-ink);
+}
+.rq-field:focus,
+.rq-field:focus-visible {
+  outline: none;
+  border-bottom-color: var(--rq-accent);
+  box-shadow: 0 1px 0 0 var(--rq-accent);
+}
+.rq-field::-webkit-search-cancel-button,
+.rq-field::-webkit-inner-spin-button,
+.rq-field::-webkit-outer-spin-button {
+  appearance: none;
+}
+.rq-field[type="number"] {
+  -moz-appearance: textfield;
+}
+.rq-field--box {
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--rq-rule-strong);
+  line-height: 1.8;
+}
+.rq-field--box:focus,
+.rq-field--box:focus-visible {
+  border-color: var(--rq-accent);
+  box-shadow: inset 0 0 0 1px var(--rq-accent);
+}
+
+/* Native <select> dressed as an underlined field with a chevron */
+.rq-select {
+  padding-inline-end: 1.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  background-position: left 0.35rem center, left calc(0.35rem + 5px) center;
+}
+.theme-riwaq[dir="ltr"] .rq-select {
+  background-position: right calc(0.35rem + 5px) center, right 0.35rem center;
+}
+
+/* ─── Option chips (sizes, colors, filters) ─────────────────────────────── */
+
+.rq-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--rq-control-sm);
+  min-width: var(--rq-control-sm);
+  padding-inline: 0.875rem;
+  border: 1px solid var(--rq-rule-strong);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--rq-dur) var(--rq-ease), color var(--rq-dur) var(--rq-ease), border-color var(--rq-dur) var(--rq-ease);
+}
+.rq-opt:hover {
+  border-color: var(--rq-ink);
+}
+.rq-opt[aria-checked="true"],
+.rq-opt[aria-pressed="true"],
+.rq-opt[aria-current="page"] {
+  background: var(--rq-ink);
+  border-color: var(--rq-ink);
+  color: var(--rq-paper);
+}
+.rq-opt[data-error="true"] {
+  border-color: var(--rq-sale);
+}
+.rq-opt:disabled {
+  opacity: 0.4;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+/* Square color swatch inside an option chip */
+.rq-swatch {
+  width: 1.125rem;
+  height: 1.125rem;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
+}
+
+/* ─── Badges ────────────────────────────────────────────────────────────── */
+
+.rq-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.625rem;
+  padding-inline: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.rq-badge--sale {
+  background: var(--rq-accent);
+  color: var(--rq-accent-ink);
+}
+.rq-badge--ink {
+  background: var(--rq-ink);
+  color: var(--rq-paper);
+}
+.rq-badge--paper {
+  background: var(--rq-paper);
+  color: var(--rq-ink);
+}
+
+/* ─── Frames ────────────────────────────────────────────────────────────── */
+
+/* Image backdrop while loading */
+.rq-plate {
+  background-color: var(--rq-plate);
+}
+
+/* The arch — Riwaq's signature frame. A 9999px top radius resolves to a
+   perfect semicircle on any portrait box. */
+.rq-arch {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px 9999px 0 0;
+  background-color: var(--rq-plate);
+}
+/* Inner hairline that follows the arch */
+.rq-arch--line::after {
+  content: "";
+  position: absolute;
+  inset: 0.5rem;
+  border: 1px solid color-mix(in srgb, #fff 70%, transparent);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* ─── Ruled grid ────────────────────────────────────────────────────────── */
+/* Products sit in cells separated by hairlines, like a printed catalogue.
+   Cells draw their own start + bottom rules; the first column's start rule
+   is pushed off-edge and clipped, so the grid has open sides. */
+
+.rq-ruled {
+  --rq-cols: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--rq-cols), minmax(0, 1fr));
+  border-top: 1px solid var(--rq-rule);
+  overflow: hidden;
+}
+.rq-ruled > * {
+  min-width: 0;
+  margin-inline-start: -1px;
+  border-inline-start: 1px solid var(--rq-rule);
+  border-bottom: 1px solid var(--rq-rule);
+  padding: 0.75rem 0.75rem 1.25rem;
+}
+@media (min-width: 640px) {
+  .rq-ruled {
+    --rq-cols: 3;
+  }
+  .rq-ruled > * {
+    padding: 1.25rem 1.25rem 1.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  .rq-ruled {
+    --rq-cols: var(--store-grid-cols, 4);
+  }
+}
+@media (min-width: 1280px) {
+  .rq-ruled > * {
+    padding: 1.5rem 1.5rem 2rem;
+  }
+}
+
+/* ─── Receipt slip (cart, checkout) ─────────────────────────────────────── */
+
+.rq-receipt {
+  position: relative;
+  background: var(--rq-sheet);
+}
+.rq-receipt::before,
+.rq-receipt::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 10px;
+  background-repeat: repeat-x;
+  background-size: 16px 10px;
+}
+.rq-receipt::before {
+  top: -10px;
+  background-image: radial-gradient(circle at 8px 0, transparent 6px, var(--rq-sheet) 6.5px);
+}
+.rq-receipt::after {
+  bottom: -10px;
+  background-image: radial-gradient(circle at 8px 10px, transparent 6px, var(--rq-sheet) 6.5px);
+}
+
+/* "Label ........ value" rows */
+.rq-leader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.rq-leader > .rq-dots {
+  flex: 1;
+  min-width: 1rem;
+  border-bottom: 1px dotted var(--rq-rule-strong);
+  transform: translateY(-0.3em);
+}
+
+/* ─── Accordions (native <details>) ─────────────────────────────────────── */
+
+.rq-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.rq-details > summary::-webkit-details-marker {
+  display: none;
+}
+.rq-details-icon {
+  transition: transform var(--rq-dur) var(--rq-ease-out);
+}
+.rq-details[open] > summary .rq-details-icon {
+  transform: rotate(45deg);
+}
+
+/* ─── Skeletons ─────────────────────────────────────────────────────────── */
+
+.rq-skel {
+  background: var(--rq-plate);
+  animation: rq-pulse 1.6s ease-in-out infinite;
+}
+}
+
+/* ─── Focus ─────────────────────────────────────────────────────────────── */
+/* In the base layer so component rules (e.g. underlined .rq-field) can
+   restyle focus for themselves. */
+
+@layer base {
+  .theme-riwaq :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  .rq-portal :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--rq-accent);
+    outline-offset: 3px;
+  }
+}
+
+/* ─── Checkout form (shared component) ──────────────────────────────────── */
+/* The checkout form is shared infrastructure with its own rounded shapes —
+   square them off so it sits inside Riwaq's language. */
+
+.rq-checkout :where(.rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl) {
+  border-radius: 0;
+}
+
+/* ─── Motion ────────────────────────────────────────────────────────────── */
+
+@keyframes rq-pulse {
+  50% { opacity: 0.55; }
+}
+
+@keyframes rq-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes rq-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rq-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@keyframes rq-marquee {
+  to { transform: translateX(calc(50% * var(--rq-dir))); }
+}
+
+@keyframes rq-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rq-wipe {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.rq-rise {
+  animation: rq-rise calc(var(--rq-dur) * 2) var(--rq-ease-out) both;
+}
+
+/* Children enter one after another (menu, search results) */
+.rq-stagger > * {
+  animation: rq-rise 420ms var(--rq-ease-out) both;
+  animation-delay: calc(var(--i, 0) * 35ms + 60ms);
+}
+
+.rq-bump {
+  animation: rq-bump 420ms var(--rq-ease-out);
+}
+
+.rq-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: rq-marquee 45s linear infinite;
+}
+.rq-marquee:hover .rq-marquee-track {
+  animation-play-state: paused;
+}
+
+.rq-spin-slow {
+  animation: rq-spin 24s linear infinite;
+}
+
+/* Hero arch wipes up once on load */
+.rq-wipe {
+  animation: rq-wipe 1.1s var(--rq-ease-out) both;
+}
+
+/* Scroll-driven reveal — browsers without view timelines show content as-is */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rq-reveal {
+      animation: rq-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-riwaq *,
+  .theme-riwaq *::before,
+  .theme-riwaq *::after,
+  .rq-portal *,
+  .rq-portal *::before,
+  .rq-portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .rq-marquee-track {
+    animation: none !important;
+  }
+}
+
+/* ─── Toasts ────────────────────────────────────────────────────────────── */
+/* Sonner renders outside the store root, so the slip uses fixed ink/paper. */
+
+.rq-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: var(--width, 356px);
+  max-width: calc(100vw - 2rem);
+  padding: 0.875rem 1rem;
+  background: #1d1a16;
+  color: #f2ece1;
+  border-inline-start: 3px solid #d9673f;
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.55);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.rq-toast [data-title] {
+  font-weight: 700;
+}
+.rq-toast [data-description] {
+  color: #c9bfae;
+  font-size: 0.8125rem;
+}
+.rq-toast [data-icon] {
+  display: grid;
+  place-items: center;
+  color: #e7a07f;
+}
+.rq-toast [data-button] {
+  margin-inline-start: auto;
+  min-height: 2.25rem;
+  padding-inline: 0.75rem;
+  background: #f2ece1;
+  color: #1d1a16;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.rq-toast--error {
+  border-inline-start-color: #f07a6a;
+}

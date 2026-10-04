@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { AddToCartAction } from "@/actions/store/cart.actions";
 import { cn } from "@/lib/utils";
-import { notifyCartUpdated } from "../cart-events";
+import { notifyCartUpdated } from "../../shared/cart-events";
 
 type Props = {
   storeSlug: string;

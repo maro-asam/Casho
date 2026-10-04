@@ -29,6 +29,13 @@ export type ProductCardData = {
   hasOptions: boolean;
   categoryName: string | null;
   rating: { average: number; count: number } | null;
+  /** Second gallery image (for hover swaps), if the product has one. */
+  hoverImage: string | null;
+  sizes: string[];
+  colors: string[];
+  brand: string | null;
+  /** Added in the last 30 days. */
+  isNew: boolean;
 };
 
 export type CategoryLink = {
@@ -63,6 +70,8 @@ export type StoreShell = {
   navbarVariant: StoreNavbarVariant;
   showPoweredByCasho: boolean;
   dir: "rtl" | "ltr";
+  /** Newest active banner — for promo slots in menus. */
+  banner: BannerData | null;
 };
 
 export type BannerData = { id: string; title: string; image: string };
@@ -91,6 +100,8 @@ export type ListingViewProps = {
   dir: "rtl" | "ltr";
   /** Cheapest / most expensive active product — hints for the price filter. */
   priceBounds: { min: number; max: number } | null;
+  /** Values that exist across the store's active products (for filters). */
+  facets: { brands: string[]; sizes: string[]; colors: string[] };
 };
 
 export type CategoriesIndexViewProps = {

@@ -115,10 +115,7 @@ export function Breadcrumbs({ items }: { items: { label: string; href?: string }
 
 // ─── Commerce ───────────────────────────────────────────────────────────────
 
-export function discountPercent(price: number, compareAt: number | null | undefined) {
-  if (!compareAt || compareAt <= price) return 0;
-  return Math.round(((compareAt - price) / compareAt) * 100);
-}
+export { discountPercent } from "../shared/commerce";
 
 export function Price({
   price,

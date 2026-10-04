@@ -4,17 +4,11 @@ import { useRouter } from "next/navigation";
 import { ArrowDownUp, ChevronDown } from "lucide-react";
 
 import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
-import { storeHref } from "../header/use-store-path";
+import { storeHref } from "../../shared/store-path";
 import { cn } from "@/lib/utils";
+import { SORT_OPTIONS } from "../../shared/commerce";
 
-export const SORT_OPTIONS: { value: ProductsQuery["sort"]; label: string }[] = [
-  { value: "newest", label: "الأحدث" },
-  { value: "price-asc", label: "السعر: من الأقل" },
-  { value: "price-desc", label: "السعر: من الأعلى" },
-  { value: "name-asc", label: "الاسم: أ – ي" },
-  { value: "name-desc", label: "الاسم: ي – أ" },
-  { value: "oldest", label: "الأقدم" },
-];
+export { SORT_OPTIONS };
 
 /** Native <select> — the best picker on every phone, styled to match. */
 export default function SortSelect({

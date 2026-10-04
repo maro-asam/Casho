@@ -10,7 +10,7 @@ import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
-import { CART_UPDATED_EVENT } from "../cart-events";
+import { CART_UPDATED_EVENT } from "../../shared/cart-events";
 import { btn } from "../ui";
 import DesktopNav from "./DesktopNav";
 import MobileMenu from "./MobileMenu";
@@ -18,7 +18,7 @@ import MobileSearch from "./MobileSearch";
 import SearchCombobox from "./SearchCombobox";
 import StoreLogo from "./StoreLogo";
 import ThemeToggle from "./ThemeToggle";
-import { useStorePath } from "./use-store-path";
+import { useStorePath } from "../../shared/store-path";
 
 function useCartCount(storeSlug: string) {
   const [count, setCount] = useState(0);

@@ -1,5 +1,5 @@
-import { ProductGridPageSkeleton } from "../../_themes/classic/states";
+import ThemeState from "../../_themes/ThemeState";
 
 export default function Loading() {
-  return <ProductGridPageSkeleton />;
+  return <ThemeState kind="grid" />;
 }

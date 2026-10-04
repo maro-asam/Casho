@@ -14,7 +14,7 @@ import { CLASSIC_PORTAL, btn } from "../ui";
 import { SocialLinks, whatsappHref } from "../social";
 import ThemeToggle from "./ThemeToggle";
 import { NAV_LINKS } from "./nav-links";
-import { isActivePath, useStorePath } from "./use-store-path";
+import { isActivePath, useStorePath } from "../../shared/store-path";
 
 export default function MobileMenu({ shell, cartCount }: { shell: StoreShell; cartCount: number }) {
   const [open, setOpen] = useState(false);

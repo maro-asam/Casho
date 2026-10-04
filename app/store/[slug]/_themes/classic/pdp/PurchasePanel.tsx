@@ -9,8 +9,9 @@ import { toast } from "sonner";
 import { AddToCartAction } from "@/actions/store/cart.actions";
 import { cn, formatPrice } from "@/lib/utils";
 import type { WholesaleTier } from "../../types";
-import { notifyCartUpdated } from "../cart-events";
-import { storeHref } from "../header/use-store-path";
+import { tierFor } from "../../shared/commerce";
+import { notifyCartUpdated } from "../../shared/cart-events";
+import { storeHref } from "../../shared/store-path";
 import { btn } from "../ui";
 
 type Props = {
@@ -28,11 +29,6 @@ type Props = {
 };
 
 type OptionKey = "size" | "color";
-
-function tierFor(tiers: WholesaleTier[] | null, qty: number) {
-  if (!tiers?.length) return null;
-  return [...tiers].reverse().find((t) => qty >= t.minQty && (t.maxQty === undefined || qty <= t.maxQty)) ?? null;
-}
 
 function OptionGroup({
   id,

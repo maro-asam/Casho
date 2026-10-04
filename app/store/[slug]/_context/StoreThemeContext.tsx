@@ -59,6 +59,12 @@ function useStoreThemeCtx(): ResolvedTheme {
   return ctx;
 }
 
+/** Resolved theme, or null outside the store layout (loading/not-found
+ *  boundaries can render before or without it). */
+export function useOptionalStoreTheme(): ResolvedTheme | null {
+  return useContext(StoreThemeCtx);
+}
+
 /** Full resolved theme */
 export function useStoreTheme(): ResolvedTheme {
   return useStoreThemeCtx();

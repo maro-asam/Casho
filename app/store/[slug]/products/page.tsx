@@ -5,7 +5,7 @@ import { Metadata } from "next";
 
 import { normalizeProductsQueryParams } from "@/lib/products-query";
 import { getStorefrontTheme } from "../_themes";
-import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreThemeId, toProductCards } from "../_lib/storefront";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreFacets, getStoreThemeId, toProductCards } from "../_lib/storefront";
 
 type StoreProductsRouteProps = {
   params: Promise<{ slug: string }>;
@@ -15,6 +15,10 @@ type StoreProductsRouteProps = {
     featured?: string;
     minPrice?: string;
     maxPrice?: string;
+    inStock?: string;
+    brand?: string;
+    size?: string;
+    color?: string;
     sort?: string;
     page?: string;
   }>;
@@ -77,6 +81,10 @@ export default async function StoreProductsRoute({
     ...(query.search ? { name: { contains: query.search, mode: "insensitive" as const } } : {}),
     ...(query.category ? { category: { slug: query.category } } : {}),
     ...(query.featured ? { isFeatured: true } : {}),
+    ...(query.inStock ? { stock: { gt: 0 } } : {}),
+    ...(query.brand ? { brand: query.brand } : {}),
+    ...(query.size ? { sizes: { has: query.size } } : {}),
+    ...(query.color ? { colors: { has: query.color } } : {}),
     ...((query.minPrice > 0 || query.maxPrice > 0) && {
       price: {
         ...(query.minPrice > 0 ? { gte: query.minPrice } : {}),
@@ -98,7 +106,7 @@ export default async function StoreProductsRoute({
               ? { name: "desc" as const }
               : { createdAt: "desc" as const };
 
-  const [rows, total, categories, bounds] = await Promise.all([
+  const [rows, total, categories, bounds, facets] = await Promise.all([
     prisma.product.findMany({
       where,
       orderBy,
@@ -113,6 +121,7 @@ export default async function StoreProductsRoute({
       _min: { price: true },
       _max: { price: true },
     }),
+    getStoreFacets(store.id),
   ]);
 
   const products = await toProductCards(rows);
@@ -132,6 +141,7 @@ export default async function StoreProductsRoute({
           : null
       }
       dir={store.settings?.storeLanguage === "en" ? "ltr" : "rtl"}
+      facets={facets}
     />
   );
 }

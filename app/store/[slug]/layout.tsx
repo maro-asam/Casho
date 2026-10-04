@@ -144,6 +144,12 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
       slug: true,
       showPoweredByCasho: true,
       poweredByRemovalEnabled: true,
+      banners: {
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { id: true, title: true, image: true },
+      },
       settings: {
         select: {
           logo: true,
@@ -224,6 +230,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
     navbarVariant,
     showPoweredByCasho: store.poweredByRemovalEnabled ? store.showPoweredByCasho : true,
     dir: storeDir,
+    banner: store.banners[0] ?? null,
   };
 
   return (

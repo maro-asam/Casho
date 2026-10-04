@@ -9,7 +9,7 @@ import {
   SearchStoreProductsAction,
   type SearchSuggestion,
 } from "@/actions/store/storefront-search.actions";
-import { storeHref } from "./use-store-path";
+import { storeHref } from "../../shared/store-path";
 import { cn, formatPrice } from "@/lib/utils";
 
 type Props = {

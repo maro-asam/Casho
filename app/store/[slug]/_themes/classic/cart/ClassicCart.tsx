@@ -28,23 +28,12 @@ import {
 } from "../../../cart/actions";
 import { CartRestorer } from "../../../cart/_components/CartRestorer";
 import { PendingCouponApplier } from "../../../cart/_components/PendingCouponApplier";
-import type { CartViewProps, WholesaleTier } from "../../types";
+import type { CartViewProps } from "../../types";
+import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
-import SubmitButton from "./SubmitButton";
+import SubmitButton from "../../shared/SubmitButton";
 
 const nf = new Intl.NumberFormat("ar-EG");
-
-export function unitPriceFor(price: number, tiers: unknown, qty: number) {
-  const list = tiers as WholesaleTier[] | null;
-  if (!list?.length) return price;
-  for (let i = list.length - 1; i >= 0; i--) {
-    const t = list[i];
-    if (qty >= t.minQty && (t.maxQty === undefined || qty <= t.maxQty)) return t.price;
-  }
-  return price;
-}
-
-const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون" };
 
 const INPUT =
   "h-11 w-full min-w-0 rounded-(--c-radius-sm) border border-border bg-background px-3 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground/40 sm:text-sm";

@@ -1,7 +1,6 @@
-import { HomeSkeleton } from "./_themes/classic/states";
+import ThemeState from "./_themes/ThemeState";
 
-// Loading/not-found boundaries render before the store is known, so they use
-// the default (Classic) theme's states.
+// Renders inside the store layout, so the active theme's skeleton is used.
 export default function StoreLoading() {
-  return <HomeSkeleton />;
+  return <ThemeState kind="home" />;
 }

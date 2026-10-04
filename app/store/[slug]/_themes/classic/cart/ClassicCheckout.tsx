@@ -7,10 +7,9 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { formatPrice } from "@/lib/utils";
 import type { CheckoutViewProps } from "../../types";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
-import { unitPriceFor } from "./ClassicCart";
+import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 
 const nf = new Intl.NumberFormat("ar-EG");
-const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون" };
 
 export default function ClassicCheckout({ storeSlug, cart, paymentMethods, createOrder }: CheckoutViewProps) {
   const { items, summary } = cart;

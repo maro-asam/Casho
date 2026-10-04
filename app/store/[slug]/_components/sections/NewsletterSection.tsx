@@ -32,7 +32,7 @@ export default function NewsletterSection({ content }: Props) {
 
   return (
     <section
-      className="overflow-hidden rounded-3xl"
+      className="relative overflow-hidden rounded-3xl"
       style={{
         background:
           "linear-gradient(135deg, var(--store-primary) 0%, color-mix(in srgb, var(--store-primary) 70%, #000) 100%)",

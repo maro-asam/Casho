@@ -14,7 +14,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { CLASSIC_PORTAL } from "../ui";
-import { isActivePath, useStorePath } from "./use-store-path";
+import { isActivePath, useStorePath } from "../../shared/store-path";
 
 /** Inline categories: 4 on laptop widths, 6 from xl. The rest go in "المزيد". */
 const INLINE_LG = 4;

@@ -30,8 +30,47 @@ function DefaultPreview() {
   );
 }
 
+function RiwaqPreview() {
+  return (
+    <div className="h-20 overflow-hidden rounded-lg border bg-[#f2ece1]">
+      <div className="flex h-5 items-center justify-center border-b border-[#1d1a16]">
+        <div className="h-2 w-8 bg-[#1d1a16]" />
+      </div>
+      <div className="flex items-end justify-between gap-1 px-1.5 pt-1.5">
+        <div className="space-y-0.5 pb-0.5">
+          <div className="h-1.5 w-10 bg-[#1d1a16]" />
+          <div className="h-1.5 w-7 bg-[#a8432a]" />
+        </div>
+        <div className="h-9 w-6 rounded-t-full bg-[#d8c7b0]" />
+      </div>
+      <div className="mt-1 grid grid-cols-3 border-t border-[#d6ccbb]">
+        {[0,1,2].map(i => <div key={i} className="m-1 aspect-square bg-[#eae3d6]" />)}
+      </div>
+    </div>
+  );
+}
+
+function MadaPreview() {
+  return (
+    <div className="h-20 overflow-hidden rounded-lg border bg-[#f7f7f4]">
+      <div className="flex h-5 items-center justify-between bg-white px-1.5">
+        <div className="h-2 w-7 rounded-full bg-[#123b30]" />
+        <div className="h-3 w-5 rounded-full bg-[#123b30]" />
+      </div>
+      <div className="relative mx-1.5 mt-1 h-7 rounded-md bg-[#2c4a40]">
+        <div className="absolute bottom-1 end-1 h-2 w-5 rounded-full bg-[#d5ee6a]" />
+      </div>
+      <div className="grid grid-cols-3 gap-1 px-1.5 pt-1">
+        {[0,1,2].map(i => <div key={i} className="aspect-square rounded-md bg-[#eceee8]" />)}
+      </div>
+    </div>
+  );
+}
+
 const PREVIEWS: Record<StoreThemeId, React.FC> = {
   default: DefaultPreview,
+  riwaq: RiwaqPreview,
+  mada: MadaPreview,
 };
 
 // ─── Panel ────────────────────────────────────────────────────────────────────

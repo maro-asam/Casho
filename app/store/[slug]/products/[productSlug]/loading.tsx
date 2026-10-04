@@ -1,5 +1,5 @@
-import { ProductSkeleton } from "../../_themes/classic/states";
+import ThemeState from "../../_themes/ThemeState";
 
 export default function Loading() {
-  return <ProductSkeleton />;
+  return <ThemeState kind="product" />;
 }

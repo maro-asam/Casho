@@ -4,6 +4,11 @@ export type ProductsQuery = {
   featured: boolean;
   minPrice: number;
   maxPrice: number;
+  /** Only products with stock left. */
+  inStock: boolean;
+  brand: string;
+  size: string;
+  color: string;
   sort:
     | "newest"
     | "oldest"
@@ -20,6 +25,10 @@ type RawSearchParams = {
   featured?: string;
   minPrice?: string;
   maxPrice?: string;
+  inStock?: string;
+  brand?: string;
+  size?: string;
+  color?: string;
   sort?: string;
   page?: string;
 };
@@ -50,6 +59,10 @@ export function normalizeProductsQueryParams(
     featured: params?.featured === "true",
     minPrice,
     maxPrice,
+    inStock: params?.inStock === "true",
+    brand: params?.brand?.trim() || "",
+    size: params?.size?.trim() || "",
+    color: params?.color?.trim() || "",
     sort,
     page,
   };
@@ -68,6 +81,10 @@ export function productsQueryString(params: Partial<ProductsQuery>) {
   if (params.maxPrice && params.maxPrice > 0) {
     query.set("maxPrice", String(params.maxPrice));
   }
+  if (params.inStock) query.set("inStock", "true");
+  if (params.brand) query.set("brand", params.brand);
+  if (params.size) query.set("size", params.size);
+  if (params.color) query.set("color", params.color);
   if (params.sort && params.sort !== "newest") query.set("sort", params.sort);
   if (params.page && params.page > 1) query.set("page", String(params.page));
 

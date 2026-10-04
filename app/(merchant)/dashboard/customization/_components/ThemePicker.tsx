@@ -44,9 +44,70 @@ function DefaultThemePreview() {
   );
 }
 
+// ─── 2. Riwaq ─────────────────────────────────────────────────────
+function RiwaqThemePreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-[#f2ece1]">
+      <div className="flex h-7 items-center justify-between border-b border-[#1d1a16] px-2.5">
+        <div className="h-1.5 w-7 rounded-full bg-[#1d1a16]/30" />
+        <div className="h-2.5 w-12 bg-[#1d1a16]" />
+        <div className="h-1.5 w-7 rounded-full bg-[#1d1a16]/30" />
+      </div>
+      <div className="grid grid-cols-[1fr_auto] items-end gap-2 px-2.5 pt-2">
+        <div className="space-y-1 pb-1">
+          <div className="h-2.5 w-4/5 bg-[#1d1a16]" />
+          <div className="h-2.5 w-3/5 bg-[#1d1a16]" />
+          <div className="mt-1.5 h-2.5 w-8 bg-[#a8432a]" />
+        </div>
+        <div className="h-14 w-10 rounded-t-full bg-[#d8c7b0]" />
+      </div>
+      <div className="mt-2 grid grid-cols-3 border-t border-[#d6ccbb]">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="space-y-1 border-s border-[#d6ccbb] p-1.5 first:border-s-0">
+            <div className="aspect-[3/4] bg-[#eae3d6]" />
+            <div className="h-1 w-3/4 bg-[#1d1a16]/40" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── 3. Mada ──────────────────────────────────────────────────────
+function MadaThemePreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-[#f7f7f4]">
+      <div className="flex h-7 items-center justify-between bg-white px-2.5">
+        <div className="h-2.5 w-10 rounded-full bg-[#123b30]" />
+        <div className="flex gap-1">
+          <div className="h-1.5 w-6 rounded-full bg-gray-300" />
+          <div className="h-1.5 w-6 rounded-full bg-gray-300" />
+        </div>
+        <div className="h-4 w-8 rounded-full bg-[#123b30]" />
+      </div>
+      <div className="relative mx-2 mt-2 h-14 overflow-hidden rounded-xl bg-[#2c4a40]">
+        <div className="absolute bottom-2 start-2 h-2 w-14 rounded-full bg-white/90" />
+        <div className="absolute bottom-2 end-2 h-3 w-8 rounded-full bg-[#d5ee6a]" />
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 p-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="space-y-1">
+            <div className="relative aspect-[3/4] rounded-lg bg-[#eceee8]">
+              {i === 0 && <div className="absolute start-1 top-1 h-1.5 w-4 rounded-full bg-[#d5ee6a]" />}
+            </div>
+            <div className="h-1.5 w-3/4 rounded-full bg-gray-300" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   default: DefaultThemePreview,
+  riwaq: RiwaqThemePreview,
+  mada: MadaThemePreview,
 };
 
 export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProps) {

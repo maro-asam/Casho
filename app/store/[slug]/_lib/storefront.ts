@@ -18,6 +18,9 @@ export const PRODUCT_CARD_SELECT = {
   price: true,
   compareAtPrice: true,
   image: true,
+  images: true,
+  brand: true,
+  createdAt: true,
   isFeatured: true,
   stock: true,
   sizes: true,
@@ -41,9 +44,12 @@ async function getRatings(productIds: string[]) {
   );
 }
 
+const NEW_FOR_MS = 30 * 24 * 60 * 60 * 1000;
+
 /** Map product rows to card view-models (with ratings attached). */
 export async function toProductCards(rows: CardRow[]): Promise<ProductCardData[]> {
   const ratings = await getRatings(rows.map((r) => r.id));
+  const now = Date.now();
   return rows.map((p) => ({
     id: p.id,
     name: p.name,
@@ -56,6 +62,11 @@ export async function toProductCards(rows: CardRow[]): Promise<ProductCardData[]
     hasOptions: p.sizes.length > 0 || p.colors.length > 0,
     categoryName: p.category?.name ?? null,
     rating: ratings.get(p.id) ?? null,
+    hoverImage: p.images.find((src) => src && src !== p.image) ?? null,
+    sizes: p.sizes,
+    colors: p.colors,
+    brand: p.brand,
+    isNew: now - p.createdAt.getTime() < NEW_FOR_MS,
   }));
 }
 
@@ -90,3 +101,22 @@ export const getStoreCategoryLinks = cache(async (storeId: string) => {
     productCount: c._count.products,
   }));
 });
+
+/** Brands, sizes and colors used by a store's active products (filter facets). */
+export async function getStoreFacets(storeId: string) {
+  const rows = await prisma.product.findMany({
+    where: { storeId, isActive: true },
+    select: { brand: true, sizes: true, colors: true },
+    take: 2000,
+  });
+  const brands = new Set<string>();
+  const sizes = new Set<string>();
+  const colors = new Set<string>();
+  for (const r of rows) {
+    if (r.brand?.trim()) brands.add(r.brand.trim());
+    r.sizes.forEach((v) => v.trim() && sizes.add(v.trim()));
+    r.colors.forEach((v) => v.trim() && colors.add(v.trim()));
+  }
+  const sort = (set: Set<string>) => [...set].sort((a, b) => a.localeCompare(b, "ar"));
+  return { brands: sort(brands), sizes: [...sizes], colors: sort(colors) };
+}

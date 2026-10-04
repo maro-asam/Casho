@@ -1,5 +1,5 @@
-import { ListingSkeleton } from "../_themes/classic/states";
+import ThemeState from "../_themes/ThemeState";
 
 export default function Loading() {
-  return <ListingSkeleton />;
+  return <ThemeState kind="listing" />;
 }

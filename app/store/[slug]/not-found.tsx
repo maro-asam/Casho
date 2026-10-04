@@ -1,5 +1,5 @@
-import { ClassicNotFound } from "./_themes/classic/states";
+import ThemeState from "./_themes/ThemeState";
 
 export default function StoreNotFound() {
-  return <ClassicNotFound />;
+  return <ThemeState kind="not-found" />;
 }

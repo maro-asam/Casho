@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, type FormEvent } from "react";
 
 import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
-import { storeHref } from "../header/use-store-path";
+import { storeHref } from "../../shared/store-path";
 import { cn, formatPrice } from "@/lib/utils";
 import type { CategoryLink } from "../../types";
 import { btn } from "../ui";
