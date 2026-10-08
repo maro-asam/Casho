@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Sparkles,
+  ShoppingBag,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,17 @@ const PLATFORMS = [
     badge: "متاح",
     badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     gradient: "from-purple-500/10 to-pink-500/10 text-pink-500",
+  },
+  {
+    id: "shopify",
+    name: "استيراد من Shopify",
+    description: "انقل منتجاتك وعملاءك وطلباتك من متجرك على Shopify لـ Kasho",
+    icon: ShoppingBag,
+    href: "/integrations/shopify",
+    available: true,
+    badge: "متاح",
+    badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+    gradient: "from-emerald-500/10 to-lime-500/10 text-emerald-600",
   },
   {
     id: "facebook",

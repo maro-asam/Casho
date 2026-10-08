@@ -248,6 +248,10 @@ model Store {
   apiRequestLogs       ApiRequestLog[]
   shippingIntegrations ShippingIntegration[]
 
+  importConnections ImportConnection[]
+  importJobs        ImportJob[]
+  importRecords     ImportRecordMap[]
+
   @@index([userId])
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -2277,4 +2281,161 @@ model PlanAuditLog {
   @@index([storeId, createdAt])
   @@index([planId, createdAt])
   @@index([action, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Store migration imports (Shopify today; WooCommerce/Magento later)
+// ─────────────────────────────────────────────────────────────
+//
+// Provider-agnostic. Engine: lib/integrations/import, provider code:
+// lib/integrations/<provider>. See docs/integrations/shopify-import.md.
+
+enum ImportProvider {
+  SHOPIFY
+}
+
+enum ImportConnectionStatus {
+  ACTIVE
+  /// Token refresh failed / app uninstalled — the merchant must reconnect.
+  NEEDS_RECONNECT
+  DISCONNECTED
+}
+
+enum ImportJobKind {
+  FULL
+  /// Re-imports only the failed items of `retryOfJobId`.
+  RETRY
+}
+
+enum ImportJobStatus {
+  QUEUED
+  RUNNING
+  /// Stopped after repeated failures or a lost connection; can be resumed.
+  PAUSED
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  CANCELED
+}
+
+/// Kasho-side record types an external record can map to. Listed in import
+/// dependency order (variants are imported together with their product).
+enum ImportEntityType {
+  COLLECTION
+  PRODUCT
+  VARIANT
+  CUSTOMER
+  ORDER
+}
+
+/// OAuth connection of a Kasho store to an external shop.
+/// Tokens are AES-256-GCM encrypted (lib/secrets.ts) and never leave the server.
+model ImportConnection {
+  id       String         @id @default(uuid())
+  storeId  String
+  store    Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  provider ImportProvider
+
+  /// Stable id of the external shop (e.g. "acme.myshopify.com"). Part of every
+  /// ImportRecordMap key, so reconnecting a different shop never collides.
+  externalShopId String
+  shopName       String
+  shopDomain     String
+  currencyCode   String?
+
+  accessTokenEnc        String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenEnc       String?
+  refreshTokenExpiresAt DateTime?
+  scopes                String[]               @default([])
+  status                ImportConnectionStatus @default(ACTIVE)
+
+  connectedByUserId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  jobs ImportJob[]
+
+  @@unique([storeId, provider])
+  @@index([provider, externalShopId])
+}
+
+model ImportJob {
+  id             String           @id @default(uuid())
+  storeId        String
+  store          Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  connectionId   String
+  connection     ImportConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  provider       ImportProvider
+  /// Copied from the connection at start — the shop this job reads from.
+  externalShopId String
+
+  kind         ImportJobKind      @default(FULL)
+  retryOfJobId String?
+  status       ImportJobStatus    @default(QUEUED)
+  /// Selected entities, in dependency order.
+  entities     ImportEntityType[]
+
+  /// Checkpoint: entity being imported + provider pagination cursor.
+  currentEntity ImportEntityType?
+  cursor        String?
+  /// Per-entity counters (ImportProgress in lib/integrations/import/types.ts).
+  progress      Json
+
+  attempts    Int       @default(0)
+  nextRunAt   DateTime  @default(now())
+  lockedUntil DateTime?
+  lockToken   String?
+  /// Merchant-safe reason for PAUSED (never contains tokens or customer data).
+  lastError   String?
+
+  startedByUserId String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  errors ImportItemError[]
+
+  @@index([status, nextRunAt])
+  @@index([storeId, createdAt])
+}
+
+/// Idempotency key: one row per external record ever imported into a store.
+/// The unique constraint is what stops re-runs/refreshes from duplicating data.
+model ImportRecordMap {
+  id             String           @id @default(uuid())
+  storeId        String
+  store          Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  provider       ImportProvider
+  externalShopId String
+  entityType     ImportEntityType
+  externalId     String
+  /// Id of the Kasho row (Category / Product / ProductVariant / Customer / Order).
+  localId        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, provider, externalShopId, entityType, externalId])
+  @@index([storeId, entityType, localId])
+}
+
+/// A record that failed to import. Holds ids and a safe reason only — no payload.
+model ImportItemError {
+  id         String           @id @default(uuid())
+  jobId      String
+  job        ImportJob        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  storeId    String
+  entityType ImportEntityType
+  externalId String
+  /// Human label (product title, order name) to help the merchant find it.
+  label      String?
+  message    String
+  attempts   Int              @default(1)
+  resolvedAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([jobId, entityType, externalId])
+  @@index([jobId, resolvedAt])
 }

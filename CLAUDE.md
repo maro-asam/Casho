@@ -23,7 +23,7 @@ npx prisma migrate dev --name <name>   # create and apply a migration
 npx prisma db push           # push schema without migration history (dev only)
 ```
 
-There are no tests in this project.
+Tests: `npm test` (Vitest, `**/*.test.ts`).
 
 ## Architecture
 
@@ -74,6 +74,10 @@ Kashier is the Egyptian payment gateway used for balance topups. Integration in 
 Each store can select a theme (`StoreSettings.themeId`, or `themeConfig.presetId`). Presets (tokens, layout, sections) are in [constants/store-themes.ts](constants/store-themes.ts) — `default` (Classic) and `riwaq` (Riwaq, editorial paper/ink/arches — see its `DESIGN.md`).
 
 The storefront UI lives in [app/store/[slug]/_themes/](app/store/[slug]/_themes/): `types.ts` is the theme contract (view-model props per page), `index.ts` is the registry (`getStorefrontTheme(id)`), and each theme is a folder (`classic/`, `riwaq/`) with its own scoped CSS (`.theme-classic`, `.theme-riwaq`). Theme-agnostic helpers (cart events, store paths, social links, price tiers, sort options, filter query builder, cart-count hook, `SubmitButton`) live in `_themes/shared/` — themes import from there, never from each other. `loading.tsx` / `not-found.tsx` render `ThemeState`, which picks the active theme's skeleton from context; a new theme must add its states there. Route files under `app/store/[slug]/` only load data (helpers in `_lib/storefront.ts`) and render `theme.Home`, `theme.ProductListing`, `theme.Product`, `theme.Cart`, etc. Themes never query the DB; they call the existing store actions.
+
+### Store Imports (Shopify)
+
+Merchants migrate from Shopify at `/integrations/shopify`. Provider-agnostic engine in [lib/integrations/import/](lib/integrations/import/) (DB-backed `ImportJob` queue with lease + checkpoints, idempotency via `ImportRecordMap` unique key), Shopify provider in [lib/integrations/shopify/](lib/integrations/shopify/) (OAuth, GraphQL client with cost-based throttling). Background runs: `after()` on start, the page's status poll, and `/api/cron/run-imports` (CRON_SECRET). Full guide: [docs/integrations/shopify-import.md](docs/integrations/shopify-import.md).
 
 ### Notifications
 
