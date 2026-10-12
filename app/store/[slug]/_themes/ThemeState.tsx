@@ -34,6 +34,33 @@ import {
   MadaPageSkeleton,
   MadaProductSkeleton,
 } from "./mada/states";
+import {
+  DuneCategoriesSkeleton,
+  DuneGridPageSkeleton,
+  DuneHomeSkeleton,
+  DuneListingSkeleton,
+  DuneNotFound,
+  DunePageSkeleton,
+  DuneProductSkeleton,
+} from "./dune/states";
+import {
+  MaxCategoriesSkeleton,
+  MaxGridPageSkeleton,
+  MaxHomeSkeleton,
+  MaxListingSkeleton,
+  MaxNotFound,
+  MaxPageSkeleton,
+  MaxProductSkeleton,
+} from "./maximize/states";
+import {
+  CelloCategoriesSkeleton,
+  CelloGridPageSkeleton,
+  CelloHomeSkeleton,
+  CelloListingSkeleton,
+  CelloNotFound,
+  CelloPageSkeleton,
+  CelloProductSkeleton,
+} from "./cello/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -64,6 +91,33 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     categories: MadaCategoriesSkeleton,
     grid: MadaGridPageSkeleton,
     "not-found": MadaNotFound,
+  },
+  dune: {
+    home: DuneHomeSkeleton,
+    listing: DuneListingSkeleton,
+    product: DuneProductSkeleton,
+    page: DunePageSkeleton,
+    categories: DuneCategoriesSkeleton,
+    grid: DuneGridPageSkeleton,
+    "not-found": DuneNotFound,
+  },
+  maximize: {
+    home: MaxHomeSkeleton,
+    listing: MaxListingSkeleton,
+    product: MaxProductSkeleton,
+    page: MaxPageSkeleton,
+    categories: MaxCategoriesSkeleton,
+    grid: MaxGridPageSkeleton,
+    "not-found": MaxNotFound,
+  },
+  cello: {
+    home: CelloHomeSkeleton,
+    listing: CelloListingSkeleton,
+    product: CelloProductSkeleton,
+    page: CelloPageSkeleton,
+    categories: CelloCategoriesSkeleton,
+    grid: CelloGridPageSkeleton,
+    "not-found": CelloNotFound,
   },
 };
 

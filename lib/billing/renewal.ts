@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { DEFAULT_GRACE_PERIOD_DAYS, addDays } from "@/lib/subscriptions";
 import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
+import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
 import { nextPeriodEnd } from "./plan-quote";
 
 export type RenewalOutcome = "none" | "renewed" | "grace" | "past_due";
@@ -102,6 +103,7 @@ export async function renewIfDue(storeId: string, opts: { includeInactive?: bool
     });
     await grantReferralRewardIfEligible(store.id).catch((e) => console.error("[renewal] referral", e));
     await trackPaidReferralLevel(store.id).catch((e) => console.error("[renewal] referral level", e));
+    await recordSalesCommissionsForStore(store.id);
     safeRevalidate(store.slug);
     return "renewed";
   }

@@ -194,7 +194,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
 
         {step === 1 && (
           <>
-            <GoogleButton label="ابدأ بحساب Google" />
+            <GoogleButton label="ابدأ بحساب Google" refCode={refCode} />
             <OrDivider label="أو بالإيميل" />
           </>
         )}

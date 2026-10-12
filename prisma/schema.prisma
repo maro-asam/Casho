@@ -10,6 +10,7 @@ enum UserRole {
   USER
   ADMIN
   SUPER_ADMIN
+  SALES // sales representative — created only by an admin (actions/admin/sales.actions.ts)
 }
 
 enum StoreRole {
@@ -68,6 +69,11 @@ model User {
   referralRewardLogs         ReferralRewardLog[]
 
   planAuditLogs PlanAuditLog[]
+
+  // Sales team (lib/sales): the rep profile when role = SALES, and the rep
+  // this account was attributed to when it signed up as a merchant.
+  salesRep         SalesRep?         @relation("SalesRepUser")
+  salesAttribution SalesAttribution? @relation("SalesAttributionCustomer")
 }
 
 model ReferralRewardLog {
@@ -2438,4 +2444,227 @@ model ImportItemError {
 
   @@unique([jobId, entityType, externalId])
   @@index([jobId, resolvedAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Sales team — referral attribution, tiered commissions, payouts
+// ─────────────────────────────────────────────────────────────
+//
+// Engine: lib/sales. The qualifying "payment" is a SUBSCRIPTION_CHARGE
+// BalanceTransaction (subscriptions are paid from the store balance, which is
+// only funded by verified Kashier callbacks or admin-approved top-ups).
+// Commission rows are immutable snapshots; corrections are adjustments.
+// Money is integer piasters. See docs/sales/commissions.md.
+
+enum SalesRepStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum SalesAttributionSource {
+  SIGNUP_LINK // registered through the rep's referral link
+  ADMIN // assigned by an admin (dispute resolution)
+}
+
+enum SalesCommissionKind {
+  ACQUISITION // the customer's first-ever subscription charge — tiered rate
+  RENEWAL // any later subscription charge inside the 6-month window
+}
+
+enum SalesCommissionStatus {
+  PENDING
+  APPROVED // payable
+  ON_HOLD
+  REJECTED
+  REVERSED
+  PAID
+}
+
+model SalesRep {
+  id     String         @id @default(uuid())
+  userId String         @unique
+  user   User           @relation("SalesRepUser", fields: [userId], references: [id])
+  status SalesRepStatus @default(ACTIVE)
+  notes  String?
+
+  createdById String?
+  disabledAt  DateTime?
+
+  attributions SalesAttribution[]
+  commissions  SalesCommission[]
+  payouts      SalesPayout[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+model SalesAttribution {
+  id             String @id @default(uuid())
+  customerUserId String @unique
+  customer       User   @relation("SalesAttributionCustomer", fields: [customerUserId], references: [id])
+
+  salesRepId         String
+  salesRep           SalesRep               @relation(fields: [salesRepId], references: [id])
+  originalSalesRepId String
+  source             SalesAttributionSource
+  referralCode       String?
+
+  signedUpAt DateTime
+
+  // Set from the customer's first-ever SUBSCRIPTION_CHARGE. The cohort month
+  // (Africa/Cairo) drives both the "currently eligible" count and the renewal
+  // window: eligible while now < eligibleUntil (1st of cohort month + N).
+  acquiredAt      DateTime?
+  acquisitionTxId String?   @unique
+  cohortMonth     String? // "YYYY-MM"
+  eligibleUntil   DateTime?
+
+  changes     SalesAttributionChange[]
+  commissions SalesCommission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([salesRepId, acquiredAt])
+  @@index([salesRepId, eligibleUntil])
+}
+
+model SalesAttributionChange {
+  id             String           @id @default(uuid())
+  attributionId  String
+  attribution    SalesAttribution @relation(fields: [attributionId], references: [id])
+  fromSalesRepId String?
+  toSalesRepId   String
+  actorUserId    String
+  reason         String
+  createdAt      DateTime         @default(now())
+
+  @@index([attributionId, createdAt])
+}
+
+/// Append-only: the newest row (by effectiveFrom) is the active rule set.
+model SalesCommissionRule {
+  id                 String   @id @default(uuid())
+  starterRateBps     Int
+  growthRateBps      Int
+  proRateBps         Int
+  starterMaxPosition Int
+  growthMaxPosition  Int
+  renewalRateBps     Int
+  eligibilityMonths  Int
+  effectiveFrom      DateTime @default(now())
+  createdById        String?
+  note               String?
+  createdAt          DateTime @default(now())
+
+  commissions SalesCommission[]
+
+  @@index([effectiveFrom])
+}
+
+model SalesCommission {
+  id            String           @id @default(uuid())
+  salesRepId    String
+  salesRep      SalesRep         @relation(fields: [salesRepId], references: [id])
+  attributionId String
+  attribution   SalesAttribution @relation(fields: [attributionId], references: [id])
+
+  customerUserId       String
+  storeId              String
+  balanceTransactionId String // the qualifying SUBSCRIPTION_CHARGE
+
+  kind   SalesCommissionKind
+  status SalesCommissionStatus
+
+  // Snapshot at the moment it was earned — never recalculated.
+  basisAmount      Int // piasters charged
+  rateBps          Int // 1700 = 17%
+  amount           Int // piasters, half-up rounded
+  currency         String              @default("EGP")
+  tier             String? // STARTER | GROWTH | PRO (acquisition only)
+  customerPosition Int? // position in the rep's eligible sequence (acquisition only)
+  ruleId           String
+  rule             SalesCommissionRule @relation(fields: [ruleId], references: [id])
+  cohortMonth      String
+  eligibleUntil    DateTime
+  paymentAt        DateTime
+  statusReason     String?
+
+  payoutId String?
+  payout   SalesPayout? @relation(fields: [payoutId], references: [id])
+
+  adjustments SalesCommissionAdjustment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([balanceTransactionId, kind])
+  @@index([salesRepId, status, createdAt])
+  @@index([customerUserId, paymentAt])
+  @@index([status, createdAt])
+  @@index([payoutId])
+}
+
+model SalesCommissionAdjustment {
+  id           String          @id @default(uuid())
+  commissionId String
+  commission   SalesCommission @relation(fields: [commissionId], references: [id])
+  salesRepId   String
+
+  amount               Int // signed piasters
+  currency             String  @default("EGP")
+  source               String // REFUND_CREDIT | ADMIN
+  balanceTransactionId String? @unique // the REFUND credit, for REFUND_CREDIT
+  reason               String
+  actorUserId          String?
+
+  payoutId String?
+  payout   SalesPayout? @relation(fields: [payoutId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([salesRepId, createdAt])
+  @@index([commissionId])
+  @@index([payoutId])
+}
+
+/// A payout that already happened outside Casho (bank / wallet transfer),
+/// recorded by an admin. Settles every payable item of the rep at that time.
+model SalesPayout {
+  id           String   @id @default(uuid())
+  salesRepId   String
+  salesRep     SalesRep @relation(fields: [salesRepId], references: [id])
+  amount       Int
+  currency     String   @default("EGP")
+  paidAt       DateTime
+  method       String
+  reference    String?
+  note         String?
+  recordedById String
+
+  commissions SalesCommission[]
+  adjustments SalesCommissionAdjustment[]
+
+  createdAt DateTime @default(now())
+
+  @@index([salesRepId, paidAt])
+}
+
+model SalesAuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String?
+  action      String
+  entityType  String
+  entityId    String
+  salesRepId  String?
+  before      Json?
+  after       Json?
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId, createdAt])
+  @@index([salesRepId, createdAt])
+  @@index([action, createdAt])
 }

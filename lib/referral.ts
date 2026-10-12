@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
+import { BalanceTransactionType, SubscriptionStatus, UserRole } from "@prisma/client";
 import { addMonths } from "date-fns";
 
 const REFERRAL_REWARD_PIASTERS = 500; // 5 EGP
@@ -48,12 +48,15 @@ export async function grantReferralRewardIfEligible(storeId: string): Promise<vo
           select: {
             id: true,
             referredById: true,
+            referredBy: { select: { role: true } },
           },
         },
       },
     });
 
     if (!store || !store.user.referredById) return;
+    // Sales reps earn commissions (lib/sales), not merchant referral rewards.
+    if (store.user.referredBy?.role === UserRole.SALES) return;
 
     const referredUserId = store.userId;
     const referrerId = store.user.referredById;
@@ -128,11 +131,12 @@ export async function trackPaidReferralLevel(storeId: string): Promise<void> {
       where: { id: storeId },
       select: {
         userId: true,
-        user: { select: { id: true, referredById: true } },
+        user: { select: { id: true, referredById: true, referredBy: { select: { role: true } } } },
       },
     });
 
     if (!store || !store.user.referredById) return;
+    if (store.user.referredBy?.role === UserRole.SALES) return;
 
     const referredUserId = store.userId;
     const referrerId = store.user.referredById;

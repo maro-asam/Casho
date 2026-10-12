@@ -5,6 +5,7 @@ import { addMonths, addYears } from "date-fns";
 
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./admin-guard.actions";
+import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
 import {
   addDays,
   canChargeMonthlyPlan,
@@ -234,6 +235,7 @@ export async function adminActivateStoreSubscriptionAction(
       });
     });
 
+    await recordSalesCommissionsForStore(store.id);
     revalidateAdminAndMerchantPaths(store.slug);
 
     return {
@@ -307,6 +309,7 @@ export async function adminTryRenewStoreSubscriptionAction(
         });
       });
 
+      await recordSalesCommissionsForStore(store.id);
       revalidateAdminAndMerchantPaths(store.slug);
 
       return {
@@ -512,6 +515,7 @@ export async function adminRenewStoreSubscriptionAction(
       });
     });
 
+    await recordSalesCommissionsForStore(store.id);
     revalidateAdminAndMerchantPaths(store.slug);
 
     return {

@@ -7,7 +7,10 @@
 
 import { isThemePresetId, type ThemePresetId } from "@/types/store-theme.types";
 import { classicTheme } from "./classic";
+import { duneTheme } from "./dune";
 import { madaTheme } from "./mada";
+import { maximizeTheme } from "./maximize";
+import { celloTheme } from "./cello";
 import { riwaqTheme } from "./riwaq";
 import type { StorefrontTheme } from "./types";
 
@@ -15,10 +18,12 @@ const THEMES: Record<ThemePresetId, StorefrontTheme> = {
   default: classicTheme,
   riwaq: riwaqTheme,
   mada: madaTheme,
+  dune: duneTheme,
+  maximize: maximizeTheme,
+  cello: celloTheme,
 };
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {
-  if (process.env.NODE_ENV === "development") return THEMES.mada; // QA-TEMP — remove
   return THEMES[isThemePresetId(themeId) ? themeId : "default"];
 }
 

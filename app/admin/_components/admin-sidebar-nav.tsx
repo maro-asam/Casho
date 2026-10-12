@@ -10,6 +10,7 @@ import {
   HeadphonesIcon,
   FileText,
   Layers,
+  Handshake,
   LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ const NAV: NavItem[] = [
   { title: "الرئيسية",        href: "/admin",                   icon: LayoutDashboard },
   { title: "المتاجر",          href: "/admin/stores",             icon: Store           },
   { title: "الباقات",          href: "/admin/plans",              icon: Layers          },
+  { title: "فريق المبيعات",   href: "/admin/sales",              icon: Handshake       },
   { title: "طلبات الشحن",     href: "/admin/topup-requests",     icon: Wallet          },
   { title: "طلبات الخدمات",   href: "/admin/service-requests",   icon: BriefcaseBusiness},
   { title: "طلبات الدعم",     href: "/admin/support-requests",   icon: HeadphonesIcon  },

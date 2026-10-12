@@ -1,0 +1,1133 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Maximize storefront theme — design system
+   Large-catalog, conversion-first commerce modelled on the Shopify Maximize
+   preset (Omni Themes): white canvas, soft grey product plates, 10px radii,
+   a bold sans display, navy/blue actions, red sale accents, dense product
+   grids and quick, restrained motion. Scoped to `.theme-maximize` (and
+   `.mx-portal` for drawers/dialogs rendered outside the store root). Colors
+   come from the merchant-resolved store tokens. See DESIGN.md.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.theme-maximize,
+.mx-portal {
+  /* Color roles */
+  --mx-bg: var(--background);
+  --mx-ink: var(--foreground);                       /* headings, titles */
+  --mx-text: color-mix(in srgb, var(--foreground) 80%, var(--background));
+  --mx-quiet: var(--muted-foreground);
+  --mx-line: var(--border);
+  --mx-plate: var(--card);                           /* product image plate */
+  --mx-surface: var(--popover);                      /* drawers, menus, dialogs */
+  --mx-btn: var(--primary);
+  --mx-btn-ink: var(--primary-foreground);
+  --mx-btn-hover: color-mix(in srgb, var(--primary) 78%, #000);
+  --mx-link: var(--accent-foreground);               /* text links, highlights */
+  --mx-tint: var(--accent);                          /* light brand panels */
+  --mx-band: color-mix(in srgb, var(--accent) 45%, var(--background)); /* section bands */
+  --mx-sale: #d0202e;
+  --mx-sale-tint: #fde7ea;
+  --mx-sale-badge: #b3232c;
+  --mx-new: #1e40af;
+  --mx-new-tint: #dbe7ff;
+  --mx-pick: #5b4500;
+  --mx-pick-tint: #fdf0bf;
+  --mx-stock: var(--primary);
+  --mx-low: #d0202e;
+  --mx-star: #f5a524;
+  --mx-success: #187a3c;
+  --mx-warn: #9a5b00;
+  --mx-error: #c1121f;
+  --mx-dark: #111318;                                /* footer, dark tiles */
+  --mx-dark-ink: #e7e8ec;
+  --mx-dark-quiet: #9ea3ae;
+  --mx-dark-line: #262a33;
+  --mx-scrim: rgb(16 15 15 / 0.5);
+  --mx-shadow: 0 18px 50px -20px rgb(16 24 40 / 0.28);
+  --mx-shadow-sm: 0 2px 10px -4px rgb(16 24 40 / 0.14);
+
+  /* Type: Cairo for Arabic, Inter for Latin headings (both loaded by the root
+     layout). Body text keeps the merchant's chosen store font. */
+  --mx-display: var(--font-cairo), "Cairo", system-ui, sans-serif;
+
+  /* Shape */
+  --mx-r: 0.625rem;          /* 10px cards, tiles */
+  --mx-r-lg: 0.75rem;        /* 12px banners, popups */
+  --mx-r-sm: 0.375rem;       /* 6px buttons, inputs */
+
+  /* Layout */
+  --mx-wrap: 100%;           /* full-width pages */
+  --mx-gutter: 1rem;
+  --mx-gap: 0.75rem;
+  --mx-section: 2.5rem;
+  --mx-header-h: 3.75rem;
+  --mx-control: 2.75rem;
+
+  /* Motion */
+  --mx-dur: var(--store-motion, 250ms);
+  --mx-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --mx-dir: 1;
+
+  background: var(--mx-bg);
+  color: var(--mx-text);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-maximize[dir="ltr"],
+.mx-portal[dir="ltr"] {
+  --mx-dir: -1;
+  --mx-display: var(--font-sans), "Inter", system-ui, sans-serif;
+}
+
+@media (min-width: 768px) {
+  .theme-maximize,
+  .mx-portal {
+    --mx-gutter: 1.5rem;
+    --mx-section: 3.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .theme-maximize,
+  .mx-portal {
+    --mx-gutter: 2rem;
+    --mx-gap: 0.75rem;
+    --mx-section: 4rem;
+    --mx-header-h: 5.25rem;
+  }
+}
+
+.dark .theme-maximize,
+.dark .mx-portal {
+  --mx-sale: #ff6b72;
+  --mx-sale-tint: #3a1d22;
+  --mx-sale-badge: #c4313a;
+  --mx-new: #a9c4ff;
+  --mx-new-tint: #1d2a4a;
+  --mx-pick: #f3dc85;
+  --mx-pick-tint: #3a3216;
+  --mx-low: #ff6b72;
+  --mx-success: #74d39a;
+  --mx-warn: #f0b75c;
+  --mx-error: #ff8a8a;
+  --mx-dark: #0c0e12;
+  --mx-scrim: rgb(0 0 0 / 0.62);
+  --mx-shadow: 0 18px 50px -20px rgb(0 0 0 / 0.8);
+}
+
+@layer base {
+  .theme-maximize *,
+  .mx-portal * {
+    font-weight: inherit;
+  }
+  .mx-portal {
+    font-weight: 400;
+  }
+  .theme-maximize svg.lucide,
+  .mx-portal svg.lucide {
+    stroke-width: 1.75;
+  }
+  .theme-maximize :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  .mx-portal :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--mx-btn);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+
+.mx-wrap {
+  width: 100%;
+  max-width: var(--mx-wrap);
+  margin-inline: auto;
+  padding-inline: var(--mx-gutter);
+}
+.mx-section {
+  padding-block: calc(var(--mx-section) / 2);
+}
+.mx-band {
+  background: var(--mx-band);
+}
+.mx-bleed {
+  margin-inline: calc(var(--mx-gutter) * -1);
+  padding-inline: var(--mx-gutter);
+  scroll-padding-inline: var(--mx-gutter);
+}
+.mx-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.mx-rail::-webkit-scrollbar {
+  display: none;
+}
+.mx-rail > * {
+  scroll-snap-align: start;
+}
+.mx-has-bar {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .mx-has-bar {
+    padding-bottom: 0;
+  }
+}
+
+/* ─── Type ──────────────────────────────────────────────────────────────── */
+
+.mx-display {
+  font-family: var(--mx-display);
+  font-weight: 700;
+  color: var(--mx-ink);
+}
+.mx-hero {
+  font-family: var(--mx-display);
+  font-weight: 700;
+  font-size: clamp(1.875rem, 3.4vw, 2.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.mx-h1 {
+  font-family: var(--mx-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.4vw, 2.125rem);
+  line-height: 1.3;
+  color: var(--mx-ink);
+}
+.mx-h2 {
+  font-family: var(--mx-display);
+  font-weight: 700;
+  font-size: clamp(1.375rem, 2vw, 1.875rem);
+  line-height: 1.3;
+  color: var(--mx-ink);
+}
+.mx-h3 {
+  font-family: var(--mx-display);
+  font-weight: 700;
+  font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+  line-height: 1.35;
+  color: var(--mx-ink);
+}
+.mx-h4 {
+  font-family: var(--mx-display);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--mx-ink);
+}
+[dir="ltr"] :is(.mx-hero, .mx-h1, .mx-h2),
+.mx-portal[dir="ltr"] :is(.mx-hero, .mx-h1, .mx-h2) {
+  letter-spacing: -0.02em;
+}
+/* Small upper eyebrow ("OUR TOP DEALS"); Arabic is never tracked or cased */
+.mx-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mx-text);
+}
+[dir="ltr"] .mx-eyebrow,
+.mx-portal[dir="ltr"] .mx-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.mx-price {
+  font-family: var(--mx-display);
+  font-weight: 700;
+  color: var(--mx-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.mx-num {
+  font-variant-numeric: tabular-nums;
+}
+.mx-prose {
+  max-width: 72ch;
+  line-height: 1.9;
+  white-space: pre-line;
+  color: var(--mx-text);
+}
+
+/* Text link with the underline Maximize uses on "Shop Now" */
+.mx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-bottom: 0.125rem;
+  color: var(--mx-link);
+  font-weight: 600;
+  background: linear-gradient(currentColor, currentColor) no-repeat;
+  background-size: 100% 1px;
+  background-position: var(--mx-underline-from, right) bottom;
+  transition: background-size 400ms var(--mx-ease), color var(--mx-dur);
+}
+[dir="ltr"] .mx-link,
+.mx-portal[dir="ltr"] .mx-link {
+  --mx-underline-from: left;
+}
+.mx-link:hover {
+  background-size: 0% 1px;
+  color: var(--mx-sale);
+}
+/* Plain links that gain an underline on hover (menus, footer) */
+.mx-hover-line {
+  background: linear-gradient(currentColor, currentColor) no-repeat;
+  background-size: 0% 1px;
+  background-position: var(--mx-underline-from, right) bottom;
+  transition: background-size 400ms var(--mx-ease), color var(--mx-dur);
+  padding-bottom: 0.125rem;
+}
+[dir="ltr"] .mx-hover-line,
+.mx-portal[dir="ltr"] .mx-hover-line {
+  --mx-underline-from: left;
+}
+.mx-hover-line:hover,
+.mx-hover-line[aria-current="page"],
+.mx-hover-line[aria-expanded="true"] {
+  background-size: 100% 1px;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+.mx-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--mx-control);
+  padding-inline: 1.5rem;
+  border-radius: var(--mx-r-sm);
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: background-color var(--mx-dur) var(--mx-ease), color var(--mx-dur) var(--mx-ease),
+    border-color var(--mx-dur) var(--mx-ease), box-shadow var(--mx-dur), transform 120ms var(--mx-ease);
+}
+.mx-btn:active {
+  transform: scale(0.98);
+}
+.mx-btn:disabled,
+.mx-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.mx-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+.mx-btn--solid {
+  background: var(--mx-btn);
+  color: var(--mx-btn-ink);
+}
+.mx-btn--solid:hover {
+  background: var(--mx-btn-hover);
+}
+.mx-btn--outline {
+  border-color: var(--mx-line);
+  background: var(--mx-bg);
+  color: var(--mx-ink);
+}
+.mx-btn--outline:hover {
+  border-color: var(--mx-ink);
+}
+.mx-btn--soft {
+  background: color-mix(in srgb, var(--mx-ink) 7%, transparent);
+  color: var(--mx-ink);
+}
+.mx-btn--soft:hover {
+  background: color-mix(in srgb, var(--mx-ink) 13%, transparent);
+}
+.mx-btn--white {
+  background: #fff;
+  color: #100f0f;
+}
+.mx-btn--white:hover {
+  background: #e9ebf0;
+}
+.mx-btn--sm {
+  min-height: 2.25rem;
+  padding-inline: 1rem;
+  font-size: 0.8125rem;
+}
+.mx-btn--lg {
+  min-height: 3rem;
+  padding-inline: 2rem;
+  font-size: 0.9375rem;
+}
+.mx-btn--icon {
+  width: var(--mx-control);
+  padding-inline: 0;
+}
+.mx-btn--full {
+  width: 100%;
+}
+
+/* Header / toolbar icon buttons */
+.mx-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--mx-r-sm);
+  color: inherit;
+  transition: background-color var(--mx-dur) var(--mx-ease), transform 120ms var(--mx-ease);
+}
+.mx-icon:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.mx-icon:active {
+  transform: scale(0.94);
+}
+.mx-icon svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+/* Round floating button over media */
+.mx-fab {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--mx-surface);
+  color: var(--mx-ink);
+  box-shadow: var(--mx-shadow-sm);
+  transition: background-color var(--mx-dur), color var(--mx-dur), transform var(--mx-dur) var(--mx-ease);
+}
+.mx-fab:hover {
+  background: var(--mx-btn);
+  color: var(--mx-btn-ink);
+}
+.mx-fab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* ─── Fields ────────────────────────────────────────────────────────────── */
+
+.mx-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--mx-control);
+  padding-inline: 0.875rem;
+  border: 1px solid var(--mx-line);
+  border-radius: var(--mx-r-sm);
+  background: var(--mx-bg);
+  color: var(--mx-ink);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--mx-dur), box-shadow var(--mx-dur);
+  appearance: none;
+}
+@media (min-width: 768px) {
+  .mx-field {
+    font-size: 0.875rem;
+  }
+}
+.mx-field::placeholder {
+  color: var(--mx-quiet);
+}
+.mx-field:hover {
+  border-color: color-mix(in srgb, var(--mx-ink) 30%, transparent);
+}
+.mx-field:focus,
+.mx-field:focus-visible {
+  outline: none;
+  border-color: var(--mx-btn);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mx-btn) 18%, transparent);
+}
+.mx-field::-webkit-search-cancel-button,
+.mx-field::-webkit-inner-spin-button,
+.mx-field::-webkit-outer-spin-button {
+  appearance: none;
+}
+.mx-field[type="number"] {
+  -moz-appearance: textfield;
+}
+textarea.mx-field {
+  padding-block: 0.75rem;
+  line-height: 1.8;
+}
+select.mx-field,
+.mx-select {
+  padding-inline-end: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23777' stroke-width='1.5'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.875rem center;
+  appearance: none;
+  cursor: pointer;
+}
+[dir="ltr"] :is(select.mx-field, .mx-select),
+.mx-portal[dir="ltr"] :is(select.mx-field, .mx-select) {
+  background-position: right 0.875rem center;
+}
+
+/* ─── Options & swatches ────────────────────────────────────────────────── */
+
+.mx-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  min-width: 3rem;
+  padding-inline: 1rem;
+  border-radius: var(--mx-r-sm);
+  border: 1px solid var(--mx-line);
+  background: var(--mx-bg);
+  color: var(--mx-ink);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color var(--mx-dur), background-color var(--mx-dur), color var(--mx-dur), box-shadow var(--mx-dur);
+}
+.mx-opt:hover {
+  border-color: var(--mx-ink);
+}
+.mx-opt[aria-checked="true"],
+.mx-opt[aria-pressed="true"],
+.mx-opt[aria-current="page"],
+.mx-opt:has(input:checked) {
+  border-color: var(--mx-btn);
+  box-shadow: inset 0 0 0 1px var(--mx-btn);
+  color: var(--mx-btn);
+  font-weight: 600;
+}
+.mx-opt[data-error="true"] {
+  border-color: var(--mx-error);
+}
+.mx-opt:has(input:focus-visible),
+.mx-swatch-btn:has(input:focus-visible),
+.mx-check:has(input:focus-visible) {
+  outline: 2px solid var(--mx-btn);
+  outline-offset: 2px;
+}
+.mx-swatch {
+  display: inline-block;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+}
+.mx-swatch-btn {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--mx-line);
+  background: var(--mx-bg);
+  transition: border-color var(--mx-dur), box-shadow var(--mx-dur);
+}
+.mx-swatch-btn:hover {
+  border-color: var(--mx-ink);
+}
+.mx-swatch-btn[aria-checked="true"],
+.mx-swatch-btn:has(input:checked) {
+  border-color: var(--mx-ink);
+  box-shadow: inset 0 0 0 1px var(--mx-ink);
+}
+.mx-swatch-btn[data-error="true"] {
+  border-color: var(--mx-error);
+}
+
+/* ─── Badges ────────────────────────────────────────────────────────────── */
+
+.mx-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding-inline: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.mx-badge--new {
+  background: var(--mx-new-tint);
+  color: var(--mx-new);
+}
+.mx-badge--pick {
+  background: var(--mx-pick-tint);
+  color: var(--mx-pick);
+}
+.mx-badge--drop {
+  background: var(--mx-sale-tint);
+  color: var(--mx-sale);
+}
+.mx-badge--out {
+  background: color-mix(in srgb, var(--mx-ink) 82%, transparent);
+  color: var(--mx-bg);
+}
+/* "-32%" chip beside a sale price */
+.mx-chip-off {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.3125rem;
+  border-radius: 0.25rem;
+  background: var(--mx-sale-tint);
+  color: var(--mx-sale);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+/* Big red promo seals on tiles: a tab hanging from the top, or a circle */
+.mx-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--mx-sale-badge);
+  color: #fff;
+  font-family: var(--mx-display);
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+.mx-seal--tab {
+  width: 4.5rem;
+  padding: 0.875rem 0.25rem 1.375rem;
+  border-radius: 0 0 999px 999px;
+}
+.mx-seal--circle {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 999px;
+}
+
+/* Stock line ("● In stock") */
+.mx-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+}
+.mx-stock::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+/* ─── Media ─────────────────────────────────────────────────────────────── */
+
+.mx-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--mx-plate);
+  border-radius: var(--mx-r);
+  isolation: isolate;
+}
+/* Product shots are contained on the plate; ones shot on white blend into
+   it (multiply), so cut-outs read like the reference and photos stay whole. */
+.mx-product-img {
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.dark .mx-product-img {
+  mix-blend-mode: normal;
+}
+.mx-zoom-img {
+  transition: transform var(--image-dur, 500ms) var(--mx-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .mx-zoom-img {
+    transform: scale(1.06);
+  }
+}
+
+/* ─── Product card ──────────────────────────────────────────────────────── */
+
+/* Card media must not isolate: its action buttons (z 2) have to sit above
+   the card's stretched link (z 1), which lives outside the media box. */
+.mx-card .mx-media {
+  isolation: auto;
+}
+.mx-card-img-1,
+.mx-card-img-2 {
+  transition: opacity 400ms var(--mx-ease), transform 500ms var(--mx-ease);
+}
+.mx-card-img-2 {
+  opacity: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mx-card:hover .mx-card-img-2 {
+    opacity: 1;
+  }
+  .mx-card:hover .mx-card-img-1.has-swap {
+    opacity: 0;
+  }
+  .mx-card:hover .mx-card-img-1:not(.has-swap) {
+    transform: scale(1.05);
+  }
+  .mx-card-quick {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 300ms var(--mx-ease), transform 300ms var(--mx-ease);
+  }
+  .mx-card-side {
+    opacity: 0;
+    transform: translateX(calc(-8px * var(--mx-dir)));
+    transition: opacity 300ms var(--mx-ease), transform 300ms var(--mx-ease);
+  }
+  .mx-card:hover :is(.mx-card-quick, .mx-card-side),
+  .mx-card:focus-within :is(.mx-card-quick, .mx-card-side) {
+    opacity: 1;
+    transform: none;
+  }
+}
+.mx-pointer-only {
+  display: none !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mx-pointer-only {
+    display: flex !important;
+  }
+  .mx-touch-only {
+    display: none !important;
+  }
+}
+
+/* ─── Product grids ─────────────────────────────────────────────────────── */
+
+.mx-pgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--mx-gap);
+  row-gap: 1.75rem;
+}
+@media (min-width: 768px) {
+  .mx-pgrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 2.25rem;
+  }
+}
+@media (min-width: 1280px) {
+  .mx-pgrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  [data-sidebar="false"] .mx-pgrid {
+    grid-template-columns: repeat(var(--store-grid-cols, 5), minmax(0, 1fr));
+  }
+}
+@media (min-width: 1536px) {
+  [data-sidebar="true"] .mx-pgrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  [data-sidebar="false"] .mx-pgrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  [data-mcols="1"] .mx-pgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* List view: horizontal cards */
+[data-view="list"] .mx-pgrid {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 0;
+}
+/* Swipe rails: 2.2 cards on phones, 3.3 tablets, 6 desktop */
+.mx-prail > li {
+  width: 46%;
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .mx-prail > li {
+    width: 30%;
+  }
+}
+@media (min-width: 1024px) {
+  .mx-prail > li {
+    width: calc((100% - var(--mx-gap) * 4) / 5);
+  }
+}
+@media (min-width: 1280px) {
+  .mx-prail > li {
+    width: calc((100% - var(--mx-gap) * 5) / 6);
+  }
+}
+
+/* ─── Drawers & dialogs (Radix data-state) ──────────────────────────────── */
+
+.mx-drawer[data-state="open"] {
+  animation: mx-drawer-in 420ms var(--mx-ease) both;
+}
+.mx-drawer[data-state="closed"] {
+  animation: mx-drawer-out 260ms var(--mx-ease) both;
+}
+.mx-drawer--start[data-state="open"] {
+  animation-name: mx-drawer-in-start;
+}
+.mx-drawer--start[data-state="closed"] {
+  animation-name: mx-drawer-out-start;
+}
+.mx-modal[data-state="open"] {
+  animation: mx-modal-in 300ms var(--mx-ease) both;
+}
+.mx-modal[data-state="closed"] {
+  animation: mx-fade 180ms ease-in reverse both;
+}
+@media (max-width: 1023px) {
+  .mx-modal--sheet[data-state="open"] {
+    animation: mx-sheet-in 380ms var(--mx-ease) both;
+  }
+  .mx-modal--sheet[data-state="closed"] {
+    animation: mx-sheet-out 240ms var(--mx-ease) both;
+  }
+}
+.mx-scrim[data-state="open"] {
+  animation: mx-fade 300ms ease-out both;
+}
+.mx-scrim[data-state="closed"] {
+  animation: mx-fade 200ms ease-in reverse both;
+}
+[data-state="open"] .mx-stagger > * {
+  animation: mx-rise 420ms var(--mx-ease) both;
+  animation-delay: calc(var(--i, 0) * 35ms + 100ms);
+}
+
+/* ─── Details (accordions) ──────────────────────────────────────────────── */
+
+.mx-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.mx-details > summary::-webkit-details-marker {
+  display: none;
+}
+.mx-chev {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  transition: transform 300ms var(--mx-ease);
+}
+.mx-details[open] > summary .mx-chev {
+  transform: rotate(180deg);
+}
+@supports (interpolate-size: allow-keywords) {
+  .mx-details {
+    interpolate-size: allow-keywords;
+  }
+  .mx-details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size 320ms var(--mx-ease), content-visibility 320ms allow-discrete;
+  }
+  .mx-details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* ─── Skeleton ──────────────────────────────────────────────────────────── */
+
+.mx-skel {
+  border-radius: var(--mx-r-sm);
+  background: linear-gradient(90deg, var(--mx-plate) 25%, color-mix(in srgb, var(--mx-plate) 40%, var(--mx-bg)) 50%, var(--mx-plate) 75%);
+  background-size: 300% 100%;
+  animation: mx-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+/* Sticky "on scroll up": hides while the shopper scrolls down the page and
+   slides back as soon as they scroll up. */
+
+.mx-header {
+  background: var(--mx-bg);
+  color: var(--mx-ink);
+  transition: transform 350ms var(--mx-ease), box-shadow 350ms var(--mx-ease);
+}
+.mx-header[data-hidden="true"] {
+  transform: translateY(-100%);
+}
+.mx-header[data-stuck="true"] {
+  box-shadow: 0 6px 20px -12px rgb(16 24 40 / 0.25);
+}
+.mx-cart-dot {
+  background: var(--mx-sale-badge);
+  color: #fff;
+}
+.mx-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--mx-ink);
+  white-space: nowrap;
+  transition: color var(--mx-dur);
+}
+.mx-nav-link:hover,
+.mx-nav-link[aria-current="page"],
+.mx-nav-link[aria-expanded="true"] {
+  color: var(--mx-link);
+}
+.mx-nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.5rem;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: var(--mx-underline-from, right);
+  transition: transform 350ms var(--mx-ease);
+}
+[dir="ltr"] .mx-nav-link {
+  --mx-underline-from: left;
+}
+.mx-nav-link:hover::after,
+.mx-nav-link[aria-current="page"]::after,
+.mx-nav-link[aria-expanded="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Scrolling promo bar */
+.mx-ticker {
+  background: linear-gradient(46deg, color-mix(in srgb, var(--mx-btn) 72%, #000), var(--mx-btn) 98%);
+  color: #fff;
+}
+.mx-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: mx-marquee var(--mx-marquee-dur, 40s) linear infinite;
+}
+.mx-marquee:hover .mx-marquee-track,
+.mx-marquee:focus-within .mx-marquee-track,
+.mx-marquee[data-paused="true"] .mx-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Back-to-top */
+.mx-top {
+  position: fixed;
+  inset-inline-end: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mx-ink) 12%, var(--mx-bg));
+  color: var(--mx-ink);
+  box-shadow: var(--mx-shadow-sm);
+  transition: opacity 300ms var(--mx-ease), transform 300ms var(--mx-ease), background-color var(--mx-dur);
+}
+.mx-top:hover {
+  background: var(--mx-btn);
+  color: var(--mx-btn-ink);
+}
+.mx-top[data-show="false"] {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+/* Countdown digits ("81 : 8 : 23 : 31" on red) */
+.mx-count {
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  height: 2.25rem;
+  padding-inline: 0.375rem;
+  border-radius: var(--mx-r-sm);
+  background: var(--mx-sale-badge);
+  color: #fff;
+  font-family: var(--mx-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 768px) {
+  .mx-count {
+    min-width: 3.25rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+/* Tabs (promotional collections) */
+.mx-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding: 0.25rem 1rem 0.25rem 0.375rem;
+  border-radius: var(--mx-r);
+  border: 1px solid var(--mx-line);
+  background: var(--mx-bg);
+  color: var(--mx-ink);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color var(--mx-dur), border-color var(--mx-dur);
+}
+[dir="rtl"] .mx-tab {
+  padding: 0.25rem 0.375rem 0.25rem 1rem;
+}
+.mx-tab:hover {
+  border-color: color-mix(in srgb, var(--mx-ink) 30%, transparent);
+}
+.mx-tab[aria-selected="true"] {
+  background: color-mix(in srgb, var(--mx-ink) 8%, var(--mx-bg));
+  border-color: transparent;
+}
+.mx-tab-panel[data-state="active"] {
+  animation: mx-tab-in 300ms var(--mx-ease) both;
+}
+}
+
+/* Shared checkout form follows Maximize's 6px fields */
+.mx-checkout :where(.rounded-xl, .rounded-2xl, .rounded-lg) {
+  border-radius: var(--mx-r);
+}
+
+/* ─── Motion ────────────────────────────────────────────────────────────── */
+/* Sections fade up as they enter (scroll-driven, so no script touches
+   server-rendered markup); unsupported browsers and reduced-motion users get
+   the static layout. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-maximize .mx-reveal {
+      animation: mx-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--d, 0) * 5%) entry calc(40% + var(--d, 0) * 5%);
+    }
+  }
+}
+
+@keyframes mx-reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mx-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes mx-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mx-tab-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mx-modal-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mx-drop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+/* Drawers open from the reading end (cart) or the reading start (menu) */
+@keyframes mx-drawer-in {
+  from { transform: translateX(calc(-100% * var(--mx-dir))); }
+  to { transform: none; }
+}
+@keyframes mx-drawer-out {
+  to { transform: translateX(calc(-100% * var(--mx-dir))); }
+}
+@keyframes mx-drawer-in-start {
+  from { transform: translateX(calc(100% * var(--mx-dir))); }
+  to { transform: none; }
+}
+@keyframes mx-drawer-out-start {
+  to { transform: translateX(calc(100% * var(--mx-dir))); }
+}
+@keyframes mx-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes mx-sheet-out {
+  to { transform: translateY(100%); }
+}
+@keyframes mx-shimmer {
+  to { background-position: -150% 0; }
+}
+@keyframes mx-marquee {
+  to { transform: translateX(calc(50% * var(--mx-dir))); }
+}
+@keyframes mx-bump {
+  40% { transform: scale(1.3); }
+}
+
+.mx-bump {
+  animation: mx-bump 420ms var(--mx-ease);
+}
+.mx-pop {
+  animation: mx-drop 220ms var(--mx-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-maximize *,
+  .theme-maximize *::before,
+  .theme-maximize *::after,
+  .mx-portal *,
+  .mx-portal *::before,
+  .mx-portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .mx-marquee-track {
+    animation: none !important;
+  }
+}
+
+/* ─── Toasts (rendered outside the store root) ──────────────────────────── */
+
+.mx-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: var(--width, 356px);
+  max-width: calc(100vw - 2rem);
+  padding: 0.875rem 1rem;
+  border-radius: 0.625rem;
+  background: #111318;
+  color: #f4f5f7;
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.55);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.mx-toast [data-title] {
+  font-weight: 600;
+}
+.mx-toast [data-description] {
+  color: #b9bdc6;
+  font-size: 0.8125rem;
+}
+.mx-toast [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #0b7f6f;
+  color: #fff;
+}
+.mx-toast--error [data-icon] {
+  background: #d0202e;
+}

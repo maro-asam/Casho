@@ -102,7 +102,10 @@ export async function proxy(req: NextRequest) {
   // ─── Root domain auth pages → redirect to app subdomain ──────────────────
   // prod: casho.store/login → app.casho.store/login
   // dev:  localhost:3000/login → app.localhost:3000/login
-  if (!subdomain && isAuthPath(pathname)) {
+  // Dev only: the session cookie is host-only on app.localhost (prod shares it via
+  // `.casho.store`), so pages that need a session must be served from there too.
+  const needsAppHost = ["/admin", "/sales"].some((p) => pathname === p || pathname.startsWith(p + "/"));
+  if (!subdomain && (isAuthPath(pathname) || (needsAppHost && process.env.NODE_ENV !== "production"))) {
     if (process.env.NODE_ENV !== "production") {
       const port = req.nextUrl.port ? `:${req.nextUrl.port}` : "";
       return NextResponse.redirect(
@@ -126,7 +129,7 @@ export async function proxy(req: NextRequest) {
     // Rewrite clean paths → /dashboard prefix (internal Next.js routing)
     // e.g. /orders → /dashboard/orders, / → /dashboard
     // Paths that map directly to their own top-level routes (no rewrite needed)
-    const DIRECT_PATHS = ["/builder", "/store", "/pos", "/onboarding", "/print"];
+    const DIRECT_PATHS = ["/builder", "/store", "/pos", "/onboarding", "/print", "/sales", "/admin"];
     if (
       !pathname.startsWith("/dashboard") &&
       !isAuthPath(pathname) &&

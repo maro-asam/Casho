@@ -73,6 +73,9 @@ export default async function DashboardLayout({
   }
 
   if (!store) {
+    // Sales reps have their own workspace.
+    const account = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+    if (account?.role === "SALES") redirect("/sales");
     // Team members (cashiers) don't own a store: their workspace is the POS.
     const membership = await prisma.storeMember.findFirst({ where: { userId }, select: { id: true } });
     redirect(membership ? "/pos" : "/");

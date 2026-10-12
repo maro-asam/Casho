@@ -1,0 +1,1021 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Dune (Casho Dune) storefront theme — design system
+   Editorial, image-forward commerce: soft fog canvas, charcoal ink, warm
+   umber accents, square media, pill buttons, a serif display face, hairline
+   rules and slow, quiet motion. Scoped to `.theme-dune` (and `.dn-portal`
+   for drawers/dialogs rendered outside the store root). Colors come from
+   the merchant-resolved store tokens; this file maps them to Dune's
+   vocabulary and adds components. See DESIGN.md.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.theme-dune,
+.dn-portal {
+  /* Color roles */
+  --dn-bg: var(--background);
+  --dn-ink: var(--foreground);
+  --dn-drawer: var(--popover);              /* drawers, menus, dialogs */
+  --dn-plate: var(--card);                  /* large media backdrop */
+  --dn-tile: var(--muted);                  /* small media backdrop, footer */
+  --dn-quiet: var(--muted-foreground);
+  --dn-line: var(--border);
+  --dn-line-ink: color-mix(in srgb, var(--dn-ink) 18%, transparent);
+  --dn-btn: var(--primary);
+  --dn-btn-ink: var(--primary-foreground);
+  --dn-accent: var(--accent);               /* announcement, promo bands */
+  --dn-accent-ink: var(--accent-foreground);
+  --dn-sale: #7d6243;
+  --dn-price: #5a4a42;
+  --dn-sand: #c7b8a1;                       /* countdown band */
+  --dn-sand-ink: #100d0d;
+  --dn-success: #3d6b35;
+  --dn-warn: #8a5300;
+  --dn-error: #a12a1c;
+  --dn-star: #8b6f47;
+  --dn-scrim: rgb(42 42 40 / 0.45);
+  --dn-shadow: 0 24px 60px -28px rgb(42 42 40 / 0.35);
+
+  --dn-serif: var(--font-dune-display), "Markazi Text", Georgia, serif;
+
+  /* Layout */
+  --dn-wrap: 87.5rem;          /* 1400px page width */
+  --dn-gutter: 1.0625rem;      /* 17px grid gutter */
+  --dn-gap: 1.0625rem;
+  --dn-section: 3.75rem;
+  --dn-header-h: 3.75rem;
+  --dn-control: 3rem;
+  --dn-control-sm: 2.5rem;
+
+  /* Motion */
+  --dn-dur: var(--store-motion, 250ms);
+  --dn-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --dn-ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --dn-dir: 1;
+
+  background: var(--dn-bg);
+  color: var(--dn-ink);
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+.theme-dune[dir="ltr"],
+.dn-portal[dir="ltr"] {
+  --dn-dir: -1;
+}
+
+@media (min-width: 768px) {
+  .theme-dune,
+  .dn-portal {
+    --dn-gutter: 1.875rem;
+    --dn-gap: 1.25rem;
+    --dn-section: 5rem;
+    --dn-header-h: 4.5rem;
+  }
+}
+@media (min-width: 1280px) {
+  .theme-dune,
+  .dn-portal {
+    --dn-gutter: 2.5rem;
+    --dn-gap: 1.375rem;
+    --dn-section: 6.25rem;
+    --dn-header-h: 5rem;
+  }
+}
+
+.dark .theme-dune,
+.dark .dn-portal {
+  --dn-sale: #c9a67a;
+  --dn-price: #e2d6c6;
+  --dn-sand: #3b332a;
+  --dn-sand-ink: #f1e9dd;
+  --dn-success: #9fcb8f;
+  --dn-warn: #e8b45f;
+  --dn-error: #f19a8c;
+  --dn-star: #c9a67a;
+  --dn-scrim: rgb(0 0 0 / 0.6);
+  --dn-shadow: 0 24px 60px -28px rgb(0 0 0 / 0.8);
+}
+
+@layer base {
+  .theme-dune *,
+  .dn-portal * {
+    font-weight: inherit;
+  }
+  .dn-portal {
+    font-weight: 400;
+  }
+  .theme-dune svg.lucide,
+  .dn-portal svg.lucide {
+    stroke-width: 1.5;
+  }
+  .theme-dune :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  .dn-portal :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--dn-ink);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+
+.dn-wrap {
+  width: 100%;
+  max-width: var(--dn-wrap);
+  margin-inline: auto;
+  padding-inline: var(--dn-gutter);
+}
+.dn-narrow {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+.dn-section {
+  padding-block: calc(var(--dn-section) / 2);
+}
+.dn-bleed {
+  margin-inline: calc(var(--dn-gutter) * -1);
+  padding-inline: var(--dn-gutter);
+  scroll-padding-inline: var(--dn-gutter);
+}
+.dn-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.dn-rail::-webkit-scrollbar {
+  display: none;
+}
+.dn-rail > * {
+  scroll-snap-align: start;
+}
+.dn-rule {
+  border-top: 1px solid var(--dn-line);
+}
+.dn-has-bar {
+  padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .dn-has-bar {
+    padding-bottom: 0;
+  }
+}
+
+/* ─── Type ──────────────────────────────────────────────────────────────── */
+/* Serif display is set at weight 400 like the reference; Latin headings are
+   uppercase. Arabic never gets letter-spacing or case changes (it would
+   break the joins). */
+
+.dn-serif {
+  font-family: var(--dn-serif);
+  font-weight: 400;
+}
+.dn-hero {
+  font-family: var(--dn-serif);
+  font-weight: 400;
+  font-size: clamp(2.75rem, 7.6vw, 6.75rem);
+  line-height: 1.08;
+}
+.dn-h1 {
+  font-family: var(--dn-serif);
+  font-weight: 400;
+  font-size: clamp(2.375rem, 4.4vw, 3.75rem);
+  line-height: 1.12;
+}
+.dn-h2 {
+  font-family: var(--dn-serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 3.5vw, 3.25rem);
+  line-height: 1.12;
+}
+.dn-h3 {
+  font-family: var(--dn-serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.1vw, 2rem);
+  line-height: 1.2;
+}
+.dn-h4 {
+  font-family: var(--dn-serif);
+  font-weight: 500;
+  font-size: 1.375rem;
+  line-height: 1.3;
+}
+[dir="ltr"] :is(.dn-hero, .dn-h1, .dn-h2, .dn-h3),
+.dn-portal[dir="ltr"] :is(.dn-hero, .dn-h1, .dn-h2, .dn-h3) {
+  text-transform: uppercase;
+}
+
+/* Small tracked label (eyebrows, nav, buttons) */
+.dn-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+[dir="ltr"] .dn-label,
+.dn-portal[dir="ltr"] .dn-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+.dn-price {
+  font-family: var(--dn-serif);
+  font-weight: 500;
+  font-size: 1.1875rem;
+  line-height: 1.2;
+  color: var(--dn-price);
+  font-variant-numeric: tabular-nums;
+}
+.dn-num {
+  font-family: var(--dn-serif);
+  font-variant-numeric: tabular-nums;
+}
+.dn-prose {
+  max-width: 66ch;
+  line-height: 1.95;
+  white-space: pre-line;
+  color: color-mix(in srgb, var(--dn-ink) 84%, transparent);
+}
+
+/* Link with an underline that draws from the reading start */
+.dn-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-bottom: 0.125rem;
+  background: linear-gradient(currentColor, currentColor) no-repeat;
+  background-size: 0% 1px;
+  background-position: var(--dn-underline-from, right) bottom;
+  transition: background-size 420ms var(--dn-ease);
+}
+[dir="ltr"] .dn-link,
+.dn-portal[dir="ltr"] .dn-link {
+  --dn-underline-from: left;
+}
+.dn-link:hover,
+.dn-link:focus-visible,
+.dn-link[aria-current="page"],
+.dn-link[aria-expanded="true"] {
+  background-size: 100% 1px;
+}
+.dn-link--on {
+  background-size: 100% 1px;
+}
+.dn-link--on:hover {
+  background-size: 0% 1px;
+}
+
+/* ─── Buttons (pills) ───────────────────────────────────────────────────── */
+
+.dn-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--dn-control);
+  padding-inline: 1.75rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: background-color var(--dn-dur) var(--dn-ease), color var(--dn-dur) var(--dn-ease),
+    border-color var(--dn-dur) var(--dn-ease), transform 140ms var(--dn-ease);
+}
+[dir="ltr"] .dn-btn,
+.dn-portal[dir="ltr"] .dn-btn {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+/* Soft sheen that sweeps across on hover */
+.dn-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.18) 50%, transparent 65%);
+  transform: translateX(calc(110% * var(--dn-dir)));
+  transition: transform 700ms var(--dn-ease);
+  pointer-events: none;
+}
+.dn-btn:hover::after {
+  transform: translateX(calc(-110% * var(--dn-dir)));
+}
+.dn-btn:active {
+  transform: scale(0.98);
+}
+.dn-btn:disabled,
+.dn-btn[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.dn-btn svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+  flex-shrink: 0;
+}
+.dn-btn--solid {
+  background: var(--dn-btn);
+  color: var(--dn-btn-ink);
+}
+.dn-btn--solid:hover {
+  background: color-mix(in srgb, var(--dn-btn) 82%, var(--dn-bg));
+}
+.dn-btn--outline {
+  border-color: var(--dn-ink);
+  color: var(--dn-ink);
+  background: transparent;
+}
+.dn-btn--outline:hover {
+  background: var(--dn-ink);
+  color: var(--dn-bg);
+}
+.dn-btn--light {
+  background: #fff;
+  color: #2a2a28;
+}
+.dn-btn--light:hover {
+  background: #f1eee9;
+}
+.dn-btn--glass {
+  border-color: rgb(255 255 255 / 0.7);
+  color: #fff;
+  background: transparent;
+}
+.dn-btn--glass:hover {
+  background: #fff;
+  color: #2a2a28;
+}
+.dn-btn--ghost {
+  background: transparent;
+  color: inherit;
+  padding-inline: 0.75rem;
+}
+.dn-btn--ghost::after {
+  display: none;
+}
+.dn-btn--ghost:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.dn-btn--sm {
+  min-height: var(--dn-control-sm);
+  padding-inline: 1.25rem;
+}
+.dn-btn--lg {
+  min-height: 3.375rem;
+  padding-inline: 2.25rem;
+}
+.dn-btn--icon {
+  width: var(--dn-control-sm);
+  min-height: var(--dn-control-sm);
+  padding-inline: 0;
+}
+.dn-btn--full {
+  width: 100%;
+}
+
+/* Round icon button floating over media */
+.dn-fab {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--dn-drawer);
+  color: var(--dn-ink);
+  box-shadow: 0 6px 18px -8px rgb(42 42 40 / 0.35);
+  transition: transform var(--dn-dur) var(--dn-ease), background-color var(--dn-dur), color var(--dn-dur), opacity var(--dn-dur);
+}
+.dn-fab:hover {
+  background: var(--dn-ink);
+  color: var(--dn-bg);
+}
+.dn-fab svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+}
+
+/* Header icon buttons */
+.dn-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  color: inherit;
+  transition: background-color var(--dn-dur) var(--dn-ease), transform 140ms var(--dn-ease);
+}
+.dn-icon:hover {
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+.dn-icon:active {
+  transform: scale(0.94);
+}
+.dn-icon svg {
+  width: 1.3125rem;
+  height: 1.3125rem;
+}
+
+/* ─── Fields ────────────────────────────────────────────────────────────── */
+
+.dn-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--dn-control);
+  padding-inline: 1rem;
+  border: 1px solid var(--dn-line);
+  border-radius: 0;
+  background: var(--dn-drawer);
+  color: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--dn-dur), box-shadow var(--dn-dur);
+  appearance: none;
+}
+.dn-field::placeholder {
+  color: var(--dn-quiet);
+}
+.dn-field:hover {
+  border-color: var(--dn-line-ink);
+}
+.dn-field:focus,
+.dn-field:focus-visible {
+  outline: none;
+  border-color: var(--dn-ink);
+  box-shadow: 0 0 0 1px var(--dn-ink);
+}
+.dn-field::-webkit-search-cancel-button,
+.dn-field::-webkit-inner-spin-button,
+.dn-field::-webkit-outer-spin-button {
+  appearance: none;
+}
+.dn-field[type="number"] {
+  -moz-appearance: textfield;
+}
+textarea.dn-field {
+  padding-block: 0.75rem;
+  line-height: 1.8;
+}
+select.dn-field {
+  padding-inline-end: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23777' stroke-width='1.5'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 1rem center;
+  cursor: pointer;
+}
+[dir="ltr"] select.dn-field {
+  background-position: right 1rem center;
+}
+
+/* ─── Options & swatches ────────────────────────────────────────────────── */
+
+.dn-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  min-width: 3.25rem;
+  padding-inline: 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--dn-line);
+  background: transparent;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color var(--dn-dur), background-color var(--dn-dur), color var(--dn-dur);
+}
+.dn-opt:hover {
+  border-color: var(--dn-ink);
+}
+.dn-opt[aria-checked="true"],
+.dn-opt[aria-pressed="true"],
+.dn-opt[aria-current="page"],
+.dn-opt:has(input:checked) {
+  background: var(--dn-ink);
+  border-color: var(--dn-ink);
+  color: var(--dn-bg);
+}
+.dn-opt[data-error="true"] {
+  border-color: var(--dn-error);
+}
+.dn-opt:has(input:focus-visible),
+.dn-swatch-btn:has(input:focus-visible),
+.dn-check:has(input:focus-visible) {
+  outline: 2px solid var(--dn-ink);
+  outline-offset: 2px;
+}
+.dn-swatch {
+  display: inline-block;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+}
+.dn-swatch-btn {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: border-color var(--dn-dur);
+}
+.dn-swatch-btn:hover {
+  border-color: var(--dn-line-ink);
+}
+.dn-swatch-btn[aria-checked="true"] {
+  border-color: var(--dn-ink);
+}
+.dn-swatch-btn[data-error="true"] {
+  border-color: var(--dn-error);
+}
+
+/* ─── Tags ──────────────────────────────────────────────────────────────── */
+
+.dn-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding-inline: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: var(--dn-drawer);
+  color: var(--dn-ink);
+}
+[dir="ltr"] .dn-tag,
+.dn-portal[dir="ltr"] .dn-tag {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+.dn-tag--sale {
+  background: var(--dn-sale);
+  color: #fff;
+}
+.dn-tag--ink {
+  background: var(--dn-ink);
+  color: var(--dn-bg);
+}
+
+/* ─── Media ─────────────────────────────────────────────────────────────── */
+
+.dn-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--dn-plate);
+  isolation: isolate;
+}
+/* Reveal frame: clips its own settle animation (clip-path alone would still
+   let the scaled child widen the page). */
+.dn-crop {
+  overflow: hidden;
+}
+.dn-zoom-img {
+  transition: transform 1200ms var(--dn-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .dn-zoom-img {
+    transform: scale(1.05);
+  }
+}
+
+/* In cards the media must not isolate: its action buttons (z 2) have to sit
+   above the card's stretched link (z 1), which lives outside the media box. */
+.dn-card .dn-media {
+  isolation: auto;
+}
+
+/* Product card: second image crossfades in on hover (pointer devices) */
+.dn-card-img-1,
+.dn-card-img-2 {
+  transition: opacity 600ms var(--dn-ease), transform 1200ms var(--dn-ease);
+}
+.dn-card-img-2 {
+  opacity: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .dn-card:hover .dn-card-img-2 {
+    opacity: 1;
+  }
+  .dn-card:hover .dn-card-img-1.has-swap {
+    opacity: 0;
+  }
+  .dn-card:hover .dn-card-img-1,
+  .dn-card:hover .dn-card-img-2 {
+    transform: scale(1.03);
+  }
+  .dn-card-quick {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 320ms var(--dn-ease), transform 320ms var(--dn-ease);
+  }
+  .dn-card:hover .dn-card-quick,
+  .dn-card:focus-within .dn-card-quick {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.dn-pointer-only {
+  display: none !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .dn-pointer-only {
+    display: flex !important;
+  }
+  .dn-touch-only {
+    display: none !important;
+  }
+}
+
+/* ─── Listing grid ──────────────────────────────────────────────────────── */
+
+.dn-pgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--dn-gap);
+  row-gap: 2.25rem;
+}
+@media (min-width: 768px) {
+  .dn-pgrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 3rem;
+  }
+}
+@media (min-width: 1280px) {
+  [data-sidebar="false"] .dn-pgrid {
+    grid-template-columns: repeat(var(--store-grid-cols, 4), minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  [data-mcols="1"] .dn-pgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ─── Drawers & dialogs (Radix data-state) ──────────────────────────────── */
+
+.dn-drawer[data-state="open"] {
+  animation: dn-drawer-in 520ms var(--dn-ease) both;
+}
+.dn-drawer[data-state="closed"] {
+  animation: dn-drawer-out 300ms var(--dn-ease-io) both;
+}
+.dn-drawer--start[data-state="open"] {
+  animation-name: dn-drawer-in-start;
+}
+.dn-drawer--start[data-state="closed"] {
+  animation-name: dn-drawer-out-start;
+}
+.dn-drop[data-state="open"] {
+  animation: dn-drop-in 420ms var(--dn-ease) both;
+}
+.dn-drop[data-state="closed"] {
+  animation: dn-drop-out 240ms var(--dn-ease-io) both;
+}
+.dn-modal[data-state="open"] {
+  animation: dn-modal-in 420ms var(--dn-ease) both;
+}
+.dn-modal[data-state="closed"] {
+  animation: dn-fade 200ms ease-in reverse both;
+}
+@media (max-width: 1023px) {
+  .dn-modal--sheet[data-state="open"] {
+    animation: dn-sheet-in 460ms var(--dn-ease) both;
+  }
+  .dn-modal--sheet[data-state="closed"] {
+    animation: dn-sheet-out 260ms var(--dn-ease-io) both;
+  }
+}
+.dn-scrim[data-state="open"] {
+  animation: dn-fade 360ms ease-out both;
+}
+.dn-scrim[data-state="closed"] {
+  animation: dn-fade 240ms ease-in reverse both;
+}
+/* Items inside an opening drawer arrive one after another */
+[data-state="open"] .dn-stagger > * {
+  animation: dn-rise 560ms var(--dn-ease) both;
+  animation-delay: calc(var(--i, 0) * 45ms + 140ms);
+}
+
+/* ─── Details (accordions) ──────────────────────────────────────────────── */
+
+.dn-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.dn-details > summary::-webkit-details-marker {
+  display: none;
+}
+/* Plus that turns into a minus */
+.dn-plus {
+  position: relative;
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+.dn-plus::before,
+.dn-plus::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 1px;
+  background: currentColor;
+  transition: transform 360ms var(--dn-ease);
+}
+.dn-plus::after {
+  transform: rotate(90deg);
+}
+.dn-details[open] > summary .dn-plus::after {
+  transform: rotate(0deg);
+}
+@supports (interpolate-size: allow-keywords) {
+  .dn-details {
+    interpolate-size: allow-keywords;
+  }
+  .dn-details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size 420ms var(--dn-ease), content-visibility 420ms allow-discrete;
+  }
+  .dn-details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* ─── Skeleton ──────────────────────────────────────────────────────────── */
+
+.dn-skel {
+  background: linear-gradient(90deg, var(--dn-tile) 25%, color-mix(in srgb, var(--dn-tile) 50%, var(--dn-bg)) 50%, var(--dn-tile) 75%);
+  background-size: 300% 100%;
+  animation: dn-shimmer 1.8s ease-in-out infinite;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+/* Solid by default. When the page opens on a full-bleed hero (marked with
+   [data-under-header]) the header sits transparently over it until the
+   shopper scrolls or opens a menu — decided in CSS so there is no flash. */
+
+.dn-header {
+  background: var(--dn-bg);
+  color: var(--dn-ink);
+  box-shadow: inset 0 -1px 0 var(--dn-line);
+  transition: background-color 400ms var(--dn-ease), color 400ms var(--dn-ease), box-shadow 400ms var(--dn-ease);
+}
+.theme-dune:has([data-under-header]) .dn-header:not([data-solid="true"]) {
+  background: transparent;
+  color: #fff;
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.22);
+}
+.theme-dune:has([data-under-header]) .dn-header:not([data-solid="true"]) .dn-cart-dot {
+  background: #fff;
+  color: #2a2a28;
+}
+[data-under-header] {
+  margin-top: calc(var(--dn-header-h) * -1);
+}
+.dn-cart-dot {
+  background: var(--dn-sale);
+  color: #fff;
+}
+
+/* ─── Hotspot ───────────────────────────────────────────────────────────── */
+
+.dn-hotspot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #2a2a28;
+  box-shadow: 0 6px 20px -6px rgb(0 0 0 / 0.4);
+}
+.dn-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: -0.375rem;
+  border-radius: inherit;
+  border: 1px solid rgb(255 255 255 / 0.9);
+  animation: dn-ping 2.4s var(--dn-ease) infinite;
+}
+}
+
+/* Shared checkout form follows Dune's square fields */
+.dn-checkout :where(.rounded-xl, .rounded-2xl, .rounded-lg, .rounded-md) {
+  border-radius: 0;
+}
+
+/* ─── Motion ────────────────────────────────────────────────────────────── */
+/* Scroll reveals and parallax are CSS scroll-driven animations: no script
+   touches server-rendered markup, browsers without support simply show the
+   static layout, and reduced motion turns them off. Each element animates on
+   its own view timeline; `--d` offsets the range for a stagger. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-dune .dn-appear {
+      animation: dn-appear linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--d, 0) * 6%) entry calc(55% + var(--d, 0) * 6%);
+    }
+    .theme-dune .dn-fade {
+      animation: dn-rise linear both;
+      animation-timeline: view();
+      animation-range: entry calc(min(var(--d, 0), 3) * 5%) entry calc(45% + min(var(--d, 0), 3) * 5%);
+    }
+    /* Image reveal: a crop that opens upward while the image settles */
+    .theme-dune .dn-crop {
+      animation: dn-crop linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--d, 0) * 4%) cover 22%;
+    }
+    .theme-dune .dn-crop > * {
+      animation: dn-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+    .theme-dune [data-parallax] {
+      animation: dn-parallax linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+  }
+}
+
+@keyframes dn-appear {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes dn-crop {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes dn-settle {
+  from { transform: scale(1.18); }
+  to { transform: none; }
+}
+@keyframes dn-parallax {
+  from { transform: translateY(-9%); }
+  to { transform: translateY(9%); }
+}
+
+/* Hero: slow settle of the active slide + staggered copy */
+.dn-slide .dn-hero-img {
+  transform: scale(1.1);
+  transition: transform 7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.dn-slide.is-active .dn-hero-img {
+  transform: scale(1);
+}
+.dn-slide .dn-hero-copy > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 900ms var(--dn-ease), transform 900ms var(--dn-ease);
+}
+.dn-slide.is-active .dn-hero-copy > * {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--d, 0) * 150ms + 350ms);
+}
+
+@keyframes dn-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes dn-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes dn-modal-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+/* Drawers open from the reading end (cart) or the reading start (menu) */
+@keyframes dn-drawer-in {
+  from { transform: translateX(calc(-100% * var(--dn-dir))); }
+  to { transform: none; }
+}
+@keyframes dn-drawer-out {
+  to { transform: translateX(calc(-100% * var(--dn-dir))); }
+}
+@keyframes dn-drawer-in-start {
+  from { transform: translateX(calc(100% * var(--dn-dir))); }
+  to { transform: none; }
+}
+@keyframes dn-drawer-out-start {
+  to { transform: translateX(calc(100% * var(--dn-dir))); }
+}
+@keyframes dn-drop-in {
+  from { transform: translateY(-100%); }
+  to { transform: none; }
+}
+@keyframes dn-drop-out {
+  to { transform: translateY(-100%); }
+}
+@keyframes dn-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes dn-sheet-out {
+  to { transform: translateY(100%); }
+}
+@keyframes dn-shimmer {
+  to { background-position: -150% 0; }
+}
+@keyframes dn-marquee {
+  to { transform: translateX(calc(50% * var(--dn-dir))); }
+}
+@keyframes dn-bump {
+  40% { transform: scale(1.35); }
+}
+@keyframes dn-ping {
+  0% { transform: scale(0.8); opacity: 1; }
+  80%, 100% { transform: scale(1.5); opacity: 0; }
+}
+
+.dn-bump {
+  animation: dn-bump 460ms var(--dn-ease);
+}
+.dn-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: dn-marquee 45s linear infinite;
+}
+.dn-marquee:hover .dn-marquee-track,
+.dn-marquee:focus-within .dn-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-dune *,
+  .theme-dune *::before,
+  .theme-dune *::after,
+  .dn-portal *,
+  .dn-portal *::before,
+  .dn-portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .dn-marquee-track {
+    animation: none !important;
+  }
+  .dn-hotspot::before {
+    display: none;
+  }
+}
+
+/* ─── Toasts (rendered outside the store root) ──────────────────────────── */
+
+.dn-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: var(--width, 356px);
+  max-width: calc(100vw - 2rem);
+  padding: 0.875rem 1rem;
+  background: #2a2a28;
+  color: #f7f7f7;
+  box-shadow: 0 24px 50px -22px rgb(0 0 0 / 0.6);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.dn-toast [data-title] {
+  font-weight: 600;
+}
+.dn-toast [data-description] {
+  color: #c9c5bd;
+  font-size: 0.8125rem;
+}
+.dn-toast [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #c7b8a1;
+  color: #2a2a28;
+}
+.dn-toast--error [data-icon] {
+  background: #f19a8c;
+}

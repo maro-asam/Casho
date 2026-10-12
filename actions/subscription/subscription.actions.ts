@@ -17,6 +17,7 @@ import { BalanceTransactionType, BillingCycle, SubscriptionStatus } from "@prism
 import { addMonths, addYears } from "date-fns";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
+import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
 
 type ActionResult = {
   success: boolean;
@@ -269,6 +270,7 @@ export async function ActivateStoreSubscriptionAction(
 
     await grantReferralRewardIfEligible(store.id);
     await trackPaidReferralLevel(store.id);
+    await recordSalesCommissionsForStore(store.id);
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/subscription");
@@ -354,6 +356,7 @@ export async function TryRenewStoreSubscriptionAction(
 
       await grantReferralRewardIfEligible(store.id);
       await trackPaidReferralLevel(store.id);
+      await recordSalesCommissionsForStore(store.id);
 
       revalidatePath("/dashboard");
       revalidatePath("/dashboard/subscription");
@@ -599,6 +602,7 @@ export async function RenewStoreSubscriptionAction(
 
     await grantReferralRewardIfEligible(store.id);
     await trackPaidReferralLevel(store.id);
+    await recordSalesCommissionsForStore(store.id);
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");

@@ -103,11 +103,106 @@ function MadaThemePreview() {
   );
 }
 
+// ─── 4. Casho Dune ────────────────────────────────────────────────
+function DuneThemePreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-[#f7f7f7]">
+      <div className="h-2 bg-[#785c43]" />
+      <div className="relative h-16 bg-[#5d5248]">
+        <div className="absolute inset-x-2.5 top-1.5 flex items-center justify-between">
+          <div className="h-2 w-8 rounded-sm bg-white/90" />
+          <div className="flex gap-1">
+            <div className="h-1 w-5 rounded-full bg-white/70" />
+            <div className="h-1 w-5 rounded-full bg-white/70" />
+          </div>
+          <div className="size-2 rounded-full bg-white/80" />
+        </div>
+        <div className="absolute inset-x-0 bottom-2 flex flex-col items-center gap-1">
+          <div className="h-2 w-16 bg-white/90" />
+          <div className="h-2.5 w-9 rounded-full bg-white" />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 p-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-1">
+            <div className="relative aspect-square w-full bg-[#f0eee9]">
+              {i === 0 && <div className="absolute start-0 top-0 h-1.5 w-4 bg-[#8b6f47]" />}
+            </div>
+            <div className="h-1 w-3/4 rounded-full bg-[#2a2a28]/40" />
+            <div className="h-1 w-1/3 rounded-full bg-[#5a4a42]/50" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── 5. Maximize ──────────────────────────────────────────────────
+function MaximizeThemePreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-white">
+      <div className="h-2 bg-gradient-to-l from-[#0b7f6f] to-[#075e52]" />
+      <div className="flex items-center gap-1.5 px-2.5 pt-2">
+        <div className="h-3 w-6 rounded-sm bg-[#0b7f6f]" />
+        <div className="h-2 w-8 rounded-sm bg-[#100f0f]/80" />
+        <div className="h-3 flex-1 rounded-sm border border-[#e7e7ea] bg-[#f4f4f5]" />
+        <div className="size-2 rounded-full bg-[#100f0f]/70" />
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 p-2.5 pb-1.5">
+        <div className="relative col-span-2 h-12 rounded-md bg-[#171a22]">
+          <div className="absolute bottom-2 start-2 h-1.5 w-10 rounded-full bg-white/90" />
+          <div className="absolute end-2 top-0 h-4 w-3 rounded-b-full bg-[#b3232c]" />
+        </div>
+        <div className="h-12 rounded-md bg-[#e3f4f1]" />
+      </div>
+      <div className="grid grid-cols-4 gap-1.5 px-2.5 pb-2.5">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex flex-col gap-1">
+            <div className="relative aspect-square rounded-md bg-[#f4f4f5]">
+              {i === 1 && <div className="absolute start-0.5 top-0.5 h-1.5 w-3 rounded-sm bg-[#fde7ea]" />}
+            </div>
+            <div className="h-1 w-3/4 rounded-full bg-[#100f0f]/40" />
+            <div className={`h-1 w-1/2 rounded-full ${i === 1 ? "bg-[#d0202e]/70" : "bg-[#100f0f]/60"}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CelloThemePreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-[#f8f8f8]">
+      <div className="h-2 bg-[#0a2a6e]" />
+      <div className="flex items-center gap-1.5 bg-white px-2.5 py-2">
+        <div className="h-2.5 w-7 rounded-sm bg-[#1447e6]" />
+        <div className="h-3 flex-1 rounded-sm bg-[#eceef1]" />
+        <div className="h-3 w-5 rounded-sm bg-[#fdc500]" />
+      </div>
+      <div className="h-12 bg-gradient-to-l from-[#0a2a6e] to-[#1447e6]" />
+      <div className="grid grid-cols-4 gap-1.5 p-2.5">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex flex-col gap-1 rounded-md bg-white p-1">
+            <div className="relative aspect-square rounded-sm bg-[#f1f2f4]">
+              {i < 2 && <div className={`absolute start-0.5 top-0.5 h-1.5 w-3 rounded-sm ${i === 0 ? "bg-[#d92d20]" : "bg-[#1447e6]"}`} />}
+            </div>
+            <div className="h-1 w-3/4 rounded-full bg-[#202020]/40" />
+            <div className="h-1 w-1/2 rounded-full bg-[#202020]/60" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   default: DefaultThemePreview,
   riwaq: RiwaqThemePreview,
   mada: MadaThemePreview,
+  dune: DuneThemePreview,
+  maximize: MaximizeThemePreview,
+  cello: CelloThemePreview,
 };
 
 export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProps) {

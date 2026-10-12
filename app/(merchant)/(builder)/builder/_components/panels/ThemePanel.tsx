@@ -67,10 +67,67 @@ function MadaPreview() {
   );
 }
 
+function DunePreview() {
+  return (
+    <div className="h-20 overflow-hidden rounded-lg border bg-[#f7f7f7]">
+      <div className="h-1 bg-[#785c43]" />
+      <div className="relative h-9 bg-[#5d5248]">
+        <div className="absolute inset-x-1.5 top-1 flex justify-between">
+          <div className="h-1.5 w-6 bg-white/90" />
+          <div className="size-1.5 rounded-full bg-white/80" />
+        </div>
+        <div className="absolute bottom-1 left-1/2 h-1.5 w-10 -translate-x-1/2 bg-white/90" />
+      </div>
+      <div className="grid grid-cols-3 gap-1 px-1.5 pt-1">
+        {[0,1,2].map(i => <div key={i} className="aspect-square bg-[#f0eee9]" />)}
+      </div>
+    </div>
+  );
+}
+
+function MaximizePreview() {
+  return (
+    <div className="h-20 overflow-hidden rounded-lg border bg-white">
+      <div className="h-1 bg-[#0b7f6f]" />
+      <div className="flex items-center gap-1 px-1.5 pt-1">
+        <div className="h-2 w-4 rounded-sm bg-[#0b7f6f]" />
+        <div className="h-2 flex-1 rounded-sm border border-[#e7e7ea]" />
+      </div>
+      <div className="grid grid-cols-3 gap-1 px-1.5 pt-1">
+        <div className="col-span-2 h-7 rounded-sm bg-[#171a22]" />
+        <div className="h-7 rounded-sm bg-[#e3f4f1]" />
+      </div>
+      <div className="grid grid-cols-4 gap-1 px-1.5 pt-1">
+        {[0,1,2,3].map(i => <div key={i} className="h-4 rounded-sm bg-[#f4f4f5]" />)}
+      </div>
+    </div>
+  );
+}
+
+function CelloPreview() {
+  return (
+    <div className="h-20 overflow-hidden rounded-lg border bg-[#f8f8f8]">
+      <div className="h-1 bg-[#0a2a6e]" />
+      <div className="flex items-center gap-1 bg-white px-1.5 py-1">
+        <div className="h-2 w-4 rounded-sm bg-[#1447e6]" />
+        <div className="h-2 flex-1 rounded-sm bg-[#eceef1]" />
+        <div className="h-2 w-3 rounded-sm bg-[#fdc500]" />
+      </div>
+      <div className="h-6 bg-[#0a2a6e]" />
+      <div className="grid grid-cols-4 gap-1 px-1.5 pt-1">
+        {[0,1,2,3].map(i => <div key={i} className="h-4 rounded-sm bg-white" />)}
+      </div>
+    </div>
+  );
+}
+
 const PREVIEWS: Record<StoreThemeId, React.FC> = {
   default: DefaultPreview,
   riwaq: RiwaqPreview,
   mada: MadaPreview,
+  dune: DunePreview,
+  maximize: MaximizePreview,
+  cello: CelloPreview,
 };
 
 // ─── Panel ────────────────────────────────────────────────────────────────────

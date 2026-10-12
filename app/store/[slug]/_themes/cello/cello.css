@@ -1,0 +1,1221 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Cello storefront theme — design system
+   Electronics storefront modelled on the Shopify Cello preset (Webibazaar):
+   a light grey canvas with white product cards, deep navy chrome (promo bar,
+   countdown, footer), the store's blue for actions, a yellow search / "buy
+   now" accent, solid red "save" and blue "new" badges, square swatches and
+   4px buttons. Scoped to `.theme-cello` (and `.ce-portal` for drawers and
+   dialogs rendered outside the store root). Colors come from the merchant-
+   resolved store tokens. See DESIGN.md.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.theme-cello,
+.ce-portal {
+  /* Color roles */
+  --ce-bg: var(--background);
+  --ce-ink: var(--foreground);                       /* headings, titles */
+  --ce-text: color-mix(in srgb, var(--foreground) 80%, var(--background));
+  --ce-quiet: var(--muted-foreground);
+  --ce-line: var(--border);
+  --ce-plate: var(--card);                           /* product cards (white) */
+  --ce-card: var(--card);
+  --ce-surface: var(--popover);                      /* drawers, menus, dialogs */
+  --ce-btn: var(--primary);
+  --ce-btn-ink: var(--primary-foreground);
+  --ce-btn-hover: color-mix(in srgb, var(--primary) 78%, #000);
+  --ce-link: var(--accent-foreground);               /* text links, highlights */
+  --ce-tint: var(--accent);                          /* light brand panels */
+  --ce-band: var(--muted);                           /* grey panels (deals, picks) */
+  --ce-navy: color-mix(in srgb, var(--primary) 40%, #000a24); /* promo bar, footer */
+  --ce-navy-ink: #ffffff;
+  --ce-cta: var(--secondary);                        /* yellow search / buy now */
+  --ce-cta-ink: var(--secondary-foreground);
+  --ce-sale: #e02424;
+  --ce-sale-tint: #fde8e8;
+  --ce-sale-badge: #e02424;
+  --ce-new: #1a6fe6;
+  --ce-new-tint: #1a6fe6;
+  --ce-pick: #5b4500;
+  --ce-pick-tint: #fdf0bf;
+  --ce-stock: #108017;
+  --ce-low: #d0202e;
+  --ce-star: #f5a524;
+  --ce-success: #187a3c;
+  --ce-warn: #9a5b00;
+  --ce-error: #c1121f;
+  --ce-dark: var(--ce-navy);                         /* footer, dark tiles */
+  --ce-dark-ink: #ffffff;
+  --ce-dark-quiet: rgb(255 255 255 / 0.78);
+  --ce-dark-line: rgb(255 255 255 / 0.14);
+  --ce-scrim: rgb(16 15 15 / 0.5);
+  --ce-shadow: 0 18px 50px -20px rgb(16 24 40 / 0.28);
+  --ce-shadow-sm: 0 2px 10px -4px rgb(16 24 40 / 0.14);
+
+  /* Type: Cairo for Arabic, Inter for Latin headings (both loaded by the root
+     layout). Body text keeps the merchant's chosen store font. */
+  --ce-display: var(--font-cairo), "Cairo", system-ui, sans-serif;
+
+  /* Shape */
+  --ce-r: 0.5rem;            /* 8px cards, tiles */
+  --ce-r-lg: 0.625rem;       /* 10px banners, panels */
+  --ce-r-sm: 0.25rem;        /* 4px buttons, inputs, badges */
+
+  /* Layout */
+  --ce-wrap: 100rem;         /* 1600px page width */
+  --ce-gutter: 1rem;
+  --ce-gap: 0.75rem;
+  --ce-section: 2.5rem;
+  --ce-header-h: 3.75rem;
+  --ce-control: 2.75rem;
+
+  /* Motion */
+  --ce-dur: var(--store-motion, 250ms);
+  --ce-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ce-dir: 1;
+
+  background: var(--ce-bg);
+  color: var(--ce-text);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-cello[dir="ltr"],
+.ce-portal[dir="ltr"] {
+  --ce-dir: -1;
+  --ce-display: var(--font-sans), "Inter", system-ui, sans-serif;
+}
+
+@media (min-width: 768px) {
+  .theme-cello,
+  .ce-portal {
+    --ce-gutter: 1.5rem;
+    --ce-section: 3.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .theme-cello,
+  .ce-portal {
+    --ce-gutter: 2.5rem;
+    --ce-gap: 1rem;
+    --ce-section: 4.5rem;
+    --ce-header-h: 4.25rem;
+  }
+}
+
+.dark .theme-cello,
+.dark .ce-portal {
+  --ce-stock: #5ccf69;
+  --ce-sale: #ff6b6b;
+  --ce-sale-tint: #3a1d22;
+  --ce-sale-badge: #d63131;
+  --ce-new: #2f7cf0;
+  --ce-new-tint: #2f7cf0;
+  --ce-pick: #f3dc85;
+  --ce-pick-tint: #3a3216;
+  --ce-low: #ff6b72;
+  --ce-success: #74d39a;
+  --ce-warn: #f0b75c;
+  --ce-error: #ff8a8a;
+  --ce-navy: #0b1222;
+  --ce-scrim: rgb(0 0 0 / 0.62);
+  --ce-shadow: 0 18px 50px -20px rgb(0 0 0 / 0.8);
+}
+
+@layer base {
+  .theme-cello *,
+  .ce-portal * {
+    font-weight: inherit;
+  }
+  .ce-portal {
+    font-weight: 400;
+  }
+  .theme-cello svg.lucide,
+  .ce-portal svg.lucide {
+    stroke-width: 1.75;
+  }
+  .theme-cello :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  .ce-portal :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ce-btn);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+
+.ce-wrap {
+  width: 100%;
+  max-width: var(--ce-wrap);
+  margin-inline: auto;
+  padding-inline: var(--ce-gutter);
+}
+.ce-section {
+  padding-block: calc(var(--ce-section) / 2);
+}
+.ce-band {
+  background: var(--ce-band);
+}
+.ce-bleed {
+  margin-inline: calc(var(--ce-gutter) * -1);
+  padding-inline: var(--ce-gutter);
+  scroll-padding-inline: var(--ce-gutter);
+}
+.ce-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.ce-rail::-webkit-scrollbar {
+  display: none;
+}
+.ce-rail > * {
+  scroll-snap-align: start;
+}
+.ce-has-bar {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .ce-has-bar {
+    padding-bottom: 0;
+  }
+}
+
+/* ─── Type ──────────────────────────────────────────────────────────────── */
+
+.ce-display {
+  font-family: var(--ce-display);
+  font-weight: 600;
+  color: var(--ce-ink);
+}
+.ce-hero {
+  font-family: var(--ce-display);
+  font-weight: 600;
+  font-size: clamp(1.875rem, 3.4vw, 2.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.ce-h1 {
+  font-family: var(--ce-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 2.4vw, 2.125rem);
+  line-height: 1.3;
+  color: var(--ce-ink);
+}
+.ce-h2 {
+  font-family: var(--ce-display);
+  font-weight: 600;
+  font-size: clamp(1.375rem, 2vw, 1.875rem);
+  line-height: 1.3;
+  color: var(--ce-ink);
+}
+.ce-h3 {
+  font-family: var(--ce-display);
+  font-weight: 600;
+  font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+  line-height: 1.35;
+  color: var(--ce-ink);
+}
+.ce-h4 {
+  font-family: var(--ce-display);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--ce-ink);
+}
+[dir="ltr"] :is(.ce-hero, .ce-h1, .ce-h2),
+.ce-portal[dir="ltr"] :is(.ce-hero, .ce-h1, .ce-h2) {
+  letter-spacing: -0.02em;
+}
+/* Subtitle under section titles (the reference sets it in italic Latin;
+   the theme copy is Arabic, which is never slanted) */
+.ce-sub {
+  margin-top: 0.375rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ce-text);
+}
+/* Small upper eyebrow ("OUR TOP DEALS"); Arabic is never tracked or cased */
+.ce-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ce-text);
+}
+[dir="ltr"] .ce-eyebrow,
+.ce-portal[dir="ltr"] .ce-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ce-price {
+  font-family: var(--ce-display);
+  font-weight: 600;
+  color: var(--ce-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.ce-num {
+  font-variant-numeric: tabular-nums;
+}
+.ce-prose {
+  max-width: 72ch;
+  line-height: 1.9;
+  white-space: pre-line;
+  color: var(--ce-text);
+}
+
+/* Text link with the underline Cello uses on "Shop Now" */
+.ce-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-bottom: 0.125rem;
+  color: var(--ce-link);
+  font-weight: 600;
+  background: linear-gradient(currentColor, currentColor) no-repeat;
+  background-size: 100% 1px;
+  background-position: var(--ce-underline-from, right) bottom;
+  transition: background-size 400ms var(--ce-ease), color var(--ce-dur);
+}
+[dir="ltr"] .ce-link,
+.ce-portal[dir="ltr"] .ce-link {
+  --ce-underline-from: left;
+}
+.ce-link:hover {
+  background-size: 0% 1px;
+}
+/* Plain links that gain an underline on hover (menus, footer) */
+.ce-hover-line {
+  background: linear-gradient(currentColor, currentColor) no-repeat;
+  background-size: 0% 1px;
+  background-position: var(--ce-underline-from, right) bottom;
+  transition: background-size 400ms var(--ce-ease), color var(--ce-dur);
+  padding-bottom: 0.125rem;
+}
+[dir="ltr"] .ce-hover-line,
+.ce-portal[dir="ltr"] .ce-hover-line {
+  --ce-underline-from: left;
+}
+.ce-hover-line:hover,
+.ce-hover-line[aria-current="page"],
+.ce-hover-line[aria-expanded="true"] {
+  background-size: 100% 1px;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+.ce-btn {
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--ce-control);
+  padding-inline: 1.5rem;
+  border-radius: var(--ce-r-sm);
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: background-color var(--ce-dur) var(--ce-ease), color var(--ce-dur) var(--ce-ease),
+    border-color var(--ce-dur) var(--ce-ease), box-shadow var(--ce-dur), transform 120ms var(--ce-ease);
+}
+.ce-btn:active {
+  transform: scale(0.98);
+}
+.ce-btn:disabled,
+.ce-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.ce-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+.ce-btn--solid {
+  background: var(--ce-btn);
+  color: var(--ce-btn-ink);
+}
+.ce-btn--solid:hover {
+  background: var(--ce-btn-hover);
+}
+.ce-btn--outline {
+  border-color: var(--ce-line);
+  background: var(--ce-bg);
+  color: var(--ce-ink);
+}
+.ce-btn--outline:hover {
+  border-color: var(--ce-ink);
+}
+.ce-btn--soft {
+  background: color-mix(in srgb, var(--ce-ink) 7%, transparent);
+  color: var(--ce-ink);
+}
+.ce-btn--soft:hover {
+  background: color-mix(in srgb, var(--ce-ink) 13%, transparent);
+}
+.ce-btn--cta {
+  background: var(--ce-cta);
+  color: var(--ce-cta-ink);
+}
+.ce-btn--cta:hover {
+  background: color-mix(in srgb, var(--ce-cta) 88%, #000);
+}
+.ce-btn--white {
+  background: #fff;
+  color: #100f0f;
+}
+.ce-btn--white:hover {
+  background: #e9ebf0;
+}
+.ce-btn--sm {
+  min-height: 2.25rem;
+  padding-inline: 1rem;
+  font-size: 0.8125rem;
+}
+.ce-btn--lg {
+  min-height: 3rem;
+  padding-inline: 2rem;
+  font-size: 0.9375rem;
+}
+.ce-btn--icon {
+  width: var(--ce-control);
+  padding-inline: 0;
+}
+.ce-btn--full {
+  width: 100%;
+}
+
+/* Header / toolbar icon buttons */
+.ce-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--ce-r-sm);
+  color: inherit;
+  transition: background-color var(--ce-dur) var(--ce-ease), transform 120ms var(--ce-ease);
+}
+.ce-icon:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.ce-icon:active {
+  transform: scale(0.94);
+}
+.ce-icon svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+/* Round floating button over media */
+.ce-fab {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--ce-surface);
+  color: var(--ce-ink);
+  box-shadow: var(--ce-shadow-sm);
+  transition: background-color var(--ce-dur), color var(--ce-dur), transform var(--ce-dur) var(--ce-ease);
+}
+.ce-fab:hover {
+  background: var(--ce-btn);
+  color: var(--ce-btn-ink);
+}
+.ce-fab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* ─── Fields ────────────────────────────────────────────────────────────── */
+
+.ce-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ce-control);
+  padding-inline: 0.875rem;
+  border: 1px solid var(--ce-line);
+  border-radius: var(--ce-r-sm);
+  background: var(--ce-bg);
+  color: var(--ce-ink);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--ce-dur), box-shadow var(--ce-dur);
+  appearance: none;
+}
+@media (min-width: 768px) {
+  .ce-field {
+    font-size: 0.875rem;
+  }
+}
+.ce-field::placeholder {
+  color: var(--ce-quiet);
+}
+.ce-field:hover {
+  border-color: color-mix(in srgb, var(--ce-ink) 30%, transparent);
+}
+.ce-field:focus,
+.ce-field:focus-visible {
+  outline: none;
+  border-color: var(--ce-btn);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ce-btn) 18%, transparent);
+}
+.ce-field::-webkit-search-cancel-button,
+.ce-field::-webkit-inner-spin-button,
+.ce-field::-webkit-outer-spin-button {
+  appearance: none;
+}
+.ce-field[type="number"] {
+  -moz-appearance: textfield;
+}
+textarea.ce-field {
+  padding-block: 0.75rem;
+  line-height: 1.8;
+}
+select.ce-field,
+.ce-select {
+  padding-inline-end: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23777' stroke-width='1.5'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.875rem center;
+  appearance: none;
+  cursor: pointer;
+}
+[dir="ltr"] :is(select.ce-field, .ce-select),
+.ce-portal[dir="ltr"] :is(select.ce-field, .ce-select) {
+  background-position: right 0.875rem center;
+}
+
+/* ─── Options & swatches ────────────────────────────────────────────────── */
+
+.ce-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  min-width: 3rem;
+  padding-inline: 1rem;
+  border-radius: var(--ce-r-sm);
+  border: 1px solid var(--ce-line);
+  background: var(--ce-bg);
+  color: var(--ce-ink);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color var(--ce-dur), background-color var(--ce-dur), color var(--ce-dur), box-shadow var(--ce-dur);
+}
+.ce-opt:hover {
+  border-color: var(--ce-ink);
+}
+.ce-opt[aria-checked="true"],
+.ce-opt[aria-pressed="true"],
+.ce-opt[aria-current="page"],
+.ce-opt:has(input:checked) {
+  border-color: var(--ce-btn);
+  box-shadow: inset 0 0 0 1px var(--ce-btn);
+  color: var(--ce-btn);
+  font-weight: 600;
+}
+.ce-opt[data-error="true"] {
+  border-color: var(--ce-error);
+}
+.ce-opt:has(input:focus-visible),
+.ce-swatch-btn:has(input:focus-visible),
+.ce-check:has(input:focus-visible) {
+  outline: 2px solid var(--ce-btn);
+  outline-offset: 2px;
+}
+.ce-swatch {
+  display: inline-block;
+  border-radius: 0.125rem;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+}
+.ce-swatch-btn {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--ce-r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  transition: border-color var(--ce-dur), box-shadow var(--ce-dur);
+}
+.ce-swatch-btn:hover {
+  border-color: var(--ce-ink);
+}
+.ce-swatch-btn[aria-checked="true"],
+.ce-swatch-btn:has(input:checked) {
+  border-color: var(--ce-ink);
+  box-shadow: inset 0 0 0 1px var(--ce-ink);
+}
+.ce-swatch-btn[data-error="true"] {
+  border-color: var(--ce-error);
+}
+
+/* ─── Badges ────────────────────────────────────────────────────────────── */
+
+.ce-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding-inline: 0.625rem;
+  border-radius: 0.1875rem;
+  box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.18);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.ce-badge--new {
+  background: var(--ce-new);
+  color: #fff;
+}
+.ce-badge--pick {
+  background: var(--ce-cta);
+  color: var(--ce-cta-ink);
+}
+.ce-badge--drop {
+  background: var(--ce-sale-badge);
+  color: #fff;
+}
+.ce-badge--out {
+  background: color-mix(in srgb, var(--ce-ink) 82%, transparent);
+  color: var(--ce-bg);
+}
+/* "-32%" chip beside a sale price */
+.ce-chip-off {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 0.1875rem;
+  background: var(--ce-sale-badge);
+  color: #fff;
+  box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.18);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+/* Big red promo seals on tiles: a tab hanging from the top, or a circle */
+.ce-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ce-sale-badge);
+  color: #fff;
+  font-family: var(--ce-display);
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+}
+.ce-seal--tab {
+  width: 4.5rem;
+  padding: 0.875rem 0.25rem 1.375rem;
+  border-radius: 0 0 999px 999px;
+}
+.ce-seal--circle {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 999px;
+}
+
+/* Stock line ("● In stock") */
+.ce-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+}
+.ce-stock::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+/* ─── Media ─────────────────────────────────────────────────────────────── */
+
+.ce-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--ce-plate);
+  border-radius: var(--ce-r);
+  isolation: isolate;
+}
+/* Product shots are contained on the white card; ones shot on a white
+   background blend into it (multiply), so photos stay whole. */
+.ce-product-img {
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.dark .ce-product-img {
+  mix-blend-mode: normal;
+}
+.ce-zoom-img {
+  transition: transform var(--image-dur, 500ms) var(--ce-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .ce-zoom-img {
+    transform: scale(1.06);
+  }
+}
+
+/* ─── Product card ──────────────────────────────────────────────────────── */
+
+/* Card media must not isolate: its action buttons (z 2) have to sit above
+   the card's stretched link (z 1), which lives outside the media box. */
+.ce-card .ce-media {
+  isolation: auto;
+}
+.ce-card {
+  background: var(--ce-card);
+  border-radius: var(--ce-r);
+  transition: box-shadow 300ms var(--ce-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ce-card:hover {
+    box-shadow: 0 10px 28px -16px rgb(16 24 40 / 0.35);
+  }
+}
+/* Square cart button over the image's bottom start corner */
+.ce-cart-btn {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--ce-r-sm);
+  background: var(--ce-navy);
+  color: #fff;
+  transition: background-color var(--ce-dur), transform 120ms var(--ce-ease);
+}
+.ce-cart-btn:hover {
+  background: var(--ce-btn);
+}
+.ce-cart-btn:active {
+  transform: scale(0.94);
+}
+.ce-cart-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+/* Rail arrows: square, navy next / pale previous */
+.ce-arrow {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--ce-r-sm);
+  background: var(--ce-navy);
+  color: #fff;
+  transition: background-color var(--ce-dur), opacity var(--ce-dur);
+}
+.ce-arrow:hover {
+  background: var(--ce-btn);
+}
+.ce-arrow:disabled {
+  background: color-mix(in srgb, var(--ce-navy) 45%, #fff);
+  cursor: default;
+}
+.ce-arrow svg {
+  width: 1rem;
+  height: 1rem;
+}
+.ce-card-img-1,
+.ce-card-img-2 {
+  transition: opacity 400ms var(--ce-ease), transform 500ms var(--ce-ease);
+}
+.ce-card-img-2 {
+  opacity: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ce-card:hover .ce-card-img-2 {
+    opacity: 1;
+  }
+  .ce-card:hover .ce-card-img-1.has-swap {
+    opacity: 0;
+  }
+  .ce-card:hover .ce-card-img-1:not(.has-swap) {
+    transform: scale(1.05);
+  }
+  .ce-card-quick {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 300ms var(--ce-ease), transform 300ms var(--ce-ease);
+  }
+  .ce-card-side {
+    opacity: 0;
+    transform: translateX(calc(-8px * var(--ce-dir)));
+    transition: opacity 300ms var(--ce-ease), transform 300ms var(--ce-ease);
+  }
+  .ce-card:hover :is(.ce-card-quick, .ce-card-side),
+  .ce-card:focus-within :is(.ce-card-quick, .ce-card-side) {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ce-pointer-only {
+  display: none !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ce-pointer-only {
+    display: flex !important;
+  }
+  .ce-touch-only {
+    display: none !important;
+  }
+}
+
+/* ─── Product grids ─────────────────────────────────────────────────────── */
+
+.ce-pgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+@media (min-width: 768px) {
+  .ce-pgrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--ce-gap);
+  }
+}
+@media (min-width: 1280px) {
+  [data-sidebar="false"] .ce-pgrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1536px) {
+  [data-sidebar="true"] .ce-pgrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  [data-sidebar="false"] .ce-pgrid {
+    grid-template-columns: repeat(var(--store-grid-cols, 5), minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  [data-mcols="1"] .ce-pgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* List view: horizontal cards */
+[data-view="list"] .ce-pgrid {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* Swipe rails: 2 cards on phones (the reference shows two whole cards),
+   3 on tablets, 4 on laptops, 5 on desktops */
+.ce-prail > li {
+  width: calc((100% - 0.625rem) / 2);
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .ce-prail > li {
+    width: calc((100% - var(--ce-gap) * 2) / 3);
+  }
+}
+@media (min-width: 1024px) {
+  .ce-prail > li {
+    width: calc((100% - var(--ce-gap) * 3) / 4);
+  }
+}
+@media (min-width: 1280px) {
+  .ce-prail > li {
+    width: calc((100% - var(--ce-gap) * 4) / 5);
+  }
+}
+
+/* ─── Drawers & dialogs (Radix data-state) ──────────────────────────────── */
+
+.ce-drawer[data-state="open"] {
+  animation: ce-drawer-in 420ms var(--ce-ease) both;
+}
+.ce-drawer[data-state="closed"] {
+  animation: ce-drawer-out 260ms var(--ce-ease) both;
+}
+.ce-drawer--start[data-state="open"] {
+  animation-name: ce-drawer-in-start;
+}
+.ce-drawer--start[data-state="closed"] {
+  animation-name: ce-drawer-out-start;
+}
+.ce-modal[data-state="open"] {
+  animation: ce-modal-in 300ms var(--ce-ease) both;
+}
+.ce-modal[data-state="closed"] {
+  animation: ce-fade 180ms ease-in reverse both;
+}
+@media (max-width: 1023px) {
+  .ce-modal--sheet[data-state="open"] {
+    animation: ce-sheet-in 380ms var(--ce-ease) both;
+  }
+  .ce-modal--sheet[data-state="closed"] {
+    animation: ce-sheet-out 240ms var(--ce-ease) both;
+  }
+}
+.ce-scrim[data-state="open"] {
+  animation: ce-fade 300ms ease-out both;
+}
+.ce-scrim[data-state="closed"] {
+  animation: ce-fade 200ms ease-in reverse both;
+}
+[data-state="open"] .ce-stagger > * {
+  animation: ce-rise 420ms var(--ce-ease) both;
+  animation-delay: calc(var(--i, 0) * 35ms + 100ms);
+}
+
+/* ─── Details (accordions) ──────────────────────────────────────────────── */
+
+.ce-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.ce-details > summary::-webkit-details-marker {
+  display: none;
+}
+.ce-chev {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  transition: transform 300ms var(--ce-ease);
+}
+.ce-details[open] > summary .ce-chev {
+  transform: rotate(180deg);
+}
+@supports (interpolate-size: allow-keywords) {
+  .ce-details {
+    interpolate-size: allow-keywords;
+  }
+  .ce-details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size 320ms var(--ce-ease), content-visibility 320ms allow-discrete;
+  }
+  .ce-details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* ─── Skeleton ──────────────────────────────────────────────────────────── */
+
+.ce-skel {
+  border-radius: var(--ce-r-sm);
+  background: linear-gradient(90deg, var(--ce-band) 25%, color-mix(in srgb, var(--ce-band) 40%, var(--ce-card)) 50%, var(--ce-band) 75%);
+  background-size: 300% 100%;
+  animation: ce-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+/* Sticky "on scroll up": hides while the shopper scrolls down the page and
+   slides back as soon as they scroll up. */
+
+.ce-header {
+  background: var(--ce-bg);
+  color: var(--ce-ink);
+  transition: transform 350ms var(--ce-ease), box-shadow 350ms var(--ce-ease);
+}
+.ce-header[data-hidden="true"] {
+  transform: translateY(-100%);
+}
+.ce-header[data-stuck="true"] {
+  box-shadow: 0 6px 20px -12px rgb(16 24 40 / 0.25);
+}
+.ce-cart-dot {
+  background: var(--ce-cta);
+  color: var(--ce-cta-ink);
+}
+.ce-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ce-ink);
+  white-space: nowrap;
+  transition: color var(--ce-dur);
+}
+.ce-nav-link:hover,
+.ce-nav-link[aria-current="page"],
+.ce-nav-link[aria-expanded="true"] {
+  color: var(--ce-link);
+}
+.ce-nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.5rem;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: var(--ce-underline-from, right);
+  transition: transform 350ms var(--ce-ease);
+}
+[dir="ltr"] .ce-nav-link {
+  --ce-underline-from: left;
+}
+.ce-nav-link:hover::after,
+.ce-nav-link[aria-current="page"]::after,
+.ce-nav-link[aria-expanded="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Scrolling promo bar */
+.ce-ticker {
+  background: var(--ce-navy);
+  color: #fff;
+}
+/* Bright scrolling headline band between sections */
+.ce-band-blue {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ce-btn) 70%, #000a1f), var(--ce-btn));
+  color: #fff;
+}
+.ce-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: ce-marquee var(--ce-marquee-dur, 40s) linear infinite;
+}
+.ce-marquee:hover .ce-marquee-track,
+.ce-marquee:focus-within .ce-marquee-track,
+.ce-marquee[data-paused="true"] .ce-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Back-to-top */
+.ce-top {
+  position: fixed;
+  inset-inline-end: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ce-ink) 12%, var(--ce-bg));
+  color: var(--ce-ink);
+  box-shadow: var(--ce-shadow-sm);
+  transition: opacity 300ms var(--ce-ease), transform 300ms var(--ce-ease), background-color var(--ce-dur);
+}
+.ce-top:hover {
+  background: var(--ce-btn);
+  color: var(--ce-btn-ink);
+}
+.ce-top[data-show="false"] {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+/* Countdown digits ("81 : 8 : 23 : 31" on red) */
+.ce-count {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-width: 3.5rem;
+  height: 3.5rem;
+  padding-inline: 0.375rem;
+  border-radius: var(--ce-r-sm);
+  background: var(--ce-navy);
+  color: #fff;
+  font-family: var(--ce-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.ce-count small {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+@media (min-width: 768px) {
+  .ce-count {
+    min-width: 4.5rem;
+    height: 4.125rem;
+    font-size: 1.625rem;
+  }
+  .ce-count small {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Tabs (promotional collections) */
+.ce-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding: 0.25rem 1rem 0.25rem 0.375rem;
+  border-radius: var(--ce-r);
+  border: 1px solid var(--ce-line);
+  background: var(--ce-bg);
+  color: var(--ce-ink);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color var(--ce-dur), border-color var(--ce-dur);
+}
+[dir="rtl"] .ce-tab {
+  padding: 0.25rem 0.375rem 0.25rem 1rem;
+}
+.ce-tab:hover {
+  border-color: color-mix(in srgb, var(--ce-ink) 30%, transparent);
+}
+.ce-tab[aria-selected="true"] {
+  background: color-mix(in srgb, var(--ce-ink) 8%, var(--ce-bg));
+  border-color: transparent;
+}
+.ce-tab-panel[data-state="active"] {
+  animation: ce-tab-in 300ms var(--ce-ease) both;
+}
+}
+
+/* Shared checkout form follows Cello's 4–8px radii */
+.ce-checkout :where(.rounded-xl, .rounded-2xl, .rounded-lg) {
+  border-radius: var(--ce-r);
+}
+
+/* ─── Motion ────────────────────────────────────────────────────────────── */
+/* Sections fade up as they enter (scroll-driven, so no script touches
+   server-rendered markup); unsupported browsers and reduced-motion users get
+   the static layout. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-cello .ce-reveal {
+      animation: ce-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--d, 0) * 5%) entry calc(40% + var(--d, 0) * 5%);
+    }
+  }
+}
+
+@keyframes ce-reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ce-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ce-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ce-tab-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ce-modal-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ce-drop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+/* Drawers open from the reading end (cart) or the reading start (menu) */
+@keyframes ce-drawer-in {
+  from { transform: translateX(calc(-100% * var(--ce-dir))); }
+  to { transform: none; }
+}
+@keyframes ce-drawer-out {
+  to { transform: translateX(calc(-100% * var(--ce-dir))); }
+}
+@keyframes ce-drawer-in-start {
+  from { transform: translateX(calc(100% * var(--ce-dir))); }
+  to { transform: none; }
+}
+@keyframes ce-drawer-out-start {
+  to { transform: translateX(calc(100% * var(--ce-dir))); }
+}
+@keyframes ce-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes ce-sheet-out {
+  to { transform: translateY(100%); }
+}
+@keyframes ce-shimmer {
+  to { background-position: -150% 0; }
+}
+@keyframes ce-marquee {
+  to { transform: translateX(calc(50% * var(--ce-dir))); }
+}
+@keyframes ce-bump {
+  40% { transform: scale(1.3); }
+}
+
+.ce-bump {
+  animation: ce-bump 420ms var(--ce-ease);
+}
+.ce-pop {
+  animation: ce-drop 220ms var(--ce-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-cello *,
+  .theme-cello *::before,
+  .theme-cello *::after,
+  .ce-portal *,
+  .ce-portal *::before,
+  .ce-portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .ce-marquee-track {
+    animation: none !important;
+  }
+}
+
+/* ─── Toasts (rendered outside the store root) ──────────────────────────── */
+
+.ce-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: var(--width, 356px);
+  max-width: calc(100vw - 2rem);
+  padding: 0.875rem 1rem;
+  border-radius: 0.625rem;
+  background: #111318;
+  color: #f4f5f7;
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.55);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.ce-toast [data-title] {
+  font-weight: 600;
+}
+.ce-toast [data-description] {
+  color: #b9bdc6;
+  font-size: 0.8125rem;
+}
+.ce-toast [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #1447e6;
+  color: #fff;
+}
+.ce-toast--error [data-icon] {
+  background: #d0202e;
+}

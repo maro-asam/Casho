@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export function GoogleButton({ label }: { label: string }) {
+export function GoogleButton({ label, refCode }: { label: string; refCode?: string }) {
   return (
     <Button asChild type="button" variant="outline" className="h-11 w-full gap-2.5 font-medium">
-      <a href="/api/auth/google">
+      <a href={refCode ? `/api/auth/google?ref=${encodeURIComponent(refCode)}` : "/api/auth/google"}>
         <GoogleIcon />
         {label}
       </a>

@@ -1,0 +1,16 @@
+export const AUDIT_LABELS: Record<string, string> = {
+  sales_rep_created: "إنشاء حساب مندوب",
+  sales_rep_updated: "تعديل بيانات مندوب",
+  sales_rep_disabled: "إيقاف مندوب",
+  sales_rep_enabled: "إعادة تفعيل مندوب",
+  attribution_assigned: "نسب عميل لمندوب",
+  attribution_reassigned: "نقل عميل لمندوب تاني",
+  commission_created: "تسجيل عمولة تلقائيًا",
+  commission_approve: "اعتماد عمولة",
+  commission_hold: "تعليق عمولة",
+  commission_reject: "رفض عمولة",
+  commission_reverse: "إلغاء عمولة",
+  adjustment_created: "تسوية على عمولة",
+  payout_recorded: "تسجيل صرف",
+  commission_rules_updated: "تحديث قواعد العمولات",
+};

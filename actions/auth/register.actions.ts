@@ -12,6 +12,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { TrackStoreRegistrationAction } from "@/actions/tracking/tracking.actions";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { generateReferralCode } from "@/lib/referral";
+import { createSignupAttribution, resolveSignupReferral } from "@/lib/sales/attribution";
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
@@ -45,7 +46,7 @@ export async function RegisterAction(
   _prevState: RegisterState | null,
   formData: FormData,
 ): Promise<RegisterState> {
-  const refCode = formData.get("refCode")?.toString()?.trim().toUpperCase() ?? "";
+  const refCode = formData.get("refCode")?.toString() ?? "";
 
   const rawData = {
     storeName: formData.get("storeName")?.toString() ?? "",
@@ -112,15 +113,9 @@ export async function RegisterAction(
       };
     }
 
-    // Resolve referrer if a valid refCode was provided
-    let referredById: string | null = null;
-    if (refCode) {
-      const referrer = await prisma.user.findUnique({
-        where: { referralCode: refCode },
-        select: { id: true },
-      });
-      if (referrer) referredById = referrer.id;
-    }
+    // Resolve referrer (merchant referral or sales rep) — validated server-side
+    const referral = await resolveSignupReferral(refCode);
+    const referredById = referral?.referrerUserId ?? null;
 
     const hashedPassword = await hashPassword(password);
     const now = new Date();
@@ -177,6 +172,8 @@ export async function RegisterAction(
           },
         },
       });
+
+      await createSignupAttribution(tx, { customerUserId: user.id, referral, signedUpAt: now });
 
       return user;
     });

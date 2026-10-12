@@ -13,6 +13,7 @@ import { getFieldErrors } from "@/lib/zod";
 import { z } from "zod";
 import type { ActionState } from "./auth.types";
 import { generateReferralCode } from "@/lib/referral";
+import { SIGNUP_REF_COOKIE, createSignupAttribution, resolveSignupReferral } from "@/lib/sales/attribution";
 
 const PENDING_COOKIE = "pendingGoogleAuth";
 
@@ -58,7 +59,8 @@ export async function RegisterGoogleAction(
     return { error: "بيانات Google غير صالحة، ابدأ من جديد" };
   }
 
-  const refCode = formData.get("refCode")?.toString()?.trim().toUpperCase() ?? "";
+  // The form field survives a same-page reload; the cookie survives the Google OAuth round trip.
+  const refCode = formData.get("refCode")?.toString() || cookieStore.get(SIGNUP_REF_COOKIE)?.value || "";
 
   const rawData = {
     storeName: formData.get("storeName")?.toString() ?? "",
@@ -84,15 +86,9 @@ export async function RegisterGoogleAction(
       return { success: true, message: "تم تسجيل الدخول" };
     }
 
-    // Resolve referrer
-    let referredById: string | null = null;
-    if (refCode) {
-      const referrer = await prisma.user.findUnique({
-        where: { referralCode: refCode },
-        select: { id: true },
-      });
-      if (referrer) referredById = referrer.id;
-    }
+    // Resolve referrer (merchant referral or sales rep) — validated server-side
+    const referral = await resolveSignupReferral(refCode);
+    const referredById = referral?.referrerUserId ?? null;
 
     const baseSlug = normalizeStoreSlug(storeName);
     if (!baseSlug) {
@@ -107,7 +103,7 @@ export async function RegisterGoogleAction(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const slug = await getAvailableSlug(tx, baseSlug);
-      return tx.user.create({
+      const user = await tx.user.create({
         data: {
           email: googleData.email,
           name: googleData.name || null,
@@ -134,9 +130,12 @@ export async function RegisterGoogleAction(
         },
         select: { id: true },
       });
+      await createSignupAttribution(tx, { customerUserId: user.id, referral, signedUpAt: now });
+      return user;
     });
 
     cookieStore.delete(PENDING_COOKIE);
+    cookieStore.delete(SIGNUP_REF_COOKIE);
     await createUserSession(created.id);
 
     return { success: true, message: "تم إنشاء الحساب بنجاح" };

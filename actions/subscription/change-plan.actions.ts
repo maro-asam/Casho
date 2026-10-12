@@ -7,6 +7,7 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { previewPlanChange, type PlanChangePreview } from "@/lib/entitlements";
 import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
+import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
 import { quotePlanChange, type PlanQuote } from "@/lib/billing/plan-quote";
 
 const STORE_BILLING_SELECT = {
@@ -204,6 +205,8 @@ export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycle
       await grantReferralRewardIfEligible(store.id).catch((e) => console.error("[plan] referral", e));
       await trackPaidReferralLevel(store.id).catch((e) => console.error("[plan] referral level", e));
     }
+    // Charges earn sales commissions; refund credits claw them back.
+    if (quote.charge !== 0) await recordSalesCommissionsForStore(store.id);
 
     const message =
       quote.mode === "trial"
