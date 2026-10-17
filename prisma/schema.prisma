@@ -211,6 +211,8 @@ model Store {
   createdAt            DateTime              @default(now())
   supportRequests      SupportRequest[]
   storePaymentSettings StorePaymentSettings?
+  pixelSettings        StorePixelSettings?
+  blockedPhones        BlockedPhone[]
   notifications        Notification[]
 
   customDomain            String?            @unique
@@ -288,6 +290,11 @@ model StoreSettings {
   loyaltyPointsValuePiasters Int     @default(1)
   loyaltyMinRedemption       Int     @default(100)
 
+  /// Fake-order protection (lib/fraud). OTP needs Twilio Verify configured.
+  orderOtpMode        OrderOtpMode @default(OFF)
+  /// Refuse cash/manual-payment orders from HIGH-risk numbers outright.
+  blockHighRiskOrders Boolean      @default(false)
+
   /// Full merchant theme customization (ThemeCustomization JSON).
   /// Stores presetId + tokenOverrides + layoutOverrides + sectionOverrides.
   /// When present, takes precedence over themeId / primaryColor / secondaryColor.
@@ -350,6 +357,7 @@ model Category {
   storeId   String
   store     Store     @relation(fields: [storeId], references: [id])
   products  Product[]
+  banners   Banner[]
   createdAt DateTime  @default(now())
 
   @@unique([storeId, slug])
@@ -409,6 +417,7 @@ model Product {
   stockMovements      StockMovement[]
 
   variants           ProductVariant[]
+  banners            Banner[]
   suppliers          ProductSupplier[]
   branchInventory    BranchInventory[]
   purchaseOrderItems PurchaseOrderItem[]
@@ -423,18 +432,54 @@ model Product {
   @@index([storeId, categoryId, isActive])
 }
 
+/// Where a banner sends the shopper. Resolved to a URL at render time
+/// (lib/banners/banner-link.ts), so renaming a product/category never breaks it.
+enum BannerLinkType {
+  NONE // image only, not clickable
+  PRODUCTS // all products
+  FEATURED // featured products
+  CATEGORY // linkCategoryId
+  PRODUCT // linkProductId
+  SEARCH // linkValue = search keyword
+  PAGE // linkValue = store page key (categories, about, contact)
+  WHATSAPP // linkValue = prefilled message, sent to the store's WhatsApp
+  URL // linkValue = absolute URL or store-relative path
+}
+
 model Banner {
   id      String @id @default(uuid())
   storeId String
   store   Store  @relation(fields: [storeId], references: [id])
 
-  title    String
-  image    String
-  isActive Boolean @default(true)
+  title       String
+  subtitle    String?
+  /// Button text; themes fall back to "تسوق الآن".
+  ctaLabel    String?
+  image       String
+  /// Optional portrait/square art shown on phones instead of `image`.
+  mobileImage String?
+  isActive    Boolean @default(true)
+  /// Display order, ascending (0 = first slide).
+  position    Int     @default(0)
+
+  linkType       BannerLinkType @default(PRODUCTS)
+  linkCategoryId String?
+  linkCategory   Category?      @relation(fields: [linkCategoryId], references: [id], onDelete: SetNull)
+  linkProductId  String?
+  linkProduct    Product?       @relation(fields: [linkProductId], references: [id], onDelete: SetNull)
+  linkValue      String?
+  openInNewTab   Boolean        @default(false)
+
+  /// Optional schedule window; the storefront shows the banner only inside it.
+  startsAt DateTime?
+  endsAt   DateTime?
+
+  clicks Int @default(0)
 
   createdAt DateTime @default(now())
 
   @@index([storeId, isActive])
+  @@index([storeId, position])
 }
 
 /// Marketing popup shown on the storefront (discount reveal, lead capture, announcement).
@@ -804,9 +849,23 @@ model Order {
   couponCode String?
   notes      String?
 
-  fullName String
-  phone    String
-  address  String
+  fullName  String
+  phone     String
+  address   String
+  /// Online checkout only — rate-limits order floods (lib/store/order-rate-limit).
+  ipAddress String?
+
+  /// Fake-order protection (lib/fraud): number reputation at checkout time.
+  riskLevel          OrderRiskLevel?
+  riskSignals        String[]                @default([])
+  /// PENDING = waiting for the customer's phone code; unconfirmed orders expire.
+  confirmationStatus OrderConfirmationStatus @default(NOT_REQUIRED)
+  confirmedAt        DateTime?
+  otpSentCount       Int                     @default(0)
+  otpLastSentAt      DateTime?
+  /// Set with status CANCELED when the customer refused the delivery (a return).
+  /// Kept as a flag so every "not CANCELED" revenue query stays right.
+  returnedAt         DateTime?
 
   shippingMethodId String?
   shippingMethod   ShippingMethod? @relation(fields: [shippingMethodId], references: [id])
@@ -848,6 +907,9 @@ model Order {
   @@index([storeId, createdAt])
   @@index([customerId])
   @@index([guestSessionId, storeId])
+  @@index([ipAddress, createdAt])
+  @@index([storeId, phone, createdAt])
+  @@index([phone])
   @@index([posShiftId])
   @@index([branchId, createdAt])
 }
@@ -877,6 +939,27 @@ model OrderItem {
 enum KashierMode {
   TEST
   LIVE
+}
+
+/// The merchant's own ad pixels (browser) and server-side conversion API tokens.
+/// Tokens are encrypted with PAYMENT_ENCRYPTION_KEY (lib/secrets). Ids are
+/// validated against strict patterns before they are stored — they end up
+/// inside inline <script> tags on the storefront.
+model StorePixelSettings {
+  id      String @id @default(uuid())
+  storeId String @unique
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  metaPixelId          String?
+  metaCapiTokenEnc     String?
+  metaTestEventCode    String?
+  tiktokPixelId        String?
+  tiktokAccessTokenEnc String?
+  tiktokTestEventCode  String?
+  snapPixelId          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model StorePaymentSettings {
@@ -944,6 +1027,39 @@ enum LoyaltyTransactionType {
   EARNED
   REDEEMED
   MANUAL
+}
+
+enum OrderRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum OrderConfirmationStatus {
+  NOT_REQUIRED
+  PENDING
+  CONFIRMED
+}
+
+enum OrderOtpMode {
+  OFF
+  /// Only numbers with a MEDIUM/HIGH risk level.
+  RISKY
+  /// Every cash / manual-payment order.
+  ALL
+}
+
+/// A number this store refuses orders from (canonical local form, e.g. 01012345678).
+model BlockedPhone {
+  id              String   @id @default(uuid())
+  storeId         String
+  store           Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  phone           String
+  reason          String?
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+
+  @@unique([storeId, phone])
 }
 
 enum OrderStatus {

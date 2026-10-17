@@ -52,7 +52,16 @@ export async function createSignupAttribution(
   });
 }
 
+function appUrl() {
+  return (process.env.APP_URL || `https://app.${process.env.ROOT_DOMAIN || "casho.store"}`).replace(/\/$/, "");
+}
+
+/** For merchants the rep brings in — opens the store signup form. */
 export function buildReferralLink(code: string): string {
-  const appUrl = (process.env.APP_URL || `https://app.${process.env.ROOT_DOMAIN || "casho.store"}`).replace(/\/$/, "");
-  return `${appUrl}/register?ref=${encodeURIComponent(code)}`;
+  return `${appUrl()}/register?ref=${encodeURIComponent(code)}`;
+}
+
+/** For the rep themself — signs in and lands on /sales. */
+export function buildSalesLoginLink(): string {
+  return `${appUrl()}/login`;
 }

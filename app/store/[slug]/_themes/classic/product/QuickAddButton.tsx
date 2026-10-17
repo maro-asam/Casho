@@ -47,7 +47,7 @@ export default function QuickAddButton({
       try {
         const res = await AddToCartAction(storeSlug, productId);
         if (res?.success) {
-          notifyCartUpdated();
+          notifyCartUpdated(res && "added" in res ? res.added : undefined);
           toast.success("اتضاف للسلة", {
             description: productName,
             icon: <Check className="size-4" />,

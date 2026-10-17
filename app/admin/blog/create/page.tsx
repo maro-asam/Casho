@@ -8,6 +8,7 @@ import { ImagePlus, Link2, Loader2, Save, Sparkles, Upload, X } from "lucide-rea
 import { toast } from "sonner";
 
 import { createBlogPostAction } from "@/actions/blog/blog.actions";
+import { BackLink } from "../../_components/admin-ui";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
   ssr: false,
@@ -47,19 +49,8 @@ const CreateBlogRoute = () => {
   const [imageInputMode, setImageInputMode] = useState<"upload" | "link">("upload");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
   async function uploadToCloudinary(file: File) {
-    if (!cloudName || !uploadPreset) throw new Error("إعدادات Cloudinary غير مكتملة");
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("upload_preset", uploadPreset);
-    fd.append("folder", "casho/uploads/blog");
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: fd });
-    const data = await res.json();
-    if (!res.ok || !data.secure_url) throw new Error(data?.error?.message || "فشل رفع الصورة");
-    return data.secure_url as string;
+    return uploadImageToCloudinary(file, "casho/uploads/blog", 10);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -137,12 +128,14 @@ const CreateBlogRoute = () => {
     <div className="space-y-6">
       {/* Header */}
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">إنشاء مقال جديد</h1>
+      <BackLink href="/admin/blog">كل المقالات</BackLink>
 
-          <p className="text-muted-foreground">
-            أضف مقال جديد للمدونة الخاصة بـ Casho
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">مقال جديد</h1>
+
+          <p className="text-sm text-muted-foreground">
+            اكتب المقال واحفظه كمسودة أو انشره على مدونة كاشو.
           </p>
         </div>
 

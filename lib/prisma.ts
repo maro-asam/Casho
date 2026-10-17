@@ -16,6 +16,8 @@ const SLOW_QUERY_THRESHOLD_MS = Number(process.env.SLOW_QUERY_THRESHOLD_MS ?? 50
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
+  /** SCHEMA_SIGNATURE of the cached client (dev hot reloads). */
+  prismaSignature?: string;
 };
 
 function createPrismaClient(): PrismaClient {
@@ -59,21 +61,35 @@ function createPrismaClient(): PrismaClient {
 }
 
 /**
+ * Fingerprint of the generated schema: every model's scalar fields. Changes on
+ * `prisma generate` whenever a model or a field is added/removed.
+ */
+const SCHEMA_SIGNATURE = JSON.stringify(
+  Object.entries(Prisma)
+    .filter(([key]) => key.endsWith("ScalarFieldEnum"))
+    .map(([key, fields]) => [key, Object.keys(fields as object)])
+    .sort(([a], [b]) => String(a).localeCompare(String(b))),
+);
+
+/**
  * Dev keeps the client on globalThis across hot reloads. After `prisma generate`
- * that cached instance is from the old schema and is missing new models — so
- * throw it away when any current model has no delegate on it.
+ * that cached instance is from the old schema — missing new models *and* new
+ * fields (it rejects them as unknown) — so throw it away when the schema moved.
  */
 function isStale(client: PrismaClient) {
+  if (globalForPrisma.prismaSignature !== SCHEMA_SIGNATURE) return true;
   return Object.values(Prisma.ModelName).some(
     (model) => !(model.charAt(0).toLowerCase() + model.slice(1) in client),
   );
 }
 
 const cached = globalForPrisma.prisma;
-if (cached && isStale(cached)) void cached.$disconnect().catch(() => {});
+const stale = cached ? isStale(cached) : false;
+if (cached && stale) void cached.$disconnect().catch(() => {});
 
-export const prisma = cached && !isStale(cached) ? cached : createPrismaClient();
+export const prisma = cached && !stale ? cached : createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
+  globalForPrisma.prismaSignature = SCHEMA_SIGNATURE;
 }

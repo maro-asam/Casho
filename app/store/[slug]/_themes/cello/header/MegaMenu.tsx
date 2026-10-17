@@ -6,7 +6,8 @@ import { useEffect } from "react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
-import type { StoreShell } from "../../types";
+import type { BannerData, StoreShell } from "../../types";
+import { BannerLink } from "../../shared/banner";
 import { num, stagger } from "../ui";
 
 const QUICK = [
@@ -35,9 +36,9 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
 
   const heading = "mb-3 text-base font-semibold text-(--ce-ink)";
   const cards = [
-    shell.banner && { href: url("/products"), image: shell.banner.image, title: shell.banner.title, cta: "تسوّق الآن" },
-    featuredCat && { href: url(`/categories/${featuredCat.slug}`), image: featuredCat.image!, title: featuredCat.name, cta: `${num(featuredCat.productCount)} منتج` },
-  ].filter(Boolean) as { href: string; image: string; title: string; cta: string }[];
+    shell.banner && { key: "banner", href: "", image: shell.banner.image, title: shell.banner.title, cta: shell.banner.link ? shell.banner.cta : "", banner: shell.banner },
+    featuredCat && { key: featuredCat.id, href: url(`/categories/${featuredCat.slug}`), image: featuredCat.image!, title: featuredCat.name, cta: `${num(featuredCat.productCount)} منتج` },
+  ].filter(Boolean) as { key: string; href: string; image: string; title: string; cta: string; banner?: BannerData }[];
 
   return (
     <div
@@ -91,16 +92,28 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
 
         {cards.length > 0 && (
           <div className="flex gap-4">
-            {cards.map((c) => (
-              <Link key={c.href} href={c.href} onClick={() => onClose()} className="group relative block h-64 w-48 overflow-hidden rounded-(--ce-r) bg-(--ce-navy) xl:w-56">
-                <Image src={c.image} alt="" fill sizes="14rem" className="ce-zoom-img object-cover" />
-                <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(0_16_48/0.75),transparent_60%)]" />
-                <span className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <span className="line-clamp-2 block text-lg leading-snug font-semibold">{c.title}</span>
-                  <span className="mt-2 inline-block border-b border-white/80 pb-0.5 text-sm">{c.cta}</span>
-                </span>
-              </Link>
-            ))}
+            {cards.map((c) => {
+              const className = "group relative block h-64 w-48 overflow-hidden rounded-(--ce-r) bg-(--ce-navy) xl:w-56";
+              const body = (
+                <>
+                  <Image src={c.image} alt="" fill sizes="14rem" className="ce-zoom-img object-cover" />
+                  <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(0_16_48/0.75),transparent_60%)]" />
+                  <span className="absolute inset-x-0 bottom-0 p-5 text-white">
+                    <span className="line-clamp-2 block text-lg leading-snug font-semibold">{c.title}</span>
+                    {c.cta && <span className="mt-2 inline-block border-b border-white/80 pb-0.5 text-sm">{c.cta}</span>}
+                  </span>
+                </>
+              );
+              return c.banner ? (
+                <BannerLink key={c.key} banner={c.banner} storeSlug={shell.slug} onClick={() => onClose()} className={className}>
+                  {body}
+                </BannerLink>
+              ) : (
+                <Link key={c.key} href={c.href} onClick={() => onClose()} className={className}>
+                  {body}
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

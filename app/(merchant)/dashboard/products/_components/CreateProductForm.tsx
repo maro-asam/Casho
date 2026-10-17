@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import AttributesInput from "./AttributesInput";
 import BundleItemsInput from "./BundleItemsInput";
 import MarketingAssistantModal, { type ProductDataForMarketing } from "./MarketingAssistantModal";
+import ColorInput from "./ColorInput";
 import TagInput from "./TagInput";
 import WholesaleInput from "./WholesaleInput";
 import { Field, FormSection } from "./product-form/form-section";
@@ -257,9 +258,12 @@ export default function CreateProductForm({
                 <Field label="المقاسات">
                   <TagInput name="sizes" placeholder="S, M, L, XL" hint="دوس Enter أو فاصلة بعد كل مقاس" />
                 </Field>
-                <Field label="الألوان">
-                  <TagInput name="colors" placeholder="أسود، أبيض، كحلي" hint="دوس Enter أو فاصلة بعد كل لون" />
-                </Field>
+                {/* Full width: the swatch palette needs the room. */}
+                <div className="sm:col-span-2">
+                  <Field label="الألوان">
+                    <ColorInput name="colors" />
+                  </Field>
+                </div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">المنتج ده بنسخة واحدة. فعّل الزرار لو ليه مقاسات أو ألوان.</p>

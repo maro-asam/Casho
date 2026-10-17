@@ -6,6 +6,9 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
 import { addProjectDomain, removeProjectDomain, vercelConfigured } from "@/lib/custom-domain/vercel";
 import { runDomainCheck, type DomainCheckReport } from "@/lib/custom-domain/verify";
+import { checkDomainOwnership, domainVerificationToken } from "@/lib/custom-domain/ownership";
+import { verificationRecord } from "@/lib/custom-domain/shared";
+import { createNotification } from "@/lib/notifications/in-app";
 
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN || "casho.store";
 const DOMAIN_REGEX = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
@@ -27,7 +30,7 @@ async function ownStore() {
   const userId = await requireUserId();
   return prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true, customDomain: true, customDomainStatus: true },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true, customDomainConnectedAt: true },
   });
 }
 
@@ -59,8 +62,35 @@ export async function connectCustomDomainAction(input: string): Promise<DomainAc
     throw error;
   }
 
-  const conflict = await prisma.store.findFirst({ where: { customDomain: domain, id: { not: store.id } }, select: { id: true } });
-  if (conflict) return { ok: false, message: "الدومين ده مربوط بمتجر تاني على كاشو." };
+  // A claim only becomes exclusive once proven. A live domain stays with its
+  // store; a pending one (could be a squatter) goes to whoever proves
+  // ownership with their TXT record.
+  const conflict = await prisma.store.findFirst({
+    where: { customDomain: domain, id: { not: store.id } },
+    select: { id: true, slug: true, customDomainStatus: true },
+  });
+  if (conflict) {
+    if (conflict.customDomainStatus === "ACTIVE") return { ok: false, message: "الدومين ده مربوط بمتجر تاني على كاشو." };
+    if (!(await checkDomainOwnership(domain, store.id))) {
+      const txt = verificationRecord(domain, domainVerificationToken(store.id));
+      return {
+        ok: false,
+        message: `الدومين ده محجوز من متجر تاني لسه ماثبتش ملكيته. لو الدومين بتاعك، ضيف سجل TXT في إعدادات الدومين — Host: ${txt.host} — Value: ${txt.value} — وبعد ما ينتشر اضغط ربط تاني.`,
+      };
+    }
+    await prisma.store.update({
+      where: { id: conflict.id },
+      data: { customDomain: null, customDomainStatus: "PENDING", customDomainConnectedAt: null },
+    });
+    revalidatePath(`/store/${conflict.slug}`, "layout");
+    await createNotification({
+      storeId: conflict.id,
+      type: "SYSTEM",
+      title: "الدومين اتفصل عن متجرك",
+      message: `متجر تاني أثبت ملكية ${domain} فاتنقل له. لو الدومين بتاعك، كلّم الدعم.`,
+      href: "/domain",
+    });
+  }
 
   if (vercelConfigured) {
     if (store.customDomain && store.customDomain !== domain) await removeProjectDomain(store.customDomain);

@@ -28,6 +28,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 
 type Category = {
   id: string;
@@ -65,19 +66,8 @@ const EditBlogForm = ({
   const [imageInputMode, setImageInputMode] = useState<"upload" | "link">("upload");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
   async function uploadToCloudinary(file: File) {
-    if (!cloudName || !uploadPreset) throw new Error("إعدادات Cloudinary غير مكتملة");
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("upload_preset", uploadPreset);
-    fd.append("folder", "casho/uploads/blog");
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: fd });
-    const data = await res.json();
-    if (!res.ok || !data.secure_url) throw new Error(data?.error?.message || "فشل رفع الصورة");
-    return data.secure_url as string;
+    return uploadImageToCloudinary(file, "casho/uploads/blog", 10);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {

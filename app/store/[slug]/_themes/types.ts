@@ -8,6 +8,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { ComponentType } from "react";
+import type { BannerLink } from "@/lib/banners/banner-link";
 import type { ProductsQuery } from "@/lib/products-query";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type {
@@ -74,7 +75,18 @@ export type StoreShell = {
   banner: BannerData | null;
 };
 
-export type BannerData = { id: string; title: string; image: string };
+export type BannerData = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  image: string;
+  /** Phone art; themes render it via `BannerImage`. */
+  mobileImage: string | null;
+  /** Button text — the merchant's own or the default "تسوق الآن". */
+  cta: string;
+  /** Where a click goes; null → image only. Render with `BannerLink`. */
+  link: BannerLink | null;
+};
 
 export type HomeViewProps = {
   store: { id: string; name: string; slug: string; description: string | null };

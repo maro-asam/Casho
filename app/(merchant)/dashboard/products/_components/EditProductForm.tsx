@@ -30,10 +30,12 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import ColorInput from "./ColorInput";
 import TagInput from "./TagInput";
 import AttributesInput from "./AttributesInput";
 import WholesaleInput, { type WholesaleTier } from "./WholesaleInput";
 import BundleItemsInput, { type BundleItem } from "./BundleItemsInput";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 
 type Category = {
   id: string;
@@ -127,9 +129,6 @@ export default function EditProductForm({ product, categories, products = [] }: 
 
   const previewImage = useMemo(() => imageValue.trim(), [imageValue]);
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
   useEffect(() => {
     if (!state.message) return;
 
@@ -150,32 +149,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
   }, [manualAdditionalImages, uploadedAdditionalImages]);
 
   async function uploadToCloudinary(file: File) {
-    if (!cloudName || !uploadPreset) {
-      throw new Error(
-        "Cloudinary envs are missing. Add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
-      );
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-    formData.append("folder", "casho/uploads/products");
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.secure_url) {
-      throw new Error(data?.error?.message || "فشل رفع الصورة");
-    }
-
-    return data.secure_url as string;
+    return uploadImageToCloudinary(file, "casho/uploads/products", 10);
   }
 
   async function handleMainImageUpload(
@@ -559,14 +533,9 @@ export default function EditProductForm({ product, categories, products = [] }: 
           />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 md:col-span-2">
           <Label>الألوان</Label>
-          <TagInput
-            name="colors"
-            placeholder="أسود، أبيض، أحمر..."
-            defaultValues={product.colors}
-            hint="اضغط Enter أو فاصلة لإضافة لون"
-          />
+          <ColorInput name="colors" defaultValues={product.colors} />
         </div>
 
         <div className="space-y-1.5 md:col-span-2">

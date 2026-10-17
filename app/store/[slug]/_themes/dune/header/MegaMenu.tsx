@@ -6,10 +6,12 @@ import { useEffect } from "react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
-import type { StoreShell } from "../../types";
+import type { BannerData, StoreShell } from "../../types";
+import { BannerLink } from "../../shared/banner";
 import { Arrow, num, stagger } from "../ui";
 
-type Promo = { key: string; href: string; image: string; title: string; note: string };
+/** `banner` set → the merchant's banner, linked to wherever they chose. */
+type Promo = { key: string; href: string; image: string; title: string; note: string; banner?: BannerData };
 
 /** Desktop mega menu: categories in grouped columns, quick shopping paths, and
  *  up to two image promos (newest banner, then the biggest category with a
@@ -21,7 +23,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
   for (let i = 0; i < cats.length; i += 6) columns.push(cats.slice(i, i + 6));
 
   const promos: Promo[] = [];
-  if (shell.banner) promos.push({ key: "banner", href: url("/products"), image: shell.banner.image, title: shell.banner.title, note: "تسوّق الجديد" });
+  if (shell.banner) promos.push({ key: "banner", href: "", image: shell.banner.image, title: shell.banner.title, note: shell.banner.link ? shell.banner.cta : (shell.banner.subtitle ?? ""), banner: shell.banner });
   const featuredCat = [...shell.categories].filter((c) => c.image).sort((a, b) => b.productCount - a.productCount)[0];
   if (featuredCat) promos.push({ key: featuredCat.id, href: url(`/categories/${featuredCat.slug}`), image: featuredCat.image!, title: featuredCat.name, note: `${num(featuredCat.productCount)} منتج` });
 
@@ -81,20 +83,35 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
 
         {promos.length > 0 && (
           <ul className={cn("flex shrink-0 gap-5", open && "dn-stagger")}>
-            {promos.map((p, n) => (
-              <li key={p.key} className="w-56 xl:w-64" style={stagger(n + 2)}>
-                <Link href={p.href} onClick={() => onClose()} className="group block">
+            {promos.map((p, n) => {
+              const body = (
+                <>
                   <span className="dn-media block aspect-[4/5]">
                     <Image src={p.image} alt="" fill sizes="16rem" className="dn-zoom-img object-cover" />
                   </span>
                   <span className="dn-h4 mt-3 line-clamp-1 block">{p.title}</span>
                   <span className="dn-label mt-1 flex items-center gap-1.5 text-(--dn-quiet)">
                     {p.note}
-                    <Arrow className="transition-transform duration-500 group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+                    {(!p.banner || p.banner.link) && (
+                      <Arrow className="transition-transform duration-500 group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+                    )}
                   </span>
-                </Link>
-              </li>
-            ))}
+                </>
+              );
+              return (
+                <li key={p.key} className="w-56 xl:w-64" style={stagger(n + 2)}>
+                  {p.banner ? (
+                    <BannerLink banner={p.banner} storeSlug={shell.slug} onClick={() => onClose()} className="group block">
+                      {body}
+                    </BannerLink>
+                  ) : (
+                    <Link href={p.href} onClick={() => onClose()} className="group block">
+                      {body}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

@@ -8,20 +8,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 
-async function uploadToCloudinary(file: File) {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-  if (!cloudName || !uploadPreset) throw new Error("رفع الصور مش متاح دلوقتي، ضيف لينك الصورة بدل كده.");
-
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", uploadPreset);
-  fd.append("folder", "casho/uploads/products");
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: fd });
-  const data = await res.json();
-  if (!res.ok || !data.secure_url) throw new Error(data?.error?.message || "مقدرناش نرفع الصورة");
-  return data.secure_url as string;
+function uploadToCloudinary(file: File) {
+  return uploadImageToCloudinary(file, "casho/uploads/products", 10);
 }
 
 type Props = {

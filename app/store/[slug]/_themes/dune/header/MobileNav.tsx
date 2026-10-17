@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Mail, Menu, MessageCircle, X } from "lucide-react";
@@ -9,6 +8,7 @@ import { Dialog } from "radix-ui";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { isActivePath } from "../../shared/store-path";
 import { Arrow, DN_PORTAL, num, stagger } from "../ui";
@@ -110,16 +110,18 @@ export default function MobileNav({ shell, path }: { shell: StoreShell; path: st
             </nav>
 
             {shell.banner && (
-              <Link href={url("/products")} onClick={close} className="group mt-8 block">
+              <BannerLink banner={shell.banner} storeSlug={shell.slug} onClick={close} className="group mt-8 block">
                 <span className="dn-media block aspect-[16/10]">
-                  <Image src={shell.banner.image} alt="" fill sizes="90vw" className="dn-zoom-img object-cover" />
+                  <BannerImage banner={shell.banner} sizes="90vw" className="dn-zoom-img object-cover" />
                 </span>
                 <span className="dn-h4 mt-3 line-clamp-2 block">{shell.banner.title}</span>
-                <span className="dn-label mt-1 inline-flex items-center gap-1.5 text-(--dn-quiet)">
-                  تسوّق الآن
-                  <Arrow />
-                </span>
-              </Link>
+                {shell.banner.link && (
+                  <span className="dn-label mt-1 inline-flex items-center gap-1.5 text-(--dn-quiet)">
+                    {shell.banner.cta}
+                    <Arrow />
+                  </span>
+                )}
+              </BannerLink>
             )}
           </div>
 

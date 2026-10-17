@@ -8,6 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { Chevron, num, stagger } from "../ui";
 
 const QUICK = [
@@ -110,17 +111,19 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
         </div>
 
         {shell.banner && (
-          <Link href={url("/products")} onClick={() => onClose()} className="group relative block w-56 overflow-hidden rounded-(--mx-r-lg) bg-(--mx-dark) xl:w-64">
-            <Image src={shell.banner.image} alt="" fill sizes="16rem" className="mx-zoom-img object-cover" />
+          <BannerLink banner={shell.banner} storeSlug={shell.slug} onClick={() => onClose()} className="group relative block w-56 overflow-hidden rounded-(--mx-r-lg) bg-(--mx-dark) xl:w-64">
+            <BannerImage banner={shell.banner} sizes="16rem" className="mx-zoom-img object-cover" />
             <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(16_15_15/0.7),transparent_55%)]" />
             <span className="absolute inset-x-0 bottom-0 p-5 text-white">
               <span className="mx-display line-clamp-2 block text-lg text-white">{shell.banner.title}</span>
-              <span className="mt-2 inline-flex items-center gap-1 border-b border-white/80 pb-0.5 text-sm font-semibold">
-                تسوّق الآن
-                <Chevron />
-              </span>
+              {shell.banner.link && (
+                <span className="mt-2 inline-flex items-center gap-1 border-b border-white/80 pb-0.5 text-sm font-semibold">
+                  {shell.banner.cta}
+                  <Chevron />
+                </span>
+              )}
             </span>
-          </Link>
+          </BannerLink>
         )}
       </div>
     </div>

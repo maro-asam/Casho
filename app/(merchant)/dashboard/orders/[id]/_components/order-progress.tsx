@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { OrderSource, OrderStatus } from "@prisma/client";
-import { Check, ChevronDown, CircleSlash, Loader2, RotateCcw } from "lucide-react";
+import { Check, ChevronDown, CircleSlash, Loader2, PackageX, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 import { UpdateOrderStatusAction } from "@/actions/store/orders.actions";
@@ -65,30 +65,45 @@ type Props = {
   paymentMethod: string;
   createdAtLabel: string;
   paidAtLabel: string | null;
+  /** Canceled because the customer refused the delivery. */
+  returned: boolean;
 };
 
-export function OrderProgress({ orderId, storeId, status: initial, source, paymentMethod, createdAtLabel, paidAtLabel }: Props) {
+export function OrderProgress({
+  orderId,
+  storeId,
+  status: initial,
+  source,
+  paymentMethod,
+  createdAtLabel,
+  paidAtLabel,
+  returned: initialReturned,
+}: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<OrderStatus>(initial);
+  const [returned, setReturned] = useState(initialReturned);
   const [pending, startTransition] = useTransition();
-  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [confirm, setConfirm] = useState<null | "cancel" | "return">(null);
 
   const steps = stepsFor(source, paymentMethod, status);
   const currentIndex = steps.findIndex((s) => s.status === status);
   const next = status === "CANCELED" ? undefined : steps[currentIndex + 1];
   const canceled = status === "CANCELED";
 
-  function change(to: OrderStatus) {
-    if (to === status) return;
-    const previous = status;
+  function change(to: OrderStatus, opts: { returned?: boolean } = {}) {
+    const toReturned = to === "CANCELED" && Boolean(opts.returned);
+    if (to === status && toReturned === returned) return;
+    const previous = { status, returned };
     setStatus(to);
+    setReturned(toReturned);
     startTransition(async () => {
       try {
-        await UpdateOrderStatusAction(orderId, storeId, to);
-        toast.success(`الطلب بقى "${ORDER_STATUS_META[to].label}"`);
+        await UpdateOrderStatusAction(orderId, storeId, to, { returned: toReturned });
+        toast.success(toReturned ? "اتسجّل إن العميل رفض الاستلام" : `الطلب بقى "${ORDER_STATUS_META[to].label}"`);
         router.refresh();
       } catch {
-        setStatus(previous);
+        setStatus(previous.status);
+        setReturned(previous.returned);
         toast.error("مقدرناش نغيّر حالة الطلب، جرّب تاني.");
       }
     });
@@ -102,7 +117,9 @@ export function OrderProgress({ orderId, storeId, status: initial, source, payme
             حالة الطلب
           </h2>
           <p className="text-sm text-muted-foreground">
-            {canceled
+            {canceled && returned
+              ? "العميل رفض استلام الطلب ده (مرتجع) — اتحسب في سمعة الرقم."
+              : canceled
               ? "الطلب ده اتلغى. تقدر ترجّعه من قايمة الحالة لو اتلغى بالغلط."
               : next
                 ? `الخطوة الجاية: ${NEXT_ACTION_LABELS[next.status] ?? next.label}`
@@ -115,7 +132,7 @@ export function OrderProgress({ orderId, storeId, status: initial, source, payme
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 gap-1.5" disabled={pending}>
                 <span aria-hidden className={cn("size-1.5 rounded-full", toneDot(ORDER_STATUS_META[status].tone))} />
-                {ORDER_STATUS_META[status].label}
+                {canceled && returned ? "مرتجع" : ORDER_STATUS_META[status].label}
                 <ChevronDown className="size-3.5 opacity-60" />
               </Button>
             </DropdownMenuTrigger>
@@ -130,15 +147,22 @@ export function OrderProgress({ orderId, storeId, status: initial, source, payme
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              {canceled ? (
+              {canceled && (
                 <DropdownMenuItem onSelect={() => change("PENDING")} className="gap-2">
                   <RotateCcw className="size-3.5" />
                   رجّع الطلب لقيد المراجعة
                 </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem variant="destructive" onSelect={() => setConfirmCancel(true)} className="gap-2">
+              )}
+              {!canceled && (
+                <DropdownMenuItem variant="destructive" onSelect={() => setConfirm("cancel")} className="gap-2">
                   <CircleSlash className="size-3.5" />
                   إلغاء الطلب
+                </DropdownMenuItem>
+              )}
+              {!(canceled && returned) && source !== "POS" && (
+                <DropdownMenuItem variant="destructive" onSelect={() => setConfirm("return")} className="gap-2">
+                  <PackageX className="size-3.5" />
+                  العميل رفض الاستلام (مرتجع)
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -189,21 +213,23 @@ export function OrderProgress({ orderId, storeId, status: initial, source, payme
         })}
       </ol>
 
-      <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
+      <AlertDialog open={confirm !== null} onOpenChange={(open) => !open && setConfirm(null)}>
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
-            <AlertDialogTitle>تلغي الطلب ده؟</AlertDialogTitle>
+            <AlertDialogTitle>{confirm === "return" ? "العميل رفض يستلم الطلب؟" : "تلغي الطلب ده؟"}</AlertDialogTitle>
             <AlertDialogDescription>
-              الطلب هيتحوّل لـ &quot;ملغي&quot; ومش هيتحسب في الإيرادات. تقدر ترجّعه بعدين من قايمة الحالة.
+              {confirm === "return"
+                ? "الطلب هيتلغى والمنتجات ترجع للمخزون، والرفض هيتحسب في سمعة الرقم — عشان المرة الجاية تعرف قبل ما تشحن، وكمان باقي متاجر كاشو."
+                : "الطلب هيتحوّل لـ \"ملغي\" ومش هيتحسب في الإيرادات. تقدر ترجّعه بعدين من قايمة الحالة."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>رجوع</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white hover:bg-destructive/90"
-              onClick={() => change("CANCELED")}
+              onClick={() => change("CANCELED", { returned: confirm === "return" })}
             >
-              إلغاء الطلب
+              {confirm === "return" ? "تسجيل كمرتجع" : "إلغاء الطلب"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

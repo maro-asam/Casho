@@ -1,4 +1,4 @@
-import type { OrderSource, OrderStatus } from "@prisma/client";
+import type { OrderRiskLevel, OrderSource, OrderStatus } from "@prisma/client";
 import { Camera, Globe, Store, type LucideIcon } from "lucide-react";
 import type { PillTone } from "@/components/saas-page";
 import { PAYMENT_METHODS } from "@/constants/welcome/payment-methods";
@@ -15,6 +15,13 @@ export const ORDER_STATUS_META = Object.fromEntries(ORDER_STATUSES.map((s) => [s
   OrderStatus,
   (typeof ORDER_STATUSES)[number]
 >;
+
+/** Number reputation at checkout (lib/fraud). */
+export const ORDER_RISK_META: Record<OrderRiskLevel, { label: string; tone: PillTone }> = {
+  LOW: { label: "رقم آمن", tone: "success" },
+  MEDIUM: { label: "محتاج انتباه", tone: "warning" },
+  HIGH: { label: "خطر عالي", tone: "danger" },
+};
 
 export const ORDER_CHANNELS: Record<OrderSource, { label: string; icon: LucideIcon }> = {
   ONLINE: { label: "أونلاين", icon: Globe },

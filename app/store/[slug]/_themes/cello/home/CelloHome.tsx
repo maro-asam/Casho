@@ -45,7 +45,7 @@ const REGISTRY: SectionRegistry<Ctx> = {
     c.banners.length > 0 ? (
       <>
         <h1 className="sr-only">{c.store.name}</h1>
-        <HeroSlider banners={c.banners} storeName={c.store.name} href={buildStoreUrl(c.store.slug, "/products")} />
+        <HeroSlider banners={c.banners} storeName={c.store.name} storeSlug={c.store.slug} />
       </>
     ) : (
       <PlainHero c={c} />
@@ -89,7 +89,7 @@ const REGISTRY: SectionRegistry<Ctx> = {
           title="اختيارات المتجر"
           sub="منتجات مختارة بعناية من المتجر"
           href={buildStoreUrl(c.store.slug, "/products?featured=true")}
-          lead={c.banners[1] ? { banner: c.banners[1], href: buildStoreUrl(c.store.slug, "/products?featured=true") } : null}
+          lead={c.banners[1] ?? null}
         />
       </>
     );

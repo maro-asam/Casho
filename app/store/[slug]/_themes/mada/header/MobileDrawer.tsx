@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronLeft, Heart, Mail, Menu, MessageCircle, Search, X } from "lucide-react";
@@ -9,6 +8,7 @@ import { Dialog } from "radix-ui";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { isActivePath } from "../../shared/store-path";
 import { openWishlist } from "../lib/events";
@@ -139,14 +139,14 @@ export default function MobileDrawer({ shell, path, onSearch }: { shell: StoreSh
 
             {shell.banner && (
               <Dialog.Close asChild>
-                <Link href={url("/products")} className="group relative mt-6 block aspect-[16/9] overflow-hidden rounded-(--md-radius)">
-                  <Image src={shell.banner.image} alt="" fill sizes="90vw" className="object-cover" />
+                <BannerLink banner={shell.banner} storeSlug={shell.slug} className="group relative mt-6 block aspect-[16/9] overflow-hidden rounded-(--md-radius)">
+                  <BannerImage banner={shell.banner} sizes="90vw" className="object-cover" />
                   <span className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_17_15/0.75),transparent_65%)]" />
                   <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 text-white">
                     <span className="md-face line-clamp-2 text-base font-bold">{shell.banner.title}</span>
-                    <Arrow className="mb-1" />
+                    {shell.banner.link && <Arrow className="mb-1" />}
                   </span>
-                </Link>
+                </BannerLink>
               </Dialog.Close>
             )}
 

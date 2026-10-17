@@ -14,7 +14,6 @@ import {
   UpdateCartItemQtyAction,
 } from "@/actions/store/cart.actions";
 import { ApplyLoyaltyPointsAction, RemoveLoyaltyPointsAction } from "@/actions/store/loyalty.actions";
-import { GetGuestSessionId } from "@/actions/session/guest.actions";
 
 export async function changeQtyAction(storeSlug: string, itemId: string, type: "increment" | "decrement") {
   await UpdateCartItemQtyAction(itemId, storeSlug, type);
@@ -45,11 +44,9 @@ export async function removeCouponAction(storeSlug: string) {
 export async function applyLoyaltyAction(storeSlug: string, formData: FormData) {
   const phone = String(formData.get("loyaltyPhone") ?? "");
   const points = Number(formData.get("loyaltyPoints") ?? 0);
-  const guestSessionId = await GetGuestSessionId();
-  await ApplyLoyaltyPointsAction(phone, points, guestSessionId ?? "", storeSlug);
+  await ApplyLoyaltyPointsAction(phone, points, storeSlug);
 }
 
 export async function removeLoyaltyAction(storeSlug: string) {
-  const guestSessionId = await GetGuestSessionId();
-  await RemoveLoyaltyPointsAction(guestSessionId ?? "", storeSlug);
+  await RemoveLoyaltyPointsAction(storeSlug);
 }

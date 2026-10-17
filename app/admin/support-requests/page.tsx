@@ -1,63 +1,148 @@
-import { HeadphonesIcon, MessageSquare } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Headset, Mail, SearchX } from "lucide-react";
+import { Prisma, SupportRequestStatus } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { setSupportRequestStatusAction } from "@/actions/admin/admin-support.actions";
+import {
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  readPage,
+  readParam,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
+import { StatusMenu } from "../_components/status-menu";
+import { SUPPORT_STATUS_META, fmtDateTime, fmtRelative, pickEnum } from "../_lib/format";
 
-function fmtDate(d: Date) {
-  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" }).format(d);
-}
+export const metadata: Metadata = { title: "الدعم الفني" };
 
-export default async function AdminSupportPage() {
-  await requireAdmin();
+const PAGE_SIZE = 15;
+const BASE_PATH = "/admin/support-requests";
+const STATUS_OPTIONS = (Object.keys(SUPPORT_STATUS_META) as SupportRequestStatus[]).map((value) => ({ value, ...SUPPORT_STATUS_META[value] }));
 
-  const requests = await prisma.supportRequest.findMany({
+export default async function AdminSupportPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  const params = await searchParams;
+  const q = readParam(params, "q");
+  const status = pickEnum(SupportRequestStatus, readParam(params, "status"));
+
+  const baseWhere: Prisma.SupportRequestWhereInput = q
+    ? {
+        OR: [
+          { title: { contains: q, mode: "insensitive" } },
+          { message: { contains: q, mode: "insensitive" } },
+          { user: { email: { contains: q, mode: "insensitive" } } },
+          { store: { name: { contains: q, mode: "insensitive" } } },
+          { store: { slug: { contains: q, mode: "insensitive" } } },
+        ],
+      }
+    : {};
+  const where = { ...baseWhere, ...(status && { status }) };
+
+  const [grouped, total] = await Promise.all([
+    prisma.supportRequest.groupBy({ by: ["status"], where: baseWhere, _count: { _all: true } }),
+    prisma.supportRequest.count({ where }),
+  ]);
+  const counts = Object.fromEntries(grouped.map((g) => [g.status, g._count._all])) as Partial<Record<SupportRequestStatus, number>>;
+  const page = Math.min(readPage(params), Math.max(1, Math.ceil(total / PAGE_SIZE)));
+
+  const tickets = await prisma.supportRequest.findMany({
+    where,
     orderBy: { createdAt: "desc" },
-    include: { store: { select: { name: true, slug: true } } },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    include: {
+      store: { select: { name: true, slug: true } },
+      user: { select: { id: true, name: true, email: true, phone_number: true } },
+    },
   });
+
+  const now = new Date();
+  const filtered = !!(q || status);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">طلبات الدعم</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{requests.length} طلب دعم مسجل</p>
-      </div>
+      <PageHeader title="الدعم الفني" description="تذاكر الدعم من التجار. التاجر بيوصله إشعار لما التذكرة تبقى قيد المتابعة أو تتحل." />
 
-      {/* List */}
-      <div className="rounded-xl border bg-background shadow-sm">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">كل الطلبات</h2>
-        </div>
+      <div className="space-y-4">
+        <FilterTabs
+          label="حالة التذكرة"
+          param="status"
+          basePath={BASE_PATH}
+          searchParams={params}
+          tabs={[
+            { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
+            ...STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value, count: counts[o.value] ?? 0 })),
+          ]}
+        />
 
-        {requests.length === 0 ? (
-          <div className="p-10 text-center">
-            <HeadphonesIcon className="mx-auto size-8 text-muted-foreground/40" />
-            <p className="mt-3 text-sm text-muted-foreground">لا توجد طلبات دعم بعد</p>
-          </div>
-        ) : (
-          <div className="divide-y">
-            {requests.map((item) => (
-              <div key={item.id} className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <MessageSquare className="size-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-medium">{item.title}</p>
-                      <span className="text-xs text-muted-foreground">{fmtDate(item.createdAt)}</span>
+        <DataCard
+          toolbar={<SearchInput placeholder="ابحث في العنوان أو الرسالة أو البريد أو المتجر" className="sm:max-w-sm" />}
+          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="تذكرة" />}
+        >
+          {tickets.length === 0 ? (
+            filtered ? (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش تذاكر بالفلاتر دي"
+                action={
+                  <Link href={BASE_PATH} className="text-sm text-primary hover:underline">
+                    مسح الفلاتر
+                  </Link>
+                }
+              />
+            ) : (
+              <EmptyState icon={Headset} title="مفيش تذاكر دعم" description="لما تاجر يبعت طلب من صفحة الدعم هيظهر هنا." />
+            )
+          ) : (
+            <ul className="divide-y divide-border">
+              {tickets.map((t) => (
+                <li key={t.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold">{t.title}</p>
+                      <span className="text-xs text-muted-foreground" title={fmtDateTime(t.createdAt)}>
+                        {fmtRelative(t.createdAt, now)}
+                      </span>
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.message}</p>
-                    {item.store && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        المتجر: <span className="font-medium text-foreground">{item.store.name}</span>
-                      </p>
-                    )}
+                    <p className="whitespace-pre-wrap wrap-break-word text-sm leading-6 text-muted-foreground">{t.message}</p>
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      {t.user && (
+                        <Link href={`/admin/users/${t.user.id}`} className="hover:text-foreground hover:underline">
+                          {t.user.name ?? t.user.email}
+                        </Link>
+                      )}
+                      {t.store && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <Link href={`/admin/stores/${t.store.slug}`} className="hover:text-foreground hover:underline">
+                            {t.store.name}
+                          </Link>
+                        </>
+                      )}
+                    </p>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                  <div className="flex shrink-0 items-center gap-2">
+                    {t.user && (
+                      <a
+                        href={`mailto:${t.user.email}?subject=${encodeURIComponent(`بخصوص: ${t.title}`)}`}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs hover:bg-muted"
+                      >
+                        <Mail className="size-3.5" />
+                        رد بالبريد
+                      </a>
+                    )}
+                    <StatusMenu value={t.status} options={STATUS_OPTIONS} action={setSupportRequestStatusAction.bind(null, t.id)} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </DataCard>
       </div>
     </div>
   );

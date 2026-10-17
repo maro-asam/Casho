@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import LogoEditorModal from "./LogoEditorModal";
 import UnsplashPickerModal from "./UnsplashPickerModal";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 
 type Props = {
   storeId: string;
@@ -30,22 +31,8 @@ type Props = {
 
 const initialState: StoreIdentityFormState = { success: false, message: "" };
 
-const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-async function uploadToCloudinary(file: File, folder: string): Promise<string> {
-  if (!cloudName || !uploadPreset) throw new Error("إعدادات Cloudinary مفقودة");
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", uploadPreset);
-  fd.append("folder", folder);
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-    method: "POST",
-    body: fd,
-  });
-  const data = await res.json();
-  if (!res.ok || !data.secure_url) throw new Error(data?.error?.message || "فشل رفع الصورة");
-  return data.secure_url as string;
+function uploadToCloudinary(file: File, folder: string): Promise<string> {
+  return uploadImageToCloudinary(file, folder, 10);
 }
 
 export default function StoreIdentitySection({

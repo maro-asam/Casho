@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { AddToCartAction } from "@/actions/store/cart.actions";
 import { cn, formatPrice } from "@/lib/utils";
+import { isLightSwatch, swatchColor } from "../../shared/colors";
 import type { WholesaleTier } from "../../types";
 import { tierFor } from "../../shared/commerce";
 import { notifyCartUpdated } from "../../shared/cart-events";
@@ -37,6 +38,7 @@ function OptionGroup({
   selected,
   onSelect,
   error,
+  swatches,
 }: {
   id: string;
   label: string;
@@ -44,6 +46,8 @@ function OptionGroup({
   selected: string | null;
   onSelect: (v: string) => void;
   error: boolean;
+  /** Render recognizable values as color swatches (the color option). */
+  swatches?: boolean;
 }) {
   return (
     <fieldset id={id} className="scroll-mt-32">
@@ -60,6 +64,29 @@ function OptionGroup({
       <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2">
         {values.map((v) => {
           const on = selected === v;
+          const swatch = swatches ? swatchColor(v) : null;
+          if (swatch) {
+            return (
+              <button
+                key={v}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                aria-label={v}
+                title={v}
+                onClick={() => onSelect(v)}
+                className={cn(
+                  "grid size-11 place-items-center rounded-full border-2 transition-colors duration-(--c-motion)",
+                  on ? "border-foreground" : error ? "border-(--c-danger)/50" : "border-transparent hover:border-foreground/30",
+                )}
+              >
+                <span
+                  className={cn("size-8 rounded-full", isLightSwatch(swatch) ? "ring-1 ring-black/15" : "ring-1 ring-black/5")}
+                  style={{ background: swatch }}
+                />
+              </button>
+            );
+          }
           return (
             <button
               key={v}
@@ -154,7 +181,7 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
           toast.error(res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني");
           return;
         }
-        notifyCartUpdated();
+        notifyCartUpdated(res && "added" in res ? res.added : undefined);
         if (then) {
           then();
         } else {
@@ -197,6 +224,7 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
             <OptionGroup
               id="opt-color"
               label="اللون"
+              swatches
               values={product.colors}
               selected={selected.color}
               onSelect={(v) => choose("color", v)}

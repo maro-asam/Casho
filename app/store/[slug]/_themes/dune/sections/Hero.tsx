@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -9,6 +8,7 @@ import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { BannerData, HomeViewProps } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { btn, delay, num } from "../ui";
 
 const SLIDE_MS = 7000;
@@ -85,7 +85,7 @@ export default function Hero({
                 className={cn("dn-slide relative h-[100svh] min-h-[34rem] max-h-[68rem] min-w-0 shrink-0 grow-0 basis-full overflow-hidden", active && "is-active")}
               >
                 <div data-parallax className="absolute inset-x-0 -inset-y-[12%]">
-                  <Image src={b.image} alt="" fill priority={i === 0} sizes="100vw" className="dn-hero-img object-cover" />
+                  <BannerImage banner={b} priority={i === 0} sizes="100vw" className="dn-hero-img object-cover" />
                 </div>
                 <span aria-hidden className="absolute inset-0 bg-[rgb(42_42_40/0.22)]" />
                 <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(20_20_18/0.62),transparent_55%)]" />
@@ -98,10 +98,17 @@ export default function Hero({
                     <h2 className="dn-hero mt-4 text-balance" style={delay(1)}>
                       {b.title}
                     </h2>
+                    {b.subtitle && (
+                      <p className="mt-4 max-w-2xl text-balance text-base text-white/90 sm:text-lg" style={delay(2)}>
+                        {b.subtitle}
+                      </p>
+                    )}
                     <div className="mt-8 flex flex-wrap justify-center gap-3" style={delay(2)}>
-                      <Link href={url("/products")} tabIndex={i === selected ? 0 : -1} className={btn({ variant: "light", size: "lg" })}>
-                        تسوّق الآن
-                      </Link>
+                      {b.link && (
+                        <BannerLink banner={b} storeSlug={store.slug} tabIndex={i === selected ? 0 : -1} className={btn({ variant: "light", size: "lg" })}>
+                          {b.cta}
+                        </BannerLink>
+                      )}
                       {hasCategories && (
                         <Link href={url("/categories")} tabIndex={i === selected ? 0 : -1} className={btn({ variant: "glass", size: "lg", className: "max-sm:hidden" })}>
                           التصنيفات

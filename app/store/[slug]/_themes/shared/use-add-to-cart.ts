@@ -19,7 +19,7 @@ export function useAddToCart(storeSlug: string) {
           try {
             const res = await AddToCartAction(storeSlug, productId, features && Object.keys(features).length ? features : undefined, qty);
             if (res?.success) {
-              notifyCartUpdated();
+              notifyCartUpdated("added" in res ? res.added : undefined);
               resolve({ ok: true });
             } else {
               resolve({ ok: false, message: res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني" });

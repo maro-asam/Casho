@@ -80,6 +80,23 @@ export async function updateServiceRequestStatusAction(
   return { success: true };
 }
 
+/** Same rules as the form action, callable directly (admin status menu). */
+export async function setServiceRequestStatusAction(
+  requestId: string,
+  status: string,
+): Promise<{ success: boolean; message: string }> {
+  const formData = new FormData();
+  formData.set("requestId", requestId);
+  formData.set("status", status);
+  const result = await updateServiceRequestStatusAction(null, formData);
+  if (result.error) return { success: false, message: result.error };
+  revalidatePath("/admin", "layout");
+  return {
+    success: true,
+    message: `بقى «${serviceRequestStatusLabels[status] ?? status}»`,
+  };
+}
+
 export async function ApproveRemovePoweredByRequestAction(requestId: string) {
   const admin = await requireAdmin();
 

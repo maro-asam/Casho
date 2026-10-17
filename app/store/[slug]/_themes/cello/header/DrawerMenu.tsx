@@ -9,6 +9,7 @@ import { Dialog } from "radix-ui";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { isActivePath } from "../../shared/store-path";
 import { Chevron, CE_PORTAL, num, stagger } from "../ui";
@@ -106,17 +107,19 @@ export default function DrawerMenu({ shell, path, variant }: { shell: StoreShell
             )}
 
             {shell.banner && (
-              <Link href={url("/products")} onClick={close} className="group relative mx-2 mt-5 block aspect-[16/9] overflow-hidden rounded-(--ce-r-lg) bg-(--ce-dark)">
-                <Image src={shell.banner.image} alt="" fill sizes="22rem" className="ce-zoom-img object-cover" />
+              <BannerLink banner={shell.banner} storeSlug={shell.slug} onClick={close} className="group relative mx-2 mt-5 block aspect-[16/9] overflow-hidden rounded-(--ce-r-lg) bg-(--ce-dark)">
+                <BannerImage banner={shell.banner} sizes="22rem" className="ce-zoom-img object-cover" />
                 <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(16_15_15/0.7),transparent_60%)]" />
                 <span className="absolute inset-x-0 bottom-0 p-4 text-white">
                   <span className="ce-display line-clamp-1 block text-white">{shell.banner.title}</span>
-                  <span className="mt-1 inline-flex items-center gap-1 text-sm font-semibold">
-                    تسوّق الآن
-                    <Chevron />
-                  </span>
+                  {shell.banner.link && (
+                    <span className="mt-1 inline-flex items-center gap-1 text-sm font-semibold">
+                      {shell.banner.cta}
+                      <Chevron />
+                    </span>
+                  )}
                 </span>
-              </Link>
+              </BannerLink>
             )}
           </div>
 

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "../auth/require-user-id.actions";
+import { MustSession, ReadSession } from "../auth/auth-helpers.actions";
 import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
 
 const LOYALTY_COOKIE_KEY = "loyalty_phone";
@@ -38,12 +39,20 @@ export async function CheckLoyaltyPointsAction(phone: string, storeSlug: string)
   };
 }
 
+// The guest session always comes from the httpOnly cookie, never from the
+// caller — otherwise anyone could attach points to someone else's cart.
+// Redemption is bound to the phone: checkout only honours the points when the
+// order is placed with the same phone (see CreateOrderAction).
 export async function ApplyLoyaltyPointsAction(
   phone: string,
   pointsToRedeem: number,
-  guestSessionId: string,
   storeSlug: string,
 ) {
+  const { guestSessionId } = await MustSession();
+  if (!Number.isInteger(pointsToRedeem)) {
+    return { success: false as const, message: "عدد النقاط لازم يكون رقم صحيح" };
+  }
+
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
     select: { id: true, settings: { select: { loyaltyEnabled: true, loyaltyMinRedemption: true, loyaltyPointsValuePiasters: true } } },
@@ -82,7 +91,9 @@ export async function ApplyLoyaltyPointsAction(
   return { success: true as const, discount, message: "تم تطبيق النقاط بنجاح" };
 }
 
-export async function RemoveLoyaltyPointsAction(guestSessionId: string, storeSlug: string) {
+export async function RemoveLoyaltyPointsAction(storeSlug: string) {
+  const { guestSessionId } = await ReadSession();
+  if (!guestSessionId) return;
   const store = await prisma.store.findUnique({ where: { slug: storeSlug }, select: { id: true } });
   if (!store) return;
 
@@ -93,7 +104,9 @@ export async function RemoveLoyaltyPointsAction(guestSessionId: string, storeSlu
   revalidatePath(`/store/${storeSlug}/cart`);
 }
 
-export async function GetAppliedLoyaltyAction(guestSessionId: string, storeSlug: string) {
+export async function GetAppliedLoyaltyAction(storeSlug: string) {
+  const { guestSessionId } = await ReadSession();
+  if (!guestSessionId) return null;
   const store = await prisma.store.findUnique({ where: { slug: storeSlug }, select: { id: true, settings: { select: { loyaltyEnabled: true, loyaltyPointsValuePiasters: true } } } });
   if (!store || !store.settings?.loyaltyEnabled) return null;
 

@@ -4,8 +4,9 @@ import { markCartConverted } from "@/lib/cart-recovery/abandoned";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { NotificationType, OrderStatus } from "@prisma/client";
+import { cookies, headers } from "next/headers";
+import { z } from "zod";
+import { NotificationType, OrderConfirmationStatus, OrderOtpMode, OrderRiskLevel, OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { MustOwnStore, MustSession } from "@/actions/auth/auth-helpers.actions";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
@@ -18,13 +19,12 @@ import {
 } from "@/constants/welcome/payment-methods";
 import { createMerchantKashierHppUrl } from "@/lib/kashier-merchant";
 import { decryptSecret } from "@/lib/secrets";
-import {
-  createNotification,
-  formatPiastersAsEgp,
-  orderStatusLabels,
-} from "@/lib/notifications/in-app";
-import { sendWhatsAppOrderNotification } from "@/lib/notifications/whatsapp";
-import { sendTelegramMarkdown } from "@/lib/notifications/telegram";
+import { createNotification, orderStatusLabels } from "@/lib/notifications/in-app";
+import { isOrderRateLimited, ORDER_RATE_LIMIT_MESSAGE } from "@/lib/store/order-rate-limit";
+import { announceNewOrder } from "@/lib/store/order-announce";
+import { assessPhoneRisk } from "@/lib/fraud/reputation";
+import { canonicalPhone } from "@/lib/fraud/phone";
+import { isOtpConfigured, sendOrderOtp } from "@/lib/fraud/otp";
 import {
   OutOfStockError,
   adjustStockForOrderStatus,
@@ -70,6 +70,54 @@ function toKashierAllowedMethods(methods: string[]) {
   });
 }
 
+// Control characters out (they break Telegram/WhatsApp messages and exports).
+const cleanText = (value: string) => value.replace(/[\u0000-\u001f\u007f]+/g, " ").trim();
+
+const checkoutCustomerSchema = z.object({
+  fullName: z.string().transform(cleanText).pipe(z.string().min(2, "الاسم قصير جدًا").max(100, "الاسم طويل جدًا")),
+  phone: z
+    .string()
+    .transform((value) => value.replace(/[\s\-()]/g, ""))
+    .pipe(z.string().regex(/^\+?\d{8,15}$/, "رقم الموبايل غير صحيح")),
+  address: z.string().transform(cleanText).pipe(z.string().min(5, "العنوان قصير جدًا").max(500, "العنوان طويل جدًا")),
+});
+
+type WholesaleTier = { minQty: number; maxQty?: number; price: number };
+
+/** Unit price in EGP for a cart line — the wholesale tier its quantity falls in, else the list price. */
+function unitPriceFor(item: { quantity: number; product: { price: number; wholesaleOptions: unknown } }) {
+  const tiers = item.product.wholesaleOptions as WholesaleTier[] | null;
+  if (tiers && tiers.length > 0) {
+    for (let i = tiers.length - 1; i >= 0; i--) {
+      const t = tiers[i];
+      if (item.quantity >= t.minQty && (t.maxQty === undefined || item.quantity <= t.maxQty)) return t.price;
+    }
+  }
+  return item.product.price;
+}
+
+/** Same normalisation as checkout, so "010 1234 5678" and "01012345678" match. */
+const normalizePhone = (phone: string) => phone.replace(/[\s\-()]/g, "");
+
+/** Thrown inside the order transaction when the coupon's last use was just taken. */
+class CouponUsedUpError extends Error {
+  constructor() {
+    super("COUPON_USED_UP");
+  }
+}
+
+/** Thrown inside the order transaction when the redeemed points are no longer there. */
+class LoyaltyPointsChangedError extends Error {
+  constructor() {
+    super("LOYALTY_POINTS_CHANGED");
+  }
+}
+
+async function getClientIp() {
+  const h = await headers();
+  return h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || null;
+}
+
 /** Same alert the POS sends, now also for online sales. Never breaks the order flow. */
 async function notifyLowStock(storeId: string, productIds: string[]) {
   try {
@@ -108,6 +156,12 @@ export async function CreateOrderAction(
   const { guestSessionId } = await MustSession();
 
   if (!storeSlug) throw new Error("storeSlug is missing");
+
+  const parsedCustomer = checkoutCustomerSchema.safeParse(data);
+  if (!parsedCustomer.success) {
+    throw new Error(parsedCustomer.error.issues[0]?.message ?? "بيانات الطلب غير صحيحة");
+  }
+  data = { ...data, ...parsedCustomer.data, phone: canonicalPhone(parsedCustomer.data.phone) };
 
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
@@ -153,6 +207,37 @@ export async function CreateOrderAction(
   if (!enabledPaymentMethods.includes(data.paymentMethod)) {
     throw new Error("This payment method is not available for this store");
   }
+
+  const ipAddress = await getClientIp();
+  if (await isOrderRateLimited({ storeId: store.id, guestSessionId, phone: data.phone, ipAddress })) {
+    throw new Error(ORDER_RATE_LIMIT_MESSAGE);
+  }
+
+  // Fake-order / return protection (lib/fraud). Card payments are already
+  // verified by the bank; cash and manual transfers are where fakes cost money.
+  const isManualPayment = data.paymentMethod !== "kashier";
+  const [risk, fraudSettings] = await Promise.all([
+    assessPhoneRisk(store.id, data.phone),
+    prisma.storeSettings.findUnique({
+      where: { storeId: store.id },
+      select: { orderOtpMode: true, blockHighRiskOrders: true },
+    }),
+  ]);
+  if (risk.blockedByStore) {
+    throw new Error("مش هنقدر نكمل طلب من الرقم ده. لو في مشكلة، تواصل مع المتجر مباشرة.");
+  }
+  if (isManualPayment && risk.level === OrderRiskLevel.HIGH && fraudSettings?.blockHighRiskOrders) {
+    throw new Error(
+      enabledPaymentMethods.includes("kashier")
+        ? "مش هنقدر نكمل الطلب ده بالدفع عند الاستلام. اختار الدفع أونلاين، أو تواصل مع المتجر."
+        : "مش هنقدر نكمل الطلب ده. تواصل مع المتجر مباشرة.",
+    );
+  }
+  const otpMode = fraudSettings?.orderOtpMode ?? OrderOtpMode.OFF;
+  const needsConfirmation =
+    isManualPayment &&
+    isOtpConfigured() &&
+    (otpMode === OrderOtpMode.ALL || (otpMode === OrderOtpMode.RISKY && risk.level !== OrderRiskLevel.LOW));
 
   const [cartItems, appliedCoupon] = await Promise.all([
     prisma.cartItem.findMany({
@@ -213,22 +298,7 @@ export async function CreateOrderAction(
     redirect(`/store/${store.slug}/cart?stock=changed`);
   }
 
-  const subtotal = cartItems.reduce((acc, item) => {
-    const tiers = item.product.wholesaleOptions as
-      | { minQty: number; maxQty?: number; price: number }[]
-      | null;
-    let unitPrice = item.product.price;
-    if (tiers && tiers.length > 0) {
-      for (let i = tiers.length - 1; i >= 0; i--) {
-        const t = tiers[i];
-        if (item.quantity >= t.minQty && (t.maxQty === undefined || item.quantity <= t.maxQty)) {
-          unitPrice = t.price;
-          break;
-        }
-      }
-    }
-    return acc + Math.round(unitPrice * 100) * item.quantity;
-  }, 0);
+  const subtotal = cartItems.reduce((acc, item) => acc + Math.round(unitPriceFor(item) * 100) * item.quantity, 0);
 
   const cookieStore = await cookies();
   const selectedShippingMethodId = cookieStore.get(`ship_${store.id}`)?.value ?? null;
@@ -249,6 +319,7 @@ export async function CreateOrderAction(
   let discount = 0;
   let couponIdToUse: string | null = null;
   let couponCodeToUse: string | null = null;
+  let couponUsageLimit: number | null = null;
 
   if (appliedCoupon?.coupon) {
     const coupon = appliedCoupon.coupon;
@@ -271,6 +342,7 @@ export async function CreateOrderAction(
       if (discount > 0) {
         couponIdToUse = coupon.id;
         couponCodeToUse = coupon.code;
+        couponUsageLimit = typeof coupon.usageLimit === "number" ? coupon.usageLimit : null;
       }
     }
   }
@@ -280,7 +352,7 @@ export async function CreateOrderAction(
   const [appliedLoyalty, loyaltySettings] = await Promise.all([
     prisma.appliedLoyaltyPoints.findUnique({
       where: { guestSessionId_storeId: { guestSessionId, storeId: store.id } },
-      select: { points: true, customerId: true },
+      select: { points: true, customerId: true, customer: { select: { storeId: true, phone: true } } },
     }),
     prisma.storeSettings.findUnique({
       where: { storeId: store.id },
@@ -291,10 +363,24 @@ export async function CreateOrderAction(
       },
     }),
   ]);
-  let loyaltyDiscount = 0;
+  // Points belong to a phone: they are only spent on an order placed with that
+  // same phone, so knowing someone's number isn't enough to ship their points
+  // to yourself. The balance itself is re-checked and deducted atomically below.
+  let pointsToRedeem = 0;
   if (appliedLoyalty && loyaltySettings?.loyaltyEnabled) {
-    loyaltyDiscount = appliedLoyalty.points * (loyaltySettings.loyaltyPointsValuePiasters ?? 1);
-    discount += loyaltyDiscount;
+    const ownsPoints =
+      appliedLoyalty.customer.storeId === store.id &&
+      normalizePhone(appliedLoyalty.customer.phone) === data.phone;
+    if (!ownsPoints) {
+      await prisma.appliedLoyaltyPoints.deleteMany({ where: { guestSessionId, storeId: store.id } });
+      throw new Error("نقاط الولاء مربوطة برقم موبايل تاني. اكتب نفس الرقم اللي عليه النقاط، أو كمّل من غير النقاط.");
+    }
+
+    // Never spend more points than the order can absorb (shipping is paid in cash).
+    const pointValue = Math.max(1, loyaltySettings.loyaltyPointsValuePiasters ?? 1);
+    const payable = Math.max(0, subtotal - discount);
+    pointsToRedeem = Math.min(appliedLoyalty.points, Math.ceil(payable / pointValue));
+    discount += Math.min(payable, pointsToRedeem * pointValue);
   }
 
   const total = Math.max(0, subtotal + shipping - discount);
@@ -319,24 +405,18 @@ export async function CreateOrderAction(
         fullName: data.fullName,
         phone: data.phone,
         address: data.address,
+        ipAddress,
+        riskLevel: risk.level,
+        riskSignals: risk.signals,
+        confirmationStatus: needsConfirmation ? OrderConfirmationStatus.PENDING : OrderConfirmationStatus.NOT_REQUIRED,
+        ...(pointsToRedeem > 0 && appliedLoyalty
+          ? { customerId: appliedLoyalty.customerId, pointsRedeemed: pointsToRedeem }
+          : {}),
         items: {
           create: cartItems.map((item) => {
-            const tiers = item.product.wholesaleOptions as
-              | { minQty: number; maxQty?: number; price: number }[]
-              | null;
-            let unitPrice = item.product.price;
-            if (tiers && tiers.length > 0) {
-              for (let i = tiers.length - 1; i >= 0; i--) {
-                const t = tiers[i];
-                if (item.quantity >= t.minQty && (t.maxQty === undefined || item.quantity <= t.maxQty)) {
-                  unitPrice = t.price;
-                  break;
-                }
-              }
-            }
             return {
               productId: item.productId,
-              price: Math.round(unitPrice * 100),
+              price: Math.round(unitPriceFor(item) * 100),
               quantity: item.quantity,
               ...(item.selectedFeatures
                 ? { selectedFeatures: item.selectedFeatures }
@@ -356,11 +436,39 @@ export async function CreateOrderAction(
       note: `طلب أونلاين #${created.id.slice(0, 8).toUpperCase()}`,
     });
 
+    if (pointsToRedeem > 0 && appliedLoyalty) {
+      // Spend the points only while the customer still has them (no double spend).
+      const spent = await tx.customer.updateMany({
+        where: { id: appliedLoyalty.customerId, storeId: store.id, points: { gte: pointsToRedeem } },
+        data: { points: { decrement: pointsToRedeem } },
+      });
+      if (spent.count !== 1) throw new LoyaltyPointsChangedError();
+
+      await tx.loyaltyTransaction.create({
+        data: {
+          customerId: appliedLoyalty.customerId,
+          orderId: created.id,
+          type: "REDEEMED",
+          points: -pointsToRedeem,
+          description: `استرداد نقاط - طلب #${created.id.slice(-6)}`,
+        },
+      });
+    }
+
+    await tx.appliedLoyaltyPoints.deleteMany({ where: { guestSessionId, storeId: store.id } });
+
     if (couponIdToUse) {
-      await tx.coupon.update({
-        where: { id: couponIdToUse },
+      // Count the use only while uses are left — the check above ran outside
+      // this transaction, so two last-use checkouts could both pass it.
+      const used = await tx.coupon.updateMany({
+        where: {
+          id: couponIdToUse,
+          isActive: true,
+          ...(couponUsageLimit !== null && { usedCount: { lt: couponUsageLimit } }),
+        },
         data: { usedCount: { increment: 1 } },
       });
+      if (used.count !== 1) throw new CouponUsedUpError();
     }
 
     await tx.appliedCoupon.deleteMany({
@@ -377,6 +485,14 @@ export async function CreateOrderAction(
     return created;
   });
   } catch (error) {
+    if (error instanceof CouponUsedUpError) {
+      await prisma.appliedCoupon.deleteMany({ where: { guestSessionId, storeId: store.id } });
+      throw new Error("الكوبون ده خلص عدد مرات استخدامه. ارجع للسلة وكمّل من غيره.");
+    }
+    if (error instanceof LoyaltyPointsChangedError) {
+      await prisma.appliedLoyaltyPoints.deleteMany({ where: { guestSessionId, storeId: store.id } });
+      throw new Error("رصيد نقاط الولاء اتغير. ارجع للسلة وطبّق النقاط من جديد.");
+    }
     if (!(error instanceof OutOfStockError)) throw error;
     await fitCartToStock(store.id, guestSessionId);
     redirect(`/store/${store.slug}/cart?stock=changed`);
@@ -394,11 +510,10 @@ export async function CreateOrderAction(
       const customer = await prisma.customer.upsert({
         where: { storeId_phone: { storeId: store.id, phone: data.phone } },
         create: { storeId: store.id, phone: data.phone, name: data.fullName, points: pointsEarned },
+        // Redeemed points were already deducted inside the order transaction.
         update: {
           name: data.fullName,
-          points: {
-            increment: pointsEarned - (appliedLoyalty?.points ?? 0),
-          },
+          points: { increment: pointsEarned },
         },
       });
 
@@ -407,65 +522,31 @@ export async function CreateOrderAction(
       await prisma.loyaltyTransaction.create({
         data: { customerId: customer.id, orderId: order.id, type: "EARNED", points: pointsEarned, description: `طلب #${order.id.slice(-6)}` },
       });
-
-      if (appliedLoyalty) {
-        await prisma.loyaltyTransaction.create({
-          data: { customerId: appliedLoyalty.customerId, orderId: order.id, type: "REDEEMED", points: -appliedLoyalty.points, description: `استرداد نقاط - طلب #${order.id.slice(-6)}` },
-        });
-        await prisma.appliedLoyaltyPoints.deleteMany({ where: { guestSessionId, storeId: store.id } });
-      }
     }
   } catch (err) {
     console.error("Loyalty points error (non-fatal):", err);
   }
 
-  await createNotification({
-    storeId: store.id,
-    userId: store.userId,
-    type: NotificationType.NEW_ORDER,
-    title: "طلب جديد وصل",
-    message: `وصلك طلب جديد من ${data.fullName} بقيمة ${formatPiastersAsEgp(total)}.`,
-    href: `/dashboard/orders/${order.id}`,
-    data: {
-      orderId: order.id,
-      storeId: store.id,
-      customerName: data.fullName,
-      customerPhone: data.phone,
-      paymentMethod: data.paymentMethod,
-      total,
-    },
-  });
-
-  const whatsappNumber = store.settings?.whatsappNumber;
-  if (whatsappNumber) {
-    sendWhatsAppOrderNotification(whatsappNumber, {
-      id: order.id,
-      customerName: data.fullName,
-      customerPhone: data.phone,
-      address: data.address,
-      total,
-      paymentMethod: data.paymentMethod,
-      itemCount: cartItems.reduce((sum, i) => sum + i.quantity, 0),
-      storeName: store.name,
-    });
+  // Fake-order protection: a cash order from a number that has to confirm
+  // waits for its code; the merchant hears about it only once confirmed.
+  let awaitingCode = false;
+  if (needsConfirmation) {
+    const sent = await sendOrderOtp(data.phone);
+    if (sent.ok) {
+      awaitingCode = true;
+      await prisma.order.update({ where: { id: order.id }, data: { otpSentCount: 1, otpLastSentAt: new Date() } });
+    } else {
+      // Couldn't reach the customer — never hold a real order hostage.
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          confirmationStatus: OrderConfirmationStatus.NOT_REQUIRED,
+          riskSignals: { push: "تعذّر إرسال كود التأكيد للعميل" },
+        },
+      });
+    }
   }
-
-  const telegramChatId = store.settings?.telegramChatId;
-  if (telegramChatId) {
-    const paymentLabel =
-      data.paymentMethod === "cash_on_delivery" ? "كاش عند الاستلام" : data.paymentMethod;
-    const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
-    const msg =
-      `🛒 *طلب جديد!*\n\n` +
-      `👤 ${data.fullName}\n` +
-      `📞 ${data.phone}\n` +
-      `🏠 ${data.address}\n` +
-      `💰 ${formatPiastersAsEgp(total)}\n` +
-      `💳 ${paymentLabel}\n` +
-      `📦 ${itemCount} قطعة\n\n` +
-      `🔗 #${order.id.slice(-6).toUpperCase()}`;
-    sendTelegramMarkdown(telegramChatId, msg);
-  }
+  if (!awaitingCode) await announceNewOrder(order.id);
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/orders");
@@ -516,7 +597,7 @@ export async function CreateOrderAction(
     redirect(checkoutUrl);
   }
 
-  redirect(`/store/${store.slug}/order/${order.id}`);
+  redirect(`/store/${store.slug}/order/${order.id}${awaitingCode ? "/confirm" : ""}`);
 }
 
 export async function GetOrdersAction(storeId: string) {
@@ -561,10 +642,15 @@ export async function GetOrdersAction(storeId: string) {
   });
 }
 
+/**
+ * `returned`: with CANCELED, records that the customer refused the delivery —
+ * it feeds the number's reputation (lib/fraud) without touching revenue math.
+ */
 export async function UpdateOrderStatusAction(
   orderId: string,
   storeId: string,
   status: OrderStatus,
+  opts: { returned?: boolean } = {},
 ) {
   const userId = await requireUserId();
   const store = await MustOwnStore(storeId, userId);
@@ -576,6 +662,7 @@ export async function UpdateOrderStatusAction(
       status: true,
       fullName: true,
       total: true,
+      returnedAt: true,
     },
   });
 
@@ -583,13 +670,16 @@ export async function UpdateOrderStatusAction(
     throw new Error("Order not found");
   }
 
+  const returnedAt =
+    status === OrderStatus.CANCELED && opts.returned ? (order.returnedAt ?? new Date()) : null;
+
   const wasCanceled = order.status === OrderStatus.CANCELED;
   const willBeCanceled = status === OrderStatus.CANCELED;
 
   await prisma.$transaction(async (tx) => {
     await tx.order.update({
       where: { id: orderId },
-      data: { status },
+      data: { status, returnedAt },
     });
 
     // Canceled orders give their items back to stock; undoing a cancel takes them again.

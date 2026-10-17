@@ -2,8 +2,9 @@ import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { BANNER_DEFAULT_CTA, BANNER_LINK_SELECT, liveBannerWhere, resolveBannerLink } from "@/lib/banners/banner-link";
 import type { ThemeCustomization } from "@/types/store-theme.types";
-import type { ProductCardData } from "../_themes/types";
+import type { BannerData, ProductCardData } from "../_themes/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Storefront data helpers
@@ -29,6 +30,42 @@ export const PRODUCT_CARD_SELECT = {
 } satisfies Prisma.ProductSelect;
 
 type CardRow = Prisma.ProductGetPayload<{ select: typeof PRODUCT_CARD_SELECT }>;
+
+const BANNER_SELECT = {
+  id: true,
+  title: true,
+  subtitle: true,
+  ctaLabel: true,
+  image: true,
+  mobileImage: true,
+  ...BANNER_LINK_SELECT,
+} satisfies Prisma.BannerSelect;
+
+/** Nested `banners` query for a store: live now (visible + inside its
+ *  schedule), in the merchant's order. */
+export function liveBannersQuery(take?: number) {
+  return {
+    where: liveBannerWhere(),
+    orderBy: [{ position: "asc" }, { createdAt: "desc" }, { id: "asc" }],
+    ...(take && { take }),
+    select: BANNER_SELECT,
+  } satisfies Prisma.Store$bannersArgs;
+}
+
+type BannerRow = Prisma.BannerGetPayload<{ select: typeof BANNER_SELECT }>;
+
+/** Banner rows → theme view-models with their click destination resolved. */
+export function toBannerData(rows: BannerRow[], whatsapp: string | null | undefined): BannerData[] {
+  return rows.map((b) => ({
+    id: b.id,
+    title: b.title,
+    subtitle: b.subtitle,
+    image: b.image,
+    mobileImage: b.mobileImage,
+    cta: b.ctaLabel || BANNER_DEFAULT_CTA,
+    link: resolveBannerLink(b, { whatsapp }),
+  }));
+}
 
 /** Average rating + count for a set of products, in one query. */
 async function getRatings(productIds: string[]) {

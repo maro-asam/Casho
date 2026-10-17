@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { StatusPill } from "@/components/saas-page";
-import { ReferralLinkBox } from "@/components/sales/copy-button";
+import { CopyButton, ReferralLinkBox } from "@/components/sales/copy-button";
 import { CommissionsTable } from "@/components/sales/commissions-table";
 import { CustomersTable } from "@/components/sales/customers-table";
 import { CommissionBreakdown, ExpiringCohorts, Panel, SalesKpis, TierPanel } from "@/components/sales/sales-summary";
 import { prisma } from "@/lib/prisma";
-import { buildReferralLink } from "@/lib/sales/attribution";
+import { buildReferralLink, buildSalesLoginLink } from "@/lib/sales/attribution";
 import { fmtDate, fmtDateTime, fmtMoney } from "@/lib/sales/format";
 import { getSalesSummary, listAttributedCustomers, listCommissions, listPayouts, listSalesAuditLog } from "@/lib/sales/queries";
 import { CommissionActions, EditRepDialog, RecordPayoutDialog, RepStatusDialog } from "../../_components/sales-dialogs";
@@ -60,11 +60,33 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
             {rep.disabledAt && ` · اتوقف ${fmtDate(rep.disabledAt)}`}
           </p>
           {rep.notes && <p className="text-sm">{rep.notes}</p>}
-          {rep.user.referralCode && (
-            <div className="max-w-xl pt-2">
-              <ReferralLinkBox link={buildReferralLink(rep.user.referralCode)} code={rep.user.referralCode} />
+          <div className="grid max-w-3xl gap-4 pt-3 md:grid-cols-2">
+            <div className="space-y-2 rounded-lg border p-3">
+              <p className="text-sm font-medium">دخول المندوب — ابعتهوله هو</p>
+              <p className="text-xs text-muted-foreground">
+                يسجّل دخول بالبريد ده وكلمة المرور المؤقتة اللي عملتها، وهيتحوّل على لوحة المبيعات. مش محتاج يعمل متجر.
+              </p>
+              <div className="flex items-center gap-2">
+                <code dir="ltr" className="min-w-0 flex-1 truncate rounded-md bg-muted/40 px-2 py-1.5 text-left font-mono text-xs">
+                  {buildSalesLoginLink()}
+                </code>
+                <CopyButton value={buildSalesLoginLink()} label="نسخ" />
+              </div>
+              <p className="text-xs">
+                البريد:{" "}
+                <span dir="ltr" className="font-mono">
+                  {rep.user.email}
+                </span>
+              </p>
             </div>
-          )}
+            {rep.user.referralCode && (
+              <div className="space-y-2 rounded-lg border p-3">
+                <p className="text-sm font-medium">رابط الإحالة — للتجار مش للمندوب</p>
+                <p className="text-xs text-muted-foreground">ده فورم إنشاء متجر. المندوب بيبعته للتجار، وأي حد يسجل منه بيتنسب له.</p>
+                <ReferralLinkBox link={buildReferralLink(rep.user.referralCode)} code={rep.user.referralCode} />
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           <EditRepDialog rep={{ id: rep.id, name: rep.user.name, phone: rep.user.phone_number, notes: rep.notes }} />

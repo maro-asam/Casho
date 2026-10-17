@@ -15,7 +15,7 @@ export default async function SalesOverviewPage() {
       <PageHeader title={`أهلًا ${rep.name ?? ""}`.trim()} description="أرقامك من أول يوم — بتتحدث مع كل دفعة اشتراك من عملائك." />
 
       <Panel
-        title="رابط الإحالة بتاعك"
+        title="رابط الإحالة بتاعك — ابعته للتجار"
         description={`أي تاجر يسجل من الرابط ده بيتنسب ليك. ${fmtNum(summary.signups)} تسجيل لحد دلوقتي، دفع منهم ${fmtNum(summary.acquired)} (${fmtPct(summary.conversionRate)}).`}
       >
         <ReferralLinkBox link={buildReferralLink(rep.referralCode)} code={rep.referralCode} />

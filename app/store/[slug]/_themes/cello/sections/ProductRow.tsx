@@ -1,8 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import type { BannerData, ProductCardData } from "../../types";
+import { BannerLink } from "../../shared/banner";
 import MiniCard from "../product/MiniCard";
 import ProductCard from "../product/ProductCard";
 import Rail from "../product/Rail";
@@ -29,19 +29,20 @@ export default function ProductRow({
   actions?: ReactNode;
   max?: number;
   /** Banner shown as the first, taller tile on large screens. */
-  lead?: { banner: BannerData; href: string } | null;
+  lead?: BannerData | null;
 }) {
   if (products.length === 0) return null;
   return (
     <Wrap className="ce-section">
       <div className={lead ? "lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,3.6fr)] lg:items-end lg:gap-(--ce-gap)" : undefined}>
         {lead && (
-          <Link href={lead.href} className="group relative hidden h-full min-h-[26rem] overflow-hidden rounded-(--ce-r) bg-(--ce-navy) p-7 text-white lg:block">
-            <Image src={lead.banner.image} alt="" fill sizes="22vw" className="ce-zoom-img object-cover" />
+          <BannerLink banner={lead} storeSlug={storeSlug} className="group relative hidden h-full min-h-[26rem] overflow-hidden rounded-(--ce-r) bg-(--ce-navy) p-7 text-white lg:block">
+            <Image src={lead.image} alt="" fill sizes="22vw" className="ce-zoom-img object-cover" />
             <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(0_16_48/0.75),rgb(0_16_48/0)_60%)]" />
-            <span className="relative block text-2xl leading-snug font-semibold text-balance">{lead.banner.title}</span>
-            <span className="ce-btn ce-btn--white relative mt-5">تسوّق الآن</span>
-          </Link>
+            <span className="relative block text-2xl leading-snug font-semibold text-balance">{lead.title}</span>
+            {lead.subtitle && <span className="relative mt-2 block text-sm text-white/85">{lead.subtitle}</span>}
+            {lead.link && <span className="ce-btn ce-btn--white relative mt-5">{lead.cta}</span>}
+          </BannerLink>
         )}
         <Rail label={title} title={title} sub={sub} href={href} actions={actions} listClassName={lead ? "lg:[&>li]:!w-[calc((100%-var(--ce-gap)*3)/4)]" : undefined}>
           {products.slice(0, max).map((p, i) => (

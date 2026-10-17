@@ -105,7 +105,9 @@ export function CreateRepDialog() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>مندوب مبيعات جديد</DialogTitle>
-          <DialogDescription>حساب جديد بصلاحية مبيعات بس — مالوش متجر. ابعتله البريد وكلمة المرور المؤقتة وهو يغيرها من &quot;نسيت كلمة المرور&quot;.</DialogDescription>
+          <DialogDescription>
+            حساب مبيعات بس — مالوش متجر. بعد الإنشاء ابعتله <strong>رابط الدخول</strong> من صفحته مع البريد وكلمة المرور المؤقتة (يقدر يغيرها من &quot;نسيت كلمة المرور&quot;). رابط الإحالة ده للتجار مش ليه.
+          </DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={(e) => submit(formValues(e))}>
           <Field label="الاسم" name="name" error={errors.name}>

@@ -8,6 +8,7 @@ import { absoluteUrl, isPlaceholderImage, jsonLd, metaText, storeBaseUrl } from 
 import { getStorefrontTheme } from "../../_themes";
 import type { BundleItem, WholesaleTier } from "../../_themes/types";
 import { PRODUCT_CARD_SELECT, getStoreThemeId, toProductCards } from "../../_lib/storefront";
+import { PixelEvent } from "../../_components/pixels/PixelEvent";
 
 // ISR: revalidate every 120 seconds — product data (price, stock, description) changes occasionally
 export const revalidate = 120;
@@ -177,6 +178,14 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
+      <PixelEvent
+        name="ViewContent"
+        payload={{
+          value: product.price,
+          currency: "EGP",
+          contents: [{ id: product.id, quantity: 1, price: product.price, name: product.name }],
+        }}
+      />
       <theme.Product
         store={{ id: store.id, name: store.name, slug: store.slug }}
         product={{

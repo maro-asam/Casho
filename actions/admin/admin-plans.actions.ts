@@ -2,8 +2,24 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { syncStorePricesFromPlans } from "@/lib/billing/sync-prices";
 import { requireAdmin } from "./admin-guard.actions";
 import { FeatureType } from "@prisma/client";
+
+const KEY_RE = /^[A-Z][A-Z0-9_]{1,30}$/;
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const FEATURE_KEY_RE = /^[a-z][a-z0-9_]{1,40}$/;
+
+function isUniqueViolation(error: unknown) {
+  return (error as { code?: string } | null)?.code === "P2002";
+}
+
+function validatePrices(input: { monthlyPrice: number; yearlyPrice: number }) {
+  for (const v of [input.monthlyPrice, input.yearlyPrice]) {
+    if (!Number.isInteger(v) || v < 0) return "الأسعار لازم تكون أرقام موجبة";
+  }
+  return null;
+}
 
 function revalidatePlanPaths() {
   revalidatePath("/admin/plans");
@@ -81,6 +97,10 @@ export type PlanFormInput = {
 export async function UpdatePlanAction(planId: string, input: PlanFormInput) {
   const admin = await requireAdmin();
 
+  if (!input.name?.trim()) return { success: false, message: "اسم الباقة مطلوب" };
+  const priceError = validatePrices(input);
+  if (priceError) return { success: false, message: priceError };
+
   const before = await prisma.plan.findUnique({ where: { id: planId } });
   if (!before) return { success: false, message: "الباقة غير موجودة" };
 
@@ -98,8 +118,16 @@ export async function UpdatePlanAction(planId: string, input: PlanFormInput) {
     return updated;
   });
 
+  // Prices / order / visibility drive what every store pays next — keep the
+  // stores' cached prices in step and warn merchants whose price moved.
+  const { updated } = await syncStorePricesFromPlans();
+
   revalidatePlanPaths();
-  return { success: true, message: "تم حفظ الباقة", plan: after };
+  return {
+    success: true,
+    message: updated > 0 ? `تم حفظ الباقة — اتحدّث سعر التجديد لـ ${updated} متجر واتبعتلهم إشعار` : "تم حفظ الباقة",
+    plan: after,
+  };
 }
 
 export type CreatePlanInput = PlanFormInput & { key: string; slug: string };
@@ -107,16 +135,28 @@ export type CreatePlanInput = PlanFormInput & { key: string; slug: string };
 export async function CreatePlanAction(input: CreatePlanInput) {
   const admin = await requireAdmin();
 
-  const plan = await prisma.$transaction(async (tx) => {
-    const created = await tx.plan.create({ data: input });
-    await tx.planAuditLog.create({
-      data: { actorUserId: admin.id, planId: created.id, action: "plan_created", after: created },
-    });
-    return created;
-  });
+  if (!input.name?.trim()) return { success: false, message: "اسم الباقة مطلوب" };
+  if (!KEY_RE.test(input.key)) return { success: false, message: "الكود لازم يكون حروف إنجليزي كابيتال وأرقام، زي GOLD" };
+  if (!SLUG_RE.test(input.slug)) return { success: false, message: "الرابط لازم يكون حروف إنجليزي صغيرة وشرطات، زي gold" };
+  const priceError = validatePrices(input);
+  if (priceError) return { success: false, message: priceError };
 
-  revalidatePlanPaths();
-  return { success: true, message: "تم إنشاء الباقة", plan };
+  try {
+    const plan = await prisma.$transaction(async (tx) => {
+      const created = await tx.plan.create({ data: input });
+      await tx.planAuditLog.create({
+        data: { actorUserId: admin.id, planId: created.id, action: "plan_created", after: created },
+      });
+      return created;
+    });
+
+    await syncStorePricesFromPlans();
+    revalidatePlanPaths();
+    return { success: true, message: "تم إنشاء الباقة", plan };
+  } catch (error) {
+    if (isUniqueViolation(error)) return { success: false, message: "فيه باقة بنفس الكود أو الرابط" };
+    throw error;
+  }
 }
 
 // ─── Feature mutations ──────────────────────────────────────────────────────
@@ -152,16 +192,25 @@ export type CreateFeatureInput = FeatureFormInput & { key: string; type: Feature
 export async function CreateFeatureAction(input: CreateFeatureInput) {
   const admin = await requireAdmin();
 
-  const feature = await prisma.$transaction(async (tx) => {
-    const created = await tx.feature.create({ data: input });
-    await tx.planAuditLog.create({
-      data: { actorUserId: admin.id, action: "feature_created", after: created },
-    });
-    return created;
-  });
+  if (!input.name?.trim()) return { success: false, message: "اسم الميزة مطلوب" };
+  if (!FEATURE_KEY_RE.test(input.key)) return { success: false, message: "المفتاح لازم يكون حروف إنجليزي صغيرة وأرقام و _، زي custom_domain" };
+  if (!(Object.values(FeatureType) as string[]).includes(input.type)) return { success: false, message: "نوع الميزة غير صحيح" };
 
-  revalidatePlanPaths();
-  return { success: true, message: "تم إنشاء الميزة", feature };
+  try {
+    const feature = await prisma.$transaction(async (tx) => {
+      const created = await tx.feature.create({ data: input });
+      await tx.planAuditLog.create({
+        data: { actorUserId: admin.id, action: "feature_created", after: created },
+      });
+      return created;
+    });
+
+    revalidatePlanPaths();
+    return { success: true, message: "تم إنشاء الميزة", feature };
+  } catch (error) {
+    if (isUniqueViolation(error)) return { success: false, message: "فيه ميزة بنفس المفتاح" };
+    throw error;
+  }
 }
 
 // ─── Plan × Feature matrix (spec section 19) ────────────────────────────────

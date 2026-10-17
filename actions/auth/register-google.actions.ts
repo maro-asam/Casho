@@ -1,5 +1,6 @@
 "use server";
 
+import { getEntryPlan } from "@/lib/billing/renewal";
 import { SubscriptionStatus } from "@prisma/client";
 import { cookies } from "next/headers";
 
@@ -78,10 +79,16 @@ export async function RegisterGoogleAction(
   try {
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ googleId: googleData.googleId }, { email: googleData.email }] },
-      select: { id: true },
+      select: { id: true, googleId: true },
     });
 
     if (existingUser) {
+      // Only an account already linked to this Google identity logs in here.
+      // An email/password account with this address must go through the
+      // Google sign-in callback, which links it safely.
+      if (existingUser.googleId !== googleData.googleId) {
+        return { error: "الإيميل ده عليه حساب بالفعل. سجّل دخول بجوجل من صفحة تسجيل الدخول." };
+      }
       await createUserSession(existingUser.id);
       return { success: true, message: "تم تسجيل الدخول" };
     }
@@ -98,6 +105,8 @@ export async function RegisterGoogleAction(
     const now = new Date();
     const trialEndsAt = getFreeTrialEndDate(now);
     const trialPlanId = await getDefaultTrialPlanId();
+    // Trial runs on Platinum; afterwards a store that never picked a plan pays the entry plan.
+    const entryPlan = await getEntryPlan();
 
     const created = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -108,6 +117,8 @@ export async function RegisterGoogleAction(
           email: googleData.email,
           name: googleData.name || null,
           googleId: googleData.googleId,
+          // Google only hands out verified emails (checked in the callback).
+          emailVerified: true,
           country,
           businessType,
           referralCode: generateReferralCode(),
@@ -125,6 +136,7 @@ export async function RegisterGoogleAction(
               autoRenew: true,
               planSelected: false,
               planId: trialPlanId,
+              ...(entryPlan && { monthlyPrice: entryPlan.monthlyPrice }),
             },
           },
         },

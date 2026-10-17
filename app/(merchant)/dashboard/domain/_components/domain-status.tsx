@@ -30,6 +30,8 @@ type Props = {
   connectedAt: string | null;
   storeUrl: string;
   targets: { cname: string; a: string };
+  /** This store's ownership token (TXT record). */
+  verifyToken: string;
 };
 
 const POLL_MS = 30_000;
@@ -55,6 +57,11 @@ const PROBLEM_TEXT: Record<string, { title: string; body: string }> = {
     title: "الدومين بيشاور على مكان تاني",
     body: "في سجل قديم (استضافة قديمة أو صفحة ركن) لنفس الاسم. امسحه وسيب السجلات اللي تحت بس.",
   },
+};
+
+PROBLEM_TEXT["no-ownership"] = {
+  title: "فاضل سجل الـ TXT",
+  body: "الـ DNS بيشاور علينا تمام، بس لازم تضيف سجل الـ TXT اللي تحت عشان نتأكد إن الدومين بتاعك انت. ده بيحمي دومينك إن حد تاني يربطه بمتجره.",
 };
 
 const PROVIDERS = [
@@ -109,7 +116,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   );
 }
 
-export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, targets }: Props) {
+export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, targets, verifyToken }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>(initialStatus);
   const [report, setReport] = useState<DomainCheckReport | null>(null);
@@ -117,7 +124,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
   const [confirm, setConfirm] = useState(false);
   const [disconnecting, startDisconnect] = useTransition();
   const now = useNow();
-  const records = requiredRecords(domain, targets);
+  const records = requiredRecords(domain, targets, verifyToken);
 
   const verify = useCallback(
     async (manual = false) => {
@@ -184,7 +191,12 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
   const live = status === "ACTIVE";
   const dnsOk = report ? report.dns.ok : live;
   const sslOk = live;
-  const problem = report && !report.dns.ok ? PROBLEM_TEXT[report.dns.problem ?? "no-records"] : null;
+  const problem =
+    report && !report.dns.ok
+      ? PROBLEM_TEXT[report.dns.problem ?? "no-records"]
+      : report && !live && !report.ownership && !connectedAt
+        ? PROBLEM_TEXT["no-ownership"]
+        : null;
   const hostingWaiting = report && report.dns.ok && !live;
   const checkedAgo = report ? rtf.format(Math.round((new Date(report.checkedAt).getTime() - now) / 60000), "minute") : null;
 

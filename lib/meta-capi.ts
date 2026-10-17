@@ -52,9 +52,15 @@ export type SendMetaCapiEventInput = {
   fbc?: string | null;
 
   customData?: MetaCapiCustomData;
+
+  /**
+   * A merchant's own pixel (storefront events). Omitted → Casho's own pixel
+   * from env (platform marketing: signups, subscription purchases).
+   */
+  credentials?: { pixelId: string; accessToken: string; testEventCode?: string | null };
 };
 
-function sha256(value?: string | null) {
+export function sha256(value?: string | null) {
   if (!value) return undefined;
 
   return crypto
@@ -63,12 +69,15 @@ function sha256(value?: string | null) {
     .digest("hex");
 }
 
-function normalizePhone(phone?: string | null) {
+export function normalizePhone(phone?: string | null) {
   if (!phone) return undefined;
 
-  // Meta prefers normalized phone before hashing.
-  // هنشيل أي رموز ونسيب الأرقام بس.
-  return phone.replace(/[^\d]/g, "");
+  // Meta matches on digits with the country code ("201012345678"); a local
+  // Egyptian number ("01012345678") would never match anyone.
+  let digits = phone.replace(/[^\d]/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (/^01\d{9}$/.test(digits)) digits = `2${digits}`;
+  return digits;
 }
 
 function cleanObject<T extends Record<string, unknown>>(obj: T) {
@@ -86,9 +95,9 @@ export function createMetaEventId(prefix: string) {
 }
 
 export async function sendMetaCapiEvent(input: SendMetaCapiEventInput) {
-  const pixelId = process.env.FACEBOOK_PIXEL_ID;
-  const accessToken = process.env.FACEBOOK_CAPI_ACCESS_TOKEN;
-  const testEventCode = process.env.FACEBOOK_TEST_EVENT_CODE;
+  const pixelId = input.credentials?.pixelId ?? process.env.FACEBOOK_PIXEL_ID;
+  const accessToken = input.credentials?.accessToken ?? process.env.FACEBOOK_CAPI_ACCESS_TOKEN;
+  const testEventCode = input.credentials ? input.credentials.testEventCode : process.env.FACEBOOK_TEST_EVENT_CODE;
 
   const eventId = input.eventId || createMetaEventId(input.eventName);
 
@@ -136,7 +145,7 @@ export async function sendMetaCapiEvent(input: SendMetaCapiEventInput) {
 
   try {
     const response = await fetch(
-      `https://graph.facebook.com/v20.0/${pixelId}/events?access_token=${accessToken}`,
+      `https://graph.facebook.com/v20.0/${pixelId}/events?access_token=${encodeURIComponent(accessToken)}`,
       {
         method: "POST",
         headers: {

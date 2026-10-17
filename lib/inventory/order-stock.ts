@@ -1,4 +1,4 @@
-import { StockMovementType, type Prisma } from "@prisma/client";
+import { OrderConfirmationStatus, OrderStatus, StockMovementType, type Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { findDefaultBranchId, adjustBranchQuantity } from "./branch-stock";
 
@@ -125,4 +125,56 @@ export async function fitCartToStock(storeId: string, guestSessionId: string) {
 
   if (ops.length) await prisma.$transaction(ops);
   return ops.length > 0;
+}
+
+/** How long an unpaid card/wallet order may hold stock before it is released. */
+const UNPAID_ONLINE_ORDER_TTL_MS = 60 * 60 * 1000;
+/** How long a cash order may wait for the customer's phone code (lib/fraud). */
+const UNCONFIRMED_ORDER_TTL_MS = 6 * 60 * 60 * 1000;
+
+/**
+ * Cancels online orders that never became real and gives their stock back:
+ * Kashier orders the shopper never paid (a payment that still arrives later
+ * re-takes the stock in the Kashier callback), and cash orders whose phone
+ * code was never entered. Run from the hourly cron.
+ */
+export async function releaseUnpaidOnlineOrders(now = new Date()) {
+  const stale = await prisma.order.findMany({
+    where: {
+      status: OrderStatus.PENDING,
+      paidAt: null,
+      OR: [
+        { paymentProvider: "KASHIER", createdAt: { lt: new Date(now.getTime() - UNPAID_ONLINE_ORDER_TTL_MS) } },
+        {
+          confirmationStatus: OrderConfirmationStatus.PENDING,
+          createdAt: { lt: new Date(now.getTime() - UNCONFIRMED_ORDER_TTL_MS) },
+        },
+      ],
+    },
+    select: { id: true, storeId: true, confirmationStatus: true },
+    take: 500,
+  });
+
+  let released = 0;
+  for (const order of stale) {
+    try {
+      const done = await prisma.$transaction(async (tx) => {
+        const res = await tx.order.updateMany({
+          where: { id: order.id, status: OrderStatus.PENDING, paidAt: null },
+          data:
+            order.confirmationStatus === OrderConfirmationStatus.PENDING
+              ? { status: OrderStatus.CANCELED, riskSignals: { push: "اتلغى تلقائي — العميل ماأكدش الكود" } }
+              : { status: OrderStatus.CANCELED, paymentStatus: "EXPIRED" },
+        });
+        if (res.count !== 1) return false;
+        await adjustStockForOrderStatus(tx, { storeId: order.storeId, orderId: order.id, direction: "restock" });
+        return true;
+      });
+      if (done) released += 1;
+    } catch (error) {
+      console.error("[release-unpaid-orders]", order.id, error);
+    }
+  }
+
+  return { checked: stale.length, released };
 }

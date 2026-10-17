@@ -2,38 +2,16 @@
 
 import { prisma } from "@/lib/prisma";
 
-import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
 import { TrackPurchaseAction } from "@/actions/tracking/tracking.actions";
 import { revalidatePath } from "next/cache";
-import {
-  addDays,
-  canChargeMonthlyPlan,
-  DEFAULT_GRACE_PERIOD_DAYS,
-  getBillingPeriodDays,
-  getNextSubscriptionEndDate,
-  normalizeBalanceAmount,
-} from "@/lib/subscriptions";
-import { BalanceTransactionType, BillingCycle, SubscriptionStatus } from "@prisma/client";
-import { addMonths, addYears } from "date-fns";
+import { SubscriptionStatus } from "@prisma/client";
 import { requireUserId } from "../auth/require-user-id.actions";
-import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
-import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
+import { renewIfDue, renewNow, type RenewalOutcome } from "@/lib/billing/renewal";
+import { formatPiastersAsEgp } from "@/lib/notifications/in-app";
 
 type ActionResult = {
   success: boolean;
   message: string;
-};
-
-type TopUpBalanceInput = {
-  storeId: string;
-  amount: number; // بالقروش
-  note?: string;
-};
-
-type AdjustBalanceInput = {
-  storeId: string;
-  amount: number; // موجب أو سالب
-  note?: string;
 };
 
 async function getOwnedStoreOrThrow(storeId: string) {
@@ -101,356 +79,26 @@ async function trackSubscriptionPurchase({
   }
 }
 
-export async function TopUpStoreBalanceAction({
-  storeId,
-  amount,
-  note,
-}: TopUpBalanceInput): Promise<ActionResult> {
-  try {
-    const store = await getOwnedStoreOrThrow(storeId);
-    const normalizedAmount = normalizeBalanceAmount(amount);
-
-    await prisma.$transaction(async (tx) => {
-      const balanceBefore = store.balance;
-      const balanceAfter = balanceBefore + normalizedAmount;
-
-      await tx.store.update({
-        where: { id: store.id },
-        data: {
-          balance: balanceAfter,
-        },
-      });
-
-      await tx.balanceTransaction.create({
-        data: {
-          storeId: store.id,
-          type: BalanceTransactionType.TOPUP,
-          amount: normalizedAmount,
-          balanceBefore,
-          balanceAfter,
-          note: note?.trim() || "شحن رصيد يدوي",
-        },
-      });
-    });
-
-    await TryRenewStoreSubscriptionAction(storeId);
-
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/settings");
-    revalidatePath("/dashboard/subscription");
-
-    return {
-      success: true,
-      message: "تم شحن الرصيد بنجاح",
-    };
-  } catch (error) {
-    console.error("TopUpStoreBalanceAction Error:", error);
-
-    return {
-      success: false,
-      message: "حدث خطأ أثناء شحن الرصيد",
-    };
-  }
+/** Starts a paid period now (store never paid, or lapsed). Same engine as renewal. */
+export async function ActivateStoreSubscriptionAction(storeId: string): Promise<ActionResult> {
+  return payPeriodNow(storeId, "تفعيل الاشتراك", "تم تفعيل الاشتراك بنجاح");
 }
 
-export async function AdjustStoreBalanceAction({
-  storeId,
-  amount,
-  note,
-}: AdjustBalanceInput): Promise<ActionResult> {
+/** Renewal attempt for an expired period (charges only when due). */
+export async function TryRenewStoreSubscriptionAction(storeId: string): Promise<ActionResult> {
   try {
     const store = await getOwnedStoreOrThrow(storeId);
-
-    if (!Number.isInteger(amount) || amount === 0) {
-      return {
-        success: false,
-        message: "قيمة التعديل غير صحيحة",
-      };
-    }
-
-    const newBalance = store.balance + amount;
-
-    if (newBalance < 0) {
-      return {
-        success: false,
-        message: "لا يمكن خصم مبلغ أكبر من الرصيد الحالي",
-      };
-    }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.store.update({
-        where: { id: store.id },
-        data: {
-          balance: newBalance,
-        },
-      });
-
-      await tx.balanceTransaction.create({
-        data: {
-          storeId: store.id,
-          type: BalanceTransactionType.MANUAL_ADJUSTMENT,
-          amount,
-          balanceBefore: store.balance,
-          balanceAfter: newBalance,
-          note: note?.trim() || "تعديل يدوي على الرصيد",
-        },
-      });
-    });
-
+    const outcome = await renewIfDue(store.id);
     revalidatePath("/dashboard");
-    revalidatePath("/dashboard/settings");
-    revalidatePath("/dashboard/subscription");
-
-    return {
-      success: true,
-      message: "تم تعديل الرصيد بنجاح",
-    };
-  } catch (error) {
-    console.error("AdjustStoreBalanceAction Error:", error);
-
-    return {
-      success: false,
-      message: "حدث خطأ أثناء تعديل الرصيد",
-    };
-  }
-}
-
-export async function ActivateStoreSubscriptionAction(
-  storeId: string,
-): Promise<ActionResult> {
-  try {
-    const store = await getOwnedStoreOrThrow(storeId);
-
-    if (
-      !canChargeMonthlyPlan({
-        balance: store.balance,
-        monthlyPrice: store.monthlyPrice,
-      })
-    ) {
-      return {
-        success: false,
-        message: "الرصيد الحالي لا يكفي لتفعيل الاشتراك",
-      };
-    }
-
-    await prisma.$transaction(async (tx) => {
-      const balanceBefore = store.balance;
-      const balanceAfter = balanceBefore - store.monthlyPrice;
-      const now = new Date();
-      const subscriptionEndsAt = getNextSubscriptionEndDate(now, getBillingPeriodDays(store.billingCycle));
-
-      await tx.store.update({
-        where: { id: store.id },
-        data: {
-          balance: balanceAfter,
-          subscriptionStatus: SubscriptionStatus.ACTIVE,
-          subscriptionEndsAt,
-          gracePeriodEndsAt: null,
-        },
-      });
-
-      await tx.balanceTransaction.create({
-        data: {
-          storeId: store.id,
-          type: BalanceTransactionType.SUBSCRIPTION_CHARGE,
-          amount: -store.monthlyPrice,
-          balanceBefore,
-          balanceAfter,
-          note: "تفعيل أول اشتراك شهري",
-        },
-      });
-    });
-
-    await trackSubscriptionPurchase({
-      storeId: store.id,
-      storeSlug: store.slug,
-      storeName: store.name,
-      monthlyPrice: store.monthlyPrice,
-    });
-
-    await grantReferralRewardIfEligible(store.id);
-    await trackPaidReferralLevel(store.id);
-    await recordSalesCommissionsForStore(store.id);
-
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/subscription");
-    revalidatePath(`/store/${store.slug}`);
-
-    return {
-      success: true,
-      message: "تم تفعيل الاشتراك بنجاح",
-    };
-  } catch (error) {
-    console.error("ActivateStoreSubscriptionAction Error:", error);
-
-    return {
-      success: false,
-      message: "حدث خطأ أثناء تفعيل الاشتراك",
-    };
-  }
-}
-
-export async function TryRenewStoreSubscriptionAction(
-  storeId: string,
-): Promise<ActionResult> {
-  try {
-    const store = await getOwnedStoreOrThrow(storeId);
-    const now = new Date();
-
-    if (!store.subscriptionEndsAt) {
-      return {
-        success: false,
-        message: "لا يوجد اشتراك مفعل مسبقًا لهذا المتجر",
-      };
-    }
-
-    const isExpired = store.subscriptionEndsAt.getTime() <= now.getTime();
-
-    if (!isExpired) {
-      return {
-        success: true,
-        message: "الاشتراك ما زال فعالًا",
-      };
-    }
-
-    if (
-      store.autoRenew &&
-      canChargeMonthlyPlan({
-        balance: store.balance,
-        monthlyPrice: store.monthlyPrice,
-      })
-    ) {
-      await prisma.$transaction(async (tx) => {
-        const balanceBefore = store.balance;
-        const balanceAfter = balanceBefore - store.monthlyPrice;
-        const nextEndDate = getNextSubscriptionEndDate(now, getBillingPeriodDays(store.billingCycle));
-
-        await tx.store.update({
-          where: { id: store.id },
-          data: {
-            balance: balanceAfter,
-            subscriptionStatus: SubscriptionStatus.ACTIVE,
-            subscriptionEndsAt: nextEndDate,
-            gracePeriodEndsAt: null,
-          },
-        });
-
-        await tx.balanceTransaction.create({
-          data: {
-            storeId: store.id,
-            type: BalanceTransactionType.SUBSCRIPTION_CHARGE,
-            amount: -store.monthlyPrice,
-            balanceBefore,
-            balanceAfter,
-            note: "تجديد الاشتراك الشهري تلقائيًا",
-          },
-        });
-      });
-
-      await trackSubscriptionPurchase({
-        storeId: store.id,
-        storeSlug: store.slug,
-        storeName: store.name,
-        monthlyPrice: store.monthlyPrice,
-      });
-
-      await grantReferralRewardIfEligible(store.id);
-      await trackPaidReferralLevel(store.id);
-      await recordSalesCommissionsForStore(store.id);
-
-      revalidatePath("/dashboard");
-      revalidatePath("/dashboard/subscription");
-      revalidatePath(`/store/${store.slug}`);
-
-      return {
-        success: true,
-        message: "تم تجديد الاشتراك تلقائيًا من الرصيد",
-      };
-    }
-
-    const graceEndsAt = addDays(now, DEFAULT_GRACE_PERIOD_DAYS);
-
-    await prisma.store.update({
-      where: { id: store.id },
-      data: {
-        subscriptionStatus: SubscriptionStatus.GRACE_PERIOD,
-        gracePeriodEndsAt: graceEndsAt,
-      },
-    });
-
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/subscription");
-    revalidatePath(`/store/${store.slug}`);
-
-    return {
-      success: false,
-      message: "الرصيد غير كافٍ، تم إدخال المتجر في فترة السماح",
-    };
+    return RENEWAL_RESULTS[outcome];
   } catch (error) {
     console.error("TryRenewStoreSubscriptionAction Error:", error);
-
-    return {
-      success: false,
-      message: "حدث خطأ أثناء محاولة تجديد الاشتراك",
-    };
+    return { success: false, message: "حدث خطأ أثناء محاولة تجديد الاشتراك" };
   }
 }
 
-export async function RefreshStoreSubscriptionStatusAction(
-  storeId: string,
-): Promise<ActionResult> {
-  try {
-    const store = await getOwnedStoreOrThrow(storeId);
-    const now = new Date();
-
-    if (!store.subscriptionEndsAt) {
-      return {
-        success: false,
-        message: "المتجر لا يملك اشتراكًا حتى الآن",
-      };
-    }
-
-    if (
-      store.subscriptionStatus === SubscriptionStatus.ACTIVE &&
-      store.subscriptionEndsAt.getTime() > now.getTime()
-    ) {
-      return {
-        success: true,
-        message: "الاشتراك ما زال نشطًا",
-      };
-    }
-
-    if (
-      store.subscriptionStatus === SubscriptionStatus.GRACE_PERIOD &&
-      store.gracePeriodEndsAt &&
-      store.gracePeriodEndsAt.getTime() <= now.getTime()
-    ) {
-      await prisma.store.update({
-        where: { id: store.id },
-        data: {
-          subscriptionStatus: SubscriptionStatus.PAST_DUE,
-        },
-      });
-
-      revalidatePath("/dashboard");
-      revalidatePath("/dashboard/subscription");
-      revalidatePath(`/store/${store.slug}`);
-
-      return {
-        success: false,
-        message: "انتهت فترة السماح وأصبح الاشتراك متأخرًا",
-      };
-    }
-
-    return await TryRenewStoreSubscriptionAction(storeId);
-  } catch (error) {
-    console.error("RefreshStoreSubscriptionStatusAction Error:", error);
-
-    return {
-      success: false,
-      message: "حدث خطأ أثناء تحديث حالة الاشتراك",
-    };
-  }
+export async function RefreshStoreSubscriptionStatusAction(storeId: string): Promise<ActionResult> {
+  return TryRenewStoreSubscriptionAction(storeId);
 }
 
 export async function CancelStoreSubscriptionAction(
@@ -520,106 +168,41 @@ export async function ResumeStoreSubscriptionAutoRenewAction(
   }
 }
 
-export async function RenewStoreSubscriptionAction(
-  storeId: string,
-): Promise<ActionResult> {
+/** "جدّد دلوقتي": pays the next period now; a running period is extended from its end. */
+export async function RenewStoreSubscriptionAction(storeId: string): Promise<ActionResult> {
+  return payPeriodNow(storeId, "تجديد الاشتراك", "تم تجديد الاشتراك وتفعيل المتجر بنجاح");
+}
+
+const RENEWAL_RESULTS: Record<RenewalOutcome, ActionResult> = {
+  none: { success: true, message: "الاشتراك ما زال فعالًا" },
+  renewed: { success: true, message: "تم تجديد الاشتراك تلقائيًا من الرصيد" },
+  grace: { success: false, message: "الرصيد غير كافٍ، تم إدخال المتجر في فترة السماح" },
+  past_due: { success: false, message: "انتهت فترة السماح وأصبح الاشتراك متأخرًا" },
+};
+
+async function payPeriodNow(storeId: string, note: string, okMessage: string): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    const store = await prisma.store.findUnique({
-      where: { id: storeId },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        balance: true,
-        monthlyPrice: true,
-        billingCycle: true,
-        subscriptionStatus: true,
-        subscriptionEndsAt: true,
-        gracePeriodEndsAt: true,
-      },
-    });
-
-    if (!store) {
-      return {
-        success: false,
-        message: "المتجر غير موجود",
-      };
+    const store = await getOwnedStoreOrThrow(storeId);
+    const result = await renewNow(store.id, { note });
+    if (!result.ok) {
+      const message =
+        result.reason === "short"
+          ? `الرصيد الحالي لا يكفي — ناقص ${formatPiastersAsEgp(result.shortfall ?? 0)}`
+          : result.reason === "canceled"
+            ? "الاشتراك ملغي — فعّل التجديد التلقائي الأول"
+            : "حصل تعارض، جرّب تاني";
+      return { success: false, message };
     }
 
-    if (store.balance < store.monthlyPrice) {
-      return {
-        success: false,
-        message: "الرصيد الحالي لا يكفي لتجديد الاشتراك",
-      };
-    }
-
-    const now = new Date();
-
-    const baseDate =
-      store.subscriptionEndsAt &&
-      store.subscriptionEndsAt.getTime() > now.getTime()
-        ? store.subscriptionEndsAt
-        : now;
-
-    const nextSubscriptionEndDate =
-      store.billingCycle === BillingCycle.YEARLY ? addYears(baseDate, 1) : addMonths(baseDate, 1);
-
-    await prisma.$transaction(async (tx) => {
-      const balanceBefore = store.balance;
-      const balanceAfter = balanceBefore - store.monthlyPrice;
-
-      await tx.store.update({
-        where: { id: store.id },
-        data: {
-          balance: balanceAfter,
-          subscriptionStatus: SubscriptionStatus.ACTIVE,
-          subscriptionEndsAt: nextSubscriptionEndDate,
-          gracePeriodEndsAt: null,
-        },
-      });
-
-      await tx.balanceTransaction.create({
-        data: {
-          storeId: store.id,
-          type: BalanceTransactionType.SUBSCRIPTION_CHARGE,
-          amount: -store.monthlyPrice,
-          balanceBefore,
-          balanceAfter,
-          note: "تجديد الاشتراك الشهري",
-        },
-      });
-    });
-
-    await trackSubscriptionPurchase({
-      storeId: store.id,
-      storeSlug: store.slug,
-      storeName: store.name,
-      monthlyPrice: store.monthlyPrice,
-    });
-
-    await grantReferralRewardIfEligible(store.id);
-    await trackPaidReferralLevel(store.id);
-    await recordSalesCommissionsForStore(store.id);
+    await trackSubscriptionPurchase({ storeId: store.id, storeSlug: store.slug, storeName: store.name, monthlyPrice: result.price });
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");
-    revalidatePath("/dashboard/subscription");
     revalidatePath(`/store/${store.slug}`);
-
-    return {
-      success: true,
-      message: "تم تجديد الاشتراك وتفعيل المتجر بنجاح",
-    };
+    return { success: true, message: okMessage };
   } catch (error) {
-    console.error("RenewStoreSubscriptionAction Error:", error);
-
-    return {
-      success: false,
-      message: "حدث خطأ أثناء تجديد الاشتراك",
-    };
+    console.error("payPeriodNow Error:", error);
+    return { success: false, message: "حدث خطأ أثناء تجديد الاشتراك" };
   }
 }
 

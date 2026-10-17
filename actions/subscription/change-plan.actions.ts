@@ -111,8 +111,18 @@ export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycle
       }
 
       if (quote.charge !== 0) {
+        // Optimistic lock on the exact state the quote was priced from: a
+        // concurrent change (double click, two tabs) finds it moved and does
+        // nothing — otherwise a downgrade credit (negative charge, always
+        // "covered") could be paid out twice.
         const res = await tx.store.updateMany({
-          where: { id: store.id, balance: { gte: quote.charge } },
+          where: {
+            id: store.id,
+            balance: { gte: quote.charge },
+            planId: store.planId,
+            billingCycle: store.billingCycle,
+            subscriptionEndsAt: store.subscriptionEndsAt,
+          },
           data: {
             ...planData,
             balance: { decrement: quote.charge },
@@ -122,7 +132,10 @@ export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycle
             ...(quote.mode === "activate" && { autoRenew: true }),
           },
         });
-        if (res.count !== 1) return { kind: "short" as const, quote };
+        if (res.count !== 1) {
+          const now = await tx.store.findUnique({ where: { id: store.id }, select: { balance: true } });
+          return (now?.balance ?? 0) < quote.charge ? { kind: "short" as const, quote } : { kind: "conflict" as const };
+        }
 
         const fresh = await tx.store.findUniqueOrThrow({ where: { id: store.id }, select: { balance: true } });
         const refund = quote.charge < 0;
@@ -172,6 +185,9 @@ export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycle
 
     if (outcome.kind === "error") return { success: false, message: outcome.message };
     if (outcome.kind === "same") return { success: true, message: "إنت مشترك في الباقة دي بالفعل" };
+    if (outcome.kind === "conflict") {
+      return { success: false, message: "اشتراكك اتغيّر في نفس اللحظة من مكان تاني. حدّث الصفحة وجرّب تاني." };
+    }
     if (outcome.kind === "short") {
       return {
         success: false,

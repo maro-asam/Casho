@@ -86,6 +86,9 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
         total: true,
         paymentMethod: true,
         createdAt: true,
+        riskLevel: true,
+        confirmationStatus: true,
+        returnedAt: true,
         items: { select: { quantity: true, product: { select: { name: true } } } },
       },
     }),
@@ -105,6 +108,9 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
     itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
     firstProduct: order.items[0]?.product.name ?? null,
     otherProducts: Math.max(0, order.items.length - 1),
+    riskLevel: order.riskLevel,
+    awaitingCode: order.confirmationStatus === "PENDING" && order.status === "PENDING",
+    returned: order.status === "CANCELED" && order.returnedAt !== null,
   }));
 
   const hasFilters = Boolean(q || status || source);

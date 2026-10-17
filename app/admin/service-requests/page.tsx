@@ -1,227 +1,202 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { BriefcaseBusiness, Check, ExternalLink, MessageCircle, Phone, SearchX, X } from "lucide-react";
+import { Prisma, ServiceRequestStatus } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { setServiceRequestStatusAction } from "@/actions/admin/service-requests.actions";
+import { ApproveRemovePoweredByRequestAction, RejectRemovePoweredByRequestAction } from "@/actions/admin/powered-by-casho.actions";
 import {
-  ChevronRight, ChevronLeft, Phone, MessageCircle,
-  Store, ExternalLink, BriefcaseBusiness, ListChecks, CheckCircle2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import ServiceRequestStatusSelect from "../_components/ServiceRequestStatusSelect";
-import PoweredByCashoRequestActions from "../_components/PoweredByCashoRequestActions";
-import { cn } from "@/lib/utils";
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  SelectFilter,
+  readPage,
+  readParam,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
+import { ActionButton } from "../_components/action-button";
+import { StatusMenu } from "../_components/status-menu";
+import { SERVICE_STATUS_META, fmtDateTime, fmtRelative, pickEnum } from "../_lib/format";
 
-const PAGE_SIZE = 10;
-type SearchParams = Promise<{ page?: string }>;
+export const metadata: Metadata = { title: "طلبات الخدمات" };
 
-function fmtDate(d: Date) {
-  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" }).format(d);
+const PAGE_SIZE = 15;
+const BASE_PATH = "/admin/service-requests";
+const POWERED_BY = "remove_powered_by_casho";
+const STATUS_OPTIONS = (Object.keys(SERVICE_STATUS_META) as ServiceRequestStatus[]).map((value) => ({ value, ...SERVICE_STATUS_META[value] }));
+
+function waLink(n: string) {
+  return `https://wa.me/${n.replace(/[^\d]/g, "")}`;
 }
-function pageHref(p: number) { return `/admin/service-requests?page=${p}`; }
-function getPages(cur: number, total: number) {
-  const s = new Set([1, total]);
-  for (let i = cur - 1; i <= cur + 1; i++) if (i > 1 && i < total) s.add(i);
-  return Array.from(s).sort((a, b) => a - b);
-}
 
-export default async function AdminServiceRequestsPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireAdmin();
-  const params   = await searchParams;
-  const curPage  = Math.max(1, Number(params.page) || 1);
-  const skip     = (curPage - 1) * PAGE_SIZE;
+export default async function AdminServiceRequestsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  const params = await searchParams;
+  const q = readParam(params, "q");
+  const status = pickEnum(ServiceRequestStatus, readParam(params, "status"));
+  const serviceParam = readParam(params, "service");
 
-  const [total, pending, contacted, inProgress, completed, requests] = await Promise.all([
-    prisma.serviceRequest.count(),
-    prisma.serviceRequest.count({ where: { status: "PENDING" } }),
-    prisma.serviceRequest.count({ where: { status: "CONTACTED" } }),
-    prisma.serviceRequest.count({ where: { status: "IN_PROGRESS" } }),
-    prisma.serviceRequest.count({ where: { status: "COMPLETED" } }),
-    prisma.serviceRequest.findMany({
-      orderBy: { createdAt: "desc" },
-      skip, take: PAGE_SIZE,
-      include: {
-        store: { select: { id: true, name: true, slug: true, showPoweredByCasho: true, poweredByRemovalEnabled: true } },
-      },
+  const services = await prisma.serviceRequest.groupBy({ by: ["serviceId", "serviceTitle"], _count: { _all: true }, orderBy: { serviceTitle: "asc" } });
+  const serviceId = services.some((s) => s.serviceId === serviceParam) ? serviceParam : undefined;
+
+  const baseWhere: Prisma.ServiceRequestWhereInput = {
+    ...(serviceId && { serviceId }),
+    ...(q && {
+      OR: [
+        { fullName: { contains: q, mode: "insensitive" } },
+        { phone: { contains: q } },
+        { whatsapp: { contains: q } },
+        { serviceTitle: { contains: q, mode: "insensitive" } },
+        { store: { name: { contains: q, mode: "insensitive" } } },
+        { store: { slug: { contains: q, mode: "insensitive" } } },
+      ],
     }),
-  ]);
+  };
+  const where = { ...baseWhere, ...(status && { status }) };
 
-  const totalPages  = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const safePage    = Math.min(curPage, totalPages);
-  const pageNumbers = getPages(safePage, totalPages);
+  const [grouped, total] = await Promise.all([
+    prisma.serviceRequest.groupBy({ by: ["status"], where: baseWhere, _count: { _all: true } }),
+    prisma.serviceRequest.count({ where }),
+  ]);
+  const counts = Object.fromEntries(grouped.map((g) => [g.status, g._count._all])) as Partial<Record<ServiceRequestStatus, number>>;
+  const page = Math.min(readPage(params), Math.max(1, Math.ceil(total / PAGE_SIZE)));
+
+  const requests = await prisma.serviceRequest.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    include: { store: { select: { name: true, slug: true } } },
+  });
+
+  const now = new Date();
+  const filtered = !!(q || status || serviceId);
+  // Unique titles per serviceId for the facet (titles can drift between requests).
+  const serviceOptions = [...new Map(services.map((s) => [s.serviceId, s.serviceTitle])).entries()].map(([value, label]) => ({ value, label }));
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">طلبات الخدمات</h1>
-        <p className="mt-1 text-sm text-muted-foreground">تابع كل طلبات الخدمات الواردة من العملاء</p>
-      </div>
+      <PageHeader title="طلبات الخدمات" description="طلبات الخدمات المدفوعة والإضافات من التجار. غيّر الحالة بعد كل تواصل عشان التاجر يتابع." />
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: "إجمالي الطلبات",       value: total,                   icon: ListChecks,       cls: "text-primary      bg-primary/10"      },
-          { label: "جديدة",                 value: pending,                 icon: BriefcaseBusiness,cls: "text-amber-600    bg-amber-500/10"    },
-          { label: "تم التواصل",            value: contacted,               icon: Phone,            cls: "text-sky-600      bg-sky-500/10"      },
-          { label: "جاري / مكتمل",          value: inProgress + completed,  icon: CheckCircle2,     cls: "text-emerald-600  bg-emerald-500/10"  },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border bg-background p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm text-muted-foreground">{s.label}</p>
-                <p className="mt-1 text-2xl font-semibold">{s.value}</p>
-              </div>
-              <div className={cn("flex size-10 items-center justify-center rounded-lg", s.cls)}>
-                <s.icon className="size-5" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <div className="space-y-4">
+        <FilterTabs
+          label="حالة الطلب"
+          param="status"
+          basePath={BASE_PATH}
+          searchParams={params}
+          tabs={[
+            { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
+            ...STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value, count: counts[o.value] ?? 0 })),
+          ]}
+        />
 
-      {/* Table */}
-      <div className="rounded-xl border bg-background shadow-sm">
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <div>
-            <h2 className="font-semibold">قائمة الطلبات</h2>
-            <p className="text-sm text-muted-foreground">صفحة {safePage} من {totalPages} — {total} طلب</p>
-          </div>
-        </div>
-
-        {requests.length === 0 ? (
-          <div className="p-10 text-center">
-            <BriefcaseBusiness className="mx-auto size-8 text-muted-foreground/40" />
-            <p className="mt-3 text-sm text-muted-foreground">لا توجد طلبات خدمات بعد</p>
-          </div>
-        ) : (
-          <>
-            {/* Desktop table */}
-            <div className="hidden overflow-x-auto lg:block">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/30 text-right text-xs text-muted-foreground">
-                    <th className="px-5 py-3 font-medium">الخدمة</th>
-                    <th className="px-5 py-3 font-medium">العميل</th>
-                    <th className="px-5 py-3 font-medium">المتجر</th>
-                    <th className="px-5 py-3 font-medium">الحالة</th>
-                    <th className="px-5 py-3 font-medium">الملاحظات</th>
-                    <th className="px-5 py-3 font-medium">إجراء خاص</th>
-                    <th className="px-5 py-3 font-medium">التاريخ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {requests.map((req) => (
-                    <tr key={req.id} className="transition hover:bg-muted/30">
-                      <td className="px-5 py-4 align-top font-medium">{req.serviceTitle}</td>
-
-                      <td className="px-5 py-4 align-top">
-                        <p className="font-medium">{req.fullName}</p>
-                        <div className="mt-1.5 flex flex-wrap gap-1.5">
-                          <a href={`tel:${req.phone}`} className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-muted">
-                            <Phone className="size-3" />{req.phone}
-                          </a>
-                          {req.whatsapp && (
-                            <a href={`https://wa.me/${req.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-muted">
-                              <MessageCircle className="size-3" />{req.whatsapp}
-                            </a>
-                          )}
-                        </div>
-                      </td>
-
-                      <td className="px-5 py-4 align-top">
-                        {req.store ? (
-                          <div className="space-y-1">
-                            <Link href={`/admin/stores/${req.store.slug}`} className="inline-flex items-center gap-1.5 font-medium hover:underline">
-                              <Store className="size-3.5" />{req.store.name}
+        <DataCard
+          toolbar={
+            <>
+              <SearchInput placeholder="ابحث بالاسم أو الموبايل أو المتجر أو الخدمة" />
+              <SelectFilter param="service" allLabel="كل الخدمات" label="الخدمة" options={serviceOptions} className="sm:w-52" />
+            </>
+          }
+          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
+        >
+          {requests.length === 0 ? (
+            filtered ? (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش طلبات بالفلاتر دي"
+                action={
+                  <Link href={BASE_PATH} className="text-sm text-primary hover:underline">
+                    مسح الفلاتر
+                  </Link>
+                }
+              />
+            ) : (
+              <EmptyState icon={BriefcaseBusiness} title="مفيش طلبات خدمات لسه" description="لما تاجر يطلب خدمة من صفحة الخدمات هتظهر هنا." />
+            )
+          ) : (
+            <ul className="divide-y divide-border">
+              {requests.map((r) => {
+                const isPoweredBy = r.serviceId === POWERED_BY && r.status !== "COMPLETED" && r.status !== "CANCELED";
+                return (
+                  <li key={r.id} className="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-start lg:gap-6">
+                    {/* What + who */}
+                    <div className="min-w-0 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold">{r.serviceTitle}</p>
+                        <span className="text-xs text-muted-foreground" title={fmtDateTime(r.createdAt)}>
+                          {fmtRelative(r.createdAt, now)}
+                        </span>
+                      </div>
+                      <p className="text-sm">
+                        {r.fullName}
+                        {r.store && (
+                          <>
+                            {" · "}
+                            <Link href={`/admin/stores/${r.store.slug}`} className="text-primary hover:underline">
+                              {r.store.name}
                             </Link>
-                            {req.storeLink && (
-                              <a href={req.storeLink} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
-                                <ExternalLink className="size-3" />رابط المتجر
-                              </a>
-                            )}
-                          </div>
-                        ) : <span className="text-muted-foreground">—</span>}
-                      </td>
+                          </>
+                        )}
+                      </p>
+                      {r.notes && <p className="whitespace-pre-wrap wrap-break-word text-sm leading-6 text-muted-foreground">{r.notes}</p>}
+                      {r.adminNote && <p className="text-xs text-muted-foreground">ملاحظة الأدمن: {r.adminNote}</p>}
+                    </div>
 
-                      <td className="px-5 py-4 align-top">
-                        <ServiceRequestStatusSelect requestId={req.id} value={req.status} />
-                      </td>
-
-                      <td className="px-5 py-4 align-top">
-                        <p className="max-w-[200px] whitespace-pre-wrap break-words text-xs text-muted-foreground">{req.notes || "—"}</p>
-                      </td>
-
-                      <td className="px-5 py-4 align-top">
-                        {req.serviceId === "remove_powered_by_casho" && req.status !== "COMPLETED" && req.status !== "CANCELED" ? (
-                          <PoweredByCashoRequestActions requestId={req.id} />
-                        ) : <span className="text-xs text-muted-foreground">—</span>}
-                      </td>
-
-                      <td className="px-5 py-4 align-top text-xs text-muted-foreground">{fmtDate(req.createdAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile cards */}
-            <div className="divide-y lg:hidden">
-              {requests.map((req) => (
-                <div key={req.id} className="p-5 space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <ServiceRequestStatusSelect requestId={req.id} value={req.status} />
-                    <p className="font-medium text-right">{req.serviceTitle}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">{req.fullName}</p>
-                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      <a href={`tel:${req.phone}`} className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-muted">
-                        <Phone className="size-3" />{req.phone}
+                    {/* Contact */}
+                    <div className="flex flex-wrap items-start gap-1.5">
+                      <a href={`tel:${r.phone}`} className="inline-flex h-7 items-center gap-1 rounded-md border border-border px-2 text-xs hover:bg-muted" dir="ltr">
+                        <Phone className="size-3" />
+                        {r.phone}
                       </a>
-                      {req.whatsapp && (
-                        <a href={`https://wa.me/${req.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-muted">
-                          <MessageCircle className="size-3" />{req.whatsapp}
+                      {r.whatsapp && (
+                        <a href={waLink(r.whatsapp)} target="_blank" rel="noreferrer" className="inline-flex h-7 items-center gap-1 rounded-md border border-border px-2 text-xs hover:bg-muted">
+                          <MessageCircle className="size-3" />
+                          واتساب
+                        </a>
+                      )}
+                      {r.storeLink && (
+                        <a href={r.storeLink} target="_blank" rel="noreferrer" className="inline-flex h-7 items-center gap-1 rounded-md border border-border px-2 text-xs hover:bg-muted">
+                          <ExternalLink className="size-3" />
+                          رابط المتجر
                         </a>
                       )}
                     </div>
-                  </div>
-                  {req.store && (
-                    <Link href={`/admin/stores/${req.store.slug}`} className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline">
-                      <Store className="size-3.5" />{req.store.name}
-                    </Link>
-                  )}
-                  {req.notes && <p className="text-xs text-muted-foreground">{req.notes}</p>}
-                  {req.serviceId === "remove_powered_by_casho" && req.status !== "COMPLETED" && req.status !== "CANCELED" && (
-                    <PoweredByCashoRequestActions requestId={req.id} />
-                  )}
-                  <p className="text-xs text-muted-foreground">{fmtDate(req.createdAt)}</p>
-                </div>
-              ))}
-            </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t px-6 py-4">
-                <p className="text-sm text-muted-foreground">عرض {requests.length} من {total}</p>
-                <div className="flex items-center gap-1.5">
-                  <Link href={pageHref(Math.max(1, safePage - 1))} className={cn("inline-flex h-9 items-center gap-1 rounded-lg border px-3 text-sm transition hover:bg-muted", safePage <= 1 && "pointer-events-none opacity-40")}>
-                    <ChevronRight className="size-4" />السابق
-                  </Link>
-                  {pageNumbers.map((p, i) => (
-                    <span key={p} className="flex items-center gap-1.5">
-                      {i > 0 && p - pageNumbers[i - 1] > 1 && <span className="text-xs text-muted-foreground">…</span>}
-                      <Link href={pageHref(p)} className={cn("inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm transition", p === safePage ? "bg-primary text-primary-foreground" : "border hover:bg-muted")}>
-                        {p}
-                      </Link>
-                    </span>
-                  ))}
-                  <Link href={pageHref(Math.min(totalPages, safePage + 1))} className={cn("inline-flex h-9 items-center gap-1 rounded-lg border px-3 text-sm transition hover:bg-muted", safePage >= totalPages && "pointer-events-none opacity-40")}>
-                    التالي<ChevronLeft className="size-4" />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+                    {/* Workflow */}
+                    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                      {isPoweredBy ? (
+                        <>
+                          <ActionButton
+                            action={ApproveRemovePoweredByRequestAction.bind(null, r.id)}
+                            variant="default"
+                            successMessage="اتشالت العلامة من المتجر"
+                            confirm={{ title: "توافق على إزالة العلامة؟", description: "علامة Powered by Casho هتختفي من فوتر المتجر والطلب هيتقفل كمكتمل." }}
+                          >
+                            <Check className="size-3.5" />
+                            وافق
+                          </ActionButton>
+                          <ActionButton
+                            action={RejectRemovePoweredByRequestAction.bind(null, r.id)}
+                            successMessage="اترفض الطلب"
+                            confirm={{ title: "ترفض الطلب؟", description: "التاجر هيوصله إشعار إن الطلب اترفض.", destructive: true, confirmLabel: "ارفض" }}
+                          >
+                            <X className="size-3.5" />
+                            ارفض
+                          </ActionButton>
+                        </>
+                      ) : (
+                        <StatusMenu value={r.status} options={STATUS_OPTIONS} action={setServiceRequestStatusAction.bind(null, r.id)} />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </DataCard>
       </div>
     </div>
   );

@@ -54,6 +54,25 @@ export function priceForCycle(plan: PlanQuoteTarget, cycle: BillingCycle) {
   return cycle === "YEARLY" ? plan.yearlyPrice : plan.monthlyPrice;
 }
 
+export type RenewalPlan = PlanQuoteTarget & { key: string; name: string };
+
+/**
+ * What the store's next period costs, and on which plan. The plan is the only
+ * source of price — `Store.monthlyPrice` is just a cached copy for display.
+ *  - a plan the merchant chose → that plan's price for their cycle
+ *  - never chose (still on the trial plan) → the entry paid plan, so a trial
+ *    never silently rolls into the most expensive plan
+ *  - no plan at all (legacy rows) → the stored price
+ */
+export function resolveRenewal(
+  store: { planSelected: boolean; billingCycle: BillingCycle; monthlyPrice: number; plan: RenewalPlan | null },
+  entryPlan: RenewalPlan | null,
+): { plan: RenewalPlan | null; price: number } {
+  const plan = store.planSelected ? store.plan : (entryPlan ?? store.plan);
+  if (!plan) return { plan: null, price: store.monthlyPrice };
+  return { plan, price: priceForCycle(plan, store.billingCycle) };
+}
+
 export function nextPeriodEnd(from: Date, cycle: BillingCycle) {
   return cycle === "YEARLY" ? addYears(from, 1) : addMonths(from, 1);
 }

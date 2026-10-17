@@ -1,23 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import {
-  Activity,
-  AlertTriangle,
-  Camera,
-  CheckCircle2,
-  Clock,
-  ShoppingBag,
-  Sparkles,
-  XCircle,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { PageHeader, StatusPill } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { KpiStrip, Panel, PanelEmpty } from "../_components/admin-ui";
+import { fmtDateTime, fmtNum } from "../_lib/format";
 
-export const metadata: Metadata = { title: "Instagram AI — Admin Debug" };
+export const metadata: Metadata = { title: "Instagram AI" };
 
 export const dynamic = "force-dynamic";
 
@@ -104,199 +95,110 @@ export default async function AdminInstagramPage() {
     store: storeMap[j.conversation.storeId] ?? { name: j.conversation.storeId.slice(0, 8), slug: "—" },
   }));
 
-  const statsTop = [
-    { label: "اتصالات نشطة",        value: activeConnections,  total: totalConnections, icon: Camera,       color: "text-emerald-600 bg-emerald-500/10" },
-    { label: "منتهية الصلاحية",      value: expiredConnections,                          icon: XCircle,      color: "text-rose-600 bg-rose-500/10" },
-    { label: "تنتهي خلال 14 يوم",   value: expiringConnections,                         icon: Clock,        color: "text-amber-600 bg-amber-500/10" },
-    { label: "طلبات معلقة",          value: pendingSuggested,                            icon: ShoppingBag,  color: "text-sky-600 bg-sky-500/10" },
-    { label: "طلبات معتمدة",         value: approvedSuggested,                           icon: CheckCircle2, color: "text-emerald-600 bg-emerald-500/10" },
-    { label: "طلبات مرفوضة",         value: rejectedSuggested,                           icon: XCircle,      color: "text-zinc-600 bg-zinc-500/10" },
-    { label: "وظائف في الانتظار",    value: queuedJobs,                                  icon: Clock,        color: "text-blue-600 bg-blue-500/10" },
-    { label: "وظائف فاشلة (24h)",   value: failedJobs24h, icon: AlertTriangle,           color: failedJobs24h > 0 ? "text-rose-600 bg-rose-500/10" : "text-zinc-500 bg-zinc-500/10" },
-    { label: "وظائف مكتملة (24h)",  value: doneJobs24h,   icon: CheckCircle2,            color: "text-emerald-600 bg-emerald-500/10" },
-  ];
+  const DAILY_AI_LIMIT = 100;
 
   return (
-    <div className="space-y-8 p-6" dir="rtl">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="grid size-10 place-items-center rounded-xl bg-pink-500/10 text-pink-600">
-          <Camera className="size-5" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold">Instagram AI — لوحة المراقبة</h1>
-          <p className="text-sm text-muted-foreground">
-            حالة الوظائف، استخدام AI، وأداء نظام الطلبات
-          </p>
-        </div>
-        <Badge variant="outline" className="mr-auto rounded-full">Internal</Badge>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Instagram AI"
+        description="مراقبة ربط إنستجرام، الطلبات المقترحة من الرسايل، ووظائف الذكاء الاصطناعي."
+        actions={<StatusPill tone="neutral">داخلي</StatusPill>}
+      />
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {statsTop.map((s) => {
-          const Icon = s.icon;
-          return (
-            <Card key={s.label} className="border-border shadow-sm">
-              <CardContent className="p-4">
-                <div className={cn("mb-2 grid size-8 place-items-center rounded-lg text-sm", s.color)}>
-                  <Icon className="size-4" />
-                </div>
-                <p className="text-2xl font-bold">{s.value.toLocaleString("ar-EG")}</p>
-                {"total" in s && (
-                  <p className="text-xs text-muted-foreground">من {s.total}</p>
-                )}
-                <p className="mt-0.5 text-xs text-muted-foreground">{s.label}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Webhook Activity */}
-      <Card className="border-border shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-            <Activity className="size-4 text-muted-foreground" />
-            نشاط Webhook
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-8">
-            <div>
-              <p className="text-2xl font-bold">{recentWebhookEvents.toLocaleString("ar-EG")}</p>
-              <p className="text-xs text-muted-foreground">أحداث في آخر ساعة</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalWebhookEvents.toLocaleString("ar-EG")}</p>
-              <p className="text-xs text-muted-foreground">إجمالي الأحداث (بدون تكرار)</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Failed Jobs */}
-      <Card className="border-border shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-            <AlertTriangle className="size-4 text-rose-500" />
-            وظائف فاشلة
-            {failedJobs24h > 0 && (
-              <Badge className="rounded-full border-0 bg-rose-500/10 text-rose-700 text-xs">
-                {failedJobs24h} في 24h
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recentFailedJobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا توجد وظائف فاشلة حالياً ✅</p>
-          ) : (
-            <div className="space-y-3">
-              {recentFailedJobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-3 text-sm"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-mono text-xs text-muted-foreground">{job.id.slice(0, 12)}…</p>
-                      <p className="mt-0.5 font-medium">
-                        {job.store.name}
-                        <span className="mr-1 text-xs font-normal text-muted-foreground">
-                          ({job.store.slug})
-                        </span>
-                      </p>
-                      {job.errorMessage && (
-                        <p className="mt-1 font-mono text-xs text-rose-700 dark:text-rose-400">
-                          {job.errorMessage}
-                        </p>
-                      )}
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <Badge variant="outline" className="text-xs">{job.attempts} محاولة</Badge>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {new Intl.DateTimeFormat("ar-EG", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "numeric",
-                          month: "short",
-                        }).format(job.updatedAt)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* AI Usage Today */}
-      <Card className="border-border shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-            <Sparkles className="size-4 text-amber-500" />
-            استخدام AI اليوم
-            <span className="text-xs font-normal text-muted-foreground">({today})</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {topAiUsageToday.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا يوجد استخدام AI اليوم بعد</p>
-          ) : (
-            <div className="space-y-2">
-              {topAiUsageToday.map((log) => (
-                <div key={log.storeId} className="flex items-center justify-between text-sm">
-                  <span className="font-medium">
-                    {log.store.name}
-                    <span className="mr-1 text-xs text-muted-foreground">({log.store.slug})</span>
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={cn(
-                          "h-full rounded-full",
-                          log.jobCount >= 80 ? "bg-rose-500" :
-                          log.jobCount >= 50 ? "bg-amber-500" : "bg-emerald-500",
-                        )}
-                        style={{ width: `${Math.min(100, log.jobCount)}%` }}
-                      />
-                    </div>
-                    <span className="w-14 text-right font-mono text-xs">
-                      {log.jobCount} / 100
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Token Expiry Warning */}
       {expiringConnections > 0 && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3">
           <Clock className="mt-0.5 size-4 shrink-0 text-amber-600" />
-          <p className="text-sm text-amber-700 dark:text-amber-400">
-            <strong>{expiringConnections} اتصال</strong> لديه رمز وصول ينتهي خلال 14 يوماً.
-            يمكن تشغيل التحديث يدوياً:{" "}
-            <code className="rounded bg-amber-500/10 px-1 py-0.5 font-mono text-xs">
+          <p className="text-sm leading-6 text-amber-800 dark:text-amber-300">
+            <span className="font-semibold">{fmtNum(expiringConnections)} اتصال</span> التوكن بتاعه بينتهي خلال ١٤ يوم. التحديث بيشتغل من{" "}
+            <code className="rounded bg-amber-500/10 px-1 py-0.5 font-mono text-xs" dir="ltr">
               GET /api/instagram/token-refresh/run
             </code>{" "}
-            مع Authorization header.
+            بالـ Authorization header.
           </p>
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="flex flex-wrap gap-3">
-        <Button asChild variant="outline" size="sm" className="rounded-xl">
-          <Link href="/admin/stores">عرض المتاجر</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm" className="rounded-xl">
-          <Link href="/dashboard/suggested-orders">الطلبات المقترحة</Link>
-        </Button>
+      <KpiStrip
+        items={[
+          { label: "اتصالات شغالة", value: fmtNum(activeConnections), hint: `من ${fmtNum(totalConnections)} · ${fmtNum(expiredConnections)} منتهي` },
+          { label: "طلبات مقترحة مستنية", value: fmtNum(pendingSuggested), hint: `${fmtNum(approvedSuggested)} اتقبل · ${fmtNum(rejectedSuggested)} اترفض` },
+          { label: "وظائف في الطابور", value: fmtNum(queuedJobs), hint: `${fmtNum(doneJobs24h)} خلصت آخر ٢٤ ساعة` },
+          { label: "وظائف فشلت (٢٤ ساعة)", value: fmtNum(failedJobs24h), hint: `Webhook: ${fmtNum(recentWebhookEvents)} حدث آخر ساعة · ${fmtNum(totalWebhookEvents)} إجمالًا` },
+        ]}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-5">
+        <Panel
+          title="آخر الوظائف الفاشلة"
+          className="lg:col-span-3"
+          flush
+          actions={failedJobs24h > 0 ? <StatusPill tone="danger">{fmtNum(failedJobs24h)} آخر ٢٤ ساعة</StatusPill> : undefined}
+        >
+          {recentFailedJobs.length === 0 ? (
+            <div className="flex items-center gap-2 px-4 py-8 text-sm text-muted-foreground">
+              <CheckCircle2 className="size-4 text-emerald-600" />
+              مفيش وظائف فاشلة.
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentFailedJobs.map((job) => (
+                <li key={job.id} className="space-y-1 px-4 py-3 text-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      {job.store.slug !== "—" ? (
+                        <Link href={`/admin/stores/${job.store.slug}`} className="font-medium hover:underline">
+                          {job.store.name}
+                        </Link>
+                      ) : (
+                        <span className="font-medium">{job.store.name}</span>
+                      )}
+                      <p className="font-mono text-xs text-muted-foreground" dir="ltr">
+                        <span className="block text-right">{job.id.slice(0, 12)}…</span>
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-left text-xs text-muted-foreground">
+                      <p>{fmtNum(job.attempts)} محاولة</p>
+                      <p>{fmtDateTime(job.updatedAt)}</p>
+                    </div>
+                  </div>
+                  {job.errorMessage && (
+                    <p className="flex items-start gap-1.5 rounded-md bg-rose-500/5 px-2 py-1.5 font-mono text-xs text-rose-700 dark:text-rose-400" dir="ltr">
+                      <AlertTriangle className="mt-0.5 size-3 shrink-0" />
+                      <span className="break-all">{job.errorMessage}</span>
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+
+        <Panel title="استهلاك الذكاء الاصطناعي النهارده" description={`الحد اليومي ${fmtNum(DAILY_AI_LIMIT)} وظيفة لكل متجر · ${today}`} className="lg:col-span-2" flush>
+          {topAiUsageToday.length === 0 ? (
+            <PanelEmpty>مفيش استهلاك النهارده لسه.</PanelEmpty>
+          ) : (
+            <ul className="divide-y divide-border">
+              {topAiUsageToday.map((log) => {
+                const pct = Math.min(100, (log.jobCount / DAILY_AI_LIMIT) * 100);
+                return (
+                  <li key={log.storeId} className="space-y-1.5 px-4 py-3 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <Link href={`/admin/stores/${log.store.slug}`} className="min-w-0 truncate font-medium hover:underline">
+                        {log.store.name}
+                      </Link>
+                      <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                        {fmtNum(log.jobCount)} / {fmtNum(DAILY_AI_LIMIT)}
+                      </span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted" role="img" aria-label={`${Math.round(pct)}٪ من الحد`}>
+                      <div className={cn("h-full rounded-full", pct >= 80 ? "bg-rose-500" : pct >= 50 ? "bg-amber-500" : "bg-primary")} style={{ width: `${pct}%` }} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Panel>
       </div>
     </div>
   );

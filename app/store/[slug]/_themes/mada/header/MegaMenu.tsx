@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
+import { BannerLink } from "../../shared/banner";
 import { Arrow, PlateImage, btn, num } from "../ui";
 
 /** Desktop mega menu: categories as visual links, quick shopping paths, and a
@@ -76,17 +77,19 @@ export default function MegaMenu({ shell, open, onClose }: { shell: StoreShell; 
 
         <div className="col-span-3">
           {shell.banner ? (
-            <Link href={url("/products")} onClick={onClose} className="group relative block h-full min-h-56 overflow-hidden rounded-(--md-radius)">
+            <BannerLink banner={shell.banner} storeSlug={shell.slug} onClick={onClose} className="group relative block h-full min-h-56 overflow-hidden rounded-(--md-radius)">
               <Image src={shell.banner.image} alt="" fill sizes="22rem" className="object-cover transition-transform duration-700 group-hover:scale-105" />
               <span className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_17_15/0.75),transparent_60%)]" />
               <span className="absolute inset-x-0 bottom-0 p-5 text-white">
                 <span className="md-face line-clamp-2 block text-lg font-bold leading-snug">{shell.banner.title}</span>
-                <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold">
-                  تسوّق دلوقتي
-                  <Arrow />
-                </span>
+                {shell.banner.link && (
+                  <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold">
+                    {shell.banner.cta}
+                    <Arrow />
+                  </span>
+                )}
               </span>
-            </Link>
+            </BannerLink>
           ) : (
             <div className="flex h-full min-h-56 flex-col justify-end rounded-(--md-radius) bg-(--md-brand) p-6 text-(--md-brand-ink)">
               <span className="md-eyebrow self-start">جديد</span>

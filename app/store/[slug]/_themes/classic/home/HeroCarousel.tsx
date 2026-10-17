@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -11,6 +10,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { HeroStyle } from "@/types/store-theme.types";
 import type { BannerData } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { btn } from "../ui";
 
 type Props = {
@@ -70,10 +70,8 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
                     split ? "lg:order-last lg:aspect-[5/4]" : compact ? "lg:aspect-[32/9]" : "lg:aspect-[16/6]",
                   )}
                 >
-                  <Image
-                    src={banner.image}
-                    alt=""
-                    fill
+                  <BannerImage
+                    banner={banner}
                     priority={i === 0}
                     sizes="(max-width: 1280px) 100vw, 1280px"
                     className="object-cover"
@@ -103,18 +101,26 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
                   >
                     {banner.title}
                   </h2>
+                  {banner.subtitle && (
+                    <p className={cn("mt-2 line-clamp-2 text-sm text-muted-foreground sm:text-base", !split && "lg:text-white/85")}>
+                      {banner.subtitle}
+                    </p>
+                  )}
                   <div className="mt-4 flex flex-wrap gap-2.5 lg:mt-7">
-                    <Link
-                      href={buildStoreUrl(storeSlug, "/products")}
-                      tabIndex={i === selected ? 0 : -1}
-                      className={btn({
-                        size: "lg",
-                        variant: "primary",
-                        className: cn("min-w-36", !split && "lg:bg-white lg:text-neutral-900"),
-                      })}
-                    >
-                      تسوق الآن
-                    </Link>
+                    {banner.link && (
+                      <BannerLink
+                        banner={banner}
+                        storeSlug={storeSlug}
+                        tabIndex={i === selected ? 0 : -1}
+                        className={btn({
+                          size: "lg",
+                          variant: "primary",
+                          className: cn("min-w-36", !split && "lg:bg-white lg:text-neutral-900"),
+                        })}
+                      >
+                        {banner.cta}
+                      </BannerLink>
+                    )}
                     {hasCategories && (
                       <Link
                         href={buildStoreUrl(storeSlug, "/categories")}

@@ -15,9 +15,11 @@ import { CouponLinkCapture } from "./_components/CouponLinkCapture";
 import { Suspense } from "react";
 import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
 import { StoreConversionLayer } from "./_components/conversion/StoreConversionLayer";
+import { StorePixels } from "./_components/pixels/StorePixels";
+import { hasAnyPixel, isValidPixelId, type StorePixelConfig } from "@/lib/pixels/shared";
 import { getStorefrontTheme } from "./_themes";
 import type { StoreShell } from "./_themes/types";
-import { getStoreCategoryLinks } from "./_lib/storefront";
+import { getStoreCategoryLinks, liveBannersQuery, toBannerData } from "./_lib/storefront";
 
 type LayoutProps = {
   children: ReactNode;
@@ -144,12 +146,8 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
       slug: true,
       showPoweredByCasho: true,
       poweredByRemovalEnabled: true,
-      banners: {
-        where: { isActive: true },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: { id: true, title: true, image: true },
-      },
+      banners: liveBannersQuery(1),
+      pixelSettings: { select: { metaPixelId: true, tiktokPixelId: true, snapPixelId: true } },
       settings: {
         select: {
           logo: true,
@@ -203,6 +201,14 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   const storeDir = storeLanguage === "en" ? "ltr" : "rtl";
   const font = getStoreFont(store.settings?.fontId);
 
+  // ── Merchant ad pixels (only ids that pass the strict format) ──────────
+  const px = store.pixelSettings;
+  const pixelConfig: StorePixelConfig = {
+    meta: isValidPixelId("meta", px?.metaPixelId) ? px.metaPixelId : null,
+    tiktok: isValidPixelId("tiktok", px?.tiktokPixelId) ? px.tiktokPixelId : null,
+    snap: isValidPixelId("snap", px?.snapPixelId) ? px.snapPixelId : null,
+  };
+
   // ── CSS custom properties ──────────────────────────────────────────────
   const themeCSS = buildThemeCSSString(resolvedTheme, font.family, resolvedTheme.darkTokens);
 
@@ -230,7 +236,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
     navbarVariant,
     showPoweredByCasho: store.poweredByRemovalEnabled ? store.showPoweredByCasho : true,
     dir: storeDir,
-    banner: store.banners[0] ?? null,
+    banner: toBannerData(store.banners, settings?.whatsappNumber)[0] ?? null,
   };
 
   return (
@@ -259,6 +265,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           <CouponLinkCapture storeSlug={store.slug} />
         </Suspense>
         <StoreVisitTracker storeId={store.id} />
+        {hasAnyPixel(pixelConfig) && <StorePixels config={pixelConfig} />}
         <div dir={storeDir} className={`store-theme-root ${theme.rootClassName} flex min-h-dvh flex-col`}>
           <a
             href="#store-main"

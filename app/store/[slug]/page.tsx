@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SubscriptionStatus } from "@prisma/client";
 import { getStorefrontTheme } from "./_themes";
-import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, toProductCards } from "./_lib/storefront";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, liveBannersQuery, toBannerData, toProductCards } from "./_lib/storefront";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 
@@ -103,13 +103,10 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
           secondaryColor: true,
           themeConfig: true,
           storeLanguage: true,
+          whatsappNumber: true,
         },
       },
-      banners: {
-        where: { isActive: true },
-        orderBy: { createdAt: "desc" },
-        select: { id: true, title: true, image: true },
-      },
+      banners: liveBannersQuery(),
     },
   });
 
@@ -167,7 +164,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       <theme.Home
         store={{ id: store.id, name: store.name, slug: store.slug, description: store.settings?.description ?? null }}
         dir={store.settings?.storeLanguage === "en" ? "ltr" : "rtl"}
-        banners={store.banners}
+        banners={toBannerData(store.banners, store.settings?.whatsappNumber)}
         categories={categories}
         featured={featured}
         latest={latest}

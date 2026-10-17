@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -10,6 +9,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { BannerData, HomeViewProps } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { Arrow, btn, num } from "../ui";
 
 /** Full-bleed slideshow built from the merchant's banners. */
@@ -51,7 +51,7 @@ export default function Hero({
             {banners.map((b, i) => (
               <div key={b.id} role="group" aria-roledescription="slide" aria-label={`${num(i + 1)} من ${num(banners.length)}`} className="relative min-w-0 shrink-0 grow-0 basis-full">
                 <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-auto lg:h-[min(78dvh,46rem)]">
-                  <Image src={b.image} alt="" fill priority={i === 0} sizes="(max-width: 1472px) 100vw, 1472px" className="object-cover" />
+                  <BannerImage banner={b} priority={i === 0} sizes="(max-width: 1472px) 100vw, 1472px" className="object-cover" />
                   <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_17_15/0.78),rgb(12_17_15/0.1)_55%,transparent)]" />
                   {/* Extra scrim on the text side so baked-in banner text never fights the title */}
                   <span aria-hidden className="absolute inset-0 hidden bg-[linear-gradient(to_left,rgb(12_17_15/0.6),transparent_60%)] lg:block ltr:bg-[linear-gradient(to_right,rgb(12_17_15/0.6),transparent_60%)]" />
@@ -61,11 +61,14 @@ export default function Hero({
                   <h2 className={cn("md-hero-title mt-4 max-w-3xl text-balance", i !== selected && "opacity-0")} style={{ transition: "opacity 600ms" }}>
                     {b.title}
                   </h2>
+                  {b.subtitle && <p className="mt-3 line-clamp-2 max-w-2xl text-base text-white/85 sm:text-lg">{b.subtitle}</p>}
                   <div className="mt-6 flex flex-wrap gap-2.5">
-                    <Link href={url("/products")} tabIndex={i === selected ? 0 : -1} className={btn({ variant: "light", size: "lg" })}>
-                      تسوّق الآن
-                      <Arrow />
-                    </Link>
+                    {b.link && (
+                      <BannerLink banner={b} storeSlug={store.slug} tabIndex={i === selected ? 0 : -1} className={btn({ variant: "light", size: "lg" })}>
+                        {b.cta}
+                        <Arrow />
+                      </BannerLink>
+                    )}
                     {hasCategories && (
                       <Link href={url("/categories")} tabIndex={i === selected ? 0 : -1} className={btn({ size: "lg", className: "border-white/40 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 max-sm:hidden" })}>
                         التصنيفات

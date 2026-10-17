@@ -4,6 +4,7 @@ import Link from "next/link";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn, formatPrice } from "@/lib/utils";
 import type { BannerData, HomeViewProps, ProductCardData } from "../../types";
+import { BannerLink } from "../../shared/banner";
 import { Arrow, StarMark, btn, monogram } from "../ui";
 
 const SEASONS = ["شتاء", "شتاء", "ربيع", "ربيع", "ربيع", "صيف", "صيف", "صيف", "خريف", "خريف", "خريف", "شتاء"];
@@ -49,7 +50,8 @@ export default function Hero({
   const url = (p: string) => buildStoreUrl(store.slug, p);
   const pictured = products.find((p) => p.image && !p.image.includes("placeholder"));
   const image = pictured?.image ?? banners[0]?.image ?? null;
-  const headline = banners[0]?.title?.trim() || store.name;
+  const lead = banners[0];
+  const headline = lead?.title?.trim() || store.name;
   const long = [...headline].length > 22;
 
   return (
@@ -62,13 +64,21 @@ export default function Hero({
           </p>
           <h1 className={cn("mt-5 text-balance break-words", long ? "rq-h1" : "rq-display")}>{headline}</h1>
           <p className="rq-body mt-6 line-clamp-4 max-w-[46ch] text-(--rq-quiet) sm:text-[1.0625rem]">
-            {store.description?.trim() || `منتجات مختارة بعناية من ${store.name}، واطلب في دقيقة.`}
+            {lead?.subtitle || store.description?.trim() || `منتجات مختارة بعناية من ${store.name}، واطلب في دقيقة.`}
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-5">
-            <Link href={url("/products")} className={btn({ size: "lg", className: "group max-sm:w-full" })}>
-              تسوّق المجموعة
-              <Arrow />
-            </Link>
+            {/* The headline is the lead banner's, so its button follows that banner. */}
+            {lead?.link ? (
+              <BannerLink banner={lead} storeSlug={store.slug} className={btn({ size: "lg", className: "group max-sm:w-full" })}>
+                {lead.cta}
+                <Arrow />
+              </BannerLink>
+            ) : (
+              <Link href={url("/products")} className={btn({ size: "lg", className: "group max-sm:w-full" })}>
+                تسوّق المجموعة
+                <Arrow />
+              </Link>
+            )}
             {hasCategories && (
               <Link href={url("/categories")} className="group inline-flex min-h-11 items-center gap-2 font-semibold">
                 <span className="rq-link">تصفّح التصنيفات</span>

@@ -50,7 +50,7 @@ export default function QuickAdd({ storeSlug, productId, productName, productHre
       try {
         const res = await AddToCartAction(storeSlug, productId);
         if (res?.success) {
-          notifyCartUpdated();
+          notifyCartUpdated(res && "added" in res ? res.added : undefined);
           setDone(true);
           rqToast.success("اتضاف للسلة", {
             description: productName,

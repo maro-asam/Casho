@@ -10,7 +10,10 @@ import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
 import ExportInvoiceButton from "../_components/export-invoice-button";
-import { ORDER_CHANNELS, ORDER_STATUS_META, paymentMethodLabel } from "../_components/order-meta";
+import { ORDER_CHANNELS, ORDER_RISK_META, ORDER_STATUS_META, paymentMethodLabel } from "../_components/order-meta";
+import { assessPhoneRisk } from "@/lib/fraud/reputation";
+import { canonicalPhone } from "@/lib/fraud/phone";
+import { BlockPhoneButton } from "./_components/block-phone-button";
 import { CopyButton } from "./_components/copy-button";
 import { OrderProgress } from "./_components/order-progress";
 
@@ -92,9 +95,18 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   });
   if (!order) notFound();
 
-  const previousOrders = await prisma.order.count({
-    where: { storeId: store.id, phone: order.phone, id: { not: order.id } },
-  });
+  const isOnline = order.source === "ONLINE";
+  const [previousOrders, reputation, blocked] = await Promise.all([
+    prisma.order.count({ where: { storeId: store.id, phone: order.phone, id: { not: order.id } } }),
+    // Live reputation (may have changed since checkout), this order excluded.
+    isOnline ? assessPhoneRisk(store.id, order.phone, { excludeOrderId: order.id }) : null,
+    prisma.blockedPhone.findUnique({
+      where: { storeId_phone: { storeId: store.id, phone: canonicalPhone(order.phone) } },
+      select: { id: true },
+    }),
+  ]);
+  const awaitingCode = order.confirmationStatus === "PENDING" && order.status === "PENDING";
+  const returned = order.status === "CANCELED" && order.returnedAt !== null;
 
   const shortId = order.id.slice(0, 8).toUpperCase();
   const status = ORDER_STATUS_META[order.status];
@@ -131,7 +143,8 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                   #{shortId}
                 </span>
               </h1>
-              <StatusPill tone={status.tone}>{status.label}</StatusPill>
+              <StatusPill tone={returned ? "danger" : status.tone}>{returned ? "مرتجع" : status.label}</StatusPill>
+              {awaitingCode && <StatusPill tone="warning">مستني تأكيد العميل</StatusPill>}
               <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                 <ChannelIcon className="size-3.5" />
                 {channel.label}
@@ -159,6 +172,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
             paymentMethod={order.paymentMethod}
             createdAtLabel={shortDate.format(order.createdAt)}
             paidAtLabel={order.paidAt ? shortDate.format(order.paidAt) : null}
+            returned={returned}
           />
 
           {/* Items + totals */}
@@ -262,6 +276,39 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
 
         {/* Side column */}
         <div className="space-y-6">
+          {reputation && (
+            <Panel
+              title="سمعة الرقم"
+              action={<StatusPill tone={ORDER_RISK_META[reputation.level].tone}>{ORDER_RISK_META[reputation.level].label}</StatusPill>}
+            >
+              {awaitingCode && (
+                <p className="mb-3 rounded-lg bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-700 dark:text-amber-400">
+                  العميل لسه ماأكدش الطلب بالكود. لو ماأكدش خلال ٦ ساعات، الطلب هيتلغى لوحده والمخزون يرجع.
+                </p>
+              )}
+              <ul className="space-y-1.5 text-sm">
+                {reputation.signals.map((signal) => (
+                  <li key={signal} className="flex gap-2">
+                    <span aria-hidden className="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground" />
+                    <span>{signal}</span>
+                  </li>
+                ))}
+              </ul>
+              <dl className="mt-3 grid grid-cols-2 gap-2 text-center">
+                <div className="rounded-lg bg-muted/50 p-2">
+                  <dt className="text-xs text-muted-foreground">اتسلّم (كل كاشو)</dt>
+                  <dd className="font-semibold tabular-nums">{nf.format(reputation.platform.delivered)}</dd>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-2">
+                  <dt className="text-xs text-muted-foreground">رفض الاستلام</dt>
+                  <dd className="font-semibold tabular-nums">{nf.format(reputation.platform.returned)}</dd>
+                </div>
+              </dl>
+              <div className="mt-3">
+                <BlockPhoneButton storeId={store.id} phone={order.phone} blockedId={blocked?.id ?? null} />
+              </div>
+            </Panel>
+          )}
           <Panel
             title="العميل"
             action={

@@ -1,27 +1,25 @@
-import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Loading() {
+export default function AdminLoading() {
   return (
-    <main
-      role="status"
-      aria-live="polite"
-      aria-label="جاري التحميل"
-      className="flex min-h-screen w-full items-center justify-center bg-background px-6"
-    >
-      <div className="relative flex h-24 w-24 items-center justify-center">
-        <div className="absolute inset-0 animate-spin rounded-full border-4 border-muted border-t-primary" />
-
-        <Image
-          src="/logo.svg"
-          alt="Casho"
-          width={56}
-          height={56}
-          priority
-          className="h-14 w-14 rounded-full object-contain"
-        />
-
-        <span className="sr-only">جاري التحميل...</span>
+    <div className="space-y-6" aria-busy="true" aria-label="جاري التحميل">
+      <div className="space-y-2">
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-4 w-72" />
       </div>
-    </main>
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="space-y-3 bg-card p-5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-3 w-20" />
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Skeleton className="h-80 rounded-xl lg:col-span-2" />
+        <Skeleton className="h-80 rounded-xl" />
+      </div>
+    </div>
   );
 }

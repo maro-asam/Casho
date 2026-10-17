@@ -1,13 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { BannerData } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { Arrow, num } from "../ui";
 
 /** Merchant banners as numbered "plates": an uncropped-feeling wide image
@@ -47,12 +45,10 @@ export default function Plates({ banners, storeSlug }: { banners: BannerData[]; 
             aria-label={`${num(i + 1)} من ${num(banners.length)}`}
             className={cn("min-w-0 shrink-0", multiple ? "basis-[88%] lg:basis-[86%]" : "basis-full")}
           >
-            <Link href={buildStoreUrl(storeSlug, "/products")} tabIndex={i === active ? 0 : -1} className="group block">
+            <BannerLink banner={b} storeSlug={storeSlug} tabIndex={i === active ? 0 : -1} className="group block">
               <div className="rq-plate relative aspect-[4/3] overflow-hidden sm:aspect-[16/7] lg:aspect-[16/6]">
-                <Image
-                  src={b.image}
-                  alt=""
-                  fill
+                <BannerImage
+                  banner={b}
                   priority={i === 0}
                   sizes="(max-width: 1024px) 88vw, 1240px"
                   className="object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.025]"
@@ -64,13 +60,16 @@ export default function Plates({ banners, storeSlug }: { banners: BannerData[]; 
                     {num(i + 1)} / {num(banners.length)}
                   </span>
                   <span className="rq-face text-lg font-semibold sm:text-xl">{b.title}</span>
+                  {b.subtitle && <span className="mt-1 block text-sm text-(--rq-quiet)">{b.subtitle}</span>}
                 </p>
-                <span className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold">
-                  <span className="rq-link">تسوّق</span>
-                  <Arrow />
-                </span>
+                {b.link && (
+                  <span className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold">
+                    <span className="rq-link">{b.cta}</span>
+                    <Arrow />
+                  </span>
+                )}
               </div>
-            </Link>
+            </BannerLink>
           </li>
         ))}
       </ul>

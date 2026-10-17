@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import Link from "next/link";
 import { ChevronLeft, ExternalLink, Headset, LogOut, Moon, Settings, Sun, Wallet } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -47,6 +48,7 @@ function ThemeToggle() {
 
 function AccountMenu({ store }: { store: Props["store"] }) {
   const initials = store.name.trim().slice(0, 1).toUpperCase();
+  const [isLoggingOut, startLogout] = useTransition();
 
   return (
     <DropdownMenu dir="rtl" modal={false}>
@@ -90,14 +92,19 @@ function AccountMenu({ store }: { store: Props["store"] }) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <form action={LogoutAction}>
-          <DropdownMenuItem asChild variant="destructive">
-            <button type="submit" className="w-full">
-              <LogOut />
-              تسجيل الخروج
-            </button>
-          </DropdownMenuItem>
-        </form>
+        {/* Not a <form>: selecting an item closes (unmounts) the menu before the
+            browser submits, which silently cancels the submission. */}
+        <DropdownMenuItem
+          variant="destructive"
+          disabled={isLoggingOut}
+          onSelect={(e) => {
+            e.preventDefault();
+            startLogout(() => LogoutAction());
+          }}
+        >
+          <LogOut />
+          {isLoggingOut ? "جارٍ تسجيل الخروج…" : "تسجيل الخروج"}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

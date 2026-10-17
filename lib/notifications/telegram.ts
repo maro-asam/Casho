@@ -19,7 +19,16 @@ export async function sendTelegramMessage(text: string, chatId?: string) {
   await post("sendMessage", { chat_id: id, text });
 }
 
-/** Send a Markdown message with optional inline keyboard buttons. */
+/**
+ * Escapes user-supplied text for `parse_mode: "Markdown"` (legacy), so a
+ * customer name like "*[click](https://evil)*" can't add formatting or links
+ * to the merchant's message.
+ */
+export function escapeTelegramMarkdown(value: string) {
+  return value.replace(/([_*`\[\]])/g, "\\$1");
+}
+
+/** Send a Markdown message with optional inline keyboard buttons. Escape any user text with `escapeTelegramMarkdown`. */
 export async function sendTelegramMarkdown(
   chatId: string,
   text: string,

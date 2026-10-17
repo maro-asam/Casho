@@ -1,17 +1,28 @@
-/** Browser-side unsigned upload to Cloudinary. Returns the secure URL. */
-export async function uploadImageToCloudinary(file: File, folder: string, maxMb = 5) {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-  if (!cloudName || !uploadPreset) throw new Error("رفع الصور مش متظبط حاليًا، استخدم رابط.");
+import { GetCloudinaryUploadAuthAction } from "@/actions/uploads/cloudinary.actions";
+
+/**
+ * Browser-side upload to Cloudinary, signed by the server for the signed-in
+ * user (see GetCloudinaryUploadAuthAction). Returns the secure URL.
+ * `folder` must look like "casho/uploads/<name>".
+ */
+export async function uploadImageToCloudinary(file: Blob, folder: string, maxMb = 5) {
   if (!file.type.startsWith("image/")) throw new Error("الملف ده مش صورة.");
   if (file.size > maxMb * 1024 * 1024) throw new Error(`الصورة أكبر من ${maxMb} ميجا.`);
 
+  const auth = await GetCloudinaryUploadAuthAction(folder);
+  if (!auth.signed && !auth.uploadPreset) throw new Error("رفع الصور مش متظبط حاليًا، استخدم رابط.");
+
   const fd = new FormData();
   fd.append("file", file);
-  fd.append("upload_preset", uploadPreset);
   fd.append("folder", folder);
+  if (auth.uploadPreset) fd.append("upload_preset", auth.uploadPreset);
+  if (auth.signed) {
+    fd.append("api_key", auth.signed.apiKey);
+    fd.append("timestamp", String(auth.signed.timestamp));
+    fd.append("signature", auth.signed.signature);
+  }
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${auth.cloudName}/image/upload`, {
     method: "POST",
     body: fd,
   });

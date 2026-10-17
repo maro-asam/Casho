@@ -7,6 +7,7 @@ import { Loader2, Minus, Plus } from "lucide-react";
 
 import { AddToCartAction } from "@/actions/store/cart.actions";
 import { cn, formatPrice } from "@/lib/utils";
+import { swatchColor } from "../../shared/colors";
 import type { WholesaleTier } from "../../types";
 import { notifyCartUpdated } from "../../shared/cart-events";
 import { tierFor } from "../../shared/commerce";
@@ -30,7 +31,6 @@ type Props = {
 
 type OptionKey = "size" | "color";
 
-const HEX = /^#(?:[0-9a-f]{3}){1,2}$/i;
 
 function OptionGroup({
   id,
@@ -47,6 +47,8 @@ function OptionGroup({
   onSelect: (v: string) => void;
   error: boolean;
 }) {
+  // Only the color group gets swatches — "S"/"M" are never colors anyway.
+  const swatch = (v: string) => (id === "opt-color" ? swatchColor(v) : null);
   return (
     <fieldset id={id} className="scroll-mt-32">
       <legend className="mb-3 flex w-full items-baseline justify-between gap-3 text-sm">
@@ -70,9 +72,10 @@ function OptionGroup({
             data-error={error || undefined}
             onClick={() => onSelect(v)}
             className="rq-opt"
-            aria-label={HEX.test(v) ? `${label} ${v}` : undefined}
+            aria-label={swatch(v) ? v : undefined}
+            title={swatch(v) ? v : undefined}
           >
-            {HEX.test(v) ? <span className="rq-swatch" style={{ background: v }} /> : v}
+            {swatch(v) ? <span className="rq-swatch" style={{ background: swatch(v)! }} /> : v}
           </button>
         ))}
       </div>
@@ -122,7 +125,7 @@ export default function Purchase({ storeSlug, product }: Props) {
           rqToast.error(res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني");
           return;
         }
-        notifyCartUpdated();
+        notifyCartUpdated(res && "added" in res ? res.added : undefined);
         if (then) {
           then();
         } else {

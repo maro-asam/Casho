@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 
 import { MustSession } from "@/actions/auth/auth-helpers.actions";
+import { purchaseEventId } from "@/lib/pixels/shared";
+import { PixelEvent } from "../../../_components/pixels/PixelEvent";
 import { prisma } from "@/lib/prisma";
 
 import { Button } from "@/components/ui/button";
@@ -53,6 +55,10 @@ export default async function OrderSuccessPage({
       items: {
         select: {
           id: true,
+          productId: true,
+          quantity: true,
+          price: true,
+          product: { select: { name: true } },
         },
       },
     },
@@ -67,6 +73,24 @@ export default async function OrderSuccessPage({
       className="wrapper flex min-h-[80vh] items-center justify-center py-10 max-w-screen-2xl mx-auto"
       dir="rtl"
     >
+      {order.paidAt && (
+        <PixelEvent
+          name="Purchase"
+          onceKey={purchaseEventId(order.id)}
+          payload={{
+            eventId: purchaseEventId(order.id),
+            value: order.total / 100,
+            currency: "EGP",
+            orderId: order.id,
+            contents: order.items.map((item) => ({
+              id: item.productId,
+              quantity: item.quantity,
+              price: item.price / 100,
+              name: item.product.name,
+            })),
+          }}
+        />
+      )}
       <Card className="w-full max-w-2xl overflow-hidden rounded-[32px] border-0 shadow-sm">
         <CardContent className="space-y-8 p-8 text-center md:p-10">
           <div className="mx-auto flex size-24 items-center justify-center rounded-full bg-emerald-500/10">

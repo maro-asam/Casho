@@ -6,6 +6,7 @@ import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import type { PaymentMethodKey } from "@/constants/welcome/payment-methods";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId } from "../_lib/storefront";
+import { PixelEvent } from "../_components/pixels/PixelEvent";
 
 type CheckoutPageProps = {
   params: Promise<{ slug: string }>;
@@ -69,11 +70,28 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
   }
 
   return (
-    <theme.Checkout
-      storeSlug={slug}
-      cart={cartData}
-      paymentMethods={paymentMethods}
-      createOrder={handleCreateOrder}
-    />
+    <>
+      {cartData.items.length > 0 && (
+        <PixelEvent
+          name="InitiateCheckout"
+          payload={{
+            value: cartData.summary.total,
+            currency: "EGP",
+            contents: cartData.items.map((item) => ({
+              id: item.product.id,
+              quantity: item.quantity,
+              price: item.product.price,
+              name: item.product.name,
+            })),
+          }}
+        />
+      )}
+      <theme.Checkout
+        storeSlug={slug}
+        cart={cartData}
+        paymentMethods={paymentMethods}
+        createOrder={handleCreateOrder}
+      />
+    </>
   );
 }

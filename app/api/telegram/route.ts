@@ -1,26 +1,31 @@
+/**
+ * Telegram bot webhook — links a merchant's chat to their store (/start TOKEN).
+ *
+ * Every update must carry the secret Telegram echoes back in
+ * `X-Telegram-Bot-Api-Secret-Token`. Register the webhook once with:
+ *   https://api.telegram.org/bot<TOKEN>/setWebhook?url=<APP_URL>/api/telegram&secret_token=<TELEGRAM_WEBHOOK_SECRET>
+ */
+import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  approveTopupRequestAction,
-  rejectTopupRequestAction,
-} from "@/actions/admin/admin-topup.actions";
 import { prisma } from "@/lib/prisma";
 import { sendTelegramMessage } from "@/lib/notifications/telegram";
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
+function isFromTelegram(req: NextRequest) {
+  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+  const received = req.headers.get("x-telegram-bot-api-secret-token");
+  if (!secret || !received) return false;
+  const a = Buffer.from(received);
+  const b = Buffer.from(secret);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
 
-  // ── Admin callback_query (approve / reject topup) ──────────────────────────
-  const callbackQuery = body.callback_query;
-  if (callbackQuery) {
-    const [action, requestId] = (callbackQuery.data as string).split("_");
-    try {
-      if (action === "approve") await approveTopupRequestAction(requestId);
-      if (action === "reject") await rejectTopupRequestAction(requestId);
-    } catch (e) {
-      console.error(e);
-    }
-    return NextResponse.json({ ok: true });
+export async function POST(req: NextRequest) {
+  if (!isFromTelegram(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ ok: true });
 
   // ── Merchant linking via /start TOKEN ──────────────────────────────────────
   const message = body.message;

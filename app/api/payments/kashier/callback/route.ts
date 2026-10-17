@@ -10,6 +10,9 @@ import {
   verifyMerchantKashierCallbackSignature,
 } from "@/lib/kashier-merchant";
 import { verifyKashierCallbackSignature as verifyGlobalKashierCallbackSignature } from "@/lib/kashier";
+import { adjustStockForOrderStatus } from "@/lib/inventory/order-stock";
+import { queueStoreServerEvent } from "@/lib/pixels/server";
+import { purchaseEventId } from "@/lib/pixels/shared";
 
 async function extractParams(req: NextRequest) {
   const params = new URLSearchParams(req.nextUrl.searchParams);
@@ -126,8 +129,12 @@ async function handleKashierCallback(req: NextRequest) {
     where: { id: merchantOrderId },
     select: {
       id: true,
+      storeId: true,
       total: true,
       status: true,
+      phone: true,
+      fullName: true,
+      items: { select: { productId: true, quantity: true, price: true, product: { select: { name: true } } } },
       store: {
         select: {
           slug: true,
@@ -192,22 +199,59 @@ async function handleKashierCallback(req: NextRequest) {
     params.get("orderId");
 
   if (paid && order.status !== OrderStatus.PAID) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        status: OrderStatus.PAID,
-        paymentStatus,
-        paymentReference,
-        paidAt: new Date(),
-      },
+    const newlyPaid = await prisma.$transaction(async (tx) => {
+      // Conditional updates: a replayed callback changes nothing twice.
+      const marked = await tx.order.updateMany({
+        where: { id: order.id, status: { in: [OrderStatus.PENDING, OrderStatus.CANCELED] } },
+        data: { status: OrderStatus.PAID, paymentStatus, paymentReference, paidAt: new Date() },
+      });
+      if (marked.count === 0) {
+        // Already shipped/delivered — just record the payment.
+        await tx.order.update({
+          where: { id: order.id },
+          data: { paymentStatus, paymentReference, paidAt: new Date() },
+        });
+      } else if (order.status === OrderStatus.CANCELED) {
+        // Paid after its stock was released (failed attempt / expired) — take it again.
+        await adjustStockForOrderStatus(tx, { storeId: order.storeId, orderId: order.id, direction: "take" });
+      }
+      return marked.count === 1;
     });
+
+    // Ad pixels: a card order becomes a purchase only now, once.
+    if (newlyPaid) {
+      await queueStoreServerEvent({
+        storeId: order.storeId,
+        eventName: "Purchase",
+        payload: {
+          eventId: purchaseEventId(order.id),
+          value: order.total / 100,
+          currency: "EGP",
+          orderId: order.id,
+          contents: order.items.map((item) => ({
+            id: item.productId,
+            quantity: item.quantity,
+            price: item.price / 100,
+            name: item.product.name,
+          })),
+        },
+        customer: { phone: order.phone, fullName: order.fullName },
+        eventSourceUrl: getStorefrontBaseUrl(order.store.slug, req),
+      });
+    }
   } else if (!paid) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        paymentStatus,
-        paymentReference,
-      },
+    await prisma.$transaction(async (tx) => {
+      // A failed online payment gives its stock back; otherwise every declined
+      // card would keep those pieces locked forever.
+      const canceled = await tx.order.updateMany({
+        where: { id: order.id, status: OrderStatus.PENDING },
+        data: { status: OrderStatus.CANCELED, paymentStatus, paymentReference },
+      });
+      if (canceled.count === 1) {
+        await adjustStockForOrderStatus(tx, { storeId: order.storeId, orderId: order.id, direction: "restock" });
+      } else {
+        await tx.order.update({ where: { id: order.id }, data: { paymentStatus, paymentReference } });
+      }
     });
   }
 

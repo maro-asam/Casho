@@ -25,14 +25,14 @@ export default async function AdminSalesPage() {
         flush
       >
         {reps.length === 0 ? (
-          <EmptyState icon={Users} title="مفيش مندوبين لسه" description="ضيف أول مندوب وابعتله رابط الإحالة بتاعه." />
+          <EmptyState icon={Users} title="مفيش مندوبين لسه" description="ضيف أول مندوب وابعتله رابط الدخول من صفحته." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="h-10 bg-muted/40 text-right text-xs text-muted-foreground">
                   <th className="ps-4 font-medium">المندوب</th>
-                  <th className="font-medium">رابط الإحالة</th>
+                  <th className="font-medium">رابط إحالة التجار</th>
                   <th className="font-medium">المستوى</th>
                   <th className="font-medium">تسجيلات</th>
                   <th className="font-medium">مكتسبين</th>
@@ -59,7 +59,7 @@ export default async function AdminSalesPage() {
                           <code dir="ltr" className="font-mono text-xs">
                             {rep.user.referralCode}
                           </code>
-                          <CopyButton value={buildReferralLink(rep.user.referralCode)} label="الرابط" />
+                          <CopyButton value={buildReferralLink(rep.user.referralCode)} label="رابط التجار" />
                         </div>
                       )}
                     </td>

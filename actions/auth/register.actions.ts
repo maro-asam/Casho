@@ -1,5 +1,6 @@
 "use server";
 
+import { getEntryPlan } from "@/lib/billing/renewal";
 import { SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
@@ -121,6 +122,8 @@ export async function RegisterAction(
     const now = new Date();
     const trialEndsAt = getFreeTrialEndDate(now);
     const trialPlanId = await getDefaultTrialPlanId();
+    // Trial runs on Platinum; afterwards a store that never picked a plan pays the entry plan.
+    const entryPlan = await getEntryPlan();
 
     const created = await prisma.$transaction(async (tx) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -155,6 +158,7 @@ export async function RegisterAction(
               autoRenew: true,
               planSelected: false,
               planId: trialPlanId,
+              ...(entryPlan && { monthlyPrice: entryPlan.monthlyPrice }),
             },
           },
         },

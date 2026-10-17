@@ -4,6 +4,7 @@ import Link from "next/link";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { BannerData, CategoryLink, HomeViewProps, ProductCardData } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { Chevron, PlateImage, Price, btn, discountPercent, num } from "../ui";
 
 type Tile =
@@ -61,10 +62,10 @@ function TileLink({ href, label }: { href: string; label: string }) {
   return <Link href={href} aria-label={label} className="absolute inset-0 z-[3] rounded-(--mx-r-lg) focus-visible:outline-offset-[-3px]" />;
 }
 
-function Cta() {
+function Cta({ label = "تسوّق الآن" }: { label?: string }) {
   return (
     <span aria-hidden className="mt-3 inline-flex items-center gap-1 border-b border-white/80 pb-0.5 text-sm font-semibold">
-      تسوّق الآن
+      {label}
       <Chevron />
     </span>
   );
@@ -78,19 +79,30 @@ function TileView({ tile, slot, storeSlug, storeName }: { tile: Tile; slot: Slot
   if (tile.kind === "banner") {
     return (
       <div className="group relative flex h-full overflow-hidden rounded-(--mx-r-lg) bg-(--mx-dark) text-white">
-        <TileLink href={url("/products")} label={tile.banner.title} />
-        <Image src={tile.banner.image} alt="" fill priority={big} sizes={sizes} className="mx-zoom-img object-cover" />
+        {tile.banner.link && (
+          <BannerLink
+            banner={tile.banner}
+            storeSlug={storeSlug}
+            aria-label={tile.banner.title}
+            className="absolute inset-0 z-[3] rounded-(--mx-r-lg) focus-visible:outline-offset-[-3px]"
+          >
+            {null}
+          </BannerLink>
+        )}
+        <BannerImage banner={tile.banner} priority={big} sizes={sizes} className="mx-zoom-img object-cover" />
         <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(16_15_15/0.72),rgb(16_15_15/0.1)_65%)] lg:bg-[linear-gradient(var(--mx-hero-dir,to_left),rgb(16_15_15/0.7),rgb(16_15_15/0)_70%)] ltr:[--mx-hero-dir:to_right]" />
         <div className={cn("relative mt-auto flex w-full flex-col items-start p-5 sm:p-8", big && "lg:my-auto lg:max-w-[60%] lg:p-10")}>
           {big && <p className="mb-2 rounded-sm bg-(--mx-sale-badge) px-1.5 text-[0.8125rem] font-semibold">{storeName}</p>}
           <h2 className={cn("mx-display text-balance text-white", big ? "mx-hero" : "text-xl sm:text-2xl")}>{tile.banner.title}</h2>
-          {big ? (
-            <span aria-hidden className={btn({ variant: "white", size: "lg", className: "mt-6" })}>
-              تسوّق الآن
-            </span>
-          ) : (
-            <Cta />
-          )}
+          {tile.banner.subtitle && <p className={cn("mt-2 line-clamp-2 text-white/85", big ? "text-base sm:text-lg" : "text-sm")}>{tile.banner.subtitle}</p>}
+          {tile.banner.link &&
+            (big ? (
+              <span aria-hidden className={btn({ variant: "white", size: "lg", className: "mt-6" })}>
+                {tile.banner.cta}
+              </span>
+            ) : (
+              <Cta label={tile.banner.cta} />
+            ))}
         </div>
       </div>
     );

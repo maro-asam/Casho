@@ -3,10 +3,10 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ExternalLink, Eye, EyeOff, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Eye, EyeOff, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { DeleteBannerAction, SetBannerActiveAction } from "@/actions/admin/banner.actions";
+import { DeleteBannerAction, DuplicateBannerAction, SetBannerActiveAction } from "@/actions/admin/banner.actions";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -49,6 +49,18 @@ export function BannerRowActions({ storeId, banner, editHref, storefrontUrl }: P
     });
   }
 
+  function duplicate() {
+    startTransition(async () => {
+      const result = await DuplicateBannerAction(banner.id, storeId);
+      if (result.ok) {
+        toast.success("اتعملت نسخة مخفية — عدّلها واظهرها");
+        router.refresh();
+      } else {
+        toast.error(result.message);
+      }
+    });
+  }
+
   function remove() {
     startTransition(async () => {
       const result = await DeleteBannerAction(banner.id, storeId);
@@ -82,6 +94,10 @@ export function BannerRowActions({ storeId, banner, editHref, storefrontUrl }: P
               <Pencil />
               تعديل
             </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={duplicate}>
+            <Copy />
+            عمل نسخة
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href={storefrontUrl} target="_blank" rel="noreferrer">

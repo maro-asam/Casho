@@ -15,7 +15,7 @@ async function handler(req: NextRequest) {
 
   const stores = await prisma.store.findMany({
     where: { customDomain: { not: null } },
-    select: { id: true, slug: true, customDomain: true, customDomainStatus: true },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true, customDomainConnectedAt: true },
     take: 500,
   });
 

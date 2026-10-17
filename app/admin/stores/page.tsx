@@ -1,136 +1,234 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, Building2, Store } from "lucide-react";
+import { SearchX, Store } from "lucide-react";
+import { Prisma, SubscriptionStatus } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { Badge } from "@/components/ui/badge";
-import { SubscriptionStatus } from "@prisma/client";
+import {
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  SelectFilter,
+  StatusPill,
+  readPage,
+  readParam,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
 import { cn } from "@/lib/utils";
+import { th, theadRow } from "../_components/admin-ui";
+import { SUBSCRIPTION_META, fmtDate, fmtMoney, fmtRelative, pickEnum } from "../_lib/format";
 
-function fmt(v: number) {
-  return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(v / 100);
-}
-function fmtDate(d: Date) {
-  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium" }).format(d);
-}
-function statusLabel(s: SubscriptionStatus) {
-  const map: Record<SubscriptionStatus, string> = {
-    ACTIVE: "نشط", GRACE_PERIOD: "فترة سماح",
-    PAST_DUE: "متأخر", CANCELED: "ملغي", INACTIVE: "غير مفعل",
+export const metadata: Metadata = { title: "المتاجر" };
+
+const PAGE_SIZE = 20;
+const BASE_PATH = "/admin/stores";
+const EXPIRING = "EXPIRING"; // pseudo-status: active, renews within 7 days
+const SORTS = { newest: "الأحدث", balance: "الرصيد الأعلى", ending: "ينتهي أولًا" } as const;
+
+export default async function AdminStoresPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  const params = await searchParams;
+  const q = readParam(params, "q");
+  const rawStatus = readParam(params, "status");
+  const status = pickEnum(SubscriptionStatus, rawStatus);
+  const expiring = rawStatus === EXPIRING;
+  const planParam = readParam(params, "plan");
+  const sortParam = readParam(params, "sort");
+  const sort = sortParam && sortParam in SORTS ? (sortParam as keyof typeof SORTS) : "newest";
+
+  const plans = await prisma.plan.findMany({ orderBy: { sortOrder: "asc" }, select: { id: true, name: true } });
+  const planId = plans.some((p) => p.id === planParam) ? planParam : undefined;
+
+  const now = new Date();
+  const in7Days = new Date(now.getTime() + 7 * 86_400_000);
+
+  const baseWhere: Prisma.StoreWhereInput = {
+    ...(planId && { planId }),
+    ...(q && {
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { slug: { contains: q, mode: "insensitive" } },
+        { customDomain: { contains: q, mode: "insensitive" } },
+        { user: { email: { contains: q, mode: "insensitive" } } },
+        { user: { name: { contains: q, mode: "insensitive" } } },
+        { user: { phone_number: { contains: q } } },
+      ],
+    }),
   };
-  return map[s] ?? s;
-}
-function statusCls(s: SubscriptionStatus) {
-  switch (s) {
-    case "ACTIVE":       return "bg-emerald-500/10 text-emerald-700 border-emerald-500/20";
-    case "GRACE_PERIOD": return "bg-amber-500/10  text-amber-700  border-amber-500/20";
-    case "PAST_DUE":     return "bg-rose-500/10   text-rose-700   border-rose-500/20";
-    case "CANCELED":     return "bg-zinc-500/10   text-zinc-600   border-zinc-500/20";
-    default:             return "bg-muted          text-muted-foreground border-border";
-  }
-}
+  const expiringWhere: Prisma.StoreWhereInput = {
+    subscriptionStatus: SubscriptionStatus.ACTIVE,
+    subscriptionEndsAt: { gte: now, lte: in7Days },
+  };
+  const where: Prisma.StoreWhereInput = {
+    ...baseWhere,
+    ...(status && { subscriptionStatus: status }),
+    ...(expiring && expiringWhere),
+  };
 
-export default async function AdminStoresPage() {
-  await requireAdmin();
+  const [grouped, expiringCount, total] = await Promise.all([
+    prisma.store.groupBy({ by: ["subscriptionStatus"], where: baseWhere, _count: { _all: true } }),
+    prisma.store.count({ where: { ...baseWhere, ...expiringWhere } }),
+    prisma.store.count({ where }),
+  ]);
+  const counts = Object.fromEntries(grouped.map((g) => [g.subscriptionStatus, g._count._all])) as Partial<Record<SubscriptionStatus, number>>;
+  const all = grouped.reduce((s, g) => s + g._count._all, 0);
+
+  const page = Math.min(readPage(params), Math.max(1, Math.ceil(total / PAGE_SIZE)));
+  const orderBy: Prisma.StoreOrderByWithRelationInput[] =
+    sort === "balance"
+      ? [{ balance: "desc" }]
+      : sort === "ending"
+        ? [{ subscriptionEndsAt: { sort: "asc", nulls: "last" } }]
+        : [{ createdAt: "desc" }];
 
   const stores = await prisma.store.findMany({
-    orderBy: { createdAt: "desc" },
+    where,
+    orderBy,
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
     select: {
-      id: true, name: true, slug: true,
-      balance: true, subscriptionStatus: true, createdAt: true,
-      user: { select: { email: true } },
+      id: true,
+      name: true,
+      slug: true,
+      balance: true,
+      billingCycle: true,
+      subscriptionStatus: true,
+      subscriptionEndsAt: true,
+      createdAt: true,
+      plan: { select: { name: true } },
+      user: { select: { email: true, name: true } },
+      _count: { select: { orders: true, products: true } },
     },
   });
 
-  const active   = stores.filter((s) => s.subscriptionStatus === "ACTIVE").length;
-  const inactive = stores.filter((s) => s.subscriptionStatus === "INACTIVE").length;
+  const filtered = !!(q || status || expiring || planId);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">المتاجر</h1>
-        <p className="mt-1 text-sm text-muted-foreground">إدارة كل المتاجر المسجلة على المنصة</p>
-      </div>
+      <PageHeader title="المتاجر" description="كل المتاجر على المنصة: الاشتراك، الرصيد، والنشاط. افتح أي متجر عشان تديره." />
 
-      {/* Quick stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          { label: "إجمالي المتاجر", value: stores.length, color: "text-primary bg-primary/10",        icon: Store       },
-          { label: "نشطة",            value: active,         color: "text-emerald-600 bg-emerald-500/10", icon: Building2   },
-          { label: "غير مفعلة",      value: inactive,       color: "text-zinc-500 bg-zinc-500/10",       icon: Building2   },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border bg-background p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm text-muted-foreground">{s.label}</p>
-                <p className="mt-1 text-2xl font-semibold">{s.value}</p>
+      <div className="space-y-4">
+        <FilterTabs
+          label="حالة الاشتراك"
+          param="status"
+          basePath={BASE_PATH}
+          searchParams={params}
+          tabs={[
+            { label: "الكل", count: all },
+            { label: SUBSCRIPTION_META.ACTIVE.label, value: "ACTIVE", count: counts.ACTIVE ?? 0 },
+            { label: "تنتهي خلال ٧ أيام", value: EXPIRING, count: expiringCount },
+            { label: SUBSCRIPTION_META.GRACE_PERIOD.label, value: "GRACE_PERIOD", count: counts.GRACE_PERIOD ?? 0 },
+            { label: SUBSCRIPTION_META.PAST_DUE.label, value: "PAST_DUE", count: counts.PAST_DUE ?? 0 },
+            { label: SUBSCRIPTION_META.INACTIVE.label, value: "INACTIVE", count: counts.INACTIVE ?? 0 },
+            { label: SUBSCRIPTION_META.CANCELED.label, value: "CANCELED", count: counts.CANCELED ?? 0 },
+          ]}
+        />
+
+        <DataCard
+          toolbar={
+            <>
+              <SearchInput placeholder="ابحث بالاسم أو الرابط أو بريد المالك أو موبايله" className="sm:max-w-sm" />
+              <div className="flex gap-2">
+                <SelectFilter param="plan" allLabel="كل الباقات" label="الباقة" options={plans.map((p) => ({ value: p.id, label: p.name }))} />
+                <SelectFilter param="sort" allLabel={SORTS.newest} label="الترتيب" options={[{ value: "balance", label: SORTS.balance }, { value: "ending", label: SORTS.ending }]} />
               </div>
-              <div className={cn("flex size-10 items-center justify-center rounded-lg", s.color)}>
-                <s.icon className="size-5" />
+            </>
+          }
+          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="متجر" />}
+        >
+          {stores.length === 0 ? (
+            filtered ? (
+              <EmptyState
+                icon={SearchX}
+                title="مفيش متاجر بالفلاتر دي"
+                action={
+                  <Link href={BASE_PATH} className="text-sm text-primary hover:underline">
+                    مسح الفلاتر
+                  </Link>
+                }
+              />
+            ) : (
+              <EmptyState icon={Store} title="مفيش متاجر لسه" description="أول ما تاجر يسجّل ويعمل متجره هيظهر هنا." />
+            )
+          ) : (
+            <>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className={theadRow}>
+                      <th className={cn(th, "ps-4")}>المتجر</th>
+                      <th className={cn(th, "hidden lg:table-cell")}>المالك</th>
+                      <th className={th}>الباقة</th>
+                      <th className={th}>الاشتراك</th>
+                      <th className={cn(th, "hidden xl:table-cell")}>النشاط</th>
+                      <th className={cn(th, "text-left")}>الرصيد</th>
+                      <th className={cn(th, "hidden pe-4 text-left lg:table-cell")}>اتعمل</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {stores.map((store) => (
+                      <tr key={store.id} className="relative transition-colors hover:bg-muted/40">
+                        <td className="py-3 ps-4">
+                          <Link href={`${BASE_PATH}/${store.slug}`} className="font-medium after:absolute after:inset-0">
+                            {store.name}
+                          </Link>
+                          <p className="font-mono text-xs text-muted-foreground" dir="ltr">
+                            {store.slug}
+                          </p>
+                        </td>
+                        <td className="hidden max-w-56 py-3 lg:table-cell">
+                          <p className="truncate">{store.user.name ?? "—"}</p>
+                          <p className="truncate text-xs text-muted-foreground" dir="ltr">
+                            {store.user.email}
+                          </p>
+                        </td>
+                        <td className="py-3">
+                          <p>{store.plan?.name ?? "—"}</p>
+                          <p className="text-xs text-muted-foreground">{store.billingCycle === "YEARLY" ? "سنوي" : "شهري"}</p>
+                        </td>
+                        <td className="py-3">
+                          <StatusPill tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusPill>
+                          {store.subscriptionEndsAt && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {store.subscriptionEndsAt > now ? "ينتهي" : "انتهى"} {fmtRelative(store.subscriptionEndsAt, now)}
+                            </p>
+                          )}
+                        </td>
+                        <td className="hidden py-3 text-xs text-muted-foreground xl:table-cell">
+                          {store._count.products} منتج · {store._count.orders} طلب
+                        </td>
+                        <td className="py-3 text-left font-medium tabular-nums">{fmtMoney(store.balance)}</td>
+                        <td className="hidden py-3 pe-4 text-left text-muted-foreground lg:table-cell">{fmtDate(store.createdAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Table card */}
-      <div className="rounded-xl border bg-background shadow-sm">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">كل المتاجر</h2>
-          <p className="text-sm text-muted-foreground">{stores.length} متجر مسجل</p>
-        </div>
-
-        {stores.length === 0 ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">لا توجد متاجر بعد</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/30 text-right text-xs text-muted-foreground">
-                  <th className="px-6 py-3 font-medium">المتجر</th>
-                  <th className="px-6 py-3 font-medium">الـ Slug</th>
-                  <th className="px-6 py-3 font-medium">الحالة</th>
-                  <th className="px-6 py-3 font-medium">الرصيد</th>
-                  <th className="px-6 py-3 font-medium">تاريخ الإنشاء</th>
-                  <th className="px-6 py-3 font-medium" />
-                </tr>
-              </thead>
-              <tbody className="divide-y">
+              <ul className="divide-y divide-border md:hidden">
                 {stores.map((store) => (
-                  <tr key={store.id} className="transition hover:bg-muted/30">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-                          <Building2 className="size-4 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{store.name}</p>
-                          <p className="text-xs text-muted-foreground">{store.user.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-xs text-muted-foreground">{store.slug}</td>
-                    <td className="px-6 py-4">
-                      <Badge variant="outline" className={cn("rounded-full border text-xs", statusCls(store.subscriptionStatus))}>
-                        {statusLabel(store.subscriptionStatus)}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 font-medium">{fmt(store.balance)}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{fmtDate(store.createdAt)}</td>
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/admin/stores/${store.slug}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition hover:bg-muted"
-                      >
-                        عرض <ArrowUpRight className="size-3" />
+                  <li key={store.id} className="relative px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <Link href={`${BASE_PATH}/${store.slug}`} className="min-w-0 font-medium after:absolute after:inset-0">
+                        <span className="block truncate">{store.name}</span>
                       </Link>
-                    </td>
-                  </tr>
+                      <span className="shrink-0 font-medium tabular-nums">{fmtMoney(store.balance)}</span>
+                    </div>
+                    <p className="truncate text-xs text-muted-foreground" dir="ltr">
+                      {store.user.email}
+                    </p>
+                    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                      <StatusPill tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusPill>
+                      <span>{store.plan?.name ?? "بدون باقة"}</span>
+                    </div>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              </ul>
+            </>
+          )}
+        </DataCard>
       </div>
     </div>
   );

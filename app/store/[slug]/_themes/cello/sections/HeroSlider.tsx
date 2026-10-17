@@ -1,12 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { BannerData } from "../../types";
+import { BannerImage, BannerLink } from "../../shared/banner";
 
 const INTERVAL = 6000;
 const RM = "(prefers-reduced-motion: reduce)";
@@ -20,7 +19,7 @@ const subscribeRM = (cb: () => void) => {
  *  start side, and a centered control bar (previous, dots, next, pause) at
  *  the bottom. Autoplays only when motion is allowed, pauses on hover/focus
  *  and while the tab is hidden. Swipe on touch. */
-export default function HeroSlider({ banners, href, storeName }: { banners: BannerData[]; href: string; storeName: string }) {
+export default function HeroSlider({ banners, storeSlug, storeName }: { banners: BannerData[]; storeSlug: string; storeName: string }) {
   const [index, setIndex] = useState(0);
   const reduced = useSyncExternalStore(subscribeRM, () => window.matchMedia(RM).matches, () => false);
   const [paused, setPaused] = useState(false);
@@ -71,15 +70,18 @@ export default function HeroSlider({ banners, href, storeName }: { banners: Bann
             inert={i !== index}
             className={cn("absolute inset-0 transition-opacity duration-700 ease-out", i === index ? "z-[1] opacity-100" : "opacity-0")}
           >
-            <Image src={b.image} alt="" fill priority={i === 0} sizes="100vw" className={cn("object-cover transition-transform duration-[7000ms] ease-out", i === index && "motion-safe:scale-[1.03]")} />
+            <BannerImage banner={b} priority={i === 0} sizes="100vw" className={cn("object-cover transition-transform duration-[7000ms] ease-out", i === index && "motion-safe:scale-[1.03]")} />
             <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_left,rgb(0_16_48/0.7),rgb(0_16_48/0.1)_65%)] ltr:bg-[linear-gradient(to_right,rgb(0_16_48/0.7),rgb(0_16_48/0.1)_65%)]" />
             <div className="ce-wrap relative flex h-full flex-col items-start justify-center pb-14">
               <p className="text-sm text-white/85">{storeName}</p>
               <h2 className="ce-hero mt-3 max-w-[18ch] text-balance text-white">{b.title}</h2>
-              <Link href={href} className="ce-btn ce-btn--white mt-7 bg-white/90 backdrop-blur-sm">
-                تسوّق الآن
-                <ChevronLeft className="ltr:rotate-180" />
-              </Link>
+              {b.subtitle && <p className="mt-3 line-clamp-2 max-w-[48ch] text-base text-white/85">{b.subtitle}</p>}
+              {b.link && (
+                <BannerLink banner={b} storeSlug={storeSlug} className="ce-btn ce-btn--white mt-7 bg-white/90 backdrop-blur-sm">
+                  {b.cta}
+                  <ChevronLeft className="ltr:rotate-180" />
+                </BannerLink>
+              )}
             </div>
           </div>
         ))}

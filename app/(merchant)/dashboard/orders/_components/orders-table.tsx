@@ -1,7 +1,8 @@
 import Link from "next/link";
-import type { OrderSource, OrderStatus } from "@prisma/client";
+import type { OrderRiskLevel, OrderSource, OrderStatus } from "@prisma/client";
+import { StatusPill } from "@/components/saas-page";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ORDER_CHANNELS, paymentMethodLabel } from "./order-meta";
+import { ORDER_CHANNELS, ORDER_RISK_META, paymentMethodLabel } from "./order-meta";
 import { OrderStatusSelect } from "./order-status-select";
 
 export type OrderRow = {
@@ -16,6 +17,11 @@ export type OrderRow = {
   itemCount: number;
   firstProduct: string | null;
   otherProducts: number;
+  riskLevel: OrderRiskLevel | null;
+  /** Waiting for the customer's phone code. */
+  awaitingCode: boolean;
+  /** Canceled because the customer refused the delivery. */
+  returned: boolean;
 };
 
 const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
@@ -49,6 +55,31 @@ function Products({ order }: { order: OrderRow }) {
         {order.otherProducts > 0 && <span className="text-muted-foreground"> +{nf.format(order.otherProducts)}</span>}
       </p>
       <p className="text-xs text-muted-foreground">{nf.format(order.itemCount)} قطعة</p>
+    </div>
+  );
+}
+
+/** Only what needs the merchant's attention: risky numbers, unconfirmed and returned orders. */
+function Flags({ order }: { order: OrderRow }) {
+  const risk = order.riskLevel && order.riskLevel !== "LOW" ? ORDER_RISK_META[order.riskLevel] : null;
+  if (!risk && !order.awaitingCode && !order.returned) return null;
+  return (
+    <div className="mt-1 flex flex-wrap gap-1">
+      {risk && (
+        <StatusPill tone={risk.tone} className="text-[11px]">
+          {risk.label}
+        </StatusPill>
+      )}
+      {order.awaitingCode && (
+        <StatusPill tone="warning" className="text-[11px]">
+          مستني التأكيد
+        </StatusPill>
+      )}
+      {order.returned && (
+        <StatusPill tone="danger" className="text-[11px]">
+          مرتجع
+        </StatusPill>
+      )}
     </div>
   );
 }
@@ -92,6 +123,7 @@ export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: 
                   <p className="text-xs text-muted-foreground tabular-nums" dir="ltr">
                     {order.phone}
                   </p>
+                  <Flags order={order} />
                 </TableCell>
                 <TableCell className="hidden py-3 lg:table-cell">
                   <Products order={order} />
@@ -129,6 +161,7 @@ export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: 
                   </span>{" "}
                   · {dateFormat.format(order.createdAt)}
                 </p>
+                <Flags order={order} />
               </div>
               <p className="shrink-0 text-sm font-semibold tabular-nums">{money.format(order.total / 100)}</p>
             </div>

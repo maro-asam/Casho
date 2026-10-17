@@ -14,8 +14,26 @@ function getRedirectUri() {
   return `${process.env.APP_URL}/api/auth/google/callback`;
 }
 
-export function getGoogleAuthUrl() {
+/** CSRF state for the OAuth round trip — random per attempt, checked in the callback. */
+export const GOOGLE_STATE_COOKIE = "googleOAuthState";
+
+export function googleStateCookieOptions(maxAge: number) {
+  const isProduction = process.env.NODE_ENV === "production";
+  const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge,
+    // The flow starts on app.<root> but APP_URL (the callback host) may be the bare root.
+    domain: isProduction ? `.${rootDomain}` : undefined,
+  };
+}
+
+export function getGoogleAuthUrl(state: string) {
   const params = new URLSearchParams({
+    state,
     client_id: process.env.GOOGLE_CLIENT_ID!,
     redirect_uri: getRedirectUri(),
     response_type: "code",

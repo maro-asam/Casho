@@ -6,6 +6,7 @@ import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { EmptyState, PageHeader } from "@/components/saas-page";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { DNS_TARGETS } from "@/lib/custom-domain/dns";
+import { domainVerificationToken } from "@/lib/custom-domain/ownership";
 import { FEATURE_KEYS } from "@/lib/entitlements";
 import { prisma } from "@/lib/prisma";
 import { ConnectDomainForm } from "./_components/connect-domain-form";
@@ -60,6 +61,7 @@ export default async function DomainRoute() {
             connectedAt={store.customDomainConnectedAt?.toISOString() ?? null}
             storeUrl={storeUrl}
             targets={DNS_TARGETS}
+            verifyToken={domainVerificationToken(store.id)}
           />
         ) : (
           <div className="space-y-4">

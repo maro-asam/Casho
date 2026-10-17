@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { MustSession, ReadSession } from "../auth/auth-helpers.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
+import { queueStoreServerEvent } from "@/lib/pixels/server";
 
 function shippingCookieKey(storeId: string) {
   return `ship_${storeId}`;
@@ -54,7 +55,7 @@ export async function AddToCartAction(
       storeId: store.id,
       isActive: true,
     },
-    select: { id: true, name: true, sizes: true, colors: true, stock: true },
+    select: { id: true, name: true, sizes: true, colors: true, stock: true, price: true, wholesaleOptions: true },
   });
 
   if (!product) throw new Error("Product not found");
@@ -128,9 +129,30 @@ export async function AddToCartAction(
   revalidatePath(`/store/${storeSlug}`);
   revalidatePath(`/store/${storeSlug}/cart`);
 
+  // Ad pixels: the browser event (via notifyCartUpdated) and the server event
+  // share this id, so Meta/TikTok count the add once.
+  const added = {
+    eventId: `atc_${crypto.randomUUID()}`,
+    productId: product.id,
+    name: product.name,
+    price: getEffectivePrice(product.price, product.wholesaleOptions, qty),
+    quantity: qty,
+  };
+  await queueStoreServerEvent({
+    storeId: store.id,
+    eventName: "AddToCart",
+    payload: {
+      eventId: added.eventId,
+      value: added.price * qty,
+      currency: "EGP",
+      contents: [{ id: product.id, quantity: qty, price: added.price, name: product.name }],
+    },
+  });
+
   return {
     success: true,
     message: "تم اضافة المنتج الي العربة",
+    added,
   };
 }
 

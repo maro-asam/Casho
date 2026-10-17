@@ -58,14 +58,22 @@ export async function approveTopupRequestAction(
       };
     }
 
-    await prisma.$transaction(async (tx) => {
-      const balanceBefore = topupRequest.store.balance;
-      const balanceAfter = balanceBefore + topupRequest.amount;
-
-      await tx.store.update({
-        where: { id: topupRequest.storeId },
-        data: { balance: balanceAfter },
+    const applied = await prisma.$transaction(async (tx) => {
+      // Claim the request first: a concurrent approval (double click, Telegram
+      // bot) finds it no longer PENDING and credits nothing.
+      const claimed = await tx.topupRequest.updateMany({
+        where: { id: topupRequest.id, status: TopupRequestStatus.PENDING },
+        data: { status: TopupRequestStatus.APPROVED },
       });
+      if (claimed.count === 0) return false;
+
+      // Atomic increment — the balance read above may already be stale.
+      const { balance: balanceAfter } = await tx.store.update({
+        where: { id: topupRequest.storeId },
+        data: { balance: { increment: topupRequest.amount } },
+        select: { balance: true },
+      });
+      const balanceBefore = balanceAfter - topupRequest.amount;
 
       await tx.balanceTransaction.create({
         data: {
@@ -81,11 +89,12 @@ export async function approveTopupRequestAction(
         },
       });
 
-      await tx.topupRequest.update({
-        where: { id: topupRequest.id },
-        data: { status: TopupRequestStatus.APPROVED },
-      });
+      return true;
     });
+
+    if (!applied) {
+      return { success: false, message: "الطلب ده اتراجع بالفعل" };
+    }
 
     await renewIfDue(topupRequest.storeId, { includeInactive: true }).catch((e) => console.error("[topup] renewal", e));
 
@@ -101,10 +110,7 @@ export async function approveTopupRequestAction(
       },
     });
 
-    revalidatePath("/admin");
-    revalidatePath("/admin/topup-requests");
-    revalidatePath("/admin/stores");
-    revalidatePath(`/admin/stores/${topupRequest.storeId}`);
+    revalidatePath("/admin", "layout");
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/balance");
     revalidatePath("/dashboard/subscription");
@@ -125,6 +131,7 @@ export async function approveTopupRequestAction(
 
 export async function rejectTopupRequestAction(
   topupRequestId: string,
+  reason?: string,
 ): Promise<ActionResult> {
   try {
     await requireAdmin();
@@ -153,27 +160,32 @@ export async function rejectTopupRequestAction(
       };
     }
 
-    await prisma.topupRequest.update({
-      where: { id: topupRequest.id },
+    const claimed = await prisma.topupRequest.updateMany({
+      where: { id: topupRequest.id, status: TopupRequestStatus.PENDING },
       data: { status: TopupRequestStatus.REJECTED },
     });
+    if (claimed.count === 0) {
+      return { success: false, message: "الطلب ده اتراجع بالفعل" };
+    }
+
+    const trimmedReason = reason?.trim().slice(0, 300);
 
     await createNotification({
       storeId: topupRequest.storeId,
       type: NotificationType.TOPUP_REJECTED,
       title: "تم رفض طلب الشحن",
-      message: `طلب شحن ${formatPiastersAsEgp(topupRequest.amount)} اترفض. راجع بيانات التحويل أو تواصل مع الدعم.`,
+      message: trimmedReason
+        ? `طلب شحن ${formatPiastersAsEgp(topupRequest.amount)} اترفض: ${trimmedReason}`
+        : `طلب شحن ${formatPiastersAsEgp(topupRequest.amount)} اترفض. راجع بيانات التحويل أو تواصل مع الدعم.`,
       href: "/dashboard/balance",
       data: {
         topupRequestId: topupRequest.id,
         amount: topupRequest.amount,
+        ...(trimmedReason && { reason: trimmedReason }),
       },
     });
 
-    revalidatePath("/admin");
-    revalidatePath("/admin/topup-requests");
-    revalidatePath("/admin/stores");
-    revalidatePath(`/admin/stores/${topupRequest.storeId}`);
+    revalidatePath("/admin", "layout");
     revalidatePath("/dashboard/notifications");
 
     return {

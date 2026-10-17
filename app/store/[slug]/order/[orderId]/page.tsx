@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 
 import { MustSession } from "@/actions/auth/auth-helpers.actions";
+import { purchaseEventId } from "@/lib/pixels/shared";
+import { PixelEvent } from "../../_components/pixels/PixelEvent";
 import { prisma } from "@/lib/prisma";
 import { getPaymentMethodLabel as getCatalogueLabel, isManualPaymentMethod } from "@/constants/welcome/payment-methods";
 
@@ -329,10 +331,45 @@ export default async function OrderDetailsPage({
 
   const statusMeta = getStatusMeta(order.status);
   const paymentStatusMeta = getPaymentStatusLabel(order.paymentStatus);
+  // A card order is only a purchase once Kashier confirmed it (it then lands on /success too).
+  const awaitingCode = order.confirmationStatus === "PENDING" && order.status === "PENDING";
+  const countsAsPurchase =
+    order.source === "ONLINE" && !awaitingCode && (order.paymentProvider !== "KASHIER" || order.paidAt !== null);
 
   return (
     <div className="wrapper py-6 max-w-screen-2xl mx-auto" dir="rtl">
+      {countsAsPurchase && (
+        <PixelEvent
+          name="Purchase"
+          onceKey={purchaseEventId(order.id)}
+          payload={{
+            eventId: purchaseEventId(order.id),
+            value: order.total / 100,
+            currency: "EGP",
+            orderId: order.id,
+            contents: order.items.map((item) => ({
+              id: item.productId,
+              quantity: item.quantity,
+              price: item.price / 100,
+              name: item.product.name,
+            })),
+          }}
+        />
+      )}
       <div className="mx-auto max-w-7xl space-y-6">
+        {awaitingCode && (
+          <Card className="rounded-[28px] border border-amber-500/30 bg-amber-500/10">
+            <CardContent className="flex flex-col gap-3 p-5 text-right sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <h2 className="font-semibold">طلبك لسه مستني التأكيد</h2>
+                <p className="text-sm leading-6 opacity-90">اكتب الكود اللي وصلك عشان المتجر يبدأ يجهّزه — الطلب بيتلغي لوحده لو ماتأكدش.</p>
+              </div>
+              <Button asChild className="rounded-xl">
+                <Link href={`/store/${slug}/order/${order.id}/confirm`}>أكّد الطلب</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
         {paymentBanner ? (
           <Card className={cn("rounded-[28px] border", paymentBanner.className)}>
             <CardContent className="flex items-start gap-4 p-5 text-right">

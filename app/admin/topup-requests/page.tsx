@@ -1,174 +1,233 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { CheckCircle2, Clock3, ExternalLink, ImageIcon, XCircle, Wallet } from "lucide-react";
+import { ImageIcon, SearchX, Wallet } from "lucide-react";
+import { Prisma, TopupMethod, TopupRequestStatus } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
-import { TopupMethod, TopupRequestStatus } from "@prisma/client";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { approveTopupRequestAction, rejectTopupRequestAction } from "@/actions/admin/admin-topup.actions";
-import { Badge } from "@/components/ui/badge";
+import {
+  DataCard,
+  EmptyState,
+  FilterTabs,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  SelectFilter,
+  StatusPill,
+  readPage,
+  readParam,
+  type SearchParamsRecord,
+} from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { th, theadRow } from "../_components/admin-ui";
+import { TOPUP_METHOD_LABELS, TOPUP_STATUS_META, fmtDateTime, fmtMoney, fmtRelative, pickEnum } from "../_lib/format";
+import { TopupReview } from "./_components/topup-review";
 
-function fmt(v: number) {
-  return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(v / 100);
-}
-function fmtDate(d: Date) {
-  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" }).format(d);
-}
+export const metadata: Metadata = { title: "طلبات الشحن" };
 
-const STATUS_CONFIG: Record<TopupRequestStatus, { label: string; cls: string }> = {
-  PENDING:  { label: "معلق",          cls: "bg-amber-500/10  text-amber-700  border-amber-500/20"  },
-  APPROVED: { label: "تمت الموافقة",  cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20" },
-  REJECTED: { label: "مرفوض",        cls: "bg-rose-500/10   text-rose-700   border-rose-500/20"   },
-};
+const PAGE_SIZE = 20;
+const BASE_PATH = "/admin/topup-requests";
 
-const METHOD_LABELS: Record<TopupMethod, string> = {
-  VODAFONE_CASH: "فودافون كاش",
-  INSTAPAY:      "إنستا باي",
-  BANK_TRANSFER: "تحويل بنكي",
-  KASHIER:       "Kashier",
-};
+export default async function AdminTopupRequestsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  const params = await searchParams;
+  const q = readParam(params, "q");
+  const status = pickEnum(TopupRequestStatus, readParam(params, "status"));
+  const method = pickEnum(TopupMethod, readParam(params, "method"));
 
-export default async function AdminTopupRequestsPage() {
-  await requireAdmin();
+  const baseWhere: Prisma.TopupRequestWhereInput = {
+    ...(method && { method }),
+    ...(q && {
+      OR: [
+        { transferRef: { contains: q, mode: "insensitive" } },
+        { store: { name: { contains: q, mode: "insensitive" } } },
+        { store: { slug: { contains: q, mode: "insensitive" } } },
+        { store: { user: { email: { contains: q, mode: "insensitive" } } } },
+      ],
+    }),
+  };
+  const where = { ...baseWhere, ...(status && { status }) };
+
+  const [grouped, total, pendingSum] = await Promise.all([
+    prisma.topupRequest.groupBy({ by: ["status"], where: baseWhere, _count: { _all: true } }),
+    prisma.topupRequest.count({ where }),
+    prisma.topupRequest.aggregate({ where: { status: "PENDING" }, _sum: { amount: true } }),
+  ]);
+  const counts = Object.fromEntries(grouped.map((g) => [g.status, g._count._all])) as Partial<Record<TopupRequestStatus, number>>;
+  const page = Math.min(readPage(params), Math.max(1, Math.ceil(total / PAGE_SIZE)));
 
   const requests = await prisma.topupRequest.findMany({
-    orderBy: { createdAt: "desc" },
+    where,
+    // Pending first (oldest waiting longest on top), then newest decisions.
+    orderBy: status === "PENDING" ? { createdAt: "asc" } : { createdAt: "desc" },
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
     select: {
-      id: true, amount: true, method: true, status: true,
-      note: true, transferRef: true, receiptImage: true, createdAt: true,
-      store: { select: { id: true, name: true, slug: true, balance: true, user: { select: { email: true } } } },
+      id: true,
+      amount: true,
+      method: true,
+      status: true,
+      note: true,
+      transferRef: true,
+      receiptImage: true,
+      createdAt: true,
+      updatedAt: true,
+      store: { select: { name: true, slug: true, balance: true, user: { select: { email: true } } } },
     },
   });
 
-  const pending  = requests.filter((r) => r.status === "PENDING").length;
-  const approved = requests.filter((r) => r.status === "APPROVED").length;
-  const rejected = requests.filter((r) => r.status === "REJECTED").length;
+  const now = new Date();
+  const filtered = !!(q || status || method);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">طلبات الشحن</h1>
-        <p className="mt-1 text-sm text-muted-foreground">راجع واعتمد أو ارفض طلبات شحن التجار</p>
-      </div>
+      <PageHeader
+        title="طلبات الشحن"
+        description={
+          counts.PENDING
+            ? `${counts.PENDING} طلب مستني مراجعة بإجمالي ${fmtMoney(pendingSum._sum.amount ?? 0)}. اتأكد من التحويل قبل الاعتماد.`
+            : "راجع تحويلات التجار واعتمدها عشان الرصيد يتضاف."
+        }
+      />
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          { label: "معلقة",         value: pending,  icon: Clock3,       cls: "text-amber-600   bg-amber-500/10"   },
-          { label: "موافق عليها",   value: approved, icon: CheckCircle2, cls: "text-emerald-600 bg-emerald-500/10" },
-          { label: "مرفوضة",        value: rejected, icon: XCircle,      cls: "text-rose-600    bg-rose-500/10"    },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border bg-background p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm text-muted-foreground">{s.label}</p>
-                <p className="mt-1 text-2xl font-semibold">{s.value}</p>
+      <div className="space-y-4">
+        <FilterTabs
+          label="حالة الطلب"
+          param="status"
+          basePath={BASE_PATH}
+          searchParams={params}
+          tabs={[
+            { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
+            { label: "مستني مراجعة", value: "PENDING", count: counts.PENDING ?? 0 },
+            { label: "اتعتمد", value: "APPROVED", count: counts.APPROVED ?? 0 },
+            { label: "اترفض", value: "REJECTED", count: counts.REJECTED ?? 0 },
+          ]}
+        />
+
+        <DataCard
+          toolbar={
+            <>
+              <SearchInput placeholder="ابحث بالمتجر أو البريد أو رقم التحويل" />
+              <SelectFilter
+                param="method"
+                allLabel="كل طرق الدفع"
+                label="طريقة الدفع"
+                options={Object.entries(TOPUP_METHOD_LABELS).map(([value, label]) => ({ value, label }))}
+              />
+            </>
+          }
+          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
+        >
+          {requests.length === 0 ? (
+            filtered ? (
+              <EmptyState
+                icon={SearchX}
+                title={status === "PENDING" && !q && !method ? "مفيش طلبات مستنية" : "مفيش طلبات بالفلاتر دي"}
+                description={status === "PENDING" && !q && !method ? "كل طلبات الشحن اتراجعت." : undefined}
+                action={
+                  <Link href={BASE_PATH} className="text-sm text-primary hover:underline">
+                    كل الطلبات
+                  </Link>
+                }
+              />
+            ) : (
+              <EmptyState icon={Wallet} title="مفيش طلبات شحن لسه" description="لما تاجر يحوّل ويرفع الإيصال من صفحة الرصيد هيظهر هنا." />
+            )
+          ) : (
+            <>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className={theadRow}>
+                      <th className={cn(th, "ps-4")}>المتجر</th>
+                      <th className={th}>الطريقة</th>
+                      <th className={cn(th, "hidden lg:table-cell")}>رقم التحويل / ملاحظة</th>
+                      <th className={cn(th, "text-left")}>المبلغ</th>
+                      <th className={th}>الحالة</th>
+                      <th className={cn(th, "pe-4 text-left")} />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {requests.map((r) => (
+                      <tr key={r.id} className="transition-colors hover:bg-muted/40">
+                        <td className="py-3 ps-4">
+                          <Link href={`/admin/stores/${r.store.slug}`} className="font-medium hover:underline">
+                            {r.store.name}
+                          </Link>
+                          <p className="text-xs text-muted-foreground">
+                            رصيده {fmtMoney(r.store.balance)} · <span title={fmtDateTime(r.createdAt)}>{fmtRelative(r.createdAt, now)}</span>
+                          </p>
+                        </td>
+                        <td className="py-3">{TOPUP_METHOD_LABELS[r.method]}</td>
+                        <td className="hidden max-w-56 py-3 lg:table-cell">
+                          <p className="truncate font-mono text-xs" dir="ltr">
+                            {r.transferRef || "—"}
+                          </p>
+                          {r.note && (
+                            <p className="truncate text-xs text-muted-foreground" title={r.note}>
+                              {r.note}
+                            </p>
+                          )}
+                        </td>
+                        <td className="py-3 text-left font-semibold tabular-nums">{fmtMoney(r.amount)}</td>
+                        <td className="py-3">
+                          <StatusPill tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusPill>
+                          {r.status !== "PENDING" && <p className="mt-1 text-xs text-muted-foreground">{fmtRelative(r.updatedAt, now)}</p>}
+                        </td>
+                        <td className="py-3 pe-4">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {r.receiptImage && (
+                              <Button asChild variant="ghost" size="sm" className="h-8">
+                                <a href={r.receiptImage} target="_blank" rel="noreferrer">
+                                  <ImageIcon className="size-3.5" />
+                                  الإيصال
+                                </a>
+                              </Button>
+                            )}
+                            {r.status === "PENDING" && <TopupReview id={r.id} amountLabel={fmtMoney(r.amount)} storeName={r.store.name} />}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div className={cn("flex size-10 items-center justify-center rounded-lg", s.cls)}>
-                <s.icon className="size-5" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Requests */}
-      <div className="rounded-xl border bg-background shadow-sm">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">كل الطلبات</h2>
-          <p className="text-sm text-muted-foreground">{requests.length} طلب إجمالاً</p>
-        </div>
-
-        {requests.length === 0 ? (
-          <div className="p-10 text-center">
-            <Wallet className="mx-auto size-8 text-muted-foreground/40" />
-            <p className="mt-3 text-sm text-muted-foreground">لا توجد طلبات شحن بعد</p>
-          </div>
-        ) : (
-          <div className="divide-y">
-            {requests.map((req) => {
-              const cfg = STATUS_CONFIG[req.status];
-              const isPending = req.status === "PENDING";
-
-              return (
-                <div key={req.id} className="p-6">
-                  <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                    {/* Left info */}
-                    <div className="flex-1 space-y-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline" className={cn("rounded-full border text-xs", cfg.cls)}>
-                          {cfg.label}
-                        </Badge>
-                        <Badge variant="outline" className="rounded-full text-xs">
-                          {METHOD_LABELS[req.method] ?? req.method}
-                        </Badge>
-                        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold">
-                          {fmt(req.amount)}
-                        </span>
-                      </div>
-
-                      <div>
-                        <p className="font-medium">{req.store.name}</p>
-                        <p className="text-sm text-muted-foreground">{req.store.user.email}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          رصيد حالي: {fmt(req.store.balance)} · {fmtDate(req.createdAt)}
-                        </p>
-                      </div>
-
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        <div className="rounded-lg bg-muted/50 px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground">رقم التحويل</p>
-                          <p className="mt-0.5 text-sm font-medium">{req.transferRef || "—"}</p>
-                        </div>
-                        <div className="rounded-lg bg-muted/50 px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground">ملاحظة</p>
-                          <p className="mt-0.5 text-sm font-medium">{req.note || "—"}</p>
-                        </div>
-                      </div>
+              <ul className="divide-y divide-border md:hidden">
+                {requests.map((r) => (
+                  <li key={r.id} className="space-y-2 px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <Link href={`/admin/stores/${r.store.slug}`} className="min-w-0 truncate font-medium">
+                        {r.store.name}
+                      </Link>
+                      <span className="shrink-0 font-semibold tabular-nums">{fmtMoney(r.amount)}</span>
                     </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-2 lg:flex-col lg:w-44">
-                      <Button asChild variant="outline" size="sm" className="rounded-lg">
-                        <Link href={`/admin/stores/${req.store.slug}`}>
-                          <ExternalLink className="me-1.5 size-3.5" />
-                          المتجر
-                        </Link>
-                      </Button>
-
-                      {req.receiptImage && (
-                        <Button asChild variant="outline" size="sm" className="rounded-lg">
-                          <a href={req.receiptImage} target="_blank" rel="noreferrer">
-                            <ImageIcon className="me-1.5 size-3.5" />
-                            الإيصال
-                          </a>
-                        </Button>
-                      )}
-
-                      {isPending && (
-                        <>
-                          <form action={async () => { "use server"; await approveTopupRequestAction(req.id); }}>
-                            <Button size="sm" className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white">
-                              <CheckCircle2 className="me-1.5 size-3.5" />
-                              اعتماد
-                            </Button>
-                          </form>
-                          <form action={async () => { "use server"; await rejectTopupRequestAction(req.id); }}>
-                            <Button size="sm" variant="destructive" className="w-full rounded-lg">
-                              <XCircle className="me-1.5 size-3.5" />
-                              رفض
-                            </Button>
-                          </form>
-                        </>
-                      )}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <StatusPill tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusPill>
+                      <span>{TOPUP_METHOD_LABELS[r.method]}</span>
+                      <span>· {fmtRelative(r.createdAt, now)}</span>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                    {r.transferRef && (
+                      <p className="font-mono text-xs" dir="ltr">
+                        {r.transferRef}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between gap-2">
+                      {r.receiptImage ? (
+                        <a href={r.receiptImage} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                          <ImageIcon className="size-3.5" />
+                          الإيصال
+                        </a>
+                      ) : (
+                        <span />
+                      )}
+                      {r.status === "PENDING" && <TopupReview id={r.id} amountLabel={fmtMoney(r.amount)} storeName={r.store.name} />}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </DataCard>
       </div>
     </div>
   );
