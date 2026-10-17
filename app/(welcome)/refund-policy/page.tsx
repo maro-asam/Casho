@@ -88,16 +88,7 @@ export default function RefundPolicyPage() {
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-2">٧. بوابة الدفع</h2>
-          <p>
-            تتم جميع عمليات الدفع وإعادة الأموال عبر بوابة الدفع <strong>Kashier</strong>.
-            قد تخضع عمليات الاسترداد لسياسات وإجراءات Kashier الخاصة فيما يتعلق
-            بالتوقيت والتنفيذ.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-2">٨. تعديل السياسة</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-2">٧. تعديل السياسة</h2>
           <p>
             نحتفظ بالحق في تعديل هذه السياسة في أي وقت. سيتم إخطارك بأي تغييرات
             جوهرية عبر البريد الإلكتروني المسجّل لحسابك.

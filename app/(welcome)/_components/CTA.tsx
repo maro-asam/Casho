@@ -41,7 +41,7 @@ export default function CTASection() {
 
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
                 <Button asChild size="lg" className="h-12 rounded-xl px-8 text-sm font-medium shadow-sm">
-                  <Link href="/signup">
+                  <Link href="/register">
                     {cta.ctaPrimary}
                     <ArrowLeft className="ms-2 size-4.5" />
                   </Link>

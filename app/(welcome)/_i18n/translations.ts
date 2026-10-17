@@ -413,9 +413,10 @@ export const translations = {
           { name: "الأسئلة الشائعة", href: "#faq" },
         ],
         company: [
-          { name: "عن كاشو", href: "#" },
-          { name: "ابدأ دلوقتي", href: "/signup" },
+          { name: "عن كاشو", href: "/about" },
+          { name: "ابدأ دلوقتي", href: "/register" },
           { name: "تسجيل الدخول", href: "/login" },
+          { name: "تواصل معانا", href: "/contact-us" },
         ],
         legal: [
           { name: "سياسة الخصوصية", href: "/privacy-policy" },
@@ -841,9 +842,10 @@ export const translations = {
           { name: "FAQ", href: "#faq" },
         ],
         company: [
-          { name: "About Casho", href: "#" },
-          { name: "Get Started", href: "/signup" },
+          { name: "About Casho", href: "/about" },
+          { name: "Get Started", href: "/register" },
           { name: "Sign In", href: "/login" },
+          { name: "Contact Us", href: "/contact-us" },
         ],
         legal: [
           { name: "Privacy Policy", href: "/privacy-policy" },
