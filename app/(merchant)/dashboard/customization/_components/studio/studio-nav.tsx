@@ -13,6 +13,7 @@ import {
   UserSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 export const STUDIO_TABS = [
   "overview",
@@ -32,37 +33,37 @@ export const isStudioTab = (v: string | undefined): v is StudioTab => !!v && STU
 type NavItem = { tab: StudioTab; label: string; icon: LucideIcon; badge?: string };
 
 const GROUPS: { label: string | null; items: NavItem[] }[] = [
-  { label: null, items: [{ tab: "overview", label: "نظرة عامة", icon: Gauge }] },
+  { label: null, items: [{ tab: "overview", get label() { return tr("نظرة عامة"); }, icon: Gauge }] },
   {
-    label: "المظهر",
+    get label() { return tr("المظهر"); },
     items: [
-      { tab: "theme", label: "الثيم", icon: Palette },
-      { tab: "colors", label: "الألوان", icon: Droplets },
-      { tab: "fonts", label: "الخطوط واللغة", icon: Type },
-      { tab: "design", label: "شكل العرض", icon: LayoutGrid },
+      { tab: "theme", get label() { return tr("الثيم"); }, icon: Palette },
+      { tab: "colors", get label() { return tr("الألوان"); }, icon: Droplets },
+      { tab: "fonts", get label() { return tr("الخطوط واللغة"); }, icon: Type },
+      { tab: "design", get label() { return tr("شكل العرض"); }, icon: LayoutGrid },
     ],
   },
   {
-    label: "المحتوى",
+    get label() { return tr("المحتوى"); },
     items: [
-      { tab: "identity", label: "الهوية واللوجو", icon: UserSquare },
-      { tab: "sections", label: "أقسام الرئيسية", icon: Layers },
+      { tab: "identity", get label() { return tr("الهوية واللوجو"); }, icon: UserSquare },
+      { tab: "sections", get label() { return tr("أقسام الرئيسية"); }, icon: Layers },
     ],
   },
   {
-    label: "زوّد مبيعاتك",
+    get label() { return tr("زوّد مبيعاتك"); },
     items: [
-      { tab: "popups", label: "النوافذ المنبثقة", icon: Sparkles, badge: "جديد" },
-      { tab: "whatsapp", label: "زر واتساب", icon: MessageCircle },
-      { tab: "social-proof", label: "إشعارات الشراء", icon: ShoppingBag },
+      { tab: "popups", get label() { return tr("النوافذ المنبثقة"); }, icon: Sparkles, get badge() { return tr("جديد"); } },
+      { tab: "whatsapp", get label() { return tr("زر واتساب"); }, icon: MessageCircle },
+      { tab: "social-proof", get label() { return tr("إشعارات الشراء"); }, icon: ShoppingBag },
     ],
   },
 ];
 
-export const STUDIO_LABELS = Object.fromEntries(GROUPS.flatMap((g) => g.items.map((i) => [i.tab, i.label]))) as Record<
-  StudioTab,
-  string
->;
+// Read lazily so each label comes out in the active dashboard language.
+export const STUDIO_LABELS = new Proxy({} as Record<StudioTab, string>, {
+  get: (_, tab) => GROUPS.flatMap((g) => g.items).find((i) => i.tab === tab)?.label,
+});
 
 export const studioHref = (tab: StudioTab) => (tab === "overview" ? "/customization" : `/customization?tab=${tab}`);
 
@@ -79,7 +80,7 @@ export function StudioNav({
   const groups = GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => !hidden.includes(i.tab)) })).filter((g) => g.items.length);
   return (
     <>
-      <nav aria-label="أقسام التخصيص" className="-mx-4 overflow-x-auto px-4 lg:hidden">
+      <nav aria-label={tr("أقسام التخصيص")} className="-mx-4 overflow-x-auto px-4 lg:hidden">
         <ul className="flex w-max gap-1.5 pb-1">
           {groups.flatMap((g) => g.items).map((item) => (
             <li key={item.tab}>
@@ -102,7 +103,7 @@ export function StudioNav({
         </ul>
       </nav>
 
-      <nav aria-label="أقسام التخصيص" className="sticky top-20 hidden space-y-5 lg:block">
+      <nav aria-label={tr("أقسام التخصيص")} className="sticky top-20 hidden space-y-5 lg:block">
         {groups.map((group, i) => (
           <div key={i} className="space-y-1">
             {group.label && <p className="px-3 pb-1 text-[11px] font-medium text-muted-foreground">{group.label}</p>}
@@ -128,7 +129,7 @@ export function StudioNav({
                   {on !== undefined && (
                     <span
                       className={cn("size-1.5 rounded-full", on ? "bg-emerald-500" : "bg-muted-foreground/30")}
-                      aria-label={on ? "مفعّل" : "متوقف"}
+                      aria-label={on ? tr("مفعّل") : tr("متوقف")}
                     />
                   )}
                 </Link>

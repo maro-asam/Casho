@@ -3,20 +3,26 @@ import { PageHeader, readParam, type SearchParamsRecord } from "@/components/saa
 import { GetShopifyImportStateAction } from "@/actions/integrations/shopify-import.actions";
 import { ImportHistory } from "./_components/ImportHistory";
 import { ShopifyImportClient } from "./_components/ShopifyImportClient";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "استيراد من Shopify",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("استيراد من Shopify"),
 };
+}
 
 export default async function ShopifyImportPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await loadDashboardLocale();
   const params = await searchParams;
   const state = await GetShopifyImportStateAction();
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="استيراد من Shopify"
-        description="انقل منتجاتك وعملاءك وطلباتك من Shopify لمتجرك على Kasho — من غير تكرار ومن غير ما تقعد جنب الصفحة."
+        title={tr("استيراد من Shopify")}
+        description={tr("انقل منتجاتك وعملاءك وطلباتك من Shopify لمتجرك على Kasho — من غير تكرار ومن غير ما تقعد جنب الصفحة.")}
       />
 
       {!state.ok ? (

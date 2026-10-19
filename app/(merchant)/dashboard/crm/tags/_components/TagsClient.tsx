@@ -23,6 +23,7 @@ import {
 
 import { CreateTagAction, DeleteTagAction } from "@/actions/crm/customer-tags.actions";
 import { cn } from "@/lib/utils";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type TagItem = {
   id: string;
@@ -45,16 +46,16 @@ export function TagsClient({ tags }: { tags: TagItem[] }) {
   const [color, setColor] = useState(PRESET_COLORS[0]);
 
   const handleCreate = () => {
-    if (!name.trim()) { toast.error("اسم العلامة مطلوب"); return; }
+    if (!name.trim()) { toast.error(tr("اسم العلامة مطلوب")); return; }
     startTransition(async () => {
       const res = await CreateTagAction(name.trim(), color);
       if (res.success) {
-        toast.success("تم إنشاء العلامة");
+        toast.success(tr("تم إنشاء العلامة"));
         setName("");
         setColor(PRESET_COLORS[0]);
         router.refresh();
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   };
@@ -62,8 +63,8 @@ export function TagsClient({ tags }: { tags: TagItem[] }) {
   const handleDelete = (id: string) => {
     startTransition(async () => {
       const res = await DeleteTagAction(id);
-      if (res.success) { toast.success("تم حذف العلامة"); router.refresh(); }
-      else toast.error(res.message);
+      if (res.success) { toast.success(tr("تم حذف العلامة")); router.refresh(); }
+      else toast.error(trv(res.message));
     });
   };
 
@@ -71,19 +72,19 @@ export function TagsClient({ tags }: { tags: TagItem[] }) {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {/* Create form */}
       <Card className="p-5 lg:col-span-1 h-fit">
-        <h2 className="mb-4 text-sm font-semibold">إنشاء علامة جديدة</h2>
+        <h2 className="mb-4 text-sm font-semibold">{tr("إنشاء علامة جديدة")}</h2>
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label>اسم العلامة *</Label>
+            <Label>{tr("اسم العلامة *")}</Label>
             <Input
-              placeholder="مثال: VIP، عميل جملة"
+              placeholder={tr("مثال: VIP، عميل جملة")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
           </div>
           <div className="space-y-1.5">
-            <Label>اللون</Label>
+            <Label>{tr("اللون")}</Label>
             <div className="flex flex-wrap gap-2">
               {PRESET_COLORS.map((c) => (
                 <button
@@ -116,7 +117,7 @@ export function TagsClient({ tags }: { tags: TagItem[] }) {
             className="w-full gap-2"
           >
             <Plus className="size-4" />
-            {pending ? "جاري الحفظ..." : "إنشاء العلامة"}
+            {pending ? tr("جاري الحفظ...") : tr("إنشاء العلامة")}
           </Button>
         </div>
       </Card>
@@ -127,8 +128,8 @@ export function TagsClient({ tags }: { tags: TagItem[] }) {
           <Card className="py-16">
             <div className="flex flex-col items-center gap-3 text-center">
               <Tag className="size-12 text-muted-foreground/30" />
-              <p className="font-medium">لا توجد علامات بعد</p>
-              <p className="text-sm text-muted-foreground">أنشئ أول علامة لتصنيف عملائك</p>
+              <p className="font-medium">{tr("لا توجد علامات بعد")}</p>
+              <p className="text-sm text-muted-foreground">{tr("أنشئ أول علامة لتصنيف عملائك")}</p>
             </div>
           </Card>
         ) : (
@@ -153,7 +154,7 @@ export function TagsClient({ tags }: { tags: TagItem[] }) {
                   </p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Users className="size-3" />
-                    <span>{tag._count.assignments} عميل</span>
+                    <span>{tr("{0} عميل", tag._count.assignments)}</span>
                   </div>
                 </div>
 
@@ -168,20 +169,20 @@ export function TagsClient({ tags }: { tags: TagItem[] }) {
                       <Trash2 className="size-3.5" />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent dir="rtl">
+                  <AlertDialogContent dir={tdir()}>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>حذف العلامة</AlertDialogTitle>
+                      <AlertDialogTitle>{tr("حذف العلامة")}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        سيتم حذف علامة «{tag.name}» وإزالتها من {tag._count.assignments} عميل. لا يمكن التراجع.
+                        {tr("سيتم حذف علامة «{0}» وإزالتها من {1} عميل. لا يمكن التراجع.", tag.name, tag._count.assignments)}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                      <AlertDialogCancel>{tr("إلغاء")}</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => handleDelete(tag.id)}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >
-                        حذف
+                        {tr("حذف")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

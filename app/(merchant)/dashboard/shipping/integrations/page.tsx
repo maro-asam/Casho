@@ -1,35 +1,72 @@
-import { Metadata } from "next";
-import { PackageSearch } from "lucide-react";
-import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { GetShippingIntegrationsAction } from "@/actions/shipping-integrations.actions";
-import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-import ShippingIntegrationsClient from "./_components/ShippingIntegrationsClient";
+import Link from "next/link";
+import type { Metadata } from "next";
+import { PackageCheck } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "ربط شركات الشحن",
-  description: "ربط حسابات Bosta و Aramex لإنشاء بوالص الشحن تلقائياً",
+import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/saas-page";
+import { prisma } from "@/lib/prisma";
+import { getStoreCarriers } from "@/lib/shipping/store-carriers";
+import { ACTIVE_SHIPMENT_STATUSES } from "@/lib/shipping/shipment-status";
+import ShippingIntegrationsClient, { type CarrierStats } from "./_components/ShippingIntegrationsClient";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
+
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("شركات الشحن"),
+  description: tr("اربط شركات الشحن المصرية واشحن طلباتك وتابع التحصيل من مكان واحد"),
 };
+}
 
 export default async function ShippingIntegrationsPage() {
-  await requireUserId();
-  const integrations = await GetShippingIntegrationsAction();
+  await loadDashboardLocale();
+  const userId = await requireUserId();
+  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
 
-  const connected = Object.fromEntries(
-    integrations.map((i) => [i.provider, i]),
-  ) as Record<
-    string,
-    { id: string; provider: string; isActive: boolean; hint: string }
-  >;
+  const [connected, active, delivered, codOutstanding] = store
+    ? await Promise.all([
+        getStoreCarriers(store.id),
+        prisma.shipment.groupBy({
+          by: ["provider"],
+          where: { storeId: store.id, status: { in: ACTIVE_SHIPMENT_STATUSES } },
+          _count: { _all: true },
+        }),
+        prisma.shipment.groupBy({
+          by: ["provider"],
+          where: { storeId: store.id, status: "DELIVERED" },
+          _count: { _all: true },
+        }),
+        prisma.shipment.groupBy({
+          by: ["provider"],
+          where: { storeId: store.id, status: "DELIVERED", codAmount: { gt: 0 }, codCollectedAt: null },
+          _sum: { codAmount: true },
+        }),
+      ])
+    : [[], [], [], []];
+
+  const stats: Record<string, CarrierStats> = {};
+  const statFor = (provider: string) => (stats[provider.toUpperCase()] ??= { active: 0, delivered: 0, codOutstanding: 0 });
+  for (const row of active) statFor(row.provider).active += row._count._all;
+  for (const row of delivered) statFor(row.provider).delivered += row._count._all;
+  for (const row of codOutstanding) statFor(row.provider).codOutstanding += row._sum.codAmount ?? 0;
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <DashboardSectionHeader
-        icon={PackageSearch}
-        title="ربط شركات الشحن"
-        badge={integrations.filter((i) => i.isActive).length}
-        description="اربط حسابات Bosta أو Aramex لإنشاء بوالص شحن تلقائياً من داخل الطلبات"
+    <div className="space-y-8" dir={tdir()}>
+      <PageHeader
+        title={tr("شركات الشحن")}
+        description={tr("اربط شركات الشحن اللي بتتعامل معاها، واشحن أي طلب منها بضغطة من صفحة الطلب.")}
+        actions={
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <Link href="/shipping/shipments">
+              <PackageCheck className="size-4" />
+              {tr("الشحنات")}
+            </Link>
+          </Button>
+        }
       />
-      <ShippingIntegrationsClient connected={connected} />
+      <ShippingIntegrationsClient connected={connected} stats={stats} />
     </div>
   );
 }

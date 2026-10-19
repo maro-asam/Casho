@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { formatCouponValue } from "@/lib/coupons/coupon-status";
 import { cn } from "@/lib/utils";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
 
 export type EditableCoupon = {
   id: string;
@@ -28,7 +29,7 @@ export type EditableCoupon = {
   isActive: boolean;
 };
 
-const nf = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 });
+const nf = lazyIntl.number({ maximumFractionDigits: 2 });
 
 /** ISO → <input type="datetime-local"> value in the merchant's timezone. */
 function toLocalInput(iso: string | null) {
@@ -61,7 +62,7 @@ export function UrlCouponDialog({ mode, coupon }: { mode: "new" | "edit" | null;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close()}>
-      <DialogContent dir="rtl" className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent dir={tdir()} className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
         {open && <CouponForm key={coupon?.id ?? "new"} coupon={mode === "edit" ? coupon : null} onDone={close} />}
       </DialogContent>
     </Dialog>
@@ -89,10 +90,10 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
   const summary =
     numericValue > 0
       ? [
-          `خصم ${formatCouponValue(type, numericValue)}`,
-          type === "PERCENTAGE" && Number(maxDiscount) > 0 && `بحد أقصى ${nf.format(Number(maxDiscount))} ج.م`,
-          Number(minSubtotal) > 0 && `على الطلبات من ${nf.format(Number(minSubtotal))} ج.م`,
-          Number(usageLimit) > 0 && `لأول ${nf.format(Number(usageLimit))} طلب`,
+          tr("خصم {0}", formatCouponValue(type, numericValue)),
+          type === "PERCENTAGE" && Number(maxDiscount) > 0 && tr("بحد أقصى {0} ج.م", nf.format(Number(maxDiscount))),
+          Number(minSubtotal) > 0 && tr("على الطلبات من {0} ج.م", nf.format(Number(minSubtotal))),
+          Number(usageLimit) > 0 && tr("لأول {0} طلب", nf.format(Number(usageLimit))),
         ]
           .filter(Boolean)
           .join(" ")
@@ -117,7 +118,7 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
         setError(result.message);
         return;
       }
-      toast.success(coupon ? "اتحفظ الكود" : `اتعمل كود ${code.trim().toUpperCase()}`);
+      toast.success(coupon ? tr("اتحفظ الكود") : tr("اتعمل كود {0}", code.trim().toUpperCase()));
       onDone();
       router.refresh();
     });
@@ -125,13 +126,13 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
 
   return (
     <form onSubmit={submit} className="min-w-0 space-y-5">
-      <DialogHeader className="text-right sm:text-right">
-        <DialogTitle>{coupon ? "تعديل كود الخصم" : "كود خصم جديد"}</DialogTitle>
-        <DialogDescription>العميل بيكتبه في السلة — أو يدخل من لينك الكود وبيتطبق لوحده.</DialogDescription>
+      <DialogHeader className="text-start sm:text-start">
+        <DialogTitle>{coupon ? tr("تعديل كود الخصم") : tr("كود خصم جديد")}</DialogTitle>
+        <DialogDescription>{tr("العميل بيكتبه في السلة — أو يدخل من لينك الكود وبيتطبق لوحده.")}</DialogDescription>
       </DialogHeader>
 
       <div className="space-y-2">
-        <Label htmlFor="coupon-code">الكود</Label>
+        <Label htmlFor="coupon-code">{tr("الكود")}</Label>
         <div className="flex gap-2" dir="ltr">
           <Input
             id="coupon-code"
@@ -146,22 +147,22 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
           {!codeLocked && (
             <Button type="button" variant="outline" className="h-10 gap-1.5" onClick={() => setCode(randomCode())}>
               <Shuffle className="size-4" />
-              <span dir="rtl">عشوائي</span>
+              <span dir={tdir()}>{tr("عشوائي")}</span>
             </Button>
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          {codeLocked ? `اتستخدم ${nf.format(coupon!.usedCount)} مرة، فاسمه مقفول.` : "حروف إنجليزي وأرقام — سهل يتكتب ويتفتكر."}
+          {codeLocked ? tr("اتستخدم {0} مرة، فاسمه مقفول.", nf.format(coupon!.usedCount)) : tr("حروف إنجليزي وأرقام — سهل يتكتب ويتفتكر.")}
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label>نوع الخصم</Label>
+        <Label>{tr("نوع الخصم")}</Label>
         <div className="grid grid-cols-2 gap-2">
           {(
             [
-              ["PERCENTAGE", "نسبة مئوية", "مثال: ١٠٪"],
-              ["FIXED", "مبلغ ثابت", "مثال: ٥٠ ج.م"],
+              ["PERCENTAGE", tr("نسبة مئوية"), tr("مثال: ١٠٪")],
+              ["FIXED", tr("مبلغ ثابت"), tr("مثال: ٥٠ ج.م")],
             ] as const
           ).map(([v, label, hint]) => (
             <button
@@ -170,7 +171,7 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
               onClick={() => setType(v)}
               aria-pressed={type === v}
               className={cn(
-                "rounded-lg border p-3 text-right transition-colors",
+                "rounded-lg border p-3 text-start transition-colors",
                 type === v ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30",
               )}
             >
@@ -184,31 +185,31 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
       <div className="grid gap-4 sm:grid-cols-2">
         <MoneyField
           id="coupon-value"
-          label={type === "PERCENTAGE" ? "النسبة" : "المبلغ"}
-          suffix={type === "PERCENTAGE" ? "٪" : "ج.م"}
+          label={type === "PERCENTAGE" ? tr("النسبة") : tr("المبلغ")}
+          suffix={type === "PERCENTAGE" ? tr("٪") : tr("ج.م")}
           value={value}
           onChange={setValue}
           max={type === "PERCENTAGE" ? 100 : undefined}
         />
         {type === "PERCENTAGE" ? (
-          <MoneyField id="coupon-max" label="أقصى خصم" hint="اختياري" suffix="ج.م" value={maxDiscount} onChange={setMaxDiscount} />
+          <MoneyField id="coupon-max" label={tr("أقصى خصم")} hint={tr("اختياري")} suffix={tr("ج.م")} value={maxDiscount} onChange={setMaxDiscount} />
         ) : (
           <div className="hidden sm:block" />
         )}
-        <MoneyField id="coupon-min" label="أقل قيمة للطلب" hint="اختياري" suffix="ج.م" value={minSubtotal} onChange={setMinSubtotal} />
-        <MoneyField id="coupon-limit" label="عدد مرات الاستخدام" hint="فاضي = مفتوح" suffix="مرة" value={usageLimit} onChange={setUsageLimit} integer />
+        <MoneyField id="coupon-min" label={tr("أقل قيمة للطلب")} hint={tr("اختياري")} suffix={tr("ج.م")} value={minSubtotal} onChange={setMinSubtotal} />
+        <MoneyField id="coupon-limit" label={tr("عدد مرات الاستخدام")} hint={tr("فاضي = مفتوح")} suffix={tr("مرة")} value={usageLimit} onChange={setUsageLimit} integer />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="coupon-start" className="text-xs">
-            يبدأ <span className="font-normal text-muted-foreground">(اختياري)</span>
+            {tr("يبدأ")}{" "}<span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>
           </Label>
           <Input id="coupon-start" type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} className="text-xs" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="coupon-end" className="text-xs">
-            ينتهي <span className="font-normal text-muted-foreground">(اختياري)</span>
+            {tr("ينتهي")}{" "}<span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>
           </Label>
           <Input id="coupon-end" type="datetime-local" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} className="text-xs" />
         </div>
@@ -216,15 +217,15 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
 
       <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-border p-3">
         <span>
-          <span className="block text-sm font-medium">شغّال</span>
-          <span className="block text-xs text-muted-foreground">لو قفلته، الكود يفضل محفوظ بس محدش يقدر يستخدمه.</span>
+          <span className="block text-sm font-medium">{tr("شغّال")}</span>
+          <span className="block text-xs text-muted-foreground">{tr("لو قفلته، الكود يفضل محفوظ بس محدش يقدر يستخدمه.")}</span>
         </span>
         <Switch checked={isActive} onCheckedChange={setIsActive} />
       </label>
 
       {summary && (
         <p className="rounded-lg bg-muted/60 px-3 py-2 text-sm">
-          <span className="text-muted-foreground">العميل هياخد: </span>
+          <span className="text-muted-foreground">{tr("العميل هياخد:")}{" "}</span>
           {summary}
         </p>
       )}
@@ -234,10 +235,10 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
       <DialogFooter className="gap-2 sm:justify-start">
         <Button type="submit" disabled={pending} className="gap-1.5">
           {pending && <Loader2 className="size-4 animate-spin" />}
-          {coupon ? "حفظ التعديلات" : "إنشاء الكود"}
+          {coupon ? tr("حفظ التعديلات") : tr("إنشاء الكود")}
         </Button>
         <Button type="button" variant="outline" onClick={onDone} disabled={pending}>
-          إلغاء
+          {tr("إلغاء")}
         </Button>
       </DialogFooter>
     </form>

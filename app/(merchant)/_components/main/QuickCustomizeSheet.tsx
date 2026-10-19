@@ -35,6 +35,7 @@ import {
   UpdateStoreColorsAction,
 } from "@/actions/settings/theme.actions";
 import { cn } from "@/lib/utils";
+import { isRtl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Settings = {
   themeId: string | null;
@@ -58,28 +59,28 @@ export default function QuickCustomizeSheet({ storeId, settings }: Props) {
       <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
           <PaintRoller className="size-3.5" />
-          <span className="hidden sm:inline">تخصيص المتجر</span>
+          <span className="hidden sm:inline">{tr("تخصيص المتجر")}</span>
         </Button>
       </SheetTrigger>
 
       <SheetContent
-        side="right"
-        dir="rtl"
+        side={isRtl() ? "right" : "left"}
+        dir={tdir()}
         className="flex w-full flex-col gap-0 p-0 sm:max-w-lg"
       >
         <SheetHeader className="border-b px-5 py-4">
           <SheetTitle className="flex items-center gap-2 text-base">
             <PaintRoller className="size-4 text-primary" />
-            تخصيص المتجر
+            {tr("تخصيص المتجر")}
           </SheetTitle>
         </SheetHeader>
 
         <Tabs defaultValue="theme" className="flex min-h-0 flex-1 flex-col">
           <TabsList className="mx-4 mt-4 grid h-9 w-auto grid-cols-4 shrink-0 rounded-lg">
-            <TabsTrigger value="theme" className="text-xs">ثيم</TabsTrigger>
-            <TabsTrigger value="font" className="text-xs">خطوط</TabsTrigger>
-            <TabsTrigger value="navbar" className="text-xs">قائمة</TabsTrigger>
-            <TabsTrigger value="colors" className="text-xs">ألوان</TabsTrigger>
+            <TabsTrigger value="theme" className="text-xs">{tr("ثيم")}</TabsTrigger>
+            <TabsTrigger value="font" className="text-xs">{tr("خطوط")}</TabsTrigger>
+            <TabsTrigger value="navbar" className="text-xs">{tr("قائمة")}</TabsTrigger>
+            <TabsTrigger value="colors" className="text-xs">{tr("ألوان")}</TabsTrigger>
           </TabsList>
 
           <div className="flex-1 overflow-y-auto">
@@ -113,8 +114,8 @@ export default function QuickCustomizeSheet({ storeId, settings }: Props) {
         <div className="shrink-0 border-t px-5 py-3">
           <Button asChild variant="ghost" size="sm" className="w-full justify-between text-xs text-muted-foreground">
             <Link href="/customization">
-              عرض كل خيارات التخصيص
-              <ArrowLeft className="size-3.5" />
+              {tr("عرض كل خيارات التخصيص")}
+              <ArrowLeft className="size-3.5 ltr:-scale-x-100" />
             </Link>
           </Button>
         </div>
@@ -134,8 +135,8 @@ function ThemeSection({ storeId, currentThemeId }: { storeId: string; currentThe
     if (themeId === activeId || isPending) return;
     startTransition(async () => {
       const res = await UpdateStoreThemeAction({ storeId, themeId });
-      if (res.success) { toast.success(res.message); router.refresh(); }
-      else toast.error(res.message);
+      if (res.success) { toast.success(trv(res.message)); router.refresh(); }
+      else toast.error(trv(res.message));
     });
   }
 
@@ -159,7 +160,7 @@ function ThemeSection({ storeId, currentThemeId }: { storeId: string; currentThe
             onClick={() => select(theme.id)}
             style={vars}
             className={cn(
-              "relative overflow-hidden rounded-xl border text-right transition-all duration-200 disabled:pointer-events-none disabled:opacity-60",
+              "relative overflow-hidden rounded-xl border text-start transition-all duration-200 disabled:pointer-events-none disabled:opacity-60",
               active
                 ? "border-primary ring-2 ring-primary/20 shadow-md"
                 : "border-border hover:border-primary/50 hover:shadow-md",
@@ -182,10 +183,10 @@ function ThemeSection({ storeId, currentThemeId }: { storeId: string; currentThe
               <span className="text-xs font-semibold">{theme.name}</span>
               {active ? (
                 <span className="flex items-center gap-1 text-[10px] font-medium text-primary">
-                  <Check className="size-3" /> مُفعّل
+                  <Check className="size-3" />{" "}{tr("مُفعّل")}
                 </span>
               ) : (
-                <span className="text-[10px] text-muted-foreground">تفعيل ←</span>
+                <span className="text-[10px] text-muted-foreground">{tr("تفعيل ←")}</span>
               )}
             </div>
             {/* Loading overlay */}
@@ -211,8 +212,8 @@ function FontSection({ storeId, currentFontId }: { storeId: string; currentFontI
     if (fontId === activeId || isPending) return;
     startTransition(async () => {
       const res = await UpdateStoreFontAction({ storeId, fontId });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   }
 
@@ -233,7 +234,7 @@ function FontSection({ storeId, currentFontId }: { storeId: string; currentFontI
               disabled={isPending}
               onClick={() => select(font.id as ArabicFontId)}
               className={cn(
-                "relative flex flex-col gap-1.5 rounded-xl border p-3 text-right transition-all duration-200",
+                "relative flex flex-col gap-1.5 rounded-xl border p-3 text-start transition-all duration-200",
                 "disabled:pointer-events-none disabled:opacity-60",
                 active
                   ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
@@ -247,10 +248,10 @@ function FontSection({ storeId, currentFontId }: { storeId: string; currentFontI
                 <span className="text-[11px] text-muted-foreground" dir="ltr">{font.name}</span>
                 {active ? (
                   <span className="flex items-center gap-1 text-[10px] font-medium text-primary">
-                    <Check className="size-3" /> مُفعّل
+                    <Check className="size-3" />{" "}{tr("مُفعّل")}
                   </span>
                 ) : (
-                  <span className="text-[10px] text-muted-foreground">تفعيل ←</span>
+                  <span className="text-[10px] text-muted-foreground">{tr("تفعيل ←")}</span>
                 )}
               </div>
               {isPending && active && (
@@ -276,8 +277,8 @@ function NavbarSection({ storeId, currentVariant }: { storeId: string; currentVa
     if (variant === active || isPending) return;
     startTransition(async () => {
       const res = await UpdateNavbarVariantAction({ storeId, variant });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   }
 
@@ -292,7 +293,7 @@ function NavbarSection({ storeId, currentVariant }: { storeId: string; currentVa
             disabled={isPending}
             onClick={() => select(item.value)}
             className={cn(
-              "flex items-center gap-3 rounded-xl border p-4 text-right transition-all duration-200",
+              "flex items-center gap-3 rounded-xl border p-4 text-start transition-all duration-200",
               "disabled:pointer-events-none disabled:opacity-60",
               isActive
                 ? "border-primary bg-primary/5 ring-2 ring-primary/20"
@@ -306,7 +307,7 @@ function NavbarSection({ storeId, currentVariant }: { storeId: string; currentVa
               <p className="text-sm font-semibold">{item.label}</p>
               <p className="text-xs text-muted-foreground">{item.description}</p>
             </div>
-            {isActive && <span className="text-[10px] font-medium text-primary">مُفعّل</span>}
+            {isActive && <span className="text-[10px] font-medium text-primary">{tr("مُفعّل")}</span>}
           </button>
         );
       })}
@@ -324,8 +325,8 @@ function ColorsSection({ storeId, primaryColor, secondaryColor }: { storeId: str
   function save() {
     startTransition(async () => {
       const res = await UpdateStoreColorsAction({ storeId, primaryColor: primary, secondaryColor: secondary });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   }
 
@@ -336,7 +337,7 @@ function ColorsSection({ storeId, primaryColor, secondaryColor }: { storeId: str
         <div className="flex h-10 items-center justify-between px-4" style={{ background: primary }}>
           <div className="h-2.5 w-14 rounded-full" style={{ background: "rgba(255,255,255,.75)" }} />
           <div className="flex h-6 w-16 items-center justify-center rounded-lg text-[10px] font-bold" style={{ background: secondary, color: primary }}>
-            تسوق الآن
+            {tr("تسوق الآن")}
           </div>
         </div>
       </div>
@@ -344,7 +345,7 @@ function ColorsSection({ storeId, primaryColor, secondaryColor }: { storeId: str
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Primary */}
         <div className="space-y-2">
-          <Label className="text-xs">اللون الأساسي</Label>
+          <Label className="text-xs">{tr("اللون الأساسي")}</Label>
           <div className="flex items-center gap-2">
             <div className="relative size-8 shrink-0 cursor-pointer overflow-hidden rounded-lg shadow-sm ring-1 ring-black/10" style={{ background: primary }}>
               <input type="color" value={primary} onChange={(e) => setPrimary(e.target.value)} className="absolute inset-0 size-full cursor-pointer opacity-0" />
@@ -355,7 +356,7 @@ function ColorsSection({ storeId, primaryColor, secondaryColor }: { storeId: str
 
         {/* Secondary */}
         <div className="space-y-2">
-          <Label className="text-xs">اللون الثانوي</Label>
+          <Label className="text-xs">{tr("اللون الثانوي")}</Label>
           <div className="flex items-center gap-2">
             <div className="relative size-8 shrink-0 cursor-pointer overflow-hidden rounded-lg shadow-sm ring-1 ring-black/10" style={{ background: secondary }}>
               <input type="color" value={secondary} onChange={(e) => setSecondary(e.target.value)} className="absolute inset-0 size-full cursor-pointer opacity-0" />
@@ -367,7 +368,7 @@ function ColorsSection({ storeId, primaryColor, secondaryColor }: { storeId: str
 
       <Button onClick={save} disabled={isPending} size="sm" className="w-full gap-2">
         {isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-        حفظ الألوان
+        {tr("حفظ الألوان")}
       </Button>
     </div>
   );

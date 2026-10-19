@@ -5,16 +5,18 @@ import { GetMovementsAction } from "@/actions/inventory/movements.actions";
 import { StockMovementBadge } from "../_components/StockMovementBadge";
 import { Button } from "@/components/ui/button";
 import { StockMovementType } from "@prisma/client";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 const MOVEMENT_TYPES = [
-  { value: "", label: "الكل" },
-  { value: "SALE", label: "بيع" },
-  { value: "RETURN", label: "إرجاع" },
-  { value: "PURCHASE", label: "شراء" },
-  { value: "ADJUSTMENT", label: "تسوية" },
-  { value: "DAMAGE", label: "تلف" },
-  { value: "TRANSFER_IN", label: "تحويل وارد" },
-  { value: "TRANSFER_OUT", label: "تحويل صادر" },
+  { value: "", get label() { return tr("الكل"); } },
+  { value: "SALE", get label() { return tr("بيع"); } },
+  { value: "RETURN", get label() { return tr("إرجاع"); } },
+  { value: "PURCHASE", get label() { return tr("شراء"); } },
+  { value: "ADJUSTMENT", get label() { return tr("تسوية"); } },
+  { value: "DAMAGE", get label() { return tr("تلف"); } },
+  { value: "TRANSFER_IN", get label() { return tr("تحويل وارد"); } },
+  { value: "TRANSFER_OUT", get label() { return tr("تحويل صادر"); } },
 ];
 
 async function MovementsTable({
@@ -39,22 +41,22 @@ async function MovementsTable({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/50 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3">المنتج</th>
-              <th className="px-4 py-3">النوع</th>
-              <th className="px-4 py-3 text-center">الكمية</th>
-              <th className="px-4 py-3 text-center">قبل</th>
-              <th className="px-4 py-3 text-center">بعد</th>
-              <th className="px-4 py-3">الفرع</th>
-              <th className="px-4 py-3">ملاحظة</th>
-              <th className="px-4 py-3">التاريخ</th>
+            <tr className="border-b border-border bg-muted/50 text-start text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <th className="px-4 py-3">{tr("المنتج")}</th>
+              <th className="px-4 py-3">{tr("النوع")}</th>
+              <th className="px-4 py-3 text-center">{tr("الكمية")}</th>
+              <th className="px-4 py-3 text-center">{tr("قبل")}</th>
+              <th className="px-4 py-3 text-center">{tr("بعد")}</th>
+              <th className="px-4 py-3">{tr("الفرع")}</th>
+              <th className="px-4 py-3">{tr("ملاحظة")}</th>
+              <th className="px-4 py-3">{tr("التاريخ")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {data.items.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-12 text-center text-muted-foreground">
-                  لا توجد حركات
+                  {tr("لا توجد حركات")}
                 </td>
               </tr>
             ) : (
@@ -111,7 +113,7 @@ async function MovementsTable({
                     <p className="truncate text-xs">{m.note ?? "—"}</p>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-                    {new Intl.DateTimeFormat("ar-EG", {
+                    {new Intl.DateTimeFormat(intlLocale(), {
                       day: "2-digit",
                       month: "short",
                       hour: "2-digit",
@@ -129,19 +131,17 @@ async function MovementsTable({
       {data.totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm">
           <span className="text-muted-foreground">
-            {((data.page - 1) * data.pageSize + 1).toLocaleString("ar-EG")} -{" "}
-            {Math.min(data.page * data.pageSize, data.total).toLocaleString("ar-EG")} من{" "}
-            {data.total.toLocaleString("ar-EG")}
+            {tr("{0} - {1} من {2}", ((data.page - 1) * data.pageSize + 1).toLocaleString(intlLocale()), Math.min(data.page * data.pageSize, data.total).toLocaleString(intlLocale()), data.total.toLocaleString(intlLocale()))}
           </span>
           <div className="flex gap-2">
             {data.page > 1 && (
               <Link href={`?page=${data.page - 1}${type ? `&type=${type}` : ""}`}>
-                <Button variant="outline" size="sm">السابق</Button>
+                <Button variant="outline" size="sm">{tr("السابق")}</Button>
               </Link>
             )}
             {data.page < data.totalPages && (
               <Link href={`?page=${data.page + 1}${type ? `&type=${type}` : ""}`}>
-                <Button variant="outline" size="sm">التالي</Button>
+                <Button variant="outline" size="sm">{tr("التالي")}</Button>
               </Link>
             )}
           </div>
@@ -151,11 +151,12 @@ async function MovementsTable({
   );
 }
 
-export default function MovementsPage({
+export default async function MovementsPage({
   searchParams,
 }: {
   searchParams: { page?: string; type?: string; search?: string };
 }) {
+  await loadDashboardLocale();
   const page = parseInt(searchParams.page ?? "1", 10);
   const type = searchParams.type;
   const search = searchParams.search;
@@ -165,11 +166,11 @@ export default function MovementsPage({
       <div className="flex items-center gap-3">
         <Link href="/dashboard/inventory">
           <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowRight className="size-4" />
-            المخزون
+            <ArrowRight className="size-4 ltr:-scale-x-100" />
+            {tr("المخزون")}
           </Button>
         </Link>
-        <h1 className="text-xl font-bold">سجل حركات المخزون</h1>
+        <h1 className="text-xl font-bold">{tr("سجل حركات المخزون")}</h1>
       </div>
 
       {/* Filters */}

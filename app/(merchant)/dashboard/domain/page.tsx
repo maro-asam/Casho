@@ -11,18 +11,24 @@ import { FEATURE_KEYS } from "@/lib/entitlements";
 import { prisma } from "@/lib/prisma";
 import { ConnectDomainForm } from "./_components/connect-domain-form";
 import { DomainStatus } from "./_components/domain-status";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "الدومين الخاص",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("الدومين الخاص"),
 };
+}
 
 const BENEFITS = [
-  { icon: ShieldCheck, title: "ثقة أكتر", body: "mystore.com بيطمّن العميل أكتر من رابط فرعي." },
-  { icon: Search, title: "أحسن في جوجل", body: "الدومين بيبقى العنوان الرسمي لمتجرك في نتايج البحث." },
-  { icon: Globe2, title: "SSL مجاني", body: "بنجهّز شهادة الأمان (القفل) لوحدنا من غير أي تكلفة." },
+  { icon: ShieldCheck, get title() { return tr("ثقة أكتر"); }, get body() { return tr("mystore.com بيطمّن العميل أكتر من رابط فرعي."); } },
+  { icon: Search, get title() { return tr("أحسن في جوجل"); }, get body() { return tr("الدومين بيبقى العنوان الرسمي لمتجرك في نتايج البحث."); } },
+  { icon: Globe2, get title() { return tr("SSL مجاني"); }, get body() { return tr("بنجهّز شهادة الأمان (القفل) لوحدنا من غير أي تكلفة."); } },
 ];
 
 export default async function DomainRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -34,8 +40,8 @@ export default async function DomainRoute() {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها اربط الدومين بتاعك."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها اربط الدومين بتاعك.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -44,14 +50,14 @@ export default async function DomainRoute() {
   const storeUrl = buildStoreUrl(store.slug);
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <PageHeader title="الدومين الخاص" description="خلّي متجرك على اسمك — mystore.com بدل رابط كاشو." />
+    <div className="space-y-6" dir={tdir()}>
+      <PageHeader title={tr("الدومين الخاص")} description={tr("خلّي متجرك على اسمك — mystore.com بدل رابط كاشو.")} />
 
       <FeatureGate
         storeId={store.id}
         feature={FEATURE_KEYS.CUSTOM_DOMAIN}
-        title="الدومين الخاص"
-        description="ربط دومين خاص مش متاح في باقتك الحالية."
+        title={tr("الدومين الخاص")}
+        description={tr("ربط دومين خاص مش متاح في باقتك الحالية.")}
       >
         {store.customDomain ? (
           <DomainStatus
@@ -66,13 +72,13 @@ export default async function DomainRoute() {
         ) : (
           <div className="space-y-4">
             <section className="rounded-xl border border-border bg-card p-5">
-              <h2 className="font-semibold">اربط دومينك</h2>
+              <h2 className="font-semibold">{tr("اربط دومينك")}</h2>
               <p className="mb-4 mt-1 text-sm text-muted-foreground">
-                متجرك دلوقتي على{" "}
+                {tr("متجرك دلوقتي على")}{" "}
                 <span className="font-mono text-foreground" dir="ltr">
                   {storeUrl.replace(/^https?:\/\//, "")}
                 </span>
-                . اكتب الدومين وهنقولك بالظبط تعمل إيه.
+                {tr(". اكتب الدومين وهنقولك بالظبط تعمل إيه.")}
               </p>
               <ConnectDomainForm />
             </section>
@@ -88,8 +94,7 @@ export default async function DomainRoute() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              معندكش دومين؟ تقدر تشتري واحد من Namecheap أو GoDaddy أو Hostinger (حوالي ١٠ دولار في السنة)، أو ‎.com.eg من الجهات
-              المصرية المعتمدة — وبعدها ارجع هنا.
+              {tr("معندكش دومين؟ تقدر تشتري واحد من Namecheap أو GoDaddy أو Hostinger (حوالي ١٠ دولار في السنة)، أو ‎.com.eg من الجهات المصرية المعتمدة — وبعدها ارجع هنا.")}
             </p>
           </div>
         )}

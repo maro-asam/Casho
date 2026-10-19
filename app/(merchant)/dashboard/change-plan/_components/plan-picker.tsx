@@ -8,6 +8,7 @@ import { formatMoney } from "@/lib/balance-ui/meta";
 import { cn } from "@/lib/utils";
 import { PlanChangeDialog } from "./plan-change-dialog";
 import { featureValueLabel, priceOf, yearlySaving, type Cycle, type PlanForUI } from "./plan-types";
+import { tr } from "@/lib/i18n/dashboard";
 
 const TIER_ICON: Record<string, typeof Sparkles> = { SILVER: ShieldCheck, GOLD: Sparkles, PLATINUM: Gem };
 
@@ -48,12 +49,12 @@ export function PlanPicker({ plans, currentPlanId, currentCycle, recommendedPlan
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold">غيّر باقتك</h2>
+          <h2 className="text-base font-semibold">{tr("غيّر باقتك")}</h2>
           <p className="text-sm text-muted-foreground">
-            {inTrial ? "اختار براحتك — مفيش خصم لحد ما التجربة تخلص." : "هتشوف المبلغ بالظبط قبل ما تأكد. الأيام اللي فاضلة من باقتك بتتحسبلك."}
+            {inTrial ? tr("اختار براحتك — مفيش خصم لحد ما التجربة تخلص.") : tr("هتشوف المبلغ بالظبط قبل ما تأكد. الأيام اللي فاضلة من باقتك بتتحسبلك.")}
           </p>
         </div>
-        <div role="radiogroup" aria-label="دورة الدفع" className="inline-flex items-center rounded-lg border border-border bg-muted/40 p-0.5">
+        <div role="radiogroup" aria-label={tr("دورة الدفع")} className="inline-flex items-center rounded-lg border border-border bg-muted/40 p-0.5">
           {(["MONTHLY", "YEARLY"] as const).map((c) => (
             <button
               key={c}
@@ -66,10 +67,10 @@ export function PlanPicker({ plans, currentPlanId, currentCycle, recommendedPlan
                 cycle === c ? "bg-background font-medium shadow-sm" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {c === "MONTHLY" ? "شهري" : "سنوي"}
+              {c === "MONTHLY" ? tr("شهري") : tr("سنوي")}
               {c === "YEARLY" && bestSaving > 0 && (
                 <span className="rounded bg-emerald-500/10 px-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-                  وفّر لحد {bestSaving}٪
+                  {tr("وفّر لحد {0}٪", bestSaving)}
                 </span>
               )}
             </button>
@@ -88,16 +89,16 @@ export function PlanPicker({ plans, currentPlanId, currentCycle, recommendedPlan
           const Icon = TIER_ICON[plan.key] ?? ShieldCheck;
           const up = !currentPlan || plan.sortOrder > currentPlan.sortOrder;
           const cta = isCurrent
-            ? "باقتك الحالية"
+            ? tr("باقتك الحالية")
             : !covered
-              ? `فعّل ${plan.name}`
+              ? tr("فعّل {0}", plan.name)
               : isCurrentPlan
-              ? `حوّل لل${cycle === "YEARLY" ? "سنوي" : "شهري"}`
+              ? tr("حوّل لل{0}", cycle === "YEARLY" ? tr("سنوي") : tr("شهري"))
               : inTrial
-                ? `اختار ${plan.name}`
+                ? tr("اختار {0}", plan.name)
                 : up
-                  ? `رقّي لـ ${plan.name}`
-                  : `انزل لـ ${plan.name}`;
+                  ? tr("رقّي لـ {0}", plan.name)
+                  : tr("انزل لـ {0}", plan.name);
 
           return (
             <article
@@ -115,7 +116,7 @@ export function PlanPicker({ plans, currentPlanId, currentCycle, recommendedPlan
                     recommended ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground",
                   )}
                 >
-                  {recommended ? (recommendReason ? "مقترحة ليك" : "الأكثر اختيارًا") : "باقتك"}
+                  {recommended ? (recommendReason ? tr("مقترحة ليك") : tr("الأكثر اختيارًا")) : tr("باقتك")}
                 </span>
               )}
 
@@ -130,21 +131,21 @@ export function PlanPicker({ plans, currentPlanId, currentCycle, recommendedPlan
               <div className="mt-4">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-3xl font-bold tracking-tight tabular-nums">{formatMoney(price)}</span>
-                  <span className="text-sm text-muted-foreground">/ {cycle === "YEARLY" ? "سنة" : "شهر"}</span>
+                  <span className="text-sm text-muted-foreground">/ {cycle === "YEARLY" ? tr("سنة") : tr("شهر")}</span>
                 </div>
                 <p className="mt-1 h-5 text-xs text-muted-foreground">
                   {cycle === "YEARLY" ? (
                     saving > 0 ? (
                       <>
-                        يعني {formatMoney(Math.round(price / 12))} في الشهر ·{" "}
-                        <span className="font-medium text-emerald-700 dark:text-emerald-400">بتوفّر {formatMoney(saving)}</span>
+                        {tr("يعني {0} في الشهر ·", formatMoney(Math.round(price / 12)))}{" "}
+                        <span className="font-medium text-emerald-700 dark:text-emerald-400">{tr("بتوفّر {0}", formatMoney(saving))}</span>
                       </>
                     ) : (
-                      <>يعني {formatMoney(Math.round(price / 12))} في الشهر</>
+                      <>{tr("يعني {0} في الشهر", formatMoney(Math.round(price / 12)))}</>
                     )
                   ) : original && original > price ? (
                     <>
-                      بدل <span className="line-through">{formatMoney(original)}</span>
+                      {tr("بدل")}{" "}<span className="line-through">{formatMoney(original)}</span>
                     </>
                   ) : null}
                 </p>
@@ -180,7 +181,7 @@ export function PlanPicker({ plans, currentPlanId, currentCycle, recommendedPlan
                 onClick={() => setParams({ plan: plan.slug, cycle: cycle === "YEARLY" ? "yearly" : "monthly" })}
               >
                 {cta}
-                {!isCurrent && <ArrowLeft className="size-4" />}
+                {!isCurrent && <ArrowLeft className="size-4 ltr:-scale-x-100" />}
               </Button>
             </article>
           );

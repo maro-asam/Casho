@@ -30,6 +30,7 @@ import {
   MarkAllNotificationsAsReadAction,
   MarkNotificationAsReadAction,
 } from "@/actions/notifications/notifications.actions";
+import { intlLocale, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type NotificationsBellProps = {
   initialNotifications: NotificationDTO[];
@@ -63,18 +64,18 @@ function formatRelativeTime(dateIso: string) {
     Math.floor((Date.now() - new Date(dateIso).getTime()) / 1000),
   );
 
-  if (diffInSeconds < 60) return "الآن";
+  if (diffInSeconds < 60) return tr("الآن");
 
   const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) return `منذ ${diffInMinutes} دقيقة`;
+  if (diffInMinutes < 60) return tr("منذ {0} دقيقة", diffInMinutes);
 
   const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
+  if (diffInHours < 24) return tr("منذ {0} ساعة", diffInHours);
 
   const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `منذ ${diffInDays} يوم`;
+  if (diffInDays < 7) return tr("منذ {0} يوم", diffInDays);
 
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(intlLocale(), {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -217,14 +218,14 @@ export default function NotificationsBell({
   }
 
   return (
-    <DropdownMenu dir="rtl" open={open} onOpenChange={handleOpenChange}>
+    <DropdownMenu dir={tdir()} open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
           variant="outline"
           size="icon"
           className="relative h-10 w-10 "
-          aria-label="الإشعارات"
+          aria-label={tr("الإشعارات")}
         >
           <Bell className="h-4 w-4" />
           {hasUnread && (
@@ -242,9 +243,9 @@ export default function NotificationsBell({
       >
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div>
-            <p className="text-sm font-bold">الإشعارات</p>
+            <p className="text-sm font-bold">{tr("الإشعارات")}</p>
             <p className="text-xs text-muted-foreground">
-              {hasUnread ? `${unreadCount} غير مقروء` : "كله تمام يا باشا"}
+              {hasUnread ? tr("{0} غير مقروء", unreadCount) : tr("كله تمام يا باشا")}
             </p>
           </div>
 
@@ -261,7 +262,7 @@ export default function NotificationsBell({
             ) : (
               <CheckCheck className="h-3.5 w-3.5" />
             )}
-            تعليم الكل كمقروء
+            {tr("تعليم الكل كمقروء")}
           </Button>
         </div>
 
@@ -272,9 +273,9 @@ export default function NotificationsBell({
             <div className="rounded-full bg-muted p-3">
               <Inbox className="h-6 w-6 text-muted-foreground" />
             </div>
-            <p className="text-sm font-semibold">مفيش إشعارات حاليًا</p>
+            <p className="text-sm font-semibold">{tr("مفيش إشعارات حاليًا")}</p>
             <p className="max-w-xs text-xs leading-6 text-muted-foreground">
-              أول ما يوصلك أوردر جديد أو تحديث مهم، هيظهر هنا فورًا.
+              {tr("أول ما يوصلك أوردر جديد أو تحديث مهم، هيظهر هنا فورًا.")}
             </p>
           </div>
         ) : (
@@ -305,16 +306,16 @@ export default function NotificationsBell({
                   <span className="min-w-0 flex-1 space-y-1">
                     <span className="flex items-start justify-between gap-2">
                       <span className="line-clamp-1 text-sm font-semibold">
-                        {notification.title}
+                        {trv(notification.title)}
                       </span>
                       {unread && (
                         <Badge variant="default" className="h-5 shrink-0 px-1.5 text-[10px]">
-                          جديد
+                          {tr("جديد")}
                         </Badge>
                       )}
                     </span>
                     <span className="line-clamp-2 text-xs leading-5 text-muted-foreground">
-                      {notification.message}
+                      {trv(notification.message)}
                     </span>
                     <span className="block text-[11px] text-muted-foreground">
                       {formatRelativeTime(notification.createdAt)}
@@ -338,7 +339,7 @@ export default function NotificationsBell({
               router.push("/notifications");
             }}
           >
-            عرض كل الإشعارات
+            {tr("عرض كل الإشعارات")}
           </Button>
         </div>
       </DropdownMenuContent>

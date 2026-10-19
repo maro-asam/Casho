@@ -1,9 +1,10 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { tr } from "@/lib/i18n/dashboard";
 
 /** loading.tsx body for a SaaS list page: header, tabs, toolbar, rows. */
 export function SaasPageSkeleton({ rows = 8, columns = 5, tabs = 5 }: { rows?: number; columns?: number; tabs?: number }) {
   return (
-    <div className="space-y-6" aria-busy="true" aria-label="جاري التحميل">
+    <div className="space-y-6" aria-busy="true" aria-label={tr("جاري التحميل")}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
           <Skeleton className="h-7 w-32" />

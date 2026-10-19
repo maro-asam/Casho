@@ -5,6 +5,8 @@ import { GetBranchesAction } from "@/actions/inventory/branches.actions";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { NewAdjustmentForm } from "./_components/NewAdjustmentForm";
+import { tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 async function getProducts(userId: string) {
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
@@ -25,6 +27,7 @@ async function getProducts(userId: string) {
 }
 
 export default async function NewAdjustmentPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const [branches, { products, branchStock }] = await Promise.all([
     GetBranchesAction(),
@@ -36,11 +39,11 @@ export default async function NewAdjustmentPage() {
       <div className="flex items-center gap-3">
         <Link href="/dashboard/inventory/adjustments">
           <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowRight className="size-4" />
-            التسويات
+            <ArrowRight className="size-4 ltr:-scale-x-100" />
+            {tr("التسويات")}
           </Button>
         </Link>
-        <h1 className="text-xl font-bold">تسوية مخزون جديدة</h1>
+        <h1 className="text-xl font-bold">{tr("تسوية مخزون جديدة")}</h1>
       </div>
       <NewAdjustmentForm branches={branches.filter((b) => b.isActive)} products={products} branchStock={branchStock} />
     </div>

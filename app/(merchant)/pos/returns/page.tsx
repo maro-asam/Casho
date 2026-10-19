@@ -5,28 +5,31 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, RotateCcw } from "lucide-react";
 import ReturnsClient from "./_components/ReturnsClient";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export default async function ReturnsPage() {
+  await loadDashboardLocale();
   const ctx = await requirePosContext();
   const store = { id: ctx.storeId };
 
   const returns = await GetReturnsAction(100);
 
   return (
-    <div className="min-h-screen bg-background p-6" dir="rtl">
+    <div className="min-h-screen bg-background p-6" dir={tdir()}>
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button asChild variant="ghost" size="icon">
-              <Link href="/pos"><ArrowRight className="size-4" /></Link>
+              <Link href="/pos"><ArrowRight className="size-4 ltr:-scale-x-100" /></Link>
             </Button>
             <div>
               <h1 className="text-xl font-bold flex items-center gap-2">
                 <RotateCcw className="size-5" />
-                المرتجعات والاستبدالات
+                {tr("المرتجعات والاستبدالات")}
               </h1>
-              <p className="text-sm text-muted-foreground">{returns.length} عملية إرجاع</p>
+              <p className="text-sm text-muted-foreground">{tr("{0} عملية إرجاع", returns.length)}</p>
             </div>
           </div>
           <ReturnsClient storeId={store.id} />
@@ -37,7 +40,7 @@ export default async function ReturnsPage() {
           {returns.length === 0 ? (
             <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">
               <RotateCcw className="size-10 mx-auto mb-2 opacity-30" />
-              <p>لا توجد مرتجعات بعد</p>
+              <p>{tr("لا توجد مرتجعات بعد")}</p>
             </div>
           ) : (
             returns.map((ret) => (
@@ -46,29 +49,27 @@ export default async function ReturnsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">
-                        {ret.type === "FULL_RETURN" ? "إرجاع كامل" :
-                         ret.type === "PARTIAL_RETURN" ? "إرجاع جزئي" : "استبدال"}
+                        {ret.type === "FULL_RETURN" ? tr("إرجاع كامل") :
+                         ret.type === "PARTIAL_RETURN" ? tr("إرجاع جزئي") : tr("استبدال")}
                       </Badge>
                       <span className="text-sm font-medium">
-                        طلب #{ret.originalOrder.id.slice(-6).toUpperCase()}
+                        {tr("طلب #{0}", ret.originalOrder.id.slice(-6).toUpperCase())}
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {ret.originalOrder.fullName} ·{" "}
-                      {new Date(ret.createdAt).toLocaleString("ar-EG")} ·{" "}
-                      الكاشير: {ret.cashier?.name ?? "—"}
+                      {tr("{0} · {1} · الكاشير: {2}", ret.originalOrder.fullName, new Date(ret.createdAt).toLocaleString(intlLocale()), ret.cashier?.name ?? "—")}
                       {ctx.branches.length > 1 && ret.branch && ` · ${ret.branch.name}`}
                     </p>
                     {ret.reason && (
-                      <p className="mt-1 text-xs text-muted-foreground">السبب: {ret.reason}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{tr("السبب: {0}", ret.reason)}</p>
                     )}
                   </div>
-                  <div className="text-left">
+                  <div className="text-end">
                     <p className="text-sm font-bold text-destructive">
-                      −{((ret.refundAmount ?? 0) / 100).toFixed(0)} ج
+                      {tr("−{0} ج", ((ret.refundAmount ?? 0) / 100).toFixed(0))}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {ret.refundMethod === "cash" ? "نقداً" : ret.refundMethod}
+                      {ret.refundMethod === "cash" ? tr("نقداً") : ret.refundMethod}
                     </p>
                   </div>
                 </div>

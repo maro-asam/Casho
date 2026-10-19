@@ -7,9 +7,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Prisma } from "@prisma/client";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 function formatPrice(price: number) {
-  return new Intl.NumberFormat("ar-EG", {
+  return new Intl.NumberFormat(intlLocale(), {
     style: "currency",
     currency: "EGP",
     maximumFractionDigits: 0,
@@ -19,15 +20,15 @@ function formatPrice(price: number) {
 function getStatusLabel(status: string) {
   switch (status) {
     case "PENDING":
-      return "قيد الانتظار";
+      return tr("قيد الانتظار");
     case "PAID":
-      return "تم الدفع";
+      return tr("تم الدفع");
     case "SHIPPED":
-      return "تم الشحن";
+      return tr("تم الشحن");
     case "DELIVERED":
-      return "تم التسليم";
+      return tr("تم التسليم");
     case "CANCELED":
-      return "ملغي";
+      return tr("ملغي");
     default:
       return status;
   }
@@ -69,14 +70,14 @@ const RecentOrders = ({ store }: RecentOrdersProps) => {
   return (
     <Card className="rounded-xl lg:col-span-2">
       <CardHeader>
-        <CardTitle className="text-primary">آخر الطلبات</CardTitle>
-        <CardDescription>آخر 5 طلبات دخلت على المتجر</CardDescription>
+        <CardTitle className="text-primary">{tr("آخر الطلبات")}</CardTitle>
+        <CardDescription>{tr("آخر 5 طلبات دخلت على المتجر")}</CardDescription>
       </CardHeader>
 
       <CardContent>
         {store.orders.length === 0 ? (
           <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-            لا توجد طلبات حتى الآن
+            {tr("لا توجد طلبات حتى الآن")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -97,7 +98,7 @@ const RecentOrders = ({ store }: RecentOrdersProps) => {
                       {order.phone}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      عدد المنتجات: {totalItems}
+                      {tr("عدد المنتجات: {0}", totalItems)}
                     </p>
                   </div>
 

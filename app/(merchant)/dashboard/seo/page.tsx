@@ -8,16 +8,22 @@ import { prisma } from "@/lib/prisma";
 import { metaText, storeBaseUrl } from "@/lib/seo/store-seo";
 import { SeoForm } from "./_components/seo-form";
 import { SeoHealth, type SeoCheck } from "./_components/seo-health";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "الظهور في جوجل",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("الظهور في جوجل"),
 };
+}
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 const clip = (text: string, max: number) => (text.length <= max ? text : `${text.slice(0, max - 1).trim()}…`);
 
 export default async function SeoRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -49,8 +55,8 @@ export default async function SeoRoute() {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها ظبّط ظهوره في جوجل."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها ظبّط ظهوره في جوجل.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -84,14 +90,14 @@ export default async function SeoRoute() {
   const cats = topCategories.map((c) => c.name);
   const cod = store.paymentMethods.includes("cash_on_delivery");
   const titleSuggestions = [
-    cats.length ? `${store.name} | ${cats.slice(0, 2).join(" و")}` : null,
-    `${store.name} — تسوّق أونلاين في مصر`,
-    cats[0] ? `${cats[0]} أونلاين | ${store.name}` : null,
+    cats.length ? `${store.name} | ${cats.slice(0, 2).join(tr(" و"))}` : null,
+    tr("{0} — تسوّق أونلاين في مصر", store.name),
+    cats[0] ? tr("{0} أونلاين | {1}", cats[0], store.name) : null,
   ]
     .filter((t): t is string => Boolean(t))
     .map((t) => clip(t, 60));
   const descriptionSuggestions = [
-    `تسوّق ${cats.length ? cats.slice(0, 3).join(" و") : "منتجاتنا"} من ${store.name}. توصيل لكل المحافظات${cod ? " والدفع عند الاستلام" : ""}.`,
+    tr("تسوّق {0} من {1}. توصيل لكل المحافظات{2}.", cats.length ? cats.slice(0, 3).join(tr(" و")) : tr("منتجاتنا"), store.name, cod ? tr(" والدفع عند الاستلام") : ""),
     s?.description ? metaText(s.description, 158) : null,
   ]
     .filter((t): t is string => Boolean(t && t.length >= 40))
@@ -99,7 +105,7 @@ export default async function SeoRoute() {
 
   const fallbacks = {
     title: store.name,
-    description: `تصفح منتجات ${store.name} واطلب بسهولة من خلال المتجر الإلكتروني.`,
+    description: tr("تصفح منتجات {0} واطلب بسهولة من خلال المتجر الإلكتروني.", store.name),
     image: s?.logo ?? null,
   };
 
@@ -107,32 +113,32 @@ export default async function SeoRoute() {
   const checks: SeoCheck[] = [
     {
       id: "indexed",
-      label: "المتجر ظاهر لجوجل",
-      detail: "الأرشفة مقفولة — جوجل مش هيظهر أي صفحة من متجرك.",
+      label: tr("المتجر ظاهر لجوجل"),
+      detail: tr("الأرشفة مقفولة — جوجل مش هيظهر أي صفحة من متجرك."),
       severity: "critical",
       done: s?.isIndexed !== false,
       weight: 3,
     },
     {
       id: "title",
-      label: "عنوان للمتجر",
-      detail: "اكتب عنوان فيه اسمك ونوع منتجاتك — أهم سطر في نتيجة البحث.",
+      label: tr("عنوان للمتجر"),
+      detail: tr("اكتب عنوان فيه اسمك ونوع منتجاتك — أهم سطر في نتيجة البحث."),
       severity: "warn",
       done: (s?.seoTitle ?? "").trim().length >= 15,
       weight: 2,
     },
     {
       id: "description",
-      label: "وصف بطول مناسب",
-      detail: descLen ? `الوصف ${nf.format(descLen)} حرف — الأفضل بين ٧٠ و١٦٠.` : "مفيش وصف — جوجل هيختار كلام عشوائي من الصفحة.",
+      label: tr("وصف بطول مناسب"),
+      detail: descLen ? tr("الوصف {0} حرف — الأفضل بين ٧٠ و١٦٠.", nf.format(descLen)) : tr("مفيش وصف — جوجل هيختار كلام عشوائي من الصفحة."),
       severity: "warn",
       done: descLen >= 70 && descLen <= 160,
       weight: 2,
     },
     {
       id: "products-desc",
-      label: "كل المنتجات ليها وصف",
-      detail: `${nf.format(noDescription)} منتج من غير وصف — بيظهروا في جوجل بوصف عام وبيترتبوا أقل.`,
+      label: tr("كل المنتجات ليها وصف"),
+      detail: tr("{0} منتج من غير وصف — بيظهروا في جوجل بوصف عام وبيترتبوا أقل.", nf.format(noDescription)),
       severity: "warn",
       done: products > 0 && noDescription === 0,
       weight: 3,
@@ -140,8 +146,8 @@ export default async function SeoRoute() {
     },
     {
       id: "products-short",
-      label: "أوصاف المنتجات كفاية",
-      detail: `${nf.format(shortDescription)} منتج وصفه أقل من ٨٠ حرف. اكتب الخامة والمقاسات والاستخدام.`,
+      label: tr("أوصاف المنتجات كفاية"),
+      detail: tr("{0} منتج وصفه أقل من ٨٠ حرف. اكتب الخامة والمقاسات والاستخدام.", nf.format(shortDescription)),
       severity: "tip",
       done: products > 0 && shortDescription === 0,
       weight: 2,
@@ -149,8 +155,8 @@ export default async function SeoRoute() {
     },
     {
       id: "products-image",
-      label: "كل المنتجات ليها صور",
-      detail: `${nf.format(noImage)} منتج من غير صورة — مش هيظهر في بحث الصور ولا بشكل حلو في المشاركة.`,
+      label: tr("كل المنتجات ليها صور"),
+      detail: tr("{0} منتج من غير صورة — مش هيظهر في بحث الصور ولا بشكل حلو في المشاركة.", nf.format(noImage)),
       severity: "warn",
       done: products > 0 && noImage === 0,
       weight: 2,
@@ -158,24 +164,24 @@ export default async function SeoRoute() {
     },
     {
       id: "share-image",
-      label: "صورة للمشاركة",
-      detail: "ارفع صورة أو لوجو عشان اللينك يبان حلو على واتساب وفيسبوك.",
+      label: tr("صورة للمشاركة"),
+      detail: tr("ارفع صورة أو لوجو عشان اللينك يبان حلو على واتساب وفيسبوك."),
       severity: "tip",
       done: Boolean(s?.ogImage || s?.logo),
       weight: 1,
     },
     {
       id: "search-console",
-      label: "مربوط بـ Search Console",
-      detail: "اربطه عشان تبعت خريطة الموقع وتشوف الناس بتدوّر بإيه.",
+      label: tr("مربوط بـ Search Console"),
+      detail: tr("اربطه عشان تبعت خريطة الموقع وتشوف الناس بتدوّر بإيه."),
       severity: "warn",
       done: Boolean(s?.googleSiteVerification),
       weight: 2,
     },
     {
       id: "categories-image",
-      label: "التصنيفات ليها صور",
-      detail: `${nf.format(categoriesNoImage)} تصنيف من غير صورة.`,
+      label: tr("التصنيفات ليها صور"),
+      detail: tr("{0} تصنيف من غير صورة.", nf.format(categoriesNoImage)),
       severity: "tip",
       done: categories > 0 && categoriesNoImage === 0,
       weight: 1,
@@ -183,8 +189,8 @@ export default async function SeoRoute() {
     },
     {
       id: "reviews",
-      label: "مراجعات على المنتجات",
-      detail: "المنتجات اللي ليها مراجعات بتظهر بالنجوم في نتايج جوجل.",
+      label: tr("مراجعات على المنتجات"),
+      detail: tr("المنتجات اللي ليها مراجعات بتظهر بالنجوم في نتايج جوجل."),
       severity: "tip",
       done: reviews > 0,
       weight: 1,
@@ -192,8 +198,8 @@ export default async function SeoRoute() {
     },
     {
       id: "domain",
-      label: "دومين خاص",
-      detail: "دومين باسمك بيبني ثقة وسمعة في البحث أحسن من الرابط الفرعي.",
+      label: tr("دومين خاص"),
+      detail: tr("دومين باسمك بيبني ثقة وسمعة في البحث أحسن من الرابط الفرعي."),
       severity: "tip",
       done: store.customDomainStatus === "ACTIVE" && Boolean(store.customDomain),
       weight: 1,
@@ -202,15 +208,15 @@ export default async function SeoRoute() {
   ];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="الظهور في جوجل"
-        description="ازاي متجرك ومنتجاته بيظهروا في البحث وفي المشاركات — وإيه اللي يخليهم يظهروا أحسن."
+        title={tr("الظهور في جوجل")}
+        description={tr("ازاي متجرك ومنتجاته بيظهروا في البحث وفي المشاركات — وإيه اللي يخليهم يظهروا أحسن.")}
         actions={
           <Button asChild variant="outline" size="sm" className="gap-1.5">
             <a href={`https://www.google.com/search?q=site:${encodeURIComponent(storeUrl.replace(/^https?:\/\//, ""))}`} target="_blank" rel="noreferrer">
               <ExternalLink className="size-4" />
-              شوف متجرك في جوجل
+              {tr("شوف متجرك في جوجل")}
             </a>
           </Button>
         }

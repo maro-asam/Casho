@@ -6,6 +6,7 @@ import {
   type ThemeCategoryId,
 } from "@/constants/store-themes";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type ThemeCategoryFilterValue = ThemeCategoryId | "all";
 
@@ -31,7 +32,7 @@ export default function ThemeCategoryFilter({
   compact,
 }: ThemeCategoryFilterProps) {
   const options = [
-    { id: "all" as const, label: "الكل", count: themes.length },
+    { id: "all" as const, label: tr("الكل"), count: themes.length },
     ...THEME_CATEGORY_LIST.map((category) => ({
       id: category.id,
       label: category.label,

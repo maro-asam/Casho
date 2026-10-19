@@ -12,6 +12,7 @@ import { SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/compon
 import { Textarea } from "@/components/ui/textarea";
 import { INSTRUCTION_HINTS } from "./method-meta";
 import { MethodLogo } from "./shared";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 export function ManualSheetBody({
   methodKey,
@@ -35,10 +36,10 @@ export function ManualSheetBody({
       const res = await SaveManualMethodAction(methodKey, value).catch(() => null);
       if (!res?.success) {
         setError(res?.errors?.details ?? null);
-        toast.error(res?.message ?? "مقدرناش نحفظ. جرّب تاني.");
+        toast.error(res?.message ?? tr("مقدرناش نحفظ. جرّب تاني."));
         return;
       }
-      toast.success(res.message);
+      toast.success(trv(res.message));
       onSaved(value.trim());
     });
   }
@@ -57,18 +58,18 @@ export function ManualSheetBody({
 
       <div className="flex-1 space-y-6 overflow-y-auto px-4">
         <ol className="space-y-1 rounded-lg bg-muted/50 p-3 text-xs leading-6 text-muted-foreground">
-          <li>١. العميل بيختار {method.label} في صفحة الدفع ويأكد الطلب.</li>
-          <li>٢. بيظهرله الكلام اللي هتكتبه هنا عشان يحوّل.</li>
-          <li>٣. إنت بتتأكد إن الفلوس وصلت وتعلّم الطلب «مدفوع».</li>
+          <li>{tr("١. العميل بيختار {0} في صفحة الدفع ويأكد الطلب.", method.label)}</li>
+          <li>{tr("٢. بيظهرله الكلام اللي هتكتبه هنا عشان يحوّل.")}</li>
+          <li>{tr("٣. إنت بتتأكد إن الفلوس وصلت وتعلّم الطلب «مدفوع».")}</li>
         </ol>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-2">
-            <Label htmlFor="manual-details">البيانات اللي العميل هيحوّل عليها</Label>
+            <Label htmlFor="manual-details">{tr("البيانات اللي العميل هيحوّل عليها")}</Label>
             {hint && !value.trim() && (
               <button type="button" onClick={() => setValue(hint.placeholder)} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                 <Sparkles className="size-3" />
-                ابدأ بمثال
+                {tr("ابدأ بمثال")}
               </button>
             )}
           </div>
@@ -90,12 +91,12 @@ export function ManualSheetBody({
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">كده العميل هيشوفها بعد ما يطلب</p>
+          <p className="text-xs font-medium text-muted-foreground">{tr("كده العميل هيشوفها بعد ما يطلب")}</p>
           <div className="rounded-2xl border border-primary/20 bg-primary/[0.04] p-4">
-            <p className="text-sm font-semibold">ادفع عن طريق {method.label}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال.</p>
+            <p className="text-sm font-semibold">{tr("ادفع عن طريق {0}", method.label)}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{tr("استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال.")}</p>
             <pre className="mt-3 min-h-16 whitespace-pre-wrap rounded-xl border border-border bg-background p-3 font-sans text-sm leading-7">
-              {value.trim() || <span className="text-muted-foreground/60">بياناتك هتظهر هنا…</span>}
+              {value.trim() || <span className="text-muted-foreground/60">{tr("بياناتك هتظهر هنا…")}</span>}
             </pre>
           </div>
         </div>
@@ -104,7 +105,7 @@ export function ManualSheetBody({
       <SheetFooter className="border-t border-border">
         <Button onClick={save} disabled={pending || !value.trim()} className="gap-1.5">
           {pending && <Loader2 className="size-4 animate-spin" />}
-          {enabled ? "احفظ التعديل" : "احفظ وفعّل"}
+          {enabled ? tr("احفظ التعديل") : tr("احفظ وفعّل")}
         </Button>
       </SheetFooter>
     </>

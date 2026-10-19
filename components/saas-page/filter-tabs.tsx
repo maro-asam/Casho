@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { hrefWith, type SearchParamsRecord } from "./url-state";
+import { lazyIntl } from "@/lib/i18n/dashboard";
 
 export type FilterTab = {
   label: string;
@@ -18,7 +19,7 @@ type FilterTabsProps = {
   label: string;
 };
 
-const countFormat = new Intl.NumberFormat("ar-EG");
+const countFormat = lazyIntl.number();
 
 /**
  * Primary segmentation of a list (e.g. order status). Plain links, so it works

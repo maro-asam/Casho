@@ -1,21 +1,22 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import Image from "next/image";
+import { tr } from "@/lib/i18n/dashboard";
 
 const footerLinks = {
   platform: [
-    { label: "المميزات", href: "#features" },
-    { label: "الأسعار", href: "#pricing" },
-    { label: "الأسئلة الشائعة", href: "#faq" },
-    { label: "ابدأ الآن", href: "/register" },
+    { get label() { return tr("المميزات"); }, href: "#features" },
+    { get label() { return tr("الأسعار"); }, href: "#pricing" },
+    { get label() { return tr("الأسئلة الشائعة"); }, href: "#faq" },
+    { get label() { return tr("ابدأ الآن"); }, href: "/register" },
   ],
   legal: [
-    { label: "سياسة الخصوصية", href: "/privacy" },
-    { label: "الشروط والأحكام", href: "/terms" },
+    { get label() { return tr("سياسة الخصوصية"); }, href: "/privacy" },
+    { get label() { return tr("الشروط والأحكام"); }, href: "/terms" },
   ],
   contact: [
-    { label: "البريد الإلكتروني", href: "mailto:hello@marostore.com" },
-    { label: "الدعم", href: "/contact" },
+    { get label() { return tr("البريد الإلكتروني"); }, href: "mailto:hello@marostore.com" },
+    { get label() { return tr("الدعم"); }, href: "/contact" },
   ],
 };
 
@@ -37,8 +38,7 @@ const Footer = () => {
             </Link>
 
             <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
-              منصة تساعد التجار على إنشاء متجر إلكتروني بسهولة، ومشاركة رابط
-              المتجر مع العملاء، واستقبال الطلبات بشكل بسيط وسريع.
+              {tr("منصة تساعد التجار على إنشاء متجر إلكتروني بسهولة، ومشاركة رابط المتجر مع العملاء، واستقبال الطلبات بشكل بسيط وسريع.")}
             </p>
 
             <div className="mt-6 flex items-center gap-3">
@@ -60,7 +60,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-semibold text-primary">المنصة</h3>
+            <h3 className="mb-4 text-sm font-semibold text-primary">{tr("المنصة")}</h3>
             <div className="space-y-3">
               {footerLinks.platform.map((link, index) => (
                 <Link
@@ -75,7 +75,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-semibold text-primary">قانوني</h3>
+            <h3 className="mb-4 text-sm font-semibold text-primary">{tr("قانوني")}</h3>
             <div className="space-y-3">
               {footerLinks.legal.map((link, index) => (
                 <Link
@@ -90,7 +90,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-semibold text-primary">تواصل</h3>
+            <h3 className="mb-4 text-sm font-semibold text-primary">{tr("تواصل")}</h3>
             <div className="space-y-3">
               {footerLinks.contact.map((link, index) => (
                 <Link
@@ -106,7 +106,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-10 border-t pt-6 text-center text-sm text-muted-foreground">
-          جميع الحقوق محفوظة. © 2026 Casho
+          {tr("جميع الحقوق محفوظة. © 2026 Casho")}
         </div>
       </div>
     </footer>

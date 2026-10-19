@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type RequestServiceDialogProps = {
   service: {
@@ -59,11 +60,11 @@ export default function RequestServiceDialog({
 
   useEffect(() => {
     if (state.success) {
-      toast.success(state.message || "تم إرسال الطلب");
+      toast.success(state.message || tr("تم إرسال الطلب"));
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpen(false);
     } else if (state.message && !state.success && !state.errors) {
-      toast.error(state.message);
+      toast.error(trv(state.message));
     }
   }, [state]);
 
@@ -75,17 +76,17 @@ export default function RequestServiceDialog({
             triggerClassName ?? "h-11 w-full rounded-xl text-sm font-medium"
           }
         >
-          اطلب الخدمة
+          {tr("اطلب الخدمة")}
         </Button>
       </DialogTrigger>
 
-      <DialogContent dir="rtl" className="sm:max-w-[560px]">
-        <DialogHeader className="text-right">
+      <DialogContent dir={tdir()} className="sm:max-w-[560px]">
+        <DialogHeader className="text-start">
           <DialogTitle className="text-xl">
-            طلب خدمة: {service.title}
+            {tr("طلب خدمة: {0}", service.title)}
           </DialogTitle>
           <DialogDescription className="leading-7">
-            اكتب بياناتك وسنتواصل معك بخصوص الخدمة في أسرع وقت.
+            {tr("اكتب بياناتك وسنتواصل معك بخصوص الخدمة في أسرع وقت.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -95,12 +96,12 @@ export default function RequestServiceDialog({
           <input type="hidden" name="storeId" value={storeId ?? ""} />
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 text-right">
-              <Label htmlFor={`fullName-${service.id}`}>الاسم</Label>
+            <div className="space-y-2 text-start">
+              <Label htmlFor={`fullName-${service.id}`}>{tr("الاسم")}</Label>
               <Input
                 id={`fullName-${service.id}`}
                 name="fullName"
-                placeholder="اكتب اسمك"
+                placeholder={tr("اكتب اسمك")}
               />
               {state.errors?.fullName && (
                 <p className="text-sm text-destructive">
@@ -109,8 +110,8 @@ export default function RequestServiceDialog({
               )}
             </div>
 
-            <div className="space-y-2 text-right">
-              <Label htmlFor={`phone-${service.id}`}>رقم الموبايل</Label>
+            <div className="space-y-2 text-start">
+              <Label htmlFor={`phone-${service.id}`}>{tr("رقم الموبايل")}</Label>
               <Input
                 id={`phone-${service.id}`}
                 name="phone"
@@ -125,12 +126,12 @@ export default function RequestServiceDialog({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 text-right">
-              <Label htmlFor={`whatsapp-${service.id}`}>رقم واتساب</Label>
+            <div className="space-y-2 text-start">
+              <Label htmlFor={`whatsapp-${service.id}`}>{tr("رقم واتساب")}</Label>
               <Input
                 id={`whatsapp-${service.id}`}
                 name="whatsapp"
-                placeholder="اختياري"
+                placeholder={tr("اختياري")}
               />
               {state.errors?.whatsapp && (
                 <p className="text-sm text-destructive">
@@ -139,8 +140,8 @@ export default function RequestServiceDialog({
               )}
             </div>
 
-            <div className="space-y-2 text-right">
-              <Label htmlFor={`storeLink-${service.id}`}>لينك المتجر</Label>
+            <div className="space-y-2 text-start">
+              <Label htmlFor={`storeLink-${service.id}`}>{tr("لينك المتجر")}</Label>
               <Input
                 id={`storeLink-${service.id}`}
                 name="storeLink"
@@ -154,12 +155,12 @@ export default function RequestServiceDialog({
             </div>
           </div>
 
-          <div className="space-y-2 text-right">
-            <Label htmlFor={`notes-${service.id}`}>ملاحظات</Label>
+          <div className="space-y-2 text-start">
+            <Label htmlFor={`notes-${service.id}`}>{tr("ملاحظات")}</Label>
             <Textarea
               id={`notes-${service.id}`}
               name="notes"
-              placeholder="اكتب تفاصيل إضافية عن طلبك..."
+              placeholder={tr("اكتب تفاصيل إضافية عن طلبك...")}
               className="min-h-28"
             />
             {state.errors?.notes && (
@@ -177,12 +178,12 @@ export default function RequestServiceDialog({
             {isPending ? (
               <>
                 <Loader2 className="ms-2 size-4 animate-spin" />
-                جاري الإرسال...
+                {tr("جاري الإرسال...")}
               </>
             ) : (
               <>
                 <Send className="ms-2 size-4" />
-                إرسال الطلب
+                {tr("إرسال الطلب")}
               </>
             )}
           </Button>

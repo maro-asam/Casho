@@ -12,9 +12,10 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import type { ConversionConfig, RecentPurchase } from "@/lib/conversion/conversion-config";
 import { Segmented, SettingRow } from "./controls";
+import { lazyIntl, tr, trv } from "@/lib/i18n/dashboard";
 
 type Config = ConversionConfig["purchaseToasts"];
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 export function PurchaseToastsPanel({
   storeId,
@@ -40,10 +41,10 @@ export function PurchaseToastsPanel({
     startTransition(async () => {
       const result = await UpdateConversionConfigAction(storeId, "purchaseToasts", next);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
-      toast.success(next.enabled ? "إشعارات الشراء شغّالة" : "اتحفظت الإعدادات");
+      toast.success(next.enabled ? tr("إشعارات الشراء شغّالة") : tr("اتحفظت الإعدادات"));
       router.refresh();
     });
   }
@@ -52,8 +53,8 @@ export function PurchaseToastsPanel({
     <div className="grid gap-4 xl:grid-cols-[1fr_20rem]">
       <div className="space-y-4">
         <SettingRow
-          title="إظهار إشعارات الشراء"
-          description="بتظهر بهدوء في ركن الشاشة كل شوية، من طلبات متجرك الحقيقية بس."
+          title={tr("إظهار إشعارات الشراء")}
+          description={tr("بتظهر بهدوء في ركن الشاشة كل شوية، من طلبات متجرك الحقيقية بس.")}
           control={
             <Switch
               checked={config.enabled}
@@ -63,7 +64,7 @@ export function PurchaseToastsPanel({
                 save(next);
               }}
               disabled={pending}
-              aria-label="تشغيل إشعارات الشراء"
+              aria-label={tr("تشغيل إشعارات الشراء")}
             />
           }
         />
@@ -71,37 +72,36 @@ export function PurchaseToastsPanel({
         <div className="flex gap-3 rounded-xl border border-border bg-muted/40 p-3 text-xs leading-5 text-muted-foreground">
           <Info className="mt-0.5 size-4 shrink-0" />
           <p>
-            مش هنخترع أي طلب. الإشعارات بتتبني من طلبات الأونلاين الحقيقية (غير الملغية) في الفترة اللي تختارها — ولو
-            مفيش طلبات، مش هيظهر حاجة. ده بيحميك من أي شكوى ويخلّي الثقة حقيقية.
+            {tr("مش هنخترع أي طلب. الإشعارات بتتبني من طلبات الأونلاين الحقيقية (غير الملغية) في الفترة اللي تختارها — ولو مفيش طلبات، مش هيظهر حاجة. ده بيحميك من أي شكوى ويخلّي الثقة حقيقية.")}
           </p>
         </div>
 
         <section className="space-y-5 rounded-xl border border-border bg-card p-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>الطلبات من آخر</Label>
-              <span className="text-sm font-medium tabular-nums">{nf.format(config.lookbackDays)} يوم</span>
+              <Label>{tr("الطلبات من آخر")}</Label>
+              <span className="text-sm font-medium tabular-nums">{tr("{0} يوم", nf.format(config.lookbackDays))}</span>
             </div>
             <Segmented
               value={String(config.lookbackDays)}
               onChange={(v) => set("lookbackDays", Number(v))}
-              options={[1, 3, 7, 14, 30].map((d) => ({ value: String(d), label: `${nf.format(d)} يوم` }))}
+              options={[1, 3, 7, 14, 30].map((d) => ({ value: String(d), label: tr("{0} يوم", nf.format(d)) }))}
             />
             <p className={available ? "text-xs text-muted-foreground" : "text-xs text-amber-600"}>
               {available
-                ? `عندك ${nf.format(available)} طلب في الفترة دي — هيظهر منهم لحد ١٢.`
-                : "مفيش طلبات أونلاين في الفترة دي، فمش هيظهر أي إشعار. وسّع المدة."}
+                ? tr("عندك {0} طلب في الفترة دي — هيظهر منهم لحد ١٢.", nf.format(available))
+                : tr("مفيش طلبات أونلاين في الفترة دي، فمش هيظهر أي إشعار. وسّع المدة.")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label>اسم العميل</Label>
+            <Label>{tr("اسم العميل")}</Label>
             <Segmented
               value={config.nameMode}
               onChange={(v) => set("nameMode", v)}
               options={[
-                { value: "first", label: "الاسم الأول بس" },
-                { value: "hidden", label: "من غير أسماء" },
+                { value: "first", label: tr("الاسم الأول بس") },
+                { value: "hidden", label: tr("من غير أسماء") },
               ]}
             />
           </div>
@@ -109,14 +109,14 @@ export function PurchaseToastsPanel({
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>كل قد إيه</Label>
-                <span className="text-sm tabular-nums">{nf.format(config.intervalSeconds)} ث</span>
+                <Label>{tr("كل قد إيه")}</Label>
+                <span className="text-sm tabular-nums">{tr("{0} ث", nf.format(config.intervalSeconds))}</span>
               </div>
               <Slider min={8} max={120} step={1} value={[config.intervalSeconds]} onValueChange={([v]) => set("intervalSeconds", v)} />
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>أقصى عدد في الزيارة</Label>
+                <Label>{tr("أقصى عدد في الزيارة")}</Label>
                 <span className="text-sm tabular-nums">{nf.format(config.maxPerVisit)}</span>
               </div>
               <Slider min={1} max={10} step={1} value={[config.maxPerVisit]} onValueChange={([v]) => set("maxPerVisit", v)} />
@@ -124,13 +124,13 @@ export function PurchaseToastsPanel({
           </div>
 
           <div className="space-y-2">
-            <Label>المكان</Label>
+            <Label>{tr("المكان")}</Label>
             <Segmented
               value={config.position}
               onChange={(v) => set("position", v)}
               options={[
-                { value: "start", label: "يمين تحت" },
-                { value: "end", label: "شمال تحت" },
+                { value: "start", label: tr("يمين تحت") },
+                { value: "end", label: tr("شمال تحت") },
               ]}
             />
           </div>
@@ -139,18 +139,18 @@ export function PurchaseToastsPanel({
         <div className="flex gap-2">
           <Button onClick={() => save()} disabled={!dirty || pending} className="gap-1.5">
             {pending && <Loader2 className="size-4 animate-spin" />}
-            حفظ
+            {tr("حفظ")}
           </Button>
           {dirty && (
             <Button variant="ghost" onClick={() => setConfig(initial)} disabled={pending}>
-              تراجع
+              {tr("تراجع")}
             </Button>
           )}
         </div>
       </div>
 
       <aside className="space-y-2 xl:sticky xl:top-20 xl:self-start">
-        <p className="text-xs font-medium text-muted-foreground">{example ? "من آخر طلب حقيقي عندك" : "شكل الإشعار"}</p>
+        <p className="text-xs font-medium text-muted-foreground">{example ? tr("من آخر طلب حقيقي عندك") : tr("شكل الإشعار")}</p>
         <div className="relative flex items-center gap-3 rounded-2xl border border-border bg-card p-2.5 pe-8 shadow-lg">
           <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
             {example?.productImage ? (
@@ -163,12 +163,11 @@ export function PurchaseToastsPanel({
           <div className="min-w-0 text-sm">
             <p className="truncate">
               <span className="font-semibold">
-                {config.nameMode === "first" ? (example?.firstName ?? "محمد") : "عميل"}
-              </span>{" "}
-              طلب
+                {config.nameMode === "first" ? (example?.firstName ?? tr("محمد")) : tr("عميل")}
+              </span>{" "}{tr("طلب")}
             </p>
-            <p className="truncate font-medium">{example?.productName ?? "اسم المنتج"}</p>
-            <p className="text-xs text-muted-foreground">من ساعتين</p>
+            <p className="truncate font-medium">{example?.productName ?? tr("اسم المنتج")}</p>
+            <p className="text-xs text-muted-foreground">{tr("من ساعتين")}</p>
           </div>
           <X className="absolute end-2 top-2 size-3.5 text-muted-foreground" />
         </div>

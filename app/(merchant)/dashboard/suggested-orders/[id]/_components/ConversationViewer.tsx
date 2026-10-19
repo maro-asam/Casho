@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Store, User } from "lucide-react";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 type Message = {
   id: string;
@@ -15,7 +16,7 @@ type Props = {
 };
 
 function formatTime(date: Date) {
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(intlLocale(), {
     hour: "2-digit",
     minute: "2-digit",
     day: "numeric",
@@ -29,7 +30,7 @@ export function ConversationViewer({ messages, customerName }: Props) {
   if (textMessages.length === 0) {
     return (
       <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-        لا توجد رسائل نصية في هذه المحادثة
+        {tr("لا توجد رسائل نصية في هذه المحادثة")}
       </div>
     );
   }
@@ -65,8 +66,8 @@ export function ConversationViewer({ messages, customerName }: Props) {
             className={cn(
               "max-w-[75%] rounded-2xl px-3.5 py-2.5",
               msg.isFromBusiness
-                ? "rounded-tr-sm bg-primary text-primary-foreground"
-                : "rounded-tl-sm bg-muted text-foreground",
+                ? "rounded-ss-sm bg-primary text-primary-foreground"
+                : "rounded-se-sm bg-muted text-foreground",
             )}
           >
             <p className="text-sm leading-5">{msg.content}</p>
@@ -78,7 +79,7 @@ export function ConversationViewer({ messages, customerName }: Props) {
                   : "text-muted-foreground",
               )}
             >
-              {msg.isFromBusiness ? "التاجر" : (customerName ?? "العميل")} •{" "}
+              {msg.isFromBusiness ? tr("التاجر") : (customerName ?? tr("العميل"))} •{" "}
               {formatTime(msg.sentAt)}
             </p>
           </div>

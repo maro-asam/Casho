@@ -6,13 +6,19 @@ import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardS
 import TelegramConnect from "./_components/TelegramConnect";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { FEATURE_KEYS } from "@/lib/entitlements";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "ربط تيليجرام",
-  description: "احصل على إشعارات الطلبات فوراً عبر تيليجرام",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("ربط تيليجرام"),
+  description: tr("احصل على إشعارات الطلبات فوراً عبر تيليجرام"),
 };
+}
 
 export default async function TelegramPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -29,18 +35,18 @@ export default async function TelegramPage() {
   });
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Send}
-        title="ربط تيليجرام"
-        description="احصل على إشعارات فورية لكل طلب جديد مباشرة على تيليجرام"
+        title={tr("ربط تيليجرام")}
+        description={tr("احصل على إشعارات فورية لكل طلب جديد مباشرة على تيليجرام")}
       />
       {store ? (
         <FeatureGate
           storeId={store.id}
           feature={FEATURE_KEYS.TELEGRAM}
-          title="ربط تيليجرام"
-          description="تكامل تيليجرام غير متاح في باقتك الحالية."
+          title={tr("ربط تيليجرام")}
+          description={tr("تكامل تيليجرام غير متاح في باقتك الحالية.")}
         >
           <TelegramConnect
             linked={!!store.settings?.telegramChatId}

@@ -25,13 +25,16 @@ import {
   Star,
   Tag,
   Target,
+  TrendingUp,
   Timer,
   Truck,
   Users,
   Warehouse,
   Wallet,
+  ShoppingCartIcon,
   type LucideIcon,
 } from "lucide-react";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type NavLeaf = {
   name: string;
@@ -57,92 +60,102 @@ export type NavSection = {
 export const NAV_SECTIONS: NavSection[] = [
   {
     items: [
-      { name: "نظرة عامة", href: "/", icon: LayoutDashboard },
-      { name: "الطلبات", href: "/orders", icon: ShoppingCart },
-      { name: "المنتجات", href: "/products", icon: Package },
-      { name: "نقطة البيع (POS)", href: "/pos", icon: MonitorCheck },
-      { name: "التقارير", href: "/reports", icon: ChartNoAxesCombined },
+      { get name() { return tr("نظرة عامة"); }, href: "/", icon: LayoutDashboard },
+      { get name() { return tr("الطلبات"); }, href: "/orders", icon: ShoppingCart },
+      { get name() { return tr("المنتجات"); }, href: "/products", icon: Package },
+      { get name() { return tr("نقطة البيع (POS)"); }, href: "/pos", icon: MonitorCheck },
+      { get name() { return tr("التقارير"); }, href: "/reports", icon: ChartNoAxesCombined },
     ],
   },
   {
-    title: "المتجر",
+    get title() { return tr("المتجر"); },
     items: [
-      { name: "التصنيفات", href: "/categories", icon: Tag },
-      { name: "البانرات", href: "/banners", icon: ImageIcon },
-      { name: "تخصيص المتجر", href: "/customization", icon: PaintRoller },
-      { name: "المراجعات", href: "/reviews", icon: Star },
-      { name: "المدونة", href: "/blog", icon: BookOpen },
-      { name: "دومين مخصص", href: "/domain", icon: Globe },
+      { get name() { return tr("التصنيفات"); }, href: "/categories", icon: Tag },
+      { get name() { return tr("البانرات"); }, href: "/banners", icon: ImageIcon },
+      { get name() { return tr("تخصيص المتجر"); }, href: "/customization", icon: PaintRoller },
+      { get name() { return tr("المراجعات"); }, href: "/reviews", icon: Star },
+      { get name() { return tr("المدونة"); }, href: "/blog", icon: BookOpen },
+      { get name() { return tr("دومين مخصص"); }, href: "/domain", icon: Globe },
     ],
   },
   {
-    title: "التسويق",
+    get title() { return tr("التسويق"); },
     items: [
-      { name: "أكواد الخصم", href: "/coupons", icon: CirclePercent },
-      { name: "الكارتات المتروكة", href: "/abandoned-carts", icon: Timer },
-      { name: "نظام النقاط", href: "/loyalty", icon: Gift },
-      { name: "البيكسل وتتبع الإعلانات", href: "/pixels", icon: Target },
-      { name: "الظهور في جوجل", href: "/seo", icon: Rocket },
-      { name: "QR Code المتجر", href: "/qr-code", icon: QrCode },
+      { get name() { return tr("أكواد الخصم"); }, href: "/coupons", icon: CirclePercent },
+      { get name() { return tr("Upsell و Cross-sell"); }, href: "/offers", icon: TrendingUp },
+      { get name() { return tr("نظام النقاط"); }, href: "/loyalty", icon: Gift },
+      { get name() { return tr("الظهور في جوجل"); }, href: "/seo", icon: Rocket },
+      { get name() { return tr("عربات التسوق المهجورة"); }, href: "/abandoned-carts", icon: ShoppingCartIcon },
+      { get name() { return tr("البيكسل وتتبع الإعلانات"); }, href: "/pixels", icon: Target },
+      { get name() { return tr("QR Code المتجر"); }, href: "/qr-code", icon: QrCode },
     ],
   },
   {
-    title: "العمليات",
+    get title() { return tr("العمليات"); },
     items: [
       {
-        name: "العملاء",
+        get name() { return tr("العملاء"); },
         href: "/crm",
         icon: Users,
         children: [
-          { name: "لوحة CRM", href: "/crm" },
-          { name: "كل العملاء", href: "/crm/customers" },
-          { name: "الشرائح", href: "/crm/segments" },
-          { name: "العلامات", href: "/crm/tags" },
-          { name: "التحليلات", href: "/crm/analytics" },
+          { get name() { return tr("لوحة CRM"); }, href: "/crm" },
+          { get name() { return tr("كل العملاء"); }, href: "/crm/customers" },
+          { get name() { return tr("الشرائح"); }, href: "/crm/segments" },
+          { get name() { return tr("العلامات"); }, href: "/crm/tags" },
+          { get name() { return tr("التحليلات"); }, href: "/crm/analytics" },
         ],
       },
       {
-        name: "المخزون",
+        get name() { return tr("المخزون"); },
         href: "/inventory",
         icon: Warehouse,
         children: [
-          { name: "إدارة المخزون", href: "/inventory" },
-          { name: "حركات المخزون", href: "/inventory/movements" },
-          { name: "الموردون", href: "/inventory/suppliers" },
-          { name: "طلبات الشراء", href: "/inventory/purchase-orders" },
-          { name: "تحويلات الفروع", href: "/inventory/transfers" },
+          { get name() { return tr("إدارة المخزون"); }, href: "/inventory" },
+          { get name() { return tr("حركات المخزون"); }, href: "/inventory/movements" },
+          { get name() { return tr("الموردون"); }, href: "/inventory/suppliers" },
+          { get name() { return tr("طلبات الشراء"); }, href: "/inventory/purchase-orders" },
+          { get name() { return tr("تحويلات الفروع"); }, href: "/inventory/transfers" },
         ],
       },
-      { name: "طرق الشحن", href: "/shipping", icon: Truck },
-      { name: "الحماية من الوهمي", href: "/fraud", icon: ShieldCheck },
+      {
+        get name() { return tr("الشحن"); },
+        href: "/shipping",
+        icon: Truck,
+        children: [
+          { get name() { return tr("الشحنات"); }, href: "/shipping/shipments" },
+          { get name() { return tr("شركات الشحن"); }, href: "/shipping/integrations" },
+          { get name() { return tr("طرق وأسعار الشحن"); }, href: "/shipping" },
+        ],
+      },
+      { get name() { return tr("الحماية من الوهمي"); }, href: "/fraud", icon: ShieldCheck },
     ],
   },
   {
-    title: "القنوات والربط",
+    get title() { return tr("القنوات والربط"); },
     items: [
-      { name: "طلبات انستجرام", href: "/suggested-orders", icon: Send, badge: "AI" },
-      { name: "ربط انستجرام", href: "/integrations/instagram", icon: Camera },
-      { name: "ربط تيليجرام", href: "/telegram", icon: Send },
-      { name: "استيراد من Shopify", href: "/integrations/shopify", icon: ShoppingBag },
-      { name: "مفاتيح API", href: "/api-keys", icon: Code2 },
+      { get name() { return tr("طلبات انستجرام"); }, href: "/suggested-orders", icon: Send, badge: "AI" },
+      { get name() { return tr("ربط انستجرام"); }, href: "/integrations/instagram", icon: Camera },
+      { get name() { return tr("ربط تيليجرام"); }, href: "/telegram", icon: Send },
+      { get name() { return tr("استيراد من Shopify"); }, href: "/integrations/shopify", icon: ShoppingBag },
+      { get name() { return tr("مفاتيح API"); }, href: "/api-keys", icon: Code2 },
     ],
   },
   {
-    title: "الحساب",
+    get title() { return tr("الحساب"); },
     items: [
-      { name: "الرصيد", href: "/balance", icon: Wallet },
-      { name: "الخطة والاشتراك", href: "/change-plan", icon: BanknoteArrowUp },
-      { name: "بوابات الدفع", href: "/payment-methods", icon: CreditCard },
-      { name: "خدمات إضافية", href: "/services", icon: Layers },
-      { name: "نظام المكافآت", href: "/referral", icon: Gift },
+      { get name() { return tr("الرصيد"); }, href: "/balance", icon: Wallet },
+      { get name() { return tr("الخطة والاشتراك"); }, href: "/change-plan", icon: BanknoteArrowUp },
+      { get name() { return tr("بوابات الدفع"); }, href: "/payment-methods", icon: CreditCard },
+      { get name() { return tr("خدمات إضافية"); }, href: "/services", icon: Layers },
+      { get name() { return tr("نظام المكافآت"); }, href: "/referral", icon: Gift },
     ],
   },
 ];
 
 /** Pinned to the bottom of the sidebar. */
 export const NAV_FOOTER: NavItem[] = [
-  { name: "مركز المساعدة", href: "/support", icon: Headset },
-  { name: "الإعدادات", href: "/settings", icon: Settings },
+  { get name() { return tr("مركز المساعدة"); }, href: "/support", icon: Headset },
+  { get name() { return tr("الإعدادات"); }, href: "/settings", icon: Settings },
 ];
 
 /** `/dashboard/orders/123` and `/orders/123` both become `/orders/123`. */

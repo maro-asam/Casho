@@ -1,7 +1,8 @@
+import { lazyList, tr } from "@/lib/i18n/dashboard";
 const TIME_ZONE = "Africa/Cairo";
 
 // One line per day, same for everyone that day (picked by Cairo date).
-const QUOTES = [
+const QUOTES = lazyList([
   "كل طلب صغير النهارده هو خطوة في براند كبير بكرة.",
   "العميل اللي بيرجع تاني أغلى من عشرة جداد — اهتم بيه.",
   "صورة منتج حلوة بتبيع أكتر من ألف كلمة.",
@@ -23,7 +24,7 @@ const QUOTES = [
   "كل زيارة لمتجرك هي فرصة، خلّي أول انطباع يستاهل.",
   "الاستمرار بيغلب الموهبة لما الموهبة متستمرش.",
   "ركّز على المنتج اللي بيبيع، وطوّر اللي مش بيبيع.",
-];
+]);
 
 const dayKey = new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE });
 const hourFormat = new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, hour: "numeric", hourCycle: "h23" });
@@ -35,7 +36,7 @@ export function getDailyQuote(now = new Date()) {
 
 export function getGreeting(now = new Date()) {
   const hour = Number(hourFormat.format(now));
-  if (hour < 12) return "صباح الخير";
-  if (hour < 17) return "نهارك سعيد";
-  return "مساء الخير";
+  if (hour < 12) return tr("صباح الخير");
+  if (hour < 17) return tr("نهارك سعيد");
+  return tr("مساء الخير");
 }

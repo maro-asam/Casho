@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
   storeId: string;
@@ -29,9 +30,9 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
     startTransition(async () => {
       const result = await UpdateStoreFontAction({ storeId, fontId });
       if (result.success) {
-        toast.success(result.message);
+        toast.success(trv(result.message));
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -41,14 +42,14 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
     startLangTransition(async () => {
       const result = await UpdateStoreLanguageAction({ storeId, storeLanguage: lang });
       if (result.success) {
-        toast.success(result.message);
+        toast.success(trv(result.message));
         // Auto-switch font to a sensible default for the new language
         const defaultFont = lang === "en" ? "inter" : "cairo";
         if (!currentFontId || (lang === "en" && activeLanguage === "ar") || (lang === "ar" && activeLanguage === "en")) {
           await UpdateStoreFontAction({ storeId, fontId: defaultFont });
         }
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -58,7 +59,7 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
   );
 
   return (
-    <Card dir="rtl">
+    <Card dir={tdir()}>
       <CardContent className="space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -66,9 +67,9 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
             <Type className="size-4" />
           </div>
           <div>
-            <h2 className="font-semibold">خط المتجر</h2>
+            <h2 className="font-semibold">{tr("خط المتجر")}</h2>
             <p className="text-xs text-muted-foreground">
-              اختر الخط المناسب لهوية متجرك — يُطبَّق على كل النصوص تلقائياً
+              {tr("اختر الخط المناسب لهوية متجرك — يُطبَّق على كل النصوص تلقائياً")}
             </p>
           </div>
         </div>
@@ -77,7 +78,7 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
         <div className="flex items-center justify-between rounded-xl border bg-muted/40 p-3">
           <div className="flex items-center gap-2">
             <Globe className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium">لغة المتجر واتجاهه</span>
+            <span className="text-sm font-medium">{tr("لغة المتجر واتجاهه")}</span>
           </div>
           <div className="flex items-center gap-1 rounded-lg border bg-background p-1">
             <button
@@ -95,7 +96,7 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
               {isLangPending && activeLanguage === "en" ? (
                 <Loader2 className="size-3.5 animate-spin" />
               ) : null}
-              عربي ←
+              {tr("عربي ←")}
             </button>
             <button
               type="button"
@@ -120,7 +121,7 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
         {/* Font Tabs */}
         <Tabs value={tab} onValueChange={(v) => setTab(v as "arabic" | "english")}>
           <TabsList className="w-full">
-            <TabsTrigger value="arabic" className="flex-1">خطوط عربية</TabsTrigger>
+            <TabsTrigger value="arabic" className="flex-1">{tr("خطوط عربية")}</TabsTrigger>
             <TabsTrigger value="english" className="flex-1" dir="ltr">English Fonts</TabsTrigger>
           </TabsList>
 
@@ -144,7 +145,7 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
                     disabled={isPending}
                     onClick={() => selectFont(font.id)}
                     className={cn(
-                      "group relative flex flex-col gap-2 rounded-2xl border p-4 text-right transition-all duration-200",
+                      "group relative flex flex-col gap-2 rounded-2xl border p-4 text-start transition-all duration-200",
                       "disabled:pointer-events-none disabled:opacity-60",
                       isActive
                         ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
@@ -164,11 +165,11 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
                       {isActive ? (
                         <Badge className="gap-1 bg-primary/10 px-2 py-0 text-[11px] text-primary hover:bg-primary/10">
                           <Check className="size-2.5" />
-                          مُفعّل
+                          {tr("مُفعّل")}
                         </Badge>
                       ) : (
                         <span className="text-[11px] text-muted-foreground transition-colors group-hover:text-primary">
-                          تفعيل ←
+                          {tr("تفعيل ←")}
                         </span>
                       )}
                     </div>
@@ -195,7 +196,7 @@ export default function StoreFontPicker({ storeId, currentFontId, currentLanguag
                     disabled={isPending}
                     onClick={() => selectFont(font.id)}
                     className={cn(
-                      "group relative flex flex-col gap-2 rounded-2xl border p-4 text-left transition-all duration-200",
+                      "group relative flex flex-col gap-2 rounded-2xl border p-4 text-end transition-all duration-200",
                       "disabled:pointer-events-none disabled:opacity-60",
                       isActive
                         ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"

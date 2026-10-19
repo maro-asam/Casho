@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { POPUP_TEMPLATES, POPUP_TYPE_META, triggerLabel, type PopupConfig, type PopupType } from "@/lib/popups/popup-config";
 import { PanelHeader } from "../studio/studio-nav";
 import { PopupActiveSwitch, PopupRowActions } from "./popup-row-actions";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type PopupListRow = {
   id: string;
@@ -21,32 +22,32 @@ export type PopupListRow = {
   conversions: number;
 };
 
-const nf = new Intl.NumberFormat("ar-EG");
-const pf = new Intl.NumberFormat("ar-EG", { style: "percent", maximumFractionDigits: 1 });
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short" });
+const nf = lazyIntl.number();
+const pf = lazyIntl.number({ style: "percent", maximumFractionDigits: 1 });
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short" });
 const TYPE_ICONS = { discount: Gift, lead: UserPlus, announcement: Megaphone } as const;
 
 const editHref = (id: string) => `/customization?tab=popups&popup=${id}`;
 const templateHref = (id: string) => `/customization?tab=popups&popup=new&template=${id}`;
 
 function liveState(row: PopupListRow, now: Date) {
-  if (!row.isActive) return { label: "متوقفة", tone: "neutral" as const };
-  if (row.startsAt && row.startsAt > now) return { label: `تبدأ ${df.format(row.startsAt)}`, tone: "info" as const };
-  if (row.endsAt && row.endsAt <= now) return { label: "انتهت", tone: "warning" as const };
-  return { label: "شغّالة", tone: "success" as const };
+  if (!row.isActive) return { label: tr("متوقفة"), tone: "neutral" as const };
+  if (row.startsAt && row.startsAt > now) return { label: tr("تبدأ {0}", df.format(row.startsAt)), tone: "info" as const };
+  if (row.endsAt && row.endsAt <= now) return { label: tr("انتهت"), tone: "warning" as const };
+  return { label: tr("شغّالة"), tone: "success" as const };
 }
 
 /** Views → conversions, with the rate that matters. */
 function Funnel({ row }: { row: PopupListRow }) {
-  if (!row.views) return <span className="text-xs text-muted-foreground">لسه مفيش مشاهدات</span>;
+  if (!row.views) return <span className="text-xs text-muted-foreground">{tr("لسه مفيش مشاهدات")}</span>;
   return (
     <div className="space-y-1">
       <div className="flex items-baseline gap-1.5 text-sm">
         <span className="font-semibold tabular-nums">{pf.format(row.conversions / row.views)}</span>
-        <span className="text-xs text-muted-foreground">تحويل</span>
+        <span className="text-xs text-muted-foreground">{tr("تحويل")}</span>
       </div>
       <p className="text-xs text-muted-foreground tabular-nums">
-        {nf.format(row.views)} شافوها · {nf.format(row.conversions)} {row.type === "announcement" ? "ضغطوا" : row.type === "lead" ? "سجّلوا" : "أخدوا الكود"}
+        {tr("{0} شافوها · {1}", nf.format(row.views), nf.format(row.conversions))}{" "}{row.type === "announcement" ? tr("ضغطوا") : row.type === "lead" ? tr("سجّلوا") : tr("أخدوا الكود")}
       </p>
     </div>
   );
@@ -60,14 +61,14 @@ export function PopupsPanel({ rows, storeId }: { rows: PopupListRow[]; storeId: 
   return (
     <div className="space-y-5">
       <PanelHeader
-        title="النوافذ المنبثقة"
-        description="نافذة واحدة بس بتظهر للزائر في الزيارة، والأولوية للي فوق. مش هتظهر أبدًا وقت الدفع."
+        title={tr("النوافذ المنبثقة")}
+        description={tr("نافذة واحدة بس بتظهر للزائر في الزيارة، والأولوية للي فوق. مش هتظهر أبدًا وقت الدفع.")}
         actions={
           rows.length > 0 && (
             <Button asChild size="sm" className="gap-1.5">
               <Link href="/customization?tab=popups&popup=new" scroll={false}>
                 <Plus className="size-4" />
-                نافذة جديدة
+                {tr("نافذة جديدة")}
               </Link>
             </Button>
           )
@@ -81,9 +82,9 @@ export function PopupsPanel({ rows, storeId }: { rows: PopupListRow[]; storeId: 
           {totals.views > 0 && (
             <div className="grid grid-cols-3 divide-x divide-x-reverse divide-border rounded-xl border border-border bg-card">
               {[
-                ["مشاهدات", nf.format(totals.views)],
-                ["تحويلات", nf.format(totals.conversions)],
-                ["معدل التحويل", pf.format(totals.conversions / totals.views)],
+                [tr("مشاهدات"), nf.format(totals.views)],
+                [tr("تحويلات"), nf.format(totals.conversions)],
+                [tr("معدل التحويل"), pf.format(totals.conversions / totals.views)],
               ].map(([label, value]) => (
                 <div key={label} className="px-4 py-3">
                   <p className="text-xs text-muted-foreground">{label}</p>
@@ -98,11 +99,11 @@ export function PopupsPanel({ rows, storeId }: { rows: PopupListRow[]; storeId: 
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">النافذة</TableHead>
-                    <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">إمتى تظهر</TableHead>
-                    <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الأداء</TableHead>
-                    <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الحالة</TableHead>
-                    <TableHead className="h-10 w-28 pe-4 text-left text-xs font-medium text-muted-foreground">تشغيل</TableHead>
+                    <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("النافذة")}</TableHead>
+                    <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("إمتى تظهر")}</TableHead>
+                    <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الأداء")}</TableHead>
+                    <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
+                    <TableHead className="h-10 w-28 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("تشغيل")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -143,7 +144,7 @@ export function PopupsPanel({ rows, storeId }: { rows: PopupListRow[]; storeId: 
                           {(row.startsAt || row.endsAt) && (
                             <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                               <CalendarClock className="size-3" />
-                              {row.startsAt ? df.format(row.startsAt) : "الآن"} ← {row.endsAt ? df.format(row.endsAt) : "مفتوح"}
+                              {row.startsAt ? df.format(row.startsAt) : tr("الآن")} ← {row.endsAt ? df.format(row.endsAt) : tr("مفتوح")}
                             </p>
                           )}
                         </TableCell>
@@ -188,7 +189,7 @@ export function PopupsPanel({ rows, storeId }: { rows: PopupListRow[]; storeId: 
                     <div className="flex items-center justify-between gap-3">
                       <StatusPill tone={state.tone}>{state.label}</StatusPill>
                       <span className="text-xs text-muted-foreground tabular-nums">
-                        {row.views ? `${nf.format(row.views)} مشاهدة · ${pf.format(row.conversions / row.views)}` : "لسه مفيش مشاهدات"}
+                        {row.views ? tr("{0} مشاهدة · {1}", nf.format(row.views), pf.format(row.conversions / row.views)) : tr("لسه مفيش مشاهدات")}
                       </span>
                     </div>
                   </li>
@@ -199,7 +200,7 @@ export function PopupsPanel({ rows, storeId }: { rows: PopupListRow[]; storeId: 
 
           <details className="group rounded-xl border border-dashed border-border">
             <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-sm font-medium">
-              ابدأ من قالب جاهز
+              {tr("ابدأ من قالب جاهز")}
               <Plus className="size-4 text-muted-foreground transition-transform group-open:rotate-45" />
             </summary>
             <div className="border-t border-dashed border-border p-4">
@@ -216,8 +217,8 @@ function TemplateGallery() {
   return (
     <section className="rounded-xl border border-dashed border-border p-5">
       <div className="mb-4 space-y-1 text-center">
-        <p className="font-semibold">اختار قالب وابدأ في دقيقة</p>
-        <p className="text-sm text-muted-foreground">كل قالب متظبط على أفضل توقيت واستهداف لنوعه — عدّل الكلام بس.</p>
+        <p className="font-semibold">{tr("اختار قالب وابدأ في دقيقة")}</p>
+        <p className="text-sm text-muted-foreground">{tr("كل قالب متظبط على أفضل توقيت واستهداف لنوعه — عدّل الكلام بس.")}</p>
       </div>
       <TemplateGrid />
     </section>

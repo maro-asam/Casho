@@ -7,6 +7,7 @@ import { Lock, Store } from "lucide-react";
 import { SwitchBranchAction } from "@/actions/inventory/branches.actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 const ALL = "all";
 
@@ -54,7 +55,7 @@ export function BranchSwitcher({ branches, value, allowAll = false, lockedReason
         await SwitchBranchAction(next, surface);
         router.refresh();
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "تعذر تغيير الفرع");
+        toast.error(error instanceof Error ? error.message : tr("تعذر تغيير الفرع"));
       }
     });
   };
@@ -62,14 +63,14 @@ export function BranchSwitcher({ branches, value, allowAll = false, lockedReason
   return (
     <Select value={allowAll || value !== ALL ? value : branches[0].id} onValueChange={onChange} disabled={pending}>
       <SelectTrigger
-        aria-label="الفرع"
+        aria-label={tr("الفرع")}
         className={cn("h-9 w-auto min-w-36 gap-1.5 text-xs font-medium", pending && "opacity-60", className)}
       >
         <Store className="size-3.5 shrink-0 text-muted-foreground" />
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {allowAll && <SelectItem value={ALL}>كل الفروع</SelectItem>}
+        {allowAll && <SelectItem value={ALL}>{tr("كل الفروع")}</SelectItem>}
         {branches.map((b) => (
           <SelectItem key={b.id} value={b.id}>
             {b.name}

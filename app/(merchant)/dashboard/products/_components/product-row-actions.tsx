@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
   product: { id: string; name: string; isActive: boolean; isFeatured: boolean };
@@ -41,10 +42,10 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
     startTransition(async () => {
       const result = await SetProductFlagsAction(product.id, flags);
       if (result.ok) {
-        toast.success(success);
+        toast.success(trv(success));
         router.refresh();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -54,25 +55,25 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
       const result = await DeleteProductAction(product.id);
       if (result.ok) {
         setConfirmDelete(false);
-        toast.success(`اتمسح "${product.name}"`);
+        toast.success(tr("اتمسح \"{0}\"", product.name));
         router.refresh();
       } else if (result.code === "HAS_ORDERS") {
         setBlockedByOrders(true);
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
 
   return (
     <>
-      <DropdownMenu dir="rtl" modal={false}>
+      <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
             disabled={pending}
-            aria-label={`إجراءات ${product.name}`}
+            aria-label={tr("إجراءات {0}", product.name)}
             className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
@@ -82,31 +83,31 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
           <DropdownMenuItem asChild>
             <Link href={`/products/${product.id}/edit`}>
               <Pencil />
-              تعديل
+              {tr("تعديل")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href={storefrontUrl} target="_blank" rel="noreferrer">
               <ExternalLink />
-              عرض في المتجر
+              {tr("عرض في المتجر")}
             </a>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onSelect={() =>
-              setFlags({ isActive: !product.isActive }, product.isActive ? "المنتج اتخفى من المتجر" : "المنتج بقى ظاهر في المتجر")
+              setFlags({ isActive: !product.isActive }, product.isActive ? tr("المنتج اتخفى من المتجر") : tr("المنتج بقى ظاهر في المتجر"))
             }
           >
             {product.isActive ? <EyeOff /> : <Eye />}
-            {product.isActive ? "إخفاء من المتجر" : "إظهار في المتجر"}
+            {product.isActive ? tr("إخفاء من المتجر") : tr("إظهار في المتجر")}
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() =>
-              setFlags({ isFeatured: !product.isFeatured }, product.isFeatured ? "اتشال من المميزة" : "بقى من المنتجات المميزة")
+              setFlags({ isFeatured: !product.isFeatured }, product.isFeatured ? tr("اتشال من المميزة") : tr("بقى من المنتجات المميزة"))
             }
           >
             {product.isFeatured ? <StarOff /> : <Star />}
-            {product.isFeatured ? "إلغاء التمييز" : "تمييز المنتج"}
+            {product.isFeatured ? tr("إلغاء التمييز") : tr("تمييز المنتج")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -117,30 +118,29 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
             }}
           >
             <Trash2 />
-            حذف
+            {tr("حذف")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           {blockedByOrders ? (
             <>
               <AlertDialogHeader>
-                <AlertDialogTitle>مينفعش نمسح المنتج ده</AlertDialogTitle>
+                <AlertDialogTitle>{tr("مينفعش نمسح المنتج ده")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  &quot;{product.name}&quot; موجود في طلبات قديمة، ولازم يفضل عشان سجل الطلبات والتقارير. تقدر تخفيه من
-                  المتجر فمحدش يقدر يطلبه تاني.
+                  {tr("\"{0}\" موجود في طلبات قديمة، ولازم يفضل عشان سجل الطلبات والتقارير. تقدر تخفيه من المتجر فمحدش يقدر يطلبه تاني.", product.name)}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>رجوع</AlertDialogCancel>
+                <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
                 {product.isActive && (
                   <AlertDialogAction
-                    onClick={() => setFlags({ isActive: false }, "المنتج اتخفى من المتجر")}
+                    onClick={() => setFlags({ isActive: false }, tr("المنتج اتخفى من المتجر"))}
                     disabled={pending}
                   >
-                    إخفاء من المتجر
+                    {tr("إخفاء من المتجر")}
                   </AlertDialogAction>
                 )}
               </AlertDialogFooter>
@@ -148,16 +148,16 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
           ) : (
             <>
               <AlertDialogHeader>
-                <AlertDialogTitle>تمسح &quot;{product.name}&quot;؟</AlertDialogTitle>
+                <AlertDialogTitle>{tr("تمسح \"{0}\"؟", product.name)}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  المنتج هيتمسح نهائي من المتجر ومن سلات العملاء، ومش هتقدر ترجّعه.
+                  {tr("المنتج هيتمسح نهائي من المتجر ومن سلات العملاء، ومش هتقدر ترجّعه.")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={pending}>رجوع</AlertDialogCancel>
+                <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
                 <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
                   {pending && <Loader2 className="size-4 animate-spin" />}
-                  حذف نهائي
+                  {tr("حذف نهائي")}
                 </Button>
               </AlertDialogFooter>
             </>

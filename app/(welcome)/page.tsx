@@ -16,17 +16,15 @@ import { ComingSoon } from "./_components/ComingSoon";
 /* Original landing page — commented out while "coming soon" is live.  */
 /* ------------------------------------------------------------------ */
 
-import PaymentMethodsSection from "./_components/PaymentMethodsSection";
-// import FeaturesSection from "./_components/Features";
-import StatsSection from "./_components/Stats";
-import BeforeAfterSection from "./_components/BeforeAfter";
-import PricingSection from "./_components/Pricing";
-import FAQSection from "./_components/FAQ";
-// import CTASection from "./_components/CTA";
-import BlogSection from "./_components/BlogSection";
-import { HeroSection } from "./_components/Hero";
 import { getAllActivePlans } from "@/lib/entitlements";
 import type { WelcomePlan } from "./_components/Pricing";
+import AppleHero from "./_components/apple/AppleHero";
+import SyncSection from "./_components/apple/SyncSection";
+import Bento from "./_components/apple/Bento";
+import ThemesRail from "./_components/apple/ThemesRail";
+import ApplePricing from "./_components/apple/ApplePricing";
+import AppleFAQ from "./_components/apple/AppleFAQ";
+import FinalCTA from "./_components/apple/FinalCTA";
 
 export default async function Page() {
   const allPlans = await getAllActivePlans();
@@ -51,21 +49,18 @@ export default async function Page() {
       })),
   }));
 
+  // Apple-style landing: full-bleed sections alternating light / dark,
+  // one idea per section. Tokens + glass recipes in _components/apple/apple.css.
   return (
-    <>
+    <div className="al">
       <LandingPageTracker />
-
-      <div className="mt-10 flex flex-col gap-12 md:gap-20">
-        <HeroSection />
-        <PaymentMethodsSection />
-        <StatsSection />
-        <BeforeAfterSection />
-        {/* <FeaturesSection /> */}
-        <PricingSection plans={plans} />
-        <BlogSection />
-        {/* <CTASection /> */}
-        <FAQSection />
-      </div>
-    </>
+      <AppleHero />
+      <SyncSection />
+      <Bento />
+      <ThemesRail />
+      <ApplePricing plans={plans} />
+      <AppleFAQ />
+      <FinalCTA />
+    </div>
   );
 }

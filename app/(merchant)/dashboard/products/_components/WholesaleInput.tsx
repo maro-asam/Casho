@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type WholesaleTier = {
   minQty: number;
@@ -68,15 +69,15 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
             }`}
           />
         </div>
-        <span className="text-sm font-medium">تفعيل أسعار الجملة</span>
+        <span className="text-sm font-medium">{tr("تفعيل أسعار الجملة")}</span>
       </label>
 
       {enabled && (
         <div className="space-y-3">
           <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-xs font-medium text-muted-foreground">
-            <span>الحد الأدنى للكمية</span>
-            <span>الحد الأقصى (اختياري)</span>
-            <span>السعر للقطعة (ج.م)</span>
+            <span>{tr("الحد الأدنى للكمية")}</span>
+            <span>{tr("الحد الأقصى (اختياري)")}</span>
+            <span>{tr("السعر للقطعة (ج.م)")}</span>
             <span />
           </div>
 
@@ -93,7 +94,7 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
                   className="rounded-xl pe-8 text-sm"
                 />
                 <span className="pointer-events-none absolute inset-e-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                  قطعة
+                  {tr("قطعة")}
                 </span>
               </div>
 
@@ -108,7 +109,7 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
                   className="rounded-xl pe-8 text-sm"
                 />
                 <span className="pointer-events-none absolute inset-e-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                  قطعة
+                  {tr("قطعة")}
                 </span>
               </div>
 
@@ -124,7 +125,7 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
                   required={enabled}
                 />
                 <span className="pointer-events-none absolute inset-e-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                  ج.م
+                  {tr("ج.م")}
                 </span>
               </div>
 
@@ -148,11 +149,11 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
             className="w-full rounded-xl gap-1.5"
           >
             <Plus className="size-3.5" />
-            إضافة شريحة سعرية
+            {tr("إضافة شريحة سعرية")}
           </Button>
 
           <p className="text-xs text-muted-foreground">
-            مثال: 10-49 قطعة بسعر 45 ج.م، و50+ قطعة بسعر 38 ج.م
+            {tr("مثال: 10-49 قطعة بسعر 45 ج.م، و50+ قطعة بسعر 38 ج.م")}
           </p>
         </div>
       )}

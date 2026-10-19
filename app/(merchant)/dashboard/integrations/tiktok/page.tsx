@@ -4,27 +4,33 @@ import { ArrowRight, Music2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = { title: "تيك توك" };
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return { title: tr("تيك توك") };
+}
 
-export default function TikTokIntegrationPage() {
+export default async function TikTokIntegrationPage() {
+  await loadDashboardLocale();
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="icon" className="rounded-xl">
           <Link href="/integrations">
-            <ArrowRight className="size-5" />
+            <ArrowRight className="size-5 ltr:-scale-x-100" />
           </Link>
         </Button>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold">تيك توك</h1>
+            <h1 className="text-xl font-bold">{tr("تيك توك")}</h1>
             <Badge variant="secondary" className="rounded-full border-0 bg-zinc-500/10 text-zinc-600 text-xs">
-              قريباً
+              {tr("قريباً")}
             </Badge>
           </div>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            اكتشاف الطلبات من تعليقات ورسائل TikTok Shop
+            {tr("اكتشاف الطلبات من تعليقات ورسائل TikTok Shop")}
           </p>
         </div>
       </div>
@@ -36,20 +42,20 @@ export default function TikTokIntegrationPage() {
           </div>
 
           <Badge className="mb-3 rounded-full border-0 bg-zinc-500/10 text-zinc-600 dark:text-zinc-400">
-            قريباً
+            {tr("قريباً")}
           </Badge>
 
           <h2 className="text-xl font-bold">TikTok Shop</h2>
           <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
-            ربط حسابك التجاري على تيك توك لاكتشاف طلبات الشراء من التعليقات والرسائل تلقائياً.
+            {tr("ربط حسابك التجاري على تيك توك لاكتشاف طلبات الشراء من التعليقات والرسائل تلقائياً.")}
           </p>
 
-          <ul className="mt-4 space-y-1.5 text-right">
+          <ul className="mt-4 space-y-1.5 text-start">
             {[
-              "تحليل تعليقات الفيديوهات",
-              "اكتشاف الطلبات من TikTok DM",
-              "تكامل مع TikTok Shop",
-              "تتبع المنتجات الأكثر طلباً",
+              tr("تحليل تعليقات الفيديوهات"),
+              tr("اكتشاف الطلبات من TikTok DM"),
+              tr("تكامل مع TikTok Shop"),
+              tr("تتبع المنتجات الأكثر طلباً"),
             ].map((f) => (
               <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="size-1.5 rounded-full bg-muted-foreground/40" />
@@ -59,7 +65,7 @@ export default function TikTokIntegrationPage() {
           </ul>
 
           <Button disabled className="mt-6 rounded-xl" size="lg">
-            ربط تيك توك
+            {tr("ربط تيك توك")}
           </Button>
         </CardContent>
       </Card>

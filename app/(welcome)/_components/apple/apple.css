@@ -1,0 +1,275 @@
+/* Apple-style landing — scoped tokens + Liquid Glass recipes.
+   Imported once by app/(welcome)/layout.tsx so the navbar/footer share them. */
+
+.al {
+  --al-bg: #ffffff;
+  --al-surface: #f5f5f7;
+  --al-card: #ffffff;
+  --al-text: #1d1d1f;
+  --al-muted: #6e6e73;
+  --al-faint: #86868b;
+  --al-hair: rgba(0, 0, 0, 0.1);
+  --al-tint: #1447e6;
+  --al-tint-hover: #1f55f0;
+  --al-link: #1447e6;
+  --al-new: #b64400;
+  --al-ease: cubic-bezier(0.28, 0.11, 0.32, 1);
+
+  font-family: var(--font-cairo), var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: "cv05", "cv11";
+  font-weight: 400;
+  color: var(--al-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark .al,
+.al.dark {
+  --al-bg: #000000;
+  --al-surface: #161617;
+  --al-card: #1d1d1f;
+  --al-text: #f5f5f7;
+  --al-muted: #a1a1a6;
+  --al-faint: #86868b;
+  --al-hair: rgba(255, 255, 255, 0.12);
+  --al-tint: #3366ff;
+  --al-tint-hover: #4775ff;
+  --al-link: #5c8aff;
+  --al-new: #ff9f45;
+}
+
+/* Sections that stay dark in both themes */
+.al .al-dark {
+  --al-bg: #000000;
+  --al-surface: #161617;
+  --al-card: #1d1d1f;
+  --al-text: #f5f5f7;
+  --al-muted: #a1a1a6;
+  --al-hair: rgba(255, 255, 255, 0.12);
+  --al-link: #5c8aff;
+  background: #000;
+  color: #f5f5f7;
+}
+
+/* globals.css forces `* { font-weight: 300 }`; restore inheritance inside the
+   landing so weights cascade like normal typography. Lives in the base layer,
+   so Tailwind font-* utilities still win. */
+@layer base {
+  .al * {
+    font-weight: inherit;
+  }
+}
+
+/* ---------- Type ---------- */
+
+.al-hero-title {
+  font-size: clamp(44px, 8vw, 96px);
+  font-weight: 700;
+  line-height: 1.28;
+}
+.al-section-title {
+  font-size: clamp(34px, 5.4vw, 64px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.al-eyebrow {
+  font-size: clamp(17px, 1.8vw, 21px);
+  font-weight: 600;
+  color: var(--al-muted);
+}
+.al-subhead {
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.6;
+  color: var(--al-muted);
+}
+
+/* Latin optical tracking only — letter-spacing breaks Arabic joining. */
+[dir="ltr"] .al-hero-title { letter-spacing: -0.022em; line-height: 1.05; }
+[dir="ltr"] .al-section-title { letter-spacing: -0.015em; line-height: 1.08; }
+[dir="ltr"] .al-subhead { letter-spacing: 0.011em; }
+
+/* Brand primary only — deep → primary → light primary. */
+.al-gradient-text {
+  background: linear-gradient(90deg, #0b2a8f 0%, #1447e6 50%, #4d7cff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+[dir="rtl"] .al-gradient-text {
+  background-image: linear-gradient(270deg, #0b2a8f 0%, #1447e6 50%, #4d7cff 100%);
+}
+/* Brighter stops on black */
+.al-dark .al-gradient-text,
+.dark .al .al-gradient-text {
+  background-image: linear-gradient(90deg, #3366ff 0%, #5c8aff 50%, #9db7ff 100%);
+}
+[dir="rtl"] .al-dark .al-gradient-text,
+.dark [dir="rtl"] .al .al-gradient-text {
+  background-image: linear-gradient(270deg, #3366ff 0%, #5c8aff 50%, #9db7ff 100%);
+}
+
+/* ---------- Buttons ---------- */
+
+.al-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 11px 24px;
+  border-radius: 980px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    background-color 0.2s var(--al-ease),
+    opacity 0.2s var(--al-ease),
+    transform 0.2s var(--al-ease);
+}
+.al-btn:active { transform: scale(0.97); opacity: 0.85; }
+.al-btn:focus-visible { outline: 2px solid var(--al-tint); outline-offset: 3px; }
+.al-btn-filled { background: var(--al-tint); color: #fff; }
+.al-btn-filled:hover { background: var(--al-tint-hover); }
+.al-btn-gray { background: var(--al-surface); color: var(--al-link); }
+.al-btn-gray:hover { background: color-mix(in srgb, var(--al-surface) 85%, var(--al-text)); }
+.al-btn-sm { min-height: 32px; padding: 7px 15px; font-size: 13px; }
+
+.al-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 17px;
+  color: var(--al-link);
+  border-radius: 6px;
+}
+.al-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.al-link:focus-visible { outline: 2px solid var(--al-tint); outline-offset: 3px; }
+
+/* ---------- Liquid Glass ---------- */
+
+.al-glass {
+  background: rgba(255, 255, 255, 0.62);
+  /* Prefixed first, standard last: in the other order the CSS pipeline keeps
+     only the -webkit- form, which Chrome/Firefox ignore (no blur at all). */
+  --al-blur: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: var(--al-blur);
+  backdrop-filter: var(--al-blur);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+.dark .al-glass {
+  background: rgba(30, 30, 32, 0.6);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.12);
+}
+
+/* Thicker glass for sheets that hold text (mobile menu) */
+.al-glass.al-glass-thick { background: rgba(255, 255, 255, 0.82); --al-blur: blur(40px) saturate(180%); }
+.dark .al-glass.al-glass-thick { background: rgba(28, 28, 30, 0.82); }
+
+/* Progressive blur under the floating nav instead of a hard hairline. */
+.al-scroll-edge {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 88px;
+  pointer-events: none;
+  --al-blur: blur(8px);
+  -webkit-backdrop-filter: var(--al-blur);
+  backdrop-filter: var(--al-blur);
+  mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
+}
+
+/* ---------- Layout ---------- */
+
+.al-section {
+  padding-block: clamp(80px, 12vw, 150px);
+  background: var(--al-bg);
+}
+.al-section-surface { background: var(--al-surface); }
+.al-container {
+  width: 100%;
+  max-width: 1024px;
+  margin-inline: auto;
+  padding-inline: 22px;
+}
+.al-container-wide {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 22px;
+}
+
+.al-card {
+  background: var(--al-card);
+  border-radius: 28px;
+}
+
+/* Horizontal rail — edge-bleeding cards aligned to the text column */
+.al-rail {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: max(22px, calc((100vw - 980px) / 2));
+  padding-inline: max(22px, calc((100vw - 980px) / 2));
+  padding-block: 8px 24px;
+  scrollbar-width: none;
+}
+.al-rail::-webkit-scrollbar { display: none; }
+.al-rail > * { scroll-snap-align: start; flex-shrink: 0; }
+
+/* ---------- Hero ---------- */
+
+.al-hero-xl {
+  font-size: clamp(48px, 8.4vw, 112px);
+  font-weight: 700;
+  line-height: 1.24;
+}
+[dir="ltr"] .al-hero-xl { letter-spacing: -0.025em; line-height: 1.04; }
+
+@keyframes al-drift {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-44%, -56%) scale(1.08); }
+}
+@keyframes al-drift-2 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1.05); }
+  50% { transform: translate(-58%, -44%) scale(0.95); }
+}
+.al-aurora { animation: al-drift 14s ease-in-out infinite; }
+.al-aurora-2 { animation: al-drift-2 18s ease-in-out infinite; }
+
+/* Zig-zag tear on the bottom of the POS receipt */
+.al-receipt {
+  --zz: 7px;
+  mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--zz)) 100%;
+  -webkit-mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--zz)) 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al *,
+  .al *::before,
+  .al *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Nav glass adapts to the content beneath it (dark sections in light mode). */
+.al-nav-dark {
+  --al-text: #f5f5f7;
+  --al-hair: rgba(255, 255, 255, 0.16);
+}
+.al-glass.al-nav-dark {
+  background: rgba(30, 30, 32, 0.6);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.12);
+}

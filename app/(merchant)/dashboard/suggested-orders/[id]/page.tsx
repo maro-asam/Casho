@@ -23,20 +23,25 @@ import { ConfidenceBadge } from "../_components/ConfidenceBadge";
 import { RejectDialog } from "../_components/RejectDialog";
 import { ConversationViewer } from "./_components/ConversationViewer";
 import { ApproveForm } from "./_components/ApproveForm";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "مراجعة الطلب المقترح",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("مراجعة الطلب المقترح"),
 };
+}
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
 const STATUS_LABELS = {
-  PENDING: "قيد المراجعة",
-  APPROVED: "معتمد",
-  REJECTED: "مرفوض",
-  EXPIRED: "منتهي الصلاحية",
+  get PENDING() { return tr("قيد المراجعة"); },
+  get APPROVED() { return tr("معتمد"); },
+  get REJECTED() { return tr("مرفوض"); },
+  get EXPIRED() { return tr("منتهي الصلاحية"); },
 };
 
 const STATUS_CLASSES = {
@@ -47,6 +52,7 @@ const STATUS_CLASSES = {
 };
 
 export default async function SuggestedOrderDetailPage({ params }: Props) {
+  await loadDashboardLocale();
   const { id } = await params;
 
   const [order, userId] = await Promise.all([
@@ -73,18 +79,18 @@ export default async function SuggestedOrderDetailPage({ params }: Props) {
   const isPending = order.status === "PENDING";
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Button asChild variant="ghost" size="icon" className="rounded-xl">
             <Link href="/suggested-orders">
-              <ArrowRight className="size-5" />
+              <ArrowRight className="size-5 ltr:-scale-x-100" />
             </Link>
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold">طلب مقترح</h1>
+              <h1 className="text-xl font-bold">{tr("طلب مقترح")}</h1>
               <Badge
                 className={cn(
                   "rounded-full border-0 text-xs",
@@ -97,7 +103,7 @@ export default async function SuggestedOrderDetailPage({ params }: Props) {
             </div>
             <p className="mt-0.5 text-sm text-muted-foreground">
               #{order.id.slice(0, 8)} •{" "}
-              {new Intl.DateTimeFormat("ar-EG", {
+              {new Intl.DateTimeFormat(intlLocale(), {
                 day: "numeric",
                 month: "long",
                 hour: "2-digit",
@@ -118,12 +124,12 @@ export default async function SuggestedOrderDetailPage({ params }: Props) {
           <CardContent className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="size-5 text-emerald-600" />
-              <p className="text-sm font-medium">تم اعتماد هذا الطلب وتحويله لطلب حقيقي</p>
+              <p className="text-sm font-medium">{tr("تم اعتماد هذا الطلب وتحويله لطلب حقيقي")}</p>
             </div>
             <Button asChild variant="outline" size="sm" className="rounded-xl">
               <Link href={`/dashboard/orders/${order.orderId}`}>
-                <ShoppingBag className="mr-1.5 size-4" />
-                عرض الطلب
+                <ShoppingBag className="ms-1.5 size-4" />
+                {tr("عرض الطلب")}
               </Link>
             </Button>
           </CardContent>
@@ -134,7 +140,7 @@ export default async function SuggestedOrderDetailPage({ params }: Props) {
         <Card className="border-rose-500/30 bg-rose-500/5">
           <CardContent className="flex items-center gap-3 p-4">
             <XCircle className="size-5 text-rose-600" />
-            <p className="text-sm font-medium">تم رفض هذا الطلب المقترح</p>
+            <p className="text-sm font-medium">{tr("تم رفض هذا الطلب المقترح")}</p>
           </CardContent>
         </Card>
       )}
@@ -146,9 +152,9 @@ export default async function SuggestedOrderDetailPage({ params }: Props) {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                 <MessageSquare className="size-4 text-muted-foreground" />
-                المحادثة الأصلية
+                {tr("المحادثة الأصلية")}
                 <Badge variant="outline" className="rounded-full text-xs">
-                  {order.conversation.messages.length} رسالة
+                  {tr("{0} رسالة", order.conversation.messages.length)}
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -169,7 +175,7 @@ export default async function SuggestedOrderDetailPage({ params }: Props) {
             <Card className="border-border shadow-sm">
               <CardContent className="p-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">
-                  ملاحظات الذكاء الاصطناعي
+                  {tr("ملاحظات الذكاء الاصطناعي")}
                 </p>
                 <p className="text-sm leading-6 text-muted-foreground">{order.aiNotes}</p>
               </CardContent>
@@ -195,7 +201,7 @@ function ReadOnlySummary({ order }: { order: Awaited<ReturnType<typeof GetSugges
 
   function formatPrice(piasters: number | null) {
     if (piasters == null) return "—";
-    return new Intl.NumberFormat("ar-EG", {
+    return new Intl.NumberFormat(intlLocale(), {
       style: "currency",
       currency: "EGP",
       maximumFractionDigits: 0,
@@ -205,26 +211,26 @@ function ReadOnlySummary({ order }: { order: Awaited<ReturnType<typeof GetSugges
   return (
     <Card className="border-border shadow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold">ملخص الطلب المقترح</CardTitle>
+        <CardTitle className="text-sm font-semibold">{tr("ملخص الطلب المقترح")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2 text-sm">
           {order.customerName && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">الاسم</span>
+              <span className="text-muted-foreground">{tr("الاسم")}</span>
               <span className="font-medium">{order.customerName}</span>
             </div>
           )}
           {order.customerPhone && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">الهاتف</span>
+              <span className="text-muted-foreground">{tr("الهاتف")}</span>
               <span className="font-medium" dir="ltr">{order.customerPhone}</span>
             </div>
           )}
           {order.customerAddress && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">العنوان</span>
-              <span className="max-w-44 text-right font-medium">{order.customerAddress}</span>
+              <span className="text-muted-foreground">{tr("العنوان")}</span>
+              <span className="max-w-44 text-start font-medium">{order.customerAddress}</span>
             </div>
           )}
         </div>
@@ -242,7 +248,7 @@ function ReadOnlySummary({ order }: { order: Awaited<ReturnType<typeof GetSugges
                   <p className="text-xs text-muted-foreground">{item.aiVariant}</p>
                 )}
               </div>
-              <div className="text-right">
+              <div className="text-start">
                 <p className="font-medium">{formatPrice(item.unitPrice)}</p>
                 <p className="text-xs text-muted-foreground">× {item.aiQuantity}</p>
               </div>

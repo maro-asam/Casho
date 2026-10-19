@@ -5,14 +5,15 @@ import { cn } from "@/lib/utils";
 import { formatMoney, formatNumber } from "../../_components/overview/format";
 import type { InventoryRow, ReportsData } from "../_lib/types";
 import { EmptyNote, Panel, Stat, Thumb } from "./report-ui";
+import { intlLocale, lazyIntl, tr } from "@/lib/i18n/dashboard";
 
-const dateFormat = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "short", timeZone: "Africa/Cairo" });
-const rateFormat = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 1 });
+const dateFormat = lazyIntl.date({ day: "numeric", month: "short", timeZone: "Africa/Cairo" });
+const rateFormat = lazyIntl.number({ maximumFractionDigits: 1 });
 
 function daysLabel(days: number) {
-  if (days < 1) return "النهارده";
+  if (days < 1) return tr("النهارده");
   const n = Math.floor(days);
-  return n === 1 ? "بكرة" : `خلال ${formatNumber(n)} يوم`;
+  return n === 1 ? tr("بكرة") : tr("خلال {0} يوم", formatNumber(n));
 }
 
 function ProductList({ rows, render }: { rows: { id: string; name: string; image: string }[]; render: (i: number) => React.ReactNode }) {
@@ -38,46 +39,46 @@ export function TabInventory({ data }: { data: ReportsData }) {
   return (
     <div className="space-y-6">
       <p className="text-xs text-muted-foreground">
-        المخزون بيتعرض زي ما هو دلوقتي، مش حسب الفترة. سرعة البيع محسوبة من آخر ٩٠ يوم.
+        {tr("المخزون بيتعرض زي ما هو دلوقتي، مش حسب الفترة. سرعة البيع محسوبة من آخر ٩٠ يوم.")}
       </p>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat
           icon={Warehouse}
-          label="قيمة المخزون بالتكلفة"
+          label={tr("قيمة المخزون بالتكلفة")}
           value={formatMoney(inv.valueCost)}
-          hint="الكمية × سعر التكلفة لكل منتج نشط. المنتجات اللي ملهاش تكلفة مش محسوبة."
+          hint={tr("الكمية × سعر التكلفة لكل منتج نشط. المنتجات اللي ملهاش تكلفة مش محسوبة.")}
           sub={
             inv.productsMissingCost > 0 ? (
-              <span className="text-amber-600 dark:text-amber-400">{formatNumber(inv.productsMissingCost)} منتج من غير تكلفة</span>
+              <span className="text-amber-600 dark:text-amber-400">{tr("{0} منتج من غير تكلفة", formatNumber(inv.productsMissingCost))}</span>
             ) : undefined
           }
         />
         <Stat
           icon={Boxes}
-          label="قيمة المخزون بسعر البيع"
+          label={tr("قيمة المخزون بسعر البيع")}
           value={formatMoney(inv.valueRetail)}
-          hint="الكمية × سعر البيع. ده اللي هيدخلك لو كل المخزون اتباع بالسعر الحالي."
-          sub={potentialProfit !== null ? <span>ربح متوقع {formatMoney(potentialProfit)}</span> : undefined}
+          hint={tr("الكمية × سعر البيع. ده اللي هيدخلك لو كل المخزون اتباع بالسعر الحالي.")}
+          sub={potentialProfit !== null ? <span>{tr("ربح متوقع {0}", formatMoney(potentialProfit))}</span> : undefined}
         />
         <Stat
           icon={PackageCheck}
-          label="قطع في المخزون"
+          label={tr("قطع في المخزون")}
           value={formatNumber(inv.units)}
-          sub={<span>{formatNumber(inv.activeProducts)} منتج نشط</span>}
+          sub={<span>{tr("{0} منتج نشط", formatNumber(inv.activeProducts))}</span>}
         />
         <Stat
           icon={CircleSlash}
-          label="نفد / قرب يخلص"
+          label={tr("نفد / قرب يخلص")}
           value={`${formatNumber(inv.outOfStock)} / ${formatNumber(inv.lowStock)}`}
-          hint="نفد = الكمية صفر. قرب يخلص = الكمية أقل من أو تساوي حد التنبيه بتاع المنتج."
+          hint={tr("نفد = الكمية صفر. قرب يخلص = الكمية أقل من أو تساوي حد التنبيه بتاع المنتج.")}
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel
-          title="هيخلص قريب"
-          description="حسب معدل البيع، هيخلص خلال أسبوعين أو أقل"
+          title={tr("هيخلص قريب")}
+          description={tr("حسب معدل البيع، هيخلص خلال أسبوعين أو أقل")}
           contentClassName={data.runningOut.length ? "p-0" : undefined}
         >
           {data.runningOut.length ? (
@@ -86,25 +87,25 @@ export function TabInventory({ data }: { data: ReportsData }) {
               render={(i) => {
                 const r = data.runningOut[i];
                 return (
-                  <span className="text-left text-xs tabular-nums">
+                  <span className="text-end text-xs tabular-nums">
                     <span className={cn("block font-medium", (r.daysLeft ?? 99) <= 3 ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400")}>
                       {daysLabel(r.daysLeft ?? 0)}
                     </span>
                     <span className="text-muted-foreground">
-                      {formatNumber(r.stock)} قطعة · {rateFormat.format(r.dailyRate)}/يوم
+                      {tr("{0} قطعة · {1}/يوم", formatNumber(r.stock), rateFormat.format(r.dailyRate))}
                     </span>
                   </span>
                 );
               }}
             />
           ) : (
-            <EmptyNote icon={Hourglass} title="مفيش منتجات هتخلص قريب" description="بمعدل البيع الحالي، المخزون مكفي أكتر من أسبوعين." />
+            <EmptyNote icon={Hourglass} title={tr("مفيش منتجات هتخلص قريب")} description={tr("بمعدل البيع الحالي، المخزون مكفي أكتر من أسبوعين.")} />
           )}
         </Panel>
 
         <Panel
-          title="نفد من المخزون"
-          description="مرتبة حسب اللي كان بيتباع أكتر"
+          title={tr("نفد من المخزون")}
+          description={tr("مرتبة حسب اللي كان بيتباع أكتر")}
           contentClassName={data.outOfStock.length ? "p-0" : undefined}
         >
           {data.outOfStock.length ? (
@@ -113,25 +114,25 @@ export function TabInventory({ data }: { data: ReportsData }) {
               render={(i) => {
                 const r = data.outOfStock[i];
                 return (
-                  <span className="text-left text-xs text-muted-foreground tabular-nums">
-                    {r.dailyRate > 0 ? `بيتباع ${rateFormat.format(r.dailyRate)}/يوم` : r.lastSoldAt ? `آخر بيع ${dateFormat.format(r.lastSoldAt)}` : "مفيش مبيعات"}
+                  <span className="text-end text-xs text-muted-foreground tabular-nums">
+                    {r.dailyRate > 0 ? tr("بيتباع {0}/يوم", rateFormat.format(r.dailyRate)) : r.lastSoldAt ? tr("آخر بيع {0}", dateFormat.format(r.lastSoldAt)) : tr("مفيش مبيعات")}
                   </span>
                 );
               }}
             />
           ) : (
-            <EmptyNote icon={PackageCheck} title="كل المنتجات النشطة متاحة" />
+            <EmptyNote icon={PackageCheck} title={tr("كل المنتجات النشطة متاحة")} />
           )}
         </Panel>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel
-          title="بضاعة راكدة"
+          title={tr("بضاعة راكدة")}
           description={
             inv.deadStockCount
-              ? `${formatNumber(inv.deadStockCount)} منتج متباعش ولا قطعة من ٩٠ يوم · قيمتهم ${formatMoney(inv.deadStockValue)}`
-              : "منتجات متباعتش ولا قطعة من ٩٠ يوم"
+              ? tr("{0} منتج متباعش ولا قطعة من ٩٠ يوم · قيمتهم {1}", formatNumber(inv.deadStockCount), formatMoney(inv.deadStockValue))
+              : tr("منتجات متباعتش ولا قطعة من ٩٠ يوم")
           }
           className="lg:col-span-2"
           contentClassName={data.deadStock.length ? "p-0" : undefined}
@@ -139,7 +140,7 @@ export function TabInventory({ data }: { data: ReportsData }) {
           {data.deadStock.length ? (
             <ProductList rows={data.deadStock} render={(i) => <DeadValue row={data.deadStock[i]} />} />
           ) : (
-            <EmptyNote icon={Snail} title="مفيش بضاعة راكدة" description="كل منتج عنده مخزون اتباع منه حاجة في آخر ٩٠ يوم." />
+            <EmptyNote icon={Snail} title={tr("مفيش بضاعة راكدة")} description={tr("كل منتج عنده مخزون اتباع منه حاجة في آخر ٩٠ يوم.")} />
           )}
         </Panel>
 
@@ -151,10 +152,10 @@ export function TabInventory({ data }: { data: ReportsData }) {
 
 function DeadValue({ row }: { row: InventoryRow }) {
   return (
-    <span className="text-left text-xs tabular-nums">
+    <span className="text-end text-xs tabular-nums">
       <span className="block font-medium">{formatMoney(row.valueCost ?? row.valueRetail)}</span>
       <span className="text-muted-foreground">
-        {formatNumber(row.stock)} قطعة · {row.valueCost === null ? "بسعر البيع" : "بالتكلفة"}
+        {tr("{0} قطعة ·", formatNumber(row.stock))}{" "}{row.valueCost === null ? tr("بسعر البيع") : tr("بالتكلفة")}
       </span>
     </span>
   );
@@ -163,12 +164,12 @@ function DeadValue({ row }: { row: InventoryRow }) {
 function Reviews({ reviews }: { reviews: ReportsData["reviews"] }) {
   const max = Math.max(...reviews.distribution.map((d) => d.count), 1);
   return (
-    <Panel title="التقييمات" description={`${formatNumber(reviews.periodCount)} تقييم جديد في الفترة`}>
+    <Panel title={tr("التقييمات")} description={tr("{0} تقييم جديد في الفترة", formatNumber(reviews.periodCount))}>
       {reviews.total ? (
         <>
           <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold tabular-nums">{reviews.average.toLocaleString("ar-EG", { maximumFractionDigits: 1 })}</span>
-            <span className="pb-1 text-xs text-muted-foreground">من ٥ · {formatNumber(reviews.total)} تقييم</span>
+            <span className="text-3xl font-bold tabular-nums">{reviews.average.toLocaleString(intlLocale(), { maximumFractionDigits: 1 })}</span>
+            <span className="pb-1 text-xs text-muted-foreground">{tr("من ٥ · {0} تقييم", formatNumber(reviews.total))}</span>
           </div>
           <ul className="mt-4 space-y-1.5">
             {reviews.distribution.map((d) => (
@@ -180,13 +181,13 @@ function Reviews({ reviews }: { reviews: ReportsData["reviews"] }) {
                 <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                   <div className="h-full rounded-full bg-amber-400" style={{ width: `${(d.count / max) * 100}%` }} />
                 </div>
-                <span className="w-8 text-left text-muted-foreground tabular-nums">{formatNumber(d.count)}</span>
+                <span className="w-8 text-end text-muted-foreground tabular-nums">{formatNumber(d.count)}</span>
               </li>
             ))}
           </ul>
         </>
       ) : (
-        <EmptyNote icon={Star} title="لسه مفيش تقييمات" />
+        <EmptyNote icon={Star} title={tr("لسه مفيش تقييمات")} />
       )}
     </Panel>
   );

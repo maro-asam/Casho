@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { UpdateLoyaltySettingsAction, AdjustCustomerPointsAction } from "@/actions/store/loyalty.actions";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Settings = {
   loyaltyEnabled: boolean;
@@ -51,30 +52,30 @@ export default function LoyaltyDashboardClient({
   function handleSaveSettings(fd: FormData) {
     startTransition(async () => {
       const res = await UpdateLoyaltySettingsAction(fd);
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   }
 
   function handleAdjust(customerId: string, sign: 1 | -1) {
-    if (!adjustPoints || adjustPoints <= 0) { toast.error("أدخل عدد نقاط"); return; }
+    if (!adjustPoints || adjustPoints <= 0) { toast.error(tr("أدخل عدد نقاط")); return; }
     startTransition(async () => {
-      const res = await AdjustCustomerPointsAction(customerId, sign * adjustPoints, adjustDesc || "تعديل يدوي");
-      if (res.success) { toast.success(res.message); setAdjustingId(null); setAdjustPoints(0); setAdjustDesc(""); }
-      else toast.error(res.message);
+      const res = await AdjustCustomerPointsAction(customerId, sign * adjustPoints, adjustDesc || tr("تعديل يدوي"));
+      if (res.success) { toast.success(trv(res.message)); setAdjustingId(null); setAdjustPoints(0); setAdjustDesc(""); }
+      else toast.error(trv(res.message));
     });
   }
 
   return (
-    <Tabs defaultValue="settings" dir="rtl">
+    <Tabs defaultValue="settings" dir={tdir()}>
       <TabsList className="rounded-xl mb-4">
         <TabsTrigger value="settings" className="rounded-lg gap-1.5">
           <Settings className="size-3.5" />
-          الإعدادات
+          {tr("الإعدادات")}
         </TabsTrigger>
         <TabsTrigger value="customers" className="rounded-lg gap-1.5">
           <Users className="size-3.5" />
-          العملاء ({customers.length})
+          {tr("العملاء ({0})", customers.length)}
         </TabsTrigger>
       </TabsList>
 
@@ -83,10 +84,10 @@ export default function LoyaltyDashboardClient({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Gift className="size-5 text-primary" />
-              إعدادات برنامج الولاء
+              {tr("إعدادات برنامج الولاء")}
             </CardTitle>
             <CardDescription>
-              حدد كيف يكسب العملاء النقاط وكيف يستردونها
+              {tr("حدد كيف يكسب العملاء النقاط وكيف يستردونها")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -98,13 +99,13 @@ export default function LoyaltyDashboardClient({
                   defaultChecked={settings?.loyaltyEnabled ?? false}
                 />
                 <Label htmlFor="loyaltyEnabled" className="text-sm font-medium">
-                  تفعيل نظام النقاط
+                  {tr("تفعيل نظام النقاط")}
                 </Label>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-1.5">
-                  <Label>نقاط لكل جنيه مصري</Label>
+                  <Label>{tr("نقاط لكل جنيه مصري")}</Label>
                   <Input
                     name="loyaltyPointsPerEGP"
                     type="number"
@@ -113,10 +114,10 @@ export default function LoyaltyDashboardClient({
                     defaultValue={settings?.loyaltyPointsPerEGP ?? 1}
                     className="rounded-xl"
                   />
-                  <p className="text-xs text-muted-foreground">مثال: 1 = نقطة لكل جنيه</p>
+                  <p className="text-xs text-muted-foreground">{tr("مثال: 1 = نقطة لكل جنيه")}</p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>قيمة النقطة (مليم)</Label>
+                  <Label>{tr("قيمة النقطة (مليم)")}</Label>
                   <Input
                     name="loyaltyPointsValuePiasters"
                     type="number"
@@ -125,10 +126,10 @@ export default function LoyaltyDashboardClient({
                     defaultValue={settings?.loyaltyPointsValuePiasters ?? 1}
                     className="rounded-xl"
                   />
-                  <p className="text-xs text-muted-foreground">1 نقطة = كم مليم خصم</p>
+                  <p className="text-xs text-muted-foreground">{tr("1 نقطة = كم مليم خصم")}</p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>الحد الأدنى للاسترداد (نقطة)</Label>
+                  <Label>{tr("الحد الأدنى للاسترداد (نقطة)")}</Label>
                   <Input
                     name="loyaltyMinRedemption"
                     type="number"
@@ -137,12 +138,12 @@ export default function LoyaltyDashboardClient({
                     defaultValue={settings?.loyaltyMinRedemption ?? 100}
                     className="rounded-xl"
                   />
-                  <p className="text-xs text-muted-foreground">أقل عدد نقاط يمكن استردادها</p>
+                  <p className="text-xs text-muted-foreground">{tr("أقل عدد نقاط يمكن استردادها")}</p>
                 </div>
               </div>
 
               <Button type="submit" className="rounded-xl" disabled={isPending}>
-                حفظ الإعدادات
+                {tr("حفظ الإعدادات")}
               </Button>
             </form>
           </CardContent>
@@ -157,18 +158,18 @@ export default function LoyaltyDashboardClient({
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
                   <Users className="size-6 text-muted-foreground" />
                 </div>
-                <p className="font-semibold">لا يوجد عملاء بعد</p>
-                <p className="mt-1 text-sm text-muted-foreground">سيظهر هنا العملاء الذين لديهم نقاط بعد أول طلب</p>
+                <p className="font-semibold">{tr("لا يوجد عملاء بعد")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{tr("سيظهر هنا العملاء الذين لديهم نقاط بعد أول طلب")}</p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-right">العميل</TableHead>
-                    <TableHead className="text-right">الرقم</TableHead>
-                    <TableHead className="text-right">الطلبات</TableHead>
-                    <TableHead className="text-right">النقاط</TableHead>
-                    <TableHead className="text-right">إجراءات</TableHead>
+                    <TableHead className="text-start">{tr("العميل")}</TableHead>
+                    <TableHead className="text-start">{tr("الرقم")}</TableHead>
+                    <TableHead className="text-start">{tr("الطلبات")}</TableHead>
+                    <TableHead className="text-start">{tr("النقاط")}</TableHead>
+                    <TableHead className="text-start">{tr("إجراءات")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -191,7 +192,7 @@ export default function LoyaltyDashboardClient({
                             className="rounded-xl text-xs"
                             onClick={() => setAdjustingId(adjustingId === customer.id ? null : customer.id)}
                           >
-                            تعديل
+                            {tr("تعديل")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -202,22 +203,22 @@ export default function LoyaltyDashboardClient({
                               <Input
                                 type="number"
                                 min="1"
-                                placeholder="عدد النقاط"
+                                placeholder={tr("عدد النقاط")}
                                 value={adjustPoints || ""}
                                 onChange={(e) => setAdjustPoints(Number(e.target.value))}
                                 className="w-32 rounded-xl"
                               />
                               <Input
-                                placeholder="السبب (اختياري)"
+                                placeholder={tr("السبب (اختياري)")}
                                 value={adjustDesc}
                                 onChange={(e) => setAdjustDesc(e.target.value)}
                                 className="w-48 rounded-xl"
                               />
                               <Button size="sm" className="rounded-xl gap-1 bg-emerald-500" onClick={() => handleAdjust(customer.id, 1)} disabled={isPending}>
-                                <Plus className="size-3.5" /> إضافة
+                                <Plus className="size-3.5" />{" "}{tr("إضافة")}
                               </Button>
                               <Button size="sm" variant="destructive" className="rounded-xl gap-1" onClick={() => handleAdjust(customer.id, -1)} disabled={isPending}>
-                                <Minus className="size-3.5" /> خصم
+                                <Minus className="size-3.5" />{" "}{tr("خصم")}
                               </Button>
                             </div>
                           </TableCell>

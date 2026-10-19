@@ -4,21 +4,23 @@ import { GetTransfersAction } from "@/actions/inventory/transfers.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TransferStatus } from "@prisma/client";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 const STATUS_CONFIG: Record<TransferStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  PENDING: { label: "معلق", variant: "secondary" },
-  APPROVED: { label: "موافق عليه", variant: "outline" },
-  SHIPPED: { label: "في الطريق", variant: "default" },
-  RECEIVED: { label: "مُستلم", variant: "default" },
-  CANCELLED: { label: "ملغي", variant: "destructive" },
+  PENDING: { get label() { return tr("معلق"); }, variant: "secondary" },
+  APPROVED: { get label() { return tr("موافق عليه"); }, variant: "outline" },
+  SHIPPED: { get label() { return tr("في الطريق"); }, variant: "default" },
+  RECEIVED: { get label() { return tr("مُستلم"); }, variant: "default" },
+  CANCELLED: { get label() { return tr("ملغي"); }, variant: "destructive" },
 };
 
 const FILTERS = [
-  { value: "", label: "الكل" },
-  { value: "PENDING", label: "معلق" },
-  { value: "APPROVED", label: "موافق" },
-  { value: "SHIPPED", label: "في الطريق" },
-  { value: "RECEIVED", label: "مُستلم" },
+  { value: "", get label() { return tr("الكل"); } },
+  { value: "PENDING", get label() { return tr("معلق"); } },
+  { value: "APPROVED", get label() { return tr("موافق"); } },
+  { value: "SHIPPED", get label() { return tr("في الطريق"); } },
+  { value: "RECEIVED", get label() { return tr("مُستلم"); } },
 ];
 
 export default async function TransfersPage({
@@ -26,6 +28,7 @@ export default async function TransfersPage({
 }: {
   searchParams: { page?: string; status?: string };
 }) {
+  await loadDashboardLocale();
   const page = parseInt(searchParams.page ?? "1", 10);
   const status = searchParams.status as TransferStatus | undefined;
 
@@ -37,16 +40,16 @@ export default async function TransfersPage({
         <div className="flex items-center gap-3">
           <Link href="/dashboard/inventory">
             <Button variant="ghost" size="sm" className="gap-1">
-              <ArrowRight className="size-4" />
-              المخزون
+              <ArrowRight className="size-4 ltr:-scale-x-100" />
+              {tr("المخزون")}
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">تحويلات المخزون بين الفروع</h1>
+          <h1 className="text-xl font-bold">{tr("تحويلات المخزون بين الفروع")}</h1>
         </div>
         <Link href="/dashboard/inventory/transfers/new">
           <Button size="sm" className="gap-2">
             <Plus className="size-4" />
-            تحويل جديد
+            {tr("تحويل جديد")}
           </Button>
         </Link>
       </div>
@@ -67,11 +70,11 @@ export default async function TransfersPage({
       {data.items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center">
           <ArrowLeftRight className="mx-auto mb-3 size-10 text-muted-foreground/40" />
-          <p className="text-muted-foreground">لا توجد تحويلات بعد</p>
+          <p className="text-muted-foreground">{tr("لا توجد تحويلات بعد")}</p>
           <Link href="/dashboard/inventory/transfers/new">
             <Button size="sm" className="mt-4 gap-2">
               <Plus className="size-4" />
-              إنشاء تحويل
+              {tr("إنشاء تحويل")}
             </Button>
           </Link>
         </div>
@@ -79,13 +82,13 @@ export default async function TransfersPage({
         <div className="rounded-xl border border-border bg-card shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/50 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 py-3">من</th>
-                <th className="px-4 py-3">إلى</th>
-                <th className="px-4 py-3">الحالة</th>
-                <th className="px-4 py-3 text-center">المنتجات</th>
-                <th className="px-4 py-3">مرجع</th>
-                <th className="px-4 py-3">التاريخ</th>
+              <tr className="border-b border-border bg-muted/50 text-start text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <th className="px-4 py-3">{tr("من")}</th>
+                <th className="px-4 py-3">{tr("إلى")}</th>
+                <th className="px-4 py-3">{tr("الحالة")}</th>
+                <th className="px-4 py-3 text-center">{tr("المنتجات")}</th>
+                <th className="px-4 py-3">{tr("مرجع")}</th>
+                <th className="px-4 py-3">{tr("التاريخ")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -104,11 +107,11 @@ export default async function TransfersPage({
                       {t.reference ?? "—"}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-                      {new Intl.DateTimeFormat("ar-EG", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(t.createdAt))}
+                      {new Intl.DateTimeFormat(intlLocale(), { day: "2-digit", month: "short", year: "numeric" }).format(new Date(t.createdAt))}
                     </td>
                     <td className="px-4 py-3">
                       <Link href={`/dashboard/inventory/transfers/${t.id}`}>
-                        <Button variant="ghost" size="sm">تفاصيل</Button>
+                        <Button variant="ghost" size="sm">{tr("تفاصيل")}</Button>
                       </Link>
                     </td>
                   </tr>
@@ -118,16 +121,16 @@ export default async function TransfersPage({
           </table>
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm">
-              <span className="text-muted-foreground">{data.total} تحويل</span>
+              <span className="text-muted-foreground">{tr("{0} تحويل", data.total)}</span>
               <div className="flex gap-2">
                 {page > 1 && (
                   <Link href={`?page=${page - 1}${status ? `&status=${status}` : ""}`}>
-                    <Button variant="outline" size="sm">السابق</Button>
+                    <Button variant="outline" size="sm">{tr("السابق")}</Button>
                   </Link>
                 )}
                 {page < data.totalPages && (
                   <Link href={`?page=${page + 1}${status ? `&status=${status}` : ""}`}>
-                    <Button variant="outline" size="sm">التالي</Button>
+                    <Button variant="outline" size="sm">{tr("التالي")}</Button>
                   </Link>
                 )}
               </div>

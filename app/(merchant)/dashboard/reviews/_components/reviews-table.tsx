@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { ReviewRowActions } from "./review-row-actions";
 import { Stars } from "./stars";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type ReviewRow = {
   id: string;
@@ -18,7 +19,7 @@ export type ReviewRow = {
   product: { id: string; name: string; slug: string; image: string | null };
 };
 
-const dateFormat = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
+const dateFormat = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
 
 type Props = {
   reviews: ReviewRow[];
@@ -30,7 +31,7 @@ function Verified() {
   return (
     <span className="inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400">
       <BadgeCheck className="size-3.5" />
-      مشتري موثق
+      {tr("مشتري موثق")}
     </span>
   );
 }
@@ -67,12 +68,12 @@ export function ReviewsTable({ reviews, storeSlug, editHref }: Props) {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">المراجعة</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">المنتج</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">العميل</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground xl:table-cell">التاريخ</TableHead>
+              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("المراجعة")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("المنتج")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("العميل")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground xl:table-cell">{tr("التاريخ")}</TableHead>
               <TableHead className="h-10 w-12 pe-4">
-                <span className="sr-only">إجراءات</span>
+                <span className="sr-only">{tr("إجراءات")}</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -87,7 +88,7 @@ export function ReviewsTable({ reviews, storeSlug, editHref }: Props) {
                     scroll={false}
                     className="mt-1 block text-sm font-medium after:absolute after:inset-0 hover:underline focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
                   >
-                    {r.title || <span className="text-muted-foreground">بدون عنوان</span>}
+                    {r.title || <span className="text-muted-foreground">{tr("بدون عنوان")}</span>}
                   </Link>
                   <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">{r.content}</p>
                   <p className="mt-1 text-xs text-muted-foreground lg:hidden">
@@ -102,7 +103,7 @@ export function ReviewsTable({ reviews, storeSlug, editHref }: Props) {
                   {r.verifiedPurchase && <Verified />}
                 </TableCell>
                 <TableCell className="hidden py-3 text-sm text-muted-foreground xl:table-cell">{dateFormat.format(r.reviewDate)}</TableCell>
-                <TableCell className="py-3 pe-4 text-left">{actionsFor(r)}</TableCell>
+                <TableCell className="py-3 pe-4 text-end">{actionsFor(r)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

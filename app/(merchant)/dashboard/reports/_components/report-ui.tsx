@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import DeltaBadge from "../../_components/overview/DeltaBadge";
 import { percentChange } from "../../_components/overview/format";
 import type { Delta } from "../_lib/types";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 /** Card with a titled header — the one surface every report block uses. */
 export function Panel({
@@ -72,7 +73,7 @@ export function Stat({
               <TooltipTrigger className="cursor-help truncate underline decoration-dotted decoration-muted-foreground/50 underline-offset-4">
                 {label}
               </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-64 text-xs leading-5" dir="rtl">
+              <TooltipContent side="top" className="max-w-64 text-xs leading-5" dir={tdir()}>
                 {hint}
               </TooltipContent>
             </Tooltip>
@@ -84,7 +85,7 @@ export function Stat({
       <p className="truncate text-xl font-bold tracking-tight tabular-nums sm:text-2xl">{shown}</p>
       <div className="flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
         {delta && <DeltaBadge value={percentChange(delta.current, delta.previous)} invert={invert} />}
-        {delta && format && <span className="truncate">قبلها {format(delta.previous)}</span>}
+        {delta && format && <span className="truncate">{tr("قبلها {0}", format(delta.previous))}</span>}
         {sub}
       </div>
     </div>

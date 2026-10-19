@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { tr } from "@/lib/i18n/dashboard";
 
 type Branch = { id: string; name: string; isDefault: boolean };
 type Product = { id: string; name: string; image: string; sku: string | null; stock: number };
@@ -47,10 +48,10 @@ export function NewTransferForm({
   }
 
   function handleSubmit() {
-    if (!fromBranchId) return toast.error("اختر فرع الإرسال");
-    if (!toBranchId) return toast.error("اختر فرع الاستلام");
-    if (fromBranchId === toBranchId) return toast.error("لا يمكن التحويل من وإلى نفس الفرع");
-    if (!rows.length) return toast.error("أضف منتجاً واحداً على الأقل");
+    if (!fromBranchId) return toast.error(tr("اختر فرع الإرسال"));
+    if (!toBranchId) return toast.error(tr("اختر فرع الاستلام"));
+    if (fromBranchId === toBranchId) return toast.error(tr("لا يمكن التحويل من وإلى نفس الفرع"));
+    if (!rows.length) return toast.error(tr("أضف منتجاً واحداً على الأقل"));
 
     startTransition(async () => {
       try {
@@ -61,10 +62,10 @@ export function NewTransferForm({
           reference: reference || undefined,
           items: rows.map((r) => ({ productId: r.productId, requestedQuantity: r.quantity })),
         });
-        toast.success("تم إنشاء طلب التحويل");
+        toast.success(tr("تم إنشاء طلب التحويل"));
         router.push(`/dashboard/inventory/transfers/${transfer.id}`);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -72,13 +73,13 @@ export function NewTransferForm({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold">بيانات التحويل</h2>
+        <h2 className="mb-4 font-semibold">{tr("بيانات التحويل")}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label>من فرع *</Label>
+            <Label>{tr("من فرع *")}</Label>
             <Select value={fromBranchId} onValueChange={setFromBranchId}>
               <SelectTrigger>
-                <SelectValue placeholder="فرع الإرسال" />
+                <SelectValue placeholder={tr("فرع الإرسال")} />
               </SelectTrigger>
               <SelectContent>
                 {branches.map((b) => (
@@ -90,10 +91,10 @@ export function NewTransferForm({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>إلى فرع *</Label>
+            <Label>{tr("إلى فرع *")}</Label>
             <Select value={toBranchId} onValueChange={setToBranchId}>
               <SelectTrigger>
-                <SelectValue placeholder="فرع الاستلام" />
+                <SelectValue placeholder={tr("فرع الاستلام")} />
               </SelectTrigger>
               <SelectContent>
                 {branches.map((b) => (
@@ -105,11 +106,11 @@ export function NewTransferForm({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>رقم مرجعي</Label>
+            <Label>{tr("رقم مرجعي")}</Label>
             <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="TRF-001" dir="ltr" />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>ملاحظات</Label>
+            <Label>{tr("ملاحظات")}</Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </div>
         </div>
@@ -117,12 +118,12 @@ export function NewTransferForm({
 
       <div className="rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="font-semibold">المنتجات</h2>
+          <h2 className="font-semibold">{tr("المنتجات")}</h2>
           <div className="relative mt-3">
-            <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              className="pr-9"
-              placeholder="ابحث عن منتج..."
+              className="ps-9"
+              placeholder={tr("ابحث عن منتج...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -133,32 +134,32 @@ export function NewTransferForm({
                 <button
                   key={p.id}
                   type="button"
-                  className="flex w-full items-center gap-3 px-3 py-2 text-right text-sm hover:bg-accent"
+                  className="flex w-full items-center gap-3 px-3 py-2 text-start text-sm hover:bg-accent"
                   onClick={() => addProduct(p)}
                 >
                   <img src={p.image} className="size-8 rounded object-cover" alt={p.name} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.name}</p>
-                    <p className="text-xs text-muted-foreground">مخزون: {p.stock}</p>
+                    <p className="text-xs text-muted-foreground">{tr("مخزون: {0}", p.stock)}</p>
                   </div>
                   <Plus className="size-4 text-primary" />
                 </button>
               ))}
               {filtered.length === 0 && (
-                <p className="px-3 py-2 text-sm text-muted-foreground">لا توجد نتائج</p>
+                <p className="px-3 py-2 text-sm text-muted-foreground">{tr("لا توجد نتائج")}</p>
               )}
             </div>
           )}
         </div>
 
         {rows.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-muted-foreground">أضف منتجاً للتحويل</p>
+          <p className="px-5 py-8 text-center text-sm text-muted-foreground">{tr("أضف منتجاً للتحويل")}</p>
         ) : (
           <div className="divide-y divide-border">
             <div className="grid grid-cols-[1fr_100px_120px_40px] items-center gap-3 border-b border-border bg-muted/30 px-5 py-2 text-xs font-semibold uppercase text-muted-foreground">
-              <span>المنتج</span>
-              <span className="text-center">المتاح</span>
-              <span className="text-center">الكمية المحوّلة</span>
+              <span>{tr("المنتج")}</span>
+              <span className="text-center">{tr("المتاح")}</span>
+              <span className="text-center">{tr("الكمية المحوّلة")}</span>
               <span />
             </div>
             {rows.map((row) => (
@@ -199,9 +200,9 @@ export function NewTransferForm({
 
       <div className="flex gap-3">
         <Button onClick={handleSubmit} disabled={isPending || !rows.length}>
-          {isPending ? "جاري الإنشاء..." : "إنشاء طلب التحويل"}
+          {isPending ? tr("جاري الإنشاء...") : tr("إنشاء طلب التحويل")}
         </Button>
-        <Button variant="outline" onClick={() => router.back()}>إلغاء</Button>
+        <Button variant="outline" onClick={() => router.back()}>{tr("إلغاء")}</Button>
       </div>
     </div>
   );

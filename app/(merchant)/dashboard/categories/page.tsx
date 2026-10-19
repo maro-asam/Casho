@@ -21,24 +21,29 @@ import {
 import { prisma } from "@/lib/prisma";
 import { CategoriesTable, type CategoryRow } from "./_components/categories-table";
 import { UrlCategoryDialog } from "./_components/category-form-dialog";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "التصنيفات",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("التصنيفات"),
 };
+}
 
 const PAGE_SIZE = 20;
 const BASE_PATH = "/categories";
 
 const VIEWS = {
-  with: { label: "فيها منتجات", where: { products: { some: {} } } },
-  empty: { label: "فاضية", where: { products: { none: {} } } },
+  with: { get label() { return tr("فيها منتجات"); }, where: { products: { some: {} } } },
+  empty: { get label() { return tr("فاضية"); }, where: { products: { none: {} } } },
 } satisfies Record<string, { label: string; where: Prisma.CategoryWhereInput }>;
 type View = keyof typeof VIEWS;
 
 const SORTS = {
-  oldest: { label: "الأقدم الأول", orderBy: { createdAt: "asc" } },
-  name: { label: "الاسم (أ-ي)", orderBy: { name: "asc" } },
-  products: { label: "الأكتر منتجات", orderBy: { products: { _count: "desc" } } },
+  oldest: { get label() { return tr("الأقدم الأول"); }, orderBy: { createdAt: "asc" } },
+  name: { get label() { return tr("الاسم (أ-ي)"); }, orderBy: { name: "asc" } },
+  products: { get label() { return tr("الأكتر منتجات"); }, orderBy: { products: { _count: "desc" } } },
 } satisfies Record<string, { label: string; orderBy: Prisma.CategoryOrderByWithRelationInput }>;
 type Sort = keyof typeof SORTS;
 
@@ -50,6 +55,7 @@ type CategoriesRouteProps = {
 };
 
 export default async function CategoriesRoute({ searchParams }: CategoriesRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -62,8 +68,8 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول عشان تقدر ترتّب منتجاتك في تصنيفات."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول عشان تقدر ترتّب منتجاتك في تصنيفات.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -150,16 +156,16 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
   const editHref = (id: string) => hrefWith(BASE_PATH, params, { edit: id, new: null, page: readParam(params, "page") });
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="التصنيفات"
-        description="رتّب منتجاتك في مجموعات عشان العميل يلاقي اللي عايزه بسرعة."
+        title={tr("التصنيفات")}
+        description={tr("رتّب منتجاتك في مجموعات عشان العميل يلاقي اللي عايزه بسرعة.")}
         actions={
           storeHasCategories && (
             <Button asChild size="sm" className="gap-1.5">
               <Link href={newHref} scroll={false}>
                 <Plus className="size-4" />
-                تصنيف جديد
+                {tr("تصنيف جديد")}
               </Link>
             </Button>
           )
@@ -170,13 +176,13 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={Tags}
-            title="لسه مفيش تصنيفات"
-            description="ابدأ بأول تصنيف (زي: ملابس، إكسسوارات) وبعدها ضيف منتجاتك جوّاه."
+            title={tr("لسه مفيش تصنيفات")}
+            description={tr("ابدأ بأول تصنيف (زي: ملابس، إكسسوارات) وبعدها ضيف منتجاتك جوّاه.")}
             action={
               <Button asChild size="sm" className="gap-1.5">
                 <Link href={newHref} scroll={false}>
                   <Plus className="size-4" />
-                  ضيف أول تصنيف
+                  {tr("ضيف أول تصنيف")}
                 </Link>
               </Button>
             }
@@ -185,12 +191,12 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
       ) : (
         <div className="space-y-4">
           <FilterTabs
-            label="عرض التصنيفات"
+            label={tr("عرض التصنيفات")}
             param="view"
             basePath={BASE_PATH}
             searchParams={params}
             tabs={[
-              { label: "الكل", count: allCount },
+              { label: tr("الكل"), count: allCount },
               { label: VIEWS.with.label, value: "with", count: withCount },
               { label: VIEWS.empty.label, value: "empty", count: emptyCount },
             ]}
@@ -199,11 +205,11 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
           <DataCard
             toolbar={
               <>
-                <SearchInput placeholder="ابحث باسم التصنيف أو الرابط" />
+                <SearchInput placeholder={tr("ابحث باسم التصنيف أو الرابط")} />
                 <SelectFilter
-                  label="الترتيب"
+                  label={tr("الترتيب")}
                   param="sort"
-                  allLabel="الأحدث الأول"
+                  allLabel={tr("الأحدث الأول")}
                   options={Object.entries(SORTS).map(([value, { label }]) => ({ value, label }))}
                 />
               </>
@@ -216,7 +222,7 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
                   total={total}
                   basePath={BASE_PATH}
                   searchParams={params}
-                  noun="تصنيف"
+                  noun={tr("تصنيف")}
                 />
               ) : undefined
             }
@@ -232,12 +238,12 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
             ) : (
               <EmptyState
                 icon={SearchX}
-                title="مفيش تصنيفات بالفلاتر دي"
-                description={q ? `مفيش نتايج لـ "${q}". جرّب اسم تاني.` : "جرّب تبويب تاني."}
+                title={tr("مفيش تصنيفات بالفلاتر دي")}
+                description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب اسم تاني.", q) : tr("جرّب تبويب تاني.")}
                 action={
                   hasFilters && (
                     <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
                     </Button>
                   )
                 }

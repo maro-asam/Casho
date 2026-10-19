@@ -60,6 +60,7 @@ import {
 } from "@/actions/store/members.actions";
 import { ROLE_LABELS, ROLE_COLORS } from "@/lib/store/permissions";
 import { MemberBranchesDialog, type BranchOption, type MemberBranchAccess } from "./MemberBranchesDialog";
+import { intlLocale, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
   members: MemberDTO[];
@@ -95,7 +96,7 @@ function CopyButton({ text }: { text: string }) {
       size="icon"
       className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
       onClick={handleCopy}
-      title="نسخ الرابط"
+      title={tr("نسخ الرابط")}
     >
       {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
     </Button>
@@ -153,11 +154,11 @@ export default function StoreMembers({
             },
           ]);
         }
-        toast.success("تم إنشاء رابط الدعوة");
+        toast.success(tr("تم إنشاء رابط الدعوة"));
         setInviteEmail("");
         setInviteRole("STORE_MANAGER");
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -167,9 +168,9 @@ export default function StoreMembers({
       const res = await RemoveMemberAction(memberId);
       if (res.success) {
         setMembers((prev) => prev.filter((m) => m.id !== memberId));
-        toast.success(res.message);
+        toast.success(trv(res.message));
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -181,9 +182,9 @@ export default function StoreMembers({
         setMembers((prev) =>
           prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)),
         );
-        toast.success(res.message);
+        toast.success(trv(res.message));
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -193,9 +194,9 @@ export default function StoreMembers({
       const res = await CancelInvitationAction(invId);
       if (res.success) {
         setInvitations((prev) => prev.filter((i) => i.id !== invId));
-        toast.success(res.message);
+        toast.success(trv(res.message));
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -205,14 +206,14 @@ export default function StoreMembers({
     startTransition(async () => {
       const res = await TransferOwnershipAction(transferTargetId);
       if (res.success) {
-        toast.success(res.message);
+        toast.success(trv(res.message));
         setTransferOpen(false);
         setTransferTargetId(null);
         setTransferConfirmText("");
         // Reload page to reflect new ownership
         window.location.reload();
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -226,9 +227,9 @@ export default function StoreMembers({
               <Users className="size-4" />
             </div>
             <div>
-              <CardTitle className="text-base">أعضاء المتجر</CardTitle>
+              <CardTitle className="text-base">{tr("أعضاء المتجر")}</CardTitle>
               <CardDescription className="mt-0.5 text-xs">
-                أدِر الفريق الذي يعمل على متجرك
+                {tr("أدِر الفريق الذي يعمل على متجرك")}
               </CardDescription>
             </div>
           </div>
@@ -245,22 +246,22 @@ export default function StoreMembers({
             <DialogTrigger asChild >
               <Button size="sm" className="gap-1.5  text-xs">
                 <UserPlus className="size-3.5" />
-                دعوة عضو
+                {tr("دعوة عضو")}
               </Button>
             </DialogTrigger>
 
-            <DialogContent dir="rtl" className="min-w-2xl">
+            <DialogContent dir={tdir()} className="min-w-2xl">
               <DialogHeader>
-                <DialogTitle>دعوة عضو جديد</DialogTitle>
+                <DialogTitle>{tr("دعوة عضو جديد")}</DialogTitle>
                 <DialogDescription>
-                  أرسل رابط دعوة للمستخدم عبر البريد الإلكتروني أو أي وسيلة أخرى.
+                  {tr("أرسل رابط دعوة للمستخدم عبر البريد الإلكتروني أو أي وسيلة أخرى.")}
                 </DialogDescription>
               </DialogHeader>
 
               {newInviteUrl ? (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    تم إنشاء رابط الدعوة. شاركه مع العضو الجديد.
+                    {tr("تم إنشاء رابط الدعوة. شاركه مع العضو الجديد.")}
                   </p>
                   <div className="flex items-center gap-2 rounded-xl border bg-muted/40 px-3 py-2">
                     <span className="flex-1 truncate font-mono text-xs text-foreground">
@@ -275,13 +276,13 @@ export default function StoreMembers({
                       setInviteOpen(false);
                     }}
                   >
-                    تم
+                    {tr("تم")}
                   </Button>
                 </div>
               ) : (
                 <form onSubmit={handleInvite} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="invite-email">البريد الإلكتروني</Label>
+                    <Label htmlFor="invite-email">{tr("البريد الإلكتروني")}</Label>
                     <Input
                       id="invite-email"
                       name="email"
@@ -295,29 +296,29 @@ export default function StoreMembers({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="invite-role">الدور</Label>
+                    <Label htmlFor="invite-role">{tr("الدور")}</Label>
                     <Select
                       name="role"
                       value={inviteRole}
                       onValueChange={(v) => setInviteRole(v as "STORE_MANAGER" | "STORE_STAFF")}
                     >
-                      <SelectTrigger id="invite-role" className="w-full" dir="rtl">
+                      <SelectTrigger id="invite-role" className="w-full" dir={tdir()}>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent dir="rtl" className="w-full">
+                      <SelectContent dir={tdir()} className="w-full">
                         <SelectItem value="STORE_MANAGER" >
                           <div>
-                            <p className="font-medium">مدير</p>
+                            <p className="font-medium">{tr("مدير")}</p>
                             <p className="text-xs text-muted-foreground">
-                              إدارة المنتجات والطلبات والعملاء
+                              {tr("إدارة المنتجات والطلبات والعملاء")}
                             </p>
                           </div>
                         </SelectItem>
                         <SelectItem value="STORE_STAFF">
                           <div>
-                            <p className="font-medium">موظف</p>
+                            <p className="font-medium">{tr("موظف")}</p>
                             <p className="text-xs text-muted-foreground">
-                              عرض وتحديث الطلبات فقط
+                              {tr("عرض وتحديث الطلبات فقط")}
                             </p>
                           </div>
                         </SelectItem>
@@ -331,7 +332,7 @@ export default function StoreMembers({
                       className="w-full"
                       disabled={isPending}
                     >
-                      {isPending ? "جاري الإنشاء..." : "إنشاء رابط الدعوة"}
+                      {isPending ? tr("جاري الإنشاء...") : tr("إنشاء رابط الدعوة")}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -363,7 +364,7 @@ export default function StoreMembers({
                     variant="outline"
                     className=" text-[10px] px-1.5 py-0 bg-slate-100 text-slate-600 border-slate-200"
                   >
-                    أنت
+                    {tr("أنت")}
                   </Badge>
                 )}
               </div>
@@ -373,8 +374,8 @@ export default function StoreMembers({
                   <>
                     {" · "}
                     {branchAccess[member.id].allBranches
-                      ? "كل الفروع"
-                      : branchAccess[member.id].branchIds.map((id) => branchName.get(id)).filter(Boolean).join("، ")}
+                      ? tr("كل الفروع")
+                      : branchAccess[member.id].branchIds.map((id) => branchName.get(id)).filter(Boolean).join(tr("، "))}
                   </>
                 )}
               </p>
@@ -402,11 +403,11 @@ export default function StoreMembers({
                       )
                     }
                   >
-                    تغيير إلى{" "}
-                    {member.role === "STORE_MANAGER" ? "موظف" : "مدير"}
+                    {tr("تغيير إلى")}{" "}
+                    {member.role === "STORE_MANAGER" ? tr("موظف") : tr("مدير")}
                   </DropdownMenuItem>
                   {multiBranch && (
-                    <DropdownMenuItem onClick={() => setBranchesMemberId(member.id)}>الفروع المسموحة</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setBranchesMemberId(member.id)}>{tr("الفروع المسموحة")}</DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -417,7 +418,7 @@ export default function StoreMembers({
                     }}
                   >
                     <Crown className="size-3.5 me-2" />
-                    نقل الملكية إليه
+                    {tr("نقل الملكية إليه")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -425,7 +426,7 @@ export default function StoreMembers({
                     onClick={() => handleRemove(member.id)}
                   >
                     <Trash2 className="size-3.5 me-2" />
-                    إزالة من المتجر
+                    {tr("إزالة من المتجر")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -448,7 +449,7 @@ export default function StoreMembers({
 
         {members.length === 0 && (
           <p className="py-4 text-center text-sm text-muted-foreground">
-            لا يوجد أعضاء بعد
+            {tr("لا يوجد أعضاء بعد")}
           </p>
         )}
 
@@ -456,7 +457,7 @@ export default function StoreMembers({
         {invitations.length > 0 && (
           <>
             <p className="pt-2 text-xs font-medium text-muted-foreground">
-              دعوات معلّقة ({invitations.length})
+              {tr("دعوات معلّقة ({0})", invitations.length)}
             </p>
             {invitations.map((inv) => (
               <div
@@ -473,11 +474,10 @@ export default function StoreMembers({
                     <RoleBadge role={inv.role} />
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    تنتهي{" "}
-                    {new Intl.DateTimeFormat("ar-EG", {
+                    {tr("تنتهي {0}", new Intl.DateTimeFormat(intlLocale(), {
                       day: "numeric",
                       month: "short",
-                    }).format(inv.expiresAt)}
+                    }).format(inv.expiresAt))}
                   </p>
                 </div>
 
@@ -489,7 +489,7 @@ export default function StoreMembers({
                     className="size-7 text-muted-foreground hover:text-rose-600 hover:bg-rose-50"
                     onClick={() => handleCancelInvitation(inv.id)}
                     disabled={isPending}
-                    title="إلغاء الدعوة"
+                    title={tr("إلغاء الدعوة")}
                   >
                     <X className="size-3.5" />
                   </Button>
@@ -502,26 +502,25 @@ export default function StoreMembers({
 
       {/* Transfer ownership dialog */}
       <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-        <DialogContent dir="rtl" className="min-w-2xl">
+        <DialogContent dir={tdir()} className="min-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-amber-600">
               <AlertTriangle className="size-5" />
-              نقل ملكية المتجر
+              {tr("نقل ملكية المتجر")}
             </DialogTitle>
             <DialogDescription>
-              هذا إجراء لا يمكن التراجع عنه. سيصبح{" "}
-              <strong>{transferTarget?.name ?? transferTarget?.email}</strong> المالك الجديد
-              للمتجر، وستصبح أنت مديراً.
+              {tr("هذا إجراء لا يمكن التراجع عنه. سيصبح")}{" "}
+              <strong>{transferTarget?.name ?? transferTarget?.email}</strong>{" "}{tr("المالك الجديد للمتجر، وستصبح أنت مديراً.")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2">
             <Label>
-              اكتب <strong>نقل الملكية</strong> للتأكيد
+              {tr("اكتب")}{" "}<strong>{tr("نقل الملكية")}</strong>{" "}{tr("للتأكيد")}
             </Label>
             <Input
               className=""
-              placeholder="نقل الملكية"
+              placeholder={tr("نقل الملكية")}
               value={transferConfirmText}
               onChange={(e) => setTransferConfirmText(e.target.value)}
             />
@@ -536,7 +535,7 @@ export default function StoreMembers({
                 setTransferConfirmText("");
               }}
             >
-              إلغاء
+              {tr("إلغاء")}
             </Button>
             <Button
               variant="destructive"
@@ -544,7 +543,7 @@ export default function StoreMembers({
               disabled={transferConfirmText !== "نقل الملكية" || isPending}
               onClick={handleTransferConfirm}
             >
-              {isPending ? "جاري النقل..." : "تأكيد النقل"}
+              {isPending ? tr("جاري النقل...") : tr("تأكيد النقل")}
             </Button>
           </DialogFooter>
         </DialogContent>

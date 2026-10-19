@@ -19,17 +19,24 @@ import DashboardSectionHeader from "../../_components/main/DashboardSectionHeade
 import StoreSettingsForm from "./_components/StoreSettingsForm";
 import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
+import LanguageSettings from "./_components/LanguageSettings";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetActiveSessionsAction } from "@/actions/auth/sessions.actions";
 import { GetStoreMembersAction } from "@/actions/store/members.actions";
 import { GetMemberBranchAccessAction } from "@/actions/inventory/branches.actions";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "إعدادات المتجر",
-  description: "تخصيص إعدادات المتجر والهوية البصرية وروابط التواصل",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("إعدادات المتجر"),
+  description: tr("تخصيص إعدادات المتجر والهوية البصرية وروابط التواصل"),
 };
+}
 
 export default async function SettingsRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const [sessions, { members, pendingInvitations }, branchAccess] = await Promise.all([
     GetActiveSessionsAction(),
@@ -65,14 +72,14 @@ export default async function SettingsRoute() {
 
   if (!store) {
     return (
-      <div dir="rtl" >
+      <div dir={tdir()} >
         <Card className="rounded-xl border-dashed">
           <CardContent className="flex min-h-55 flex-col items-center justify-center gap-3 text-center">
             <Store className="size-12 text-muted-foreground" />
             <div>
-              <h2 className="text-xl font-semibold">لا يوجد متجر</h2>
+              <h2 className="text-xl font-semibold">{tr("لا يوجد متجر")}</h2>
               <p className="text-sm text-muted-foreground">
-                يجب إنشاء متجر أولًا قبل تعديل الإعدادات.
+                {tr("يجب إنشاء متجر أولًا قبل تعديل الإعدادات.")}
               </p>
             </div>
           </CardContent>
@@ -82,13 +89,13 @@ export default async function SettingsRoute() {
   }
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir={tdir()} className="space-y-6">
       <DashboardSectionHeader
         icon={Settings2}
-        title="إعدادات المتجر"
+        title={tr("إعدادات المتجر")}
         description={
           <>
-            خصص مظهر وروابط متجر{" "}
+            {tr("خصص مظهر وروابط متجر")}{" "}
             <span className="font-semibold text-foreground">{store.name}</span>
           </>
         }
@@ -98,10 +105,10 @@ export default async function SettingsRoute() {
         <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl text-primary font-semibold">
-              إعدادات المتجر
+              {tr("إعدادات المتجر")}
             </CardTitle>
             <CardDescription>
-              حدّث اسم المتجر وسعر الشحن وروابط التواصل الاجتماعي.
+              {tr("حدّث اسم المتجر وسعر الشحن وروابط التواصل الاجتماعي.")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -111,6 +118,9 @@ export default async function SettingsRoute() {
 
 
       </div>
+
+      {/* ── Dashboard language (per user) ── */}
+      <LanguageSettings />
 
       {/* ── Store Members ── */}
       <div className="">

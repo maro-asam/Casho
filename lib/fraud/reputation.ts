@@ -5,6 +5,7 @@
 import { OrderRiskLevel, OrderSource, OrderStatus, type Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { canonicalPhone, phoneVariants } from "./phone";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type PhoneHistory = {
   /** Orders that reached the customer. */
@@ -25,7 +26,7 @@ export type PhoneRisk = {
   platform: PhoneHistory;
 };
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 async function history(where: Prisma.OrderWhereInput): Promise<PhoneHistory> {
   const [byStatus, returned] = await Promise.all([
@@ -45,14 +46,14 @@ async function history(where: Prisma.OrderWhereInput): Promise<PhoneHistory> {
 /** The rules, kept pure so they can be tested and tuned. */
 export function riskFromHistory(store: PhoneHistory, platform: PhoneHistory, blockedByStore: boolean): Omit<PhoneRisk, "store" | "platform"> {
   const signals: string[] = [];
-  if (blockedByStore) signals.push("الرقم ده محظور من متجرك");
+  if (blockedByStore) signals.push(tr("الرقم ده محظور من متجرك"));
 
   const { delivered, returned, canceled, total } = platform;
-  if (returned > 0) signals.push(`رفض استلام ${nf.format(returned)} طلب قبل كده على كاشو`);
-  if (store.returned > 0) signals.push(`منهم ${nf.format(store.returned)} من متجرك`);
-  if (canceled >= 2) signals.push(`${nf.format(canceled)} طلبات اتلغت قبل كده`);
-  if (delivered > 0) signals.push(`اتسلّم له ${nf.format(delivered)} طلب قبل كده`);
-  if (total === 0) signals.push("رقم جديد — أول طلب على كاشو");
+  if (returned > 0) signals.push(tr("رفض استلام {0} طلب قبل كده على كاشو", nf.format(returned)));
+  if (store.returned > 0) signals.push(tr("منهم {0} من متجرك", nf.format(store.returned)));
+  if (canceled >= 2) signals.push(tr("{0} طلبات اتلغت قبل كده", nf.format(canceled)));
+  if (delivered > 0) signals.push(tr("اتسلّم له {0} طلب قبل كده", nf.format(delivered)));
+  if (total === 0) signals.push(tr("رقم جديد — أول طلب على كاشو"));
 
   let level: OrderRiskLevel = OrderRiskLevel.LOW;
   if (blockedByStore || returned >= 2 || (returned >= 1 && delivered === 0) || (returned > 0 && returned >= delivered)) {

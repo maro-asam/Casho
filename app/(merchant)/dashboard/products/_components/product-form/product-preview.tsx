@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { ImageIcon } from "lucide-react";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
 
 type Props = {
   name: string;
@@ -28,13 +29,13 @@ export function ProductPreview({ name, image, price, compareAtPrice, categoryNam
         )}
         {onSale && (
           <span className="absolute inset-s-2 top-2 rounded-md bg-rose-600 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-            خصم {discount}٪
+            {tr("خصم {0}٪", discount)}
           </span>
         )}
       </div>
       <div className="space-y-1 p-3">
         {categoryName && <p className="text-xs text-muted-foreground">{categoryName}</p>}
-        <p className="line-clamp-2 text-sm font-medium">{name || "اسم المنتج"}</p>
+        <p className="line-clamp-2 text-sm font-medium">{name || tr("اسم المنتج")}</p>
         <div className="flex items-baseline gap-2">
           <span className="text-sm font-bold tabular-nums">{price !== null ? money.format(price) : "—"}</span>
           {onSale && (

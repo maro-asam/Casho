@@ -30,6 +30,7 @@ import ShiftModal from "./ShiftModal";
 import { BranchSwitcher } from "@/components/branch/BranchSwitcher";
 import { StoreSwitcher } from "@/components/branch/StoreSwitcher";
 import { egp } from "./pos-format";
+import { isRtl, tr } from "@/lib/i18n/dashboard";
 
 // ─── Cart state ───────────────────────────────────────────────
 
@@ -228,12 +229,12 @@ export default function PosTerminal({
   const addToCart = useCallback(
     (item: CartItem) => {
       if (item.stock <= 0) {
-        toast.error(`"${item.name}" نفد من المخزون`);
+        toast.error(tr("\"{0}\" نفد من المخزون", item.name));
         return;
       }
       const current = cart.items.find((i) => i.productId === item.productId)?.quantity ?? 0;
       if (current >= item.stock) {
-        toast.warning(`كل الكمية المتاحة من "${item.name}" في الفاتورة (${item.stock})`);
+        toast.warning(tr("كل الكمية المتاحة من \"{0}\" في الفاتورة ({1})", item.name, item.stock));
         return;
       }
       dispatch({ type: "ADD_ITEM", item });
@@ -246,7 +247,7 @@ export default function PosTerminal({
       startSearch(async () => {
         const product = await FindProductByBarcodeAction(code);
         if (product) addToCart(toCartItem(product));
-        else toast.error(`مفيش منتج بالكود ${code}`);
+        else toast.error(tr("مفيش منتج بالكود {0}", code));
       });
     },
     [addToCart],
@@ -357,19 +358,18 @@ export default function PosTerminal({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button asChild variant="ghost" size="icon" className="size-9">
-                <Link href="/" aria-label="رجوع للوحة التحكم">
-                  <ArrowRight className="size-5" />
+                <Link href="/" aria-label={tr("رجوع للوحة التحكم")}>
+                  <ArrowRight className="size-5 ltr:-scale-x-100" />
                 </Link>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>لوحة التحكم</TooltipContent>
+            <TooltipContent>{tr("لوحة التحكم")}</TooltipContent>
           </Tooltip>
 
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold leading-tight">{store.name}</p>
             <p className="text-xs text-muted-foreground">
-              نقطة البيع · {branches.length > 1 ? `${branch.name} · ` : ""}
-              {cashier.name ?? cashier.email}
+              {tr("نقطة البيع · {0}{1}", branches.length > 1 ? `${branch.name} · ` : "", cashier.name ?? cashier.email)}
             </p>
           </div>
 
@@ -378,7 +378,7 @@ export default function PosTerminal({
             surface="pos"
             branches={branches}
             value={branch.id}
-            lockedReason={branchLocked || activeShift ? "الفرع مربوط بالوردية المفتوحة — اقفلها عشان تغيّر الفرع" : undefined}
+            lockedReason={branchLocked || activeShift ? tr("الفرع مربوط بالوردية المفتوحة — اقفلها عشان تغيّر الفرع") : undefined}
             className="hidden sm:flex"
           />
 
@@ -393,20 +393,20 @@ export default function PosTerminal({
             <span className={cn("size-2 rounded-full", activeShift ? "bg-emerald-500" : "bg-amber-500")} />
             {activeShift ? (
               <>
-                <span className="font-medium">الوردية مفتوحة</span>
+                <span className="font-medium">{tr("الوردية مفتوحة")}</span>
                 <span className="text-muted-foreground tabular-nums">
-                  {activeShift.transactionCount} فاتورة · {egp(activeShift.totalSales)}
+                  {tr("{0} فاتورة · {1}", activeShift.transactionCount, egp(activeShift.totalSales))}
                 </span>
               </>
             ) : (
-              <span className="font-medium">مفيش وردية مفتوحة — افتح وردية</span>
+              <span className="font-medium">{tr("مفيش وردية مفتوحة — افتح وردية")}</span>
             )}
           </button>
 
           <div className="ms-auto flex items-center gap-1">
             <Button variant="ghost" size="sm" className="h-9 gap-1.5" onClick={() => setShowHeldOrders(true)}>
               <Pause className="size-4" />
-              <span className="hidden sm:inline">معلّق</span>
+              <span className="hidden sm:inline">{tr("معلّق")}</span>
               {heldCount > 0 && (
                 <span className="grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
                   {heldCount}
@@ -416,34 +416,34 @@ export default function PosTerminal({
             <Button asChild variant="ghost" size="sm" className="hidden h-9 gap-1.5 sm:inline-flex">
               <Link href="/pos/returns">
                 <RotateCcw className="size-4" />
-                مرتجعات
+                {tr("مرتجعات")}
               </Link>
             </Button>
             <Button asChild variant="ghost" size="sm" className="hidden h-9 gap-1.5 sm:inline-flex">
               <Link href="/pos/shifts">
                 <ClipboardList className="size-4" />
-                الورديات
+                {tr("الورديات")}
               </Link>
             </Button>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden size-9 lg:inline-flex" aria-label="اختصارات الكيبورد">
+                <Button variant="ghost" size="icon" className="hidden size-9 lg:inline-flex" aria-label={tr("اختصارات الكيبورد")}>
                   <Keyboard className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="text-start leading-6">
-                F1 بحث · F2 المعلّق · F9 الدفع
+                {tr("F1 بحث · F2 المعلّق · F9 الدفع")}
                 <br />
-                امسح الباركود في أي وقت
+                {tr("امسح الباركود في أي وقت")}
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-9" onClick={toggleFullscreen} aria-label="ملء الشاشة">
+                <Button variant="ghost" size="icon" className="size-9" onClick={toggleFullscreen} aria-label={tr("ملء الشاشة")}>
                   {isFullscreen ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{isFullscreen ? "خروج من ملء الشاشة" : "ملء الشاشة"}</TooltipContent>
+              <TooltipContent>{isFullscreen ? tr("خروج من ملء الشاشة") : tr("ملء الشاشة")}</TooltipContent>
             </Tooltip>
           </div>
         </header>
@@ -451,7 +451,7 @@ export default function PosTerminal({
         {/* ── Body ── */}
         <div className="flex min-h-0 flex-1">
           {/* Products */}
-          <section aria-label="المنتجات" className="flex min-w-0 flex-1 flex-col">
+          <section aria-label={tr("المنتجات")} className="flex min-w-0 flex-1 flex-col">
             <div className="space-y-3 border-b border-border p-4 pb-3">
               <div className="relative">
                 <Search className="pointer-events-none absolute inset-s-3.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
@@ -467,8 +467,8 @@ export default function PosTerminal({
                     }
                     if (e.key === "Escape") setSearch("");
                   }}
-                  placeholder="ابحث باسم المنتج أو امسح الباركود"
-                  aria-label="بحث عن منتج"
+                  placeholder={tr("ابحث باسم المنتج أو امسح الباركود")}
+                  aria-label={tr("بحث عن منتج")}
                   className="h-11 w-full rounded-xl border border-input bg-background ps-11 pe-20 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 [&::-webkit-search-cancel-button]:hidden"
                 />
                 <div className="absolute inset-e-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
@@ -476,7 +476,7 @@ export default function PosTerminal({
                     <button
                       type="button"
                       onClick={() => setSearch("")}
-                      aria-label="مسح البحث"
+                      aria-label={tr("مسح البحث")}
                       className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
                       <X className="size-4" />
@@ -488,8 +488,8 @@ export default function PosTerminal({
                 </div>
               </div>
 
-              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 scrollbar-hide" role="tablist" aria-label="التصنيفات">
-                {[{ id: null as string | null, name: "الكل" }, ...categories].map((cat) => {
+              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 scrollbar-hide" role="tablist" aria-label={tr("التصنيفات")}>
+                {[{ id: null as string | null, name: tr("الكل") }, ...categories].map((cat) => {
                   const active = activeCategoryId === cat.id;
                   return (
                     <button
@@ -518,7 +518,7 @@ export default function PosTerminal({
                 <Button size="lg" className="h-12 w-full justify-between px-4" onClick={() => setCartSheetOpen(true)}>
                   <span className="flex items-center gap-2">
                     <ShoppingCart className="size-5" />
-                    الفاتورة
+                    {tr("الفاتورة")}
                     {itemCount > 0 && (
                       <span className="rounded-full bg-primary-foreground/20 px-2 text-xs tabular-nums">{itemCount}</span>
                     )}
@@ -530,7 +530,7 @@ export default function PosTerminal({
           </section>
 
           {isDesktop && (
-            <aside aria-label="الفاتورة" className="flex w-100 shrink-0 flex-col border-s border-border xl:w-110">
+            <aside aria-label={tr("الفاتورة")} className="flex w-100 shrink-0 flex-col border-s border-border xl:w-110">
               {cartPanel}
             </aside>
           )}
@@ -538,8 +538,8 @@ export default function PosTerminal({
 
         {!isDesktop && (
           <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
-            <SheetContent side="left" className="w-full p-0 sm:max-w-md [&>button]:hidden">
-              <SheetTitle className="sr-only">الفاتورة</SheetTitle>
+            <SheetContent side={isRtl() ? "left" : "right"} className="w-full p-0 sm:max-w-md [&>button]:hidden">
+              <SheetTitle className="sr-only">{tr("الفاتورة")}</SheetTitle>
               {cartPanel}
             </SheetContent>
           </Sheet>

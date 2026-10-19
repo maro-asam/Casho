@@ -19,6 +19,7 @@ import {
 import { StatusPill } from "@/components/saas-page";
 import { DisconnectShopifyAction } from "@/actions/integrations/shopify-import.actions";
 import type { ConnectionView } from "@/lib/integrations/import/views";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export function ShopCard({ connection, busy }: { connection: ConnectionView; busy?: boolean }) {
   const router = useRouter();
@@ -29,10 +30,10 @@ export function ShopCard({ connection, busy }: { connection: ConnectionView; bus
     startTransition(async () => {
       const result = await DisconnectShopifyAction();
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(trv(result.error));
         return;
       }
-      toast.success("تم إلغاء الربط مع Shopify");
+      toast.success(tr("تم إلغاء الربط مع Shopify"));
       router.refresh();
     });
   }
@@ -46,11 +47,11 @@ export function ShopCard({ connection, busy }: { connection: ConnectionView; bus
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="truncate font-semibold">{connection.shopName}</p>
-            <StatusPill tone={healthy ? "success" : "warning"}>{healthy ? "متصل" : "محتاج إعادة ربط"}</StatusPill>
+            <StatusPill tone={healthy ? "success" : "warning"}>{healthy ? tr("متصل") : tr("محتاج إعادة ربط")}</StatusPill>
           </div>
           <p className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
             <span dir="ltr" className="font-mono">{connection.shopDomain}</span>
-            {connection.currencyCode && <span>العملة: {connection.currencyCode}</span>}
+            {connection.currencyCode && <span>{tr("العملة: {0}", connection.currencyCode)}</span>}
           </p>
         </div>
       </div>
@@ -59,21 +60,21 @@ export function ShopCard({ connection, busy }: { connection: ConnectionView; bus
         <AlertDialogTrigger asChild>
           <Button variant="ghost" size="sm" disabled={pending} className="self-start text-rose-600 hover:bg-rose-500/10 hover:text-rose-700 sm:self-auto">
             <Unlink className="size-4" />
-            إلغاء الربط
+            {tr("إلغاء الربط")}
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>إلغاء الربط مع Shopify؟</AlertDialogTitle>
+            <AlertDialogTitle>{tr("إلغاء الربط مع Shopify؟")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {busy ? "الاستيراد الشغال هيتلغي. " : ""}
-              البيانات اللي اتنقلت بالفعل هتفضل في متجرك على Kasho. هنمسح مفاتيح الوصول لـ Shopify من عندنا.
+              {busy ? tr("الاستيراد الشغال هيتلغي. ") : ""}
+              {tr("البيانات اللي اتنقلت بالفعل هتفضل في متجرك على Kasho. هنمسح مفاتيح الوصول لـ Shopify من عندنا.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>رجوع</AlertDialogCancel>
+            <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
             <AlertDialogAction className="bg-rose-600 hover:bg-rose-700" onClick={disconnect}>
-              إلغاء الربط
+              {tr("إلغاء الربط")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

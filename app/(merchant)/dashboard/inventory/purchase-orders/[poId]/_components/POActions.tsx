@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { tr } from "@/lib/i18n/dashboard";
 
 type POItem = {
   id: string;
@@ -52,10 +53,10 @@ export function POActions({ po }: { po: PO }) {
     startTransition(async () => {
       try {
         await UpdatePOStatusAction(po.id, status);
-        toast.success("تم تحديث حالة الطلب");
+        toast.success(tr("تم تحديث حالة الطلب"));
         router.refresh();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -69,11 +70,11 @@ export function POActions({ po }: { po: PO }) {
             .filter(([, qty]) => qty > 0)
             .map(([itemId, receivedQuantity]) => ({ itemId, receivedQuantity })),
         });
-        toast.success("تم تحديث المخزون بنجاح");
+        toast.success(tr("تم تحديث المخزون بنجاح"));
         setReceiveOpen(false);
         router.refresh();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -96,13 +97,13 @@ export function POActions({ po }: { po: PO }) {
             disabled={isPending}
           >
             <Send className="size-4" />
-            تحديد كـ"مُرسل"
+            {tr("تحديد كـ\"مُرسل\"")}
           </Button>
         )}
         {canReceive && (
           <Button size="sm" className="gap-2" onClick={initReceive} disabled={isPending}>
             <Check className="size-4" />
-            استلام بضاعة
+            {tr("استلام بضاعة")}
           </Button>
         )}
         {canCancel && (
@@ -114,7 +115,7 @@ export function POActions({ po }: { po: PO }) {
             disabled={isPending}
           >
             <X className="size-4" />
-            إلغاء
+            {tr("إلغاء")}
           </Button>
         )}
       </div>
@@ -123,11 +124,11 @@ export function POActions({ po }: { po: PO }) {
       <Dialog open={receiveOpen} onOpenChange={setReceiveOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>استلام بضاعة</DialogTitle>
+            <DialogTitle>{tr("استلام بضاعة")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              أدخل الكميات المُستلمة لكل منتج
+              {tr("أدخل الكميات المُستلمة لكل منتج")}
             </p>
             <div className="max-h-80 space-y-3 overflow-y-auto">
               {pendingItems.map((item) => {
@@ -138,7 +139,7 @@ export function POActions({ po }: { po: PO }) {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{item.product.name}</p>
                       {item.variant && <p className="text-xs text-muted-foreground">{item.variant.name}</p>}
-                      <p className="text-xs text-muted-foreground">متبقي: {remaining}</p>
+                      <p className="text-xs text-muted-foreground">{tr("متبقي: {0}", remaining)}</p>
                     </div>
                     <div className="w-20">
                       <Input
@@ -165,9 +166,9 @@ export function POActions({ po }: { po: PO }) {
                 disabled={isPending || Object.values(received).every((v) => v === 0)}
                 className="flex-1"
               >
-                {isPending ? "جاري التحديث..." : "تأكيد الاستلام وتحديث المخزون"}
+                {isPending ? tr("جاري التحديث...") : tr("تأكيد الاستلام وتحديث المخزون")}
               </Button>
-              <Button variant="outline" onClick={() => setReceiveOpen(false)}>إلغاء</Button>
+              <Button variant="outline" onClick={() => setReceiveOpen(false)}>{tr("إلغاء")}</Button>
             </div>
           </div>
         </DialogContent>

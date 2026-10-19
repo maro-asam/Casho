@@ -8,8 +8,9 @@ import { ORDER_STATUS_META } from "../../orders/_components/order-meta";
 import { hourLabel } from "../_lib/range";
 import type { ReportsData } from "../_lib/types";
 import { EmptyNote, Panel, ShareBar } from "./report-ui";
+import { lazyList, tr } from "@/lib/i18n/dashboard";
 
-const WEEKDAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+const WEEKDAYS = lazyList(["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]);
 // Saturday first — the Egyptian work week.
 const WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
 
@@ -20,17 +21,17 @@ export function TabSales({ data }: { data: ReportsData }) {
   return (
     <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
-        <Panel title="التحصيل" description="الفلوس اللي وصلتك فعلًا، واللي لسه في الطريق">
+        <Panel title={tr("التحصيل")} description={tr("الفلوس اللي وصلتك فعلًا، واللي لسه في الطريق")}>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" /> اتحصّل
+                <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />{" "}{tr("اتحصّل")}
               </p>
               <p className="text-xl font-bold tabular-nums">{formatMoney(pnl.collected)}</p>
             </div>
             <div className="space-y-1">
               <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="size-3.5 text-amber-600 dark:text-amber-400" /> لسه متحصّلش
+                <Clock className="size-3.5 text-amber-600 dark:text-amber-400" />{" "}{tr("لسه متحصّلش")}
               </p>
               <p className="text-xl font-bold tabular-nums">{formatMoney(pnl.outstanding)}</p>
             </div>
@@ -40,17 +41,16 @@ export function TabSales({ data }: { data: ReportsData }) {
             <div className="h-full bg-amber-400" style={{ width: `${collectable ? (pnl.outstanding / collectable) * 100 : 0}%` }} />
           </div>
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            &quot;اتحصّل&quot; = طلبات مدفوعة أو اتسلّمت. &quot;لسه&quot; = {formatNumber(pnl.outstandingOrders)} طلب قيد المراجعة أو
-            مع شركة الشحن (الدفع عند الاستلام).{" "}
+            {tr("\"اتحصّل\" = طلبات مدفوعة أو اتسلّمت. \"لسه\" = {0} طلب قيد المراجعة أو مع شركة الشحن (الدفع عند الاستلام).", formatNumber(pnl.outstandingOrders))}{" "}
             {pnl.outstandingOrders > 0 && (
               <Link href="/orders?status=PENDING" className="font-medium text-primary hover:underline">
-                راجع الطلبات
+                {tr("راجع الطلبات")}
               </Link>
             )}
           </p>
         </Panel>
 
-        <Panel title="حالة الطلبات" description="كل طلبات الفترة حسب حالتها دلوقتي">
+        <Panel title={tr("حالة الطلبات")} description={tr("كل طلبات الفترة حسب حالتها دلوقتي")}>
           <ul className="space-y-2.5">
             {data.statuses.map((s) => {
               const meta = ORDER_STATUS_META[s.status];
@@ -59,7 +59,7 @@ export function TabSales({ data }: { data: ReportsData }) {
                   <StatusPill tone={meta.tone} className="w-24 justify-center">
                     {meta.label}
                   </StatusPill>
-                  <span className="flex-1 tabular-nums text-muted-foreground">{formatNumber(s.count)} طلب</span>
+                  <span className="flex-1 tabular-nums text-muted-foreground">{tr("{0} طلب", formatNumber(s.count))}</span>
                   <span className="font-medium tabular-nums">{formatMoney(s.value)}</span>
                 </li>
               );
@@ -68,7 +68,7 @@ export function TabSales({ data }: { data: ReportsData }) {
         </Panel>
       </div>
 
-      <Panel title="طرق الدفع" description="الدفع المقسّم في الكاشير محسوب بمبلغ كل طريقة لوحدها">
+      <Panel title={tr("طرق الدفع")} description={tr("الدفع المقسّم في الكاشير محسوب بمبلغ كل طريقة لوحدها")}>
         {data.payments.length ? (
           <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
             {data.payments.map((p) => (
@@ -79,19 +79,19 @@ export function TabSales({ data }: { data: ReportsData }) {
                 </div>
                 <ShareBar value={p.share} />
                 <p className="text-xs text-muted-foreground tabular-nums">
-                  {formatPercent(p.share * 100)} · {formatNumber(p.count)} عملية
+                  {tr("{0} · {1} عملية", formatPercent(p.share * 100), formatNumber(p.count))}
                 </p>
               </li>
             ))}
           </ul>
         ) : (
-          <EmptyNote icon={CreditCard} title="مفيش مدفوعات في الفترة دي" />
+          <EmptyNote icon={CreditCard} title={tr("مفيش مدفوعات في الفترة دي")} />
         )}
       </Panel>
 
       <Heatmap heatmap={data.heatmap} />
 
-      <Panel title="المبيعات حسب أيام الأسبوع">
+      <Panel title={tr("المبيعات حسب أيام الأسبوع")}>
         <Weekdays weekdays={data.weekdays} />
       </Panel>
     </div>
@@ -102,9 +102,9 @@ function Heatmap({ heatmap }: { heatmap: number[][] }) {
   const max = Math.max(...heatmap.flat(), 0);
 
   return (
-    <Panel title="أوقات الطلبات" description="كل مربع = عدد الطلبات في الساعة دي من اليوم ده (بتوقيت القاهرة)">
+    <Panel title={tr("أوقات الطلبات")} description={tr("كل مربع = عدد الطلبات في الساعة دي من اليوم ده (بتوقيت القاهرة)")}>
       {max === 0 ? (
-        <EmptyNote icon={CalendarClock} title="مفيش طلبات في الفترة دي" />
+        <EmptyNote icon={CalendarClock} title={tr("مفيش طلبات في الفترة دي")} />
       ) : (
         <div className="overflow-x-auto">
           <div className="min-w-2xl space-y-1">
@@ -115,7 +115,7 @@ function Heatmap({ heatmap }: { heatmap: number[][] }) {
                   {heatmap[weekday].map((count, hour) => (
                     <div
                       key={hour}
-                      title={`${WEEKDAYS[weekday]} ${hourLabel(hour)}: ${formatNumber(count)} طلب`}
+                      title={tr("{0} {1}: {2} طلب", WEEKDAYS[weekday], hourLabel(hour), formatNumber(count))}
                       className={cn("aspect-square rounded-sm", count === 0 && "bg-muted")}
                       style={count > 0 ? { backgroundColor: `color-mix(in oklab, var(--primary) ${15 + (count / max) * 85}%, transparent)` } : undefined}
                     />
@@ -154,8 +154,8 @@ function Weekdays({ weekdays }: { weekdays: ReportsData["weekdays"] }) {
               {WEEKDAYS[weekday]}
             </span>
             <ShareBar value={d.netSales / max} className="h-2 flex-1" />
-            <span className="w-16 shrink-0 text-xs text-muted-foreground tabular-nums">{formatNumber(d.orders)} طلب</span>
-            <span className="w-24 shrink-0 text-left font-medium tabular-nums">{formatMoney(d.netSales)}</span>
+            <span className="w-16 shrink-0 text-xs text-muted-foreground tabular-nums">{tr("{0} طلب", formatNumber(d.orders))}</span>
+            <span className="w-24 shrink-0 text-end font-medium tabular-nums">{formatMoney(d.netSales)}</span>
           </li>
         );
       })}

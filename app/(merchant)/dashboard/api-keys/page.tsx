@@ -4,12 +4,18 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 import ApiKeysClient from "./_components/ApiKeysClient";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "مفاتيح API",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("مفاتيح API"),
 };
+}
 
 export default async function ApiKeysPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirstOrThrow({
@@ -35,11 +41,11 @@ export default async function ApiKeysPage() {
   });
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Code2}
-        title="مفاتيح API"
-        description="أنشئ وأدر مفاتيح الوصول إلى API العام لمتجرك"
+        title={tr("مفاتيح API")}
+        description={tr("أنشئ وأدر مفاتيح الوصول إلى API العام لمتجرك")}
         badge={keys.filter((k) => k.status === "ACTIVE").length}
       />
 

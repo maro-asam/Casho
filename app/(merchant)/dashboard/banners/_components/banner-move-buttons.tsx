@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { MoveBannerAction } from "@/actions/admin/banner.actions";
 import { Button } from "@/components/ui/button";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 /** Up/down arrows: the table order is the storefront slider order. */
 export function BannerMoveButtons({
@@ -28,7 +29,7 @@ export function BannerMoveButtons({
   function move(direction: "up" | "down") {
     startTransition(async () => {
       const result = await MoveBannerAction(bannerId, storeId, direction);
-      if (!result.ok) return void toast.error(result.message);
+      if (!result.ok) return void toast.error(trv(result.message));
       router.refresh();
     });
   }
@@ -42,7 +43,7 @@ export function BannerMoveButtons({
         className="size-6 text-muted-foreground"
         disabled={pending || !canMoveUp}
         onClick={() => move("up")}
-        aria-label={`قدّم "${title}"`}
+        aria-label={tr("قدّم \"{0}\"", title)}
       >
         <ChevronUp className="size-4" />
       </Button>
@@ -53,7 +54,7 @@ export function BannerMoveButtons({
         className="size-6 text-muted-foreground"
         disabled={pending || !canMoveDown}
         onClick={() => move("down")}
-        aria-label={`أخّر "${title}"`}
+        aria-label={tr("أخّر \"{0}\"", title)}
       >
         <ChevronDown className="size-4" />
       </Button>

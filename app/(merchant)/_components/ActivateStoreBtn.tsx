@@ -6,6 +6,7 @@ import { Rocket } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ActivateStoreAction } from "@/actions/store/stores.actions";
+import { tr } from "@/lib/i18n/dashboard";
 
 export default function ActivateStoreButton() {
   const [isPending, startTransition] = useTransition();
@@ -17,13 +18,13 @@ export default function ActivateStoreButton() {
 
         if (res?.success) {
           toast.success(
-            "🎉 ألف مبروك! تم تفعيل متجرك لمدة 30 يوم من دلوقتي"
+            tr("🎉 ألف مبروك! تم تفعيل متجرك لمدة 30 يوم من دلوقتي")
           );
         } else {
-          toast.error("حصل مشكلة أثناء التفعيل");
+          toast.error(tr("حصل مشكلة أثناء التفعيل"));
         }
       } catch (error) {
-        toast.error("حصل خطأ غير متوقع");
+        toast.error(tr("حصل خطأ غير متوقع"));
         console.error(error);
       }
     });
@@ -37,7 +38,7 @@ export default function ActivateStoreButton() {
       className="h-11 rounded-xl px-6 shadow-sm"
     >
       <Rocket className="ms-2 size-4" />
-      {isPending ? "جاري التفعيل..." : "تفعيل المتجر"}
+      {isPending ? tr("جاري التفعيل...") : tr("تفعيل المتجر")}
     </Button>
   );
 }

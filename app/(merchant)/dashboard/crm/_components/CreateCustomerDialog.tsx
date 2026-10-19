@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CreateCRMCustomerAction } from "@/actions/crm/customers.actions";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export function CreateCustomerDialog() {
   const router = useRouter();
@@ -39,11 +40,11 @@ export function CreateCustomerDialog() {
       });
 
       if (res.success) {
-        toast.success("تم إضافة العميل بنجاح");
+        toast.success(tr("تم إضافة العميل بنجاح"));
         setOpen(false);
         router.refresh();
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   };
@@ -53,62 +54,62 @@ export function CreateCustomerDialog() {
       <DialogTrigger asChild>
         <Button className="gap-2">
           <UserPlus className="size-4" />
-          إضافة عميل
+          {tr("إضافة عميل")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md" dir="rtl">
+      <DialogContent className="max-w-md" dir={tdir()}>
         <DialogHeader>
-          <DialogTitle>إضافة عميل جديد</DialogTitle>
+          <DialogTitle>{tr("إضافة عميل جديد")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="name">الاسم</Label>
-              <Input id="name" name="name" placeholder="محمد أحمد" />
+              <Label htmlFor="name">{tr("الاسم")}</Label>
+              <Input id="name" name="name" placeholder={tr("محمد أحمد")} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="phone">رقم الهاتف *</Label>
+              <Label htmlFor="phone">{tr("رقم الهاتف *")}</Label>
               <Input id="phone" name="phone" placeholder="01012345678" required />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email">البريد الإلكتروني</Label>
+            <Label htmlFor="email">{tr("البريد الإلكتروني")}</Label>
             <Input id="email" name="email" type="email" placeholder="customer@example.com" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="address">العنوان</Label>
-            <Input id="address" name="address" placeholder="القاهرة، مصر" />
+            <Label htmlFor="address">{tr("العنوان")}</Label>
+            <Input id="address" name="address" placeholder={tr("القاهرة، مصر")} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="birthday">تاريخ الميلاد</Label>
+              <Label htmlFor="birthday">{tr("تاريخ الميلاد")}</Label>
               <Input id="birthday" name="birthday" type="date" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="status">الحالة</Label>
+              <Label htmlFor="status">{tr("الحالة")}</Label>
               <Select name="status" defaultValue="ACTIVE">
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">نشط</SelectItem>
+                  <SelectItem value="ACTIVE">{tr("نشط")}</SelectItem>
                   <SelectItem value="VIP">VIP</SelectItem>
-                  <SelectItem value="INACTIVE">غير نشط</SelectItem>
-                  <SelectItem value="BLOCKED">محظور</SelectItem>
+                  <SelectItem value="INACTIVE">{tr("غير نشط")}</SelectItem>
+                  <SelectItem value="BLOCKED">{tr("محظور")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="notes">ملاحظات</Label>
-            <Input id="notes" name="notes" placeholder="ملاحظات سريعة..." />
+            <Label htmlFor="notes">{tr("ملاحظات")}</Label>
+            <Input id="notes" name="notes" placeholder={tr("ملاحظات سريعة...")} />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              إلغاء
+              {tr("إلغاء")}
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? "جاري الحفظ..." : "حفظ"}
+              {pending ? tr("جاري الحفظ...") : tr("حفظ")}
             </Button>
           </div>
         </form>

@@ -15,6 +15,7 @@ import { toWhatsAppDigits } from "@/lib/conversion/conversion-config";
 import { contrastRatio, hexToRgb } from "@/lib/theme/contrast";
 import { cn } from "@/lib/utils";
 import { Segmented } from "../../customization/_components/growth/controls";
+import { lazyList, tdir, tr } from "@/lib/i18n/dashboard";
 
 type DotType = "square" | "dots" | "rounded" | "classy-rounded" | "extra-rounded";
 type CornerType = "square" | "extra-rounded" | "dot";
@@ -33,27 +34,27 @@ type Props = {
 };
 
 const DOTS: { value: DotType; label: string }[] = [
-  { value: "square", label: "مربعات" },
-  { value: "rounded", label: "مدوّر" },
-  { value: "dots", label: "نقاط" },
-  { value: "classy-rounded", label: "أنيق" },
-  { value: "extra-rounded", label: "ناعم" },
+  { value: "square", get label() { return tr("مربعات"); } },
+  { value: "rounded", get label() { return tr("مدوّر"); } },
+  { value: "dots", get label() { return tr("نقاط"); } },
+  { value: "classy-rounded", get label() { return tr("أنيق"); } },
+  { value: "extra-rounded", get label() { return tr("ناعم"); } },
 ];
 
 const CORNERS: { value: CornerType; label: string }[] = [
-  { value: "square", label: "مربع" },
-  { value: "extra-rounded", label: "مدوّر" },
-  { value: "dot", label: "دائري" },
+  { value: "square", get label() { return tr("مربع"); } },
+  { value: "extra-rounded", get label() { return tr("مدوّر"); } },
+  { value: "dot", get label() { return tr("دائري"); } },
 ];
 
 /** Card layouts in px at print-friendly resolution. */
 const CARDS: Record<CardSize, { label: string; hint: string; w: number; h: number }> = {
-  sticker: { label: "ستيكر", hint: "مربع ١٠×١٠ سم — للكياس والعلب", w: 1200, h: 1200 },
-  card: { label: "كارت", hint: "A6 — جوّه الأوردر أو على الكاشير", w: 1240, h: 1748 },
-  poster: { label: "بوستر", hint: "A4 — على الحيطة أو الفاترينة", w: 2480, h: 3508 },
+  sticker: { get label() { return tr("ستيكر"); }, get hint() { return tr("مربع ١٠×١٠ سم — للكياس والعلب"); }, w: 1200, h: 1200 },
+  card: { get label() { return tr("كارت"); }, get hint() { return tr("A6 — جوّه الأوردر أو على الكاشير"); }, w: 1240, h: 1748 },
+  poster: { get label() { return tr("بوستر"); }, get hint() { return tr("A4 — على الحيطة أو الفاترينة"); }, w: 2480, h: 3508 },
 };
 
-const CTA_PRESETS = ["امسح واطلب أونلاين", "امسح وشوف كل المنتجات", "امسح وخد الخصم 🎁", "كلّمنا واتساب"];
+const CTA_PRESETS = lazyList(["امسح واطلب أونلاين", "امسح وشوف كل المنتجات", "امسح وخد الخصم 🎁", "كلّمنا واتساب"]);
 
 /** Same dots/corners as the on-screen preview, at any size. */
 function buildOptions(o: {
@@ -93,7 +94,7 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
   const [product, setProduct] = useState(products[0]?.slug ?? "");
   const [category, setCategory] = useState(categories[0]?.slug ?? "");
   const [coupon, setCoupon] = useState(coupons[0]?.code ?? "");
-  const [waMessage, setWaMessage] = useState("أهلاً، عايز أطلب");
+  const [waMessage, setWaMessage] = useState(tr("أهلاً، عايز أطلب"));
 
   // ── How it looks ─────────────────────────────────────────────────
   const [dot, setDot] = useState<DotType>("rounded");
@@ -234,7 +235,7 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch {
-      toast.error("مقدرناش نجهّز الكارت. جرّب تشيل اللوجو من جوّه الكود.");
+      toast.error(tr("مقدرناش نجهّز الكارت. جرّب تشيل اللوجو من جوّه الكود."));
     } finally {
       setBusy(null);
     }
@@ -247,11 +248,11 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
   }
 
   const presets = [
-    { label: "أسود", fg: "#111111", bg: "#ffffff" },
-    { label: "لون متجرك", fg: brandColor, bg: "#ffffff" },
-    { label: "كحلي", fg: "#1e3a8a", bg: "#eff6ff" },
-    { label: "أخضر", fg: "#166534", bg: "#f0fdf4" },
-    { label: "ذهبي", fg: "#78350f", bg: "#fffbeb" },
+    { label: tr("أسود"), fg: "#111111", bg: "#ffffff" },
+    { label: tr("لون متجرك"), fg: brandColor, bg: "#ffffff" },
+    { label: tr("كحلي"), fg: "#1e3a8a", bg: "#eff6ff" },
+    { label: tr("أخضر"), fg: "#166534", bg: "#f0fdf4" },
+    { label: tr("ذهبي"), fg: "#78350f", bg: "#fffbeb" },
   ];
 
   return (
@@ -260,18 +261,18 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
         {/* ── Target ───────────────────────────────────────────── */}
         <section className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div>
-            <h2 className="font-semibold">الكود يفتح إيه؟</h2>
-            <p className="text-sm text-muted-foreground">كل كود ممكن يودّي على مكان مختلف — اطبع واحد لكل استخدام.</p>
+            <h2 className="font-semibold">{tr("الكود يفتح إيه؟")}</h2>
+            <p className="text-sm text-muted-foreground">{tr("كل كود ممكن يودّي على مكان مختلف — اطبع واحد لكل استخدام.")}</p>
           </div>
           <Segmented
             value={target}
             onChange={setTarget}
             options={[
-              { value: "store", label: "المتجر" },
-              { value: "product", label: "منتج" },
-              { value: "category", label: "تصنيف" },
-              { value: "coupon", label: "كود خصم" },
-              { value: "whatsapp", label: "واتساب" },
+              { value: "store", label: tr("المتجر") },
+              { value: "product", label: tr("منتج") },
+              { value: "category", label: tr("تصنيف") },
+              { value: "coupon", label: tr("كود خصم") },
+              { value: "whatsapp", label: tr("واتساب") },
             ]}
           />
 
@@ -279,40 +280,40 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
             (products.length ? (
               <PickerSelect value={product} onChange={setProduct} items={products.map((p) => ({ value: p.slug, label: p.name }))} />
             ) : (
-              <EmptyHint text="مفيش منتجات ظاهرة لسه." href="/products/new" action="ضيف منتج" />
+              <EmptyHint text={tr("مفيش منتجات ظاهرة لسه.")} href="/products/new" action={tr("ضيف منتج")} />
             ))}
           {target === "category" &&
             (categories.length ? (
               <PickerSelect value={category} onChange={setCategory} items={categories.map((c) => ({ value: c.slug, label: c.name }))} />
             ) : (
-              <EmptyHint text="مفيش تصنيفات فيها منتجات." href="/categories" action="التصنيفات" />
+              <EmptyHint text={tr("مفيش تصنيفات فيها منتجات.")} href="/categories" action={tr("التصنيفات")} />
             ))}
           {target === "coupon" &&
             (coupons.length ? (
               <>
                 <PickerSelect value={coupon} onChange={setCoupon} items={coupons.map((c) => ({ value: c.code, label: `${c.code} · ${c.label}` }))} />
-                <p className="text-xs text-muted-foreground">العميل يمسح ← يدخل المتجر ← الكود يتطبق لوحده في السلة.</p>
+                <p className="text-xs text-muted-foreground">{tr("العميل يمسح ← يدخل المتجر ← الكود يتطبق لوحده في السلة.")}</p>
               </>
             ) : (
-              <EmptyHint text="معندكش أكواد خصم شغّالة." href="/coupons?new=1" action="اعمل كود" />
+              <EmptyHint text={tr("معندكش أكواد خصم شغّالة.")} href="/coupons?new=1" action={tr("اعمل كود")} />
             ))}
           {target === "whatsapp" &&
             (whatsapp ? (
               <div className="space-y-2">
                 <Label htmlFor="wa-msg" className="text-xs">
-                  الرسالة اللي هتتكتب لوحدها
+                  {tr("الرسالة اللي هتتكتب لوحدها")}
                 </Label>
                 <Input id="wa-msg" value={waMessage} maxLength={120} onChange={(e) => setWaMessage(e.target.value)} />
               </div>
             ) : (
-              <EmptyHint text="مفيش رقم واتساب في الإعدادات." href="/settings" action="ضيف الرقم" />
+              <EmptyHint text={tr("مفيش رقم واتساب في الإعدادات.")} href="/settings" action={tr("ضيف الرقم")} />
             ))}
 
           <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
             <p className="min-w-0 flex-1 truncate font-mono text-xs" dir="ltr">
               {url}
             </p>
-            <Button type="button" variant="ghost" size="icon" className="size-7 shrink-0" onClick={copyUrl} aria-label="نسخ الرابط">
+            <Button type="button" variant="ghost" size="icon" className="size-7 shrink-0" onClick={copyUrl} aria-label={tr("نسخ الرابط")}>
               {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
             </Button>
           </div>
@@ -320,21 +321,21 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
 
         {/* ── Design ───────────────────────────────────────────── */}
         <section className="space-y-5 rounded-xl border border-border bg-card p-4">
-          <h2 className="font-semibold">الشكل</h2>
+          <h2 className="font-semibold">{tr("الشكل")}</h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-xs">النقاط</Label>
+              <Label className="text-xs">{tr("النقاط")}</Label>
               <Segmented value={dot} onChange={setDot} options={DOTS} />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs">الزوايا</Label>
+              <Label className="text-xs">{tr("الزوايا")}</Label>
               <Segmented value={corner} onChange={setCorner} options={CORNERS} />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs">الألوان</Label>
+            <Label className="text-xs">{tr("الألوان")}</Label>
             <div className="flex flex-wrap gap-2">
               {presets.map((p) => (
                 <button
@@ -358,16 +359,16 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
               ))}
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <ColorField label="لون الكود" value={fg} onChange={setFg} />
-              <ColorField label="الخلفية" value={bg} onChange={setBg} />
+              <ColorField label={tr("لون الكود")} value={fg} onChange={setFg} />
+              <ColorField label={tr("الخلفية")} value={bg} onChange={setBg} />
             </div>
           </div>
 
           <label className={cn("flex items-center justify-between gap-3 rounded-lg border border-border p-3", !logo && "opacity-60")}>
             <span>
-              <span className="block text-sm font-medium">اللوجو في النص</span>
+              <span className="block text-sm font-medium">{tr("اللوجو في النص")}</span>
               <span className="block text-xs text-muted-foreground">
-                {logo ? "بنقوّي تصحيح الأخطاء تلقائي عشان الكود يفضل يتقري." : "ارفع لوجو من صفحة التخصيص الأول."}
+                {logo ? tr("بنقوّي تصحيح الأخطاء تلقائي عشان الكود يفضل يتقري.") : tr("ارفع لوجو من صفحة التخصيص الأول.")}
               </span>
             </span>
             <Switch checked={withLogo} onCheckedChange={setWithLogo} disabled={!logo} />
@@ -377,8 +378,8 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
         {/* ── Print card ───────────────────────────────────────── */}
         <section className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div>
-            <h2 className="font-semibold">كارت جاهز للطباعة</h2>
-            <p className="text-sm text-muted-foreground">اللوجو واسم المتجر والكود وجملة تشجّع على المسح — بدقة طباعة.</p>
+            <h2 className="font-semibold">{tr("كارت جاهز للطباعة")}</h2>
+            <p className="text-sm text-muted-foreground">{tr("اللوجو واسم المتجر والكود وجملة تشجّع على المسح — بدقة طباعة.")}</p>
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
             {(Object.keys(CARDS) as CardSize[]).map((key) => (
@@ -388,7 +389,7 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
                 onClick={() => setCardSize(key)}
                 aria-pressed={cardSize === key}
                 className={cn(
-                  "rounded-lg border p-3 text-right transition-colors",
+                  "rounded-lg border p-3 text-start transition-colors",
                   cardSize === key ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30",
                 )}
               >
@@ -399,7 +400,7 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
           </div>
           <div className="space-y-2">
             <Label htmlFor="cta" className="text-xs">
-              الجملة تحت الكود
+              {tr("الجملة تحت الكود")}
             </Label>
             <Input id="cta" value={cta} maxLength={40} onChange={(e) => setCta(e.target.value)} />
             <div className="flex flex-wrap gap-1.5">
@@ -422,15 +423,15 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
       <aside className="space-y-3 lg:sticky lg:top-20 lg:self-start">
         <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-5">
           <div className="rounded-2xl p-3 shadow-sm ring-1 ring-black/5" style={{ background: validColors ? bg : "#fff" }}>
-            <div ref={previewRef} className="size-[280px] [&>canvas]:size-full [&>svg]:size-full" aria-label="معاينة الـ QR" role="img" />
+            <div ref={previewRef} className="size-[280px] [&>canvas]:size-full [&>svg]:size-full" aria-label={tr("معاينة الـ QR")} role="img" />
           </div>
           <p className={cn("flex items-center gap-1.5 text-xs", scannable ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400")}>
             {scannable ? <Check className="size-3.5" /> : <AlertTriangle className="size-3.5" />}
             {scannable
-              ? "الألوان واضحة — الكود هيتقري بسهولة"
+              ? tr("الألوان واضحة — الكود هيتقري بسهولة")
               : inverted
-                ? "الكود فاتح على خلفية غامقة — موبايلات كتير مش هتقراه"
-                : "الألوان قريبة من بعض — الكاميرا ممكن متقراهوش"}
+                ? tr("الكود فاتح على خلفية غامقة — موبايلات كتير مش هتقراه")
+                : tr("الألوان قريبة من بعض — الكاميرا ممكن متقراهوش")}
           </p>
         </div>
 
@@ -441,15 +442,15 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
           </Button>
           <Button variant="outline" onClick={() => downloadCode("svg")} disabled={!!busy || !scannable} className="gap-1.5">
             {busy === "svg" ? <Loader2 className="size-4 animate-spin" /> : <FileImage className="size-4" />}
-            SVG للمطبعة
+            {tr("SVG للمطبعة")}
           </Button>
           <Button variant="secondary" onClick={downloadCard} disabled={!!busy || !scannable} className="col-span-2 gap-1.5">
             {busy === "card" ? <Loader2 className="size-4 animate-spin" /> : <Printer className="size-4" />}
-            حمّل {CARDS[cardSize].label} للطباعة
+            {tr("حمّل {0} للطباعة", CARDS[cardSize].label)}
           </Button>
         </div>
         <p className="text-center text-xs text-muted-foreground">
-          جرّبه بكاميرا موبايلك قبل ما تطبع. أقل مقاس للطباعة ٢×٢ سم.
+          {tr("جرّبه بكاميرا موبايلك قبل ما تطبع. أقل مقاس للطباعة ٢×٢ سم.")}
         </p>
       </aside>
     </div>
@@ -458,7 +459,7 @@ export function QrStudio({ storeName, baseUrl, logo, brandColor, whatsapp, produ
 
 function PickerSelect({ value, onChange, items }: { value: string; onChange: (v: string) => void; items: { value: string; label: string }[] }) {
   return (
-    <Select value={value} onValueChange={onChange} dir="rtl">
+    <Select value={value} onValueChange={onChange} dir={tdir()}>
       <SelectTrigger className="w-full">
         <SelectValue />
       </SelectTrigger>

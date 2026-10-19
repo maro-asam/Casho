@@ -7,12 +7,14 @@ import { isPopupType, readPopupConfig } from "@/lib/popups/popup-config";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import { BuilderProvider, type BuilderPopup, type PreviewDevice } from "./_components/BuilderContext";
 import BuilderShell from "./_components/BuilderShell";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 type BuilderPageProps = {
   searchParams?: Promise<{ device?: string; panel?: string }>;
 };
 
 export default async function BuilderPage({ searchParams }: BuilderPageProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 

@@ -2,15 +2,15 @@
  * Credential-aware provider factory.
  *
  * Accepts per-store credentials decrypted from ShippingIntegration.credentials
- * and returns the correct ShippingProvider implementation.
- * Adding a new carrier = add one case here + one provider file.
+ * and returns the carrier's API adapter. Only carriers registered with
+ * `integration: "api"` in ./carriers have one; manual carriers return null.
+ * Adding an API carrier = one provider file + one case here.
  */
 
 import { BostaProvider } from "./providers/bosta";
 import { AramexProvider } from "./providers/aramex";
 import type { ShippingProvider } from "./types";
-
-export type ShippingProviderKey = "BOSTA" | "ARAMEX";
+import type { CarrierKey } from "./carriers";
 
 // ─── Credential shapes expected in the DB JSON ────────────────────────────────
 
@@ -31,16 +31,17 @@ export interface AramexCredentials {
 // ─── Factory ──────────────────────────────────────────────────────────────────
 
 export function getShippingProvider(
-  providerKey: ShippingProviderKey,
+  carrier: CarrierKey,
   credentials: Record<string, string>,
-): ShippingProvider {
-  switch (providerKey) {
+  opts: { pickupCity?: string } = {},
+): ShippingProvider | null {
+  switch (carrier) {
     case "BOSTA": {
       const creds = credentials as unknown as BostaCredentials;
       if (!creds.apiKey) throw new Error("Bosta: apiKey is required");
       return new BostaProvider({
         apiKey: creds.apiKey,
-        pickupCity: creds.pickupCity,
+        pickupCity: opts.pickupCity ?? creds.pickupCity,
       });
     }
 
@@ -62,14 +63,12 @@ export function getShippingProvider(
         accountNumber: creds.accountNumber,
         accountPin: creds.accountPin,
         accountEntity: creds.accountEntity,
-        accountCountryCode: creds.accountCountryCode ?? "EG",
+        accountCountryCode: creds.accountCountryCode || "EG",
         version: "v1.0",
       });
     }
 
-    default: {
-      const exhaustive: never = providerKey;
-      throw new Error(`Unknown shipping provider: ${exhaustive}`);
-    }
+    default:
+      return null;
   }
 }

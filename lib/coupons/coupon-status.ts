@@ -1,14 +1,15 @@
 import type { Prisma } from "@prisma/client";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 // One definition of "what state is this code in", shared by the list, its tabs
 // and the status pills. Precedence: paused → expired → used up → scheduled → active.
 
 export const COUPON_STATUSES = [
-  { value: "active", label: "شغّال", tone: "success" },
-  { value: "scheduled", label: "مجدول", tone: "info" },
-  { value: "used_up", label: "خلص", tone: "warning" },
-  { value: "expired", label: "منتهي", tone: "neutral" },
-  { value: "paused", label: "متوقف", tone: "neutral" },
+  { value: "active", get label() { return tr("شغّال"); }, tone: "success" },
+  { value: "scheduled", get label() { return tr("مجدول"); }, tone: "info" },
+  { value: "used_up", get label() { return tr("خلص"); }, tone: "warning" },
+  { value: "expired", get label() { return tr("منتهي"); }, tone: "neutral" },
+  { value: "paused", get label() { return tr("متوقف"); }, tone: "neutral" },
 ] as const;
 
 export type CouponStatus = (typeof COUPON_STATUSES)[number]["value"];
@@ -59,6 +60,6 @@ export function couponStatusWhere(
 }
 
 export function formatCouponValue(type: "PERCENTAGE" | "FIXED", value: number) {
-  const nf = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 });
-  return type === "PERCENTAGE" ? `${nf.format(value)}٪` : `${nf.format(value)} ج.م`;
+  const nf = new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 2 });
+  return type === "PERCENTAGE" ? tr("{0}٪", nf.format(value)) : tr("{0} ج.م", nf.format(value));
 }

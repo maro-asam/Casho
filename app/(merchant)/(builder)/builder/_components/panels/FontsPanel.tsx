@@ -9,6 +9,7 @@ import { ARABIC_FONTS } from "@/constants/arabic-fonts";
 import { ENGLISH_FONTS } from "@/constants/english-fonts";
 import { UpdateStoreFontAction, UpdateStoreLanguageAction } from "@/actions/settings/theme.actions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export default function FontsPanel() {
   const { storeId, currentFontId, storeLanguage, reloadPreview } = useBuilder();
@@ -24,10 +25,10 @@ export default function FontsPanel() {
     startTransition(async () => {
       const result = await UpdateStoreFontAction({ storeId, fontId });
       if (result.success) {
-        toast.success("تم تحديث الخط");
+        toast.success(tr("تم تحديث الخط"));
         reloadPreview();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   };
@@ -37,26 +38,26 @@ export default function FontsPanel() {
     startLangTransition(async () => {
       const result = await UpdateStoreLanguageAction({ storeId, storeLanguage: lang });
       if (result.success) {
-        toast.success(result.message);
+        toast.success(trv(result.message));
         const defaultFont = lang === "en" ? "inter" : "cairo";
         await UpdateStoreFontAction({ storeId, fontId: defaultFont });
         reloadPreview();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   };
 
   return (
-    <div className="flex flex-col h-full" dir="rtl">
+    <div className="flex flex-col h-full" dir={tdir()}>
       {/* Header */}
       <div className="flex items-center gap-2 border-b px-4 py-3 bg-background">
         <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
           <Type className="size-3.5" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold">الخطوط</h2>
-          <p className="text-[10px] text-muted-foreground">اختر خط واتجاه المتجر</p>
+          <h2 className="text-sm font-semibold">{tr("الخطوط")}</h2>
+          <p className="text-[10px] text-muted-foreground">{tr("اختر خط واتجاه المتجر")}</p>
         </div>
       </div>
 
@@ -64,7 +65,7 @@ export default function FontsPanel() {
       <div className="flex items-center justify-between border-b px-3 py-2.5 bg-muted/30">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Globe className="size-3.5" />
-          <span>اتجاه المتجر</span>
+          <span>{tr("اتجاه المتجر")}</span>
         </div>
         <div className="flex items-center gap-0.5 rounded-lg border bg-background p-0.5">
           <button
@@ -80,7 +81,7 @@ export default function FontsPanel() {
             )}
           >
             {isLangPending && activeLanguage === "en" && <Loader2 className="size-3 animate-spin" />}
-            عربي
+            {tr("عربي")}
           </button>
           <button
             type="button"
@@ -107,7 +108,7 @@ export default function FontsPanel() {
         className="flex flex-col flex-1 min-h-0"
       >
         <TabsList className="w-full rounded-none border-b h-9 shrink-0">
-          <TabsTrigger value="arabic" className="flex-1 text-xs rounded-none">عربية</TabsTrigger>
+          <TabsTrigger value="arabic" className="flex-1 text-xs rounded-none">{tr("عربية")}</TabsTrigger>
           <TabsTrigger value="english" className="flex-1 text-xs rounded-none" dir="ltr">English</TabsTrigger>
         </TabsList>
 
@@ -121,7 +122,7 @@ export default function FontsPanel() {
                 onClick={() => handleFontChange(font.id)}
                 disabled={isPending}
                 className={cn(
-                  "w-full rounded-xl border p-3 text-right transition-all duration-150",
+                  "w-full rounded-xl border p-3 text-start transition-all duration-150",
                   "disabled:pointer-events-none disabled:opacity-60",
                   isActive
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
@@ -133,13 +134,13 @@ export default function FontsPanel() {
                     {isActive && <Check className="size-3.5 text-primary shrink-0" />}
                     <span className="text-xs font-medium">{font.name}</span>
                   </div>
-                  {isActive && <span className="text-[10px] text-primary font-medium">مُفعّل</span>}
+                  {isActive && <span className="text-[10px] text-primary font-medium">{tr("مُفعّل")}</span>}
                 </div>
                 <p
-                  className="mt-1.5 text-right leading-relaxed text-sm text-foreground/80"
+                  className="mt-1.5 text-start leading-relaxed text-sm text-foreground/80"
                   style={{ fontFamily: font.family }}
                 >
-                  {font.sample ?? "متجرك الإلكتروني — تسوّق بكل سهولة"}
+                  {font.sample ?? tr("متجرك الإلكتروني — تسوّق بكل سهولة")}
                 </p>
               </button>
             );
@@ -156,7 +157,7 @@ export default function FontsPanel() {
                 onClick={() => handleFontChange(font.id)}
                 disabled={isPending}
                 className={cn(
-                  "w-full rounded-xl border p-3 text-left transition-all duration-150",
+                  "w-full rounded-xl border p-3 text-end transition-all duration-150",
                   "disabled:pointer-events-none disabled:opacity-60",
                   isActive
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
@@ -171,7 +172,7 @@ export default function FontsPanel() {
                   {isActive && <span className="text-[10px] text-primary font-medium">Active</span>}
                 </div>
                 <p
-                  className="mt-1.5 text-left leading-relaxed text-sm text-foreground/80"
+                  className="mt-1.5 text-end leading-relaxed text-sm text-foreground/80"
                   style={{ fontFamily: font.family }}
                 >
                   {font.sample}

@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { GenerateLinkTokenAction, UnlinkTelegramAction } from "@/actions/store/telegram.actions";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 const BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? "cashomarobot";
 
@@ -36,7 +37,7 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
       const res = await GenerateLinkTokenAction();
       if (res.success && res.token) {
         setCurrentToken(res.token);
-        toast.success("تم توليد رمز ربط جديد");
+        toast.success(tr("تم توليد رمز ربط جديد"));
       }
     });
   }
@@ -47,7 +48,7 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
       if (res.success) {
         setIsLinked(false);
         setCurrentToken(null);
-        toast.success(res.message);
+        toast.success(trv(res.message));
       }
     });
   }
@@ -55,7 +56,7 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
   function copyToken() {
     if (!currentToken) return;
     navigator.clipboard.writeText(currentToken);
-    toast.success("تم نسخ الرمز");
+    toast.success(tr("تم نسخ الرمز"));
   }
 
   const botLink = `https://t.me/${BOT_USERNAME}?start=${currentToken ?? ""}`;
@@ -65,8 +66,8 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
 
       {/* ── Hero Banner ── */}
       <div className="relative overflow-hidden rounded-2xl border border-[#229ED9]/20 bg-[#229ED9]/5 px-6 py-7">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#229ED9]/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-8 bottom-0 h-32 w-32 rounded-full bg-[#229ED9]/8 blur-2xl" />
+        <div className="pointer-events-none absolute -start-16 -top-16 h-48 w-48 rounded-full bg-[#229ED9]/10 blur-3xl" />
+        <div className="pointer-events-none absolute -end-8 bottom-0 h-32 w-32 rounded-full bg-[#229ED9]/8 blur-2xl" />
 
         <div className="relative flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
@@ -75,22 +76,22 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-xl font-bold tracking-tight">ربط تيليجرام</h2>
+                <h2 className="text-xl font-bold tracking-tight">{tr("ربط تيليجرام")}</h2>
                 {isLinked ? (
                   <Badge className="gap-1.5 rounded-full bg-emerald-500/15 text-emerald-600 border-emerald-200 hover:bg-emerald-500/15">
                     <CheckCircle2 className="size-3" />
-                    مرتبط
+                    {tr("مرتبط")}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="rounded-full text-muted-foreground">
-                    غير مرتبط
+                    {tr("غير مرتبط")}
                   </Badge>
                 )}
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {isLinked
-                  ? "بيجيلك إشعار فوري على تيليجرام عند كل طلب جديد"
-                  : "اربط حساب تيليجرام وخليك أول ما تعرف بأي طلب جديد"}
+                  ? tr("بيجيلك إشعار فوري على تيليجرام عند كل طلب جديد")
+                  : tr("اربط حساب تيليجرام وخليك أول ما تعرف بأي طلب جديد")}
               </p>
             </div>
           </div>
@@ -104,7 +105,7 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
               disabled={isPending}
             >
               <Link2Off className="size-3.5" />
-              إلغاء الربط
+              {tr("إلغاء الربط")}
             </Button>
           )}
         </div>
@@ -134,8 +135,8 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                   <Send className="size-4" />
                 </div>
                 <div>
-                  <CardTitle className="text-base">خطوات الربط</CardTitle>
-                  <CardDescription>اتبع الخطوات دي وهتبقى مرتبط في أقل من دقيقة</CardDescription>
+                  <CardTitle className="text-base">{tr("خطوات الربط")}</CardTitle>
+                  <CardDescription>{tr("اتبع الخطوات دي وهتبقى مرتبط في أقل من دقيقة")}</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -146,8 +147,8 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                 <StepNumber num={1} done={!!currentToken} />
                 <div className="flex-1 space-y-3">
                   <div>
-                    <p className="text-sm font-semibold">ولّد رمز الربط</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">رمز مؤقت بيربط حسابك بالمتجر</p>
+                    <p className="text-sm font-semibold">{tr("ولّد رمز الربط")}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{tr("رمز مؤقت بيربط حسابك بالمتجر")}</p>
                   </div>
                   <Button
                     size="sm"
@@ -157,7 +158,7 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                     disabled={isPending}
                   >
                     <RefreshCw className={cn("size-3.5", isPending && "animate-spin")} />
-                    {currentToken ? "توليد رمز جديد" : "توليد رمز"}
+                    {currentToken ? tr("توليد رمز جديد") : tr("توليد رمز")}
                   </Button>
                 </div>
               </div>
@@ -167,8 +168,8 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                 <StepNumber num={2} done={false} />
                 <div className="flex-1 space-y-3">
                   <div>
-                    <p className="text-sm font-semibold">انسخ الرمز</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">هتحتاجه في المحادثة مع البوت</p>
+                    <p className="text-sm font-semibold">{tr("انسخ الرمز")}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{tr("هتحتاجه في المحادثة مع البوت")}</p>
                   </div>
                   {currentToken && (
                     <div className="flex items-center gap-2 rounded-xl border bg-muted/50 px-4 py-2.5">
@@ -188,23 +189,23 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                 <StepNumber num={3} done={false} />
                 <div className="flex-1 space-y-3">
                   <div>
-                    <p className="text-sm font-semibold">افتح البوت وابدأ المحادثة</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">اضغط الزرار وأرسل الرمز للبوت</p>
+                    <p className="text-sm font-semibold">{tr("افتح البوت وابدأ المحادثة")}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{tr("اضغط الزرار وأرسل الرمز للبوت")}</p>
                   </div>
                   {currentToken && (
                     <div className="space-y-2">
                       <Button asChild size="sm" className="rounded-xl gap-1.5 h-9 bg-[#229ED9] hover:bg-[#1a8bbf]">
                         <a href={botLink} target="_blank" rel="noreferrer">
                           <ExternalLink className="size-3.5" />
-                          افتح @{BOT_USERNAME}
+                          {tr("افتح @{0}", BOT_USERNAME)}
                         </a>
                       </Button>
                       <p className="text-xs text-muted-foreground">
-                        أو ابعت{" "}
+                        {tr("أو ابعت")}{" "}
                         <code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-xs">
                           /start {currentToken}
                         </code>
-                        {" "}للبوت مباشرة
+                        {" "}{tr("للبوت مباشرة")}
                       </p>
                     </div>
                   )}
@@ -220,9 +221,9 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                 <CheckCircle2 className="size-8" />
               </div>
               <div className="space-y-1">
-                <p className="text-lg font-bold">حسابك مرتبط بنجاح!</p>
+                <p className="text-lg font-bold">{tr("حسابك مرتبط بنجاح!")}</p>
                 <p className="text-sm text-muted-foreground">
-                  هتوصلك رسالة على تيليجرام فور وصول أي طلب جديد
+                  {tr("هتوصلك رسالة على تيليجرام فور وصول أي طلب جديد")}
                 </p>
               </div>
             </CardContent>
@@ -237,7 +238,7 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                 <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                   <Bell className="size-4" />
                 </div>
-                <CardTitle className="text-base">إشعارات فورية</CardTitle>
+                <CardTitle className="text-base">{tr("إشعارات فورية")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -246,9 +247,9 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
                   <ShoppingCart className="size-4" />
                 </div>
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium">طلب جديد</p>
+                  <p className="text-sm font-medium">{tr("طلب جديد")}</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    الاسم · الهاتف · العنوان · المبلغ · الدفع
+                    {tr("الاسم · الهاتف · العنوان · المبلغ · الدفع")}
                   </p>
                 </div>
               </div>
@@ -257,11 +258,10 @@ export default function TelegramConnect({ linked, chatId, linkToken }: Props) {
 
           <Card className="border-[#229ED9]/20 bg-[#229ED9]/5 shadow-sm">
             <CardContent className="pt-5 space-y-2">
-              <p className="text-sm font-semibold text-[#229ED9]">💡 نصيحة</p>
+              <p className="text-sm font-semibold text-[#229ED9]">{tr("💡 نصيحة")}</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                تأكد إن البوت{" "}
-                <span className="font-medium text-foreground">@{BOT_USERNAME}</span>{" "}
-                مش محظور في حسابك عشان تصلك الرسائل.
+                {tr("تأكد إن البوت")}{" "}
+                <span className="font-medium text-foreground">@{BOT_USERNAME}</span>{" "}{tr("مش محظور في حسابك عشان تصلك الرسائل.")}
               </p>
             </CardContent>
           </Card>

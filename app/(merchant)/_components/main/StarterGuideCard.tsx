@@ -6,6 +6,7 @@ import { ArrowLeft, Check, CreditCard, ImageIcon, Package, Rocket, Tag, Truck, W
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 type GuideIcon = "wallet" | "category" | "product" | "banner" | "payment" | "shipping" | "seo";
 
@@ -75,10 +76,10 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 id="setup-guide-title" className="text-base font-semibold">
-                جهّز متجرك للبيع
+                {tr("جهّز متجرك للبيع")}
               </h2>
               <p className="text-xs text-muted-foreground">
-                خلصت {completedCount} من {steps.length} خطوات
+                {tr("خلصت {0} من {1} خطوات", completedCount, steps.length)}
               </p>
             </div>
             <Button
@@ -87,7 +88,7 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
               size="icon"
               className="size-8 shrink-0 text-muted-foreground sm:hidden"
               onClick={hide}
-              aria-label="إخفاء دليل الإعداد"
+              aria-label={tr("إخفاء دليل الإعداد")}
             >
               <X className="size-4" />
             </Button>
@@ -98,7 +99,7 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
             aria-valuenow={progress}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="نسبة جاهزية المتجر"
+            aria-label={tr("نسبة جاهزية المتجر")}
           >
             <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${progress}%` }} />
           </div>
@@ -107,8 +108,8 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
         <div className="flex items-center gap-2">
           <Button asChild size="sm" className="gap-1.5">
             <Link href={nextStep.href}>
-              التالي: {nextStep.title}
-              <ArrowLeft className="size-3.5" />
+              {tr("التالي: {0}", nextStep.title)}
+              <ArrowLeft className="size-3.5 ltr:-scale-x-100" />
             </Link>
           </Button>
           <Button
@@ -117,7 +118,7 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
             size="icon"
             className="hidden size-8 text-muted-foreground sm:inline-flex"
             onClick={hide}
-            aria-label="إخفاء دليل الإعداد"
+            aria-label={tr("إخفاء دليل الإعداد")}
           >
             <X className="size-4" />
           </Button>

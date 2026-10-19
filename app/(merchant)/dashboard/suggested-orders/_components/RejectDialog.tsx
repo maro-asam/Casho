@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { RejectSuggestedOrderAction } from "@/actions/instagram/instagram.actions";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
   suggestedOrderId: string;
@@ -34,12 +35,12 @@ export function RejectDialog({ suggestedOrderId, onRejected }: Props) {
     startTransition(async () => {
       const result = await RejectSuggestedOrderAction(suggestedOrderId, reason || undefined);
       if (result.success) {
-        toast.success("تم رفض الطلب المقترح");
+        toast.success(tr("تم رفض الطلب المقترح"));
         setOpen(false);
         onRejected?.();
         router.refresh();
       } else {
-        toast.error(result.error ?? "فشل الرفض");
+        toast.error(result.error ?? tr("فشل الرفض"));
       }
     });
   }
@@ -52,22 +53,22 @@ export function RejectDialog({ suggestedOrderId, onRejected }: Props) {
           size="sm"
           className="rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600"
         >
-          <XCircle className="mr-1.5 size-4" />
-          رفض
+          <XCircle className="ms-1.5 size-4" />
+          {tr("رفض")}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent dir="rtl">
+      <AlertDialogContent dir={tdir()}>
         <AlertDialogHeader>
-          <AlertDialogTitle>رفض الطلب المقترح؟</AlertDialogTitle>
+          <AlertDialogTitle>{tr("رفض الطلب المقترح؟")}</AlertDialogTitle>
           <AlertDialogDescription>
-            سيتم تجاهل هذا الطلب ولن يظهر مجدداً. يمكنك إضافة سبب للرفض.
+            {tr("سيتم تجاهل هذا الطلب ولن يظهر مجدداً. يمكنك إضافة سبب للرفض.")}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className="space-y-2">
-          <Label className="text-sm">سبب الرفض (اختياري)</Label>
+          <Label className="text-sm">{tr("سبب الرفض (اختياري)")}</Label>
           <Textarea
-            placeholder="مثال: مجرد استفسار، عميل غير جاد..."
+            placeholder={tr("مثال: مجرد استفسار، عميل غير جاد...")}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             className="resize-none rounded-xl"
@@ -76,13 +77,13 @@ export function RejectDialog({ suggestedOrderId, onRejected }: Props) {
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel>إلغاء</AlertDialogCancel>
+          <AlertDialogCancel>{tr("إلغاء")}</AlertDialogCancel>
           <Button
             className="rounded-xl bg-rose-600 hover:bg-rose-700"
             onClick={handleReject}
             disabled={isPending}
           >
-            {isPending ? "جاري الرفض..." : "تأكيد الرفض"}
+            {isPending ? tr("جاري الرفض...") : tr("تأكيد الرفض")}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

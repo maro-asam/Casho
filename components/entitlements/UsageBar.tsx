@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 export function UsageBar({
   label,
@@ -20,7 +21,7 @@ export function UsageBar({
     return (
       <div className="flex items-center justify-between gap-3 py-2">
         <span className="text-sm font-medium">{label}</span>
-        <Badge variant="secondary">غير محدود</Badge>
+        <Badge variant="secondary">{tr("غير محدود")}</Badge>
       </div>
     );
   }
@@ -43,14 +44,13 @@ export function UsageBar({
       />
       {reached ? (
         <p className="text-xs text-destructive">
-          وصلت للحد الأقصى.{" "}
+          {tr("وصلت للحد الأقصى.")}{" "}
           <Link href="/change-plan" className="underline underline-offset-2">
-            قم بالترقية
-          </Link>{" "}
-          لإضافة المزيد.
+            {tr("قم بالترقية")}
+          </Link>{" "}{tr("لإضافة المزيد.")}
         </p>
       ) : warning ? (
-        <p className="text-xs text-amber-600 dark:text-amber-500">أنت تستخدم {percent}% من الحد المتاح.</p>
+        <p className="text-xs text-amber-600 dark:text-amber-500">{tr("أنت تستخدم {0}% من الحد المتاح.", percent)}</p>
       ) : null}
     </div>
   );

@@ -23,12 +23,18 @@ import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import { CustomerStatusBadge } from "./_components/CustomerHealthBadge";
 import { isEntitlementError } from "@/lib/entitlements";
 import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "إدارة العملاء — CRM",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("إدارة العملاء — CRM"),
 };
+}
 
 export default async function CRMDashboardPage() {
+  await loadDashboardLocale();
   let stats: Awaited<ReturnType<typeof GetCRMDashboardStatsAction>>;
   let birthdays: Awaited<ReturnType<typeof GetUpcomingBirthdaysAction>>;
 
@@ -40,11 +46,11 @@ export default async function CRMDashboardPage() {
   } catch (error) {
     if (isEntitlementError(error)) {
       return (
-        <div className="space-y-8" dir="rtl">
-          <DashboardSectionHeader icon={UserCircle} title="إدارة العملاء (CRM)" description="تتبع وفهم وطوّر علاقاتك مع عملائك" />
+        <div className="space-y-8" dir={tdir()}>
+          <DashboardSectionHeader icon={UserCircle} title={tr("إدارة العملاء (CRM)")} description={tr("تتبع وفهم وطوّر علاقاتك مع عملائك")} />
           <UpgradeRequiredCard
-            title="إدارة العملاء (CRM)"
-            description="نظام إدارة العملاء غير متاح في باقتك الحالية."
+            title={tr("إدارة العملاء (CRM)")}
+            description={tr("نظام إدارة العملاء غير متاح في باقتك الحالية.")}
             requiredPlanSlug={error.requiredPlan}
           />
         </div>
@@ -54,56 +60,56 @@ export default async function CRMDashboardPage() {
   }
 
   return (
-    <div className="space-y-8" dir="rtl">
+    <div className="space-y-8" dir={tdir()}>
       <DashboardSectionHeader
         icon={UserCircle}
-        title="إدارة العملاء (CRM)"
-        description="تتبع وفهم وطوّر علاقاتك مع عملائك"
+        title={tr("إدارة العملاء (CRM)")}
+        description={tr("تتبع وفهم وطوّر علاقاتك مع عملائك")}
         badge={stats.totalCustomers}
-        actionLabel="إضافة عميل"
+        actionLabel={tr("إضافة عميل")}
         actionHref="/dashboard/crm/customers"
       />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         <CRMStatCard
-          title="إجمالي العملاء"
-          value={stats.totalCustomers.toLocaleString("ar-EG")}
+          title={tr("إجمالي العملاء")}
+          value={stats.totalCustomers.toLocaleString(intlLocale())}
           icon={Users}
           color="default"
         />
         <CRMStatCard
-          title="عملاء جدد"
-          value={stats.newThisMonth.toLocaleString("ar-EG")}
-          subtitle="آخر 30 يوم"
+          title={tr("عملاء جدد")}
+          value={stats.newThisMonth.toLocaleString(intlLocale())}
+          subtitle={tr("آخر 30 يوم")}
           icon={TrendingUp}
-          trend={{ value: stats.newGrowthPct, label: "مقارنةً بالسابق" }}
+          trend={{ value: stats.newGrowthPct, label: tr("مقارنةً بالسابق") }}
           color="blue"
         />
         <CRMStatCard
-          title="عملاء نشطون"
-          value={stats.activeCustomers.toLocaleString("ar-EG")}
-          subtitle="لديهم طلبات هذا الشهر"
+          title={tr("عملاء نشطون")}
+          value={stats.activeCustomers.toLocaleString(intlLocale())}
+          subtitle={tr("لديهم طلبات هذا الشهر")}
           icon={Star}
           color="green"
         />
         <CRMStatCard
-          title="عملاء VIP"
-          value={stats.vipCustomers.toLocaleString("ar-EG")}
+          title={tr("عملاء VIP")}
+          value={stats.vipCustomers.toLocaleString(intlLocale())}
           icon={UserCircle}
           color="amber"
         />
         <CRMStatCard
-          title="في خطر"
-          value={stats.atRiskCount.toLocaleString("ar-EG")}
-          subtitle="لم يشتروا منذ 90 يوم"
+          title={tr("في خطر")}
+          value={stats.atRiskCount.toLocaleString(intlLocale())}
+          subtitle={tr("لم يشتروا منذ 90 يوم")}
           icon={AlertTriangle}
           color="red"
         />
         <CRMStatCard
-          title="نقاط الولاء"
-          value={stats.loyaltyStats.totalEarned.toLocaleString("ar-EG")}
-          subtitle={`مُسترد: ${stats.loyaltyStats.totalRedeemed.toLocaleString("ar-EG")}`}
+          title={tr("نقاط الولاء")}
+          value={stats.loyaltyStats.totalEarned.toLocaleString(intlLocale())}
+          subtitle={tr("مُسترد: {0}", stats.loyaltyStats.totalRedeemed.toLocaleString(intlLocale()))}
           icon={Gift}
           color="purple"
         />
@@ -114,11 +120,11 @@ export default async function CRMDashboardPage() {
         {/* Top Customers */}
         <Card className="xl:col-span-2">
           <CardHeader className="flex-row items-center justify-between pb-4">
-            <CardTitle className="text-base font-semibold">أفضل العملاء إنفاقاً</CardTitle>
+            <CardTitle className="text-base font-semibold">{tr("أفضل العملاء إنفاقاً")}</CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/crm/customers" className="flex items-center gap-1 text-xs text-muted-foreground">
-                عرض الكل
-                <ArrowLeft className="size-3" />
+                {tr("عرض الكل")}
+                <ArrowLeft className="size-3 ltr:-scale-x-100" />
               </Link>
             </Button>
           </CardHeader>
@@ -126,7 +132,7 @@ export default async function CRMDashboardPage() {
             {stats.topCustomers.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Users className="mb-3 size-10 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">لا يوجد عملاء بعد</p>
+                <p className="text-sm text-muted-foreground">{tr("لا يوجد عملاء بعد")}</p>
               </div>
             ) : (
               <div className="divide-y divide-border">
@@ -136,20 +142,20 @@ export default async function CRMDashboardPage() {
                       {i + 1}
                     </span>
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      {(c.customer?.name ?? c.customer?.phone ?? "؟")[0]}
+                      {(c.customer?.name ?? c.customer?.phone ?? tr("؟"))[0]}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">
-                        {c.customer?.name ?? c.customer?.phone ?? "عميل غير معروف"}
+                        {c.customer?.name ?? c.customer?.phone ?? tr("عميل غير معروف")}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {c.orderCount} طلبات
+                        {tr("{0} طلبات", c.orderCount)}
                       </p>
                     </div>
                     {c.customer?.status && (
                       <CustomerStatusBadge status={c.customer.status} />
                     )}
-                    <div className="text-left ltr">
+                    <div className="text-end ltr">
                       <p className="text-sm font-semibold text-primary">
                         {formatMoneyFromPiasters(c.totalSpend)}
                       </p>
@@ -168,7 +174,7 @@ export default async function CRMDashboardPage() {
             <CardHeader className="flex-row items-center justify-between pb-3">
               <div className="flex items-center gap-2">
                 <Cake className="size-4 text-pink-500" />
-                <CardTitle className="text-sm font-semibold">أعياد الميلاد القادمة</CardTitle>
+                <CardTitle className="text-sm font-semibold">{tr("أعياد الميلاد القادمة")}</CardTitle>
               </div>
               {birthdays.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
@@ -179,7 +185,7 @@ export default async function CRMDashboardPage() {
             <CardContent>
               {birthdays.length === 0 ? (
                 <p className="text-center text-xs text-muted-foreground py-4">
-                  لا توجد أعياد ميلاد خلال الـ 14 يوم القادمة
+                  {tr("لا توجد أعياد ميلاد خلال الـ 14 يوم القادمة")}
                 </p>
               ) : (
                 <div className="space-y-2.5">
@@ -195,7 +201,7 @@ export default async function CRMDashboardPage() {
                         </div>
                       </div>
                       <span className="text-[11px] text-pink-500 font-medium">
-                        {b.daysUntil === 0 ? "اليوم 🎂" : `${b.daysUntil} يوم`}
+                        {b.daysUntil === 0 ? tr("اليوم 🎂") : tr("{0} يوم", b.daysUntil)}
                       </span>
                     </div>
                   ))}
@@ -209,24 +215,24 @@ export default async function CRMDashboardPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Gift className="size-4 text-violet-500" />
-                <CardTitle className="text-sm font-semibold">ملخص الولاء</CardTitle>
+                <CardTitle className="text-sm font-semibold">{tr("ملخص الولاء")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between rounded-lg bg-violet-500/5 px-3 py-2.5">
-                <span className="text-xs text-muted-foreground">نقاط مكتسبة</span>
+                <span className="text-xs text-muted-foreground">{tr("نقاط مكتسبة")}</span>
                 <span className="text-sm font-bold text-violet-600">
-                  {stats.loyaltyStats.totalEarned.toLocaleString("ar-EG")}
+                  {stats.loyaltyStats.totalEarned.toLocaleString(intlLocale())}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-emerald-500/5 px-3 py-2.5">
-                <span className="text-xs text-muted-foreground">نقاط مستردة</span>
+                <span className="text-xs text-muted-foreground">{tr("نقاط مستردة")}</span>
                 <span className="text-sm font-bold text-emerald-600">
-                  {stats.loyaltyStats.totalRedeemed.toLocaleString("ar-EG")}
+                  {stats.loyaltyStats.totalRedeemed.toLocaleString(intlLocale())}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-blue-500/5 px-3 py-2.5">
-                <span className="text-xs text-muted-foreground">معدل الاسترداد</span>
+                <span className="text-xs text-muted-foreground">{tr("معدل الاسترداد")}</span>
                 <span className="text-sm font-bold text-blue-600">
                   {stats.loyaltyStats.totalEarned > 0
                     ? Math.round(
@@ -237,7 +243,7 @@ export default async function CRMDashboardPage() {
                 </span>
               </div>
               <Button variant="outline" size="sm" className="w-full mt-1" asChild>
-                <Link href="/dashboard/loyalty">إعدادات نظام النقاط</Link>
+                <Link href="/dashboard/loyalty">{tr("إعدادات نظام النقاط")}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -247,10 +253,10 @@ export default async function CRMDashboardPage() {
       {/* Quick Links */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {[
-          { href: "/dashboard/crm/customers", label: "قائمة العملاء", icon: Users, color: "text-blue-500 bg-blue-500/10" },
-          { href: "/dashboard/crm/segments", label: "الشرائح", icon: Star, color: "text-violet-500 bg-violet-500/10" },
-          { href: "/dashboard/crm/tags", label: "العلامات", icon: Gift, color: "text-amber-500 bg-amber-500/10" },
-          { href: "/dashboard/crm/analytics", label: "تحليلات CRM", icon: TrendingUp, color: "text-emerald-500 bg-emerald-500/10" },
+          { href: "/dashboard/crm/customers", label: tr("قائمة العملاء"), icon: Users, color: "text-blue-500 bg-blue-500/10" },
+          { href: "/dashboard/crm/segments", label: tr("الشرائح"), icon: Star, color: "text-violet-500 bg-violet-500/10" },
+          { href: "/dashboard/crm/tags", label: tr("العلامات"), icon: Gift, color: "text-amber-500 bg-amber-500/10" },
+          { href: "/dashboard/crm/analytics", label: tr("تحليلات CRM"), icon: TrendingUp, color: "text-emerald-500 bg-emerald-500/10" },
         ].map((item) => (
           <Card key={item.href} className="group hover:border-primary/30 transition-colors cursor-pointer">
             <Link href={item.href} className="flex items-center gap-3 p-4">
@@ -260,7 +266,7 @@ export default async function CRMDashboardPage() {
               <span className="text-sm font-medium group-hover:text-primary transition-colors">
                 {item.label}
               </span>
-              <ArrowLeft className="mr-auto size-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <ArrowLeft className="ms-auto size-3.5 text-muted-foreground group-hover:text-primary transition-colors ltr:-scale-x-100" />
             </Link>
           </Card>
         ))}

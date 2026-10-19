@@ -18,6 +18,7 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
+import { tr } from "@/lib/i18n/dashboard";
 
 type Analytics = {
   healthDistribution: { HEALTHY: number; ACTIVE: number; AT_RISK: number; LOST: number };
@@ -57,10 +58,10 @@ const HEALTH_COLORS = {
   LOST: "#EF4444",
 };
 const HEALTH_LABELS = {
-  HEALTHY: "صحي",
-  ACTIVE: "نشط",
-  AT_RISK: "في خطر",
-  LOST: "خامل",
+  get HEALTHY() { return tr("صحي"); },
+  get ACTIVE() { return tr("نشط"); },
+  get AT_RISK() { return tr("في خطر"); },
+  get LOST() { return tr("خامل"); },
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -70,17 +71,17 @@ const STATUS_COLORS: Record<string, string> = {
   BLOCKED: "#EF4444",
 };
 const STATUS_LABELS: Record<string, string> = {
-  ACTIVE: "نشط",
+  get ACTIVE() { return tr("نشط"); },
   VIP: "VIP",
-  INACTIVE: "غير نشط",
-  BLOCKED: "محظور",
+  get INACTIVE() { return tr("غير نشط"); },
+  get BLOCKED() { return tr("محظور"); },
 };
 
 const PERIODS = [
-  { label: "30 يوم", value: 30 },
-  { label: "60 يوم", value: 60 },
-  { label: "90 يوم", value: 90 },
-  { label: "سنة", value: 365 },
+  { get label() { return tr("30 يوم"); }, value: 30 },
+  { get label() { return tr("60 يوم"); }, value: 60 },
+  { get label() { return tr("90 يوم"); }, value: 90 },
+  { get label() { return tr("سنة"); }, value: 365 },
 ];
 
 export function CRMAnalyticsClient({
@@ -111,9 +112,9 @@ export function CRMAnalyticsClient({
     }));
 
   const monthLabels: Record<string, string> = {
-    "01": "يناير", "02": "فبراير", "03": "مارس", "04": "أبريل",
-    "05": "مايو", "06": "يونيو", "07": "يوليو", "08": "أغسطس",
-    "09": "سبتمبر", "10": "أكتوبر", "11": "نوفمبر", "12": "ديسمبر",
+    "01": tr("يناير"), "02": tr("فبراير"), "03": tr("مارس"), "04": tr("أبريل"),
+    "05": tr("مايو"), "06": tr("يونيو"), "07": tr("يوليو"), "08": tr("أغسطس"),
+    "09": tr("سبتمبر"), "10": tr("أكتوبر"), "11": tr("نوفمبر"), "12": tr("ديسمبر"),
   };
 
   const monthlyData = analytics.monthlyGrowth.map((m) => ({
@@ -130,7 +131,7 @@ export function CRMAnalyticsClient({
     <div className="space-y-6">
       {/* Period selector */}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">الفترة:</span>
+        <span className="text-sm text-muted-foreground">{tr("الفترة:")}</span>
         <div className="flex gap-1.5">
           {PERIODS.map((p) => (
             <button
@@ -151,28 +152,28 @@ export function CRMAnalyticsClient({
       {/* KPI Row */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <MetricCard
-          label="معدل الاحتفاظ"
+          label={tr("معدل الاحتفاظ")}
           value={`${analytics.retentionRate}%`}
           color="emerald"
-          hint="العملاء الذين أعادوا الشراء"
+          hint={tr("العملاء الذين أعادوا الشراء")}
         />
         <MetricCard
-          label="معدل الفقد"
+          label={tr("معدل الفقد")}
           value={`${analytics.churnRate}%`}
           color="rose"
-          hint="العملاء الذين توقفوا"
+          hint={tr("العملاء الذين توقفوا")}
         />
         <MetricCard
-          label="معدل التكرار"
+          label={tr("معدل التكرار")}
           value={`${analytics.repeatPurchaseRate}%`}
           color="blue"
-          hint="العملاء بأكثر من طلب"
+          hint={tr("العملاء بأكثر من طلب")}
         />
         <MetricCard
-          label="متوسط LTV"
+          label={tr("متوسط LTV")}
           value={formatMoneyFromPiasters(analytics.avgLTV)}
           color="violet"
-          hint="متوسط قيمة العميل مدى الحياة"
+          hint={tr("متوسط قيمة العميل مدى الحياة")}
         />
       </div>
 
@@ -181,7 +182,7 @@ export function CRMAnalyticsClient({
         {/* Monthly Growth */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">نمو العملاء الشهري (6 أشهر)</CardTitle>
+            <CardTitle className="text-sm font-semibold">{tr("نمو العملاء الشهري (6 أشهر)")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
@@ -206,7 +207,7 @@ export function CRMAnalyticsClient({
                     fontSize: 12,
                   }}
                 />
-                <Bar dataKey="عملاء" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey={tr("عملاء")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -215,12 +216,12 @@ export function CRMAnalyticsClient({
         {/* Daily growth last 30 days */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">عملاء جدد — آخر 30 يوم</CardTitle>
+            <CardTitle className="text-sm font-semibold">{tr("عملاء جدد — آخر 30 يوم")}</CardTitle>
           </CardHeader>
           <CardContent>
             {dailyGrowth.length === 0 ? (
               <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
-                لا توجد بيانات كافية
+                {tr("لا توجد بيانات كافية")}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
@@ -255,7 +256,7 @@ export function CRMAnalyticsClient({
                   />
                   <Area
                     type="monotone"
-                    dataKey="عملاء"
+                    dataKey={tr("عملاء")}
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
                     fill="url(#growthGrad)"
@@ -272,12 +273,12 @@ export function CRMAnalyticsClient({
         {/* Health Distribution */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">توزيع صحة العملاء</CardTitle>
+            <CardTitle className="text-sm font-semibold">{tr("توزيع صحة العملاء")}</CardTitle>
           </CardHeader>
           <CardContent>
             {healthPieData.length === 0 ? (
               <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
-                لا توجد بيانات
+                {tr("لا توجد بيانات")}
               </div>
             ) : (
               <div className="flex items-center gap-4">
@@ -325,12 +326,12 @@ export function CRMAnalyticsClient({
         {/* Status Distribution */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">توزيع حالة العملاء</CardTitle>
+            <CardTitle className="text-sm font-semibold">{tr("توزيع حالة العملاء")}</CardTitle>
           </CardHeader>
           <CardContent>
             {statusPieData.length === 0 ? (
               <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
-                لا توجد بيانات
+                {tr("لا توجد بيانات")}
               </div>
             ) : (
               <div className="flex items-center gap-4">
@@ -378,21 +379,21 @@ export function CRMAnalyticsClient({
       {/* Top Customers Table */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">أعلى العملاء قيمةً (LTV)</CardTitle>
+          <CardTitle className="text-sm font-semibold">{tr("أعلى العملاء قيمةً (LTV)")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {stats.topCustomers.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">
-              لا توجد بيانات
+              {tr("لا توجد بيانات")}
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="px-4 py-2.5 text-right font-medium text-muted-foreground">#</th>
-                  <th className="px-4 py-2.5 text-right font-medium text-muted-foreground">العميل</th>
-                  <th className="px-4 py-2.5 text-center font-medium text-muted-foreground">الطلبات</th>
-                  <th className="px-4 py-2.5 text-right font-medium text-muted-foreground">إجمالي الإنفاق</th>
+                  <th className="px-4 py-2.5 text-start font-medium text-muted-foreground">#</th>
+                  <th className="px-4 py-2.5 text-start font-medium text-muted-foreground">{tr("العميل")}</th>
+                  <th className="px-4 py-2.5 text-center font-medium text-muted-foreground">{tr("الطلبات")}</th>
+                  <th className="px-4 py-2.5 text-start font-medium text-muted-foreground">{tr("إجمالي الإنفاق")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">

@@ -5,8 +5,9 @@ import { StatusPill } from "@/components/saas-page";
 import { formatMoney, formatNumber, formatPercent } from "../../_components/overview/format";
 import type { ReportsData } from "../_lib/types";
 import { EmptyNote, Panel, ReportTable, Stat } from "./report-ui";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
-const dateFormat = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "short", timeZone: "Africa/Cairo" });
+const dateFormat = lazyIntl.date({ day: "numeric", month: "short", timeZone: "Africa/Cairo" });
 
 export function TabCustomers({ data }: { data: ReportsData }) {
   const c = data.customers;
@@ -18,34 +19,34 @@ export function TabCustomers({ data }: { data: ReportsData }) {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat
           icon={Users}
-          label="عملاء اشتروا"
+          label={tr("عملاء اشتروا")}
           delta={c.unique}
           format={formatNumber}
-          hint="عملاء مختلفين برقم موبايل عملوا طلب غير ملغي في الفترة."
+          hint={tr("عملاء مختلفين برقم موبايل عملوا طلب غير ملغي في الفترة.")}
         />
         <Stat
           icon={UserPlus}
-          label="عملاء جداد"
+          label={tr("عملاء جداد")}
           value={formatNumber(c.new)}
-          hint="أول طلب ليهم في متجرك كان في الفترة دي."
-          sub={<span>{formatNumber(c.returning)} رجعوا تاني</span>}
+          hint={tr("أول طلب ليهم في متجرك كان في الفترة دي.")}
+          sub={<span>{tr("{0} رجعوا تاني", formatNumber(c.returning))}</span>}
         />
         <Stat
           icon={Repeat}
-          label="اشتروا أكتر من مرة"
+          label={tr("اشتروا أكتر من مرة")}
           value={formatPercent(c.repeatRate)}
-          hint="نسبة العملاء اللي عملوا طلبين أو أكتر جوه الفترة نفسها."
+          hint={tr("نسبة العملاء اللي عملوا طلبين أو أكتر جوه الفترة نفسها.")}
         />
         <Stat
           icon={Wallet}
-          label="متوسط صرف العميل"
+          label={tr("متوسط صرف العميل")}
           value={formatMoney(c.avgSpend)}
-          hint="إجمالي اللي دفعه العملاء المعروفين ÷ عددهم."
+          hint={tr("إجمالي اللي دفعه العملاء المعروفين ÷ عددهم.")}
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Panel title="مبيعات العملاء الجداد والقدام" className="lg:col-span-2">
+        <Panel title={tr("مبيعات العملاء الجداد والقدام")} className="lg:col-span-2">
           {known > 0 ? (
             <>
               <div className="flex h-3 overflow-hidden rounded-full bg-muted">
@@ -55,71 +56,70 @@ export function TabCustomers({ data }: { data: ReportsData }) {
               <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className="size-2 rounded-full bg-primary" /> عملاء جداد ({formatNumber(c.new)})
+                    <span className="size-2 rounded-full bg-primary" />{" "}{tr("عملاء جداد ({0})", formatNumber(c.new))}
                   </dt>
                   <dd className="mt-1 text-lg font-bold tabular-nums">{formatMoney(c.newRevenue)}</dd>
-                  <dd className="text-xs text-muted-foreground">{formatPercent((1 - returningShare) * 100)} من المبيعات</dd>
+                  <dd className="text-xs text-muted-foreground">{tr("{0} من المبيعات", formatPercent((1 - returningShare) * 100))}</dd>
                 </div>
                 <div>
                   <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className="size-2 rounded-full bg-primary/35" /> عملاء رجعوا ({formatNumber(c.returning)})
+                    <span className="size-2 rounded-full bg-primary/35" />{" "}{tr("عملاء رجعوا ({0})", formatNumber(c.returning))}
                   </dt>
                   <dd className="mt-1 text-lg font-bold tabular-nums">{formatMoney(c.returningRevenue)}</dd>
-                  <dd className="text-xs text-muted-foreground">{formatPercent(returningShare * 100)} من المبيعات</dd>
+                  <dd className="text-xs text-muted-foreground">{tr("{0} من المبيعات", formatPercent(returningShare * 100))}</dd>
                 </div>
               </dl>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">مفيش طلبات بأرقام عملاء في الفترة دي.</p>
+            <p className="text-sm text-muted-foreground">{tr("مفيش طلبات بأرقام عملاء في الفترة دي.")}</p>
           )}
           {c.walkInOrders > 0 && (
             <p className="mt-4 flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
               <Store className="mt-0.5 size-3.5 shrink-0" />
-              {formatNumber(c.walkInOrders)} بيعة في الكاشير بـ {formatMoney(c.walkInSales)} من غير بيانات عميل، ومش داخلة في
-              أرقام العملاء. اطلب رقم العميل في الكاشير عشان تعرف مين بيرجع.
+              {tr("{0} بيعة في الكاشير بـ {1} من غير بيانات عميل، ومش داخلة في أرقام العملاء. اطلب رقم العميل في الكاشير عشان تعرف مين بيرجع.", formatNumber(c.walkInOrders), formatMoney(c.walkInSales))}
             </p>
           )}
         </Panel>
 
-        <Panel title="قاعدة العملاء">
+        <Panel title={tr("قاعدة العملاء")}>
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">كل العملاء المسجلين</dt>
+              <dt className="text-muted-foreground">{tr("كل العملاء المسجلين")}</dt>
               <dd className="font-medium tabular-nums">{formatNumber(c.crmTotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">اتسجلوا في الفترة</dt>
+              <dt className="text-muted-foreground">{tr("اتسجلوا في الفترة")}</dt>
               <dd className="font-medium tabular-nums">{formatNumber(c.crmNew)}</dd>
             </div>
             <div className="flex justify-between border-t border-border pt-3">
               <dt className="flex items-center gap-1.5 text-muted-foreground">
-                <Gift className="size-3.5" /> نقاط ولاء اتكسبت
+                <Gift className="size-3.5" />{" "}{tr("نقاط ولاء اتكسبت")}
               </dt>
               <dd className="font-medium tabular-nums">{formatNumber(data.loyalty.earned)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="flex items-center gap-1.5 text-muted-foreground">
-                <Gift className="size-3.5" /> نقاط اتستخدمت
+                <Gift className="size-3.5" />{" "}{tr("نقاط اتستخدمت")}
               </dt>
               <dd className="font-medium tabular-nums">{formatNumber(data.loyalty.redeemed)}</dd>
             </div>
           </dl>
           <Link href="/crm/customers" className="mt-4 inline-block text-xs font-medium text-primary hover:underline">
-            كل العملاء ←
+            {tr("كل العملاء ←")}
           </Link>
         </Panel>
       </div>
 
-      <Panel title="أكتر العملاء صرفًا" description="في الفترة المختارة" contentClassName={data.topCustomers.length ? "p-0" : undefined}>
+      <Panel title={tr("أكتر العملاء صرفًا")} description={tr("في الفترة المختارة")} contentClassName={data.topCustomers.length ? "p-0" : undefined}>
         {data.topCustomers.length ? (
           <ReportTable
             head={
               <>
                 <th className="w-8">#</th>
-                <th>العميل</th>
-                <th className="text-left!">الطلبات</th>
-                <th className="text-left!">إجمالي الصرف</th>
-                <th className="hidden md:table-cell">آخر طلب</th>
+                <th>{tr("العميل")}</th>
+                <th className="text-end!">{tr("الطلبات")}</th>
+                <th className="text-end!">{tr("إجمالي الصرف")}</th>
+                <th className="hidden md:table-cell">{tr("آخر طلب")}</th>
               </>
             }
           >
@@ -141,18 +141,18 @@ export function TabCustomers({ data }: { data: ReportsData }) {
                   </span>
                   {customer.isNew && (
                     <StatusPill tone="info" className="ms-2">
-                      جديد
+                      {tr("جديد")}
                     </StatusPill>
                   )}
                 </td>
-                <td className="text-left tabular-nums">{formatNumber(customer.orders)}</td>
-                <td className="text-left font-medium tabular-nums">{formatMoney(customer.spend)}</td>
+                <td className="text-end tabular-nums">{formatNumber(customer.orders)}</td>
+                <td className="text-end font-medium tabular-nums">{formatMoney(customer.spend)}</td>
                 <td className="hidden text-xs text-muted-foreground md:table-cell">{dateFormat.format(customer.lastOrderAt)}</td>
               </tr>
             ))}
           </ReportTable>
         ) : (
-          <EmptyNote icon={Users} title="مفيش عملاء اشتروا في الفترة دي" />
+          <EmptyNote icon={Users} title={tr("مفيش عملاء اشتروا في الفترة دي")} />
         )}
       </Panel>
     </div>

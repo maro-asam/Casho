@@ -4,6 +4,7 @@ import { CreateOrderAction } from "@/actions/store/orders.actions";
 import { GetStoreCheckoutPaymentMethodsAction } from "@/actions/payment-methods/payment-methods.actions";
 import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import type { PaymentMethodKey } from "@/constants/welcome/payment-methods";
+import { isGovernorateCode } from "@/constants/egypt-governorates";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId } from "../_lib/storefront";
 import { PixelEvent } from "../_components/pixels/PixelEvent";
@@ -45,6 +46,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     const fullName = String(formData.get("fullName") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
     const address = String(formData.get("address") ?? "").trim();
+    const governorate = String(formData.get("governorate") ?? "").trim();
 
     const defaultPaymentMethod =
       enabledPaymentMethods[0]?.key ?? "cash_on_delivery";
@@ -55,6 +57,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
 
     if (!fullName) throw new Error("الاسم بالكامل مطلوب");
     if (!phone) throw new Error("رقم الموبايل مطلوب");
+    if (!isGovernorateCode(governorate)) throw new Error("اختر المحافظة");
     if (!address) throw new Error("العنوان مطلوب");
 
     if (!isValidPaymentMethod(paymentMethodValue, enabledPaymentMethods)) {
@@ -65,6 +68,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
       fullName,
       phone,
       address,
+      governorate,
       paymentMethod: paymentMethodValue,
     });
   }

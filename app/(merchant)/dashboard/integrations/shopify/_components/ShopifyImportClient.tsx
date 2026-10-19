@@ -23,6 +23,7 @@ import { PreviewPanel, PreviewSkeleton } from "./PreviewPanel";
 import { ProgressPanel } from "./ProgressPanel";
 import { ResultPanel } from "./ResultPanel";
 import { ShopCard } from "./ShopCard";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 const POLL_MS = 3000;
 
@@ -78,7 +79,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
           router.refresh();
         }
       })
-      .catch(() => setPreview({ status: "error", error: "تعذّر تحميل المعاينة — جرّب تاني" }));
+      .catch(() => setPreview({ status: "error", error: tr("تعذّر تحميل المعاينة — جرّب تاني") }));
   }, [router]);
 
   function loadPreview() {
@@ -89,7 +90,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
   useEffect(() => {
     if (autoPreviewed.current || !justConnected) return;
     autoPreviewed.current = true;
-    toast.success(`تم الربط مع ${initialConnection?.shopName ?? "Shopify"}`);
+    toast.success(tr("تم الربط مع {0}", initialConnection?.shopName ?? "Shopify"));
     fetchPreview();
   }, [justConnected, initialConnection, fetchPreview]);
 
@@ -119,14 +120,14 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
     startTransition(async () => {
       const result = await action();
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(trv(result.error));
         router.refresh();
         return;
       }
       setJob(result.job);
       setPreview({ status: "idle" });
       setResultDismissed(false);
-      if (success) toast.success(success);
+      if (success) toast.success(trv(success));
       router.refresh();
     });
   }
@@ -163,16 +164,16 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
       {view === "connected" && (
         <section className="flex flex-col items-start gap-3 rounded-xl border border-dashed border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-base font-semibold">جاهز ننقل بياناتك</h2>
+            <h2 className="text-base font-semibold">{tr("جاهز ننقل بياناتك")}</h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {preview.status === "error"
                 ? preview.error
-                : "هنعدّ اللي في متجرك على Shopify ونوريك هينقل إيه قبل ما نبدأ أي حاجة."}
+                : tr("هنعدّ اللي في متجرك على Shopify ونوريك هينقل إيه قبل ما نبدأ أي حاجة.")}
             </p>
           </div>
           <Button onClick={loadPreview}>
             <Search className="size-4" />
-            {preview.status === "error" ? "جرّب تاني" : "معاينة البيانات"}
+            {preview.status === "error" ? tr("جرّب تاني") : tr("معاينة البيانات")}
           </Button>
         </section>
       )}
@@ -188,7 +189,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
           onToggle={(entity, checked) =>
             setSelected((current) => (checked ? [...new Set([...current, entity])] : current.filter((e) => e !== entity)))
           }
-          onStart={() => run(() => StartShopifyImportAction(selected), "بدأ الاستيراد")}
+          onStart={() => run(() => StartShopifyImportAction(selected), tr("بدأ الاستيراد"))}
         />
       )}
 
@@ -207,8 +208,8 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
             job={job}
             busy={busy}
             needsReconnect={connection?.status !== "ACTIVE"}
-            onResume={() => run(() => ResumeImportJobAction(job.id), "رجعنا نكمّل الاستيراد")}
-            onCancel={() => run(() => CancelImportJobAction(job.id), "تم إلغاء الاستيراد")}
+            onResume={() => run(() => ResumeImportJobAction(job.id), tr("رجعنا نكمّل الاستيراد"))}
+            onCancel={() => run(() => CancelImportJobAction(job.id), tr("تم إلغاء الاستيراد"))}
           />
         </>
       )}
@@ -217,7 +218,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
         <ResultPanel
           job={job}
           busy={busy}
-          onRetry={() => run(() => RetryFailedItemsAction(job.id), "بدأنا نعيد محاولة العناصر الفاشلة")}
+          onRetry={() => run(() => RetryFailedItemsAction(job.id), tr("بدأنا نعيد محاولة العناصر الفاشلة"))}
           onNewImport={() => {
             setResultDismissed(true);
             loadPreview();

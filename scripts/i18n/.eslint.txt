@@ -1,0 +1,163 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm.
+
+/home/maro/matjar/app/(merchant)/_components/main/dashboard-nav.ts
+  29:3  warning  'Timer' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/_components/notifications/NotificationsBell.tsx
+  143:10  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maro/matjar/app/(merchant)/_components/notifications/NotificationsBell.tsx:143:10
+  141 |   // ── Polling (fallback while SSE is active; disabled once SSE is proven stable)
+  142 |   useEffect(() => {
+> 143 |     void refresh();
+      |          ^^^^^^^ Avoid calling setState() directly within an effect
+  144 |
+  145 |     const id = window.setInterval(() => {
+  146 |       void refresh();  react-hooks/set-state-in-effect
+
+/home/maro/matjar/app/(merchant)/_components/shared/header/MobileHeaderMenu.tsx
+  5:10  warning  'LogIn' is defined but never used  @typescript-eslint/no-unused-vars
+  5:23  warning  'Store' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/api-keys/_components/ApiKeysClient.tsx
+  11:3  warning  'Copy' is defined but never used         @typescript-eslint/no-unused-vars
+  13:3  warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/api-keys/_components/CreateKeyDialog.tsx
+  21:10  warning  'SCOPES' is defined but never used                                     @typescript-eslint/no-unused-vars
+  76:7   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+/home/maro/matjar/app/(merchant)/dashboard/crm/customers/page.tsx
+   9:3   warning  'ShoppingBag' is defined but never used        @typescript-eslint/no-unused-vars
+  22:10  warning  'Badge' is defined but never used              @typescript-eslint/no-unused-vars
+  54:50  warning  'segments' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/crm/page.tsx
+  12:3  warning  'Wallet' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/crm/segments/page.tsx
+  2:19  warning  'Users' is defined but never used        @typescript-eslint/no-unused-vars
+  2:26  warning  'Plus' is defined but never used         @typescript-eslint/no-unused-vars
+  2:32  warning  'RefreshCw' is defined but never used    @typescript-eslint/no-unused-vars
+  6:10  warning  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  6:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+  6:29  warning  'CardHeader' is defined but never used   @typescript-eslint/no-unused-vars
+  6:41  warning  'CardTitle' is defined but never used    @typescript-eslint/no-unused-vars
+  7:10  warning  'Badge' is defined but never used        @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/crm/tags/_components/TagsClient.tsx
+  11:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/customization/_components/StoreFontPicker.tsx
+  7:33  warning  'ArabicFontId' is defined but never used   @typescript-eslint/no-unused-vars
+  8:34  warning  'EnglishFontId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/integrations/instagram/_components/ConnectionStatus.tsx
+   3:10  warning  'useState' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  81:21  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/maro/matjar/app/(merchant)/dashboard/integrations/instagram/_components/ConnectionStatus.tsx:81:21
+  79 |   function formatLastSync(date: Date | null) {
+  80 |     if (!date) return tr("لم تتم مزامنة بعد");
+> 81 |     const diff    = Date.now() - new Date(date).getTime();
+     |                     ^^^^^^^^^^ Cannot call impure function
+  82 |     const minutes = Math.floor(diff / 60000);
+  83 |     const hours   = Math.floor(diff / 3600000);
+  84 |     const days    = Math.floor(diff / 86400000);  react-hooks/purity
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/adjustments/new/_components/NewAdjustmentForm.tsx
+  222:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  260:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/movements/page.tsx
+   3:22  warning  'Filter' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  67:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/page.tsx
+   12:3   warning  'TrendingDown' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   20:10  warning  'formatMoneyFromPiasters' is defined but never used                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  116:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  171:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  204:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/purchase-orders/[poId]/_components/POActions.tsx
+   20:10  warning  'Label' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  138:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/purchase-orders/[poId]/page.tsx
+  144:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/purchase-orders/_components/NewPOForm.tsx
+  184:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  220:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx
+  105:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/transfers/[transferId]/_components/TransferActions.tsx
+  114:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  158:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/transfers/[transferId]/page.tsx
+  115:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/inventory/transfers/_components/NewTransferForm.tsx
+  140:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  168:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/maro/matjar/app/(merchant)/dashboard/invitation/[invitationId]/page.tsx
+  3:10  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+  3:33  warning  'Crown' is defined but never used         @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/products/_components/MarketingAssistantModal.tsx
+  20:3  warning  'Loader2' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/products/_components/WholesaleInput.tsx
+  7:10  warning  'Label' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/referral/_components/ReferralPageClient.tsx
+  84:3  warning  'successfulReferrals' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/settings/_components/StoreMembers.tsx
+  133:9  warning  'nonOwnerMembers' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/settings/page.tsx
+  5:3  warning  'Phone' is defined but never used  @typescript-eslint/no-unused-vars
+  6:3  warning  'Truck' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/suggested-orders/[id]/_components/ApproveForm.tsx
+  5:42  warning  'Search' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/suggested-orders/[id]/page.tsx
+  3:20  warning  'redirect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/dashboard/suggested-orders/page.tsx
+  32:7  warning  'PAGE_SIZE' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/maro/matjar/app/(merchant)/onboarding/_components/OnboardingWizard.tsx
+  75:65  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/maro/matjar/app/(merchant)/onboarding/_components/OnboardingWizard.tsx:75:65
+  73 |
+  74 |   const trialDaysLeft = trialEndDate
+> 75 |     ? Math.max(0, Math.ceil((new Date(trialEndDate).getTime() - Date.now()) / 86400000))
+     |                                                                 ^^^^^^^^^^ Cannot call impure function
+  76 |     : 3;
+  77 |
+  78 |   function handleNext() {  react-hooks/purity
+
+/home/maro/matjar/app/(merchant)/pos/returns/_components/ReturnsClient.tsx
+  28:50  warning  '_storeId' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 58 problems (3 errors, 55 warnings)
+

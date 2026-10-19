@@ -5,6 +5,7 @@ import { UserRound, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Customer = { id?: string; name: string; phone: string } | null;
 
@@ -26,7 +27,7 @@ export default function CustomerPicker({ customer, onChange }: { customer: Custo
             {customer.phone}
           </p>
         </div>
-        <Button variant="ghost" size="icon" className="size-8 text-muted-foreground" onClick={() => onChange(null)} aria-label="شيل العميل">
+        <Button variant="ghost" size="icon" className="size-8 text-muted-foreground" onClick={() => onChange(null)} aria-label={tr("شيل العميل")}>
           <X className="size-4" />
         </Button>
       </div>
@@ -41,11 +42,11 @@ export default function CustomerPicker({ customer, onChange }: { customer: Custo
           className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
         >
           <UserPlus className="size-4" />
-          إضافة عميل
-          <span className="ms-auto text-xs">(اختياري)</span>
+          {tr("إضافة عميل")}
+          <span className="ms-auto text-xs">{tr("(اختياري)")}</span>
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-72" dir="rtl">
+      <PopoverContent align="start" className="w-72" dir={tdir()}>
         <form
           className="space-y-3"
           onSubmit={(e) => {
@@ -57,8 +58,8 @@ export default function CustomerPicker({ customer, onChange }: { customer: Custo
             setOpen(false);
           }}
         >
-          <p className="text-sm font-semibold">بيانات العميل</p>
-          <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="الاسم" className="h-9" required />
+          <p className="text-sm font-semibold">{tr("بيانات العميل")}</p>
+          <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={tr("الاسم")} className="h-9" required />
           <Input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -69,9 +70,9 @@ export default function CustomerPicker({ customer, onChange }: { customer: Custo
             required
             minLength={8}
           />
-          <p className="text-xs text-muted-foreground">الاسم والرقم بيتسجلوا على الفاتورة والطلب.</p>
+          <p className="text-xs text-muted-foreground">{tr("الاسم والرقم بيتسجلوا على الفاتورة والطلب.")}</p>
           <Button type="submit" size="sm" className="w-full">
-            إضافة للفاتورة
+            {tr("إضافة للفاتورة")}
           </Button>
         </form>
       </PopoverContent>

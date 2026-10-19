@@ -1,13 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { SaveCheckoutContactAction } from "@/actions/store/cart-recovery.actions";
+import { EGYPT_GOVERNORATES } from "@/constants/egypt-governorates";
+import { selectGovernorateAction } from "../../cart/actions";
 import { useFormStatus } from "react-dom";
 import {
   CheckCircle2,
   CreditCard,
   Loader2,
+  MapPin,
   MapPinHouse,
   Phone,
   UserRound,
@@ -88,13 +92,27 @@ export default function CheckoutForm({
   paymentMethods,
   action,
   storeSlug,
+  defaultGovernorate,
 }: {
   paymentMethods: PaymentMethod[];
   action: (formData: FormData) => void;
   storeSlug: string;
+  /** Last governorate picked (cart summary already prices shipping for it). */
+  defaultGovernorate?: string | null;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const lastSaved = useRef("");
+  const router = useRouter();
+  const [isPricingShipping, startPricing] = useTransition();
+
+  // Shipping can cost differently per governorate: remember the pick and
+  // re-render the server summary so the shopper sees the real total.
+  function onGovernorateChange(code: string) {
+    startPricing(async () => {
+      await selectGovernorateAction(storeSlug, code);
+      router.refresh();
+    });
+  }
 
   // Keep what the customer typed so an unfinished checkout can be followed up
   // from "abandoned carts". Fire-and-forget; never blocks the form.
@@ -173,6 +191,38 @@ export default function CheckoutForm({
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="governorate" className="text-sm font-medium">
+            المحافظة
+          </Label>
+
+          <div className="relative">
+            <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+            <select
+              id="governorate"
+              name="governorate"
+              required
+              defaultValue={defaultGovernorate ?? ""}
+              onChange={(e) => onGovernorateChange(e.target.value)}
+              className="h-12 w-full appearance-none rounded-xl border border-input bg-transparent pr-10 pl-10 text-right text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              <option value="" disabled>
+                اختر المحافظة
+              </option>
+              {EGYPT_GOVERNORATES.map((g) => (
+                <option key={g.code} value={g.code}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+
+            {isPricingShipping && (
+              <Loader2 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="address" className="text-sm font-medium">
             العنوان بالكامل
           </Label>
@@ -183,7 +233,7 @@ export default function CheckoutForm({
             <Textarea
               id="address"
               name="address"
-              placeholder="المحافظة - المنطقة - الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"
+              placeholder="المنطقة - الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"
               rows={5}
               required
               className="rounded-xl pr-10 text-right leading-7"

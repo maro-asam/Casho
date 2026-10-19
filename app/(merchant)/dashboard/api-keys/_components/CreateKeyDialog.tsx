@@ -19,24 +19,25 @@ import {
 
 import { createApiKey } from "@/actions/api-keys/manage.actions";
 import { SCOPES, type ApiScope } from "@/lib/api/types";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 const SCOPE_LABELS: Record<ApiScope, string> = {
-  "orders:read": "قراءة الطلبات",
-  "orders:write": "إنشاء وتعديل الطلبات",
-  "customers:read": "قراءة العملاء",
-  "customers:write": "إنشاء وتعديل العملاء",
-  "products:read": "قراءة المنتجات",
-  "shipments:read": "قراءة الشحنات",
-  "shipments:write": "إنشاء وإلغاء الشحنات",
-  "webhooks:read": "قراءة Webhooks",
-  "webhooks:write": "إنشاء وحذف Webhooks",
+  get "orders:read"() { return tr("قراءة الطلبات"); },
+  get "orders:write"() { return tr("إنشاء وتعديل الطلبات"); },
+  get "customers:read"() { return tr("قراءة العملاء"); },
+  get "customers:write"() { return tr("إنشاء وتعديل العملاء"); },
+  get "products:read"() { return tr("قراءة المنتجات"); },
+  get "shipments:read"() { return tr("قراءة الشحنات"); },
+  get "shipments:write"() { return tr("إنشاء وإلغاء الشحنات"); },
+  get "webhooks:read"() { return tr("قراءة Webhooks"); },
+  get "webhooks:write"() { return tr("إنشاء وحذف Webhooks"); },
 };
 
 const SCOPE_GROUPS = [
-  { label: "الطلبات", scopes: ["orders:read", "orders:write"] as ApiScope[] },
-  { label: "العملاء", scopes: ["customers:read", "customers:write"] as ApiScope[] },
-  { label: "المنتجات", scopes: ["products:read"] as ApiScope[] },
-  { label: "الشحن", scopes: ["shipments:read", "shipments:write"] as ApiScope[] },
+  { get label() { return tr("الطلبات"); }, scopes: ["orders:read", "orders:write"] as ApiScope[] },
+  { get label() { return tr("العملاء"); }, scopes: ["customers:read", "customers:write"] as ApiScope[] },
+  { get label() { return tr("المنتجات"); }, scopes: ["products:read"] as ApiScope[] },
+  { get label() { return tr("الشحن"); }, scopes: ["shipments:read", "shipments:write"] as ApiScope[] },
   { label: "Webhooks", scopes: ["webhooks:read", "webhooks:write"] as ApiScope[] },
 ];
 
@@ -79,7 +80,7 @@ export default function CreateKeyDialog({ open, storeId, onOpenChange, onCreated
 
   function handleSubmit() {
     if (!name.trim()) {
-      toast.error("الرجاء إدخال اسم للمفتاح");
+      toast.error(tr("الرجاء إدخال اسم للمفتاح"));
       return;
     }
 
@@ -114,28 +115,28 @@ export default function CreateKeyDialog({ open, storeId, onOpenChange, onCreated
         setSelectedScopes(new Set());
         setIpWhitelist("");
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "حدث خطأ");
+        toast.error(e instanceof Error ? e.message : tr("حدث خطأ"));
       }
     });
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="max-w-md">
+      <DialogContent dir={tdir()} className="max-w-md">
         <DialogHeader>
-          <DialogTitle>إنشاء مفتاح API جديد</DialogTitle>
+          <DialogTitle>{tr("إنشاء مفتاح API جديد")}</DialogTitle>
           <DialogDescription>
-            سيتم عرض المفتاح مرة واحدة فقط بعد الإنشاء — احتفظ به في مكان آمن.
+            {tr("سيتم عرض المفتاح مرة واحدة فقط بعد الإنشاء — احتفظ به في مكان آمن.")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
           {/* Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="key-name">اسم المفتاح</Label>
+            <Label htmlFor="key-name">{tr("اسم المفتاح")}</Label>
             <Input
               id="key-name"
-              placeholder="مثال: نظام ERP الخارجي"
+              placeholder={tr("مثال: نظام ERP الخارجي")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isPending}
@@ -144,7 +145,7 @@ export default function CreateKeyDialog({ open, storeId, onOpenChange, onCreated
 
           {/* Scopes */}
           <div className="space-y-3">
-            <Label>الصلاحيات</Label>
+            <Label>{tr("الصلاحيات")}</Label>
 
             <div className="flex items-center gap-2">
               <Checkbox
@@ -154,7 +155,7 @@ export default function CreateKeyDialog({ open, storeId, onOpenChange, onCreated
                 disabled={isPending}
               />
               <label htmlFor="all-scopes" className="cursor-pointer text-sm font-medium">
-                كل الصلاحيات (غير موصى به للإنتاج)
+                {tr("كل الصلاحيات (غير موصى به للإنتاج)")}
               </label>
             </div>
 
@@ -191,7 +192,7 @@ export default function CreateKeyDialog({ open, storeId, onOpenChange, onCreated
 
           {/* IP Whitelist */}
           <div className="space-y-1.5">
-            <Label htmlFor="ip-list">قائمة IPs المسموح بها (اختياري)</Label>
+            <Label htmlFor="ip-list">{tr("قائمة IPs المسموح بها (اختياري)")}</Label>
             <Input
               id="ip-list"
               placeholder="192.168.1.1, 10.0.0.1"
@@ -201,7 +202,7 @@ export default function CreateKeyDialog({ open, storeId, onOpenChange, onCreated
               dir="ltr"
             />
             <p className="text-xs text-muted-foreground">
-              افصل بين العناوين بفاصلة. اتركه فارغاً للسماح لجميع العناوين.
+              {tr("افصل بين العناوين بفاصلة. اتركه فارغاً للسماح لجميع العناوين.")}
             </p>
           </div>
         </div>
@@ -209,10 +210,10 @@ export default function CreateKeyDialog({ open, storeId, onOpenChange, onCreated
         <DialogFooter className="flex-row-reverse gap-2 sm:gap-0">
           <Button onClick={handleSubmit} disabled={isPending}>
             {isPending && <Loader2 className="me-2 size-4 animate-spin" />}
-            إنشاء المفتاح
+            {tr("إنشاء المفتاح")}
           </Button>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-            إلغاء
+            {tr("إلغاء")}
           </Button>
         </DialogFooter>
       </DialogContent>

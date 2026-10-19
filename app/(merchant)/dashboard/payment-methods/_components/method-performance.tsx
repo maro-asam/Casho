@@ -3,11 +3,12 @@ import { PAYMENT_METHODS_BY_KEY, type PaymentMethodKey } from "@/constants/welco
 import { formatMoney } from "@/lib/balance-ui/meta";
 import { cn } from "@/lib/utils";
 import { MethodLogo } from "./shared";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type MethodStat = { key: string; orders: number; revenue: number; canceled: number };
 
-const nf = new Intl.NumberFormat("ar-EG");
-const pct = (n: number) => `${nf.format(Math.round(n))}٪`;
+const nf = lazyIntl.number();
+const pct = (n: number) => tr("{0}٪", nf.format(Math.round(n)));
 
 export function MethodPerformance({ stats, periodDays }: { stats: MethodStat[]; periodDays: number }) {
   const total = stats.reduce((s, x) => s + x.orders, 0);
@@ -21,9 +22,9 @@ export function MethodPerformance({ stats, periodDays }: { stats: MethodStat[]; 
 
   let insight: string | null = null;
   if (codCancel !== null && prepaidCancel !== null && codCancel - prepaidCancel >= 5) {
-    insight = `الطلبات الكاش بتتلغي ${pct(codCancel)} مقابل ${pct(prepaidCancel)} بس للمدفوع مقدمًا — شجّع عملاءك يدفعوا أونلاين.`;
+    insight = tr("الطلبات الكاش بتتلغي {0} مقابل {1} بس للمدفوع مقدمًا — شجّع عملاءك يدفعوا أونلاين.", pct(codCancel), pct(prepaidCancel));
   } else if (cod && total && cod.orders / total >= 0.8) {
-    insight = `${pct((cod.orders / total) * 100)} من طلباتك كاش عند الاستلام. الدفع الأونلاين بيقلل المرتجع ويوصّل فلوسك أسرع.`;
+    insight = tr("{0} من طلباتك كاش عند الاستلام. الدفع الأونلاين بيقلل المرتجع ويوصّل فلوسك أسرع.", pct((cod.orders / total) * 100));
   }
 
   return (
@@ -33,16 +34,16 @@ export function MethodPerformance({ stats, periodDays }: { stats: MethodStat[]; 
           <BarChart3 className="size-4" />
         </span>
         <div>
-          <h2 className="text-base font-semibold">العملاء بيدفعوا إزاي؟</h2>
+          <h2 className="text-base font-semibold">{tr("العملاء بيدفعوا إزاي؟")}</h2>
           <p className="text-sm text-muted-foreground">
-            آخر {nf.format(periodDays)} يوم{total > 0 && ` · ${nf.format(total)} طلب`}
+            {tr("آخر {0} يوم", nf.format(periodDays))}{total > 0 && tr(" · {0} طلب", nf.format(total))}
           </p>
         </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card">
         {total === 0 ? (
-          <p className="px-5 py-10 text-center text-sm text-muted-foreground">أول ما توصلك طلبات، هتشوف هنا كل طريقة دفع جابت كام وكام اتلغى منها.</p>
+          <p className="px-5 py-10 text-center text-sm text-muted-foreground">{tr("أول ما توصلك طلبات، هتشوف هنا كل طريقة دفع جابت كام وكام اتلغى منها.")}</p>
         ) : (
           <>
             {insight && <p className="border-b border-border bg-primary/[0.03] px-5 py-3 text-sm leading-6">{insight}</p>}
@@ -56,7 +57,7 @@ export function MethodPerformance({ stats, periodDays }: { stats: MethodStat[]; 
                     {m ? <MethodLogo src={m.logo} alt="" size="sm" /> : <span className="size-8" />}
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{m?.label ?? r.key}</p>
-                      <p className="text-xs text-muted-foreground tabular-nums">{nf.format(r.orders)} طلب</p>
+                      <p className="text-xs text-muted-foreground tabular-nums">{tr("{0} طلب", nf.format(r.orders))}</p>
                     </div>
                     <div className="col-span-2 flex items-center gap-3 sm:col-span-1">
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
@@ -67,7 +68,7 @@ export function MethodPerformance({ stats, periodDays }: { stats: MethodStat[]; 
                     <div className="col-span-2 flex justify-between gap-4 text-xs sm:col-span-1 sm:block sm:text-end">
                       <p className="font-medium tabular-nums">{formatMoney(r.revenue)}</p>
                       <p className={cn("tabular-nums text-muted-foreground", cancel >= 20 && "text-rose-700 dark:text-rose-400")}>
-                        {r.canceled > 0 ? `${pct(cancel)} اتلغى` : "مفيش إلغاء"}
+                        {r.canceled > 0 ? tr("{0} اتلغى", pct(cancel)) : tr("مفيش إلغاء")}
                       </p>
                     </div>
                   </li>

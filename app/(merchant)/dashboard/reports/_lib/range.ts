@@ -1,3 +1,4 @@
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 // Report date ranges, always in Cairo time: a merchant's "today" starts at
 // midnight Cairo, not at the server's midnight.
 
@@ -29,12 +30,12 @@ export type ReportRange = {
 };
 
 export const RANGE_PRESETS: { value: Exclude<RangePreset, "custom">; label: string }[] = [
-  { value: "today", label: "اليوم" },
-  { value: "7d", label: "٧ أيام" },
-  { value: "30d", label: "٣٠ يوم" },
-  { value: "90d", label: "٩٠ يوم" },
-  { value: "mtd", label: "الشهر ده" },
-  { value: "12m", label: "١٢ شهر" },
+  { value: "today", get label() { return tr("اليوم"); } },
+  { value: "7d", get label() { return tr("٧ أيام"); } },
+  { value: "30d", get label() { return tr("٣٠ يوم"); } },
+  { value: "90d", get label() { return tr("٩٠ يوم"); } },
+  { value: "mtd", get label() { return tr("الشهر ده"); } },
+  { value: "12m", get label() { return tr("١٢ شهر"); } },
 ];
 
 const keyFormat = new Intl.DateTimeFormat("en-CA", {
@@ -186,8 +187,8 @@ function shiftMonths(key: string, months: number) {
   return new Date(Date.UTC(y, m - 1 + months, Math.min(d, lastDay))).toISOString().slice(0, 10);
 }
 
-const longDate = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-const shortDate = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "short", timeZone: "UTC" });
+const longDate = lazyIntl.date({ day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const shortDate = lazyIntl.date({ day: "numeric", month: "short", timeZone: "UTC" });
 
 const keyToUtc = (key: string) => new Date(`${key}T00:00:00Z`);
 
@@ -203,8 +204,8 @@ export function formatRange(fromKey: string, toKey: string) {
 
 export type Bucket = { key: string; label: string };
 
-const monthLabel = new Intl.DateTimeFormat("ar-EG", { month: "short", year: "2-digit", timeZone: "UTC" });
-const hourLabel = (h: number) => `${h % 12 || 12} ${h < 12 ? "ص" : "م"}`;
+const monthLabel = lazyIntl.date({ month: "short", year: "2-digit", timeZone: "UTC" });
+const hourLabel = (h: number) => `${h % 12 || 12} ${h < 12 ? tr("ص") : tr("م")}`;
 
 /** Which bucket an instant falls in, matching `buildBuckets` keys. */
 export function bucketKey(date: Date, granularity: Granularity) {

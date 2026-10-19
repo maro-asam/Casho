@@ -7,6 +7,7 @@ import { LogIn, Menu, Store, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoutAction } from "@/actions/auth/logout.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { tr } from "@/lib/i18n/dashboard";
 
 type HeaderUser = {
   id: string;
@@ -36,7 +37,7 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full w-full border-t bg-white shadow-sm">
+        <div className="absolute end-0 top-full w-full border-t bg-white shadow-sm">
           <div className="flex flex-col gap-4 p-6">
             {links.map((link) => (
               <Link
@@ -53,33 +54,33 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
               <>
                 <Button className="mt-4 w-full" asChild>
                   <Link href="/register" onClick={() => setOpen(false)}>
-                    ابدأ متجرك دلوقتي
+                    {tr("ابدأ متجرك دلوقتي")}
                   </Link>
                 </Button>
 
                 <Button className="w-full" variant="outline" asChild>
                   <Link href="/login" onClick={() => setOpen(false)}>
-                    تسجيل الدخول
+                    {tr("تسجيل الدخول")}
                   </Link>
                 </Button>
               </>
             ) : (
               <>
                 <div className="mt-4 rounded-xl border p-3">
-                  <p className="font-semibold">{storeName || "الحساب"}</p>
+                  <p className="font-semibold">{storeName || tr("الحساب")}</p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
 
                 <Button className="w-full" asChild>
                   <Link href="/" onClick={() => setOpen(false)}>
-                    لوحة التحكم
+                    {tr("لوحة التحكم")}
                   </Link>
                 </Button>
 
                 {storeSlug && (
                   <Button className="w-full" variant="outline" asChild>
                     <Link href={buildStoreUrl(storeSlug)} onClick={() => setOpen(false)}>
-                      عرض المتجر
+                      {tr("عرض المتجر")}
                     </Link>
                   </Button>
                 )}
@@ -91,7 +92,7 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
                   }}
                 >
                   <Button type="submit" variant="destructive" className="w-full">
-                    تسجيل الخروج
+                    {tr("تسجيل الخروج")}
                   </Button>
                 </form>
               </>

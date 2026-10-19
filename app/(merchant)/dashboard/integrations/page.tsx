@@ -16,80 +16,86 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 import { GetInstagramStatsAction } from "@/actions/instagram/instagram.actions";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "التكاملات",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("التكاملات"),
 };
+}
 
 const PLATFORMS = [
   {
     id: "instagram",
-    name: "انستجرام",
-    description: "اكتشاف الطلبات من محادثات DM تلقائياً بالذكاء الاصطناعي",
+    get name() { return tr("انستجرام"); },
+    get description() { return tr("اكتشاف الطلبات من محادثات DM تلقائياً بالذكاء الاصطناعي"); },
     icon: Camera,
     href: "/integrations/instagram",
     available: true,
-    badge: "متاح",
+    get badge() { return tr("متاح"); },
     badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     gradient: "from-purple-500/10 to-pink-500/10 text-pink-500",
   },
   {
     id: "shopify",
-    name: "استيراد من Shopify",
-    description: "انقل منتجاتك وعملاءك وطلباتك من متجرك على Shopify لـ Kasho",
+    get name() { return tr("استيراد من Shopify"); },
+    get description() { return tr("انقل منتجاتك وعملاءك وطلباتك من متجرك على Shopify لـ Kasho"); },
     icon: ShoppingBag,
     href: "/integrations/shopify",
     available: true,
-    badge: "متاح",
+    get badge() { return tr("متاح"); },
     badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     gradient: "from-emerald-500/10 to-lime-500/10 text-emerald-600",
   },
   {
     id: "facebook",
     name: "Facebook Messenger",
-    description: "ربط حسابك التجاري على Facebook لاستقبال وتحليل طلبات الرسائل",
+    get description() { return tr("ربط حسابك التجاري على Facebook لاستقبال وتحليل طلبات الرسائل"); },
     icon: MessageSquare,
     href: "/integrations/facebook",
     available: false,
-    badge: "قريباً",
+    get badge() { return tr("قريباً"); },
     badgeClass: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
     gradient: "from-blue-500/10 to-sky-500/10 text-blue-500",
   },
   {
     id: "whatsapp",
-    name: "واتساب",
-    description: "تحويل محادثات واتساب التجاري إلى طلبات تلقائياً",
+    get name() { return tr("واتساب"); },
+    get description() { return tr("تحويل محادثات واتساب التجاري إلى طلبات تلقائياً"); },
     icon: Phone,
     href: "/integrations/whatsapp",
     available: false,
-    badge: "قريباً",
+    get badge() { return tr("قريباً"); },
     badgeClass: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
     gradient: "from-green-500/10 to-emerald-500/10 text-green-500",
   },
   {
     id: "tiktok",
-    name: "تيك توك",
-    description: "اكتشاف الطلبات من تعليقات ورسائل TikTok Shop",
+    get name() { return tr("تيك توك"); },
+    get description() { return tr("اكتشاف الطلبات من تعليقات ورسائل TikTok Shop"); },
     icon: Music2,
     href: "/integrations/tiktok",
     available: false,
-    badge: "قريباً",
+    get badge() { return tr("قريباً"); },
     badgeClass: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
     gradient: "from-zinc-500/10 to-slate-500/10 text-zinc-600",
   },
 ];
 
 export default async function IntegrationsPage() {
+  await loadDashboardLocale();
   const stats = await GetInstagramStatsAction();
   const igConnected = !!stats?.connection;
   const pendingCount = stats?.pendingCount ?? 0;
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Sparkles}
-        title="التكاملات"
-        description="ربط قنوات التواصل الاجتماعي لاكتشاف الطلبات تلقائياً بالذكاء الاصطناعي"
+        title={tr("التكاملات")}
+        description={tr("ربط قنوات التواصل الاجتماعي لاكتشاف الطلبات تلقائياً بالذكاء الاصطناعي")}
       />
 
       {/* Pending suggestion alert */}
@@ -100,17 +106,17 @@ export default async function IntegrationsPage() {
               <Sparkles className="size-5 text-amber-600" />
               <div>
                 <p className="text-sm font-semibold">
-                  {pendingCount} طلب مقترح من انستجرام يحتاج مراجعة
+                  {tr("{0} طلب مقترح من انستجرام يحتاج مراجعة", pendingCount)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  اكتشفها الذكاء الاصطناعي تلقائياً
+                  {tr("اكتشفها الذكاء الاصطناعي تلقائياً")}
                 </p>
               </div>
             </div>
             <Button asChild variant="outline" size="sm" className="rounded-xl">
               <Link href="/suggested-orders">
-                مراجعة
-                <ArrowLeft className="mr-1.5 size-4" />
+                {tr("مراجعة")}
+                <ArrowLeft className="ms-1.5 size-4 ltr:-scale-x-100" />
               </Link>
             </Button>
           </CardContent>
@@ -172,8 +178,8 @@ export default async function IntegrationsPage() {
                       className="w-full rounded-xl"
                     >
                       <Link href={platform.href}>
-                        {isConnected ? "الإعدادات" : "ابدأ الآن"}
-                        <ArrowLeft className="mr-1.5 size-3.5" />
+                        {isConnected ? tr("الإعدادات") : tr("ابدأ الآن")}
+                        <ArrowLeft className="ms-1.5 size-3.5 ltr:-scale-x-100" />
                       </Link>
                     </Button>
                   ) : (
@@ -183,7 +189,7 @@ export default async function IntegrationsPage() {
                       size="sm"
                       className="w-full rounded-xl"
                     >
-                      قريباً
+                      {tr("قريباً")}
                     </Button>
                   )}
                 </div>
@@ -196,9 +202,8 @@ export default async function IntegrationsPage() {
       {/* Vision note */}
       <div className="rounded-xl border border-border/50 bg-muted/30 p-4 text-sm text-muted-foreground">
         <p>
-          <strong className="text-foreground">الرؤية: </strong>
-          Casho يتطور ليصبح نظام تشغيل للتجارة الاجتماعية عبر جميع منصات التواصل الاجتماعي —
-          انستجرام، Facebook، واتساب، وتيك توك — كلها في مكان واحد بالذكاء الاصطناعي.
+          <strong className="text-foreground">{tr("الرؤية:")}{" "}</strong>
+          {tr("Casho يتطور ليصبح نظام تشغيل للتجارة الاجتماعية عبر جميع منصات التواصل الاجتماعي — انستجرام، Facebook، واتساب، وتيك توك — كلها في مكان واحد بالذكاء الاصطناعي.")}
         </p>
       </div>
     </div>

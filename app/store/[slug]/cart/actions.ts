@@ -10,6 +10,7 @@ import {
   ApplyCouponAction,
   RemoveCartItemAction,
   RemoveCouponAction,
+  SelectGovernorateAction,
   SelectShippingMethodAction,
   UpdateCartItemQtyAction,
 } from "@/actions/store/cart.actions";
@@ -25,6 +26,10 @@ export async function removeItemAction(storeSlug: string, itemId: string) {
 
 export async function selectShippingAction(storeSlug: string, methodId: string) {
   await SelectShippingMethodAction(storeSlug, methodId);
+}
+
+export async function selectGovernorateAction(storeSlug: string, governorate: string) {
+  await SelectGovernorateAction(storeSlug, governorate);
 }
 
 export async function applyCouponAction(storeSlug: string, formData: FormData) {

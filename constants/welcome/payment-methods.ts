@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/dashboard";
 export type PaymentRegion = "global" | "egypt" | "saudi";
 
 export type PaymentMethodKey =
@@ -30,23 +31,22 @@ export type PaymentMethodConfig = {
 };
 
 export const PAYMENT_REGION_LABELS: Record<PaymentRegion, string> = {
-  global: "بوابات دفع عالمية",
-  egypt: "بوابات دفع مصرية",
-  saudi: "بوابات دفع سعودية",
+  get global() { return tr("بوابات دفع عالمية"); },
+  get egypt() { return tr("بوابات دفع مصرية"); },
+  get saudi() { return tr("بوابات دفع سعودية"); },
 };
 
 export const PAYMENT_REGION_DESCRIPTIONS: Record<PaymentRegion, string> = {
-  global:
-    "وسائل دفع مناسبة للعملاء من خارج مصر والسعودية أو للمدفوعات الدولية.",
-  egypt: "وسائل دفع مناسبة للسوق المصري والتحويلات المحلية.",
-  saudi: "وسائل دفع مناسبة للسوق السعودي والتحويلات المحلية.",
+  get global() { return tr("وسائل دفع مناسبة للعملاء من خارج مصر والسعودية أو للمدفوعات الدولية."); },
+  get egypt() { return tr("وسائل دفع مناسبة للسوق المصري والتحويلات المحلية."); },
+  get saudi() { return tr("وسائل دفع مناسبة للسوق السعودي والتحويلات المحلية."); },
 };
 
 export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "paypal",
     label: "PayPal",
-    description: "العميل يدفع أو يحول على حساب PayPal الخاص بالتاجر.",
+    get description() { return tr("العميل يدفع أو يحول على حساب PayPal الخاص بالتاجر."); },
     region: "global",
     logo: "/payment-logos/paypal.svg",
     manual: true,
@@ -55,7 +55,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "visa_mastercard",
     label: "Visa / Mastercard",
-    description: "الدفع أو التحويل من خلال بيانات البطاقات البنكية العالمية.",
+    get description() { return tr("الدفع أو التحويل من خلال بيانات البطاقات البنكية العالمية."); },
     region: "global",
     logo: "/payment-logos/visa-mastercard.svg",
     manual: true,
@@ -64,7 +64,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "apple_pay",
     label: "Apple Pay",
-    description: "الدفع باستخدام Apple Pay، أو عرض تعليمات الدفع الخاصة بها.",
+    get description() { return tr("الدفع باستخدام Apple Pay، أو عرض تعليمات الدفع الخاصة بها."); },
     region: "global",
     logo: "/payment-logos/apple-pay.svg",
     manual: true,
@@ -73,7 +73,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "google_pay",
     label: "Google Pay",
-    description: "الدفع باستخدام Google Pay، أو عرض تعليمات الدفع الخاصة بها.",
+    get description() { return tr("الدفع باستخدام Google Pay، أو عرض تعليمات الدفع الخاصة بها."); },
     region: "global",
     logo: "/payment-logos/google-pay.svg",
     manual: true,
@@ -81,8 +81,8 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   },
   {
     key: "fawry",
-    label: "فوري",
-    description: "العميل يدفع من خلال فوري ثم يرسل بيانات العملية.",
+    get label() { return tr("فوري"); },
+    get description() { return tr("العميل يدفع من خلال فوري ثم يرسل بيانات العملية."); },
     region: "egypt",
     logo: "/payment-logos/fawry.svg",
     manual: true,
@@ -90,8 +90,8 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   },
   {
     key: "vodafone_cash",
-    label: "فودافون كاش / محفظة الكترونية",
-    description: "العميل يحول على رقم فودافون كاش الخاص بالتاجر.",
+    get label() { return tr("فودافون كاش / محفظة الكترونية"); },
+    get description() { return tr("العميل يحول على رقم فودافون كاش الخاص بالتاجر."); },
     region: "egypt",
     logo: "/payment-logos/vodafone-cash.svg",
     manual: true,
@@ -99,8 +99,8 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   },
   {
     key: "instapay",
-    label: "انستاباي",
-    description: "العميل يحول على عنوان InstaPay أو رقم الحساب.",
+    get label() { return tr("انستاباي"); },
+    get description() { return tr("العميل يحول على عنوان InstaPay أو رقم الحساب."); },
     region: "egypt",
     logo: "/payment-logos/instapay.svg",
     manual: true,
@@ -108,8 +108,8 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   },
   {
     key: "bank_transfer",
-    label: "تحويل بنكي",
-    description: "العميل يحول على الحساب البنكي المصري الخاص بالتاجر.",
+    get label() { return tr("تحويل بنكي"); },
+    get description() { return tr("العميل يحول على الحساب البنكي المصري الخاص بالتاجر."); },
     region: "egypt",
     logo: "/payment-logos/bank-transfer.svg",
     manual: true,
@@ -117,8 +117,8 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   },
   {
     key: "cash_on_delivery",
-    label: "الدفع عند الاستلام",
-    description: "العميل يدفع كاش عند استلام الطلب.",
+    get label() { return tr("الدفع عند الاستلام"); },
+    get description() { return tr("العميل يدفع كاش عند استلام الطلب."); },
     region: "egypt",
     logo: "/payment-logos/cash-on-delivery.svg",
     manual: false,
@@ -127,7 +127,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "kashier",
     label: "Kashier",
-    description: "بوابة دفع مصرية للبطاقات والمحافظ الإلكترونية.",
+    get description() { return tr("بوابة دفع مصرية للبطاقات والمحافظ الإلكترونية."); },
     region: "egypt",
     logo: "/payment-logos/kashier.svg",
     manual: false,
@@ -136,7 +136,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "mada",
     label: "mada",
-    description: "الدفع أو التحويل باستخدام بطاقات مدى السعودية.",
+    get description() { return tr("الدفع أو التحويل باستخدام بطاقات مدى السعودية."); },
     region: "saudi",
     logo: "/payment-logos/mada.svg",
     manual: true,
@@ -145,7 +145,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "stc_pay",
     label: "STC Pay",
-    description: "العميل يحول على رقم STC Pay الخاص بالتاجر.",
+    get description() { return tr("العميل يحول على رقم STC Pay الخاص بالتاجر."); },
     region: "saudi",
     logo: "/payment-logos/stc-pay.svg",
     manual: true,
@@ -154,7 +154,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "tabby",
     label: "Tabby",
-    description: "اشتر الآن وادفع لاحقًا من خلال Tabby.",
+    get description() { return tr("اشتر الآن وادفع لاحقًا من خلال Tabby."); },
     region: "saudi",
     logo: "/payment-logos/tabby.svg",
     manual: true,
@@ -163,7 +163,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "tamara",
     label: "Tamara",
-    description: "اشتر الآن وادفع لاحقًا من خلال Tamara.",
+    get description() { return tr("اشتر الآن وادفع لاحقًا من خلال Tamara."); },
     region: "saudi",
     logo: "/payment-logos/tamara.svg",
     manual: true,
@@ -185,18 +185,18 @@ export const MANUAL_PAYMENT_METHOD_KEYS: PaymentMethodKey[] =
 export const KASHIER_ALLOWED_METHODS = [
   {
     key: "card",
-    label: "بطاقات بنكية",
-    description: "Visa / Mastercard / Meeza حسب تفعيل حساب Kashier",
+    get label() { return tr("بطاقات بنكية"); },
+    get description() { return tr("Visa / Mastercard / Meeza حسب تفعيل حساب Kashier"); },
   },
   {
     key: "wallet",
-    label: "محافظ إلكترونية",
-    description: "Vodafone Cash وغيرها من المحافظ المدعومة داخل Kashier",
+    get label() { return tr("محافظ إلكترونية"); },
+    get description() { return tr("Vodafone Cash وغيرها من المحافظ المدعومة داخل Kashier"); },
   },
   {
     key: "bank_installments",
-    label: "تقسيط بنكي",
-    description: "التقسيط المتاح حسب إعدادات حساب Kashier",
+    get label() { return tr("تقسيط بنكي"); },
+    get description() { return tr("التقسيط المتاح حسب إعدادات حساب Kashier"); },
   },
 ] as const;
 

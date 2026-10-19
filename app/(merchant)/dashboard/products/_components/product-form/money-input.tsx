@@ -3,6 +3,7 @@
 import type { ComponentProps } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 /** Number input with the currency suffix. Product prices are entered in pounds. */
 export function MoneyInput({ className, ...props }: Omit<ComponentProps<typeof Input>, "type">) {
@@ -18,7 +19,7 @@ export function MoneyInput({ className, ...props }: Omit<ComponentProps<typeof I
         {...props}
       />
       <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-        ج.م
+        {tr("ج.م")}
       </span>
     </div>
   );

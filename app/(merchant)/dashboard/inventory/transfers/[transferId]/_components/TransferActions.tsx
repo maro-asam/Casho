@@ -14,6 +14,7 @@ import { TransferStatus } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { tr } from "@/lib/i18n/dashboard";
 
 type TransferItem = {
   id: string;
@@ -57,7 +58,7 @@ export function TransferActions({ transfer }: { transfer: Transfer }) {
         await action();
         router.refresh();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -72,33 +73,33 @@ export function TransferActions({ transfer }: { transfer: Transfer }) {
               variant="outline"
               className="gap-2"
               disabled={isPending}
-              onClick={() => run(async () => { await ApproveTransferAction(transfer.id); toast.success("تمت الموافقة"); })}
+              onClick={() => run(async () => { await ApproveTransferAction(transfer.id); toast.success(tr("تمت الموافقة")); })}
             >
               <Check className="size-4" />
-              موافقة
+              {tr("موافقة")}
             </Button>
             <Button
               size="sm"
               variant="destructive"
               className="gap-2"
               disabled={isPending}
-              onClick={() => run(async () => { await CancelTransferAction(transfer.id); toast.success("تم الإلغاء"); })}
+              onClick={() => run(async () => { await CancelTransferAction(transfer.id); toast.success(tr("تم الإلغاء")); })}
             >
               <X className="size-4" />
-              إلغاء
+              {tr("إلغاء")}
             </Button>
           </>
         )}
         {transfer.status === TransferStatus.APPROVED && (
           <Button size="sm" className="gap-2" disabled={isPending} onClick={initShip}>
             <Truck className="size-4" />
-            تسجيل الشحن
+            {tr("تسجيل الشحن")}
           </Button>
         )}
         {transfer.status === TransferStatus.SHIPPED && (
           <Button size="sm" className="gap-2" disabled={isPending} onClick={initReceive}>
             <Send className="size-4" />
-            تأكيد الاستلام
+            {tr("تأكيد الاستلام")}
           </Button>
         )}
       </div>
@@ -106,14 +107,14 @@ export function TransferActions({ transfer }: { transfer: Transfer }) {
       {/* Ship Dialog */}
       <Dialog open={shipOpen} onOpenChange={setShipOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>تسجيل الشحن</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{tr("تسجيل الشحن")}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             {transfer.items.map((item) => (
               <div key={item.id} className="flex items-center gap-3">
                 <img src={item.product.image} alt={item.product.name} className="size-9 rounded-md object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{item.product.name}</p>
-                  <p className="text-xs text-muted-foreground">مطلوب: {item.requestedQuantity}</p>
+                  <p className="text-xs text-muted-foreground">{tr("مطلوب: {0}", item.requestedQuantity)}</p>
                 </div>
                 <Input
                   type="number"
@@ -134,12 +135,12 @@ export function TransferActions({ transfer }: { transfer: Transfer }) {
                     transferId: transfer.id,
                     shippedItems: Object.entries(quantities).map(([itemId, shippedQuantity]) => ({ itemId, shippedQuantity })),
                   });
-                  toast.success("تم تسجيل الشحن");
+                  toast.success(tr("تم تسجيل الشحن"));
                   setShipOpen(false);
                 })
               }
             >
-              {isPending ? "جاري التسجيل..." : "تأكيد الشحن"}
+              {isPending ? tr("جاري التسجيل...") : tr("تأكيد الشحن")}
             </Button>
           </div>
         </DialogContent>
@@ -148,7 +149,7 @@ export function TransferActions({ transfer }: { transfer: Transfer }) {
       {/* Receive Dialog */}
       <Dialog open={receiveOpen} onOpenChange={setReceiveOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>تأكيد الاستلام</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{tr("تأكيد الاستلام")}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             {transfer.items.filter((i) => i.shippedQuantity > i.receivedQuantity).map((item) => {
               const remaining = item.shippedQuantity - item.receivedQuantity;
@@ -157,7 +158,7 @@ export function TransferActions({ transfer }: { transfer: Transfer }) {
                   <img src={item.product.image} alt={item.product.name} className="size-9 rounded-md object-cover" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{item.product.name}</p>
-                    <p className="text-xs text-muted-foreground">مشحون: {remaining}</p>
+                    <p className="text-xs text-muted-foreground">{tr("مشحون: {0}", remaining)}</p>
                   </div>
                   <Input
                     type="number"
@@ -179,12 +180,12 @@ export function TransferActions({ transfer }: { transfer: Transfer }) {
                     transferId: transfer.id,
                     receivedItems: Object.entries(quantities).map(([itemId, receivedQuantity]) => ({ itemId, receivedQuantity })),
                   });
-                  toast.success("تم تحديث المخزون");
+                  toast.success(tr("تم تحديث المخزون"));
                   setReceiveOpen(false);
                 })
               }
             >
-              {isPending ? "جاري التأكيد..." : "تأكيد الاستلام وتحديث المخزون"}
+              {isPending ? tr("جاري التأكيد...") : tr("تأكيد الاستلام وتحديث المخزون")}
             </Button>
           </div>
         </DialogContent>

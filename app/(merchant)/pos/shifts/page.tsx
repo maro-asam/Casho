@@ -4,28 +4,31 @@ import { BranchSwitcher } from "@/components/branch/BranchSwitcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, AlertCircle } from "lucide-react";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 function egp(p: number) {
-  return (p / 100).toLocaleString("ar-EG", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return (p / 100).toLocaleString(intlLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 export default async function ShiftsPage() {
+  await loadDashboardLocale();
   const { shifts, scope, branches, canSeeAll } = await GetShiftsAction(50);
   const multiBranch = branches.length > 1;
 
   return (
-    <div className="min-h-screen bg-background p-6" dir="rtl">
+    <div className="min-h-screen bg-background p-6" dir={tdir()}>
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
           <Button asChild variant="ghost" size="icon">
-            <Link href="/pos"><ArrowRight className="size-4" /></Link>
+            <Link href="/pos"><ArrowRight className="size-4 ltr:-scale-x-100" /></Link>
           </Button>
           <div>
-            <h1 className="text-xl font-bold">تقارير الورديات</h1>
+            <h1 className="text-xl font-bold">{tr("تقارير الورديات")}</h1>
             <p className="text-sm text-muted-foreground">
-              {shifts.length} وردية
-              {canSeeAll ? (multiBranch ? ` · ${scope.branch ? scope.branch.name : "كل الفروع"}` : "") : " · وردياتك"}
+              {tr("{0} وردية", shifts.length)}
+              {canSeeAll ? (multiBranch ? ` · ${scope.branch ? scope.branch.name : tr("كل الفروع")}` : "") : tr(" · وردياتك")}
             </p>
           </div>
           {canSeeAll && (
@@ -44,7 +47,7 @@ export default async function ShiftsPage() {
           {shifts.length === 0 ? (
             <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">
               <Clock className="size-10 mx-auto mb-2 opacity-30" />
-              <p>لا توجد ورديات بعد</p>
+              <p>{tr("لا توجد ورديات بعد")}</p>
             </div>
           ) : (
             shifts.map((shift) => {
@@ -60,7 +63,7 @@ export default async function ShiftsPage() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <Badge className={isOpen ? "bg-emerald-500/10 text-emerald-600 border-emerald-200" : "bg-muted text-muted-foreground"}>
-                            {isOpen ? "مفتوحة" : "مغلقة"}
+                            {isOpen ? tr("مفتوحة") : tr("مغلقة")}
                           </Badge>
                           <span className="text-sm font-medium">
                             {shift.cashier?.name ?? shift.cashier?.email ?? "—"}
@@ -69,10 +72,10 @@ export default async function ShiftsPage() {
                             <Badge variant="outline" className="text-[10px]">{shift.branch.name}</Badge>
                           )}
                           <span className="text-xs text-muted-foreground">
-                            {new Date(shift.openedAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
+                            {new Date(shift.openedAt).toLocaleString(intlLocale(), { dateStyle: "short", timeStyle: "short" })}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            ({duration} دقيقة)
+                            {tr("({0} دقيقة)", duration)}
                           </span>
                         </div>
                       </div>
@@ -82,33 +85,32 @@ export default async function ShiftsPage() {
                           shift.cashDifference > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
                         }`}>
                           <AlertCircle className="size-3" />
-                          {shift.cashDifference > 0 ? "+" : ""}{egp(shift.cashDifference)} ج
+                          {tr("{0}{1} ج", shift.cashDifference > 0 ? "+" : "", egp(shift.cashDifference))}
                         </div>
                       )}
                     </div>
 
                     <div className="mt-3 grid grid-cols-4 gap-3">
                       <div className="rounded-lg bg-muted/40 p-2 text-center">
-                        <p className="text-[10px] text-muted-foreground">المبيعات</p>
-                        <p className="text-sm font-bold text-primary">{egp(shift.totalSales)} ج</p>
+                        <p className="text-[10px] text-muted-foreground">{tr("المبيعات")}</p>
+                        <p className="text-sm font-bold text-primary">{tr("{0} ج", egp(shift.totalSales))}</p>
                       </div>
                       <div className="rounded-lg bg-muted/40 p-2 text-center">
-                        <p className="text-[10px] text-muted-foreground">الفواتير</p>
+                        <p className="text-[10px] text-muted-foreground">{tr("الفواتير")}</p>
                         <p className="text-sm font-bold">{shift.transactionCount}</p>
                       </div>
                       <div className="rounded-lg bg-muted/40 p-2 text-center">
-                        <p className="text-[10px] text-muted-foreground">رصيد الافتتاح</p>
-                        <p className="text-sm font-bold">{egp(shift.openingBalance)} ج</p>
+                        <p className="text-[10px] text-muted-foreground">{tr("رصيد الافتتاح")}</p>
+                        <p className="text-sm font-bold">{tr("{0} ج", egp(shift.openingBalance))}</p>
                       </div>
                       <div className="rounded-lg bg-muted/40 p-2 text-center">
                         <p className="text-[10px] text-muted-foreground">
-                          {isOpen ? "المبيعات + الافتتاح" : "رصيد الإغلاق"}
+                          {isOpen ? tr("المبيعات + الافتتاح") : tr("رصيد الإغلاق")}
                         </p>
                         <p className="text-sm font-bold">
-                          {isOpen
+                          {tr("{0} ج", isOpen
                             ? egp(shift.openingBalance + shift.totalSales)
-                            : egp(shift.closingBalance ?? 0)
-                          } ج
+                            : egp(shift.closingBalance ?? 0))}
                         </p>
                       </div>
                     </div>

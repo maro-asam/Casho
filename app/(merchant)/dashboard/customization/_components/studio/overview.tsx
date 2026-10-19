@@ -6,27 +6,28 @@ import { cn } from "@/lib/utils";
 import type { SectionKey } from "@/types/store-theme.types";
 import { upcomingSeasons } from "./seasons";
 import { studioHref } from "./studio-nav";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
-const nf = new Intl.NumberFormat("ar-EG");
-const pf = new Intl.NumberFormat("ar-EG", { style: "percent", maximumFractionDigits: 1 });
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long" });
+const nf = lazyIntl.number();
+const pf = lazyIntl.number({ style: "percent", maximumFractionDigits: 1 });
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long" });
 
 export const SECTION_LABELS: Record<SectionKey, string> = {
-  showHero: "الهيرو",
-  showHeroBanner: "بانر مخصص",
-  showOfferStrip: "شريط العروض",
-  showSocialProof: "إثبات الثقة",
-  showBestSellers: "الأكثر مبيعًا",
-  showCategories: "التصنيفات",
-  showFeaturedProducts: "المنتجات المميزة",
-  showCollections: "معرض المجموعات",
-  showWhyChooseUs: "ليه تختارنا",
-  showTestimonials: "آراء العملاء",
-  showUrgency: "قسم الإلحاح",
-  showLatestProducts: "أحدث المنتجات",
-  showAboutBrand: "نبذة عن المتجر",
-  showRichText: "نص حر",
-  showNewsletter: "الاشتراك البريدي",
+  get showHero() { return tr("الهيرو"); },
+  get showHeroBanner() { return tr("بانر مخصص"); },
+  get showOfferStrip() { return tr("شريط العروض"); },
+  get showSocialProof() { return tr("إثبات الثقة"); },
+  get showBestSellers() { return tr("الأكثر مبيعًا"); },
+  get showCategories() { return tr("التصنيفات"); },
+  get showFeaturedProducts() { return tr("المنتجات المميزة"); },
+  get showCollections() { return tr("معرض المجموعات"); },
+  get showWhyChooseUs() { return tr("ليه تختارنا"); },
+  get showTestimonials() { return tr("آراء العملاء"); },
+  get showUrgency() { return tr("قسم الإلحاح"); },
+  get showLatestProducts() { return tr("أحدث المنتجات"); },
+  get showAboutBrand() { return tr("نبذة عن المتجر"); },
+  get showRichText() { return tr("نص حر"); },
+  get showNewsletter() { return tr("الاشتراك البريدي"); },
 };
 
 // ─── Brand snapshot ───────────────────────────────────────────────────────────
@@ -61,7 +62,7 @@ export function BrandSnapshot(props: {
             className="absolute bottom-2 end-2 inline-flex items-center gap-1 rounded-md bg-background/80 px-2 py-1 text-[11px] backdrop-blur hover:bg-background"
           >
             <ImageIcon className="size-3" />
-            ضيف غلاف
+            {tr("ضيف غلاف")}
           </Link>
         )}
       </div>
@@ -86,14 +87,14 @@ export function BrandSnapshot(props: {
         </div>
       </div>
       <p className={cn("px-4 pt-2 text-sm leading-6", props.description ? "text-muted-foreground" : "text-muted-foreground/70 italic")}>
-        {props.description || "مفيش وصف للمتجر لسه — سطرين عنك بيفرقوا في الثقة."}
+        {props.description || tr("مفيش وصف للمتجر لسه — سطرين عنك بيفرقوا في الثقة.")}
       </p>
 
       <dl className="mt-3 grid grid-cols-3 divide-x divide-x-reverse divide-border border-y border-border text-sm">
-        <SpecLink href={studioHref("theme")} label="الثيم" value={props.themeName} />
-        <SpecLink href={studioHref("fonts")} label="الخط" value={props.fontName} style={{ fontFamily: props.fontFamily }} />
+        <SpecLink href={studioHref("theme")} label={tr("الثيم")} value={props.themeName} />
+        <SpecLink href={studioHref("fonts")} label={tr("الخط")} value={props.fontName} style={{ fontFamily: props.fontFamily }} />
         <Link href={studioHref("colors")} className="px-4 py-2.5 transition-colors hover:bg-muted/40">
-          <dt className="text-xs text-muted-foreground">الألوان</dt>
+          <dt className="text-xs text-muted-foreground">{tr("الألوان")}</dt>
           <dd className="mt-1 flex items-center gap-1.5">
             <span className="size-4 rounded-full ring-1 ring-black/10" style={{ background: props.primary }} />
             <span className="size-4 rounded-full ring-1 ring-black/10" style={{ background: props.secondary }} />
@@ -102,10 +103,10 @@ export function BrandSnapshot(props: {
       </dl>
 
       <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4">
-        <QuickAction href="/builder" icon={Wand2} label="المحرر المرئي" primary className="hidden lg:flex" />
-        <QuickAction href={studioHref("identity")} icon={ImageIcon} label="اللوجو والغلاف" />
-        <QuickAction href="/banners?new=1" icon={GalleryHorizontal} label="بانر جديد" />
-        <QuickAction href="/customization?tab=popups&popup=new" icon={Gift} label="نافذة خصم" />
+        <QuickAction href="/builder" icon={Wand2} label={tr("المحرر المرئي")} primary className="hidden lg:flex" />
+        <QuickAction href={studioHref("identity")} icon={ImageIcon} label={tr("اللوجو والغلاف")} />
+        <QuickAction href="/banners?new=1" icon={GalleryHorizontal} label={tr("بانر جديد")} />
+        <QuickAction href="/customization?tab=popups&popup=new" icon={Gift} label={tr("نافذة خصم")} />
       </div>
     </section>
   );
@@ -157,7 +158,7 @@ export type Pulse = {
 
 function Delta({ now, prev }: { now: number; prev: number }) {
   if (!prev && !now) return <span className="text-xs text-muted-foreground">—</span>;
-  if (!prev) return <span className="text-xs text-muted-foreground">جديد الأسبوع ده</span>;
+  if (!prev) return <span className="text-xs text-muted-foreground">{tr("جديد الأسبوع ده")}</span>;
   const change = (now - prev) / prev;
   const Icon = change > 0.005 ? ArrowUpRight : change < -0.005 ? ArrowDownRight : Minus;
   return (
@@ -169,7 +170,7 @@ function Delta({ now, prev }: { now: number; prev: number }) {
     >
       <Icon className="size-3.5" />
       {pf.format(Math.abs(change))}
-      <span className="text-muted-foreground"> عن الأسبوع اللي فات</span>
+      <span className="text-muted-foreground">{" "}{tr("عن الأسبوع اللي فات")}</span>
     </span>
   );
 }
@@ -180,12 +181,12 @@ export function StorePulse({ pulse }: { pulse: Pulse }) {
   const mobileShare = pulse.visits ? pulse.mobileVisits / pulse.visits : 0;
 
   const tiles = [
-    { label: "الزيارات", value: nf.format(pulse.visits), delta: <Delta now={pulse.visits} prev={pulse.prevVisits} /> },
-    { label: "طلبات أونلاين", value: nf.format(pulse.orders), delta: <Delta now={pulse.orders} prev={pulse.prevOrders} /> },
+    { label: tr("الزيارات"), value: nf.format(pulse.visits), delta: <Delta now={pulse.visits} prev={pulse.prevVisits} /> },
+    { label: tr("طلبات أونلاين"), value: nf.format(pulse.orders), delta: <Delta now={pulse.orders} prev={pulse.prevOrders} /> },
     {
-      label: "معدل التحويل",
+      label: tr("معدل التحويل"),
       value: pulse.visits ? pf.format(conversion) : "—",
-      delta: pulse.visits && pulse.prevVisits ? <Delta now={conversion} prev={prevConversion} /> : <span className="text-xs text-muted-foreground">طلبات ÷ زيارات</span>,
+      delta: pulse.visits && pulse.prevVisits ? <Delta now={conversion} prev={prevConversion} /> : <span className="text-xs text-muted-foreground">{tr("طلبات ÷ زيارات")}</span>,
     },
   ];
 
@@ -193,8 +194,8 @@ export function StorePulse({ pulse }: { pulse: Pulse }) {
     <section className="space-y-3">
       <div className="flex items-end justify-between">
         <div>
-          <h3 className="font-semibold">نبض المتجر</h3>
-          <p className="text-sm text-muted-foreground">آخر ٧ أيام — عشان تعرف تعديلاتك عملت فرق ولا لأ.</p>
+          <h3 className="font-semibold">{tr("نبض المتجر")}</h3>
+          <p className="text-sm text-muted-foreground">{tr("آخر ٧ أيام — عشان تعرف تعديلاتك عملت فرق ولا لأ.")}</p>
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -209,26 +210,26 @@ export function StorePulse({ pulse }: { pulse: Pulse }) {
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             <Smartphone className="size-3.5" />
-            زوار الموبايل
+            {tr("زوار الموبايل")}
           </p>
           <p className="mt-1 text-2xl font-semibold tabular-nums">{pulse.visits ? pf.format(mobileShare) : "—"}</p>
           {pulse.visits > 0 && (
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" role="img" aria-label={`${pf.format(mobileShare)} من الزيارات من الموبايل`}>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" role="img" aria-label={tr("{0} من الزيارات من الموبايل", pf.format(mobileShare))}>
               <div className="h-full rounded-full bg-primary" style={{ width: `${mobileShare * 100}%` }} />
             </div>
           )}
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
             {mobileShare >= 0.6 ? (
               <>
-                أغلب زوارك على الموبايل —{" "}
+                {tr("أغلب زوارك على الموبايل —")}{" "}
                 <Link href="/builder?device=mobile" className="font-medium text-primary hover:underline">
-                  راجع شكله على الموبايل
+                  {tr("راجع شكله على الموبايل")}
                 </Link>
               </>
             ) : pulse.visits ? (
-              "زوارك متوزعين بين الموبايل والكمبيوتر."
+              tr("زوارك متوزعين بين الموبايل والكمبيوتر.")
             ) : (
-              "لسه مفيش زيارات الأسبوع ده."
+              tr("لسه مفيش زيارات الأسبوع ده.")
             )}
           </p>
         </div>
@@ -247,15 +248,15 @@ export function HomeOutline({ order, enabled }: { order: SectionKey[]; enabled: 
     <section className="flex flex-col rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
-          <h3 className="text-sm font-semibold">الصفحة الرئيسية</h3>
+          <h3 className="text-sm font-semibold">{tr("الصفحة الرئيسية")}</h3>
           <p className="text-xs text-muted-foreground">
-            {nf.format(on.length)} قسم ظاهر{offCount > 0 && ` · ${nf.format(offCount)} مقفول`}
+            {tr("{0} قسم ظاهر", nf.format(on.length))}{offCount > 0 && tr(" · {0} مقفول", nf.format(offCount))}
           </p>
         </div>
         <Button asChild variant="ghost" size="sm" className="h-8 gap-1 text-xs">
           <Link href={studioHref("sections")}>
-            رتّب
-            <ArrowLeft className="size-3.5" />
+            {tr("رتّب")}
+            <ArrowLeft className="size-3.5 ltr:-scale-x-100" />
           </Link>
         </Button>
       </div>
@@ -266,7 +267,7 @@ export function HomeOutline({ order, enabled }: { order: SectionKey[]; enabled: 
             <span className="min-w-0 flex-1 truncate">{SECTION_LABELS[key]}</span>
           </li>
         ))}
-        {on.length === 0 && <li className="p-4 text-center text-sm text-muted-foreground">كل الأقسام مقفولة — الصفحة الرئيسية فاضية.</li>}
+        {on.length === 0 && <li className="p-4 text-center text-sm text-muted-foreground">{tr("كل الأقسام مقفولة — الصفحة الرئيسية فاضية.")}</li>}
       </ol>
     </section>
   );
@@ -283,9 +284,9 @@ export function UpcomingSeasons({ now }: { now: Date }) {
       <div className="border-b border-border px-4 py-3">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold">
           <CalendarDays className="size-4 text-muted-foreground" />
-          مواسم جاية
+          {tr("مواسم جاية")}
         </h3>
-        <p className="text-xs text-muted-foreground">جهّز العرض بدري — النافذة بتشتغل وتقف لوحدها في ميعادها.</p>
+        <p className="text-xs text-muted-foreground">{tr("جهّز العرض بدري — النافذة بتشتغل وتقف لوحدها في ميعادها.")}</p>
       </div>
       <ul className="flex-1 divide-y divide-border">
         {seasons.map((s) => {
@@ -301,14 +302,14 @@ export function UpcomingSeasons({ now }: { now: Date }) {
           return (
             <li key={s.id} className="flex items-center gap-3 px-4 py-3">
               <div className="grid w-12 shrink-0 place-items-center rounded-lg bg-muted py-1.5 text-center">
-                <span className="text-base font-semibold tabular-nums leading-none">{live ? "الآن" : nf.format(s.daysLeft)}</span>
-                {!live && <span className="text-[10px] text-muted-foreground">يوم</span>}
+                <span className="text-base font-semibold tabular-nums leading-none">{live ? tr("الآن") : nf.format(s.daysLeft)}</span>
+                {!live && <span className="text-[10px] text-muted-foreground">{tr("يوم")}</span>}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">
                   {s.name}
                   <span className="ms-1.5 text-xs font-normal text-muted-foreground">
-                    {s.approx && "حوالي "}
+                    {s.approx && tr("حوالي ")}
                     {df.format(s.start)}
                   </span>
                 </p>
@@ -316,7 +317,7 @@ export function UpcomingSeasons({ now }: { now: Date }) {
               </div>
               <Button asChild variant="outline" size="sm" className="h-8 shrink-0 text-xs">
                 <Link href={`/customization?${params.toString()}`} scroll={false}>
-                  جهّز عرض
+                  {tr("جهّز عرض")}
                 </Link>
               </Button>
             </li>

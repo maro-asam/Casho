@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Clock, ShoppingBag, Trash2 } from "lucide-react";
 import { GetHeldOrdersAction, ResumeHeldOrderAction, DeleteHeldOrderAction } from "@/actions/pos/pos.actions";
 import type { HeldCartData } from "@/actions/pos/pos.actions";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
 type HeldOrder = {
   id: string;
@@ -67,11 +68,11 @@ export default function HeldOrdersDialog({ open, onOpenChange, onResume, onCount
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" dir="rtl">
+      <DialogContent className="max-w-md" dir={tdir()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Clock className="size-4" />
-            الطلبات المعلقة ({orders.length})
+            {tr("الطلبات المعلقة ({0})", orders.length)}
           </DialogTitle>
         </DialogHeader>
 
@@ -84,7 +85,7 @@ export default function HeldOrdersDialog({ open, onOpenChange, onResume, onCount
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
             <ShoppingBag className="size-8 opacity-30" />
-            <p className="text-sm">لا توجد طلبات معلقة</p>
+            <p className="text-sm">{tr("لا توجد طلبات معلقة")}</p>
           </div>
         ) : (
           <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -94,21 +95,19 @@ export default function HeldOrdersDialog({ open, onOpenChange, onResume, onCount
                 className="flex items-center justify-between rounded-lg border border-border p-3"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium truncate">{order.label ?? "طلب معلق"}</p>
+                  <p className="text-sm font-medium truncate">{order.label ?? tr("طلب معلق")}</p>
                   <p className="text-xs text-muted-foreground">
-                    {order.itemCount} قطعة ·{" "}
-                    {(order.total / 100).toLocaleString("ar-EG")} ج ·{" "}
-                    {new Date(order.createdAt).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}
+                    {tr("{0} قطعة · {1} ج · {2}", order.itemCount, (order.total / 100).toLocaleString(intlLocale()), new Date(order.createdAt).toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" }))}
                   </p>
                 </div>
-                <div className="flex gap-1.5 mr-2">
+                <div className="flex gap-1.5 ms-2">
                   <Button
                     size="sm"
                     className="h-7 text-xs"
                     onClick={() => handleResume(order.id)}
                     disabled={isPending}
                   >
-                    استكمال
+                    {tr("استكمال")}
                   </Button>
                   <Button
                     size="sm"

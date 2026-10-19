@@ -35,6 +35,7 @@ import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import type { PopupConfig, PopupType } from "@/lib/popups/popup-config";
 import { cn } from "@/lib/utils";
 import { Segmented } from "../growth/controls";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 export type EditorCoupon = { code: string; label: string; isActive: boolean; expiresAt: string | null };
 export type EditorPopup = {
@@ -49,16 +50,16 @@ export type EditorPopup = {
 export type ThemeVars = Record<string, string>;
 
 const TYPES: { value: PopupType; label: string; hint: string; icon: typeof Gift }[] = [
-  { value: "discount", label: "كود خصم", hint: "يكشف كود خصم للعميل", icon: Gift },
-  { value: "lead", label: "جمع أرقام", hint: "يبني قائمة واتساب", icon: UserPlus },
-  { value: "announcement", label: "إعلان", hint: "صورة وزرار لصفحة", icon: Megaphone },
+  { value: "discount", get label() { return tr("كود خصم"); }, get hint() { return tr("يكشف كود خصم للعميل"); }, icon: Gift },
+  { value: "lead", get label() { return tr("جمع أرقام"); }, get hint() { return tr("يبني قائمة واتساب"); }, icon: UserPlus },
+  { value: "announcement", get label() { return tr("إعلان"); }, get hint() { return tr("صورة وزرار لصفحة"); }, icon: Megaphone },
 ];
 
 const LAYOUTS: { value: PopupConfig["design"]["layout"]; label: string; icon: typeof Square }[] = [
-  { value: "center", label: "في النص", icon: Square },
-  { value: "split", label: "بصورة جنب", icon: PanelRight },
-  { value: "bottom", label: "من تحت", icon: PanelBottom },
-  { value: "corner", label: "في الركن", icon: SquareStack },
+  { value: "center", get label() { return tr("في النص"); }, icon: Square },
+  { value: "split", get label() { return tr("بصورة جنب"); }, icon: PanelRight },
+  { value: "bottom", get label() { return tr("من تحت"); }, icon: PanelBottom },
+  { value: "corner", get label() { return tr("في الركن"); }, icon: SquareStack },
 ];
 
 const ACCENTS = ["#111827", "#2563eb", "#db2777", "#16a34a", "#ea580c", "#7c3aed"];
@@ -95,7 +96,7 @@ export function PopupEditorDialog(props: Props) {
   return (
     <Dialog open onOpenChange={(open) => !open && close()}>
       <DialogContent
-        dir="rtl"
+        dir={tdir()}
         showCloseButton={false}
         className="flex h-[min(52rem,calc(100dvh-2rem))] max-w-[min(80rem,calc(100%-2rem))] flex-col gap-0 overflow-hidden p-0 sm:max-w-[min(80rem,calc(100%-2rem))]"
       >
@@ -145,7 +146,7 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
       setUploading(true);
       update("content", { image: await uploadImageToCloudinary(file, "casho/uploads/popups") });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل رفع الصورة");
+      toast.error(err instanceof Error ? err.message : tr("فشل رفع الصورة"));
     } finally {
       setUploading(false);
     }
@@ -167,7 +168,7 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
           return;
         }
       }
-      toast.success(activate ? "النافذة شغّالة في متجرك دلوقتي" : isNew ? "اتحفظت كمسودة" : "اتحفظت التعديلات");
+      toast.success(activate ? tr("النافذة شغّالة في متجرك دلوقتي") : isNew ? tr("اتحفظت كمسودة") : tr("اتحفظت التعديلات"));
       onClose();
       router.refresh();
     });
@@ -180,18 +181,18 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
     <>
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 border-b border-border px-4 py-3">
-        <Button variant="ghost" size="icon" className="size-8 shrink-0" onClick={onClose} aria-label="إغلاق">
+        <Button variant="ghost" size="icon" className="size-8 shrink-0" onClick={onClose} aria-label={tr("إغلاق")}>
           <X className="size-4" />
         </Button>
         <div className="min-w-0 flex-1">
-          <DialogTitle className="sr-only">{isNew ? "نافذة جديدة" : "تعديل النافذة"}</DialogTitle>
-          <DialogDescription className="sr-only">صمّم النافذة وشوف شكلها في المتجر مباشرة.</DialogDescription>
+          <DialogTitle className="sr-only">{isNew ? tr("نافذة جديدة") : tr("تعديل النافذة")}</DialogTitle>
+          <DialogDescription className="sr-only">{tr("صمّم النافذة وشوف شكلها في المتجر مباشرة.")}</DialogDescription>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={60}
-            aria-label="اسم النافذة"
-            placeholder="اسم النافذة (ليك انت بس)"
+            aria-label={tr("اسم النافذة")}
+            placeholder={tr("اسم النافذة (ليك انت بس)")}
             className="w-full max-w-sm rounded-md bg-transparent px-1 py-0.5 text-base font-semibold outline-none hover:bg-muted/60 focus:bg-muted/60"
           />
         </div>
@@ -200,16 +201,16 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
           {popup.isActive ? (
             <Button onClick={() => save(false)} disabled={pending || uploading} className="gap-1.5">
               {pending && <Loader2 className="size-4 animate-spin" />}
-              حفظ
+              {tr("حفظ")}
             </Button>
           ) : (
             <>
               <Button variant="outline" onClick={() => save(false)} disabled={pending || uploading} className="max-sm:hidden">
-                حفظ كمسودة
+                {tr("حفظ كمسودة")}
               </Button>
               <Button onClick={() => save(true)} disabled={pending || uploading} className="gap-1.5">
                 {pending && <Loader2 className="size-4 animate-spin" />}
-                حفظ وتشغيل
+                {tr("حفظ وتشغيل")}
               </Button>
             </>
           )}
@@ -221,7 +222,7 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
         {/* ── Settings ─────────────────────────────────────────── */}
         <div className="min-h-0 overflow-y-auto border-border lg:border-e">
           <div className="space-y-2 border-b border-border p-4">
-            <Label>النوع</Label>
+            <Label>{tr("النوع")}</Label>
             <div className="grid grid-cols-3 gap-2">
               {TYPES.map((t) => (
                 <button
@@ -243,13 +244,13 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
           </div>
 
           <Accordion type="multiple" defaultValue={["content"]} className="px-4">
-            <Section value="content" title="المحتوى">
+            <Section value="content" title={tr("المحتوى")}>
               {type === "discount" && (
-                <Field label="كود الخصم">
+                <Field label={tr("كود الخصم")}>
                   {coupons.length ? (
-                    <Select value={config.content.couponCode} onValueChange={(v) => update("content", { couponCode: v })} dir="rtl">
+                    <Select value={config.content.couponCode} onValueChange={(v) => update("content", { couponCode: v })} dir={tdir()}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="اختار كود" />
+                        <SelectValue placeholder={tr("اختار كود")} />
                       </SelectTrigger>
                       <SelectContent>
                         {coupons.map((c) => (
@@ -258,65 +259,64 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
                               {c.code}
                             </span>
                             <span className="text-muted-foreground"> · {c.label}</span>
-                            {!c.isActive && <span className="text-muted-foreground"> (متوقف)</span>}
+                            {!c.isActive && <span className="text-muted-foreground">{" "}{tr("(متوقف)")}</span>}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
                     <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
-                      معندكش أكواد خصم لسه.{" "}
+                      {tr("معندكش أكواد خصم لسه.")}{" "}
                       <Link href="/coupons?new=1" className="font-medium text-primary hover:underline">
-                        اعمل كود
-                      </Link>{" "}
-                      وارجع هنا.
+                        {tr("اعمل كود")}
+                      </Link>{" "}{tr("وارجع هنا.")}
                     </div>
                   )}
                 </Field>
               )}
-              <Field label="سطر صغير فوق العنوان" counter={[config.content.eyebrow.length, 40]}>
+              <Field label={tr("سطر صغير فوق العنوان")} counter={[config.content.eyebrow.length, 40]}>
                 <Input value={config.content.eyebrow} maxLength={40} onChange={(e) => update("content", { eyebrow: e.target.value })} />
               </Field>
-              <Field label="العنوان" counter={[config.content.title.length, 80]}>
+              <Field label={tr("العنوان")} counter={[config.content.title.length, 80]}>
                 <Input value={config.content.title} maxLength={80} onChange={(e) => update("content", { title: e.target.value })} />
               </Field>
-              <Field label="الوصف" counter={[config.content.body.length, 240]}>
+              <Field label={tr("الوصف")} counter={[config.content.body.length, 240]}>
                 <Textarea rows={2} className="resize-none" value={config.content.body} maxLength={240} onChange={(e) => update("content", { body: e.target.value })} />
               </Field>
-              <Field label="الصورة (اختياري)">
+              <Field label={tr("الصورة (اختياري)")}>
                 {config.content.image ? (
                   <div className="flex items-center gap-2 rounded-lg border border-border p-1.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={config.content.image} alt="" className="size-10 rounded object-cover" />
-                    <span className="flex-1 text-xs text-muted-foreground">صورة النافذة</span>
+                    <span className="flex-1 text-xs text-muted-foreground">{tr("صورة النافذة")}</span>
                     <Button type="button" variant="ghost" size="sm" className="h-7 text-xs" onClick={() => update("content", { image: "" })}>
-                      شيل
+                      {tr("شيل")}
                     </Button>
                   </div>
                 ) : (
                   <label className="flex h-16 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border text-xs text-muted-foreground transition-colors hover:bg-muted/50">
                     {uploading ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}
-                    {uploading ? "بنرفع…" : "ارفع صورة"}
+                    {uploading ? tr("بنرفع…") : tr("ارفع صورة")}
                     <input type="file" accept="image/*" className="sr-only" onChange={onImage} disabled={uploading} />
                   </label>
                 )}
               </Field>
-              <Field label="نص الزرار" counter={[config.content.ctaText.length, 30]}>
+              <Field label={tr("نص الزرار")} counter={[config.content.ctaText.length, 30]}>
                 <Input value={config.content.ctaText} maxLength={30} onChange={(e) => update("content", { ctaText: e.target.value })} />
               </Field>
               {type === "announcement" && (
-                <Field label="الزرار يودّي على" hint="مثال: ‎/products أو ‎/categories/summer أو لينك كامل">
+                <Field label={tr("الزرار يودّي على")} hint={tr("مثال: ‎/products أو ‎/categories/summer أو لينك كامل")}>
                   <Input dir="ltr" value={config.content.ctaLink} onChange={(e) => update("content", { ctaLink: e.target.value.trim() })} placeholder="/products" />
                 </Field>
               )}
-              <Field label="نص الرفض (اختياري)" hint="سيبه فاضي لو مش عايزه يظهر.">
+              <Field label={tr("نص الرفض (اختياري)")} hint={tr("سيبه فاضي لو مش عايزه يظهر.")}>
                 <Input value={config.content.dismissText} maxLength={40} onChange={(e) => update("content", { dismissText: e.target.value })} />
               </Field>
 
               {type === "discount" && (
                 <ToggleRow
-                  title="اطلب رقم الموبايل قبل الكود"
-                  description="العميل يسيب رقمه عشان يشوف الكود — بيتسجل في عملائك."
+                  title={tr("اطلب رقم الموبايل قبل الكود")}
+                  description={tr("العميل يسيب رقمه عشان يشوف الكود — بيتسجل في عملائك.")}
                   checked={config.gate.requirePhone}
                   onChange={(v) => {
                     update("gate", { requirePhone: v });
@@ -325,21 +325,21 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
                 />
               )}
               {gated && (
-                <ToggleRow title="اسأل عن الاسم كمان" checked={config.gate.askName} onChange={(v) => update("gate", { askName: v })} />
+                <ToggleRow title={tr("اسأل عن الاسم كمان")} checked={config.gate.askName} onChange={(v) => update("gate", { askName: v })} />
               )}
               {hasSuccess && (
                 <>
-                  <Field label="عنوان بعد النجاح">
+                  <Field label={tr("عنوان بعد النجاح")}>
                     <Input value={config.content.successTitle} maxLength={80} onChange={(e) => update("content", { successTitle: e.target.value })} />
                   </Field>
-                  <Field label="رسالة بعد النجاح">
+                  <Field label={tr("رسالة بعد النجاح")}>
                     <Input value={config.content.successBody} maxLength={200} onChange={(e) => update("content", { successBody: e.target.value })} />
                   </Field>
                 </>
               )}
             </Section>
 
-            <Section value="design" title="الشكل">
+            <Section value="design" title={tr("الشكل")}>
               <div className="grid grid-cols-4 gap-2">
                 {LAYOUTS.map((l) => (
                   <button
@@ -357,7 +357,7 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
                   </button>
                 ))}
               </div>
-              <Field label="لون الزرار">
+              <Field label={tr("لون الزرار")}>
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
@@ -367,7 +367,7 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
                       config.design.accent === "theme" ? "border-foreground font-medium" : "border-border text-muted-foreground",
                     )}
                   >
-                    لون المتجر
+                    {tr("لون المتجر")}
                   </button>
                   {ACCENTS.map((c) => (
                     <button
@@ -385,141 +385,141 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
                       className="absolute inset-0 cursor-pointer opacity-0"
                       value={config.design.accent === "theme" ? "#111827" : config.design.accent}
                       onChange={(e) => update("design", { accent: e.target.value })}
-                      aria-label="لون مخصص"
+                      aria-label={tr("لون مخصص")}
                     />
                   </label>
                 </div>
               </Field>
-              <Field label="الحواف">
+              <Field label={tr("الحواف")}>
                 <Segmented
                   value={config.design.radius}
                   onChange={(v) => update("design", { radius: v })}
                   options={[
-                    { value: "sm", label: "حادة" },
-                    { value: "md", label: "متوسطة" },
-                    { value: "lg", label: "دائرية" },
+                    { value: "sm", label: tr("حادة") },
+                    { value: "md", label: tr("متوسطة") },
+                    { value: "lg", label: tr("دائرية") },
                   ]}
                 />
               </Field>
               <ToggleRow
-                title="عدّاد تنازلي حقيقي"
+                title={tr("عدّاد تنازلي حقيقي")}
                 description={
                   previewCountdown
-                    ? "بيعدّ لحد انتهاء الكود أو نهاية الجدولة — أقرب واحد."
-                    : "بيظهر لما يكون للكود تاريخ انتهاء أو للنافذة تاريخ نهاية (خلال ٧ أيام)."
+                    ? tr("بيعدّ لحد انتهاء الكود أو نهاية الجدولة — أقرب واحد.")
+                    : tr("بيظهر لما يكون للكود تاريخ انتهاء أو للنافذة تاريخ نهاية (خلال ٧ أيام).")
                 }
                 checked={config.design.showCountdown}
                 onChange={(v) => update("design", { showCountdown: v })}
               />
             </Section>
 
-            <Section value="trigger" title="إمتى تظهر">
+            <Section value="trigger" title={tr("إمتى تظهر")}>
               <Segmented
                 value={config.trigger.kind}
                 onChange={(v) => update("trigger", { kind: v })}
                 options={[
-                  { value: "delay", label: "بعد وقت" },
-                  { value: "scroll", label: "بعد نزول" },
-                  { value: "exit", label: "قبل الخروج" },
+                  { value: "delay", label: tr("بعد وقت") },
+                  { value: "scroll", label: tr("بعد نزول") },
+                  { value: "exit", label: tr("قبل الخروج") },
                 ]}
               />
               {config.trigger.kind === "delay" && (
                 <SliderField
-                  label="بعد"
+                  label={tr("بعد")}
                   value={config.trigger.delaySeconds}
                   min={0}
                   max={60}
-                  format={(v) => (v === 0 ? "فورًا" : `${v} ثانية`)}
+                  format={(v) => (v === 0 ? tr("فورًا") : tr("{0} ثانية", v))}
                   onChange={(v) => update("trigger", { delaySeconds: v })}
                 />
               )}
               {config.trigger.kind === "scroll" && (
                 <SliderField
-                  label="لما يتصفح"
+                  label={tr("لما يتصفح")}
                   value={config.trigger.scrollPercent}
                   min={10}
                   max={90}
                   step={5}
-                  format={(v) => `${v}٪ من الصفحة`}
+                  format={(v) => tr("{0}٪ من الصفحة", v)}
                   onChange={(v) => update("trigger", { scrollPercent: v })}
                 />
               )}
               {config.trigger.kind === "exit" && (
                 <p className="rounded-lg bg-muted/60 p-2.5 text-xs leading-5 text-muted-foreground">
-                  على الكمبيوتر: لما الماوس يطلع ناحية قفل التاب. على الموبايل: لما يطلع لفوق بسرعة بعد ما يتصفح شوية.
+                  {tr("على الكمبيوتر: لما الماوس يطلع ناحية قفل التاب. على الموبايل: لما يطلع لفوق بسرعة بعد ما يتصفح شوية.")}
                 </p>
               )}
             </Section>
 
-            <Section value="targeting" title="لمين تظهر">
-              <Field label="الصفحات">
+            <Section value="targeting" title={tr("لمين تظهر")}>
+              <Field label={tr("الصفحات")}>
                 <Segmented
                   value={config.targeting.pages}
                   onChange={(v) => update("targeting", { pages: v })}
                   options={[
-                    { value: "all", label: "كل الصفحات" },
-                    { value: "home", label: "الرئيسية" },
-                    { value: "products", label: "المنتجات" },
+                    { value: "all", label: tr("كل الصفحات") },
+                    { value: "home", label: tr("الرئيسية") },
+                    { value: "products", label: tr("المنتجات") },
                   ]}
                 />
               </Field>
-              <Field label="الأجهزة">
+              <Field label={tr("الأجهزة")}>
                 <Segmented
                   value={config.targeting.devices}
                   onChange={(v) => update("targeting", { devices: v })}
                   options={[
-                    { value: "all", label: "الكل" },
-                    { value: "mobile", label: "موبايل" },
-                    { value: "desktop", label: "كمبيوتر" },
+                    { value: "all", label: tr("الكل") },
+                    { value: "mobile", label: tr("موبايل") },
+                    { value: "desktop", label: tr("كمبيوتر") },
                   ]}
                 />
               </Field>
-              <Field label="الزوار">
+              <Field label={tr("الزوار")}>
                 <Segmented
                   value={config.targeting.audience}
                   onChange={(v) => update("targeting", { audience: v })}
                   options={[
-                    { value: "all", label: "الكل" },
-                    { value: "new", label: "أول زيارة" },
-                    { value: "returning", label: "راجعين" },
+                    { value: "all", label: tr("الكل") },
+                    { value: "new", label: tr("أول زيارة") },
+                    { value: "returning", label: tr("راجعين") },
                   ]}
                 />
               </Field>
-              <p className="text-xs text-muted-foreground">مش هتظهر أبدًا في السلة أو الدفع، ولا لحد سجّل قبل كده.</p>
+              <p className="text-xs text-muted-foreground">{tr("مش هتظهر أبدًا في السلة أو الدفع، ولا لحد سجّل قبل كده.")}</p>
             </Section>
 
-            <Section value="frequency" title="كام مرة">
+            <Section value="frequency" title={tr("كام مرة")}>
               <Segmented
                 value={config.frequency.mode}
                 onChange={(v) => update("frequency", { mode: v })}
                 options={[
-                  { value: "once", label: "مرة واحدة" },
-                  { value: "session", label: "كل زيارة" },
-                  { value: "days", label: "كل كام يوم" },
+                  { value: "once", label: tr("مرة واحدة") },
+                  { value: "session", label: tr("كل زيارة") },
+                  { value: "days", label: tr("كل كام يوم") },
                 ]}
               />
               {config.frequency.mode === "days" && (
                 <SliderField
-                  label="تظهر تاني بعد"
+                  label={tr("تظهر تاني بعد")}
                   value={config.frequency.days}
                   min={1}
                   max={30}
-                  format={(v) => `${v} يوم`}
+                  format={(v) => tr("{0} يوم", v)}
                   onChange={(v) => update("frequency", { days: v })}
                 />
               )}
             </Section>
 
-            <Section value="schedule" title="الجدولة">
+            <Section value="schedule" title={tr("الجدولة")}>
               <div className="grid grid-cols-2 gap-2">
-                <Field label="تبدأ">
+                <Field label={tr("تبدأ")}>
                   <Input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} className="text-xs" />
                 </Field>
-                <Field label="تنتهي">
+                <Field label={tr("تنتهي")}>
                   <Input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} className="text-xs" />
                 </Field>
               </div>
-              <p className="text-xs text-muted-foreground">فاضي = شغّالة لحد ما توقفها. مفيدة لعروض الويك إند والمواسم.</p>
+              <p className="text-xs text-muted-foreground">{tr("فاضي = شغّالة لحد ما توقفها. مفيدة لعروض الويك إند والمواسم.")}</p>
             </Section>
           </Accordion>
         </div>
@@ -542,14 +542,14 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
                 onChange={setStage}
                 className="w-auto"
                 options={[
-                  { value: "offer", label: "العرض" },
-                  { value: "success", label: gated ? "بعد التسجيل" : "بعد الضغط" },
+                  { value: "offer", label: tr("العرض") },
+                  { value: "success", label: gated ? tr("بعد التسجيل") : tr("بعد الضغط") },
                 ]}
               />
             )}
             <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" onClick={() => setReplay((n) => n + 1)}>
               <RotateCcw className="size-3.5" />
-              إعادة
+              {tr("إعادة")}
             </Button>
           </div>
           <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-6">
@@ -577,7 +577,7 @@ function PopupEditor({ storeId, popup, coupons, themeVars, onClose }: Props & { 
             </div>
           </div>
           <p className="pb-3 text-center text-xs text-muted-foreground">
-            ده نفس الشكل اللي هيظهر للعميل — بألوان وخطوط متجرك.
+            {tr("ده نفس الشكل اللي هيظهر للعميل — بألوان وخطوط متجرك.")}
           </p>
         </div>
       </div>
@@ -655,7 +655,7 @@ function SliderField({
 function FakeStore({ mobile }: { mobile: boolean }) {
   const block = "bg-(--store-muted,#f4f4f5)";
   return (
-    <div className="pointer-events-none absolute inset-0 space-y-4 p-4" dir="rtl" aria-hidden>
+    <div className="pointer-events-none absolute inset-0 space-y-4 p-4" dir={tdir()} aria-hidden>
       <div className="flex items-center justify-between">
         <div className="h-5 w-20 rounded bg-(--store-primary,#111827) opacity-80" />
         {!mobile && (

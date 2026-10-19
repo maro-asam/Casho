@@ -1,4 +1,6 @@
 import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
+// Arabic everywhere except the merchant dashboard in English (see lib/i18n/dashboard).
+import { intlLocale } from "@/lib/i18n/dashboard/runtime";
 
 export const DEFAULT_GRACE_PERIOD_DAYS = 3;
 export const FREE_TRIAL_DAYS = 3;
@@ -116,7 +118,7 @@ export function normalizeBalanceAmount(amount: number) {
 }
 
 export function formatMoneyFromPiasters(value: number) {
-  return new Intl.NumberFormat("ar-EG", {
+  return new Intl.NumberFormat(intlLocale(), {
     style: "currency",
     currency: "EGP",
     maximumFractionDigits: 2,

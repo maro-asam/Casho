@@ -2,19 +2,20 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { BalanceTransactionType } from "@prisma/client";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 function getTransactionLabel(type: BalanceTransactionType) {
   switch (type) {
     case BalanceTransactionType.TOPUP:
-      return "شحن رصيد";
+      return tr("شحن رصيد");
     case BalanceTransactionType.SUBSCRIPTION_CHARGE:
-      return "خصم اشتراك";
+      return tr("خصم اشتراك");
     case BalanceTransactionType.BONUS:
-      return "رصيد إضافي";
+      return tr("رصيد إضافي");
     case BalanceTransactionType.MANUAL_ADJUSTMENT:
-      return "تعديل يدوي";
+      return tr("تعديل يدوي");
     case BalanceTransactionType.REFUND:
-      return "استرجاع رصيد";
+      return tr("استرجاع رصيد");
     default:
       return type;
   }
@@ -23,7 +24,7 @@ function getTransactionLabel(type: BalanceTransactionType) {
 function formatDate(date: Date | null) {
   if (!date) return "";
 
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(intlLocale(), {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
@@ -100,14 +101,14 @@ export async function GET(request: NextRequest) {
 
   const headers = [
     "ID",
-    "النوع",
+    tr("النوع"),
     "Type",
-    "المبلغ",
-    "الرصيد قبل",
-    "الرصيد بعد",
-    "الملاحظة",
+    tr("المبلغ"),
+    tr("الرصيد قبل"),
+    tr("الرصيد بعد"),
+    tr("الملاحظة"),
     "Reference",
-    "التاريخ",
+    tr("التاريخ"),
   ];
 
   const rows = transactions.map((transaction) => [

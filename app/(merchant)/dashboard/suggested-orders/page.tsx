@@ -19,18 +19,23 @@ import { GetSuggestedOrdersAction } from "@/actions/instagram/instagram.actions"
 import { ConfidenceBadge } from "./_components/ConfidenceBadge";
 import { RejectDialog } from "./_components/RejectDialog";
 import { SuggestedOrderStatus } from "@prisma/client";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "الطلبات المقترحة",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("الطلبات المقترحة"),
 };
+}
 
 const PAGE_SIZE = 10;
 
 const STATUS_LABELS: Record<SuggestedOrderStatus, string> = {
-  PENDING: "قيد المراجعة",
-  APPROVED: "معتمد",
-  REJECTED: "مرفوض",
-  EXPIRED: "منتهي الصلاحية",
+  get PENDING() { return tr("قيد المراجعة"); },
+  get APPROVED() { return tr("معتمد"); },
+  get REJECTED() { return tr("مرفوض"); },
+  get EXPIRED() { return tr("منتهي الصلاحية"); },
 };
 
 const STATUS_CLASSES: Record<SuggestedOrderStatus, string> = {
@@ -41,7 +46,7 @@ const STATUS_CLASSES: Record<SuggestedOrderStatus, string> = {
 };
 
 function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(intlLocale(), {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -54,6 +59,7 @@ type Props = {
 };
 
 export default async function SuggestedOrdersPage({ searchParams }: Props) {
+  await loadDashboardLocale();
   const resolved = await searchParams;
   const currentPage = Math.max(1, Number(resolved?.page) || 1);
   const statusFilter = resolved?.status as SuggestedOrderStatus | undefined;
@@ -64,20 +70,20 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
   });
 
   const tabs: Array<{ label: string; value?: SuggestedOrderStatus }> = [
-    { label: "الكل" },
-    { label: "قيد المراجعة", value: "PENDING" },
-    { label: "معتمد", value: "APPROVED" },
-    { label: "مرفوض", value: "REJECTED" },
+    { label: tr("الكل") },
+    { label: tr("قيد المراجعة"), value: "PENDING" },
+    { label: tr("معتمد"), value: "APPROVED" },
+    { label: tr("مرفوض"), value: "REJECTED" },
   ];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Sparkles}
         badge={total}
-        title="الطلبات المقترحة من انستجرام"
-        description="طلبات اكتشفها الذكاء الاصطناعي من محادثاتك — راجعها واعتمدها"
-        actionLabel="إعدادات الربط"
+        title={tr("الطلبات المقترحة من انستجرام")}
+        description={tr("طلبات اكتشفها الذكاء الاصطناعي من محادثاتك — راجعها واعتمدها")}
+        actionLabel={tr("إعدادات الربط")}
         actionHref="/dashboard/integrations/instagram"
       />
 
@@ -112,15 +118,15 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
             <div className="mb-4 grid size-16 place-items-center rounded-2xl bg-muted text-muted-foreground">
               <FolderOpen className="size-7" />
             </div>
-            <h2 className="text-xl font-bold">لا توجد طلبات مقترحة</h2>
+            <h2 className="text-xl font-bold">{tr("لا توجد طلبات مقترحة")}</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
               {statusFilter
-                ? "لا توجد طلبات بهذه الحالة حالياً"
-                : "لما يكتشف الذكاء الاصطناعي طلبات من محادثاتك ستظهر هنا للمراجعة"}
+                ? tr("لا توجد طلبات بهذه الحالة حالياً")
+                : tr("لما يكتشف الذكاء الاصطناعي طلبات من محادثاتك ستظهر هنا للمراجعة")}
             </p>
             {!statusFilter && (
               <Button asChild variant="outline" className="mt-4 rounded-xl">
-                <Link href="/instagram">ربط انستجرام</Link>
+                <Link href="/instagram">{tr("ربط انستجرام")}</Link>
               </Button>
             )}
           </CardContent>
@@ -191,8 +197,8 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
                       className="rounded-xl"
                     >
                       <Link href={`/dashboard/suggested-orders/${order.id}`}>
-                        <Eye className="mr-1.5 size-4" />
-                        {order.status === "PENDING" ? "مراجعة" : "عرض"}
+                        <Eye className="ms-1.5 size-4" />
+                        {order.status === "PENDING" ? tr("مراجعة") : tr("عرض")}
                       </Link>
                     </Button>
                   </div>
@@ -205,9 +211,8 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
           {totalPages > 1 && (
             <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-border/30 bg-background px-5 py-4 sm:flex-row">
               <p className="text-sm text-muted-foreground">
-                الصفحة{" "}
-                <span className="font-bold text-foreground">{currentPage}</span>{" "}
-                من{" "}
+                {tr("الصفحة")}{" "}
+                <span className="font-bold text-foreground">{currentPage}</span>{" "}{tr("من")}{" "}
                 <span className="font-bold text-foreground">{totalPages}</span>
               </p>
               <div className="flex items-center gap-2">
@@ -225,8 +230,8 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
                         : "#"
                     }
                   >
-                    <ChevronRight className="ml-1 size-4" />
-                    السابق
+                    <ChevronRight className="me-1 size-4 ltr:-scale-x-100" />
+                    {tr("السابق")}
                   </Link>
                 </Button>
                 <Button
@@ -243,8 +248,8 @@ export default async function SuggestedOrdersPage({ searchParams }: Props) {
                         : "#"
                     }
                   >
-                    التالي
-                    <ChevronLeft className="mr-1 size-4" />
+                    {tr("التالي")}
+                    <ChevronLeft className="ms-1 size-4 ltr:-scale-x-100" />
                   </Link>
                 </Button>
               </div>

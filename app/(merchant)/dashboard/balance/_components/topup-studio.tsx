@@ -15,10 +15,11 @@ import { TOPUP_METHODS } from "@/constants/topup";
 import { formatMoney } from "@/lib/balance-ui/meta";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import { cn } from "@/lib/utils";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 const MIN_EGP = 10;
-const nf = new Intl.NumberFormat("ar-EG");
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
+const nf = lazyIntl.number();
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
 const METHOD_ICONS: Record<string, typeof Smartphone> = { VODAFONE_CASH: Smartphone, INSTAPAY: Wallet, BANK_TRANSFER: Landmark };
 
 type Props = {
@@ -40,9 +41,9 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
   const presets = useMemo(() => {
     const list: { egp: number; label: string }[] = [];
     if (price > 0) {
-      if (shortBy > 0) list.push({ egp: Math.max(MIN_EGP, Math.ceil(shortBy / 100)), label: "يكمّل التجديد الجاي" });
-      list.push({ egp: Math.ceil((price * 3) / 100), label: `٣ ${cycleWord === "سنة" ? "سنين" : "شهور"}` });
-      list.push({ egp: Math.ceil((price * 6) / 100), label: `٦ ${cycleWord === "سنة" ? "سنين" : "شهور"}` });
+      if (shortBy > 0) list.push({ egp: Math.max(MIN_EGP, Math.ceil(shortBy / 100)), label: tr("يكمّل التجديد الجاي") });
+      list.push({ egp: Math.ceil((price * 3) / 100), label: tr("٣ {0}", cycleWord === "سنة" ? tr("سنين") : tr("شهور")) });
+      list.push({ egp: Math.ceil((price * 6) / 100), label: tr("٦ {0}", cycleWord === "سنة" ? tr("سنين") : tr("شهور")) });
     }
     for (const egp of [200, 500, 1000]) if (!list.some((p) => p.egp === egp) && list.length < 5) list.push({ egp, label: "" });
     return list;
@@ -75,7 +76,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
       setUploading(true);
       setReceipt(await uploadImageToCloudinary(file, "casho/uploads/receipts", 8));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل رفع الصورة");
+      toast.error(err instanceof Error ? err.message : tr("فشل رفع الصورة"));
     } finally {
       setUploading(false);
     }
@@ -83,7 +84,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
 
   function payOnline() {
     setError(null);
-    if (!valid) return setError(`أقل مبلغ ${MIN_EGP} جنيه.`);
+    if (!valid) return setError(tr("أقل مبلغ {0} جنيه.", MIN_EGP));
     startTransition(async () => {
       // Redirects to Kashier on success; only returns on failure.
       const result = await InitiateKashierTopupAction(storeId, piasters);
@@ -93,15 +94,15 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
 
   function submitManual() {
     setError(null);
-    if (!valid) return setError(`أقل مبلغ ${MIN_EGP} جنيه.`);
-    if (!transferRef.trim() && !receipt) return setError("اكتب رقم العملية أو ارفع صورة الإيصال عشان نلاقي التحويل.");
+    if (!valid) return setError(tr("أقل مبلغ {0} جنيه.", MIN_EGP));
+    if (!transferRef.trim() && !receipt) return setError(tr("اكتب رقم العملية أو ارفع صورة الإيصال عشان نلاقي التحويل."));
     startTransition(async () => {
       const result = await CreateTopupRequestAction({ storeId, amount: piasters, method, transferRef, receiptImage: receipt, note });
       if (!result.success) {
         setError(result.message);
         return;
       }
-      toast.success("طلبك وصل — هنضيف الرصيد أول ما نتأكد من التحويل");
+      toast.success(tr("طلبك وصل — هنضيف الرصيد أول ما نتأكد من التحويل"));
       router.push("/balance");
     });
   }
@@ -111,7 +112,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
       <div className="space-y-4">
         {/* ── 1. Amount ───────────────────────────────────────── */}
         <section className="space-y-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="font-semibold">١. المبلغ</h2>
+          <h2 className="font-semibold">{tr("١. المبلغ")}</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {presets.map((p) => (
               <button
@@ -120,7 +121,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
                 onClick={() => setAmount(String(p.egp))}
                 aria-pressed={egp === p.egp}
                 className={cn(
-                  "rounded-lg border p-3 text-right transition-colors",
+                  "rounded-lg border p-3 text-start transition-colors",
                   egp === p.egp ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30",
                 )}
               >
@@ -137,31 +138,31 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
               step="any"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              aria-label="مبلغ مخصص"
+              aria-label={tr("مبلغ مخصص")}
               className="h-full min-w-0 flex-1 bg-transparent px-3 text-base tabular-nums outline-none"
             />
-            <span className="pe-3 text-sm text-muted-foreground">جنيه</span>
+            <span className="pe-3 text-sm text-muted-foreground">{tr("جنيه")}</span>
           </div>
         </section>
 
         {/* ── 2. Method ───────────────────────────────────────── */}
         <section className="space-y-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="font-semibold">٢. طريقة الدفع</h2>
+          <h2 className="font-semibold">{tr("٢. طريقة الدفع")}</h2>
           <div className="grid gap-2 sm:grid-cols-2">
             <ModeCard
               active={mode === "online"}
               onClick={() => setMode("online")}
               icon={Zap}
-              title="دفع فوري"
-              hint="كارت أو محفظة — الرصيد بيتضاف في ثانية"
-              badge="الأسرع"
+              title={tr("دفع فوري")}
+              hint={tr("كارت أو محفظة — الرصيد بيتضاف في ثانية")}
+              badge={tr("الأسرع")}
             />
             <ModeCard
               active={mode === "manual"}
               onClick={() => setMode("manual")}
               icon={Landmark}
-              title="تحويل يدوي"
-              hint="فودافون كاش أو إنستاباي أو بنك — بيتراجع يدوي"
+              title={tr("تحويل يدوي")}
+              hint={tr("فودافون كاش أو إنستاباي أو بنك — بيتراجع يدوي")}
             />
           </div>
 
@@ -169,7 +170,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
             <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3 text-sm">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
               <p className="leading-6 text-muted-foreground">
-                هتتحوّل لصفحة الدفع الآمنة (Kashier) — فيزا، ماستركارد، ميزة، أو محفظة إلكترونية. بعد الدفع هترجع هنا والرصيد مضاف.
+                {tr("هتتحوّل لصفحة الدفع الآمنة (Kashier) — فيزا، ماستركارد، ميزة، أو محفظة إلكترونية. بعد الدفع هترجع هنا والرصيد مضاف.")}
               </p>
             </div>
           ) : (
@@ -197,7 +198,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
 
               <div className="rounded-lg border border-dashed border-primary/40 bg-primary/[0.03] p-3">
                 <p className="text-xs text-muted-foreground">
-                  حوّل <span className="font-semibold text-foreground">{valid ? formatMoney(piasters) : "المبلغ"}</span> على {selected.label}:
+                  {tr("حوّل")}{" "}<span className="font-semibold text-foreground">{valid ? formatMoney(piasters) : tr("المبلغ")}</span>{" "}{tr("على {0}:", selected.label)}
                 </p>
                 <div className="mt-1 flex items-center justify-between gap-2">
                   <p className="font-mono text-lg font-semibold tracking-wide" dir="ltr">
@@ -215,31 +216,31 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
                     }}
                   >
                     {copied ? <Check className="size-4 text-emerald-600" /> : <Copy className="size-4" />}
-                    نسخ
+                    {tr("نسخ")}
                   </Button>
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="ref">رقم العملية</Label>
-                  <Input id="ref" dir="ltr" value={transferRef} onChange={(e) => setTransferRef(e.target.value)} placeholder="من رسالة التحويل" />
+                  <Label htmlFor="ref">{tr("رقم العملية")}</Label>
+                  <Input id="ref" dir="ltr" value={transferRef} onChange={(e) => setTransferRef(e.target.value)} placeholder={tr("من رسالة التحويل")} />
                 </div>
                 <div className="space-y-2">
-                  <Label>صورة الإيصال</Label>
+                  <Label>{tr("صورة الإيصال")}</Label>
                   {receipt ? (
                     <div className="flex h-10 items-center gap-2 rounded-md border border-border px-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={receipt} alt="" className="size-7 rounded object-cover" />
-                      <span className="flex-1 text-xs text-muted-foreground">اترفعت</span>
-                      <Button type="button" variant="ghost" size="icon" className="size-7" aria-label="شيل الإيصال" onClick={() => setReceipt("")}>
+                      <span className="flex-1 text-xs text-muted-foreground">{tr("اترفعت")}</span>
+                      <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={tr("شيل الإيصال")} onClick={() => setReceipt("")}>
                         <X className="size-3.5" />
                       </Button>
                     </div>
                   ) : (
                     <label className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border text-xs text-muted-foreground hover:bg-muted/50">
                       {uploading ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}
-                      {uploading ? "بنرفع…" : "ارفع سكرين شوت"}
+                      {uploading ? tr("بنرفع…") : tr("ارفع سكرين شوت")}
                       <input type="file" accept="image/*" className="sr-only" onChange={onReceipt} disabled={uploading} />
                     </label>
                   )}
@@ -247,7 +248,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
               </div>
               <div className="space-y-2">
                 <Label htmlFor="note" className="text-xs">
-                  ملاحظة <span className="font-normal text-muted-foreground">(اختياري)</span>
+                  {tr("ملاحظة")}{" "}<span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>
                 </Label>
                 <Textarea id="note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} className="resize-none" />
               </div>
@@ -261,15 +262,15 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
         <section className="rounded-xl border border-border bg-card">
           <dl className="space-y-2.5 p-4 text-sm">
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">رصيدك دلوقتي</dt>
+              <dt className="text-muted-foreground">{tr("رصيدك دلوقتي")}</dt>
               <dd className="tabular-nums">{formatMoney(balance)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">الشحن</dt>
+              <dt className="text-muted-foreground">{tr("الشحن")}</dt>
               <dd className="tabular-nums text-emerald-700 dark:text-emerald-400">+ {valid ? formatMoney(piasters) : "—"}</dd>
             </div>
             <div className="flex justify-between border-t border-border pt-2.5 font-semibold">
-              <dt>الرصيد بعد الشحن</dt>
+              <dt>{tr("الرصيد بعد الشحن")}</dt>
               <dd className="tabular-nums">{formatMoney(after)}</dd>
             </div>
           </dl>
@@ -277,11 +278,11 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
             <p className="border-t border-border bg-muted/40 px-4 py-3 text-xs leading-5 text-muted-foreground">
               {renewals > 0 ? (
                 <>
-                  يكفي <span className="font-medium text-foreground">{nf.format(renewals)} تجديد</span>
-                  {coveredUntil && <> — متجرك شغّال لحد {df.format(coveredUntil)}</>}
+                  {tr("يكفي")}{" "}<span className="font-medium text-foreground">{tr("{0} تجديد", nf.format(renewals))}</span>
+                  {coveredUntil && <>{" "}{tr("— متجرك شغّال لحد {0}", df.format(coveredUntil))}</>}
                 </>
               ) : (
-                <>لسه مش كفاية لتجديد واحد ({formatMoney(price)})</>
+                <>{tr("لسه مش كفاية لتجديد واحد ({0})", formatMoney(price))}</>
               )}
             </p>
           )}
@@ -291,10 +292,10 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
 
         <Button className="h-11 w-full gap-1.5" disabled={pending || uploading || !valid} onClick={mode === "online" ? payOnline : submitManual}>
           {pending && <Loader2 className="size-4 animate-spin" />}
-          {mode === "online" ? `ادفع ${valid ? formatMoney(piasters) : ""}` : "ابعت طلب الشحن"}
+          {mode === "online" ? tr("ادفع {0}", valid ? formatMoney(piasters) : "") : tr("ابعت طلب الشحن")}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          {mode === "online" ? "مش هنحفظ بيانات كارتك — الدفع كله على Kashier." : "هيوصلك إشعار أول ما الرصيد يتضاف."}
+          {mode === "online" ? tr("مش هنحفظ بيانات كارتك — الدفع كله على Kashier.") : tr("هيوصلك إشعار أول ما الرصيد يتضاف.")}
         </p>
       </aside>
     </div>
@@ -321,7 +322,7 @@ function ModeCard({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={cn("flex gap-3 rounded-lg border p-3 text-right transition-colors", active ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30")}
+      className={cn("flex gap-3 rounded-lg border p-3 text-start transition-colors", active ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30")}
     >
       <span className={cn("grid size-9 shrink-0 place-items-center rounded-lg", active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
         <Icon className="size-4" />

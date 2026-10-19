@@ -5,8 +5,10 @@ import { listUserStores } from "@/lib/store/store-guard";
 import { GetActiveShiftAction } from "@/actions/pos/shift.actions";
 import { GetHeldOrdersAction, GetPosCategoriesAction } from "@/actions/pos/pos.actions";
 import PosTerminal from "./_components/PosTerminal";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export default async function PosPage() {
+  await loadDashboardLocale();
   const ctx = await requirePosContext();
   const userId = ctx.userId;
 

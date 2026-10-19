@@ -16,12 +16,13 @@ import MobileHeaderMenu from "./MobileHeaderMenu";
 import Image from "next/image";
 import { ModeToggle } from "@/theme/ModeToggle";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 const links = [
-  { name: "الرئيسية", href: "/" },
-  { name: "المميزات", href: "#features" },
-  { name: "الأسعار", href: "#pricing" },
-  { name: "الأسئلة", href: "#faq" },
+  { get name() { return tr("الرئيسية"); }, href: "/" },
+  { get name() { return tr("المميزات"); }, href: "#features" },
+  { get name() { return tr("الأسعار"); }, href: "#pricing" },
+  { get name() { return tr("الأسئلة"); }, href: "#faq" },
 ];
 
 const Header = async () => {
@@ -39,7 +40,7 @@ const Header = async () => {
           </div> */}
           <Image
             src={`/logo.svg`}
-            alt={storeName || "كاشو"}
+            alt={storeName || tr("كاشو")}
             width={45}
             height={45}
             className="rounded-lg"
@@ -68,18 +69,18 @@ const Header = async () => {
             <>
               <Button className="" asChild>
                 <Link href="/register" className="flex items-center gap-2">
-                  ابدأ متجرك دلوقتي <Store />
+                  {tr("ابدأ متجرك دلوقتي")}{" "}<Store />
                 </Link>
               </Button>
 
               <Button className="" variant="outline" asChild>
                 <Link href="/login" className="flex items-center gap-2">
-                  تسجيل الدخول <LogIn />
+                  {tr("تسجيل الدخول")}{" "}<LogIn />
                 </Link>
               </Button>
             </>
           ) : (
-            <DropdownMenu dir="rtl" modal={false}>
+            <DropdownMenu dir={tdir()} modal={false}>
               <DropdownMenuTrigger asChild className="w-full">
                 <Button variant="outline" className="">
                   {storeName || user.email} <ChevronDown />
@@ -89,7 +90,7 @@ const Header = async () => {
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-3 py-2">
                   <p className="text-sm font-semibold">
-                    {storeName || "الحساب"}
+                    {storeName || tr("الحساب")}
                   </p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
@@ -97,12 +98,12 @@ const Header = async () => {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem asChild>
-                  <Link href="/">لوحة التحكم</Link>
+                  <Link href="/">{tr("لوحة التحكم")}</Link>
                 </DropdownMenuItem>
 
                 {storeSlug && (
                   <DropdownMenuItem asChild>
-                    <Link href={buildStoreUrl(storeSlug)}>عرض المتجر</Link>
+                    <Link href={buildStoreUrl(storeSlug)}>{tr("عرض المتجر")}</Link>
                   </DropdownMenuItem>
                 )}
 
@@ -110,7 +111,7 @@ const Header = async () => {
 
                 <DropdownMenuItem asChild variant="destructive">
                   <form action={LogoutAction}>
-                    <button type="submit">تسجيل الخروج</button>
+                    <button type="submit">{tr("تسجيل الخروج")}</button>
                   </form>
                 </DropdownMenuItem>
               </DropdownMenuContent>

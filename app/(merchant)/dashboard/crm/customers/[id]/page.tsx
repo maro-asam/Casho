@@ -10,6 +10,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { CustomerProfileClient } from "./_components/CustomerProfileClient";
 import { CustomerStatusBadge } from "../../_components/CustomerHealthBadge";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export async function generateMetadata({
   params,
@@ -19,12 +21,12 @@ export async function generateMetadata({
   const { id } = await params;
   const userId = await requireUserId();
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
-  if (!store) return { title: "عميل" };
+  if (!store) return { title: tr("عميل") };
   const customer = await prisma.customer.findFirst({
     where: { id, storeId: store.id },
     select: { name: true, phone: true },
   });
-  return { title: customer?.name ?? customer?.phone ?? "ملف العميل" };
+  return { title: customer?.name ?? customer?.phone ?? tr("ملف العميل") };
 }
 
 export default async function CustomerProfilePage({
@@ -32,6 +34,7 @@ export default async function CustomerProfilePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await loadDashboardLocale();
   const { id } = await params;
 
   const [profile, allTags, insights, timelineData] = await Promise.all([
@@ -64,17 +67,17 @@ export default async function CustomerProfilePage({
   });
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/dashboard/crm" className="hover:text-foreground transition-colors">
           CRM
         </Link>
-        <ArrowRight className="size-3.5" />
+        <ArrowRight className="size-3.5 ltr:-scale-x-100" />
         <Link href="/dashboard/crm/customers" className="hover:text-foreground transition-colors">
-          العملاء
+          {tr("العملاء")}
         </Link>
-        <ArrowRight className="size-3.5" />
+        <ArrowRight className="size-3.5 ltr:-scale-x-100" />
         <span className="text-foreground font-medium">
           {profile.name ?? profile.phone}
         </span>
@@ -93,7 +96,7 @@ export default async function CustomerProfilePage({
             <CustomerStatusBadge status={profile.status} />
           </div>
           <p className="text-sm text-muted-foreground">
-            عميل منذ {new Date(profile.createdAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long" })}
+            {tr("عميل منذ {0}", new Date(profile.createdAt).toLocaleDateString(intlLocale(), { year: "numeric", month: "long" }))}
           </p>
         </div>
       </div>

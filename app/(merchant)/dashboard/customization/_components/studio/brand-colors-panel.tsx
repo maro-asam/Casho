@@ -11,16 +11,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { contrastRatio, hexToRgb, readableOn, rgbToHex } from "@/lib/theme/contrast";
 import { cn } from "@/lib/utils";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 const PALETTES = [
-  { name: "أزرق ثقة", primary: "#2563eb", secondary: "#eff6ff" },
-  { name: "أسود فاخر", primary: "#111111", secondary: "#f5f5f4" },
-  { name: "زيتوني", primary: "#4d7c0f", secondary: "#f7fee7" },
-  { name: "تيراكوتا", primary: "#c2410c", secondary: "#fff7ed" },
-  { name: "وردي ناعم", primary: "#db2777", secondary: "#fdf2f8" },
-  { name: "بنفسجي", primary: "#7c3aed", secondary: "#f5f3ff" },
-  { name: "نيلي", primary: "#0f766e", secondary: "#f0fdfa" },
-  { name: "ذهبي", primary: "#a16207", secondary: "#fefce8" },
+  { get name() { return tr("أزرق ثقة"); }, primary: "#2563eb", secondary: "#eff6ff" },
+  { get name() { return tr("أسود فاخر"); }, primary: "#111111", secondary: "#f5f5f4" },
+  { get name() { return tr("زيتوني"); }, primary: "#4d7c0f", secondary: "#f7fee7" },
+  { get name() { return tr("تيراكوتا"); }, primary: "#c2410c", secondary: "#fff7ed" },
+  { get name() { return tr("وردي ناعم"); }, primary: "#db2777", secondary: "#fdf2f8" },
+  { get name() { return tr("بنفسجي"); }, primary: "#7c3aed", secondary: "#f5f3ff" },
+  { get name() { return tr("نيلي"); }, primary: "#0f766e", secondary: "#f0fdfa" },
+  { get name() { return tr("ذهبي"); }, primary: "#a16207", secondary: "#fefce8" },
 ];
 
 const isHex = (v: string) => /^#[0-9a-fA-F]{6}$/.test(v);
@@ -110,27 +111,27 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
     try {
       const colors = await extractPalette(logo);
       if (!colors.length) {
-        toast.error("اللوجو مفيهوش ألوان واضحة — جرّب الباليتات الجاهزة.");
+        toast.error(tr("اللوجو مفيهوش ألوان واضحة — جرّب الباليتات الجاهزة."));
         return;
       }
       setLogoColors(colors);
       setPrimary(colors[0]);
       setSecondary(tint(colors[0]));
     } catch {
-      toast.error("مقدرناش نقرا ألوان اللوجو. ارفعه تاني من تبويب الهوية.");
+      toast.error(tr("مقدرناش نقرا ألوان اللوجو. ارفعه تاني من تبويب الهوية."));
     } finally {
       setExtracting(false);
     }
   }
 
   function save() {
-    if (!valid) return toast.error("اكتب اللون بصيغة ‎#RRGGBB");
+    if (!valid) return toast.error(tr("اكتب اللون بصيغة ‎#RRGGBB"));
     startTransition(async () => {
       const result = await UpdateStoreColorsAction({ storeId, primaryColor: primary, secondaryColor: secondary });
       if (result.success) {
-        toast.success("الألوان اتحفظت واتطبقت على المتجر");
+        toast.success(tr("الألوان اتحفظت واتطبقت على المتجر"));
         router.refresh();
-      } else toast.error(result.message);
+      } else toast.error(trv(result.message));
     });
   }
 
@@ -150,15 +151,15 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
                 )}
               </div>
               <div>
-                <p className="text-sm font-semibold">ألوان من اللوجو</p>
+                <p className="text-sm font-semibold">{tr("ألوان من اللوجو")}</p>
                 <p className="text-xs text-muted-foreground">
-                  {logo ? "بنطلع ألوان علامتك من اللوجو ونظبط الباقي تلقائي." : "ارفع اللوجو الأول من تبويب الهوية."}
+                  {logo ? tr("بنطلع ألوان علامتك من اللوجو ونظبط الباقي تلقائي.") : tr("ارفع اللوجو الأول من تبويب الهوية.")}
                 </p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={fromLogo} disabled={!logo || extracting}>
               {extracting ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
-              استخرج الألوان
+              {tr("استخرج الألوان")}
             </Button>
           </div>
           {logoColors && (
@@ -188,7 +189,7 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
 
         {/* Ready palettes */}
         <section className="space-y-2">
-          <p className="text-sm font-medium">باليتات جاهزة</p>
+          <p className="text-sm font-medium">{tr("باليتات جاهزة")}</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {PALETTES.map((p) => {
               const active = p.primary === primary && p.secondary === secondary;
@@ -202,7 +203,7 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
                   }}
                   aria-pressed={active}
                   className={cn(
-                    "group overflow-hidden rounded-lg border text-right transition-colors",
+                    "group overflow-hidden rounded-lg border text-start transition-colors",
                     active ? "border-foreground ring-1 ring-foreground" : "border-border hover:border-foreground/30",
                   )}
                 >
@@ -224,8 +225,8 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
         <section className="grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">
           {(
             [
-              ["primary", "اللون الأساسي", "الزراير والروابط والأسعار", primary, setPrimary],
-              ["secondary", "اللون الثانوي", "الخلفيات الخفيفة والشارات", secondary, setSecondary],
+              ["primary", tr("اللون الأساسي"), tr("الزراير والروابط والأسعار"), primary, setPrimary],
+              ["secondary", tr("اللون الثانوي"), tr("الخلفيات الخفيفة والشارات"), secondary, setSecondary],
             ] as const
           ).map(([id, label, hint, value, set]) => (
             <div key={id} className="space-y-2">
@@ -256,8 +257,8 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
 
           {valid && (
             <div className="space-y-1.5 sm:col-span-2">
-              <ContrastRow ok={buttonContrast >= 4.5} warn={buttonContrast >= 3} label="الكلام على الزراير" ratio={buttonContrast} />
-              <ContrastRow ok={onWhite >= 3} warn={onWhite >= 2} label="الأسعار والروابط على الخلفية البيضا" ratio={onWhite} />
+              <ContrastRow ok={buttonContrast >= 4.5} warn={buttonContrast >= 3} label={tr("الكلام على الزراير")} ratio={buttonContrast} />
+              <ContrastRow ok={onWhite >= 3} warn={onWhite >= 2} label={tr("الأسعار والروابط على الخلفية البيضا")} ratio={onWhite} />
             </div>
           )}
         </section>
@@ -265,7 +266,7 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
         <div className="flex flex-wrap items-center gap-2">
           <Button onClick={save} disabled={!dirty || !valid || pending} className="gap-1.5">
             {pending && <Loader2 className="size-4 animate-spin" />}
-            حفظ الألوان
+            {tr("حفظ الألوان")}
           </Button>
           {dirty && (
             <Button
@@ -276,7 +277,7 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
               }}
               disabled={pending}
             >
-              تراجع
+              {tr("تراجع")}
             </Button>
           )}
           <Button
@@ -289,14 +290,14 @@ export function BrandColorsPanel({ storeId, storeName, logo, primaryColor, secon
             disabled={pending}
           >
             <RotateCcw className="size-3.5" />
-            ألوان الثيم الأصلية
+            {tr("ألوان الثيم الأصلية")}
           </Button>
         </div>
       </div>
 
       {/* Preview */}
       <aside className="xl:sticky xl:top-20 xl:self-start">
-        <p className="mb-2 text-xs font-medium text-muted-foreground">كده هيبان متجرك</p>
+        <p className="mb-2 text-xs font-medium text-muted-foreground">{tr("كده هيبان متجرك")}</p>
         <MiniStore name={storeName} logo={logo} primary={valid ? primary : primaryColor} secondary={valid ? secondary : secondaryColor} />
       </aside>
     </div>
@@ -311,7 +312,7 @@ function ContrastRow({ ok, warn, label, ratio }: { ok: boolean; warn: boolean; l
         {label}
       </span>
       <span className={cn("font-medium", ok ? "text-emerald-700 dark:text-emerald-400" : warn ? "text-amber-700 dark:text-amber-400" : "text-rose-700 dark:text-rose-400")}>
-        {ok ? "واضح" : warn ? "مقبول" : "صعب يتقري"} <span className="font-mono tabular-nums opacity-70">{ratio.toFixed(1)}:1</span>
+        {ok ? tr("واضح") : warn ? tr("مقبول") : tr("صعب يتقري")} <span className="font-mono tabular-nums opacity-70">{ratio.toFixed(1)}:1</span>
       </span>
     </div>
   );
@@ -321,9 +322,9 @@ function MiniStore({ name, logo, primary, secondary }: { name: string; logo: str
   const onPrimary = readableOn(primary);
   const onSecondary = readableOn(secondary);
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-white text-[#0a0a0a] shadow-sm" dir="rtl">
+    <div className="overflow-hidden rounded-xl border border-border bg-white text-[#0a0a0a] shadow-sm" dir={tdir()}>
       <div className="py-1 text-center text-[10px]" style={{ background: primary, color: onPrimary }}>
-        شحن مجاني للطلبات فوق ٥٠٠ جنيه
+        {tr("شحن مجاني للطلبات فوق ٥٠٠ جنيه")}
       </div>
       <div className="flex items-center justify-between border-b border-black/5 px-3 py-2.5">
         <div className="flex items-center gap-1.5">
@@ -336,15 +337,15 @@ function MiniStore({ name, logo, primary, secondary }: { name: string; logo: str
           <span className="text-xs font-bold">{name}</span>
         </div>
         <div className="flex gap-2 text-[10px] text-black/50">
-          <span>الرئيسية</span>
-          <span>المنتجات</span>
+          <span>{tr("الرئيسية")}</span>
+          <span>{tr("المنتجات")}</span>
         </div>
       </div>
       <div className="m-3 rounded-lg p-4" style={{ background: secondary, color: onSecondary }}>
-        <p className="text-sm font-bold">كولكشن جديد</p>
-        <p className="mt-0.5 text-[11px] opacity-70">خصم لحد ٣٠٪ لفترة محدودة</p>
+        <p className="text-sm font-bold">{tr("كولكشن جديد")}</p>
+        <p className="mt-0.5 text-[11px] opacity-70">{tr("خصم لحد ٣٠٪ لفترة محدودة")}</p>
         <span className="mt-2 inline-block rounded-md px-3 py-1 text-[11px] font-semibold" style={{ background: primary, color: onPrimary }}>
-          تسوّق دلوقتي
+          {tr("تسوّق دلوقتي")}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-2 px-3 pb-3">
@@ -353,16 +354,16 @@ function MiniStore({ name, logo, primary, secondary }: { name: string; logo: str
             <div className="relative aspect-square rounded-lg bg-black/5">
               {i === 0 && (
                 <span className="absolute start-1.5 top-1.5 rounded px-1.5 py-0.5 text-[9px] font-semibold" style={{ background: secondary, color: onSecondary }}>
-                  جديد
+                  {tr("جديد")}
                 </span>
               )}
             </div>
             <div className="h-1.5 w-3/4 rounded-full bg-black/10" />
             <p className="text-[11px] font-bold" style={{ color: primary }}>
-              ٤٥٠ ج.م
+              {tr("٤٥٠ ج.م")}
             </p>
             <div className="rounded-md py-1 text-center text-[10px] font-semibold" style={{ background: primary, color: onPrimary }}>
-              أضف للسلة
+              {tr("أضف للسلة")}
             </div>
           </div>
         ))}

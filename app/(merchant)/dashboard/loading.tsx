@@ -1,9 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 // Mirrors the overview layout so nothing jumps when data arrives.
-export default function DashboardLoading() {
+export default async function DashboardLoading() {
+  await loadDashboardLocale();
   return (
-    <div dir="rtl" className="space-y-6" aria-busy="true" aria-label="جاري تحميل نظرة عامة">
+    <div dir={tdir()} className="space-y-6" aria-busy="true" aria-label={tr("جاري تحميل نظرة عامة")}>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2">
           <Skeleton className="h-4 w-40" />

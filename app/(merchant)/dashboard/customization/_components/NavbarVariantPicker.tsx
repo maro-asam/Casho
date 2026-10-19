@@ -8,6 +8,7 @@ import { STORE_NAVBAR_VARIANTS, type StoreNavbarVariant } from "@/constants/stor
 import { cn } from "@/lib/utils";
 import { UpdateNavbarVariantAction } from "@/actions/settings/theme.actions";
 import { Card, CardContent } from "@/components/ui/card";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type NavbarVariantPickerProps = {
   storeId: string;
@@ -74,15 +75,15 @@ export default function NavbarVariantPicker({
     startTransition(async () => {
       const result = await UpdateNavbarVariantAction({ storeId, variant });
       if (result.success) {
-        toast.success(result.message);
+        toast.success(trv(result.message));
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   };
 
   return (
-    <Card dir="rtl">
+    <Card dir={tdir()}>
       <CardContent className="space-y-5">
         {/* Section Header */}
         <div className="flex items-center gap-3">
@@ -90,8 +91,8 @@ export default function NavbarVariantPicker({
             <Navigation className="size-4" />
           </div>
           <div>
-            <h2 className="font-semibold">شكل القائمة العلوية</h2>
-            <p className="text-xs text-muted-foreground">اختر تصميم الـ Navbar المناسب لمتجرك</p>
+            <h2 className="font-semibold">{tr("شكل القائمة العلوية")}</h2>
+            <p className="text-xs text-muted-foreground">{tr("اختر تصميم الـ Navbar المناسب لمتجرك")}</p>
           </div>
         </div>
 
@@ -106,7 +107,7 @@ export default function NavbarVariantPicker({
                 onClick={() => !isActive && handleChange(item.value)}
                 disabled={isPending}
                 className={cn(
-                  "relative overflow-hidden rounded-2xl border p-4 text-right transition-all duration-200",
+                  "relative overflow-hidden rounded-2xl border p-4 text-start transition-all duration-200",
                   "disabled:pointer-events-none disabled:opacity-60",
                   isActive
                     ? "border-primary bg-primary/5 shadow-sm ring-2 ring-primary/20"
@@ -114,7 +115,7 @@ export default function NavbarVariantPicker({
                 )}
               >
                 {isActive && (
-                  <div className="absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm">
+                  <div className="absolute end-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm">
                     <Check className="h-3 w-3" />
                   </div>
                 )}
@@ -124,7 +125,7 @@ export default function NavbarVariantPicker({
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold">{item.label}</h4>
                       {isActive && (
-                        <span className="text-[10px] font-medium text-primary">مُفعّل</span>
+                        <span className="text-[10px] font-medium text-primary">{tr("مُفعّل")}</span>
                       )}
                     </div>
                     <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>

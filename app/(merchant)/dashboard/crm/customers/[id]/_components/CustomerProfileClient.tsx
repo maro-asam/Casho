@@ -36,6 +36,7 @@ import { CustomerStatusBadge, CustomerHealthBadge } from "../../../_components/C
 import { CustomerTimelineTab } from "./CustomerTimelineTab";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import { cn } from "@/lib/utils";
+import { intlLocale, tr, trv } from "@/lib/i18n/dashboard";
 
 type Tag = { id: string; name: string; color: string | null };
 type Note = { id: string; content: string; authorName: string | null; createdAt: Date };
@@ -101,11 +102,11 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
         birthday: editData.birthday || null,
       });
       if (res.success) {
-        toast.success("تم حفظ البيانات");
+        toast.success(tr("تم حفظ البيانات"));
         setIsEditing(false);
         router.refresh();
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   };
@@ -115,11 +116,11 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
     startTransition(async () => {
       const res = await AddCustomerNoteAction(customer.id, noteText);
       if (res.success) {
-        toast.success("تم إضافة الملاحظة");
+        toast.success(tr("تم إضافة الملاحظة"));
         setNoteText("");
         router.refresh();
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   };
@@ -128,7 +129,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
     startTransition(async () => {
       const res = await DeleteCustomerNoteAction(noteId);
       if (res.success) {
-        toast.success("تم حذف الملاحظة");
+        toast.success(tr("تم حذف الملاحظة"));
         router.refresh();
       }
     });
@@ -136,18 +137,18 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
 
   const handleWalletAction = () => {
     const amount = Math.round(parseFloat(walletAmount) * 100);
-    if (!amount || amount <= 0) { toast.error("أدخل مبلغاً صحيحاً"); return; }
+    if (!amount || amount <= 0) { toast.error(tr("أدخل مبلغاً صحيحاً")); return; }
 
     startTransition(async () => {
       const fn = walletMode === "add" ? AddWalletBalanceAction : DeductWalletBalanceAction;
       const res = await fn(customer.id, amount, walletNote || undefined);
       if (res.success) {
-        toast.success(walletMode === "add" ? "تم إضافة الرصيد" : "تم خصم الرصيد");
+        toast.success(walletMode === "add" ? tr("تم إضافة الرصيد") : tr("تم خصم الرصيد"));
         setWalletAmount("");
         setWalletNote("");
         router.refresh();
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   };
@@ -156,7 +157,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
     startTransition(async () => {
       const res = await AssignTagAction(customer.id, tagId);
       if (res.success) router.refresh();
-      else toast.error(res.message);
+      else toast.error(trv(res.message));
     });
   };
 
@@ -171,11 +172,11 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
   const availableTags = allTags.filter((t) => !assignedTagIds.has(t.id));
 
   const statusOrderMap: Record<string, string> = {
-    PENDING: "قيد الانتظار",
-    PAID: "مدفوع",
-    SHIPPED: "جارٍ الشحن",
-    DELIVERED: "مُسلَّم",
-    CANCELED: "ملغي",
+    PENDING: tr("قيد الانتظار"),
+    PAID: tr("مدفوع"),
+    SHIPPED: tr("جارٍ الشحن"),
+    DELIVERED: tr("مُسلَّم"),
+    CANCELED: tr("ملغي"),
   };
 
   const insightColors = {
@@ -213,10 +214,10 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                   value={editData.name}
                   onChange={(e) => setEditData((d) => ({ ...d, name: e.target.value }))}
                   className="h-8 text-lg font-bold"
-                  placeholder="اسم العميل"
+                  placeholder={tr("اسم العميل")}
                 />
               ) : (
-                <h2 className="text-lg font-bold">{customer.name ?? "بدون اسم"}</h2>
+                <h2 className="text-lg font-bold">{customer.name ?? tr("بدون اسم")}</h2>
               )}
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <CustomerStatusBadge status={isEditing ? editData.status : customer.status} />
@@ -226,7 +227,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                     onClick={() => handleRemoveTag(t.tag.id)}
                     className="cursor-pointer rounded-full px-2 py-0.5 text-xs font-medium transition-opacity hover:opacity-70"
                     style={{ backgroundColor: `${t.tag.color ?? "#6366f1"}20`, color: t.tag.color ?? "#6366f1" }}
-                    title="انقر لإزالة"
+                    title={tr("انقر لإزالة")}
                   >
                     {t.tag.name} ×
                   </span>
@@ -237,7 +238,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                     value=""
                     onChange={(e) => e.target.value && handleAssignTag(e.target.value)}
                   >
-                    <option value="">+ علامة</option>
+                    <option value="">{tr("+ علامة")}</option>
                     {availableTags.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
@@ -251,7 +252,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
             {isEditing ? (
               <>
                 <Button size="sm" onClick={handleSaveProfile} disabled={pending}>
-                  <Save className="size-3.5 ml-1" /> حفظ
+                  <Save className="size-3.5 me-1" />{" "}{tr("حفظ")}
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
                   <X className="size-3.5" />
@@ -259,7 +260,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
               </>
             ) : (
               <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
-                <Edit2 className="size-3.5 ml-1" /> تعديل
+                <Edit2 className="size-3.5 me-1" />{" "}{tr("تعديل")}
               </Button>
             )}
           </div>
@@ -269,7 +270,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
           {isEditing ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
-                <Label className="text-xs">البريد الإلكتروني</Label>
+                <Label className="text-xs">{tr("البريد الإلكتروني")}</Label>
                 <Input
                   value={editData.email}
                   onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))}
@@ -278,15 +279,15 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">العنوان</Label>
+                <Label className="text-xs">{tr("العنوان")}</Label>
                 <Input
                   value={editData.address}
                   onChange={(e) => setEditData((d) => ({ ...d, address: e.target.value }))}
-                  placeholder="القاهرة، مصر"
+                  placeholder={tr("القاهرة، مصر")}
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">تاريخ الميلاد</Label>
+                <Label className="text-xs">{tr("تاريخ الميلاد")}</Label>
                 <Input
                   type="date"
                   value={editData.birthday}
@@ -294,7 +295,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">الحالة</Label>
+                <Label className="text-xs">{tr("الحالة")}</Label>
                 <Select
                   value={editData.status}
                   onValueChange={(v) => setEditData((d) => ({ ...d, status: v }))}
@@ -303,19 +304,19 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ACTIVE">نشط</SelectItem>
+                    <SelectItem value="ACTIVE">{tr("نشط")}</SelectItem>
                     <SelectItem value="VIP">VIP</SelectItem>
-                    <SelectItem value="INACTIVE">غير نشط</SelectItem>
-                    <SelectItem value="BLOCKED">محظور</SelectItem>
+                    <SelectItem value="INACTIVE">{tr("غير نشط")}</SelectItem>
+                    <SelectItem value="BLOCKED">{tr("محظور")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1 sm:col-span-2">
-                <Label className="text-xs">ملاحظة سريعة</Label>
+                <Label className="text-xs">{tr("ملاحظة سريعة")}</Label>
                 <Input
                   value={editData.notes}
                   onChange={(e) => setEditData((d) => ({ ...d, notes: e.target.value }))}
-                  placeholder="ملاحظة سريعة عن العميل"
+                  placeholder={tr("ملاحظة سريعة عن العميل")}
                 />
               </div>
             </div>
@@ -340,7 +341,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
               {customer.birthday && (
                 <div className="flex items-center gap-2 text-sm">
                   <Cake className="size-3.5 shrink-0 text-muted-foreground" />
-                  <span>{new Date(customer.birthday).toLocaleDateString("ar-EG")}</span>
+                  <span>{new Date(customer.birthday).toLocaleDateString(intlLocale())}</span>
                 </div>
               )}
             </div>
@@ -357,12 +358,12 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {[
-          { label: "الطلبات", value: customer.orderCount.toString() },
-          { label: "إجمالي الإنفاق", value: formatMoneyFromPiasters(customer.totalSpend) },
-          { label: "متوسط الطلب", value: formatMoneyFromPiasters(customer.avgOrderValue) },
-          { label: "نقاط الولاء", value: customer.points.toLocaleString("ar-EG") },
-          { label: "رصيد المحفظة", value: formatMoneyFromPiasters(customer.walletBalance) },
-          { label: "درجة الصحة", value: String(customer.healthScore.score) },
+          { label: tr("الطلبات"), value: customer.orderCount.toString() },
+          { label: tr("إجمالي الإنفاق"), value: formatMoneyFromPiasters(customer.totalSpend) },
+          { label: tr("متوسط الطلب"), value: formatMoneyFromPiasters(customer.avgOrderValue) },
+          { label: tr("نقاط الولاء"), value: customer.points.toLocaleString(intlLocale()) },
+          { label: tr("رصيد المحفظة"), value: formatMoneyFromPiasters(customer.walletBalance) },
+          { label: tr("درجة الصحة"), value: String(customer.healthScore.score) },
         ].map((s) => (
           <Card key={s.label} className="p-3.5 text-center">
             <p className="text-[11px] text-muted-foreground">{s.label}</p>
@@ -374,7 +375,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
       {/* Health Score Breakdown */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">درجة الصحة</CardTitle>
+          <CardTitle className="text-sm">{tr("درجة الصحة")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
@@ -383,9 +384,9 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
             </div>
             <div className="flex-1 space-y-2">
               {[
-                { label: "الحداثة (40%)", value: customer.healthScore.recencyScore },
-                { label: "التكرار (30%)", value: customer.healthScore.frequencyScore },
-                { label: "القيمة (30%)", value: customer.healthScore.monetaryScore },
+                { label: tr("الحداثة (40%)"), value: customer.healthScore.recencyScore },
+                { label: tr("التكرار (30%)"), value: customer.healthScore.frequencyScore },
+                { label: tr("القيمة (30%)"), value: customer.healthScore.monetaryScore },
               ].map((m) => (
                 <div key={m.label} className="space-y-1">
                   <div className="flex justify-between text-xs">
@@ -412,11 +413,11 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
       {/* Tabs */}
       <Tabs defaultValue="timeline">
         <TabsList className="w-full justify-start flex-wrap">
-          <TabsTrigger value="timeline">السجل ({timelineEvents.length})</TabsTrigger>
-          <TabsTrigger value="orders">الطلبات ({customer.orderCount})</TabsTrigger>
-          <TabsTrigger value="wallet">المحفظة</TabsTrigger>
-          <TabsTrigger value="notes">الملاحظات ({customer.staffNotes.length})</TabsTrigger>
-          <TabsTrigger value="products">المنتجات المفضلة</TabsTrigger>
+          <TabsTrigger value="timeline">{tr("السجل ({0})", timelineEvents.length)}</TabsTrigger>
+          <TabsTrigger value="orders">{tr("الطلبات ({0})", customer.orderCount)}</TabsTrigger>
+          <TabsTrigger value="wallet">{tr("المحفظة")}</TabsTrigger>
+          <TabsTrigger value="notes">{tr("الملاحظات ({0})", customer.staffNotes.length)}</TabsTrigger>
+          <TabsTrigger value="products">{tr("المنتجات المفضلة")}</TabsTrigger>
         </TabsList>
 
         {/* Timeline Tab */}
@@ -428,7 +429,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
         <TabsContent value="orders" className="mt-4">
           {orders.length === 0 ? (
             <div className="rounded-xl border py-10 text-center text-sm text-muted-foreground">
-              لا يوجد طلبات لهذا العميل
+              {tr("لا يوجد طلبات لهذا العميل")}
             </div>
           ) : (
             <div className="space-y-2">
@@ -445,18 +446,18 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                           {statusOrderMap[order.status] ?? order.status}
                         </Badge>
                         <span className="text-[10px] text-muted-foreground">
-                          {order.source === "POS" ? "POS" : order.source === "INSTAGRAM" ? "انستجرام" : "أونلاين"}
+                          {order.source === "POS" ? "POS" : order.source === "INSTAGRAM" ? tr("انستجرام") : tr("أونلاين")}
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {order.items.slice(0, 2).map((i) => `${i.product?.name ?? "منتج"} ×${i.quantity}`).join("، ")}
+                        {order.items.slice(0, 2).map((i) => `${i.product?.name ?? tr("منتج")} ×${i.quantity}`).join(tr("، "))}
                         {order.items.length > 2 && ` +${order.items.length - 2}`}
                       </p>
                     </div>
-                    <div className="text-left">
+                    <div className="text-end">
                       <p className="font-semibold text-primary">{formatMoneyFromPiasters(order.total)}</p>
                       <p className="text-[11px] text-muted-foreground">
-                        {new Date(order.createdAt).toLocaleDateString("ar-EG")}
+                        {new Date(order.createdAt).toLocaleDateString(intlLocale())}
                       </p>
                     </div>
                   </div>
@@ -472,7 +473,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Wallet className="size-4 text-primary" />
-                <span className="font-medium">رصيد المحفظة</span>
+                <span className="font-medium">{tr("رصيد المحفظة")}</span>
               </div>
               <span className="text-xl font-bold text-primary">
                 {formatMoneyFromPiasters(customer.walletBalance)}
@@ -487,7 +488,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                   onClick={() => setWalletMode("add")}
                   className="flex-1"
                 >
-                  إضافة رصيد
+                  {tr("إضافة رصيد")}
                 </Button>
                 <Button
                   size="sm"
@@ -495,11 +496,11 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                   onClick={() => setWalletMode("deduct")}
                   className="flex-1"
                 >
-                  خصم رصيد
+                  {tr("خصم رصيد")}
                 </Button>
               </div>
               <Input
-                placeholder="المبلغ بالجنيه"
+                placeholder={tr("المبلغ بالجنيه")}
                 type="number"
                 min="0"
                 step="0.01"
@@ -507,7 +508,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                 onChange={(e) => setWalletAmount(e.target.value)}
               />
               <Input
-                placeholder="سبب العملية (اختياري)"
+                placeholder={tr("سبب العملية (اختياري)")}
                 value={walletNote}
                 onChange={(e) => setWalletNote(e.target.value)}
               />
@@ -518,7 +519,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                 disabled={pending || !walletAmount}
                 variant={walletMode === "deduct" ? "destructive" : "default"}
               >
-                {walletMode === "add" ? "إضافة" : "خصم"}
+                {walletMode === "add" ? tr("إضافة") : tr("خصم")}
               </Button>
             </div>
           </Card>
@@ -530,7 +531,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                   <div>
                     <p className="text-xs font-medium">{tx.description ?? tx.type}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {new Date(tx.createdAt).toLocaleDateString("ar-EG")}
+                      {new Date(tx.createdAt).toLocaleDateString(intlLocale())}
                     </p>
                   </div>
                   <span
@@ -555,7 +556,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
           <Card className="p-4">
             <div className="flex gap-2">
               <Textarea
-                placeholder="أضف ملاحظة عن هذا العميل..."
+                placeholder={tr("أضف ملاحظة عن هذا العميل...")}
                 className="min-h-20 resize-none text-sm"
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
@@ -568,13 +569,13 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
               disabled={pending || !noteText.trim()}
             >
               <Send className="size-3.5" />
-              إضافة ملاحظة
+              {tr("إضافة ملاحظة")}
             </Button>
           </Card>
 
           {customer.staffNotes.length === 0 ? (
             <div className="rounded-xl border py-8 text-center text-sm text-muted-foreground">
-              لا توجد ملاحظات بعد
+              {tr("لا توجد ملاحظات بعد")}
             </div>
           ) : (
             <div className="space-y-2">
@@ -584,8 +585,8 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                     <div className="flex-1">
                       <p className="text-sm">{note.content}</p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        {note.authorName ?? "موظف"} •{" "}
-                        {new Date(note.createdAt).toLocaleDateString("ar-EG")}
+                        {note.authorName ?? tr("موظف")} •{" "}
+                        {new Date(note.createdAt).toLocaleDateString(intlLocale())}
                       </p>
                     </div>
                     <Button
@@ -608,7 +609,7 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
         <TabsContent value="products" className="mt-4">
           {customer.topProducts.length === 0 ? (
             <div className="rounded-xl border py-10 text-center text-sm text-muted-foreground">
-              لا يوجد بيانات مشتريات
+              {tr("لا يوجد بيانات مشتريات")}
             </div>
           ) : (
             <div className="space-y-2">
@@ -626,9 +627,9 @@ export function CustomerProfileClient({ customer, orders, allTags, insights, tim
                       className="size-9 rounded object-cover"
                     />
                   )}
-                  <p className="flex-1 text-sm font-medium">{p.product?.name ?? "منتج محذوف"}</p>
+                  <p className="flex-1 text-sm font-medium">{p.product?.name ?? tr("منتج محذوف")}</p>
                   <span className="text-xs text-muted-foreground">
-                    {p._sum.quantity ?? 0} وحدة
+                    {tr("{0} وحدة", p._sum.quantity ?? 0)}
                   </span>
                 </Card>
               ))}

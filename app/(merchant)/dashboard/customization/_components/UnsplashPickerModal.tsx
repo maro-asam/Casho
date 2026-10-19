@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type UnsplashPhoto = {
   id: string;
@@ -61,10 +62,10 @@ export default function UnsplashPickerModal({ open, onClose, onSelect }: Props) 
     try {
       const res = await fetch(`/api/unsplash/search?q=${encodeURIComponent(q)}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "فشل البحث");
+      if (!res.ok) throw new Error(data.error || tr("فشل البحث"));
       setPhotos(data.results ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "فشل البحث");
+      setError(err instanceof Error ? err.message : tr("فشل البحث"));
     } finally {
       setLoading(false);
     }
@@ -84,11 +85,11 @@ export default function UnsplashPickerModal({ open, onClose, onSelect }: Props) 
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl" dir="rtl">
+      <DialogContent className="max-w-2xl" dir={tdir()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="size-4 text-primary" />
-            اختر صورة من Unsplash
+            {tr("اختر صورة من Unsplash")}
           </DialogTitle>
         </DialogHeader>
 
@@ -96,7 +97,7 @@ export default function UnsplashPickerModal({ open, onClose, onSelect }: Props) 
         <div className="relative">
           <Search className="absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="ابحث عن صورة... (مثال: nature, food, fashion)"
+            placeholder={tr("ابحث عن صورة... (مثال: nature, food, fashion)")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pe-10"
@@ -109,7 +110,7 @@ export default function UnsplashPickerModal({ open, onClose, onSelect }: Props) 
           {loading && (
             <div className="flex h-full items-center justify-center gap-2 text-muted-foreground">
               <Loader2 className="size-5 animate-spin" />
-              <span className="text-sm">جاري البحث...</span>
+              <span className="text-sm">{tr("جاري البحث...")}</span>
             </div>
           )}
           {!loading && error && (
@@ -119,12 +120,12 @@ export default function UnsplashPickerModal({ open, onClose, onSelect }: Props) 
           )}
           {!loading && !error && photos.length === 0 && query.trim() && (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              لا توجد نتائج
+              {tr("لا توجد نتائج")}
             </div>
           )}
           {!loading && !error && photos.length === 0 && !query.trim() && (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              اكتب كلمة للبحث عن صور
+              {tr("اكتب كلمة للبحث عن صور")}
             </div>
           )}
           {!loading && photos.length > 0 && (
@@ -171,7 +172,7 @@ export default function UnsplashPickerModal({ open, onClose, onSelect }: Props) 
 
         {/* Attribution */}
         <p className="text-center text-xs text-muted-foreground">
-          الصور من{" "}
+          {tr("الصور من")}{" "}
           <a
             href="https://unsplash.com"
             target="_blank"
@@ -185,11 +186,11 @@ export default function UnsplashPickerModal({ open, onClose, onSelect }: Props) 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={onClose} className="gap-2">
             <X className="size-4" />
-            إلغاء
+            {tr("إلغاء")}
           </Button>
           <Button onClick={handleConfirm} disabled={!selected} className="gap-2">
             <Check className="size-4" />
-            اختيار
+            {tr("اختيار")}
           </Button>
         </DialogFooter>
       </DialogContent>

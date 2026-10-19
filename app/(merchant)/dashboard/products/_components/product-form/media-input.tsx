@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
+import { tr } from "@/lib/i18n/dashboard";
 
 function uploadToCloudinary(file: File) {
   return uploadImageToCloudinary(file, "casho/uploads/products", 10);
@@ -58,14 +59,14 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
       return left;
     });
 
-    if (urls.length) toast.success(urls.length === 1 ? "الصورة اترفعت" : `اترفعت ${urls.length} صور`);
-    if (failed) toast.error(failed.reason instanceof Error ? failed.reason.message : "صورة أو أكتر مترفعتش");
+    if (urls.length) toast.success(urls.length === 1 ? tr("الصورة اترفعت") : tr("اترفعت {0} صور", urls.length));
+    if (failed) toast.error(failed.reason instanceof Error ? failed.reason.message : tr("صورة أو أكتر مترفعتش"));
   }
 
   function addUrl() {
     const trimmed = url.trim();
     if (!/^https?:\/\//.test(trimmed)) {
-      toast.error("اكتب لينك صورة يبدأ بـ https://");
+      toast.error(tr("اكتب لينك صورة يبدأ بـ https://"));
       return;
     }
     update([...images, trimmed]);
@@ -102,10 +103,10 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
               i === 0 ? "col-span-2 row-span-2 aspect-square" : "aspect-square",
             )}
           >
-            <Image src={src} alt={i === 0 ? "الصورة الأساسية" : `صورة ${i + 1}`} fill sizes="200px" className="object-cover" unoptimized />
+            <Image src={src} alt={i === 0 ? tr("الصورة الأساسية") : tr("صورة {0}", i + 1)} fill sizes="200px" className="object-cover" unoptimized />
             {i === 0 && (
               <span className="absolute inset-s-2 top-2 rounded-md bg-background/90 px-1.5 py-0.5 text-[11px] font-medium shadow-sm">
-                الأساسية
+                {tr("الأساسية")}
               </span>
             )}
             <div className="absolute inset-e-1.5 top-1.5 flex gap-1">
@@ -113,8 +114,8 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
                 <button
                   type="button"
                   onClick={() => makeMain(i)}
-                  aria-label="خليها الصورة الأساسية"
-                  title="خليها الأساسية"
+                  aria-label={tr("خليها الصورة الأساسية")}
+                  title={tr("خليها الأساسية")}
                   className="grid size-7 place-items-center rounded-md bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background"
                 >
                   <Star className="size-3.5" />
@@ -123,7 +124,7 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
               <button
                 type="button"
                 onClick={() => remove(i)}
-                aria-label="شيل الصورة"
+                aria-label={tr("شيل الصورة")}
                 className="grid size-7 place-items-center rounded-md bg-background/90 text-foreground shadow-sm transition-colors hover:bg-destructive hover:text-white"
               >
                 <X className="size-3.5" />
@@ -150,10 +151,10 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
         >
           <ImagePlus className="size-5 text-muted-foreground" />
           <span className="text-sm font-medium">
-            {images.length === 0 ? "اسحب الصور هنا أو دوس للاختيار" : "ضيف صور"}
+            {images.length === 0 ? tr("اسحب الصور هنا أو دوس للاختيار") : tr("ضيف صور")}
           </span>
           {images.length === 0 && (
-            <span className="text-xs text-muted-foreground">PNG أو JPG أو WEBP · أول صورة هتبقى الأساسية</span>
+            <span className="text-xs text-muted-foreground">{tr("PNG أو JPG أو WEBP · أول صورة هتبقى الأساسية")}</span>
           )}
           <input
             type="file"
@@ -186,10 +187,10 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
             className="h-9"
           />
           <Button type="button" variant="outline" className="h-9" onClick={addUrl}>
-            إضافة
+            {tr("إضافة")}
           </Button>
           <Button type="button" variant="ghost" className="h-9" onClick={() => setUrlOpen(false)}>
-            إلغاء
+            {tr("إلغاء")}
           </Button>
         </div>
       ) : (
@@ -199,7 +200,7 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <Link2 className="size-4" />
-          أو ضيف صورة من لينك
+          {tr("أو ضيف صورة من لينك")}
         </button>
       )}
 

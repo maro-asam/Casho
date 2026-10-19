@@ -1,6 +1,7 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPercent } from "./format";
+import { tr } from "@/lib/i18n/dashboard";
 
 /**
  * Period-over-period change; `null` means there was nothing to compare with.
@@ -19,7 +20,7 @@ export default function DeltaBadge({
     return (
       <span className={cn("inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground", className)}>
         <Minus className="size-3" />
-        جديد
+        {tr("جديد")}
       </span>
     );
   }

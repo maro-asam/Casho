@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { BlockPhoneAction, UnblockPhoneAction } from "@/actions/store/fraud.actions";
 import { Button } from "@/components/ui/button";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 /** Block / unblock the order's number for this store. */
 export function BlockPhoneButton({ storeId, phone, blockedId }: { storeId: string; phone: string; blockedId: string | null }) {
@@ -18,13 +19,13 @@ export function BlockPhoneButton({ storeId, phone, blockedId }: { storeId: strin
     start(async () => {
       const result = blockedId
         ? await UnblockPhoneAction(storeId, blockedId)
-        : await BlockPhoneAction(storeId, { phone, reason: "من صفحة الطلب" });
+        : await BlockPhoneAction(storeId, { phone, reason: tr("من صفحة الطلب") });
       if (result.ok) {
-        toast.success(result.message);
+        toast.success(trv(result.message));
         setConfirming(false);
         router.refresh();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -33,7 +34,7 @@ export function BlockPhoneButton({ storeId, phone, blockedId }: { storeId: strin
     return (
       <Button type="button" variant="outline" size="sm" className="h-9 w-full gap-1.5" onClick={run} disabled={pending}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
-        شيل الحظر عن الرقم
+        {tr("شيل الحظر عن الرقم")}
       </Button>
     );
   }
@@ -42,16 +43,16 @@ export function BlockPhoneButton({ storeId, phone, blockedId }: { storeId: strin
     <div className="grid grid-cols-2 gap-2">
       <Button type="button" variant="destructive" size="sm" className="h-9 gap-1.5" onClick={run} disabled={pending}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : <Ban className="size-4" />}
-        أيوه احظره
+        {tr("أيوه احظره")}
       </Button>
       <Button type="button" variant="outline" size="sm" className="h-9" onClick={() => setConfirming(false)} disabled={pending}>
-        رجوع
+        {tr("رجوع")}
       </Button>
     </div>
   ) : (
     <Button type="button" variant="outline" size="sm" className="h-9 w-full gap-1.5 text-destructive" onClick={() => setConfirming(true)}>
       <Ban className="size-4" />
-      احظر الرقم ده من متجرك
+      {tr("احظر الرقم ده من متجرك")}
     </Button>
   );
 }

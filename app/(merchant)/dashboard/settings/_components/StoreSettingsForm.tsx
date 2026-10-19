@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
   store: {
@@ -68,7 +69,7 @@ export default function StoreSettingsForm({ store }: Props) {
       available: true,
       normalizedSlug: store.slug,
       suggestedSlug: store.slug,
-      message: "ده اسم متجرك الحالي",
+      message: tr("ده اسم متجرك الحالي"),
     });
   const [isCheckingStoreName, setIsCheckingStoreName] = useState(false);
 
@@ -78,9 +79,9 @@ export default function StoreSettingsForm({ store }: Props) {
     if (!state.message) return;
 
     if (state.success) {
-      toast.success(state.message);
+      toast.success(trv(state.message));
     } else {
-      toast.error(state.message);
+      toast.error(trv(state.message));
     }
   }, [state]);
 
@@ -99,7 +100,7 @@ export default function StoreSettingsForm({ store }: Props) {
         available: true,
         normalizedSlug: store.slug,
         suggestedSlug: store.slug,
-        message: "ده اسم متجرك الحالي",
+        message: tr("ده اسم متجرك الحالي"),
       });
       setIsCheckingStoreName(false);
       return;
@@ -134,23 +135,23 @@ export default function StoreSettingsForm({ store }: Props) {
   const settings = store.settings;
 
   return (
-    <form action={formAction} className="space-y-8" dir="rtl">
+    <form action={formAction} className="space-y-8" dir={tdir()}>
       <input type="hidden" name="storeId" value={store.id} />
 
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <StoreIcon className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">بيانات المتجر</h3>
+          <h3 className="text-base font-semibold">{tr("بيانات المتجر")}</h3>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="storeName">اسم المتجر</Label>
+          <Label htmlFor="storeName">{tr("اسم المتجر")}</Label>
           <Input
             id="storeName"
             name="storeName"
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
-            placeholder="اكتب اسم متجرك"
+            placeholder={tr("اكتب اسم متجرك")}
           />
 
           {state.errors?.storeName && (
@@ -164,7 +165,7 @@ export default function StoreSettingsForm({ store }: Props) {
               {isCheckingStoreName ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="size-4 animate-spin" />
-                  <span>جارٍ فحص اسم المتجر...</span>
+                  <span>{tr("جارٍ فحص اسم المتجر...")}</span>
                 </div>
               ) : storeNameStatus ? (
                 <div className="space-y-3">
@@ -173,21 +174,21 @@ export default function StoreSettingsForm({ store }: Props) {
                       <>
                         <CheckCircle2 className="size-4 text-green-600" />
                         <span className="font-medium">
-                          {storeNameStatus.message}
+                          {trv(storeNameStatus.message)}
                         </span>
                       </>
                     ) : (
                       <>
                         <XCircle className="size-4 text-amber-600" />
                         <span className="font-medium">
-                          {storeNameStatus.message}
+                          {trv(storeNameStatus.message)}
                         </span>
                       </>
                     )}
                   </div>
 
                   <div className="space-y-1 text-sm">
-                    <p className="text-muted-foreground">رابط المتجر هيبقى:</p>
+                    <p className="text-muted-foreground">{tr("رابط المتجر هيبقى:")}</p>
                     <div
                       dir="ltr"
                       className="rounded-xl border bg-primary/10 px-3 py-2 font-medium"
@@ -201,7 +202,7 @@ export default function StoreSettingsForm({ store }: Props) {
 
                   <div className="space-y-1 text-sm">
                     <p className="text-muted-foreground">
-                      الاسم بعد التحويل للرابط:
+                      {tr("الاسم بعد التحويل للرابط:")}
                     </p>
                     <div
                       dir="ltr"
@@ -215,7 +216,7 @@ export default function StoreSettingsForm({ store }: Props) {
                     <div className="flex items-start gap-2 rounded-xl border border-dashed bg-background px-3 py-2 text-sm">
                       <Sparkles className="mt-0.5 size-4 text-primary" />
                       <p className="text-muted-foreground">
-                        الاسم ده متاخد، والبديل المتاح:
+                        {tr("الاسم ده متاخد، والبديل المتاح:")}
                         <span
                           className="mx-1 font-semibold text-foreground"
                           dir="ltr"
@@ -237,19 +238,19 @@ export default function StoreSettingsForm({ store }: Props) {
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <FileText className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">الشحن</h3>
+          <h3 className="text-base font-semibold">{tr("الشحن")}</h3>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="shippingPrice">سعر الشحن</Label>
+            <Label htmlFor="shippingPrice">{tr("سعر الشحن")}</Label>
             <Input
               id="shippingPrice"
               name="shippingPrice"
               type="number"
               min={0}
               step={1}
-              placeholder="مثال: 50"
+              placeholder={tr("مثال: 50")}
               defaultValue={settings?.shippingPrice ?? 0}
             />
 
@@ -260,7 +261,7 @@ export default function StoreSettingsForm({ store }: Props) {
             )}
 
             <p className="text-sm text-muted-foreground">
-              السعر اللي هيتضاف تلقائيًا على إجمالي الطلب.
+              {tr("السعر اللي هيتضاف تلقائيًا على إجمالي الطلب.")}
             </p>
           </div>
         </div>
@@ -270,7 +271,7 @@ export default function StoreSettingsForm({ store }: Props) {
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <Phone className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">روابط التواصل</h3>
+          <h3 className="text-base font-semibold">{tr("روابط التواصل")}</h3>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
@@ -308,12 +309,12 @@ export default function StoreSettingsForm({ store }: Props) {
           {isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              جاري الحفظ...
+              {tr("جاري الحفظ...")}
             </>
           ) : (
             <>
               <Save className="size-4" />
-              حفظ الإعدادات
+              {tr("حفظ الإعدادات")}
             </>
           )}
         </Button>

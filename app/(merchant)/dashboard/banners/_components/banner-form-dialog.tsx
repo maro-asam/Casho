@@ -53,6 +53,7 @@ import {
 } from "@/lib/banners/banner-link";
 import { imageSource, uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import { cn } from "@/lib/utils";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export type EditableBanner = {
   id: string;
@@ -116,7 +117,7 @@ type BannerFormDialogProps = BannerFormContext & {
 export function BannerFormDialog({ open, onOpenChange, ...props }: BannerFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent dir={tdir()} className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
         {/* Content unmounts on close, so each open starts from the record's current values. */}
         <BannerForm key={props.banner?.id ?? "new"} {...props} onDone={() => onOpenChange(false)} />
       </DialogContent>
@@ -179,8 +180,8 @@ function BannerForm({
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!image) return setError({ field: "image", message: "ضيف صورة للبانر." });
-    if (!title.trim()) return setError({ field: "title", message: "اكتب عنوان البانر." });
+    if (!image) return setError({ field: "image", message: tr("ضيف صورة للبانر.") });
+    if (!title.trim()) return setError({ field: "title", message: tr("اكتب عنوان البانر.") });
 
     startTransition(async () => {
       const input = {
@@ -203,26 +204,26 @@ function BannerForm({
       const result = banner ? await UpdateBannerAction(banner.id, storeId, input) : await CreateBannerAction(storeId, input);
       if (!result.ok) {
         if (result.field) setError({ field: result.field, message: result.message });
-        else toast.error(result.message);
+        else toast.error(trv(result.message));
         return;
       }
-      toast.success(banner ? "اتحفظت التعديلات" : `اتضاف بانر "${title.trim()}"`);
+      toast.success(banner ? tr("اتحفظت التعديلات") : tr("اتضاف بانر \"{0}\"", title.trim()));
       onDone();
     });
   }
 
   return (
     <form onSubmit={submit} className="min-w-0 space-y-6">
-      <DialogHeader className="text-right sm:text-right">
-        <DialogTitle>{isEdit ? "تعديل البانر" : "بانر جديد"}</DialogTitle>
-        <DialogDescription>البانرز بتظهر أعلى الصفحة الرئيسية لمتجرك — اختار الصورة والكلام والمكان اللي العميل يروحله.</DialogDescription>
+      <DialogHeader className="text-start sm:text-start">
+        <DialogTitle>{isEdit ? tr("تعديل البانر") : tr("بانر جديد")}</DialogTitle>
+        <DialogDescription>{tr("البانرز بتظهر أعلى الصفحة الرئيسية لمتجرك — اختار الصورة والكلام والمكان اللي العميل يروحله.")}</DialogDescription>
       </DialogHeader>
 
       {/* ── Art ─────────────────────────────────────────────────────────── */}
       <section className="space-y-3">
         <ImageField
           id="banner-image"
-          label="الصورة"
+          label={tr("الصورة")}
           value={image}
           onChange={(v) => {
             setImage(v);
@@ -242,7 +243,7 @@ function BannerForm({
             <div className="mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-sm font-medium">
                 <Smartphone className="size-4 text-muted-foreground" />
-                صورة الموبايل
+                {tr("صورة الموبايل")}
               </span>
               <Button
                 type="button"
@@ -256,7 +257,7 @@ function BannerForm({
                 disabled={busy}
               >
                 <X className="size-3.5" />
-                شيل
+                {tr("شيل")}
               </Button>
             </div>
             <ImageField
@@ -278,7 +279,7 @@ function BannerForm({
           >
             <Smartphone className="size-4" />
             <span className="flex-1">
-              صورة مخصصة للموبايل <span className="text-xs">(اختياري — بالطول، عشان الكلام اللي في الصورة ميتقصّش)</span>
+              {tr("صورة مخصصة للموبايل")}{" "}<span className="text-xs">{tr("(اختياري — بالطول، عشان الكلام اللي في الصورة ميتقصّش)")}</span>
             </span>
           </button>
         )}
@@ -286,7 +287,7 @@ function BannerForm({
 
       {/* ── Copy ────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
-        <CountedField id="banner-title" label="العنوان" count={title.trim().length} max={BANNER_TITLE_MAX}>
+        <CountedField id="banner-title" label={tr("العنوان")} count={title.trim().length} max={BANNER_TITLE_MAX}>
           <Input
             id="banner-title"
             value={title}
@@ -295,26 +296,26 @@ function BannerForm({
               setTitle(e.target.value);
               if (error?.field === "title") setError(null);
             }}
-            placeholder="مثال: خصم ٢٠٪ على الصيفي"
+            placeholder={tr("مثال: خصم ٢٠٪ على الصيفي")}
             aria-invalid={Boolean(errorFor("title")) || undefined}
             className="h-10"
           />
-          <FieldNote error={errorFor("title")}>بيظهر على البانر في أغلب الثيمات، وكنص بديل للصورة.</FieldNote>
+          <FieldNote error={errorFor("title")}>{tr("بيظهر على البانر في أغلب الثيمات، وكنص بديل للصورة.")}</FieldNote>
         </CountedField>
 
         <div className="grid gap-4 sm:grid-cols-[1fr_11rem]">
-          <CountedField id="banner-subtitle" label="وصف قصير" optional count={subtitle.trim().length} max={BANNER_SUBTITLE_MAX}>
+          <CountedField id="banner-subtitle" label={tr("وصف قصير")} optional count={subtitle.trim().length} max={BANNER_SUBTITLE_MAX}>
             <Input
               id="banner-subtitle"
               value={subtitle}
               maxLength={BANNER_SUBTITLE_MAX}
               onChange={(e) => setSubtitle(e.target.value)}
-              placeholder="مثال: لحد آخر الشهر أو لحد ما الكمية تخلص"
+              placeholder={tr("مثال: لحد آخر الشهر أو لحد ما الكمية تخلص")}
               className="h-10"
             />
             <FieldNote error={errorFor("subtitle")} />
           </CountedField>
-          <CountedField id="banner-cta" label="نص الزرار" optional count={ctaLabel.trim().length} max={BANNER_CTA_MAX}>
+          <CountedField id="banner-cta" label={tr("نص الزرار")} optional count={ctaLabel.trim().length} max={BANNER_CTA_MAX}>
             <Input
               id="banner-cta"
               value={ctaLabel}
@@ -332,11 +333,11 @@ function BannerForm({
       {/* ── Destination ─────────────────────────────────────────────────── */}
       <section className="space-y-3">
         <div>
-          <Label>البانر هيودّي العميل فين؟</Label>
-          <p className="mt-0.5 text-xs text-muted-foreground">لما العميل يدوس على البانر أو الزرار.</p>
+          <Label>{tr("البانر هيودّي العميل فين؟")}</Label>
+          <p className="mt-0.5 text-xs text-muted-foreground">{tr("لما العميل يدوس على البانر أو الزرار.")}</p>
         </div>
 
-        <div role="radiogroup" aria-label="وجهة البانر" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div role="radiogroup" aria-label={tr("وجهة البانر")} className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {LINK_ORDER.map((type) => {
             const Icon = LINK_ICONS[type];
             const selected = linkType === type;
@@ -390,8 +391,8 @@ function BannerForm({
           <span className="flex items-start gap-2.5">
             <CalendarClock className="mt-0.5 size-4 text-muted-foreground" />
             <span className="space-y-0.5">
-              <span className="block text-sm font-medium">جدولة البانر</span>
-              <span className="block text-xs text-muted-foreground">يظهر ويختفي لوحده في الوقت اللي تحدده — مناسب للعروض والمواسم.</span>
+              <span className="block text-sm font-medium">{tr("جدولة البانر")}</span>
+              <span className="block text-xs text-muted-foreground">{tr("يظهر ويختفي لوحده في الوقت اللي تحدده — مناسب للعروض والمواسم.")}</span>
             </span>
           </span>
           <Switch id="banner-scheduled" checked={scheduled} onCheckedChange={setScheduled} disabled={busy} />
@@ -401,13 +402,13 @@ function BannerForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="banner-start" className="text-xs">
-                يبدأ <span className="font-normal text-muted-foreground">(فاضي = من دلوقتي)</span>
+                {tr("يبدأ")}{" "}<span className="font-normal text-muted-foreground">{tr("(فاضي = من دلوقتي)")}</span>
               </Label>
               <Input id="banner-start" type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} className="text-xs" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="banner-end" className="text-xs">
-                ينتهي <span className="font-normal text-muted-foreground">(فاضي = مفتوح)</span>
+                {tr("ينتهي")}{" "}<span className="font-normal text-muted-foreground">{tr("(فاضي = مفتوح)")}</span>
               </Label>
               <Input id="banner-end" type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} className="text-xs" />
             </div>
@@ -417,8 +418,8 @@ function BannerForm({
 
         <label htmlFor="banner-active" className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-border p-3">
           <span className="space-y-0.5">
-            <span className="block text-sm font-medium">ظاهر في المتجر</span>
-            <span className="block text-xs text-muted-foreground">لو قفلته، البانر يفضل محفوظ بس العملاء مش هيشوفوه.</span>
+            <span className="block text-sm font-medium">{tr("ظاهر في المتجر")}</span>
+            <span className="block text-xs text-muted-foreground">{tr("لو قفلته، البانر يفضل محفوظ بس العملاء مش هيشوفوه.")}</span>
           </span>
           <Switch id="banner-active" checked={isActive} onCheckedChange={setIsActive} disabled={busy} />
         </label>
@@ -427,10 +428,10 @@ function BannerForm({
       <DialogFooter className="gap-2 sm:justify-start">
         <Button type="submit" disabled={busy} className="gap-1.5">
           {pending && <Loader2 className="size-4 animate-spin" />}
-          {isEdit ? "حفظ التعديلات" : "إضافة البانر"}
+          {isEdit ? tr("حفظ التعديلات") : tr("إضافة البانر")}
         </Button>
         <Button type="button" variant="outline" onClick={onDone} disabled={busy}>
-          إلغاء
+          {tr("إلغاء")}
         </Button>
       </DialogFooter>
     </form>
@@ -461,11 +462,11 @@ function LinkTargetField(props: LinkTargetFieldProps) {
   switch (linkType) {
     case "CATEGORY":
       return props.categories.length === 0 ? (
-        <EmptyHint text="لسه مفيش أقسام في متجرك." href="/categories" action="ضيف قسم" />
+        <EmptyHint text={tr("لسه مفيش أقسام في متجرك.")} href="/categories" action={tr("ضيف قسم")} />
       ) : (
-        <Select dir="rtl" value={props.categoryId} onValueChange={props.onCategory}>
+        <Select dir={tdir()} value={props.categoryId} onValueChange={props.onCategory}>
           <SelectTrigger className="h-10 w-full" aria-invalid={invalid || undefined}>
-            <SelectValue placeholder="اختار القسم" />
+            <SelectValue placeholder={tr("اختار القسم")} />
           </SelectTrigger>
           <SelectContent>
             {props.categories.map((c) => (
@@ -485,7 +486,7 @@ function LinkTargetField(props: LinkTargetFieldProps) {
         <Input
           value={value}
           onChange={(e) => onValue(e.target.value)}
-          placeholder="مثال: صيفي — هيفتح كل المنتجات اللي فيها الكلمة دي"
+          placeholder={tr("مثال: صيفي — هيفتح كل المنتجات اللي فيها الكلمة دي")}
           aria-invalid={invalid || undefined}
           className="h-10"
         />
@@ -493,7 +494,7 @@ function LinkTargetField(props: LinkTargetFieldProps) {
 
     case "PAGE":
       return (
-        <Select dir="rtl" value={value || "categories"} onValueChange={onValue}>
+        <Select dir={tdir()} value={value || "categories"} onValueChange={onValue}>
           <SelectTrigger className="h-10 w-full">
             <SelectValue />
           </SelectTrigger>
@@ -510,13 +511,13 @@ function LinkTargetField(props: LinkTargetFieldProps) {
     case "WHATSAPP":
       return (
         <div className="space-y-2">
-          {!props.whatsapp && <EmptyHint text="مفيش رقم واتساب في إعدادات متجرك — البانر هيودّي على المنتجات لحد ما تضيفه." href="/settings" action="ضيف الرقم" />}
+          {!props.whatsapp && <EmptyHint text={tr("مفيش رقم واتساب في إعدادات متجرك — البانر هيودّي على المنتجات لحد ما تضيفه.")} href="/settings" action={tr("ضيف الرقم")} />}
           <Textarea
             value={value}
             onChange={(e) => onValue(e.target.value)}
             rows={2}
             maxLength={300}
-            placeholder="الرسالة اللي هتتكتب للعميل جاهزة، مثال: عايز أعرف تفاصيل عرض الصيف"
+            placeholder={tr("الرسالة اللي هتتكتب للعميل جاهزة، مثال: عايز أعرف تفاصيل عرض الصيف")}
             className="resize-none text-sm"
           />
         </div>
@@ -531,14 +532,14 @@ function LinkTargetField(props: LinkTargetFieldProps) {
               dir="ltr"
               value={value}
               onChange={(e) => onValue(e.target.value)}
-              placeholder="https://… أو /products?sort=price-asc"
+              placeholder={tr("https://… أو /products?sort=price-asc")}
               aria-invalid={invalid || undefined}
               className="h-10 ps-9"
             />
           </div>
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <Switch checked={props.newTab} onCheckedChange={props.onNewTab} className="scale-90" />
-            افتح الرابط في تبويب جديد
+            {tr("افتح الرابط في تبويب جديد")}
           </label>
         </div>
       );
@@ -559,7 +560,7 @@ function DestinationPreview({
   storefrontUrl: string;
 }) {
   if (!link) {
-    return <p className="text-xs text-muted-foreground">البانر هيظهر كصورة بس، من غير زرار ومن غير ما يتداس عليه.</p>;
+    return <p className="text-xs text-muted-foreground">{tr("البانر هيظهر كصورة بس، من غير زرار ومن غير ما يتداس عليه.")}</p>;
   }
   const href = link.external ? link.href : `${storefrontUrl}${link.href}`;
   const display = href.replace(/^https?:\/\//, "");
@@ -568,7 +569,7 @@ function DestinationPreview({
 
   return (
     <div className="flex items-center gap-2 rounded-md bg-muted/60 px-3 py-2 text-xs">
-      <span className="shrink-0 text-muted-foreground">{pendingPick ? "لحد ما تختار:" : "العميل هيروح على:"}</span>
+      <span className="shrink-0 text-muted-foreground">{pendingPick ? tr("لحد ما تختار:") : tr("العميل هيروح على:")}</span>
       <a href={href} target="_blank" rel="noreferrer" dir="ltr" className="min-w-0 flex-1 truncate font-mono text-foreground hover:underline">
         {decodeURI(display)}
       </a>
@@ -621,10 +622,10 @@ function ProductPicker({
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{value.name}</p>
-          {!value.isActive && <p className="text-xs text-amber-600">المنتج ده مخفي — البانر هيودّي على كل المنتجات لحد ما تظهره.</p>}
+          {!value.isActive && <p className="text-xs text-amber-600">{tr("المنتج ده مخفي — البانر هيودّي على كل المنتجات لحد ما تظهره.")}</p>}
         </div>
         <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={() => onChange(null)}>
-          تغيير
+          {tr("تغيير")}
         </Button>
       </div>
     );
@@ -637,14 +638,14 @@ function ProductPicker({
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ابحث باسم المنتج أو الـ SKU"
+          placeholder={tr("ابحث باسم المنتج أو الـ SKU")}
           className="h-10 rounded-none border-0 ps-9 shadow-none focus-visible:ring-0"
           autoFocus
         />
         {loading && <Loader2 className="absolute inset-y-0 end-3 my-auto size-4 animate-spin text-muted-foreground" />}
       </div>
-      <ul className="max-h-56 overflow-y-auto p-1" role="listbox" aria-label="المنتجات">
-        {results?.length === 0 && <li className="px-3 py-6 text-center text-xs text-muted-foreground">مفيش منتجات بالاسم ده.</li>}
+      <ul className="max-h-56 overflow-y-auto p-1" role="listbox" aria-label={tr("المنتجات")}>
+        {results?.length === 0 && <li className="px-3 py-6 text-center text-xs text-muted-foreground">{tr("مفيش منتجات بالاسم ده.")}</li>}
         {results?.map((p) => (
           <li key={p.id}>
             <button
@@ -658,7 +659,7 @@ function ProductPicker({
                 <Image src={p.image} alt="" fill sizes="36px" className="object-cover" />
               </span>
               <span className="min-w-0 flex-1 truncate text-sm">{p.name}</span>
-              {!p.isActive && <span className="shrink-0 text-[11px] text-muted-foreground">مخفي</span>}
+              {!p.isActive && <span className="shrink-0 text-[11px] text-muted-foreground">{tr("مخفي")}</span>}
             </button>
           </li>
         ))}
@@ -700,7 +701,7 @@ function CountedField({
       <div className="flex items-center justify-between">
         <Label htmlFor={id}>
           {label}
-          {optional && <span className="ms-1 text-xs font-normal text-muted-foreground">(اختياري)</span>}
+          {optional && <span className="ms-1 text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>}
         </Label>
         <span className="text-xs text-muted-foreground tabular-nums">
           {count}/{max}
@@ -767,7 +768,7 @@ function ImageField({
       onUploading(true);
       onChange(await uploadImageToCloudinary(file, UPLOAD_FOLDER));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل رفع الصورة");
+      toast.error(err instanceof Error ? err.message : tr("فشل رفع الصورة"));
     } finally {
       setUploading(false);
       onUploading(false);
@@ -780,11 +781,11 @@ function ImageField({
         <div className="flex items-center justify-between">
           {label ? <Label>{label}</Label> : <span />}
           {!value && (
-            <div className="flex rounded-lg bg-muted p-0.5 text-xs" role="tablist" aria-label="طريقة إضافة الصورة">
+            <div className="flex rounded-lg bg-muted p-0.5 text-xs" role="tablist" aria-label={tr("طريقة إضافة الصورة")}>
               {(
                 [
-                  ["upload", "رفع"],
-                  ["link", "رابط"],
+                  ["upload", tr("رفع")],
+                  ["link", tr("رابط")],
                 ] as const
               ).map(([m, text]) => (
                 <button
@@ -820,7 +821,7 @@ function ImageField({
               <Button asChild type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs" disabled={disabled}>
                 <label htmlFor={inputId} className="cursor-pointer">
                   {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
-                  تغيير
+                  {tr("تغيير")}
                 </label>
               </Button>
               <Button
@@ -831,7 +832,7 @@ function ImageField({
                 onClick={() => onChange("")}
                 disabled={disabled}
               >
-                شيل
+                {tr("شيل")}
               </Button>
             </div>
           </div>
@@ -849,18 +850,17 @@ function ImageField({
           {uploading ? (
             <>
               <Loader2 className="size-5 animate-spin text-primary" />
-              <span className="text-sm font-medium">بنرفع الصورة…</span>
+              <span className="text-sm font-medium">{tr("بنرفع الصورة…")}</span>
             </>
           ) : (
             <>
               <Upload className="size-5 text-muted-foreground" />
-              <span className="text-sm font-medium">اضغط لرفع صورة</span>
+              <span className="text-sm font-medium">{tr("اضغط لرفع صورة")}</span>
               <span className="text-xs text-muted-foreground">
-                أفضل مقاس{" "}
+                {tr("أفضل مقاس")}{" "}
                 <span className="font-mono" dir="ltr">
                   {sizeHint}
-                </span>{" "}
-                — لحد ٥ ميجا
+                </span>{" "}{tr("— لحد ٥ ميجا")}
               </span>
             </>
           )}
@@ -903,7 +903,7 @@ function LinkInput({ onSubmit, invalid, aspect }: { onSubmit: (url: string) => v
           />
         </div>
         <Button type="button" variant="outline" disabled={!valid} onClick={() => onSubmit(value.trim())}>
-          استخدام
+          {tr("استخدام")}
         </Button>
       </div>
     </div>

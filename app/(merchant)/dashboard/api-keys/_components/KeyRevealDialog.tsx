@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 interface Props {
   open: boolean;
@@ -26,7 +27,7 @@ export default function KeyRevealDialog({ open, rawKey, name, onClose }: Props) 
   async function handleCopy() {
     await navigator.clipboard.writeText(rawKey);
     setCopied(true);
-    toast.success("تم نسخ المفتاح");
+    toast.success(tr("تم نسخ المفتاح"));
     setTimeout(() => setCopied(false), 3000);
   }
 
@@ -37,13 +38,13 @@ export default function KeyRevealDialog({ open, rawKey, name, onClose }: Props) 
         if (!isOpen) onClose();
       }}
     >
-      <DialogContent dir="rtl" className="max-w-md">
+      <DialogContent dir={tdir()} className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <span>مفتاح API جديد</span>
+            <span>{tr("مفتاح API جديد")}</span>
           </DialogTitle>
           <DialogDescription>
-            تم إنشاء مفتاح <strong>{name}</strong> بنجاح.
+            {tr("تم إنشاء مفتاح")}{" "}<strong>{name}</strong>{" "}{tr("بنجاح.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -51,17 +52,17 @@ export default function KeyRevealDialog({ open, rawKey, name, onClose }: Props) 
           <div className="flex items-center gap-2 rounded-xl border bg-amber-500/5 p-3">
             <AlertTriangle className="size-4 shrink-0 text-amber-600" />
             <p className="text-xs text-amber-700 dark:text-amber-400">
-              هذا المفتاح لن يُعرض مرة أخرى. انسخه الآن واحتفظ به في مكان آمن.
+              {tr("هذا المفتاح لن يُعرض مرة أخرى. انسخه الآن واحتفظ به في مكان آمن.")}
             </p>
           </div>
 
           {/* Key display */}
           <div className="group relative rounded-xl border bg-muted/40 p-3 font-mono text-sm" dir="ltr">
-            <p className="break-all pr-8 text-xs sm:text-sm">{rawKey}</p>
+            <p className="break-all ps-8 text-xs sm:text-sm">{rawKey}</p>
             <button
               onClick={handleCopy}
-              className="absolute left-2 top-2.5 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              title="نسخ"
+              className="absolute end-2 top-2.5 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              title={tr("نسخ")}
             >
               {copied ? (
                 <CheckCheck className="size-4 text-emerald-500" />
@@ -73,7 +74,7 @@ export default function KeyRevealDialog({ open, rawKey, name, onClose }: Props) 
 
           {/* Usage example */}
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground">مثال الاستخدام:</p>
+            <p className="text-xs font-medium text-muted-foreground">{tr("مثال الاستخدام:")}</p>
             <div className="rounded-xl border bg-muted/40 px-3 py-2 font-mono text-xs" dir="ltr">
               <span className="text-muted-foreground">curl </span>
               <span className="text-foreground">https://app.casho.store/api/v1/orders</span>
@@ -87,7 +88,7 @@ export default function KeyRevealDialog({ open, rawKey, name, onClose }: Props) 
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={onClose}>حسناً، احتفظت بالمفتاح</Button>
+          <Button onClick={onClose}>{tr("حسناً، احتفظت بالمفتاح")}</Button>
         </div>
       </DialogContent>
     </Dialog>

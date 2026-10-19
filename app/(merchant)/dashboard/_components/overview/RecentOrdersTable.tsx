@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { CHANNELS, formatMoney } from "./format";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type RecentOrder = {
   id: string;
@@ -18,14 +19,14 @@ export type RecentOrder = {
 };
 
 const STATUS: Record<OrderStatus, { label: string; className: string }> = {
-  PENDING: { label: "قيد المراجعة", className: "bg-amber-500/10 text-amber-700 dark:text-amber-400" },
-  PAID: { label: "مدفوع", className: "bg-sky-500/10 text-sky-700 dark:text-sky-400" },
-  SHIPPED: { label: "تم الشحن", className: "bg-violet-500/10 text-violet-700 dark:text-violet-400" },
-  DELIVERED: { label: "تم التسليم", className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" },
-  CANCELED: { label: "ملغي", className: "bg-muted text-muted-foreground" },
+  PENDING: { get label() { return tr("قيد المراجعة"); }, className: "bg-amber-500/10 text-amber-700 dark:text-amber-400" },
+  PAID: { get label() { return tr("مدفوع"); }, className: "bg-sky-500/10 text-sky-700 dark:text-sky-400" },
+  SHIPPED: { get label() { return tr("تم الشحن"); }, className: "bg-violet-500/10 text-violet-700 dark:text-violet-400" },
+  DELIVERED: { get label() { return tr("تم التسليم"); }, className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" },
+  CANCELED: { get label() { return tr("ملغي"); }, className: "bg-muted text-muted-foreground" },
 };
 
-const dateFormat = new Intl.DateTimeFormat("ar-EG", {
+const dateFormat = lazyIntl.date({
   timeZone: "Africa/Cairo",
   day: "numeric",
   month: "short",
@@ -38,13 +39,13 @@ export default function RecentOrdersTable({ orders }: { orders: RecentOrder[] })
     <Card className="gap-0 rounded-xl py-0 shadow-none">
       <CardHeader className="flex flex-row items-center justify-between gap-4 p-5 pb-3">
         <div className="space-y-1">
-          <CardTitle className="text-base font-semibold">آخر الطلبات</CardTitle>
-          <p className="text-xs text-muted-foreground">أحدث طلبات المتجر والكاشير</p>
+          <CardTitle className="text-base font-semibold">{tr("آخر الطلبات")}</CardTitle>
+          <p className="text-xs text-muted-foreground">{tr("أحدث طلبات المتجر والكاشير")}</p>
         </div>
         <Button asChild variant="ghost" size="sm" className="gap-1 text-xs">
           <Link href="/orders">
-            عرض الكل
-            <ArrowLeft className="size-3.5" />
+            {tr("عرض الكل")}
+            <ArrowLeft className="size-3.5 ltr:-scale-x-100" />
           </Link>
         </Button>
       </CardHeader>
@@ -54,11 +55,11 @@ export default function RecentOrdersTable({ orders }: { orders: RecentOrder[] })
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="ps-5 text-right text-xs">الطلب</TableHead>
-                <TableHead className="hidden text-right text-xs md:table-cell">القناة</TableHead>
-                <TableHead className="text-right text-xs">الحالة</TableHead>
-                <TableHead className="hidden text-right text-xs lg:table-cell">التاريخ</TableHead>
-                <TableHead className="pe-5 text-left text-xs">المبلغ</TableHead>
+                <TableHead className="ps-5 text-start text-xs">{tr("الطلب")}</TableHead>
+                <TableHead className="hidden text-start text-xs md:table-cell">{tr("القناة")}</TableHead>
+                <TableHead className="text-start text-xs">{tr("الحالة")}</TableHead>
+                <TableHead className="hidden text-start text-xs lg:table-cell">{tr("التاريخ")}</TableHead>
+                <TableHead className="pe-5 text-end text-xs">{tr("المبلغ")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -94,7 +95,7 @@ export default function RecentOrdersTable({ orders }: { orders: RecentOrder[] })
                     <TableCell className="hidden text-xs text-muted-foreground lg:table-cell">
                       {dateFormat.format(order.createdAt)}
                     </TableCell>
-                    <TableCell className="pe-5 text-left text-sm font-semibold tabular-nums">
+                    <TableCell className="pe-5 text-end text-sm font-semibold tabular-nums">
                       {formatMoney(order.total)}
                     </TableCell>
                   </TableRow>
@@ -105,8 +106,8 @@ export default function RecentOrdersTable({ orders }: { orders: RecentOrder[] })
         ) : (
           <div className="mx-5 mb-5 flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border py-12 text-center">
             <ShoppingCart className="size-5 text-muted-foreground" />
-            <p className="text-sm font-medium">لسه مفيش طلبات</p>
-            <p className="text-xs text-muted-foreground">شارك لينك متجرك وأول طلب هيظهر هنا.</p>
+            <p className="text-sm font-medium">{tr("لسه مفيش طلبات")}</p>
+            <p className="text-xs text-muted-foreground">{tr("شارك لينك متجرك وأول طلب هيظهر هنا.")}</p>
           </div>
         )}
       </CardContent>

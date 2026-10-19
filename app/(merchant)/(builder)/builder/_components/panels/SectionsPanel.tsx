@@ -69,6 +69,7 @@ import type {
   SectionContentMap,
 } from "@/types/store-theme.types";
 import { DEFAULT_SECTION_ORDER } from "@/types/store-theme.types";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 // ─── Section metadata ─────────────────────────────────────────────────────────
 
@@ -80,22 +81,22 @@ type SectionMeta = {
 };
 
 const SECTION_META: Record<SectionKey, SectionMeta> = {
-  showHero:            { icon: ImageIcon,     label: "البانر الرئيسي",    category: "core" },
-  showCategories:      { icon: LayoutGrid,    label: "التصنيفات",          category: "core" },
-  showFeaturedProducts:{ icon: Star,          label: "المنتجات المميزة",   category: "core" },
-  showLatestProducts:  { icon: Clock,         label: "أحدث المنتجات",      category: "core" },
-  showOfferStrip:      { icon: Megaphone,     label: "شريط العروض",        category: "funnel", badge: "جديد" },
-  showSocialProof:     { icon: Users,         label: "إثبات الثقة",        category: "funnel", badge: "جديد" },
-  showBestSellers:     { icon: TrendingUp,    label: "الأكثر مبيعًا",      category: "funnel", badge: "جديد" },
-  showCollections:     { icon: FolderOpen,    label: "المجموعات",           category: "funnel", badge: "جديد" },
-  showWhyChooseUs:     { icon: ThumbsUp,      label: "لماذا تختارنا؟",     category: "funnel", badge: "جديد" },
-  showTestimonials:    { icon: MessageSquare, label: "آراء العملاء",        category: "funnel", badge: "جديد" },
-  showUrgency:         { icon: Timer,         label: "عرض عاجل",            category: "funnel", badge: "جديد" },
-  showAboutBrand:      { icon: Store,         label: "نبذة عن المتجر",     category: "funnel", badge: "جديد" },
-  showNewsletter:      { icon: Mail,          label: "الاشتراك البريدي",   category: "funnel", badge: "جديد" },
+  showHero:            { icon: ImageIcon,     get label() { return tr("البانر الرئيسي"); },    category: "core" },
+  showCategories:      { icon: LayoutGrid,    get label() { return tr("التصنيفات"); },          category: "core" },
+  showFeaturedProducts:{ icon: Star,          get label() { return tr("المنتجات المميزة"); },   category: "core" },
+  showLatestProducts:  { icon: Clock,         get label() { return tr("أحدث المنتجات"); },      category: "core" },
+  showOfferStrip:      { icon: Megaphone,     get label() { return tr("شريط العروض"); },        category: "funnel", get badge() { return tr("جديد"); } },
+  showSocialProof:     { icon: Users,         get label() { return tr("إثبات الثقة"); },        category: "funnel", get badge() { return tr("جديد"); } },
+  showBestSellers:     { icon: TrendingUp,    get label() { return tr("الأكثر مبيعًا"); },      category: "funnel", get badge() { return tr("جديد"); } },
+  showCollections:     { icon: FolderOpen,    get label() { return tr("المجموعات"); },           category: "funnel", get badge() { return tr("جديد"); } },
+  showWhyChooseUs:     { icon: ThumbsUp,      get label() { return tr("لماذا تختارنا؟"); },     category: "funnel", get badge() { return tr("جديد"); } },
+  showTestimonials:    { icon: MessageSquare, get label() { return tr("آراء العملاء"); },        category: "funnel", get badge() { return tr("جديد"); } },
+  showUrgency:         { icon: Timer,         get label() { return tr("عرض عاجل"); },            category: "funnel", get badge() { return tr("جديد"); } },
+  showAboutBrand:      { icon: Store,         get label() { return tr("نبذة عن المتجر"); },     category: "funnel", get badge() { return tr("جديد"); } },
+  showNewsletter:      { icon: Mail,          get label() { return tr("الاشتراك البريدي"); },   category: "funnel", get badge() { return tr("جديد"); } },
   // ── Visual Builder ──────────────────────────────────────────────────────
-  showHeroBanner:      { icon: Sparkles,      label: "بانر مخصص",          category: "funnel", badge: "Builder" },
-  showRichText:        { icon: FileText,      label: "نص غني",              category: "funnel", badge: "Builder" },
+  showHeroBanner:      { icon: Sparkles,      get label() { return tr("بانر مخصص"); },          category: "funnel", badge: "Builder" },
+  showRichText:        { icon: FileText,      get label() { return tr("نص غني"); },              category: "funnel", badge: "Builder" },
 };
 
 const FUNNEL_KEYS: SectionKey[] = [
@@ -108,13 +109,13 @@ const FUNNEL_KEYS: SectionKey[] = [
 // ─── Inline editors (compact versions for the builder panel) ─────────────────
 
 function OfferStripEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["offerStrip"] }) {
-  const [items, setItems] = useState<string[]>(content?.items ?? ["🚚 توصيل سريع", "✅ ضمان 30 يوم", "💳 الدفع عند الاستلام"]);
+  const [items, setItems] = useState<string[]>(content?.items ?? [tr("🚚 توصيل سريع"), tr("✅ ضمان 30 يوم"), tr("💳 الدفع عند الاستلام")]);
   const [isPending, startTransition] = useTransition();
   const { reloadPreview } = useBuilder();
   const save = () => startTransition(async () => {
     const res = await UpdateSectionContentAction({ storeId, updates: { offerStrip: { items: items.filter(Boolean) } } });
-    if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-    else toast.error(res.message);
+    if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+    else toast.error(trv(res.message));
   });
   return (
     <div className="space-y-1.5">
@@ -128,10 +129,10 @@ function OfferStripEditor({ storeId, content }: { storeId: string; content?: Sec
       ))}
       <div className="flex gap-1.5">
         <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setItems([...items,""])}>
-          <Plus className="size-3" />إضافة
+          <Plus className="size-3" />{tr("إضافة")}
         </Button>
         <Button size="sm" className="h-7 text-xs gap-1" onClick={save} disabled={isPending}>
-          <Save className="size-3" />حفظ
+          <Save className="size-3" />{tr("حفظ")}
         </Button>
       </div>
     </div>
@@ -139,111 +140,111 @@ function OfferStripEditor({ storeId, content }: { storeId: string; content?: Sec
 }
 
 function SocialProofEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["socialProof"] }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "لماذا يثق بنا آلاف العملاء؟");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("لماذا يثق بنا آلاف العملاء؟"));
   const [stats, setStats] = useState(content?.stats ?? [
-    { icon: "😊", value: "10,000+", label: "عميل سعيد" },
-    { icon: "⭐", value: "4.9", label: "متوسط التقييم" },
-    { icon: "🚚", value: "24h", label: "متوسط التوصيل" },
-    { icon: "🔄", value: "30 يوم", label: "ضمان الاسترجاع" },
+    { icon: "😊", value: "10,000+", label: tr("عميل سعيد") },
+    { icon: "⭐", value: "4.9", label: tr("متوسط التقييم") },
+    { icon: "🚚", value: "24h", label: tr("متوسط التوصيل") },
+    { icon: "🔄", value: tr("30 يوم"), label: tr("ضمان الاسترجاع") },
   ]);
   const [isPending, startTransition] = useTransition();
   const { reloadPreview } = useBuilder();
   const save = () => startTransition(async () => {
     const res = await UpdateSectionContentAction({ storeId, updates: { socialProof: { headline, stats } } });
-    if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-    else toast.error(res.message);
+    if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+    else toast.error(trv(res.message));
   });
   return (
     <div className="space-y-2">
-      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder="عنوان القسم" className="h-8 text-xs" />
+      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder={tr("عنوان القسم")} className="h-8 text-xs" />
       <div className="space-y-1.5">
         {stats.map((stat, i) => (
           <div key={i} className="grid grid-cols-[1.75rem_1fr_1fr] gap-1">
             <Input value={stat.icon} onChange={(e)=>{const n=[...stats];n[i]={...n[i],icon:e.target.value};setStats(n);}} className="h-8 text-center text-xs px-1" maxLength={4} />
-            <Input value={stat.value} onChange={(e)=>{const n=[...stats];n[i]={...n[i],value:e.target.value};setStats(n);}} placeholder="القيمة" className="h-8 text-xs" />
-            <Input value={stat.label} onChange={(e)=>{const n=[...stats];n[i]={...n[i],label:e.target.value};setStats(n);}} placeholder="التسمية" className="h-8 text-xs" />
+            <Input value={stat.value} onChange={(e)=>{const n=[...stats];n[i]={...n[i],value:e.target.value};setStats(n);}} placeholder={tr("القيمة")} className="h-8 text-xs" />
+            <Input value={stat.label} onChange={(e)=>{const n=[...stats];n[i]={...n[i],label:e.target.value};setStats(n);}} placeholder={tr("التسمية")} className="h-8 text-xs" />
           </div>
         ))}
       </div>
       <Button size="sm" className="h-7 text-xs gap-1 w-full" onClick={save} disabled={isPending}>
-        <Save className="size-3" />حفظ
+        <Save className="size-3" />{tr("حفظ")}
       </Button>
     </div>
   );
 }
 
 function WhyChooseUsEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["whyChooseUs"] }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "لماذا تتسوق معنا؟");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("لماذا تتسوق معنا؟"));
   const [cards, setCards] = useState(content?.cards ?? [
-    { icon: "🛡️", title: "ضمان الجودة", description: "فحص دقيق قبل الشحن" },
-    { icon: "🚀", title: "شحن سريع", description: "24-48 ساعة لجميع المحافظات" },
-    { icon: "💬", title: "دعم متواصل", description: "فريق الدعم جاهز في أي وقت" },
-    { icon: "🔄", title: "إرجاع مجاني", description: "ارجع المنتج خلال 30 يوم" },
+    { icon: "🛡️", title: tr("ضمان الجودة"), description: tr("فحص دقيق قبل الشحن") },
+    { icon: "🚀", title: tr("شحن سريع"), description: tr("24-48 ساعة لجميع المحافظات") },
+    { icon: "💬", title: tr("دعم متواصل"), description: tr("فريق الدعم جاهز في أي وقت") },
+    { icon: "🔄", title: tr("إرجاع مجاني"), description: tr("ارجع المنتج خلال 30 يوم") },
   ]);
   const [isPending, startTransition] = useTransition();
   const { reloadPreview } = useBuilder();
   const save = () => startTransition(async () => {
     const res = await UpdateSectionContentAction({ storeId, updates: { whyChooseUs: { headline, cards } } });
-    if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-    else toast.error(res.message);
+    if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+    else toast.error(trv(res.message));
   });
   return (
     <div className="space-y-2">
-      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder="عنوان القسم" className="h-8 text-xs" />
+      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder={tr("عنوان القسم")} className="h-8 text-xs" />
       <div className="space-y-1.5">
         {cards.map((card, i) => (
           <div key={i} className="rounded-lg border p-2 space-y-1.5">
             <div className="flex gap-1.5">
               <Input value={card.icon} onChange={(e)=>{const n=[...cards];n[i]={...n[i],icon:e.target.value};setCards(n);}} className="h-7 w-12 text-center text-xs px-1" maxLength={4} />
-              <Input value={card.title} onChange={(e)=>{const n=[...cards];n[i]={...n[i],title:e.target.value};setCards(n);}} placeholder="العنوان" className="h-7 flex-1 text-xs" />
+              <Input value={card.title} onChange={(e)=>{const n=[...cards];n[i]={...n[i],title:e.target.value};setCards(n);}} placeholder={tr("العنوان")} className="h-7 flex-1 text-xs" />
             </div>
-            <Input value={card.description} onChange={(e)=>{const n=[...cards];n[i]={...n[i],description:e.target.value};setCards(n);}} placeholder="الوصف" className="h-7 text-xs" />
+            <Input value={card.description} onChange={(e)=>{const n=[...cards];n[i]={...n[i],description:e.target.value};setCards(n);}} placeholder={tr("الوصف")} className="h-7 text-xs" />
           </div>
         ))}
       </div>
       <Button size="sm" className="h-7 text-xs gap-1 w-full" onClick={save} disabled={isPending}>
-        <Save className="size-3" />حفظ
+        <Save className="size-3" />{tr("حفظ")}
       </Button>
     </div>
   );
 }
 
 function TestimonialsEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["testimonials"] }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "ماذا يقول عملاؤنا؟");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("ماذا يقول عملاؤنا؟"));
   const [items, setItems] = useState(content?.items ?? [
-    { name: "أحمد محمد", text: "منتجات ممتازة وجودة عالية", rating: 5 },
-    { name: "سارة أحمد", text: "أفضل متجر تسوقت منه", rating: 5 },
+    { name: tr("أحمد محمد"), text: tr("منتجات ممتازة وجودة عالية"), rating: 5 },
+    { name: tr("سارة أحمد"), text: tr("أفضل متجر تسوقت منه"), rating: 5 },
   ]);
   const [isPending, startTransition] = useTransition();
   const { reloadPreview } = useBuilder();
   const save = () => startTransition(async () => {
     const res = await UpdateSectionContentAction({ storeId, updates: { testimonials: { headline, items } } });
-    if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-    else toast.error(res.message);
+    if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+    else toast.error(trv(res.message));
   });
   return (
     <div className="space-y-2">
-      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder="عنوان القسم" className="h-8 text-xs" />
+      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder={tr("عنوان القسم")} className="h-8 text-xs" />
       <div className="space-y-1.5">
         {items.map((item, i) => (
           <div key={i} className="rounded-lg border p-2 space-y-1.5">
             <div className="flex gap-1.5">
-              <Input value={item.name} onChange={(e)=>{const n=[...items];n[i]={...n[i],name:e.target.value};setItems(n);}} placeholder="الاسم" className="h-7 flex-1 text-xs" />
+              <Input value={item.name} onChange={(e)=>{const n=[...items];n[i]={...n[i],name:e.target.value};setItems(n);}} placeholder={tr("الاسم")} className="h-7 flex-1 text-xs" />
               <Input type="number" min={1} max={5} value={item.rating??5} onChange={(e)=>{const n=[...items];n[i]={...n[i],rating:Number(e.target.value)};setItems(n);}} className="h-7 w-12 text-center text-xs" />
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={()=>setItems(items.filter((_,j)=>j!==i))}>
                 <Trash2 className="size-3 text-destructive" />
               </Button>
             </div>
-            <Textarea value={item.text} onChange={(e)=>{const n=[...items];n[i]={...n[i],text:e.target.value};setItems(n);}} placeholder="التقييم..." className="text-xs resize-none" rows={2} />
+            <Textarea value={item.text} onChange={(e)=>{const n=[...items];n[i]={...n[i],text:e.target.value};setItems(n);}} placeholder={tr("التقييم...")} className="text-xs resize-none" rows={2} />
           </div>
         ))}
       </div>
       <div className="flex gap-1.5">
         <Button variant="outline" size="sm" className="h-7 text-xs gap-1 flex-1" onClick={()=>setItems([...items,{name:"",text:"",rating:5}])}>
-          <Plus className="size-3" />إضافة
+          <Plus className="size-3" />{tr("إضافة")}
         </Button>
         <Button size="sm" className="h-7 text-xs gap-1 flex-1" onClick={save} disabled={isPending}>
-          <Save className="size-3" />حفظ
+          <Save className="size-3" />{tr("حفظ")}
         </Button>
       </div>
     </div>
@@ -253,55 +254,55 @@ function TestimonialsEditor({ storeId, content }: { storeId: string; content?: S
 function AboutBrandEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["aboutBrand"] }) {
   const [headline, setHeadline] = useState(content?.headline ?? "");
   const [text, setText] = useState(content?.text ?? "");
-  const [ctaText, setCtaText] = useState(content?.ctaText ?? "اعرف أكثر");
+  const [ctaText, setCtaText] = useState(content?.ctaText ?? tr("اعرف أكثر"));
   const [ctaLink, setCtaLink] = useState(content?.ctaLink ?? "/about");
   const [isPending, startTransition] = useTransition();
   const { reloadPreview } = useBuilder();
   const save = () => startTransition(async () => {
     const res = await UpdateSectionContentAction({ storeId, updates: { aboutBrand: { headline, text, ctaText, ctaLink } } });
-    if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-    else toast.error(res.message);
+    if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+    else toast.error(trv(res.message));
   });
   return (
     <div className="space-y-1.5">
-      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder="العنوان الرئيسي" className="h-8 text-xs" />
-      <Textarea value={text} onChange={(e)=>setText(e.target.value)} placeholder="نبذة قصيرة..." className="text-xs resize-none" rows={3} />
+      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder={tr("العنوان الرئيسي")} className="h-8 text-xs" />
+      <Textarea value={text} onChange={(e)=>setText(e.target.value)} placeholder={tr("نبذة قصيرة...")} className="text-xs resize-none" rows={3} />
       <div className="grid grid-cols-2 gap-1.5">
-        <Input value={ctaText} onChange={(e)=>setCtaText(e.target.value)} placeholder="نص الزر" className="h-8 text-xs" />
+        <Input value={ctaText} onChange={(e)=>setCtaText(e.target.value)} placeholder={tr("نص الزر")} className="h-8 text-xs" />
         <Input value={ctaLink} onChange={(e)=>setCtaLink(e.target.value)} placeholder="/about" className="h-8 text-xs" />
       </div>
       <Button size="sm" className="h-7 text-xs gap-1 w-full" onClick={save} disabled={isPending}>
-        <Save className="size-3" />حفظ
+        <Save className="size-3" />{tr("حفظ")}
       </Button>
     </div>
   );
 }
 
 function NewsletterEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["newsletter"] }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "اشترك واحصل على خصم 15% 🎁");
-  const [subheadline, setSubheadline] = useState(content?.subheadline ?? "كن أول من يعرف عن العروض");
-  const [ctaText, setCtaText] = useState(content?.ctaText ?? "اشترك الآن");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("اشترك واحصل على خصم 15% 🎁"));
+  const [subheadline, setSubheadline] = useState(content?.subheadline ?? tr("كن أول من يعرف عن العروض"));
+  const [ctaText, setCtaText] = useState(content?.ctaText ?? tr("اشترك الآن"));
   const [isPending, startTransition] = useTransition();
   const { reloadPreview } = useBuilder();
   const save = () => startTransition(async () => {
     const res = await UpdateSectionContentAction({ storeId, updates: { newsletter: { headline, subheadline, ctaText } } });
-    if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-    else toast.error(res.message);
+    if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+    else toast.error(trv(res.message));
   });
   return (
     <div className="space-y-1.5">
-      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder="العنوان" className="h-8 text-xs" />
-      <Input value={subheadline} onChange={(e)=>setSubheadline(e.target.value)} placeholder="العنوان الفرعي" className="h-8 text-xs" />
-      <Input value={ctaText} onChange={(e)=>setCtaText(e.target.value)} placeholder="نص الزر" className="h-8 text-xs" />
+      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder={tr("العنوان")} className="h-8 text-xs" />
+      <Input value={subheadline} onChange={(e)=>setSubheadline(e.target.value)} placeholder={tr("العنوان الفرعي")} className="h-8 text-xs" />
+      <Input value={ctaText} onChange={(e)=>setCtaText(e.target.value)} placeholder={tr("نص الزر")} className="h-8 text-xs" />
       <Button size="sm" className="h-7 text-xs gap-1 w-full" onClick={save} disabled={isPending}>
-        <Save className="size-3" />حفظ
+        <Save className="size-3" />{tr("حفظ")}
       </Button>
     </div>
   );
 }
 
 function UrgencyEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["urgency"] }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "⚡ عرض محدود الوقت!");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("⚡ عرض محدود الوقت!"));
   const [timerEndDate, setTimerEndDate] = useState(content?.timerEndDate ?? "");
   const [showStockBadge, setShowStockBadge] = useState(content?.showStockBadge ?? true);
   const [showViewersBadge, setShowViewersBadge] = useState(content?.showViewersBadge ?? true);
@@ -309,25 +310,25 @@ function UrgencyEditor({ storeId, content }: { storeId: string; content?: Sectio
   const { reloadPreview } = useBuilder();
   const save = () => startTransition(async () => {
     const res = await UpdateSectionContentAction({ storeId, updates: { urgency: { headline, timerEndDate: timerEndDate||undefined, showStockBadge, showViewersBadge } } });
-    if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-    else toast.error(res.message);
+    if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+    else toast.error(trv(res.message));
   });
   return (
     <div className="space-y-2">
-      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder="العنوان" className="h-8 text-xs" />
+      <Input value={headline} onChange={(e)=>setHeadline(e.target.value)} placeholder={tr("العنوان")} className="h-8 text-xs" />
       <Input type="datetime-local" value={timerEndDate} onChange={(e)=>setTimerEndDate(e.target.value)} className="h-8 text-xs" />
       <div className="flex gap-4 text-xs">
         <label className="flex items-center gap-2 cursor-pointer">
           <Switch checked={showStockBadge} onCheckedChange={setShowStockBadge} />
-          شارة المخزون
+          {tr("شارة المخزون")}
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
           <Switch checked={showViewersBadge} onCheckedChange={setShowViewersBadge} />
-          عدد المتصفحين
+          {tr("عدد المتصفحين")}
         </label>
       </div>
       <Button size="sm" className="h-7 text-xs gap-1 w-full" onClick={save} disabled={isPending}>
-        <Save className="size-3" />حفظ
+        <Save className="size-3" />{tr("حفظ")}
       </Button>
     </div>
   );
@@ -356,9 +357,9 @@ function AlignButton({
 
 function HeroBannerEditor({ storeId, content }: { storeId: string; content?: SectionContentMap["heroBanner"] }) {
   const [bgImage, setBgImage] = useState(content?.backgroundImage ?? "");
-  const [headline, setHeadline] = useState(content?.headline ?? "مرحباً بك في متجرنا");
-  const [subheadline, setSubheadline] = useState(content?.subheadline ?? "اكتشف أفضل المنتجات بأسعار تنافسية");
-  const [buttonText, setButtonText] = useState(content?.buttonText ?? "تسوق الآن");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("مرحباً بك في متجرنا"));
+  const [subheadline, setSubheadline] = useState(content?.subheadline ?? tr("اكتشف أفضل المنتجات بأسعار تنافسية"));
+  const [buttonText, setButtonText] = useState(content?.buttonText ?? tr("تسوق الآن"));
   const [buttonLink, setButtonLink] = useState(content?.buttonLink ?? "/products");
   const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(content?.textAlign ?? "center");
   const [overlayOpacity, setOverlayOpacity] = useState([content?.overlayOpacity ?? 50]);
@@ -381,15 +382,15 @@ function HeroBannerEditor({ storeId, content }: { storeId: string; content?: Sec
           },
         },
       });
-      if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-      else toast.error(res.message);
+      if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+      else toast.error(trv(res.message));
     });
 
   return (
     <div className="space-y-2.5">
       {/* Background image */}
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">صورة الخلفية</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{tr("صورة الخلفية")}</p>
         <Input
           value={bgImage}
           onChange={(e) => setBgImage(e.target.value)}
@@ -401,42 +402,42 @@ function HeroBannerEditor({ storeId, content }: { storeId: string; content?: Sec
 
       {/* Headline */}
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">العنوان الرئيسي</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{tr("العنوان الرئيسي")}</p>
         <Input value={headline} onChange={(e) => setHeadline(e.target.value)} className="h-8 text-xs" />
       </div>
 
       {/* Subheadline */}
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">العنوان الفرعي</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{tr("العنوان الفرعي")}</p>
         <Input value={subheadline} onChange={(e) => setSubheadline(e.target.value)} className="h-8 text-xs" />
       </div>
 
       {/* Button */}
       <div className="grid grid-cols-2 gap-1.5">
         <div className="space-y-1">
-          <p className="text-[10px] font-semibold text-muted-foreground">نص الزر</p>
+          <p className="text-[10px] font-semibold text-muted-foreground">{tr("نص الزر")}</p>
           <Input value={buttonText} onChange={(e) => setButtonText(e.target.value)} className="h-8 text-xs" />
         </div>
         <div className="space-y-1">
-          <p className="text-[10px] font-semibold text-muted-foreground">رابط الزر</p>
+          <p className="text-[10px] font-semibold text-muted-foreground">{tr("رابط الزر")}</p>
           <Input value={buttonLink} onChange={(e) => setButtonLink(e.target.value)} className="h-8 text-xs" dir="ltr" />
         </div>
       </div>
 
       {/* Text alignment */}
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">محاذاة النص</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{tr("محاذاة النص")}</p>
         <div className="flex gap-1">
-          <AlignButton value="right"  current={textAlign} icon={AlignRight}  label="يمين"  onSelect={setTextAlign} />
-          <AlignButton value="center" current={textAlign} icon={AlignCenter} label="وسط"   onSelect={setTextAlign} />
-          <AlignButton value="left"   current={textAlign} icon={AlignLeft}   label="يسار"  onSelect={setTextAlign} />
+          <AlignButton value="right"  current={textAlign} icon={AlignRight}  label={tr("يمين")}  onSelect={setTextAlign} />
+          <AlignButton value="center" current={textAlign} icon={AlignCenter} label={tr("وسط")}   onSelect={setTextAlign} />
+          <AlignButton value="left"   current={textAlign} icon={AlignLeft}   label={tr("يسار")}  onSelect={setTextAlign} />
         </div>
       </div>
 
       {/* Overlay opacity */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">شفافية الغطاء</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{tr("شفافية الغطاء")}</p>
           <span className="text-[10px] tabular-nums text-muted-foreground">{overlayOpacity[0]}%</span>
         </div>
         <Slider
@@ -447,7 +448,7 @@ function HeroBannerEditor({ storeId, content }: { storeId: string; content?: Sec
       </div>
 
       <Button size="sm" className="h-7 w-full gap-1 text-xs" onClick={save} disabled={isPending}>
-        <Save className="size-3" />حفظ
+        <Save className="size-3" />{tr("حفظ")}
       </Button>
     </div>
   );
@@ -464,10 +465,10 @@ function RichTextEditor({ storeId, content }: { storeId: string; content?: Secti
   const { reloadPreview } = useBuilder();
 
   const WIDTHS = [
-    { value: "narrow", label: "ضيق" },
-    { value: "normal", label: "عادي" },
-    { value: "wide",   label: "واسع" },
-    { value: "full",   label: "كامل" },
+    { value: "narrow", label: tr("ضيق") },
+    { value: "normal", label: tr("عادي") },
+    { value: "wide",   label: tr("واسع") },
+    { value: "full",   label: tr("كامل") },
   ] as const;
 
   const save = () =>
@@ -476,27 +477,27 @@ function RichTextEditor({ storeId, content }: { storeId: string; content?: Secti
         storeId,
         updates: { richText: { heading, paragraph, width, textAlign } },
       });
-      if (res.success) { toast.success("تم الحفظ"); reloadPreview(); }
-      else toast.error(res.message);
+      if (res.success) { toast.success(tr("تم الحفظ")); reloadPreview(); }
+      else toast.error(trv(res.message));
     });
 
   return (
     <div className="space-y-2.5">
       {/* Heading */}
-      <Input value={heading} onChange={(e) => setHeading(e.target.value)} placeholder="العنوان" className="h-8 text-xs" />
+      <Input value={heading} onChange={(e) => setHeading(e.target.value)} placeholder={tr("العنوان")} className="h-8 text-xs" />
 
       {/* Paragraph */}
       <Textarea
         value={paragraph}
         onChange={(e) => setParagraph(e.target.value)}
-        placeholder="الفقرة النصية…"
+        placeholder={tr("الفقرة النصية…")}
         className="resize-none text-xs"
         rows={3}
       />
 
       {/* Width */}
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">عرض المحتوى</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{tr("عرض المحتوى")}</p>
         <div className="grid grid-cols-4 gap-1">
           {WIDTHS.map(({ value, label }) => (
             <button
@@ -517,16 +518,16 @@ function RichTextEditor({ storeId, content }: { storeId: string; content?: Secti
 
       {/* Text alignment */}
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">محاذاة النص</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{tr("محاذاة النص")}</p>
         <div className="flex gap-1">
-          <AlignButton value="right"  current={textAlign} icon={AlignRight}  label="يمين"  onSelect={setTextAlign} />
-          <AlignButton value="center" current={textAlign} icon={AlignCenter} label="وسط"   onSelect={setTextAlign} />
-          <AlignButton value="left"   current={textAlign} icon={AlignLeft}   label="يسار"  onSelect={setTextAlign} />
+          <AlignButton value="right"  current={textAlign} icon={AlignRight}  label={tr("يمين")}  onSelect={setTextAlign} />
+          <AlignButton value="center" current={textAlign} icon={AlignCenter} label={tr("وسط")}   onSelect={setTextAlign} />
+          <AlignButton value="left"   current={textAlign} icon={AlignLeft}   label={tr("يسار")}  onSelect={setTextAlign} />
         </div>
       </div>
 
       <Button size="sm" className="h-7 w-full gap-1 text-xs" onClick={save} disabled={isPending}>
-        <Save className="size-3" />حفظ
+        <Save className="size-3" />{tr("حفظ")}
       </Button>
     </div>
   );
@@ -658,7 +659,7 @@ function SortableRow({
             >
               <div className="border-t bg-muted/20 px-3 py-3">
                 <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  تخصيص المحتوى
+                  {tr("تخصيص المحتوى")}
                 </p>
                 <SectionEditor sectionKey={sectionKey} storeId={storeId} sectionContent={sectionContent} />
               </div>
@@ -732,8 +733,8 @@ export default function SectionsPanel() {
     setOrder(newOrder);
     startTransition(async () => {
       const result = await UpdateSectionOrderAction({ storeId, order: newOrder });
-      if (result.success) { toast.success("تم حفظ الترتيب"); reloadPreview(); }
-      else { setOrder(order); toast.error(result.message); }
+      if (result.success) { toast.success(tr("تم حفظ الترتيب")); reloadPreview(); }
+      else { setOrder(order); toast.error(trv(result.message)); }
     });
   }
 
@@ -741,8 +742,8 @@ export default function SectionsPanel() {
     setVisibility((prev) => ({ ...prev, [key]: value }));
     startTransition(async () => {
       const result = await UpdateThemeSectionsAction({ storeId, page: "home", updates: { [key]: value } });
-      if (result.success) { toast.success(result.message); reloadPreview(); }
-      else { setVisibility((prev) => ({ ...prev, [key]: !value })); toast.error(result.message); }
+      if (result.success) { toast.success(trv(result.message)); reloadPreview(); }
+      else { setVisibility((prev) => ({ ...prev, [key]: !value })); toast.error(trv(result.message)); }
     });
   }
 
@@ -761,7 +762,7 @@ export default function SectionsPanel() {
   });
 
   return (
-    <div className="flex flex-col h-full" dir="rtl">
+    <div className="flex flex-col h-full" dir={tdir()}>
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3 bg-background">
         <div className="flex items-center gap-2">
@@ -769,8 +770,8 @@ export default function SectionsPanel() {
             <Layers className="size-3.5" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold">الأقسام</h2>
-            <p className="text-[10px] text-muted-foreground">اسحب لإعادة الترتيب</p>
+            <h2 className="text-sm font-semibold">{tr("الأقسام")}</h2>
+            <p className="text-[10px] text-muted-foreground">{tr("اسحب لإعادة الترتيب")}</p>
           </div>
         </div>
         <Button
@@ -778,7 +779,7 @@ export default function SectionsPanel() {
           size="icon"
           className="h-7 w-7 text-muted-foreground"
           onClick={reloadPreview}
-          title="تحديث المعاينة"
+          title={tr("تحديث المعاينة")}
         >
           <RefreshCw className="size-3.5" />
         </Button>
@@ -796,7 +797,7 @@ export default function SectionsPanel() {
             {/* Core sections */}
             <div className="px-3 pt-3 pb-1">
               <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">
-                أساسية
+                {tr("أساسية")}
               </p>
               <div className="divide-y divide-border rounded-xl border overflow-hidden">
                 {coreKeys.map((k) => <SortableRow key={k} {...rowProps(k)} />)}
@@ -807,9 +808,9 @@ export default function SectionsPanel() {
             <div className="px-3 pt-3 pb-4">
               <div className="flex items-center gap-2 mb-1.5 px-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  أقسام البيع
+                  {tr("أقسام البيع")}
                 </p>
-                <Badge variant="default" className="h-3.5 px-1 text-[9px] font-bold">جديد</Badge>
+                <Badge variant="default" className="h-3.5 px-1 text-[9px] font-bold">{tr("جديد")}</Badge>
               </div>
               <div className="divide-y divide-border rounded-xl border overflow-hidden">
                 {allFunnelKeys.map((k) => <SortableRow key={k} {...rowProps(k)} />)}

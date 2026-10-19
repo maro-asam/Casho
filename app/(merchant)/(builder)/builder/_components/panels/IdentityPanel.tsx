@@ -13,6 +13,7 @@ import {
   UpdateStoreIdentityAction,
   type StoreIdentityFormState,
 } from "@/actions/store/store-identity.actions";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 const initialState: StoreIdentityFormState = { success: false, message: "" };
 
@@ -28,23 +29,23 @@ export default function IdentityPanel() {
   useEffect(() => {
     if (!state.message) return;
     if (state.success) {
-      toast.success(state.message);
+      toast.success(trv(state.message));
       reloadPreview();
     } else {
-      toast.error(state.message);
+      toast.error(trv(state.message));
     }
   }, [state, reloadPreview]);
 
   return (
-    <div className="flex flex-col h-full" dir="rtl">
+    <div className="flex flex-col h-full" dir={tdir()}>
       {/* Header */}
       <div className="flex items-center gap-2 border-b px-4 py-3 bg-background">
         <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
           <ImageIcon className="size-3.5" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold">الهوية البصرية</h2>
-          <p className="text-[10px] text-muted-foreground">اللوجو والوصف والإعلانات</p>
+          <h2 className="text-sm font-semibold">{tr("الهوية البصرية")}</h2>
+          <p className="text-[10px] text-muted-foreground">{tr("اللوجو والوصف والإعلانات")}</p>
         </div>
       </div>
 
@@ -55,7 +56,7 @@ export default function IdentityPanel() {
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Logo */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">رابط اللوجو</Label>
+            <Label className="text-xs font-medium">{tr("رابط اللوجو")}</Label>
             <Input
               name="logo"
               placeholder="https://example.com/logo.png"
@@ -75,14 +76,14 @@ export default function IdentityPanel() {
                   height={36}
                   className="size-9 rounded-lg border object-cover"
                 />
-                <p className="text-[10px] text-muted-foreground">معاينة اللوجو الحالي</p>
+                <p className="text-[10px] text-muted-foreground">{tr("معاينة اللوجو الحالي")}</p>
               </div>
             )}
           </div>
 
           {/* Cover image */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">رابط صورة الغلاف</Label>
+            <Label className="text-xs font-medium">{tr("رابط صورة الغلاف")}</Label>
             <Input
               name="coverImage"
               placeholder="https://example.com/cover.jpg"
@@ -108,10 +109,10 @@ export default function IdentityPanel() {
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">وصف المتجر</Label>
+            <Label className="text-xs font-medium">{tr("وصف المتجر")}</Label>
             <Textarea
               name="description"
-              placeholder="أضف وصفًا قصيرًا لمتجرك..."
+              placeholder={tr("أضف وصفًا قصيرًا لمتجرك...")}
               defaultValue={description ?? ""}
               className="text-xs resize-none"
               rows={3}
@@ -120,15 +121,15 @@ export default function IdentityPanel() {
 
           {/* Announcement text */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">نص الإعلان</Label>
+            <Label className="text-xs font-medium">{tr("نص الإعلان")}</Label>
             <Input
               name="announcementText"
-              placeholder="مثال: توصيل مجاني للطلبات فوق 200 جنيه 🎉"
+              placeholder={tr("مثال: توصيل مجاني للطلبات فوق 200 جنيه 🎉")}
               defaultValue={announcementText ?? ""}
               className="h-8 text-xs"
             />
             <p className="text-[10px] text-muted-foreground">
-              يظهر في شريط الإعلان في أعلى المتجر
+              {tr("يظهر في شريط الإعلان في أعلى المتجر")}
             </p>
           </div>
         </div>
@@ -142,7 +143,7 @@ export default function IdentityPanel() {
             disabled={isPending}
           >
             {isPending && <Loader2 className="size-3 animate-spin" />}
-            {isPending ? "جاري الحفظ…" : "حفظ الهوية"}
+            {isPending ? tr("جاري الحفظ…") : tr("حفظ الهوية")}
           </Button>
         </div>
       </form>

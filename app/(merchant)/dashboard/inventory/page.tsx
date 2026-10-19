@@ -26,9 +26,11 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { hasFeature, checkLimit, FEATURE_KEYS } from "@/lib/entitlements";
 import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 function formatCurrency(egp: number) {
-  return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(egp);
+  return new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(egp);
 }
 
 async function OverviewCards() {
@@ -37,56 +39,56 @@ async function OverviewCards() {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       <InventoryStatCard
-        title="إجمالي المنتجات"
-        value={data.totalProducts.toLocaleString("ar-EG")}
+        title={tr("إجمالي المنتجات")}
+        value={data.totalProducts.toLocaleString(intlLocale())}
         icon={Package}
-        subtext="المنتجات النشطة"
+        subtext={tr("المنتجات النشطة")}
       />
       <InventoryStatCard
-        title="إجمالي المخزون"
-        value={data.totalStock.toLocaleString("ar-EG")}
+        title={tr("إجمالي المخزون")}
+        value={data.totalStock.toLocaleString(intlLocale())}
         icon={Warehouse}
-        subtext="وحدة في المخزون"
+        subtext={tr("وحدة في المخزون")}
       />
       <InventoryStatCard
-        title="قيمة المخزون"
+        title={tr("قيمة المخزون")}
         value={formatCurrency(data.inventoryValue)}
         icon={TrendingUp}
         iconColor="bg-emerald-500"
-        subtext="بسعر التكلفة"
+        subtext={tr("بسعر التكلفة")}
       />
       <InventoryStatCard
-        title="الإيرادات المتوقعة"
+        title={tr("الإيرادات المتوقعة")}
         value={formatCurrency(data.potentialRevenue)}
         icon={TrendingUp}
         iconColor="bg-blue-500"
-        subtext={`ربح متوقع: ${formatCurrency(data.expectedProfit)}`}
+        subtext={tr("ربح متوقع: {0}", formatCurrency(data.expectedProfit))}
       />
       <InventoryStatCard
-        title="منخفض المخزون"
-        value={data.lowStockCount.toLocaleString("ar-EG")}
+        title={tr("منخفض المخزون")}
+        value={data.lowStockCount.toLocaleString(intlLocale())}
         icon={AlertTriangle}
         iconColor="bg-amber-500"
-        subtext="منتج يحتاج إعادة طلب"
+        subtext={tr("منتج يحتاج إعادة طلب")}
       />
       <InventoryStatCard
-        title="نفد المخزون"
-        value={data.outOfStockCount.toLocaleString("ar-EG")}
+        title={tr("نفد المخزون")}
+        value={data.outOfStockCount.toLocaleString(intlLocale())}
         icon={PackageSearch}
         iconColor="bg-red-500"
-        subtext="منتج غير متاح"
+        subtext={tr("منتج غير متاح")}
       />
       <InventoryStatCard
-        title="الموردون"
-        value={data.supplierCount.toLocaleString("ar-EG")}
+        title={tr("الموردون")}
+        value={data.supplierCount.toLocaleString(intlLocale())}
         icon={Users}
-        subtext="مورد نشط"
+        subtext={tr("مورد نشط")}
       />
       <InventoryStatCard
-        title="طلبات شراء معلقة"
-        value={data.pendingPOCount.toLocaleString("ar-EG")}
+        title={tr("طلبات شراء معلقة")}
+        value={data.pendingPOCount.toLocaleString(intlLocale())}
         icon={ShoppingCart}
-        subtext={`${data.pendingTransferCount} تحويل معلق`}
+        subtext={tr("{0} تحويل معلق", data.pendingTransferCount)}
       />
     </div>
   );
@@ -98,16 +100,16 @@ async function RecentMovements() {
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
-        <h2 className="font-semibold">آخر حركات المخزون</h2>
+        <h2 className="font-semibold">{tr("آخر حركات المخزون")}</h2>
         <Link href="/dashboard/inventory/movements">
           <Button variant="ghost" size="sm" className="gap-1 text-xs">
-            عرض الكل <ArrowRight className="size-3.5" />
+            {tr("عرض الكل")}{" "}<ArrowRight className="size-3.5 ltr:-scale-x-100" />
           </Button>
         </Link>
       </div>
       <div className="divide-y divide-border">
         {data.recentMovements.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-muted-foreground">لا توجد حركات بعد</p>
+          <p className="px-5 py-8 text-center text-sm text-muted-foreground">{tr("لا توجد حركات بعد")}</p>
         ) : (
           data.recentMovements.map((m) => (
             <div key={m.id} className="flex items-center gap-3 px-5 py-3">
@@ -153,12 +155,12 @@ async function LowStockAlert() {
         <div className="flex items-center gap-2">
           <AlertTriangle className="size-4 text-amber-600" />
           <h2 className="font-semibold text-amber-800 dark:text-amber-400">
-            تنبيه: مخزون منخفض ({data.lowStockProducts.length} منتج)
+            {tr("تنبيه: مخزون منخفض ({0} منتج)", data.lowStockProducts.length)}
           </h2>
         </div>
         <Link href="/dashboard/inventory/movements">
           <Button variant="ghost" size="sm" className="gap-1 text-xs text-amber-700">
-            تفاصيل <ArrowRight className="size-3.5" />
+            {tr("تفاصيل")}{" "}<ArrowRight className="size-3.5 ltr:-scale-x-100" />
           </Button>
         </Link>
       </div>
@@ -174,9 +176,9 @@ async function LowStockAlert() {
             </div>
             <div className="text-end">
               <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                {p.stock} متبقي
+                {tr("{0} متبقي", p.stock)}
               </p>
-              <p className="text-xs text-muted-foreground">الحد: {p.threshold}</p>
+              <p className="text-xs text-muted-foreground">{tr("الحد: {0}", p.threshold)}</p>
             </div>
           </div>
         ))}
@@ -194,7 +196,7 @@ async function RestockRecommendations() {
     <div className="rounded-xl border border-border bg-card shadow-sm">
       <div className="flex items-center gap-2 border-b border-border px-5 py-4">
         <Zap className="size-4 text-primary" />
-        <h2 className="font-semibold">توصيات إعادة الطلب الذكية</h2>
+        <h2 className="font-semibold">{tr("توصيات إعادة الطلب الذكية")}</h2>
       </div>
       <div className="divide-y divide-border">
         {recs.slice(0, 6).map((r) => (
@@ -203,17 +205,17 @@ async function RestockRecommendations() {
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{r.name}</p>
               <p className="text-xs text-muted-foreground">
-                متوسط المبيعات: {r.avgDailySales} وحدة/يوم
-                {r.daysUntilStockout !== null && ` · ينفد خلال ${r.daysUntilStockout} يوم`}
+                {tr("متوسط المبيعات: {0} وحدة/يوم", r.avgDailySales)}
+                {r.daysUntilStockout !== null && tr(" · ينفد خلال {0} يوم", r.daysUntilStockout)}
               </p>
             </div>
             <div className="shrink-0 text-end">
               <Badge
                 variant={r.urgency === "out_of_stock" ? "destructive" : r.urgency === "critical" ? "destructive" : "secondary"}
               >
-                {r.urgency === "out_of_stock" ? "نفد" : r.urgency === "critical" ? "عاجل" : "منخفض"}
+                {r.urgency === "out_of_stock" ? tr("نفد") : r.urgency === "critical" ? tr("عاجل") : tr("منخفض")}
               </Badge>
-              <p className="mt-1 text-xs text-muted-foreground">اطلب: {r.suggestedReorder}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("اطلب: {0}", r.suggestedReorder)}</p>
             </div>
           </div>
         ))}
@@ -222,7 +224,7 @@ async function RestockRecommendations() {
         <Link href="/dashboard/inventory/purchase-orders/new">
           <Button size="sm" variant="outline" className="gap-2">
             <ShoppingCart className="size-4" />
-            إنشاء طلب شراء
+            {tr("إنشاء طلب شراء")}
           </Button>
         </Link>
       </div>
@@ -231,6 +233,7 @@ async function RestockRecommendations() {
 }
 
 export default async function InventoryDashboardPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
   const inventoryEnabled = store ? await hasFeature(store.id, FEATURE_KEYS.INVENTORY) : false;
@@ -242,12 +245,12 @@ export default async function InventoryDashboardPage() {
     return (
       <div className="space-y-6 p-6">
         <div>
-          <h1 className="text-2xl font-bold">إدارة المخزون</h1>
-          <p className="text-sm text-muted-foreground">نظرة شاملة على مخزونك وحركاته</p>
+          <h1 className="text-2xl font-bold">{tr("إدارة المخزون")}</h1>
+          <p className="text-sm text-muted-foreground">{tr("نظرة شاملة على مخزونك وحركاته")}</p>
         </div>
         <UpgradeRequiredCard
-          title="إدارة المخزون المتقدمة"
-          description="الفروع، الموردون، وطلبات الشراء غير متاحة في باقتك الحالية."
+          title={tr("إدارة المخزون المتقدمة")}
+          description={tr("الفروع، الموردون، وطلبات الشراء غير متاحة في باقتك الحالية.")}
           requiredPlanSlug={requiredPlan}
         />
       </div>
@@ -259,26 +262,26 @@ export default async function InventoryDashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">إدارة المخزون</h1>
-          <p className="text-sm text-muted-foreground">نظرة شاملة على مخزونك وحركاته</p>
+          <h1 className="text-2xl font-bold">{tr("إدارة المخزون")}</h1>
+          <p className="text-sm text-muted-foreground">{tr("نظرة شاملة على مخزونك وحركاته")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href="/dashboard/inventory/adjustments/new">
             <Button variant="outline" size="sm" className="gap-2">
               <ClipboardList className="size-4" />
-              تسوية مخزون
+              {tr("تسوية مخزون")}
             </Button>
           </Link>
           <Link href="/dashboard/inventory/purchase-orders/new">
             <Button variant="outline" size="sm" className="gap-2">
               <Truck className="size-4" />
-              طلب شراء
+              {tr("طلب شراء")}
             </Button>
           </Link>
           <Link href="/dashboard/inventory/transfers/new">
             <Button variant="outline" size="sm" className="gap-2">
               <ArrowLeftRight className="size-4" />
-              تحويل فرع
+              {tr("تحويل فرع")}
             </Button>
           </Link>
         </div>
@@ -287,12 +290,12 @@ export default async function InventoryDashboardPage() {
       {/* Quick Nav */}
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
         {[
-          { href: "/dashboard/inventory/movements", icon: Box, label: "الحركات" },
-          { href: "/dashboard/inventory/adjustments", icon: ClipboardList, label: "التسويات" },
-          { href: "/dashboard/inventory/suppliers", icon: Users, label: "الموردون" },
-          { href: "/dashboard/inventory/purchase-orders", icon: ShoppingCart, label: "طلبات الشراء" },
-          { href: "/dashboard/inventory/transfers", icon: ArrowLeftRight, label: "التحويلات" },
-          { href: "/dashboard/inventory/branches", icon: Warehouse, label: "الفروع" },
+          { href: "/dashboard/inventory/movements", icon: Box, label: tr("الحركات") },
+          { href: "/dashboard/inventory/adjustments", icon: ClipboardList, label: tr("التسويات") },
+          { href: "/dashboard/inventory/suppliers", icon: Users, label: tr("الموردون") },
+          { href: "/dashboard/inventory/purchase-orders", icon: ShoppingCart, label: tr("طلبات الشراء") },
+          { href: "/dashboard/inventory/transfers", icon: ArrowLeftRight, label: tr("التحويلات") },
+          { href: "/dashboard/inventory/branches", icon: Warehouse, label: tr("الفروع") },
         ].map((item) => (
           <Link key={item.href} href={item.href}>
             <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3 text-center transition-colors hover:bg-accent">

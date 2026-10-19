@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 type Props = {
   confidence: number;
@@ -10,10 +11,10 @@ export function ConfidenceBadge({ confidence, size = "md" }: Props) {
 
   const { label, className } =
     pct >= 85
-      ? { label: `ثقة ${pct}%`, className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" }
+      ? { label: tr("ثقة {0}%", pct), className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" }
       : pct >= 70
-        ? { label: `ثقة ${pct}%`, className: "bg-amber-500/10 text-amber-700 dark:text-amber-400" }
-        : { label: `ثقة ${pct}%`, className: "bg-rose-500/10 text-rose-700 dark:text-rose-400" };
+        ? { label: tr("ثقة {0}%", pct), className: "bg-amber-500/10 text-amber-700 dark:text-amber-400" }
+        : { label: tr("ثقة {0}%", pct), className: "bg-rose-500/10 text-rose-700 dark:text-rose-400" };
 
   return (
     <span

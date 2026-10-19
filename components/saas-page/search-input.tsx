@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 type SearchInputProps = {
   placeholder: string;
@@ -63,7 +64,7 @@ export function SearchInput({ placeholder, param = "q", className }: SearchInput
         <button
           type="button"
           onClick={() => setValue("")}
-          aria-label="مسح البحث"
+          aria-label={tr("مسح البحث")}
           className="absolute inset-e-1.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <X className="size-3.5" />

@@ -20,6 +20,7 @@ import {
   type ImportRow,
 } from "@/actions/products/import-products.actions";
 import { useRouter } from "next/navigation";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 type Step = "upload" | "preview";
 
@@ -42,7 +43,7 @@ export default function ImportProductsForm() {
     startParsing(async () => {
       const result = await ParseImportFileAction(form);
       if (!result.success) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
       setRows(result.rows);
@@ -56,17 +57,17 @@ export default function ImportProductsForm() {
     startImporting(async () => {
       const result = await ConfirmImportAction(rows);
       if (!result.success) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
-      toast.success(`تم استيراد ${result.imported} منتج بنجاح`);
+      toast.success(tr("تم استيراد {0} منتج بنجاح", result.imported));
       router.push("/dashboard/products");
     });
   }
 
   function downloadTemplate() {
     const headers = ["name", "price", "compareAtPrice", "description", "category", "brand", "stock", "tags", "isActive", "isFeatured", "image"];
-    const example = ["قميص قطني", "150", "200", "قميص مريح 100% قطن", "ملابس", "Nike", "20", "ملابس,صيف", "1", "0", ""];
+    const example = [tr("قميص قطني"), "150", "200", tr("قميص مريح 100% قطن"), tr("ملابس"), "Nike", "20", tr("ملابس,صيف"), "1", "0", ""];
     const csv = [headers.join(","), example.join(",")].join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -86,8 +87,8 @@ export default function ImportProductsForm() {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
                 <Upload className="size-6 text-primary" />
               </div>
-              <p className="mb-1 font-semibold">ارفع ملف CSV أو Excel</p>
-              <p className="mb-4 text-sm text-muted-foreground">الحد الأقصى 500 منتج</p>
+              <p className="mb-1 font-semibold">{tr("ارفع ملف CSV أو Excel")}</p>
+              <p className="mb-4 text-sm text-muted-foreground">{tr("الحد الأقصى 500 منتج")}</p>
               <label className="cursor-pointer">
                 <input
                   type="file"
@@ -99,9 +100,9 @@ export default function ImportProductsForm() {
                 <Button asChild variant="default" className="rounded-xl" disabled={isParsing}>
                   <span>
                     {isParsing ? (
-                      <><Loader2 className="ms-2 size-4 animate-spin" />جاري القراءة...</>
+                      <><Loader2 className="ms-2 size-4 animate-spin" />{tr("جاري القراءة...")}</>
                     ) : (
-                      <><FileText className="ms-2 size-4" />اختر ملف</>
+                      <><FileText className="ms-2 size-4" />{tr("اختر ملف")}</>
                     )}
                   </span>
                 </Button>
@@ -109,7 +110,7 @@ export default function ImportProductsForm() {
             </div>
 
             <div className="rounded-xl border bg-muted/20 p-4">
-              <p className="mb-2 text-sm font-medium">أعمدة الملف المطلوبة:</p>
+              <p className="mb-2 text-sm font-medium">{tr("أعمدة الملف المطلوبة:")}</p>
               <div className="flex flex-wrap gap-1.5 text-xs">
                 {["name *", "price *", "category *", "compareAtPrice", "description", "brand", "stock", "tags", "isActive", "isFeatured", "image"].map((col) => (
                   <Badge key={col} variant="outline" className="rounded-lg font-mono">
@@ -118,7 +119,7 @@ export default function ImportProductsForm() {
                 ))}
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                * التصنيف يجب أن يكون موجوداً مسبقاً في متجرك · الأعمدة باللغة العربية مدعومة أيضاً
+                {tr("* التصنيف يجب أن يكون موجوداً مسبقاً في متجرك · الأعمدة باللغة العربية مدعومة أيضاً")}
               </p>
             </div>
           </CardContent>
@@ -126,7 +127,7 @@ export default function ImportProductsForm() {
 
         <Button variant="outline" className="rounded-xl" onClick={downloadTemplate}>
           <Download className="ms-2 size-4" />
-          تحميل نموذج CSV
+          {tr("تحميل نموذج CSV")}
         </Button>
       </div>
     );
@@ -137,12 +138,12 @@ export default function ImportProductsForm() {
       <div className="flex flex-wrap items-center gap-3">
         <Badge className="gap-1.5 rounded-lg bg-emerald-500 text-sm">
           <CheckCircle2 className="size-3.5" />
-          {validCount} منتج صالح
+          {tr("{0} منتج صالح", validCount)}
         </Badge>
         {errorCount > 0 && (
           <Badge variant="destructive" className="gap-1.5 rounded-lg text-sm">
             <XCircle className="size-3.5" />
-            {errorCount} خطأ
+            {tr("{0} خطأ", errorCount)}
           </Badge>
         )}
         <Button
@@ -151,25 +152,25 @@ export default function ImportProductsForm() {
           className="rounded-xl"
           onClick={() => { setStep("upload"); setRows([]); }}
         >
-          رفع ملف آخر
+          {tr("رفع ملف آخر")}
         </Button>
       </div>
 
       <Card className="rounded-xl">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">معاينة المنتجات</CardTitle>
+          <CardTitle className="text-base">{tr("معاينة المنتجات")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right">السطر</TableHead>
-                  <TableHead className="text-right">الاسم</TableHead>
-                  <TableHead className="text-right">السعر</TableHead>
-                  <TableHead className="text-right">التصنيف</TableHead>
-                  <TableHead className="text-right">المخزون</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
+                  <TableHead className="text-start">{tr("السطر")}</TableHead>
+                  <TableHead className="text-start">{tr("الاسم")}</TableHead>
+                  <TableHead className="text-start">{tr("السعر")}</TableHead>
+                  <TableHead className="text-start">{tr("التصنيف")}</TableHead>
+                  <TableHead className="text-start">{tr("المخزون")}</TableHead>
+                  <TableHead className="text-start">{tr("الحالة")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -177,7 +178,7 @@ export default function ImportProductsForm() {
                   <TableRow key={row.rowIndex} className={row.error ? "bg-rose-50 dark:bg-rose-950/20" : ""}>
                     <TableCell className="text-muted-foreground">{row.rowIndex}</TableCell>
                     <TableCell className="font-medium">{row.name || "—"}</TableCell>
-                    <TableCell>{row.price ? `${row.price} ج` : "—"}</TableCell>
+                    <TableCell>{row.price ? tr("{0} ج", row.price) : "—"}</TableCell>
                     <TableCell>{row.category || "—"}</TableCell>
                     <TableCell>{row.stock}</TableCell>
                     <TableCell>
@@ -189,7 +190,7 @@ export default function ImportProductsForm() {
                       ) : (
                         <span className="flex items-center gap-1 text-xs text-emerald-600">
                           <CheckCircle2 className="size-3.5" />
-                          صالح
+                          {tr("صالح")}
                         </span>
                       )}
                     </TableCell>
@@ -208,9 +209,9 @@ export default function ImportProductsForm() {
           disabled={isImporting}
         >
           {isImporting ? (
-            <><Loader2 className="ms-2 size-4 animate-spin" />جاري الاستيراد...</>
+            <><Loader2 className="ms-2 size-4 animate-spin" />{tr("جاري الاستيراد...")}</>
           ) : (
-            <>استيراد {validCount} منتج</>
+            <>{tr("استيراد {0} منتج", validCount)}</>
           )}
         </Button>
       )}

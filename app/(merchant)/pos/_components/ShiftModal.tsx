@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ClockIcon } from "lucide-react";
 import { OpenShiftAction, CloseShiftAction } from "@/actions/pos/shift.actions";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
 type ActiveShift = {
   id: string;
@@ -53,7 +54,7 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
         });
         setOpeningBalance("");
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "حدث خطأ");
+        setError(e instanceof Error ? e.message : tr("حدث خطأ"));
       }
     });
   };
@@ -73,7 +74,7 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
         setNotes("");
         setConfirmClose(false);
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "حدث خطأ");
+        setError(e instanceof Error ? e.message : tr("حدث خطأ"));
       }
     });
   };
@@ -86,11 +87,11 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" dir="rtl">
+      <DialogContent className="max-w-md" dir={tdir()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ClockIcon className="size-4" />
-            {activeShift ? "إدارة الوردية" : "فتح وردية جديدة"}
+            {activeShift ? tr("إدارة الوردية") : tr("فتح وردية جديدة")}
           </DialogTitle>
         </DialogHeader>
 
@@ -98,11 +99,11 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
           /* Open Shift */
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              الكاشير: <span className="font-medium text-foreground">{cashierName}</span>
+              {tr("الكاشير:")}{" "}<span className="font-medium text-foreground">{cashierName}</span>
             </p>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">رصيد الدرج الافتتاحي (ج)</label>
+              <label className="text-sm font-medium">{tr("رصيد الدرج الافتتاحي (ج)")}</label>
               <input
                 type="number"
                 min="0"
@@ -112,13 +113,13 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
                 placeholder="0.00"
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-              <p className="text-xs text-muted-foreground">اتركه فارغاً إذا لم يكن هناك رصيد ابتدائي</p>
+              <p className="text-xs text-muted-foreground">{tr("اتركه فارغاً إذا لم يكن هناك رصيد ابتدائي")}</p>
             </div>
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
             <Button className="w-full" onClick={handleOpen} disabled={isPending}>
-              {isPending ? "جاري الفتح..." : "فتح الوردية"}
+              {isPending ? tr("جاري الفتح...") : tr("فتح الوردية")}
             </Button>
           </div>
         ) : !confirmClose ? (
@@ -126,32 +127,32 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">
-                <span className="size-1.5 rounded-full bg-emerald-500 inline-block ml-1.5" />
-                وردية مفتوحة
+                <span className="size-1.5 rounded-full bg-emerald-500 inline-block me-1.5" />
+                {tr("وردية مفتوحة")}
               </Badge>
               <span className="text-xs text-muted-foreground">
-                {openedAt?.toLocaleTimeString("ar-EG")} ({duration} دقيقة)
+                {tr("{0} ({1} دقيقة)", openedAt?.toLocaleTimeString(intlLocale()), duration)}
               </span>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="rounded-lg border bg-muted/30 p-3 text-center">
-                <p className="text-xs text-muted-foreground">رصيد الافتتاح</p>
-                <p className="text-sm font-bold">{(activeShift.openingBalance / 100).toFixed(0)} ج</p>
+                <p className="text-xs text-muted-foreground">{tr("رصيد الافتتاح")}</p>
+                <p className="text-sm font-bold">{tr("{0} ج", (activeShift.openingBalance / 100).toFixed(0))}</p>
               </div>
               <div className="rounded-lg border bg-muted/30 p-3 text-center">
-                <p className="text-xs text-muted-foreground">إجمالي المبيعات</p>
-                <p className="text-sm font-bold text-primary">{(activeShift.totalSales / 100).toFixed(0)} ج</p>
+                <p className="text-xs text-muted-foreground">{tr("إجمالي المبيعات")}</p>
+                <p className="text-sm font-bold text-primary">{tr("{0} ج", (activeShift.totalSales / 100).toFixed(0))}</p>
               </div>
               <div className="rounded-lg border bg-muted/30 p-3 text-center">
-                <p className="text-xs text-muted-foreground">الفواتير</p>
+                <p className="text-xs text-muted-foreground">{tr("الفواتير")}</p>
                 <p className="text-sm font-bold">{activeShift.transactionCount}</p>
               </div>
             </div>
 
             <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm">
-              <span className="text-amber-700">النقدية المتوقعة: </span>
-              <span className="font-bold text-amber-800">{(expectedCash / 100).toFixed(0)} ج</span>
+              <span className="text-amber-700">{tr("النقدية المتوقعة:")}{" "}</span>
+              <span className="font-bold text-amber-800">{tr("{0} ج", (expectedCash / 100).toFixed(0))}</span>
             </div>
 
             {error && <p className="text-sm text-destructive">{error}</p>}
@@ -162,14 +163,14 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
                 className="flex-1"
                 onClick={() => onOpenChange(false)}
               >
-                إغلاق النافذة
+                {tr("إغلاق النافذة")}
               </Button>
               <Button
                 variant="destructive"
                 className="flex-1"
                 onClick={() => setConfirmClose(true)}
               >
-                إغلاق الوردية
+                {tr("إغلاق الوردية")}
               </Button>
             </div>
           </div>
@@ -178,17 +179,17 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
           <div className="space-y-4">
             <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm space-y-1">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">إجمالي المبيعات:</span>
-                <span className="font-bold">{(activeShift.totalSales / 100).toFixed(0)} ج</span>
+                <span className="text-muted-foreground">{tr("إجمالي المبيعات:")}</span>
+                <span className="font-bold">{tr("{0} ج", (activeShift.totalSales / 100).toFixed(0))}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">النقدية المتوقعة في الدرج:</span>
-                <span className="font-bold">{(expectedCash / 100).toFixed(0)} ج</span>
+                <span className="text-muted-foreground">{tr("النقدية المتوقعة في الدرج:")}</span>
+                <span className="font-bold">{tr("{0} ج", (expectedCash / 100).toFixed(0))}</span>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">النقدية الفعلية في الدرج (ج)</label>
+              <label className="text-sm font-medium">{tr("النقدية الفعلية في الدرج (ج)")}</label>
               <input
                 type="number"
                 min="0"
@@ -203,15 +204,15 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
                   parseFloat(closingBalance) * 100 >= expectedCash ? "text-emerald-600" : "text-destructive"
                 }`}>
                   {parseFloat(closingBalance) * 100 >= expectedCash
-                    ? `زيادة: +${((parseFloat(closingBalance) * 100 - expectedCash) / 100).toFixed(0)} ج`
-                    : `عجز: −${((expectedCash - parseFloat(closingBalance) * 100) / 100).toFixed(0)} ج`
+                    ? tr("زيادة: +{0} ج", ((parseFloat(closingBalance) * 100 - expectedCash) / 100).toFixed(0))
+                    : tr("عجز: −{0} ج", ((expectedCash - parseFloat(closingBalance) * 100) / 100).toFixed(0))
                   }
                 </p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">ملاحظات (اختياري)</label>
+              <label className="text-sm font-medium">{tr("ملاحظات (اختياري)")}</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -224,10 +225,10 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
 
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setConfirmClose(false)}>
-                رجوع
+                {tr("رجوع")}
               </Button>
               <Button variant="destructive" className="flex-1" onClick={handleClose} disabled={isPending}>
-                {isPending ? "جاري الإغلاق..." : "تأكيد إغلاق الوردية"}
+                {isPending ? tr("جاري الإغلاق...") : tr("تأكيد إغلاق الوردية")}
               </Button>
             </div>
           </div>

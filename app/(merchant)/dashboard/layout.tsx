@@ -8,21 +8,26 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetNotificationsAction } from "@/actions/notifications/notifications.actions";
 import { isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 import { renewIfDue } from "@/lib/billing/renewal";
+import { tr } from "@/lib/i18n/dashboard";
+import DashboardI18nProvider from "@/lib/i18n/dashboard/provider";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
   title: {
-    default: "كــاشو | لوحة تحكم التاجر",
-    template: "كــاشو | %s",
+    default: tr("كــاشو | لوحة تحكم التاجر"),
+    template: tr("كــاشو | %s"),
   },
   description:
-    "لوحة تحكم التاجر لإدارة الطلبات والمنتجات والتصنيفات وإعدادات المتجر بسهولة.",
-  applicationName: "كــاشو",
+    tr("لوحة تحكم التاجر لإدارة الطلبات والمنتجات والتصنيفات وإعدادات المتجر بسهولة."),
+  applicationName: tr("كــاشو"),
   keywords: [
-    "لوحة تحكم",
-    "متجر إلكتروني",
-    "إدارة الطلبات",
-    "إدارة المنتجات",
-    "كــاشو",
+    tr("لوحة تحكم"),
+    tr("متجر إلكتروني"),
+    tr("إدارة الطلبات"),
+    tr("إدارة المنتجات"),
+    tr("كــاشو"),
     "Dashboard",
     "Ecommerce",
   ],
@@ -31,12 +36,14 @@ export const metadata: Metadata = {
     follow: false,
   },
 };
+}
 
 export default async function DashboardLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const locale = await loadDashboardLocale();
   const userId = await requireUserId();
   const storeQuery = {
     where: { userId },
@@ -110,6 +117,7 @@ export default async function DashboardLayout({
   const { notifications, unreadCount } = await GetNotificationsAction(10);
 
   return (
+    <DashboardI18nProvider locale={locale}>
     <DashboardShell
       store={store}
       initialNotifications={notifications}
@@ -117,5 +125,6 @@ export default async function DashboardLayout({
     >
       {children}
     </DashboardShell>
+    </DashboardI18nProvider>
   );
 }

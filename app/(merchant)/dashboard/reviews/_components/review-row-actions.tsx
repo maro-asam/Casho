@@ -24,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = { reviewId: string; customerName: string; editHref: string; productUrl: string };
 
@@ -36,24 +37,24 @@ export function ReviewRowActions({ reviewId, customerName, editHref, productUrl 
     startTransition(async () => {
       const result = await DeleteReviewAction(reviewId);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
       setConfirm(false);
-      toast.success("اتمسحت المراجعة");
+      toast.success(tr("اتمسحت المراجعة"));
       router.refresh();
     });
   }
 
   return (
     <>
-      <DropdownMenu dir="rtl" modal={false}>
+      <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
             disabled={pending}
-            aria-label={`إجراءات مراجعة ${customerName}`}
+            aria-label={tr("إجراءات مراجعة {0}", customerName)}
             className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
@@ -63,34 +64,34 @@ export function ReviewRowActions({ reviewId, customerName, editHref, productUrl 
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
-              تعديل
+              {tr("تعديل")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href={productUrl} target="_blank" rel="noreferrer">
               <ExternalLink />
-              شوفها في المتجر
+              {tr("شوفها في المتجر")}
             </a>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={() => setConfirm(true)}>
             <Trash2 />
-            حذف
+            {tr("حذف")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <AlertDialog open={confirm} onOpenChange={(open) => !pending && setConfirm(open)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>تمسح مراجعة {customerName}؟</AlertDialogTitle>
-            <AlertDialogDescription>المراجعة هتختفي من صفحة المنتج نهائي، ومتوسط التقييم هيتحسب من غيرها.</AlertDialogDescription>
+            <AlertDialogTitle>{tr("تمسح مراجعة {0}؟", customerName)}</AlertDialogTitle>
+            <AlertDialogDescription>{tr("المراجعة هتختفي من صفحة المنتج نهائي، ومتوسط التقييم هيتحسب من غيرها.")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>رجوع</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
             <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
               {pending && <Loader2 className="size-4 animate-spin" />}
-              حذف نهائي
+              {tr("حذف نهائي")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

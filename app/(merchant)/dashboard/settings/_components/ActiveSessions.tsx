@@ -7,15 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RevokeSessionAction, RevokeAllOtherSessionsAction, type SessionDTO } from "@/actions/auth/sessions.actions";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 function parseDevice(userAgent: string | null): { label: string; icon: typeof Monitor } {
-  if (!userAgent) return { label: "جهاز غير معروف", icon: Globe };
+  if (!userAgent) return { label: tr("جهاز غير معروف"), icon: Globe };
   const ua = userAgent.toLowerCase();
   if (ua.includes("mobile") || ua.includes("android") || ua.includes("iphone"))
-    return { label: "موبايل", icon: Smartphone };
+    return { label: tr("موبايل"), icon: Smartphone };
   if (ua.includes("ipad") || ua.includes("tablet"))
-    return { label: "تابلت", icon: Monitor };
-  return { label: "كمبيوتر", icon: Monitor };
+    return { label: tr("تابلت"), icon: Monitor };
+  return { label: tr("كمبيوتر"), icon: Monitor };
 }
 
 function parseBrowser(userAgent: string | null): string {
@@ -33,10 +34,10 @@ function formatDate(date: Date): string {
   const minutes = Math.floor(diff / 60_000);
   const hours = Math.floor(diff / 3_600_000);
   const days = Math.floor(diff / 86_400_000);
-  if (minutes < 1) return "الآن";
-  if (minutes < 60) return `منذ ${minutes} دقيقة`;
-  if (hours < 24) return `منذ ${hours} ساعة`;
-  return `منذ ${days} يوم`;
+  if (minutes < 1) return tr("الآن");
+  if (minutes < 60) return tr("منذ {0} دقيقة", minutes);
+  if (hours < 24) return tr("منذ {0} ساعة", hours);
+  return tr("منذ {0} يوم", days);
 }
 
 type Props = { sessions: SessionDTO[] };
@@ -50,9 +51,9 @@ export default function ActiveSessions({ sessions: initial }: Props) {
       const res = await RevokeSessionAction(sessionId);
       if (res.success) {
         setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-        toast.success("تم إنهاء الجلسة");
+        toast.success(tr("تم إنهاء الجلسة"));
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -62,9 +63,9 @@ export default function ActiveSessions({ sessions: initial }: Props) {
       const res = await RevokeAllOtherSessionsAction();
       if (res.success) {
         setSessions((prev) => prev.filter((s) => s.isCurrent));
-        toast.success(res.message);
+        toast.success(trv(res.message));
       } else {
-        toast.error("حدث خطأ");
+        toast.error(tr("حدث خطأ"));
       }
     });
   }
@@ -80,9 +81,9 @@ export default function ActiveSessions({ sessions: initial }: Props) {
               <ShieldCheck className="size-4" />
             </div>
             <div>
-              <CardTitle className="text-base">الجلسات النشطة</CardTitle>
+              <CardTitle className="text-base">{tr("الجلسات النشطة")}</CardTitle>
               <CardDescription className="mt-0.5 text-xs">
-                أجهزة سجّلت دخولها على حسابك
+                {tr("أجهزة سجّلت دخولها على حسابك")}
               </CardDescription>
             </div>
           </div>
@@ -95,7 +96,7 @@ export default function ActiveSessions({ sessions: initial }: Props) {
               disabled={isPending}
             >
               <LogOut className="size-3.5" />
-              تسجيل خروج من الكل
+              {tr("تسجيل خروج من الكل")}
             </Button>
           )}
         </div>
@@ -104,7 +105,7 @@ export default function ActiveSessions({ sessions: initial }: Props) {
       <CardContent className="space-y-2 pt-0">
         {sessions.length === 0 && (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            لا توجد جلسات نشطة
+            {tr("لا توجد جلسات نشطة")}
           </p>
         )}
 
@@ -128,7 +129,7 @@ export default function ActiveSessions({ sessions: initial }: Props) {
                   </span>
                   {session.isCurrent && (
                     <Badge className="rounded-full bg-emerald-500/15 text-emerald-600 border-emerald-200 text-[10px] px-1.5 py-0 hover:bg-emerald-500/15">
-                      الجهاز الحالي
+                      {tr("الجهاز الحالي")}
                     </Badge>
                   )}
                 </div>
@@ -145,7 +146,7 @@ export default function ActiveSessions({ sessions: initial }: Props) {
                   className="size-8 shrink-0 text-muted-foreground hover:text-rose-600 hover:bg-rose-50"
                   onClick={() => handleRevoke(session.id)}
                   disabled={isPending}
-                  title="إنهاء هذه الجلسة"
+                  title={tr("إنهاء هذه الجلسة")}
                 >
                   <Trash2 className="size-3.5" />
                 </Button>

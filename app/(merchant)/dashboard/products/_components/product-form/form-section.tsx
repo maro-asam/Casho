@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 type FormSectionProps = {
   title: string;
@@ -65,7 +66,7 @@ export function Field({
     <div className={cn("space-y-1.5", className)}>
       <label htmlFor={htmlFor} className="flex items-center gap-1.5 text-sm font-medium">
         {label}
-        {optional && <span className="text-xs font-normal text-muted-foreground">(اختياري)</span>}
+        {optional && <span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>}
       </label>
       {children}
       {error ? (

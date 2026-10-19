@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type BundleItem = {
   productId: string;
@@ -77,7 +78,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
       />
 
       <div className="flex items-center gap-3">
-        <Label>نوع المنتج</Label>
+        <Label>{tr("نوع المنتج")}</Label>
         <div className="flex rounded-xl border overflow-hidden">
           <button
             type="button"
@@ -88,7 +89,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
                 : "bg-background text-muted-foreground hover:bg-muted"
             }`}
           >
-            منتج عادي
+            {tr("منتج عادي")}
           </button>
           <button
             type="button"
@@ -100,7 +101,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
             }`}
           >
             <Layers className="size-3.5" />
-            باقة
+            {tr("باقة")}
           </button>
         </div>
       </div>
@@ -108,7 +109,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
       {type === "BUNDLE" && (
         <div className="rounded-xl border bg-muted/20 p-4 space-y-3">
           <p className="text-sm font-medium text-muted-foreground">
-            حدد المنتجات المشمولة في الباقة وكميتها
+            {tr("حدد المنتجات المشمولة في الباقة وكميتها")}
           </p>
 
           {items.map((item, i) => (
@@ -118,7 +119,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
                 onValueChange={(val) => updateItem(i, "productId", val)}
               >
                 <SelectTrigger className="rounded-xl flex-1">
-                  <SelectValue placeholder="اختر منتج" />
+                  <SelectValue placeholder={tr("اختر منتج")} />
                 </SelectTrigger>
                 <SelectContent>
                   {products.map((p) => (
@@ -130,7 +131,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
               </Select>
 
               <div className="flex items-center gap-1">
-                <Label className="text-xs text-muted-foreground whitespace-nowrap">كمية:</Label>
+                <Label className="text-xs text-muted-foreground whitespace-nowrap">{tr("كمية:")}</Label>
                 <Input
                   type="number"
                   min="1"
@@ -160,7 +161,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
             onClick={addItem}
           >
             <Plus className="size-3.5" />
-            إضافة منتج للباقة
+            {tr("إضافة منتج للباقة")}
           </Button>
         </div>
       )}

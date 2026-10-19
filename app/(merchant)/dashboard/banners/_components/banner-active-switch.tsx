@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { SetBannerActiveAction } from "@/actions/admin/banner.actions";
 import { Switch } from "@/components/ui/switch";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 /** Inline show/hide — optimistic, rolls back on failure. */
 export function BannerActiveSwitch({ bannerId, storeId, title, isActive }: { bannerId: string; storeId: string; title: string; isActive: boolean }) {
@@ -19,10 +20,10 @@ export function BannerActiveSwitch({ bannerId, storeId, title, isActive }: { ban
       const result = await SetBannerActiveAction(bannerId, storeId, next);
       if (!result.ok) {
         setChecked(!next);
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
-      toast.success(next ? "البانر بقى ظاهر في المتجر" : "البانر اتخفى من المتجر");
+      toast.success(next ? tr("البانر بقى ظاهر في المتجر") : tr("البانر اتخفى من المتجر"));
       router.refresh();
     });
   }
@@ -32,7 +33,7 @@ export function BannerActiveSwitch({ bannerId, storeId, title, isActive }: { ban
       checked={checked}
       onCheckedChange={toggle}
       disabled={pending}
-      aria-label={`إظهار "${title}" في المتجر`}
+      aria-label={tr("إظهار \"{0}\" في المتجر", title)}
       className="relative z-10"
     />
   );

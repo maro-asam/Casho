@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 /** Inline on/off — optimistic, rolls back on failure. */
 export function PopupActiveSwitch({ popupId, storeId, name, isActive }: { popupId: string; storeId: string; name: string; isActive: boolean }) {
@@ -36,7 +37,7 @@ export function PopupActiveSwitch({ popupId, storeId, name, isActive }: { popupI
     <Switch
       checked={checked}
       disabled={pending}
-      aria-label={`تشغيل "${name}"`}
+      aria-label={tr("تشغيل \"{0}\"", name)}
       className="relative z-10"
       onCheckedChange={(next) => {
         setChecked(next);
@@ -44,10 +45,10 @@ export function PopupActiveSwitch({ popupId, storeId, name, isActive }: { popupI
           const result = await SetPopupActiveAction(popupId, storeId, next);
           if (!result.ok) {
             setChecked(!next);
-            toast.error(result.message);
+            toast.error(trv(result.message));
             return;
           }
-          toast.success(next ? `"${name}" شغّالة في المتجر` : `"${name}" اتوقفت`);
+          toast.success(next ? tr("\"{0}\" شغّالة في المتجر", name) : tr("\"{0}\" اتوقفت", name));
           router.refresh();
         });
       }}
@@ -77,10 +78,10 @@ export function PopupRowActions({
     startTransition(async () => {
       const result = await DuplicatePopupAction(popupId, storeId);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
-      toast.success("اتعملت نسخة (متوقفة)");
+      toast.success(tr("اتعملت نسخة (متوقفة)"));
       router.refresh();
     });
   }
@@ -90,10 +91,10 @@ export function PopupRowActions({
     startTransition(async () => {
       const result = await ReorderPopupsAction(storeId, topOrder);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
-      toast.success(`"${name}" بقت الأولوية`);
+      toast.success(tr("\"{0}\" بقت الأولوية", name));
       router.refresh();
     });
   }
@@ -102,24 +103,24 @@ export function PopupRowActions({
     startTransition(async () => {
       const result = await DeletePopupAction(popupId, storeId);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
       setConfirm(false);
-      toast.success(`اتمسحت "${name}"`);
+      toast.success(tr("اتمسحت \"{0}\"", name));
       router.refresh();
     });
   }
 
   return (
     <>
-      <DropdownMenu dir="rtl" modal={false}>
+      <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
             disabled={pending}
-            aria-label={`إجراءات ${name}`}
+            aria-label={tr("إجراءات {0}", name)}
             className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
@@ -129,40 +130,40 @@ export function PopupRowActions({
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
-              تعديل
+              {tr("تعديل")}
             </Link>
           </DropdownMenuItem>
           {topOrder && (
             <DropdownMenuItem onSelect={moveToTop}>
               <ArrowUpToLine />
-              خليها الأولوية
+              {tr("خليها الأولوية")}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onSelect={duplicate}>
             <Copy />
-            نسخة منها
+            {tr("نسخة منها")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={() => setConfirm(true)}>
             <Trash2 />
-            حذف
+            {tr("حذف")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <AlertDialog open={confirm} onOpenChange={(open) => !pending && setConfirm(open)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>تمسح &quot;{name}&quot;؟</AlertDialogTitle>
+            <AlertDialogTitle>{tr("تمسح \"{0}\"؟", name)}</AlertDialogTitle>
             <AlertDialogDescription>
-              النافذة وإحصائياتها هيتمسحوا نهائي. الأرقام اللي اتجمعت منها هتفضل في عملائك.
+              {tr("النافذة وإحصائياتها هيتمسحوا نهائي. الأرقام اللي اتجمعت منها هتفضل في عملائك.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>رجوع</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
             <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
               {pending && <Loader2 className="size-4 animate-spin" />}
-              حذف نهائي
+              {tr("حذف نهائي")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

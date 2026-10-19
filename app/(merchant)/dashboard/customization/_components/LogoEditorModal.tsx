@@ -16,14 +16,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type AspectOption = { label: string; value: number | undefined };
 
 const ASPECT_OPTIONS: AspectOption[] = [
-  { label: "مربع ١:١", value: 1 },
-  { label: "أفقي ٤:٣", value: 4 / 3 },
-  { label: "أفقي ١٦:٩", value: 16 / 9 },
-  { label: "حر", value: undefined },
+  { get label() { return tr("مربع ١:١"); }, value: 1 },
+  { get label() { return tr("أفقي ٤:٣"); }, value: 4 / 3 },
+  { get label() { return tr("أفقي ١٦:٩"); }, value: 16 / 9 },
+  { get label() { return tr("حر"); }, value: undefined },
 ];
 
 async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> {
@@ -53,7 +54,7 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> 
   );
 
   return new Promise((resolve, reject) =>
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("فشل إنشاء الصورة"))), "image/png"),
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error(tr("فشل إنشاء الصورة")))), "image/png"),
   );
 }
 
@@ -84,7 +85,7 @@ export default function LogoEditorModal({ open, imageSrc, onClose, onDone }: Pro
       const dataUrl = URL.createObjectURL(blob);
       onDone(dataUrl, blob);
     } catch {
-      toast.error("فشل تطبيق التعديلات");
+      toast.error(tr("فشل تطبيق التعديلات"));
     } finally {
       setIsProcessing(false);
     }
@@ -92,11 +93,11 @@ export default function LogoEditorModal({ open, imageSrc, onClose, onDone }: Pro
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg" dir="rtl">
+      <DialogContent className="max-w-lg" dir={tdir()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Crop className="size-4 text-primary" />
-            تعديل اللوجو
+            {tr("تعديل اللوجو")}
           </DialogTitle>
         </DialogHeader>
 
@@ -118,7 +119,7 @@ export default function LogoEditorModal({ open, imageSrc, onClose, onDone }: Pro
         <div className="space-y-4">
           {/* Aspect Ratio */}
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">النسبة</Label>
+            <Label className="text-xs text-muted-foreground">{tr("النسبة")}</Label>
             <div className="flex flex-wrap gap-2">
               {ASPECT_OPTIONS.map((opt) => (
                 <button
@@ -140,7 +141,7 @@ export default function LogoEditorModal({ open, imageSrc, onClose, onDone }: Pro
           {/* Zoom */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-muted-foreground">التكبير</Label>
+              <Label className="text-xs text-muted-foreground">{tr("التكبير")}</Label>
               <div className="flex gap-1">
                 <button
                   type="button"
@@ -170,7 +171,7 @@ export default function LogoEditorModal({ open, imageSrc, onClose, onDone }: Pro
           {/* Rotation */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-muted-foreground">الدوران</Label>
+              <Label className="text-xs text-muted-foreground">{tr("الدوران")}</Label>
               <button
                 type="button"
                 onClick={() => setRotation((r) => (r + 90) % 360)}
@@ -193,7 +194,7 @@ export default function LogoEditorModal({ open, imageSrc, onClose, onDone }: Pro
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={onClose} className="gap-2">
             <X className="size-4" />
-            إلغاء
+            {tr("إلغاء")}
           </Button>
           <Button onClick={handleConfirm} disabled={isProcessing} className="gap-2">
             {isProcessing ? (
@@ -201,7 +202,7 @@ export default function LogoEditorModal({ open, imageSrc, onClose, onDone }: Pro
             ) : (
               <Check className="size-4" />
             )}
-            تطبيق
+            {tr("تطبيق")}
           </Button>
         </DialogFooter>
       </DialogContent>

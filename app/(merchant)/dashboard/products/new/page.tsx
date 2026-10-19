@@ -8,12 +8,18 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
 import CreateProductForm from "../_components/CreateProductForm";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "إضافة منتج جديد",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("إضافة منتج جديد"),
 };
+}
 
 export default async function CreateNewProductPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -37,24 +43,24 @@ export default async function CreateNewProductPage() {
 
   if (categories.length === 0) {
     return (
-      <div className="space-y-6" dir="rtl">
+      <div className="space-y-6" dir={tdir()}>
         <Link
           href="/products"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowRight className="size-4" />
-          المنتجات
+          <ArrowRight className="size-4 ltr:-scale-x-100" />
+          {tr("المنتجات")}
         </Link>
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={Tags}
-            title="محتاج تصنيف الأول"
-            description="كل منتج لازم يبقى تحت تصنيف (زي: تيشيرتات، شنط، إكسسوارات) عشان العملاء يلاقوه بسهولة. ضيف تصنيف وارجع هنا."
+            title={tr("محتاج تصنيف الأول")}
+            description={tr("كل منتج لازم يبقى تحت تصنيف (زي: تيشيرتات، شنط، إكسسوارات) عشان العملاء يلاقوه بسهولة. ضيف تصنيف وارجع هنا.")}
             action={
               <Button asChild size="sm" className="gap-1.5">
                 <Link href="/categories/new">
                   <Plus className="size-4" />
-                  إضافة تصنيف
+                  {tr("إضافة تصنيف")}
                 </Link>
               </Button>
             }
@@ -65,7 +71,7 @@ export default async function CreateNewProductPage() {
   }
 
   return (
-    <div dir="rtl">
+    <div dir={tdir()}>
       <CreateProductForm categories={categories} products={products} />
     </div>
   );

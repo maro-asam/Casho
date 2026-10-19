@@ -24,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
   storeId: string;
@@ -41,10 +42,10 @@ export function BannerRowActions({ storeId, banner, editHref, storefrontUrl }: P
     startTransition(async () => {
       const result = await SetBannerActiveAction(banner.id, storeId, !banner.isActive);
       if (result.ok) {
-        toast.success(banner.isActive ? "البانر اتخفى من المتجر" : "البانر بقى ظاهر في المتجر");
+        toast.success(banner.isActive ? tr("البانر اتخفى من المتجر") : tr("البانر بقى ظاهر في المتجر"));
         router.refresh();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -53,10 +54,10 @@ export function BannerRowActions({ storeId, banner, editHref, storefrontUrl }: P
     startTransition(async () => {
       const result = await DuplicateBannerAction(banner.id, storeId);
       if (result.ok) {
-        toast.success("اتعملت نسخة مخفية — عدّلها واظهرها");
+        toast.success(tr("اتعملت نسخة مخفية — عدّلها واظهرها"));
         router.refresh();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -66,23 +67,23 @@ export function BannerRowActions({ storeId, banner, editHref, storefrontUrl }: P
       const result = await DeleteBannerAction(banner.id, storeId);
       if (result.ok) {
         setConfirmDelete(false);
-        toast.success(`اتمسح "${banner.title}"`);
+        toast.success(tr("اتمسح \"{0}\"", banner.title));
         router.refresh();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
 
   return (
     <>
-      <DropdownMenu dir="rtl" modal={false}>
+      <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
             disabled={pending}
-            aria-label={`إجراءات ${banner.title}`}
+            aria-label={tr("إجراءات {0}", banner.title)}
             className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
@@ -92,45 +93,45 @@ export function BannerRowActions({ storeId, banner, editHref, storefrontUrl }: P
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
-              تعديل
+              {tr("تعديل")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={duplicate}>
             <Copy />
-            عمل نسخة
+            {tr("عمل نسخة")}
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href={storefrontUrl} target="_blank" rel="noreferrer">
               <ExternalLink />
-              عرض في المتجر
+              {tr("عرض في المتجر")}
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={toggleActive}>
             {banner.isActive ? <EyeOff /> : <Eye />}
-            {banner.isActive ? "إخفاء من المتجر" : "إظهار في المتجر"}
+            {banner.isActive ? tr("إخفاء من المتجر") : tr("إظهار في المتجر")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={() => setConfirmDelete(true)}>
             <Trash2 />
-            حذف
+            {tr("حذف")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <AlertDialog open={confirmDelete} onOpenChange={(open) => !pending && setConfirmDelete(open)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>تمسح &quot;{banner.title}&quot;؟</AlertDialogTitle>
+            <AlertDialogTitle>{tr("تمسح \"{0}\"؟", banner.title)}</AlertDialogTitle>
             <AlertDialogDescription>
-              البانر هيتمسح نهائي من متجرك.
-              {banner.isActive && " لو عايز توقفه مؤقتًا، اخفيه بدل ما تمسحه."}
+              {tr("البانر هيتمسح نهائي من متجرك.")}
+              {banner.isActive && tr(" لو عايز توقفه مؤقتًا، اخفيه بدل ما تمسحه.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>رجوع</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
             <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
               {pending && <Loader2 className="size-4 animate-spin" />}
-              حذف نهائي
+              {tr("حذف نهائي")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

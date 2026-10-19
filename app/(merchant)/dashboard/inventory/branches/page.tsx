@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BranchActions } from "./_components/BranchActions";
 import { NewBranchDialog } from "./_components/NewBranchDialog";
+import { tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export default async function BranchesPage() {
+  await loadDashboardLocale();
   const branches = await GetBranchesAction();
 
   return (
@@ -15,29 +18,29 @@ export default async function BranchesPage() {
         <div className="flex items-center gap-3">
           <Link href="/dashboard/inventory">
             <Button variant="ghost" size="sm" className="gap-1">
-              <ArrowRight className="size-4" />
-              المخزون
+              <ArrowRight className="size-4 ltr:-scale-x-100" />
+              {tr("المخزون")}
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">إدارة الفروع</h1>
+          <h1 className="text-xl font-bold">{tr("إدارة الفروع")}</h1>
         </div>
         <NewBranchDialog />
       </div>
 
       <p className="text-sm text-muted-foreground">
-        كل فرع ليه مخزونه وورديّاته ومبيعات الكاشير بتاعته. حدد مين من فريقك يشتغل في أنهي فرع من{" "}
+        {tr("كل فرع ليه مخزونه وورديّاته ومبيعات الكاشير بتاعته. حدد مين من فريقك يشتغل في أنهي فرع من")}{" "}
         <Link href="/dashboard/settings" className="font-medium text-primary hover:underline">
-          الإعدادات ← فريق العمل
+          {tr("الإعدادات ← فريق العمل")}
         </Link>
-        . الفرع اللي عليه حركات بيتقفل (إيقاف) بدل ما يتمسح عشان السجل يفضل محفوظ.
+        {tr(". الفرع اللي عليه حركات بيتقفل (إيقاف) بدل ما يتمسح عشان السجل يفضل محفوظ.")}
       </p>
 
       {branches.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center">
           <Warehouse className="mx-auto mb-3 size-10 text-muted-foreground/40" />
-          <p className="mb-2 text-muted-foreground">لا توجد فروع بعد</p>
+          <p className="mb-2 text-muted-foreground">{tr("لا توجد فروع بعد")}</p>
           <p className="mb-4 text-sm text-muted-foreground/70">
-            يمكنك إضافة فروع لتتبع المخزون في كل فرع بشكل مستقل
+            {tr("يمكنك إضافة فروع لتتبع المخزون في كل فرع بشكل مستقل")}
           </p>
           <NewBranchDialog />
         </div>
@@ -52,8 +55,8 @@ export default async function BranchesPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <h2 className="font-semibold">{branch.name}</h2>
-                    {branch.isDefault && <Badge>افتراضي</Badge>}
-                    {!branch.isActive && <Badge variant="secondary">غير نشط</Badge>}
+                    {branch.isDefault && <Badge>{tr("افتراضي")}</Badge>}
+                    {!branch.isActive && <Badge variant="secondary">{tr("غير نشط")}</Badge>}
                   </div>
                   {branch.address && (
                     <p className="mt-1 text-sm text-muted-foreground">{branch.address}</p>
@@ -62,11 +65,10 @@ export default async function BranchesPage() {
                     <p className="mt-0.5 text-sm text-muted-foreground">{branch.phone}</p>
                   )}
                   <p className="mt-2 text-xs text-muted-foreground">
-                    {branch._count.inventory} صنف في المخزون
+                    {tr("{0} صنف في المخزون", branch._count.inventory)}
                     {branch._count.shifts > 0 && (
                       <span className="text-emerald-600 dark:text-emerald-400">
-                        {" · "}
-                        {branch._count.shifts} وردية شغالة دلوقتي
+                        {" "}{tr("· {0} وردية شغالة دلوقتي", branch._count.shifts)}
                       </span>
                     )}
                   </p>

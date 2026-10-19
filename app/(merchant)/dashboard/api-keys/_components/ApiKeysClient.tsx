@@ -46,6 +46,7 @@ import {
 import { revokeApiKey, rotateApiKey } from "@/actions/api-keys/manage.actions";
 import CreateKeyDialog from "./CreateKeyDialog";
 import KeyRevealDialog from "./KeyRevealDialog";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type ApiKey = {
   id: string;
@@ -91,9 +92,9 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
             k.id === id ? { ...k, status: "REVOKED", revokedAt: new Date() } : k,
           ),
         );
-        toast.success("تم إلغاء المفتاح بنجاح");
+        toast.success(tr("تم إلغاء المفتاح بنجاح"));
       } catch {
-        toast.error("حدث خطأ، يرجى المحاولة مرة أخرى");
+        toast.error(tr("حدث خطأ، يرجى المحاولة مرة أخرى"));
       }
     });
   }
@@ -116,10 +117,10 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
               },
             ]),
         );
-        setNewKey({ key: rawKey, name: `${key.name} (جديد)` });
-        toast.success("تم تجديد المفتاح بنجاح");
+        setNewKey({ key: rawKey, name: tr("{0} (جديد)", key.name) });
+        toast.success(tr("تم تجديد المفتاح بنجاح"));
       } catch {
-        toast.error("حدث خطأ، يرجى المحاولة مرة أخرى");
+        toast.error(tr("حدث خطأ، يرجى المحاولة مرة أخرى"));
       }
     });
   }
@@ -133,9 +134,9 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div>
-            <CardTitle className="text-base">المفاتيح النشطة</CardTitle>
+            <CardTitle className="text-base">{tr("المفاتيح النشطة")}</CardTitle>
             <CardDescription className="mt-1">
-              استخدم مفتاح API للاتصال بنظام Casho برمجياً من أنظمتك الخارجية
+              {tr("استخدم مفتاح API للاتصال بنظام Casho برمجياً من أنظمتك الخارجية")}
             </CardDescription>
           </div>
           <Button
@@ -145,7 +146,7 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
             disabled={activeKeys.length >= 10}
           >
             <Plus className="size-4" />
-            مفتاح جديد
+            {tr("مفتاح جديد")}
           </Button>
         </CardHeader>
 
@@ -159,8 +160,8 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
           {activeKeys.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
               <Code2 className="size-8 text-muted-foreground/40" />
-              <p>لا توجد مفاتيح نشطة</p>
-              <p className="text-xs">أنشئ مفتاحاً للبدء في استخدام API</p>
+              <p>{tr("لا توجد مفاتيح نشطة")}</p>
+              <p className="text-xs">{tr("أنشئ مفتاحاً للبدء في استخدام API")}</p>
             </div>
           ) : (
             <div className="divide-y rounded-xl border">
@@ -183,7 +184,7 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
         <Card className="opacity-60">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              المفاتيح الملغاة ({revokedKeys.length})
+              {tr("المفاتيح الملغاة ({0})", revokedKeys.length)}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -212,12 +213,11 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
       />
 
       <AlertDialog open={!!revokeTarget} onOpenChange={(o) => !o && setRevokeTarget(null)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>إلغاء المفتاح</AlertDialogTitle>
+            <AlertDialogTitle>{tr("إلغاء المفتاح")}</AlertDialogTitle>
             <AlertDialogDescription>
-              سيتوقف المفتاح <strong>{revokeTarget?.name}</strong> عن العمل فوراً. هذا الإجراء لا
-              يمكن التراجع عنه.
+              {tr("سيتوقف المفتاح")}{" "}<strong>{revokeTarget?.name}</strong>{" "}{tr("عن العمل فوراً. هذا الإجراء لا يمكن التراجع عنه.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse justify-start gap-2">
@@ -225,9 +225,9 @@ export default function ApiKeysClient({ storeId, initialKeys }: Props) {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleRevoke}
             >
-              إلغاء المفتاح
+              {tr("إلغاء المفتاح")}
             </AlertDialogAction>
-            <AlertDialogCancel>تراجع</AlertDialogCancel>
+            <AlertDialogCancel>{tr("تراجع")}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -269,22 +269,21 @@ function KeyRow({
 
           {apiKey.scopes.length === 0 ? (
             <Badge variant="secondary" className="rounded-md px-1.5 py-0 text-xs">
-              كل الصلاحيات
+              {tr("كل الصلاحيات")}
             </Badge>
           ) : (
             <span className="text-xs text-muted-foreground">
-              {apiKey.scopes.length} صلاحية
+              {tr("{0} صلاحية", apiKey.scopes.length)}
             </span>
           )}
 
           {apiKey.lastUsedAt ? (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="size-3" />
-              آخر استخدام{" "}
-              {formatDistanceToNow(apiKey.lastUsedAt, { addSuffix: true, locale: ar })}
+              {tr("آخر استخدام {0}", formatDistanceToNow(apiKey.lastUsedAt, { addSuffix: true, locale: ar }))}
             </span>
           ) : (
-            <span className="text-xs text-muted-foreground/60">لم يُستخدم بعد</span>
+            <span className="text-xs text-muted-foreground/60">{tr("لم يُستخدم بعد")}</span>
           )}
         </div>
       </div>
@@ -299,7 +298,7 @@ function KeyRow({
           <DropdownMenuContent align="start">
             <DropdownMenuItem onClick={onRotate}>
               <RefreshCw className="me-2 size-4" />
-              تجديد المفتاح
+              {tr("تجديد المفتاح")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -307,7 +306,7 @@ function KeyRow({
               onClick={onRevoke}
             >
               <ShieldOff className="me-2 size-4" />
-              إلغاء المفتاح
+              {tr("إلغاء المفتاح")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

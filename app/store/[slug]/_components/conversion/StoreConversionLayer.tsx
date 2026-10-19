@@ -4,10 +4,12 @@ import { isPopupType, readPopupConfig, type StorefrontPopup } from "@/lib/popups
 import { PopupHost } from "./PopupHost";
 import { PurchaseToasts } from "./PurchaseToasts";
 import { WhatsAppButton } from "./WhatsAppButton";
+import { OfferHost } from "../offers/OfferHost";
+import { storeHasLiveOffers } from "@/lib/offers/storefront-offers";
 
 type Props = { storeId: string; storeSlug: string };
 
-/** Popups, WhatsApp button and live purchase toasts — everything that floats over the store. */
+/** Popups, upsell offers, WhatsApp button and live purchase toasts — everything that floats over the store. */
 export async function StoreConversionLayer({ storeId, storeSlug }: Props) {
   // Isolated + guarded: a problem here must never take the storefront down.
   const settings = await (async () =>
@@ -18,7 +20,7 @@ export async function StoreConversionLayer({ storeId, storeSlug }: Props) {
   const whatsappNumber = settings?.whatsappNumber;
   const now = new Date();
 
-  const [popupRows, purchases] = await Promise.all([
+  const [popupRows, purchases, hasOffers] = await Promise.all([
     (async () =>
       prisma.storePopup.findMany({
         where: {
@@ -34,6 +36,7 @@ export async function StoreConversionLayer({ storeId, storeSlug }: Props) {
         select: { id: true, type: true, priority: true, config: true, endsAt: true },
       }))().catch(() => []),
     config.purchaseToasts.enabled ? recentPurchases(storeId, config.purchaseToasts.lookbackDays) : Promise.resolve([]),
+    storeHasLiveOffers(storeId).catch(() => false),
   ]);
 
   const popups = popupRows.filter((p) => isPopupType(p.type)).map((p) => ({ ...p, config: readPopupConfig(p.config) }));
@@ -66,6 +69,7 @@ export async function StoreConversionLayer({ storeId, storeSlug }: Props) {
     <>
       {/* Always mounted: with no live popups it renders nothing, but the visual builder can still preview one. */}
       <PopupHost storeSlug={storeSlug} popups={storefrontPopups} />
+      {hasOffers && <OfferHost storeSlug={storeSlug} />}
       {showWhatsApp && <WhatsAppButton storeSlug={storeSlug} config={config.whatsapp} phone={whatsappPhone} />}
       {showToasts && (
         <PurchaseToasts

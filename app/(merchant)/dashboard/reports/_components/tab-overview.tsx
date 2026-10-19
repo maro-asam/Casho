@@ -20,6 +20,7 @@ import { CHANNELS, formatMoney, formatNumber, formatPercent, percentChange } fro
 import type { Delta, ReportsData } from "../_lib/types";
 import { Panel, ShareBar, Stat } from "./report-ui";
 import { TrendChart } from "./trend-chart";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 const pct = (v: number) => formatPercent(v);
 
@@ -27,7 +28,7 @@ export function TabOverview({ data }: { data: ReportsData }) {
   const { kpis, pnl } = data;
   const coverageNote =
     pnl.costCoverage < 0.999 && pnl.netSales.current > 0
-      ? `محسوب على ${formatPercent(pnl.costCoverage * 100)} من المبيعات`
+      ? tr("محسوب على {0} من المبيعات", formatPercent(pnl.costCoverage * 100))
       : undefined;
 
   return (
@@ -35,71 +36,71 @@ export function TabOverview({ data }: { data: ReportsData }) {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat
           icon={Coins}
-          label="صافي المبيعات"
+          label={tr("صافي المبيعات")}
           delta={kpis.netSales}
           format={formatMoney}
-          hint="قيمة المنتجات المباعة بعد الخصومات والمرتجعات، من غير الشحن والطلبات الملغية."
+          hint={tr("قيمة المنتجات المباعة بعد الخصومات والمرتجعات، من غير الشحن والطلبات الملغية.")}
         />
         {pnl.costCoverage > 0 || pnl.netSales.current === 0 ? (
           <Stat
             icon={TrendingUp}
-            label="إجمالي الربح"
+            label={tr("إجمالي الربح")}
             delta={kpis.grossProfit}
             format={formatMoney}
-            hint="صافي المبيعات ناقص تكلفة البضاعة المباعة. المنتجات اللي ملهاش سعر تكلفة مش داخلة في الحساب."
+            hint={tr("صافي المبيعات ناقص تكلفة البضاعة المباعة. المنتجات اللي ملهاش سعر تكلفة مش داخلة في الحساب.")}
             sub={coverageNote && <span className="text-amber-600 dark:text-amber-400">{coverageNote}</span>}
           />
         ) : (
           <Stat
             icon={TrendingUp}
-            label="إجمالي الربح"
+            label={tr("إجمالي الربح")}
             value="—"
-            hint="محتاجين سعر التكلفة للمنتجات عشان نحسب الربح."
+            hint={tr("محتاجين سعر التكلفة للمنتجات عشان نحسب الربح.")}
             sub={
               <Link href="/products" className="text-amber-600 hover:underline dark:text-amber-400">
-                ضيف سعر التكلفة للمنتجات
+                {tr("ضيف سعر التكلفة للمنتجات")}
               </Link>
             }
           />
         )}
-        <Stat icon={ShoppingBag} label="الطلبات" delta={kpis.orders} format={formatNumber} hint="كل الطلبات ما عدا الملغية، من كل القنوات." />
+        <Stat icon={ShoppingBag} label={tr("الطلبات")} delta={kpis.orders} format={formatNumber} hint={tr("كل الطلبات ما عدا الملغية، من كل القنوات.")} />
         <Stat
           icon={Receipt}
-          label="متوسط قيمة الطلب"
+          label={tr("متوسط قيمة الطلب")}
           delta={kpis.aov}
           format={formatMoney}
-          hint="إجمالي اللي دفعه العملاء (شامل الشحن) ÷ عدد الطلبات غير الملغية."
+          hint={tr("إجمالي اللي دفعه العملاء (شامل الشحن) ÷ عدد الطلبات غير الملغية.")}
         />
         <Stat
           icon={Eye}
-          label="الزوار"
+          label={tr("الزوار")}
           delta={kpis.visitors}
           format={formatNumber}
-          hint="عدد الأشخاص المختلفين اللي فتحوا المتجر (مش عدد مرات الفتح)."
-          sub={<span>{formatNumber(pnl.visits)} زيارة</span>}
+          hint={tr("عدد الأشخاص المختلفين اللي فتحوا المتجر (مش عدد مرات الفتح).")}
+          sub={<span>{tr("{0} زيارة", formatNumber(pnl.visits))}</span>}
         />
         <Stat
           icon={MousePointerClick}
-          label="معدل التحويل"
+          label={tr("معدل التحويل")}
           delta={kpis.conversion}
           format={pct}
-          hint="طلبات المتجر الأونلاين ÷ الزوار. طلبات الكاشير مش داخلة لأنها مش جاية من زيارات."
+          hint={tr("طلبات المتجر الأونلاين ÷ الزوار. طلبات الكاشير مش داخلة لأنها مش جاية من زيارات.")}
         />
         <Stat
           icon={Users}
-          label="العملاء"
+          label={tr("العملاء")}
           delta={kpis.customers}
           format={formatNumber}
-          hint="عملاء مختلفين برقم موبايل. عملاء الكاشير اللي من غير بيانات مش محسوبين."
-          sub={<span>{formatNumber(data.customers.new)} جديد</span>}
+          hint={tr("عملاء مختلفين برقم موبايل. عملاء الكاشير اللي من غير بيانات مش محسوبين.")}
+          sub={<span>{tr("{0} جديد", formatNumber(data.customers.new))}</span>}
         />
         <Stat
           icon={Ban}
-          label="نسبة الإلغاء"
+          label={tr("نسبة الإلغاء")}
           delta={kpis.cancelRate}
           format={pct}
           invert
-          hint="الطلبات الملغية ÷ كل الطلبات في الفترة."
+          hint={tr("الطلبات الملغية ÷ كل الطلبات في الفترة.")}
         />
       </div>
 
@@ -144,7 +145,7 @@ function Row({
         {note && <p className="text-xs text-muted-foreground">{note}</p>}
       </div>
       {delta && <DeltaBadge value={percentChange(delta.current, delta.previous)} invert={invert} className="hidden sm:inline-flex" />}
-      <p className={cn("w-32 text-left tabular-nums", strong ? "text-base font-bold" : "text-sm font-medium", muted && "text-muted-foreground")}>
+      <p className={cn("w-32 text-end tabular-nums", strong ? "text-base font-bold" : "text-sm font-medium", muted && "text-muted-foreground")}>
         {sign === "-" && value > 0 ? "− " : ""}
         {formatMoney(value)}
       </p>
@@ -158,27 +159,27 @@ function ProfitStatement({ data }: { data: ReportsData }) {
   const hasCost = pnl.costCoverage > 0;
 
   return (
-    <Panel title="الأرباح والخسائر" description="حساب مبسط لفلوس الفترة من أول سعر البيع لحد الربح">
+    <Panel title={tr("الأرباح والخسائر")} description={tr("حساب مبسط لفلوس الفترة من أول سعر البيع لحد الربح")}>
       <div className="divide-y divide-transparent">
-        <Row label="إجمالي المبيعات" note="بسعر البيع قبل أي خصم" value={pnl.grossSales.current} delta={pnl.grossSales} />
-        <Row label="الخصومات" value={pnl.discounts.current} delta={pnl.discounts} sign="-" muted invert />
-        <Row label="المرتجعات" value={pnl.returns.current} delta={pnl.returns} sign="-" muted invert />
-        <Row label="صافي المبيعات" value={pnl.netSales.current} delta={pnl.netSales} strong />
+        <Row label={tr("إجمالي المبيعات")} note={tr("بسعر البيع قبل أي خصم")} value={pnl.grossSales.current} delta={pnl.grossSales} />
+        <Row label={tr("الخصومات")} value={pnl.discounts.current} delta={pnl.discounts} sign="-" muted invert />
+        <Row label={tr("المرتجعات")} value={pnl.returns.current} delta={pnl.returns} sign="-" muted invert />
+        <Row label={tr("صافي المبيعات")} value={pnl.netSales.current} delta={pnl.netSales} strong />
         {hasCost ? (
           <>
-            <Row label="تكلفة البضاعة المباعة" value={pnl.cogs} sign="-" muted />
+            <Row label={tr("تكلفة البضاعة المباعة")} value={pnl.cogs} sign="-" muted />
             <Row
-              label="إجمالي الربح"
+              label={tr("إجمالي الربح")}
               value={pnl.grossProfit.current}
               delta={pnl.grossProfit}
               strong
-              note={`هامش الربح ${formatPercent(pnl.margin.current)}`}
+              note={tr("هامش الربح {0}", formatPercent(pnl.margin.current))}
             />
           </>
         ) : (
           <p className="flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
             <Info className="mt-0.5 size-3.5 shrink-0" />
-            مفيش سعر تكلفة لأي منتج اتباع، فمش هنقدر نحسب الربح. ضيف سعر التكلفة من صفحة تعديل المنتج.
+            {tr("مفيش سعر تكلفة لأي منتج اتباع، فمش هنقدر نحسب الربح. ضيف سعر التكلفة من صفحة تعديل المنتج.")}
           </p>
         )}
       </div>
@@ -186,29 +187,28 @@ function ProfitStatement({ data }: { data: ReportsData }) {
       {hasCost && pnl.costCoverage < 0.999 && (
         <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-300">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-          {formatNumber(pnl.productsMissingCost)} منتج اتباعوا من غير سعر تكلفة، فالربح محسوب على{" "}
-          {formatPercent(pnl.costCoverage * 100)} من المبيعات بس.{" "}
+          {tr("{0} منتج اتباعوا من غير سعر تكلفة، فالربح محسوب على {1} من المبيعات بس.", formatNumber(pnl.productsMissingCost), formatPercent(pnl.costCoverage * 100))}{" "}
           <Link href="/products" className="font-medium underline underline-offset-2">
-            ضيف التكلفة
+            {tr("ضيف التكلفة")}
           </Link>
         </p>
       )}
 
       <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4 text-sm sm:grid-cols-4">
         <div>
-          <dt className="text-xs text-muted-foreground">الشحن المحصّل</dt>
+          <dt className="text-xs text-muted-foreground">{tr("الشحن المحصّل")}</dt>
           <dd className="mt-0.5 font-medium tabular-nums">{formatMoney(pnl.shipping)}</dd>
         </div>
         <div>
-          <dt className="text-xs text-muted-foreground">القطع المباعة</dt>
+          <dt className="text-xs text-muted-foreground">{tr("القطع المباعة")}</dt>
           <dd className="mt-0.5 font-medium tabular-nums">{formatNumber(pnl.units.current)}</dd>
         </div>
         <div>
-          <dt className="text-xs text-muted-foreground">قطع في الطلب</dt>
-          <dd className="mt-0.5 font-medium tabular-nums">{pnl.itemsPerOrder.toLocaleString("ar-EG", { maximumFractionDigits: 1 })}</dd>
+          <dt className="text-xs text-muted-foreground">{tr("قطع في الطلب")}</dt>
+          <dd className="mt-0.5 font-medium tabular-nums">{pnl.itemsPerOrder.toLocaleString(intlLocale(), { maximumFractionDigits: 1 })}</dd>
         </div>
         <div>
-          <dt className="text-xs text-muted-foreground">طلبات ملغية</dt>
+          <dt className="text-xs text-muted-foreground">{tr("طلبات ملغية")}</dt>
           <dd className="mt-0.5 font-medium tabular-nums">
             {formatNumber(pnl.canceledOrders)} <span className="text-xs font-normal text-muted-foreground">· {formatMoney(pnl.canceledValue)}</span>
           </dd>
@@ -227,7 +227,7 @@ const INSIGHT_TONE = {
 
 function Insights({ insights }: { insights: ReportsData["insights"] }) {
   return (
-    <Panel title="ملاحظات على الفترة" description="أرقام محسوبة من بياناتك، مش نصايح عامة">
+    <Panel title={tr("ملاحظات على الفترة")} description={tr("أرقام محسوبة من بياناتك، مش نصايح عامة")}>
       {insights.length ? (
         <ul className="space-y-3">
           {insights.map((insight, i) => {
@@ -241,7 +241,7 @@ function Insights({ insights }: { insights: ReportsData["insights"] }) {
           })}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">محتاجين بيانات أكتر في الفترة دي عشان نطلع ملاحظات مفيدة.</p>
+        <p className="text-sm text-muted-foreground">{tr("محتاجين بيانات أكتر في الفترة دي عشان نطلع ملاحظات مفيدة.")}</p>
       )}
     </Panel>
   );
@@ -249,7 +249,7 @@ function Insights({ insights }: { insights: ReportsData["insights"] }) {
 
 function Channels({ data }: { data: ReportsData }) {
   return (
-    <Panel title="المبيعات حسب القناة">
+    <Panel title={tr("المبيعات حسب القناة")}>
       {data.channels.length ? (
         <ul className="space-y-4">
           {data.channels.map((c) => {
@@ -263,14 +263,14 @@ function Channels({ data }: { data: ReportsData }) {
                 </div>
                 <ShareBar value={c.share} />
                 <p className="text-xs text-muted-foreground tabular-nums">
-                  {formatPercent(c.share * 100)} · {formatNumber(c.orders)} طلب · متوسط {formatMoney(c.aov)}
+                  {tr("{0} · {1} طلب · متوسط {2}", formatPercent(c.share * 100), formatNumber(c.orders), formatMoney(c.aov))}
                 </p>
               </li>
             );
           })}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">مفيش طلبات في الفترة دي.</p>
+        <p className="text-sm text-muted-foreground">{tr("مفيش طلبات في الفترة دي.")}</p>
       )}
     </Panel>
   );

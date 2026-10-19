@@ -5,16 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseOrderStatus } from "@prisma/client";
 import { POActions } from "./_components/POActions";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 const STATUS_CONFIG: Record<PurchaseOrderStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  DRAFT: { label: "مسودة", variant: "secondary" },
-  SENT: { label: "مُرسل للمورد", variant: "outline" },
-  PARTIAL: { label: "استلام جزئي", variant: "default" },
-  RECEIVED: { label: "مُستلم بالكامل", variant: "default" },
-  CANCELLED: { label: "ملغي", variant: "destructive" },
+  DRAFT: { get label() { return tr("مسودة"); }, variant: "secondary" },
+  SENT: { get label() { return tr("مُرسل للمورد"); }, variant: "outline" },
+  PARTIAL: { get label() { return tr("استلام جزئي"); }, variant: "default" },
+  RECEIVED: { get label() { return tr("مُستلم بالكامل"); }, variant: "default" },
+  CANCELLED: { get label() { return tr("ملغي"); }, variant: "destructive" },
 };
 
 export default async function PODetailPage({ params }: { params: Promise<{ poId: string }> }) {
+  await loadDashboardLocale();
   const { poId } = await params;
   const po = await GetPurchaseOrderDetailAction(poId);
   const cfg = STATUS_CONFIG[po.status];
@@ -28,8 +31,8 @@ export default async function PODetailPage({ params }: { params: Promise<{ poId:
         <div className="flex items-center gap-3">
           <Link href="/dashboard/inventory/purchase-orders">
             <Button variant="ghost" size="sm" className="gap-1">
-              <ArrowRight className="size-4" />
-              طلبات الشراء
+              <ArrowRight className="size-4 ltr:-scale-x-100" />
+              {tr("طلبات الشراء")}
             </Button>
           </Link>
           <h1 className="text-xl font-bold">{po.orderNumber}</h1>
@@ -41,11 +44,11 @@ export default async function PODetailPage({ params }: { params: Promise<{ poId:
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Info */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold">تفاصيل الطلب</h2>
+          <h2 className="mb-4 font-semibold">{tr("تفاصيل الطلب")}</h2>
           <dl className="space-y-3 text-sm">
             {po.supplier && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">المورد</dt>
+                <dt className="text-muted-foreground">{tr("المورد")}</dt>
                 <dd>
                   <Link href={`/dashboard/inventory/suppliers/${po.supplier.id}`} className="hover:underline">
                     {po.supplier.name}
@@ -55,54 +58,54 @@ export default async function PODetailPage({ params }: { params: Promise<{ poId:
             )}
             {po.branch && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">الفرع</dt>
+                <dt className="text-muted-foreground">{tr("الفرع")}</dt>
                 <dd>{po.branch.name}</dd>
               </div>
             )}
             {po.expectedDate && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">تاريخ الاستلام</dt>
+                <dt className="text-muted-foreground">{tr("تاريخ الاستلام")}</dt>
                 <dd>
-                  {new Intl.DateTimeFormat("ar-EG", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(po.expectedDate))}
+                  {new Intl.DateTimeFormat(intlLocale(), { day: "2-digit", month: "long", year: "numeric" }).format(new Date(po.expectedDate))}
                 </dd>
               </div>
             )}
             {po.receivedAt && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">تاريخ الاستلام الفعلي</dt>
+                <dt className="text-muted-foreground">{tr("تاريخ الاستلام الفعلي")}</dt>
                 <dd>
-                  {new Intl.DateTimeFormat("ar-EG", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(po.receivedAt))}
+                  {new Intl.DateTimeFormat(intlLocale(), { day: "2-digit", month: "long", year: "numeric" }).format(new Date(po.receivedAt))}
                 </dd>
               </div>
             )}
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">أُنشئ بواسطة</dt>
+              <dt className="text-muted-foreground">{tr("أُنشئ بواسطة")}</dt>
               <dd>{po.createdBy.name ?? "—"}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">تاريخ الإنشاء</dt>
-              <dd>{new Intl.DateTimeFormat("ar-EG", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(po.createdAt))}</dd>
+              <dt className="text-muted-foreground">{tr("تاريخ الإنشاء")}</dt>
+              <dd>{new Intl.DateTimeFormat(intlLocale(), { day: "2-digit", month: "short", year: "numeric" }).format(new Date(po.createdAt))}</dd>
             </div>
           </dl>
 
           <div className="mt-4 space-y-2 rounded-lg bg-muted/50 p-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">الإجمالي الكلي</span>
+              <span className="text-muted-foreground">{tr("الإجمالي الكلي")}</span>
               <span className="font-semibold">
-                {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(po.totalAmount / 100)}
+                {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(po.totalAmount / 100)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">تم استلامه</span>
+              <span className="text-muted-foreground">{tr("تم استلامه")}</span>
               <span className="font-semibold text-emerald-600">
-                {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(receivedTotal / 100)}
+                {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(receivedTotal / 100)}
               </span>
             </div>
             {pendingTotal > 0 && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">متبقي</span>
+                <span className="text-muted-foreground">{tr("متبقي")}</span>
                 <span className="font-semibold text-amber-600">
-                  {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(pendingTotal / 100)}
+                  {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(pendingTotal / 100)}
                 </span>
               </div>
             )}
@@ -117,17 +120,17 @@ export default async function PODetailPage({ params }: { params: Promise<{ poId:
         {/* Items */}
         <div className="rounded-xl border border-border bg-card shadow-sm lg:col-span-2">
           <h2 className="border-b border-border px-5 py-4 font-semibold">
-            المنتجات ({po.items.length})
+            {tr("المنتجات ({0})", po.items.length)}
           </h2>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/50 text-right text-xs font-semibold uppercase text-muted-foreground">
-                <th className="px-4 py-3">المنتج</th>
-                <th className="px-4 py-3 text-center">الكمية المطلوبة</th>
-                <th className="px-4 py-3 text-center">المُستلم</th>
-                <th className="px-4 py-3 text-center">المتبقي</th>
-                <th className="px-4 py-3 text-center">سعر الوحدة</th>
-                <th className="px-4 py-3 text-center">الإجمالي</th>
+              <tr className="border-b border-border bg-muted/50 text-start text-xs font-semibold uppercase text-muted-foreground">
+                <th className="px-4 py-3">{tr("المنتج")}</th>
+                <th className="px-4 py-3 text-center">{tr("الكمية المطلوبة")}</th>
+                <th className="px-4 py-3 text-center">{tr("المُستلم")}</th>
+                <th className="px-4 py-3 text-center">{tr("المتبقي")}</th>
+                <th className="px-4 py-3 text-center">{tr("سعر الوحدة")}</th>
+                <th className="px-4 py-3 text-center">{tr("الإجمالي")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -152,17 +155,17 @@ export default async function PODetailPage({ params }: { params: Promise<{ poId:
                         {item.receivedQuantity}
                       </span>
                       {pct > 0 && pct < 100 && (
-                        <span className="ml-1 text-xs text-muted-foreground">({pct}%)</span>
+                        <span className="me-1 text-xs text-muted-foreground">({pct}%)</span>
                       )}
                     </td>
                     <td className={`px-4 py-3 text-center tabular-nums ${remaining > 0 ? "font-semibold text-amber-600" : "text-muted-foreground"}`}>
                       {remaining}
                     </td>
                     <td className="px-4 py-3 text-center tabular-nums text-muted-foreground">
-                      {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(item.unitCost / 100)}
+                      {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(item.unitCost / 100)}
                     </td>
                     <td className="px-4 py-3 text-center font-semibold tabular-nums">
-                      {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(item.totalCost / 100)}
+                      {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(item.totalCost / 100)}
                     </td>
                   </tr>
                 );

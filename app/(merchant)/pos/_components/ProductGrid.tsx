@@ -5,6 +5,7 @@ import { PackageSearch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CartItem } from "./PosTerminal";
 import { egp } from "./pos-format";
+import { tr } from "@/lib/i18n/dashboard";
 
 type Product = Omit<CartItem, "quantity" | "discountAmount">;
 
@@ -44,8 +45,8 @@ export default function ProductGrid({ products, loading, onAdd, cartItems, query
         <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground">
           <PackageSearch className="size-5" />
         </span>
-        <p className="text-sm font-medium">{query ? `مفيش منتجات بـ "${query}"` : "مفيش منتجات في التصنيف ده"}</p>
-        <p className="text-xs text-muted-foreground">جرّب اسم تاني، أو امسح الباركود مباشرة.</p>
+        <p className="text-sm font-medium">{query ? tr("مفيش منتجات بـ \"{0}\"", query) : tr("مفيش منتجات في التصنيف ده")}</p>
+        <p className="text-xs text-muted-foreground">{tr("جرّب اسم تاني، أو امسح الباركود مباشرة.")}</p>
       </div>
     );
   }
@@ -64,7 +65,7 @@ export default function ProductGrid({ products, loading, onAdd, cartItems, query
             type="button"
             onClick={() => onAdd({ ...product, quantity: 1, discountAmount: 0 })}
             disabled={soldOut || maxed}
-            aria-label={`${product.name}، ${egp(product.price)}${qty ? `، في الفاتورة ${qty}` : ""}`}
+            aria-label={tr("{0}، {1}{2}", product.name, egp(product.price), qty ? tr("، في الفاتورة {0}", qty) : "")}
             className={cn(
               "group relative flex flex-col overflow-hidden rounded-xl border bg-card text-start transition-all",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -89,7 +90,7 @@ export default function ProductGrid({ products, loading, onAdd, cartItems, query
               )}
               {soldOut && (
                 <span className="absolute inset-x-0 bottom-0 bg-black/70 py-1 text-center text-xs font-medium text-white">
-                  نفد المخزون
+                  {tr("نفد المخزون")}
                 </span>
               )}
             </div>
@@ -100,7 +101,7 @@ export default function ProductGrid({ products, loading, onAdd, cartItems, query
                 <span className="text-sm font-bold tabular-nums">{egp(product.price)}</span>
                 {!soldOut && (
                   <span className={cn("text-[11px] tabular-nums", low ? "font-medium text-amber-600 dark:text-amber-400" : "text-muted-foreground")}>
-                    {maxed ? "كل الكمية" : `${product.stock} متاح`}
+                    {maxed ? tr("كل الكمية") : tr("{0} متاح", product.stock)}
                   </span>
                 )}
               </div>

@@ -20,8 +20,9 @@ import { KashierSheetBody } from "./kashier-sheet";
 import { ManualSheetBody } from "./manual-sheet";
 import { REGIONS } from "./method-meta";
 import { MethodLogo, OnDot } from "./shared";
+import { isRtl, lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsData }) {
   const router = useRouter();
@@ -64,10 +65,10 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
       if (!res?.success) {
         setEnabled(before);
         if (res?.needsSetup) openSetup(key);
-        toast.error(res?.message ?? "مقدرناش نحفظ. جرّب تاني.");
+        toast.error(res?.message ?? tr("مقدرناش نحفظ. جرّب تاني."));
         return;
       }
-      toast.success(res.message);
+      toast.success(trv(res.message));
       router.refresh();
     });
   }
@@ -84,7 +85,7 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
       const res = await ReorderPaymentMethodsAction(next).catch(() => null);
       if (!res?.success) {
         setEnabled(before);
-        toast.error(res?.message ?? "مقدرناش نحفظ الترتيب");
+        toast.error(res?.message ?? tr("مقدرناش نحفظ الترتيب"));
       }
     });
   }
@@ -93,23 +94,23 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
   const kashierOn = isOn("kashier");
   const kashierTest = kashierOn && initial.kashierMode === "TEST";
   const checks: { tone: "ok" | "warn" | "danger" | "tip"; text: string; action?: { label: string; key: PaymentMethodKey } }[] = [];
-  if (kashierTest) checks.push({ tone: "danger", text: "Kashier في وضع التجربة — الدفع الأونلاين مش حقيقي والفلوس مش هتوصلك.", action: { label: "شغّله لايف", key: "kashier" } });
-  else if (kashierOn) checks.push({ tone: "ok", text: "الدفع الأونلاين شغال — الطلبات المدفوعة بتتعلّم لوحدها." });
-  else checks.push({ tone: "tip", text: "مفيش دفع أونلاين. الدفع المسبق بيقلل الطلبات اللي بتترفض عند الاستلام.", action: { label: kashierConnected ? "فعّل Kashier" : "اربط Kashier", key: "kashier" } });
-  if (isOn("cash_on_delivery")) checks.push({ tone: "ok", text: "الدفع عند الاستلام متاح." });
+  if (kashierTest) checks.push({ tone: "danger", text: tr("Kashier في وضع التجربة — الدفع الأونلاين مش حقيقي والفلوس مش هتوصلك."), action: { label: tr("شغّله لايف"), key: "kashier" } });
+  else if (kashierOn) checks.push({ tone: "ok", text: tr("الدفع الأونلاين شغال — الطلبات المدفوعة بتتعلّم لوحدها.") });
+  else checks.push({ tone: "tip", text: tr("مفيش دفع أونلاين. الدفع المسبق بيقلل الطلبات اللي بتترفض عند الاستلام."), action: { label: kashierConnected ? tr("فعّل Kashier") : tr("اربط Kashier"), key: "kashier" } });
+  if (isOn("cash_on_delivery")) checks.push({ tone: "ok", text: tr("الدفع عند الاستلام متاح.") });
   const manualOn = enabled.filter((k) => PAYMENT_METHODS_BY_KEY[k]?.manual);
-  if (manualOn.length) checks.push({ tone: "ok", text: `${nf.format(manualOn.length)} طريقة تحويل — بياناتها بتظهر للعميل بعد الطلب.` });
+  if (manualOn.length) checks.push({ tone: "ok", text: tr("{0} طريقة تحويل — بياناتها بتظهر للعميل بعد الطلب.", nf.format(manualOn.length)) });
 
   const regionMethods = PAYMENT_METHODS.filter((m) => m.region === region && m.manual);
   const regionOnCount = (r: PaymentRegion) => PAYMENT_METHODS.filter((m) => m.region === r && m.manual && isOn(m.key)).length;
   const kashierMethod = PAYMENT_METHODS_BY_KEY.kashier;
   const kashierStatus = !kashierConnected
-    ? { label: "مش مربوط", tone: "neutral" as const }
+    ? { label: tr("مش مربوط"), tone: "neutral" as const }
     : !kashierOn
-      ? { label: "متوقف", tone: "neutral" as const }
+      ? { label: tr("متوقف"), tone: "neutral" as const }
       : initial.kashierMode === "LIVE"
-        ? { label: "شغال لايف", tone: "success" as const }
-        : { label: "وضع تجربة", tone: "warning" as const };
+        ? { label: tr("شغال لايف"), tone: "success" as const }
+        : { label: tr("وضع تجربة"), tone: "warning" as const };
 
   return (
     <div className="space-y-10">
@@ -118,9 +119,9 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
         <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
           <div className="space-y-5 p-6">
             <div>
-              <p className="text-sm text-muted-foreground">عملاءك دلوقتي يقدروا يدفعوا بـ</p>
+              <p className="text-sm text-muted-foreground">{tr("عملاءك دلوقتي يقدروا يدفعوا بـ")}</p>
               <p className="mt-1 text-3xl font-bold tracking-tight">
-                {nf.format(enabled.length)} {enabled.length === 1 ? "طريقة" : "طرق"}
+                {nf.format(enabled.length)} {enabled.length === 1 ? tr("طريقة") : tr("طرق")}
               </p>
               <div className="mt-3 flex [&>*+*]:-ms-2">
                 {enabled.slice(0, 7).map((k) => (
@@ -159,11 +160,11 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
 
           {/* Checkout mock */}
           <div className="border-t border-border bg-muted/30 p-6 lg:border-s lg:border-t-0">
-            <p className="mb-3 text-xs font-medium text-muted-foreground">كده صفحة الدفع عند عميلك</p>
+            <p className="mb-3 text-xs font-medium text-muted-foreground">{tr("كده صفحة الدفع عند عميلك")}</p>
             <div className="rounded-xl border border-border bg-background p-3 shadow-sm">
               <p className="mb-2.5 flex items-center gap-1.5 px-1 text-sm font-semibold">
                 <Wallet className="size-4 text-primary" />
-                طريقة الدفع
+                {tr("طريقة الدفع")}
               </p>
               <ol className="space-y-1.5">
                 {enabled.map((key, i) => {
@@ -185,10 +186,10 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
                       <MethodLogo src={m.logo} alt="" size="xs" />
                       <span className="min-w-0 flex-1 truncate text-sm">{m.label}</span>
                       <span className="flex opacity-100 transition-opacity lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100">
-                        <MoveBtn label={`طلّع ${m.label} لفوق`} disabled={i === 0} onClick={() => move(key, -1)}>
+                        <MoveBtn label={tr("طلّع {0} لفوق", m.label)} disabled={i === 0} onClick={() => move(key, -1)}>
                           <ArrowUp className="size-3.5" />
                         </MoveBtn>
-                        <MoveBtn label={`نزّل ${m.label} لتحت`} disabled={i === enabled.length - 1} onClick={() => move(key, 1)}>
+                        <MoveBtn label={tr("نزّل {0} لتحت", m.label)} disabled={i === enabled.length - 1} onClick={() => move(key, 1)}>
                           <ArrowDown className="size-3.5" />
                         </MoveBtn>
                       </span>
@@ -197,13 +198,13 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
                 })}
               </ol>
             </div>
-            <p className="mt-2.5 text-xs text-muted-foreground">الأولى بتبقى مختارة تلقائي — رتّبهم بالأسهم.</p>
+            <p className="mt-2.5 text-xs text-muted-foreground">{tr("الأولى بتبقى مختارة تلقائي — رتّبهم بالأسهم.")}</p>
           </div>
         </div>
       </section>
 
       {/* ═══ Online ═══ */}
-      <Section icon={CreditCard} title="الدفع الأونلاين" description="العميل يدفع وهو بيطلب، والفلوس توصل حسابك.">
+      <Section icon={CreditCard} title={tr("الدفع الأونلاين")} description={tr("العميل يدفع وهو بيطلب، والفلوس توصل حسابك.")}>
         <div
           className={cn(
             "relative overflow-hidden rounded-2xl border bg-card p-5 sm:p-6",
@@ -217,28 +218,28 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
                 <h3 className="text-lg font-semibold">Kashier</h3>
                 <StatusPill tone={kashierStatus.tone}>{kashierStatus.label}</StatusPill>
                 {!kashierConnected && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">موصى بيه</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">{tr("موصى بيه")}</span>
                 )}
               </div>
               <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
-                <Benefit icon={CreditCard} text="كروت ميزة وفيزا وماستركارد" />
-                <Benefit icon={Wallet} text="محافظ إلكترونية وتقسيط" />
-                <Benefit icon={BadgeCheck} text="الطلب يتعلّم مدفوع لوحده" />
+                <Benefit icon={CreditCard} text={tr("كروت ميزة وفيزا وماستركارد")} />
+                <Benefit icon={Wallet} text={tr("محافظ إلكترونية وتقسيط")} />
+                <Benefit icon={BadgeCheck} text={tr("الطلب يتعلّم مدفوع لوحده")} />
               </ul>
             </div>
             <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-end">
               {kashierConnected ? (
                 <>
-                  <Switch checked={kashierOn} disabled={busyKey === "kashier"} onCheckedChange={(v) => toggle("kashier", v)} aria-label="إظهار Kashier للعملاء" />
+                  <Switch checked={kashierOn} disabled={busyKey === "kashier"} onCheckedChange={(v) => toggle("kashier", v)} aria-label={tr("إظهار Kashier للعملاء")} />
                   <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openSetup("kashier")}>
                     <Settings2 className="size-4" />
-                    الإعدادات
+                    {tr("الإعدادات")}
                   </Button>
                 </>
               ) : (
                 <Button onClick={() => openSetup("kashier")} className="gap-1.5">
                   <Zap className="size-4" />
-                  اربط Kashier
+                  {tr("اربط Kashier")}
                 </Button>
               )}
             </div>
@@ -247,10 +248,10 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
               <span className="flex items-center gap-2">
                 <AlertTriangle className="size-4 shrink-0" />
-                وضع التجربة شغال — العملاء بيشوفوا Kashier بس الدفع مش حقيقي.
+                {tr("وضع التجربة شغال — العملاء بيشوفوا Kashier بس الدفع مش حقيقي.")}
               </span>
               <Button size="sm" variant="outline" className="border-amber-600/30 bg-transparent" onClick={() => openSetup("kashier")}>
-                شغّله لايف
+                {tr("شغّله لايف")}
               </Button>
             </div>
           )}
@@ -258,17 +259,17 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
       </Section>
 
       {/* ═══ COD ═══ */}
-      <Section icon={Wallet} title="الدفع عند الاستلام" description="العميل يدفع كاش للمندوب.">
+      <Section icon={Wallet} title={tr("الدفع عند الاستلام")} description={tr("العميل يدفع كاش للمندوب.")}>
         <MethodRow methodKey="cash_on_delivery" on={isOn("cash_on_delivery")} busy={busyKey === "cash_on_delivery"} onToggle={(v) => toggle("cash_on_delivery", v)} />
       </Section>
 
       {/* ═══ Manual ═══ */}
       <Section
         icon={Landmark}
-        title="تحويلات ومحافظ"
-        description="العميل يطلب، يحوّل على بياناتك، وإنت تأكد الدفع من صفحة الطلب."
+        title={tr("تحويلات ومحافظ")}
+        description={tr("العميل يطلب، يحوّل على بياناتك، وإنت تأكد الدفع من صفحة الطلب.")}
         aside={
-          <div role="tablist" aria-label="السوق" className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5">
+          <div role="tablist" aria-label={tr("السوق")} className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5">
             {REGIONS.map((r) => (
               <button
                 key={r.value}
@@ -303,15 +304,15 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
                   <MethodLogo src={m.logo} alt={m.label} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{m.label}</p>
-                    <OnDot on={on} label={on ? "ظاهر للعملاء" : ready ? "متوقف" : "محتاج إعداد"} />
+                    <OnDot on={on} label={on ? tr("ظاهر للعملاء") : ready ? tr("متوقف") : tr("محتاج إعداد")} />
                   </div>
-                  {ready && <Switch checked={on} disabled={busyKey === m.key} onCheckedChange={(v) => toggle(m.key, v)} aria-label={`إظهار ${m.label} للعملاء`} />}
+                  {ready && <Switch checked={on} disabled={busyKey === m.key} onCheckedChange={(v) => toggle(m.key, v)} aria-label={tr("إظهار {0} للعملاء", m.label)} />}
                 </div>
                 <p className="mt-3 line-clamp-2 flex-1 text-sm leading-6 text-muted-foreground">
                   {ready ? details[m.key] : m.description}
                 </p>
                 <Button variant={ready ? "ghost" : "outline"} size="sm" className="mt-3 self-start" onClick={() => openSetup(m.key)}>
-                  {ready ? "عدّل البيانات" : "إعداد"}
+                  {ready ? tr("عدّل البيانات") : tr("إعداد")}
                 </Button>
               </article>
             );
@@ -321,7 +322,7 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
 
       {/* ═══ Setup sheet (URL-driven: ?setup=<key>) ═══ */}
       <Sheet open={!!setupKey} onOpenChange={(open) => !open && openSetup(null)}>
-        <SheetContent side="left" dir="rtl" className="gap-0 data-[side=left]:w-full data-[side=left]:sm:max-w-lg">
+        <SheetContent side={isRtl() ? "left" : "right"} dir={tdir()} className="gap-0 data-[side=left]:w-full data-[side=left]:sm:max-w-lg data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
           {setupKey === "kashier" ? (
             <KashierSheetBody
               key="kashier"
@@ -393,7 +394,7 @@ function MethodRow({ methodKey, on, busy, onToggle }: { methodKey: PaymentMethod
         <span className="block font-medium">{m.label}</span>
         <OnDot on={on} />
       </span>
-      <Switch checked={on} disabled={busy} onCheckedChange={onToggle} aria-label={`إظهار ${m.label} للعملاء`} />
+      <Switch checked={on} disabled={busy} onCheckedChange={onToggle} aria-label={tr("إظهار {0} للعملاء", m.label)} />
     </label>
   );
 }

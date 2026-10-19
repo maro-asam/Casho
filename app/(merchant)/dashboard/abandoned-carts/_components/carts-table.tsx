@@ -6,10 +6,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import type { AbandonedCartRow } from "@/lib/cart-recovery/abandoned";
 import { CartRowActions } from "./cart-row-actions";
 import { recoveryMeta } from "./recovery-meta";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
-const nf = new Intl.NumberFormat("ar-EG");
-const rtf = new Intl.RelativeTimeFormat("ar-EG", { numeric: "auto" });
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
+const nf = lazyIntl.number();
+const rtf = lazyIntl.relative({ numeric: "auto" });
 
 function ago(date: Date, now: number) {
   const minutes = Math.round((date.getTime() - now) / 60000);
@@ -20,10 +21,10 @@ function ago(date: Date, now: number) {
 }
 
 function Customer({ cart }: { cart: AbandonedCartRow }) {
-  if (!cart.phone && !cart.fullName) return <span className="text-sm text-muted-foreground">زائر من غير رقم</span>;
+  if (!cart.phone && !cart.fullName) return <span className="text-sm text-muted-foreground">{tr("زائر من غير رقم")}</span>;
   return (
     <div className="min-w-0">
-      <p className="max-w-40 truncate text-sm font-medium">{cart.fullName || "عميل"}</p>
+      <p className="max-w-40 truncate text-sm font-medium">{cart.fullName || tr("عميل")}</p>
       {cart.phone && (
         <p className="text-xs text-muted-foreground tabular-nums" dir="ltr">
           {cart.phone}
@@ -34,7 +35,7 @@ function Customer({ cart }: { cart: AbandonedCartRow }) {
 }
 
 function Products({ cart }: { cart: AbandonedCartRow }) {
-  if (cart.status === "recovered") return <span className="text-sm text-muted-foreground">اتحولت لطلب</span>;
+  if (cart.status === "recovered") return <span className="text-sm text-muted-foreground">{tr("اتحولت لطلب")}</span>;
   const shown = cart.items.slice(0, 3);
   return (
     <div className="flex min-w-0 items-center gap-2.5">
@@ -53,7 +54,7 @@ function Products({ cart }: { cart: AbandonedCartRow }) {
       <div className="min-w-0">
         <p className="max-w-48 truncate text-sm">{cart.items[0]?.name}</p>
         <p className="text-xs text-muted-foreground">
-          {nf.format(cart.itemCount)} قطعة{cart.items.length > 1 && ` · ${nf.format(cart.items.length)} منتجات`}
+          {tr("{0} قطعة", nf.format(cart.itemCount))}{cart.items.length > 1 && tr(" · {0} منتجات", nf.format(cart.items.length))}
         </p>
       </div>
     </div>
@@ -70,13 +71,13 @@ export function CartsTable({ carts, openHref, now }: Props) {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">العميل</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">المنتجات</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">آخر نشاط</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الحالة</TableHead>
-              <TableHead className="h-10 text-left text-xs font-medium text-muted-foreground">القيمة</TableHead>
+              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("العميل")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("المنتجات")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("آخر نشاط")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
+              <TableHead className="h-10 text-end text-xs font-medium text-muted-foreground">{tr("القيمة")}</TableHead>
               <TableHead className="h-10 w-36 pe-4">
-                <span className="sr-only">إجراءات</span>
+                <span className="sr-only">{tr("إجراءات")}</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -90,7 +91,7 @@ export function CartsTable({ carts, openHref, now }: Props) {
                       href={openHref(cart.key)}
                       scroll={false}
                       className="block after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
-                      aria-label={`افتح سلة ${cart.fullName ?? cart.phone ?? "زائر"}`}
+                      aria-label={tr("افتح سلة {0}", cart.fullName ?? cart.phone ?? tr("زائر"))}
                     >
                       <Customer cart={cart} />
                     </Link>
@@ -102,7 +103,7 @@ export function CartsTable({ carts, openHref, now }: Props) {
                   <TableCell className="py-3">
                     <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
                   </TableCell>
-                  <TableCell className="py-3 text-left text-sm font-semibold tabular-nums">{money.format(cart.value / 100)}</TableCell>
+                  <TableCell className="py-3 text-end text-sm font-semibold tabular-nums">{money.format(cart.value / 100)}</TableCell>
                   <TableCell className="py-3 pe-4">
                     <CartRowActions cartKey={cart.key} phone={cart.phone} status={cart.status} openHref={openHref(cart.key)} />
                   </TableCell>

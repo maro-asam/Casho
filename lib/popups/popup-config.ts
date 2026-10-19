@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { tr } from "@/lib/i18n/dashboard";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Storefront popup — shared by the dashboard editor, the live preview and the
@@ -93,8 +94,8 @@ export const POPUP_TEMPLATES: Template[] = [
   {
     id: "welcome-discount",
     type: "discount",
-    name: "خصم أول طلب",
-    description: "كود خصم للزوار الجداد مقابل رقم الموبايل — بيكبّر قائمة عملائك.",
+    get name() { return tr("خصم أول طلب"); },
+    get description() { return tr("كود خصم للزوار الجداد مقابل رقم الموبايل — بيكبّر قائمة عملائك."); },
     config: base({
       content: {
         eyebrow: "أهلاً بيك 👋",
@@ -113,8 +114,8 @@ export const POPUP_TEMPLATES: Template[] = [
   {
     id: "exit-save",
     type: "discount",
-    name: "استنى قبل ما تمشي",
-    description: "بيظهر لما الزائر يحاول يقفل الصفحة — آخر فرصة تكسبه.",
+    get name() { return tr("استنى قبل ما تمشي"); },
+    get description() { return tr("بيظهر لما الزائر يحاول يقفل الصفحة — آخر فرصة تكسبه."); },
     config: base({
       content: {
         eyebrow: "استنى لحظة!",
@@ -133,8 +134,8 @@ export const POPUP_TEMPLATES: Template[] = [
   {
     id: "vip-list",
     type: "lead",
-    name: "قائمة العملاء المميزين",
-    description: "اجمع أرقام الموبايل لعروض الواتساب الحصرية — من غير خصم.",
+    get name() { return tr("قائمة العملاء المميزين"); },
+    get description() { return tr("اجمع أرقام الموبايل لعروض الواتساب الحصرية — من غير خصم."); },
     config: base({
       content: {
         eyebrow: "حصريًا",
@@ -153,8 +154,8 @@ export const POPUP_TEMPLATES: Template[] = [
   {
     id: "campaign",
     type: "discount",
-    name: "عرض موسمي",
-    description: "لمواسم زي الجمعة البيضاء ورمضان — بعدّاد حقيقي لحد آخر يوم في العرض.",
+    get name() { return tr("عرض موسمي"); },
+    get description() { return tr("لمواسم زي الجمعة البيضاء ورمضان — بعدّاد حقيقي لحد آخر يوم في العرض."); },
     config: base({
       content: {
         eyebrow: "لفترة محدودة",
@@ -173,8 +174,8 @@ export const POPUP_TEMPLATES: Template[] = [
   {
     id: "announcement",
     type: "announcement",
-    name: "إعلان أو كولكشن جديد",
-    description: "صورة وزرار يودّي على صفحة — للكولكشن الجديد أو التخفيضات.",
+    get name() { return tr("إعلان أو كولكشن جديد"); },
+    get description() { return tr("صورة وزرار يودّي على صفحة — للكولكشن الجديد أو التخفيضات."); },
     config: base({
       content: {
         eyebrow: "جديد",
@@ -194,15 +195,15 @@ export const POPUP_TEMPLATES: Template[] = [
 export const BLANK_POPUP: PopupConfig = POPUP_TEMPLATES[0].config;
 
 export const POPUP_TYPE_META: Record<PopupType, { label: string; tone: "accent" | "info" | "warning" }> = {
-  discount: { label: "كود خصم", tone: "accent" },
-  lead: { label: "جمع أرقام", tone: "info" },
-  announcement: { label: "إعلان", tone: "warning" },
+  discount: { get label() { return tr("كود خصم"); }, tone: "accent" },
+  lead: { get label() { return tr("جمع أرقام"); }, tone: "info" },
+  announcement: { get label() { return tr("إعلان"); }, tone: "warning" },
 };
 
 export function triggerLabel(trigger: PopupConfig["trigger"]) {
-  if (trigger.kind === "exit") return "عند محاولة الخروج";
-  if (trigger.kind === "scroll") return `بعد نزول ${trigger.scrollPercent}٪ من الصفحة`;
-  return trigger.delaySeconds === 0 ? "فور فتح الصفحة" : `بعد ${trigger.delaySeconds} ثانية`;
+  if (trigger.kind === "exit") return tr("عند محاولة الخروج");
+  if (trigger.kind === "scroll") return tr("بعد نزول {0}٪ من الصفحة", trigger.scrollPercent);
+  return trigger.delaySeconds === 0 ? tr("فور فتح الصفحة") : tr("بعد {0} ثانية", trigger.delaySeconds);
 }
 
 /** Parse what's in the DB, falling back to a safe default if it's malformed. */

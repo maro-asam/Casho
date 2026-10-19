@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { lazyIntl, lazyList, tdir, tr } from "@/lib/i18n/dashboard";
 
 export type EditableReview = {
   id: string;
@@ -33,8 +34,8 @@ export type EditableReview = {
 };
 
 const NO_ORDER = "__none";
-const RATING_LABELS = ["", "سيئ", "مش كويس", "مقبول", "كويس", "ممتاز"];
-const orderDate = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short" });
+const RATING_LABELS = lazyList(["", "سيئ", "مش كويس", "مقبول", "كويس", "ممتاز"]);
+const orderDate = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short" });
 const cairoDay = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo" }).format(d);
 
 type Props = {
@@ -62,7 +63,7 @@ export function UrlReviewDialog({ mode, review, products, defaultProductId }: Pr
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close()}>
-      <DialogContent dir="rtl" className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent dir={tdir()} className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
         {open && (
           <ReviewForm
             key={review?.id ?? "new"}
@@ -127,8 +128,8 @@ function ReviewForm({
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!productId) return setError("اختار المنتج.");
-    if (!rating) return setError("اختار التقييم.");
+    if (!productId) return setError(tr("اختار المنتج."));
+    if (!rating) return setError(tr("اختار التقييم."));
     setError(null);
     startTransition(async () => {
       const result = await SaveReviewAction(review?.id ?? null, {
@@ -146,7 +147,7 @@ function ReviewForm({
         setError(result.message);
         return;
       }
-      toast.success(review ? "اتحفظت المراجعة" : "اتضافت المراجعة");
+      toast.success(review ? tr("اتحفظت المراجعة") : tr("اتضافت المراجعة"));
       onDone();
       router.refresh();
     });
@@ -156,16 +157,16 @@ function ReviewForm({
 
   return (
     <form onSubmit={submit} className="min-w-0 space-y-5">
-      <DialogHeader className="text-right sm:text-right">
-        <DialogTitle>{review ? "تعديل المراجعة" : "إضافة مراجعة"}</DialogTitle>
+      <DialogHeader className="text-start sm:text-start">
+        <DialogTitle>{review ? tr("تعديل المراجعة") : tr("إضافة مراجعة")}</DialogTitle>
         <DialogDescription>
-          {review ? review.productName : "سجّل رأي عميل حقيقي — مثلًا وصلك على الواتساب أو الإنستجرام."}
+          {review ? review.productName : tr("سجّل رأي عميل حقيقي — مثلًا وصلك على الواتساب أو الإنستجرام.")}
         </DialogDescription>
       </DialogHeader>
 
       {!review && (
         <div className="space-y-2">
-          <Label>المنتج</Label>
+          <Label>{tr("المنتج")}</Label>
           <Select
             value={productId}
             onValueChange={(v) => {
@@ -173,10 +174,10 @@ function ReviewForm({
               setOrders(null);
               setOrderId(NO_ORDER);
             }}
-            dir="rtl"
+            dir={tdir()}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="اختار منتج" />
+              <SelectValue placeholder={tr("اختار منتج")} />
             </SelectTrigger>
             <SelectContent>
               {products.map((p) => (
@@ -195,21 +196,21 @@ function ReviewForm({
           <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
             <span className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
               <BadgeCheck className="size-4" />
-              مشتري موثق
+              {tr("مشتري موثق")}
             </span>
             <Button type="button" variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setRemoveVerified(true)}>
-              شيل العلامة
+              {tr("شيل العلامة")}
             </Button>
           </div>
         ) : (
           <div className="space-y-2">
-            <Label>من طلب حقيقي؟</Label>
-            <Select value={orderId} onValueChange={pickOrder} dir="rtl" disabled={orders === null}>
+            <Label>{tr("من طلب حقيقي؟")}</Label>
+            <Select value={orderId} onValueChange={pickOrder} dir={tdir()} disabled={orders === null}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={orders === null ? "بنجيب الطلبات…" : "اختار"} />
+                <SelectValue placeholder={orders === null ? tr("بنجيب الطلبات…") : tr("اختار")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NO_ORDER}>لأ — من غير علامة &quot;مشتري موثق&quot;</SelectItem>
+                <SelectItem value={NO_ORDER}>{tr("لأ — من غير علامة \"مشتري موثق\"")}</SelectItem>
                 {orders?.map((o) => (
                   <SelectItem key={o.id} value={o.id}>
                     {o.fullName} · {orderDate.format(new Date(o.createdAt))}{" "}
@@ -222,23 +223,23 @@ function ReviewForm({
             </Select>
             <p className="text-xs text-muted-foreground">
               {orders && orders.length === 0
-                ? "مفيش طلبات للمنتج ده لسه، فالمراجعة هتظهر من غير علامة التوثيق."
-                : "علامة \"مشتري موثق\" بتظهر بس للمراجعات المربوطة بطلب فعلي فيه المنتج — عشان العملاء يثقوا فيها."}
+                ? tr("مفيش طلبات للمنتج ده لسه، فالمراجعة هتظهر من غير علامة التوثيق.")
+                : tr("علامة \"مشتري موثق\" بتظهر بس للمراجعات المربوطة بطلب فعلي فيه المنتج — عشان العملاء يثقوا فيها.")}
             </p>
           </div>
         ))}
 
       <div className="space-y-2">
-        <Label>التقييم</Label>
+        <Label>{tr("التقييم")}</Label>
         <div className="flex items-center gap-3">
-          <div className="flex" role="radiogroup" aria-label="التقييم" onMouseLeave={() => setHover(0)}>
+          <div className="flex" role="radiogroup" aria-label={tr("التقييم")} onMouseLeave={() => setHover(0)}>
             {[1, 2, 3, 4, 5].map((n) => (
               <button
                 key={n}
                 type="button"
                 role="radio"
                 aria-checked={rating === n}
-                aria-label={`${n} نجوم`}
+                aria-label={tr("{0} نجوم", n)}
                 onClick={() => setRating(n)}
                 onMouseEnter={() => setHover(n)}
                 className="p-0.5"
@@ -253,25 +254,25 @@ function ReviewForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="review-name">اسم العميل</Label>
-          <Input id="review-name" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder="أحمد م." />
+          <Label htmlFor="review-name">{tr("اسم العميل")}</Label>
+          <Input id="review-name" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder={tr("أحمد م.")} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="review-date">التاريخ</Label>
+          <Label htmlFor="review-date">{tr("التاريخ")}</Label>
           <Input id="review-date" type="date" value={date} max={cairoDay(new Date())} onChange={(e) => setDate(e.target.value)} />
         </div>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="review-title">
-          العنوان <span className="text-xs font-normal text-muted-foreground">(اختياري)</span>
+          {tr("العنوان")}{" "}<span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>
         </Label>
-        <Input id="review-title" value={title} maxLength={100} onChange={(e) => setTitle(e.target.value)} placeholder="مثال: الخامة أحسن من الصور" />
+        <Input id="review-title" value={title} maxLength={100} onChange={(e) => setTitle(e.target.value)} placeholder={tr("مثال: الخامة أحسن من الصور")} />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="review-content">المراجعة</Label>
+          <Label htmlFor="review-content">{tr("المراجعة")}</Label>
           <span className="text-xs text-muted-foreground tabular-nums">{content.trim().length}/2000</span>
         </div>
         <Textarea
@@ -281,12 +282,12 @@ function ReviewForm({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="resize-none"
-          placeholder="كلام العميل زي ما قاله"
+          placeholder={tr("كلام العميل زي ما قاله")}
         />
       </div>
 
       <details className="group rounded-lg border border-border">
-        <summary className="cursor-pointer list-none px-3 py-2 text-xs text-muted-foreground">صورة العميل (اختياري)</summary>
+        <summary className="cursor-pointer list-none px-3 py-2 text-xs text-muted-foreground">{tr("صورة العميل (اختياري)")}</summary>
         <div className="border-t border-border p-3">
           <Input dir="ltr" value={avatar} onChange={(e) => setAvatar(e.target.value)} placeholder="https://…" />
         </div>
@@ -297,10 +298,10 @@ function ReviewForm({
       <DialogFooter className="gap-2 sm:justify-start">
         <Button type="submit" disabled={pending} className="gap-1.5">
           {pending && <Loader2 className="size-4 animate-spin" />}
-          {review ? "حفظ التعديلات" : "إضافة المراجعة"}
+          {review ? tr("حفظ التعديلات") : tr("إضافة المراجعة")}
         </Button>
         <Button type="button" variant="outline" onClick={onDone} disabled={pending}>
-          إلغاء
+          {tr("إلغاء")}
         </Button>
       </DialogFooter>
     </form>

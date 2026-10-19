@@ -12,6 +12,7 @@ import {
   ApproveSuggestedOrderAction,
   type SuggestedOrderDetail,
 } from "@/actions/instagram/instagram.actions";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
   order: SuggestedOrderDetail;
@@ -28,7 +29,7 @@ type ItemState = {
 };
 
 function formatPrice(piasters: number) {
-  return new Intl.NumberFormat("ar-EG", {
+  return new Intl.NumberFormat(intlLocale(), {
     style: "currency",
     currency: "EGP",
     maximumFractionDigits: 0,
@@ -91,10 +92,10 @@ export function ApproveForm({ order, storeProducts }: Props) {
       });
 
       if (result.success) {
-        toast.success("تم إنشاء الطلب بنجاح! 🎉");
+        toast.success(tr("تم إنشاء الطلب بنجاح! 🎉"));
         router.push(`/dashboard/orders/${result.orderId}`);
       } else {
-        toast.error(result.error ?? "حدث خطأ أثناء الاعتماد");
+        toast.error(result.error ?? tr("حدث خطأ أثناء الاعتماد"));
       }
     });
   }
@@ -104,20 +105,20 @@ export function ApproveForm({ order, storeProducts }: Props) {
       {/* Customer Info */}
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">بيانات العميل</CardTitle>
+          <CardTitle className="text-sm font-semibold">{tr("بيانات العميل")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-1.5">
-            <Label className="text-xs">الاسم *</Label>
+            <Label className="text-xs">{tr("الاسم *")}</Label>
             <Input
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="اسم العميل"
+              placeholder={tr("اسم العميل")}
               className="rounded-xl"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">رقم الهاتف *</Label>
+            <Label className="text-xs">{tr("رقم الهاتف *")}</Label>
             <Input
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
@@ -127,11 +128,11 @@ export function ApproveForm({ order, storeProducts }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">العنوان *</Label>
+            <Label className="text-xs">{tr("العنوان *")}</Label>
             <Input
               value={customerAddress}
               onChange={(e) => setCustomerAddress(e.target.value)}
-              placeholder="المدينة، الحي، الشارع"
+              placeholder={tr("المدينة، الحي، الشارع")}
               className="rounded-xl"
             />
           </div>
@@ -141,7 +142,7 @@ export function ApproveForm({ order, storeProducts }: Props) {
       {/* Products */}
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">المنتجات</CardTitle>
+          <CardTitle className="text-sm font-semibold">{tr("المنتجات")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {items.map((item, index) => (
@@ -149,7 +150,7 @@ export function ApproveForm({ order, storeProducts }: Props) {
               <div className="mb-2 flex items-center gap-2">
                 <Package className="size-3.5 shrink-0 text-muted-foreground" />
                 <p className="text-xs text-muted-foreground">
-                  اقترح الذكاء الاصطناعي:{" "}
+                  {tr("اقترح الذكاء الاصطناعي:")}{" "}
                   <span className="font-medium text-foreground">
                     {item.aiProductName}
                     {item.aiVariant && ` — ${item.aiVariant}`}
@@ -159,13 +160,13 @@ export function ApproveForm({ order, storeProducts }: Props) {
 
               <div className="grid gap-2 sm:grid-cols-3">
                 <div className="sm:col-span-1">
-                  <Label className="mb-1 text-xs">المنتج *</Label>
+                  <Label className="mb-1 text-xs">{tr("المنتج *")}</Label>
                   <select
                     className="h-9 w-full rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     value={item.matchedProductId}
                     onChange={(e) => handleProductChange(index, e.target.value)}
                   >
-                    <option value="">اختر منتج</option>
+                    <option value="">{tr("اختر منتج")}</option>
                     {storeProducts.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name}
@@ -175,7 +176,7 @@ export function ApproveForm({ order, storeProducts }: Props) {
                 </div>
 
                 <div>
-                  <Label className="mb-1 text-xs">الكمية</Label>
+                  <Label className="mb-1 text-xs">{tr("الكمية")}</Label>
                   <Input
                     type="number"
                     min={1}
@@ -188,7 +189,7 @@ export function ApproveForm({ order, storeProducts }: Props) {
                 </div>
 
                 <div>
-                  <Label className="mb-1 text-xs">السعر (جنيه)</Label>
+                  <Label className="mb-1 text-xs">{tr("السعر (جنيه)")}</Label>
                   <Input
                     type="number"
                     min={0}
@@ -209,7 +210,7 @@ export function ApproveForm({ order, storeProducts }: Props) {
 
       {/* Order Summary */}
       <div className="flex items-center justify-between rounded-xl border border-border/50 bg-muted/30 px-4 py-3">
-        <p className="text-sm font-medium">الإجمالي</p>
+        <p className="text-sm font-medium">{tr("الإجمالي")}</p>
         <p className="text-lg font-bold">{formatPrice(subtotal)}</p>
       </div>
 
@@ -222,20 +223,20 @@ export function ApproveForm({ order, storeProducts }: Props) {
       >
         {isPending ? (
           <>
-            <Loader2 className="mr-2 size-5 animate-spin" />
-            جاري الإنشاء...
+            <Loader2 className="ms-2 size-5 animate-spin" />
+            {tr("جاري الإنشاء...")}
           </>
         ) : (
           <>
-            <CheckCircle2 className="mr-2 size-5" />
-            اعتماد وإنشاء الطلب
+            <CheckCircle2 className="ms-2 size-5" />
+            {tr("اعتماد وإنشاء الطلب")}
           </>
         )}
       </Button>
 
       {!isValid && (
         <p className="text-center text-xs text-muted-foreground">
-          أكمل جميع البيانات المطلوبة (*) لتتمكن من الاعتماد
+          {tr("أكمل جميع البيانات المطلوبة (*) لتتمكن من الاعتماد")}
         </p>
       )}
     </div>

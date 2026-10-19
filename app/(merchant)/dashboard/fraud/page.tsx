@@ -7,14 +7,19 @@ import { isOtpConfigured } from "@/lib/fraud/otp";
 import { prisma } from "@/lib/prisma";
 import { BlocklistManager } from "./_components/blocklist-manager";
 import { FraudSettingsForm } from "./_components/fraud-settings-form";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "الحماية من الأوردرات الوهمية",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("الحماية من الأوردرات الوهمية"),
 };
+}
 
-const nf = new Intl.NumberFormat("ar-EG");
-const pct = new Intl.NumberFormat("ar-EG", { style: "percent", maximumFractionDigits: 0 });
-const dateFmt = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
+const nf = lazyIntl.number();
+const pct = lazyIntl.number({ style: "percent", maximumFractionDigits: 0 });
+const dateFmt = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
 
 /** Last 90 days of this store's online orders, plus its blocklist. */
 async function loadProtectionData(storeId: string) {
@@ -36,6 +41,7 @@ async function loadProtectionData(storeId: string) {
 }
 
 export default async function FraudRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -47,8 +53,8 @@ export default async function FraudRoute() {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها ظبّط الحماية."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها ظبّط الحماية.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -58,20 +64,20 @@ export default async function FraudRoute() {
   const shipped = delivered + returned;
 
   const stats = [
-    { label: "نسبة المرتجع", value: shipped ? pct.format(returned / shipped) : "—", hint: `${nf.format(returned)} من ${nf.format(shipped)} طلب اتشحن` },
-    { label: "طلبات من أرقام مشبوهة", value: nf.format(risky), hint: "اتعلّم عليها في صفحة الطلبات" },
-    { label: "طلبات وهمية اتلغت لوحدها", value: nf.format(unconfirmed), hint: "ماأكدتش بالكود" },
-    { label: "أرقام محظورة", value: nf.format(blocked.length), hint: "مش هتقدر تطلب من متجرك" },
+    { label: tr("نسبة المرتجع"), value: shipped ? pct.format(returned / shipped) : "—", hint: tr("{0} من {1} طلب اتشحن", nf.format(returned), nf.format(shipped)) },
+    { label: tr("طلبات من أرقام مشبوهة"), value: nf.format(risky), hint: tr("اتعلّم عليها في صفحة الطلبات") },
+    { label: tr("طلبات وهمية اتلغت لوحدها"), value: nf.format(unconfirmed), hint: tr("ماأكدتش بالكود") },
+    { label: tr("أرقام محظورة"), value: nf.format(blocked.length), hint: tr("مش هتقدر تطلب من متجرك") },
   ];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="الحماية من الأوردرات الوهمية"
-        description="اعرف الرقم النصاب قبل ما تشحن، أكّد الطلبات بكود، واحظر الأرقام اللي بترفض الاستلام."
+        title={tr("الحماية من الأوردرات الوهمية")}
+        description={tr("اعرف الرقم النصاب قبل ما تشحن، أكّد الطلبات بكود، واحظر الأرقام اللي بترفض الاستلام.")}
       />
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="آخر ٩٠ يوم">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label={tr("آخر ٩٠ يوم")}>
         {stats.map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{s.label}</p>
@@ -80,7 +86,7 @@ export default async function FraudRoute() {
           </div>
         ))}
       </section>
-      <p className="-mt-3 text-xs text-muted-foreground">الأرقام دي عن آخر ٩٠ يوم. علّم الطلب &quot;مرتجع&quot; من صفحته لما العميل يرفض الاستلام — ده اللي بيبني سمعة الرقم.</p>
+      <p className="-mt-3 text-xs text-muted-foreground">{tr("الأرقام دي عن آخر ٩٠ يوم. علّم الطلب \"مرتجع\" من صفحته لما العميل يرفض الاستلام — ده اللي بيبني سمعة الرقم.")}</p>
 
       <FraudSettingsForm
         storeId={store.id}

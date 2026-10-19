@@ -1,8 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export default function CustomizationLoading() {
+export default async function CustomizationLoading() {
+  await loadDashboardLocale();
   return (
-    <div className="space-y-6" dir="rtl" aria-busy="true" aria-label="جاري التحميل">
+    <div className="space-y-6" dir={tdir()} aria-busy="true" aria-label={tr("جاري التحميل")}>
       <div className="flex items-end justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-7 w-40" />

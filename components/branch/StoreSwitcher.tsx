@@ -7,6 +7,7 @@ import { Building2 } from "lucide-react";
 import { SwitchStoreAction } from "@/actions/store/workspace.actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 /** For people who own a store and also work in others (or work in several). Hidden otherwise. */
 export function StoreSwitcher({
@@ -30,14 +31,14 @@ export function StoreSwitcher({
         await SwitchStoreAction(next);
         router.refresh();
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "تعذر تغيير المتجر");
+        toast.error(error instanceof Error ? error.message : tr("تعذر تغيير المتجر"));
       }
     });
   };
 
   return (
     <Select value={value} onValueChange={onChange} disabled={pending}>
-      <SelectTrigger aria-label="المتجر" className={cn("h-9 w-auto min-w-36 gap-1.5 text-xs font-medium", className)}>
+      <SelectTrigger aria-label={tr("المتجر")} className={cn("h-9 w-auto min-w-36 gap-1.5 text-xs font-medium", className)}>
         <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
         <SelectValue />
       </SelectTrigger>
@@ -45,7 +46,7 @@ export function StoreSwitcher({
         {stores.map((s) => (
           <SelectItem key={s.id} value={s.id}>
             {s.name}
-            {s.isOwner ? " (متجرك)" : ""}
+            {s.isOwner ? tr(" (متجرك)") : ""}
           </SelectItem>
         ))}
       </SelectContent>

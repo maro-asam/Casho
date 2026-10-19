@@ -6,6 +6,9 @@ import { cookies } from "next/headers";
 import { MustSession, ReadSession } from "../auth/auth-helpers.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
 import { queueStoreServerEvent } from "@/lib/pixels/server";
+import { governorateCookieKey, shippingPriceFor } from "@/lib/shipping/governorate-pricing";
+import { isGovernorateCode } from "@/constants/egypt-governorates";
+import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
 
 function shippingCookieKey(storeId: string) {
   return `ship_${storeId}`;
@@ -95,8 +98,9 @@ export async function AddToCartAction(
       : null;
 
   // Find existing cart item with same product + same feature combination
+  // (offer lines are priced by their offer — a normal add never merges into one).
   const existingItems = await prisma.cartItem.findMany({
-    where: { guestSessionId, productId, storeId: store.id },
+    where: { guestSessionId, productId, storeId: store.id, offerId: null },
     select: { id: true, selectedFeatures: true },
   });
 
@@ -348,11 +352,20 @@ export async function GetCartItemsAction(storeSlug: string) {
   const shippingMethods = await prisma.shippingMethod.findMany({
     where: { storeId: store.id, isActive: true },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-    select: { id: true, name: true, price: true, description: true, estimatedDays: true },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      description: true,
+      estimatedDays: true,
+      governorateRates: { select: { governorate: true, price: true } },
+    },
   });
 
   const cookieStore = await cookies();
   const selectedShippingMethodId = cookieStore.get(shippingCookieKey(store.id))?.value ?? null;
+  const governorateCookie = cookieStore.get(governorateCookieKey(store.id))?.value;
+  const selectedGovernorate = isGovernorateCode(governorateCookie) ? governorateCookie : null;
 
   if (!guestSessionId) {
     return {
@@ -367,10 +380,11 @@ export async function GetCartItemsAction(storeSlug: string) {
       appliedCoupon: null,
       shippingMethods,
       selectedShippingMethodId,
+      selectedGovernorate,
     };
   }
 
-  const [items, appliedCoupon, appliedLoyalty] = await Promise.all([
+  const [rawItems, appliedCoupon, appliedLoyalty] = await Promise.all([
     prisma.cartItem.findMany({
       where: {
         guestSessionId,
@@ -388,6 +402,7 @@ export async function GetCartItemsAction(storeSlug: string) {
             stock: true,
           },
         },
+        offer: { select: CART_OFFER_SELECT },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -420,6 +435,23 @@ export async function GetCartItemsAction(storeSlug: string) {
     }),
   ]);
 
+  // Offer lines carry their offer price as `product.price` (and no wholesale
+  // tiers), so every theme's cart and drawer shows the right amount as-is.
+  const { validIds, unitPrice: offerPrice } = priceOfferLines(rawItems);
+  const staleOfferLines = rawItems.filter((i) => i.offerId && !validIds.has(i.id)).map((i) => i.id);
+  if (staleOfferLines.length) {
+    await prisma.cartItem.updateMany({ where: { id: { in: staleOfferLines } }, data: { offerId: null } });
+  }
+  const items = rawItems.map((line) => {
+    const { offer, ...item } = line;
+    if (!offer || !validIds.has(item.id)) return { ...item, offerId: null, offer: null };
+    return {
+      ...item,
+      product: { ...item.product, price: offerPrice(line), wholesaleOptions: null },
+      offer: { id: offer.id, type: offer.type, originalPrice: item.product.price },
+    };
+  });
+
   const subtotal = items.reduce((acc, item) => {
     const unitPrice = getEffectivePrice(
       item.product.price,
@@ -432,9 +464,9 @@ export async function GetCartItemsAction(storeSlug: string) {
   let shipping = 0;
   if (items.length > 0) {
     if (shippingMethods.length > 0) {
-      const selected = shippingMethods.find((m) => m.id === selectedShippingMethodId);
+      const method = shippingMethods.find((m) => m.id === selectedShippingMethodId) ?? shippingMethods[0];
       // Shipping methods are stored in piasters; the cart summary is in EGP.
-      shipping = (selected ? selected.price : (shippingMethods[0]?.price ?? 0)) / 100;
+      shipping = shippingPriceFor(method, selectedGovernorate) / 100;
     } else {
       shipping = store.settings?.shippingPrice ?? 0;
     }
@@ -495,6 +527,7 @@ export async function GetCartItemsAction(storeSlug: string) {
     },
     shippingMethods,
     selectedShippingMethodId: activeMethodId,
+    selectedGovernorate,
   };
 }
 
@@ -518,6 +551,7 @@ export async function UpdateCartItemQtyAction(
       quantity: true,
       productId: true,
       storeId: true,
+      offerId: true,
       product: { select: { stock: true } },
     },
   });
@@ -543,6 +577,11 @@ export async function UpdateCartItemQtyAction(
     revalidatePath(`/store/${storeSlug}/cart`);
     revalidatePath(`/store/${storeSlug}`);
     return { success: true };
+  }
+
+  // The offer price covers the pieces the shopper accepted it for, not more.
+  if (cartItem.offerId) {
+    return { success: false, message: "العرض ده بالكمية دي بس — لو عايز قطع زيادة ضيفها من صفحة المنتج." };
   }
 
   const inCart = await prisma.cartItem.aggregate({
@@ -599,4 +638,21 @@ export async function SelectShippingMethodAction(storeSlug: string, methodId: st
   });
 
   revalidatePath(`/store/${storeSlug}/cart`);
+}
+
+/** Remembers the checkout governorate so the cart summary prices shipping for it. */
+export async function SelectGovernorateAction(storeSlug: string, governorate: string) {
+  if (!isGovernorateCode(governorate)) return;
+  const store = await prisma.store.findUnique({
+    where: { slug: storeSlug },
+    select: { id: true },
+  });
+  if (!store) return;
+
+  const cookieStore = await cookies();
+  cookieStore.set(governorateCookieKey(store.id), governorate, {
+    path: "/",
+    httpOnly: false,
+    maxAge: 60 * 60 * 24 * 30,
+  });
 }

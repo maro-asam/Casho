@@ -9,12 +9,15 @@ import { prisma } from "@/lib/prisma";
 import { storeBaseUrl } from "@/lib/seo/store-seo";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import { QrStudio } from "./_components/qr-studio";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export const metadata: Metadata = {
   title: "QR Code",
 };
 
 export default async function QrCodeRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -33,8 +36,8 @@ export default async function QrCodeRoute() {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها اعمل QR يوصّل العملاء ليه."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها اعمل QR يوصّل العملاء ليه.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -70,10 +73,10 @@ export default async function QrCodeRoute() {
   );
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
         title="QR Code"
-        description="اطبعه على الكياس والكروت والمنيو — العميل يمسحه ويوصل للمتجر أو منتج أو عرض على طول."
+        description={tr("اطبعه على الكياس والكروت والمنيو — العميل يمسحه ويوصل للمتجر أو منتج أو عرض على طول.")}
       />
       <QrStudio
         storeName={store.name}

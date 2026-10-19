@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { X } from "lucide-react";
+import { tr } from "@/lib/i18n/dashboard";
 
 type TagInputProps = {
   name: string;
@@ -68,7 +69,7 @@ export default function TagInput({
           ref={inputRef}
           type="text"
           className="min-w-20 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          placeholder={tags.length === 0 ? placeholder : "أضف المزيد..."}
+          placeholder={tags.length === 0 ? placeholder : tr("أضف المزيد...")}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}

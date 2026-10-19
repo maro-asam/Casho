@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { SubscriptionStatus } from "@prisma/client";
 import { RenewStoreSubscriptionAction } from "@/actions/subscription/subscription.actions";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
 type RenewSubscriptionModalProps = {
   storeId: string;
@@ -37,7 +38,7 @@ type RenewSubscriptionModalProps = {
 };
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat("ar-EG", {
+  return new Intl.NumberFormat(intlLocale(), {
     style: "currency",
     currency: "EGP",
     maximumFractionDigits: 2,
@@ -51,7 +52,7 @@ function formatDate(value: Date | string | null) {
 
   if (Number.isNaN(date.getTime())) return "—";
 
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(intlLocale(), {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
@@ -77,29 +78,29 @@ export default function RenewSubscriptionModal({
     switch (subscriptionStatus) {
       case SubscriptionStatus.ACTIVE:
         return {
-          label: "نشط",
-          description: "الاشتراك شغال حاليًا",
+          label: tr("نشط"),
+          description: tr("الاشتراك شغال حاليًا"),
         };
       case SubscriptionStatus.GRACE_PERIOD:
         return {
-          label: "فترة سماح",
-          description: "المتجر داخل فترة السماح حاليًا",
+          label: tr("فترة سماح"),
+          description: tr("المتجر داخل فترة السماح حاليًا"),
         };
       case SubscriptionStatus.PAST_DUE:
         return {
-          label: "متأخر",
-          description: "الاشتراك متأخر ويحتاج تجديد",
+          label: tr("متأخر"),
+          description: tr("الاشتراك متأخر ويحتاج تجديد"),
         };
       case SubscriptionStatus.CANCELED:
         return {
-          label: "ملغي",
-          description: "تم إلغاء الاشتراك مسبقًا",
+          label: tr("ملغي"),
+          description: tr("تم إلغاء الاشتراك مسبقًا"),
         };
       case SubscriptionStatus.INACTIVE:
       default:
         return {
-          label: "غير نشط",
-          description: "الاشتراك غير مفعل حاليًا",
+          label: tr("غير نشط"),
+          description: tr("الاشتراك غير مفعل حاليًا"),
         };
     }
   }, [subscriptionStatus]);
@@ -112,15 +113,15 @@ export default function RenewSubscriptionModal({
         const res = await RenewStoreSubscriptionAction(storeId);
 
         if (!res.success) {
-          toast.error(res.message || "فشل تجديد الاشتراك");
+          toast.error(res.message || tr("فشل تجديد الاشتراك"));
           return;
         }
 
-        toast.success(res.message || "تم تجديد الاشتراك بنجاح");
+        toast.success(res.message || tr("تم تجديد الاشتراك بنجاح"));
         setOpen(false);
       } catch (error) {
         console.error(error);
-        toast.error("حدث خطأ أثناء تجديد الاشتراك");
+        toast.error(tr("حدث خطأ أثناء تجديد الاشتراك"));
       }
     });
   };
@@ -129,14 +130,14 @@ export default function RenewSubscriptionModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className={className} variant={`outline`}>
-          تجديد الاشتراك
+          {tr("تجديد الاشتراك")}
           <RefreshCcw className="ms-2 size-4" />
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="overflow-hidden p-0 sm:max-w-xl" dir="rtl">
+      <DialogContent className="overflow-hidden p-0 sm:max-w-xl" dir={tdir()}>
         <div className="border-b border-border/20 bg-muted/30 px-6 py-5">
-          <DialogHeader className="text-right">
+          <DialogHeader className="text-start">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -150,11 +151,11 @@ export default function RenewSubscriptionModal({
             </div>
 
             <DialogTitle className="text-xl font-semibold">
-              تجديد اشتراك المتجر
+              {tr("تجديد اشتراك المتجر")}
             </DialogTitle>
 
             <DialogDescription className="mt-1 text-sm leading-6">
-              {statusMeta.description}. راجع البيانات قبل تأكيد الخصم.
+              {tr("{0}. راجع البيانات قبل تأكيد الخصم.", statusMeta.description)}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -163,14 +164,14 @@ export default function RenewSubscriptionModal({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-border/20 bg-background p-4">
               <p className="mb-1 text-sm text-muted-foreground">
-                الرصيد الحالي
+                {tr("الرصيد الحالي")}
               </p>
               <p className="text-lg font-semibold">{formatPrice(balance)}</p>
             </div>
 
             <div className="rounded-xl border border-border/20 bg-background p-4">
               <p className="mb-1 text-sm text-muted-foreground">
-                قيمة التجديد الشهري
+                {tr("قيمة التجديد الشهري")}
               </p>
               <p className="text-lg font-semibold">{formatPrice(monthlyPrice)}</p>
             </div>
@@ -180,7 +181,7 @@ export default function RenewSubscriptionModal({
             <div className="rounded-xl border border-border/20 bg-background p-4">
               <div className="mb-2 flex items-center gap-2">
                 <CalendarClock className="size-4 text-primary" />
-                <p className="text-sm font-medium">نهاية الاشتراك الحالية</p>
+                <p className="text-sm font-medium">{tr("نهاية الاشتراك الحالية")}</p>
               </div>
               <p className="text-sm text-muted-foreground">
                 {formatDate(subscriptionEndsAt)}
@@ -190,7 +191,7 @@ export default function RenewSubscriptionModal({
             <div className="rounded-xl border border-border/20 bg-background p-4">
               <div className="mb-2 flex items-center gap-2">
                 <CalendarClock className="size-4 text-primary" />
-                <p className="text-sm font-medium">نهاية فترة السماح</p>
+                <p className="text-sm font-medium">{tr("نهاية فترة السماح")}</p>
               </div>
               <p className="text-sm text-muted-foreground">
                 {formatDate(gracePeriodEndsAt)}
@@ -202,11 +203,11 @@ export default function RenewSubscriptionModal({
             <div className="rounded-xl border border-emerald-200 bg-emerald-500/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                 <CheckCircle2 className="size-5" />
-                <p className="font-semibold">الرصيد كافي للتجديد</p>
+                <p className="font-semibold">{tr("الرصيد كافي للتجديد")}</p>
               </div>
 
               <p className="text-sm leading-6 text-muted-foreground">
-                بعد خصم قيمة الاشتراك، الرصيد المتبقي هيكون:
+                {tr("بعد خصم قيمة الاشتراك، الرصيد المتبقي هيكون:")}
               </p>
 
               <p className="mt-2 text-xl font-semibold text-emerald-700 dark:text-emerald-400">
@@ -217,11 +218,11 @@ export default function RenewSubscriptionModal({
             <div className="rounded-xl border border-amber-200 bg-amber-500/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-amber-700 dark:text-amber-400">
                 <AlertTriangle className="size-5" />
-                <p className="font-semibold">الرصيد غير كافٍ للتجديد</p>
+                <p className="font-semibold">{tr("الرصيد غير كافٍ للتجديد")}</p>
               </div>
 
               <p className="text-sm leading-6 text-muted-foreground">
-                محتاج تشحن رصيد إضافي بقيمة:
+                {tr("محتاج تشحن رصيد إضافي بقيمة:")}
               </p>
 
               <p className="mt-2 text-xl font-semibold text-amber-700 dark:text-amber-400">
@@ -237,11 +238,9 @@ export default function RenewSubscriptionModal({
               </div>
 
               <div className="space-y-1">
-                <p className="font-medium">معلومة مهمة</p>
+                <p className="font-medium">{tr("معلومة مهمة")}</p>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  عند تأكيد العملية، هيتم خصم قيمة الاشتراك من رصيد المتجر
-                  فورًا، وتفعيل الاشتراك أو تمديده لمدة شهر جديد، مع تسجيل
-                  العملية في سجل الحركات.
+                  {tr("عند تأكيد العملية، هيتم خصم قيمة الاشتراك من رصيد المتجر فورًا، وتفعيل الاشتراك أو تمديده لمدة شهر جديد، مع تسجيل العملية في سجل الحركات.")}
                 </p>
               </div>
             </div>
@@ -258,12 +257,12 @@ export default function RenewSubscriptionModal({
               {isPending ? (
                 <>
                   <Loader2 className="ms-2 size-4 animate-spin" />
-                  جاري التجديد...
+                  {tr("جاري التجديد...")}
                 </>
               ) : (
                 <>
                   <RefreshCcw className="ms-2 size-4" />
-                  تأكيد التجديد
+                  {tr("تأكيد التجديد")}
                 </>
               )}
             </Button>
@@ -271,7 +270,7 @@ export default function RenewSubscriptionModal({
             <Button asChild className="w-full rounded-xl sm:w-auto">
               <a href="/balance/topup">
                 <Wallet className="ms-2 size-4" />
-                شحن رصيد
+                {tr("شحن رصيد")}
               </a>
             </Button>
           )}
@@ -282,7 +281,7 @@ export default function RenewSubscriptionModal({
               variant="outline"
               className="w-full rounded-xl sm:w-auto"
             >
-              إلغاء
+              {tr("إلغاء")}
             </Button>
           </DialogClose>
         </DialogFooter>

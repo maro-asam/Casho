@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { RANGE_PRESETS, type RangePreset } from "../_lib/range";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Props = { preset: RangePreset; fromKey: string; toKey: string; todayKey: string };
 
@@ -33,7 +34,7 @@ export function RangePicker({ preset, fromKey, toKey, todayKey }: Props) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div role="radiogroup" aria-label="الفترة" className="flex items-center gap-0.5 overflow-x-auto rounded-lg border border-border bg-muted/40 p-0.5">
+      <div role="radiogroup" aria-label={tr("الفترة")} className="flex items-center gap-0.5 overflow-x-auto rounded-lg border border-border bg-muted/40 p-0.5">
         {RANGE_PRESETS.map(({ value, label }) => (
           <button
             key={value}
@@ -55,10 +56,10 @@ export function RangePicker({ preset, fromKey, toKey, todayKey }: Props) {
         <PopoverTrigger asChild>
           <Button variant={preset === "custom" ? "secondary" : "outline"} size="sm" className="h-8 gap-1.5 text-xs">
             <CalendarRange className="size-3.5" />
-            فترة مخصصة
+            {tr("فترة مخصصة")}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-72" dir="rtl">
+        <PopoverContent align="end" className="w-72" dir={tdir()}>
           <form
             className="space-y-3"
             onSubmit={(e) => {
@@ -68,26 +69,26 @@ export function RangePicker({ preset, fromKey, toKey, todayKey }: Props) {
               go({ range: "custom", from, to });
             }}
           >
-            <p className="text-sm font-semibold">اختار الفترة</p>
+            <p className="text-sm font-semibold">{tr("اختار الفترة")}</p>
             <div className="grid grid-cols-2 gap-2">
               <label className="space-y-1 text-xs text-muted-foreground">
-                من
+                {tr("من")}
                 <Input type="date" value={from} max={to || todayKey} onChange={(e) => setFrom(e.target.value)} className="h-9" required />
               </label>
               <label className="space-y-1 text-xs text-muted-foreground">
-                إلى
+                {tr("إلى")}
                 <Input type="date" value={to} min={from} max={todayKey} onChange={(e) => setTo(e.target.value)} className="h-9" required />
               </label>
             </div>
-            <p className="text-xs text-muted-foreground">أقصى مدة سنة، والمقارنة بنفس عدد الأيام اللي قبلها.</p>
+            <p className="text-xs text-muted-foreground">{tr("أقصى مدة سنة، والمقارنة بنفس عدد الأيام اللي قبلها.")}</p>
             <Button type="submit" size="sm" className="w-full">
-              عرض
+              {tr("عرض")}
             </Button>
           </form>
         </PopoverContent>
       </Popover>
 
-      {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label="جاري التحميل" />}
+      {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label={tr("جاري التحميل")} />}
     </div>
   );
 }

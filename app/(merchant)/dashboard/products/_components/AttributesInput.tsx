@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { tr } from "@/lib/i18n/dashboard";
 
 type Attribute = { id: string; key: string; value: string };
 
@@ -51,13 +52,13 @@ export default function AttributesInput({
     <div className="space-y-2">
       {attributes.length === 0 ? (
         <div className="flex items-center justify-center rounded-xl border border-dashed py-5 text-sm text-muted-foreground">
-          لا توجد خصائص مضافة — اضغط &quot;إضافة خاصية&quot; للبدء
+          {tr("لا توجد خصائص مضافة — اضغط \"إضافة خاصية\" للبدء")}
         </div>
       ) : (
         <div className="space-y-2">
           <div className="grid grid-cols-2 gap-2 px-1 text-xs text-muted-foreground">
-            <span>اسم الخاصية</span>
-            <span>القيمة</span>
+            <span>{tr("اسم الخاصية")}</span>
+            <span>{tr("القيمة")}</span>
           </div>
           {attributes.map((attr, index) => (
             <div key={attr.id} className="flex items-center gap-2">
@@ -65,7 +66,7 @@ export default function AttributesInput({
                 {index + 1}
               </span>
               <Input
-                placeholder="مثال: المادة"
+                placeholder={tr("مثال: المادة")}
                 value={attr.key}
                 onChange={(e) =>
                   updateAttribute(attr.id, "key", e.target.value)
@@ -73,7 +74,7 @@ export default function AttributesInput({
                 className="rounded-xl"
               />
               <Input
-                placeholder="مثال: قطن 100%"
+                placeholder={tr("مثال: قطن 100%")}
                 value={attr.value}
                 onChange={(e) =>
                   updateAttribute(attr.id, "value", e.target.value)
@@ -102,7 +103,7 @@ export default function AttributesInput({
         className="gap-1.5 rounded-xl"
       >
         <Plus className="size-3.5" />
-        إضافة خاصية
+        {tr("إضافة خاصية")}
       </Button>
 
       <input

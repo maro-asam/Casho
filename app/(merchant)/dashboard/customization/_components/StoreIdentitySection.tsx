@@ -17,6 +17,7 @@ import { Slider } from "@/components/ui/slider";
 import LogoEditorModal from "./LogoEditorModal";
 import UnsplashPickerModal from "./UnsplashPickerModal";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
   storeId: string;
@@ -68,8 +69,8 @@ export default function StoreIdentitySection({
 
   useEffect(() => {
     if (!state.message) return;
-    if (state.success) toast.success(state.message);
-    else toast.error(state.message);
+    if (state.success) toast.success(trv(state.message));
+    else toast.error(trv(state.message));
   }, [state]);
 
   function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -88,9 +89,9 @@ export default function StoreIdentitySection({
       const file = new File([blob], "logo.png", { type: "image/png" });
       const url = await uploadToCloudinary(file, "casho/uploads/logos");
       setLogoUrl(url);
-      toast.success("تم حفظ اللوجو");
+      toast.success(tr("تم حفظ اللوجو"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل رفع اللوجو");
+      toast.error(err instanceof Error ? err.message : tr("فشل رفع اللوجو"));
     } finally {
       setIsUploadingLogo(false);
       if (rawLogoSrc) URL.revokeObjectURL(rawLogoSrc);
@@ -110,9 +111,9 @@ export default function StoreIdentitySection({
       setIsUploadingCover(true);
       const url = await uploadToCloudinary(file, "casho/uploads/covers");
       setCoverUrl(url);
-      toast.success("تم رفع صورة الغلاف");
+      toast.success(tr("تم رفع صورة الغلاف"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل رفع صورة الغلاف");
+      toast.error(err instanceof Error ? err.message : tr("فشل رفع صورة الغلاف"));
     } finally {
       setIsUploadingCover(false);
       e.target.value = "";
@@ -120,20 +121,20 @@ export default function StoreIdentitySection({
   }
 
   return (
-    <form action={formAction} className="space-y-8" dir="rtl">
+    <form action={formAction} className="space-y-8" dir={tdir()}>
       <input type="hidden" name="storeId" value={storeId} />
 
       {/* Images & Identity */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <ImageIcon className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">الصور والهوية</h3>
+          <h3 className="text-base font-semibold">{tr("الصور والهوية")}</h3>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
           {/* Logo */}
           <div className="space-y-2">
-            <Label>اللوجو</Label>
+            <Label>{tr("اللوجو")}</Label>
             <input type="hidden" name="logo" value={logoUrl} />
             <input type="hidden" name="logoRadius" value={logoRadius} />
             <input type="hidden" name="logoSize" value={logoSize} />
@@ -147,7 +148,7 @@ export default function StoreIdentitySection({
             {logoUrl ? (
               <div className="rounded-xl border p-3 space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">معاينة اللوجو</p>
+                  <p className="text-sm text-muted-foreground">{tr("معاينة اللوجو")}</p>
                   <button
                     type="button"
                     onClick={() => setLogoUrl("")}
@@ -178,7 +179,7 @@ export default function StoreIdentitySection({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <Maximize2 className="size-3.5 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">حجم اللوجو</span>
+                        <span className="text-xs text-muted-foreground">{tr("حجم اللوجو")}</span>
                       </div>
                       <span className="text-xs font-medium tabular-nums">{logoSize}px</span>
                     </div>
@@ -195,7 +196,7 @@ export default function StoreIdentitySection({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <SquareCode className="size-3.5 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">استدارة الزوايا</span>
+                        <span className="text-xs text-muted-foreground">{tr("استدارة الزوايا")}</span>
                       </div>
                       <span className="text-xs font-medium tabular-nums">{logoRadius}px</span>
                     </div>
@@ -222,7 +223,7 @@ export default function StoreIdentitySection({
                     disabled={isUploadingLogo}
                   >
                     <Pencil className="size-4" />
-                    تعديل
+                    {tr("تعديل")}
                   </Button>
                   <Button
                     type="button"
@@ -233,7 +234,7 @@ export default function StoreIdentitySection({
                     disabled={isUploadingLogo}
                   >
                     <Upload className="size-4" />
-                    تغيير
+                    {tr("تغيير")}
                   </Button>
                 </div>
               </div>
@@ -250,7 +251,7 @@ export default function StoreIdentitySection({
                   <Upload className="size-6 text-muted-foreground" />
                 )}
                 <span className="text-sm text-muted-foreground">
-                  {isUploadingLogo ? "جاري الرفع..." : "اضغط لرفع اللوجو"}
+                  {isUploadingLogo ? tr("جاري الرفع...") : tr("اضغط لرفع اللوجو")}
                 </span>
               </button>
             )}
@@ -261,7 +262,7 @@ export default function StoreIdentitySection({
 
           {/* Cover Image */}
           <div className="space-y-2">
-            <Label>صورة الغلاف</Label>
+            <Label>{tr("صورة الغلاف")}</Label>
             <input type="hidden" name="coverImage" value={coverUrl} />
             <input
               ref={coverInputRef}
@@ -273,7 +274,7 @@ export default function StoreIdentitySection({
             {coverUrl ? (
               <div className="rounded-xl border p-3 space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">معاينة الغلاف</p>
+                  <p className="text-sm text-muted-foreground">{tr("معاينة الغلاف")}</p>
                   <button
                     type="button"
                     onClick={() => setCoverUrl("")}
@@ -302,7 +303,7 @@ export default function StoreIdentitySection({
                     ) : (
                       <Upload className="size-4" />
                     )}
-                    رفع
+                    {tr("رفع")}
                   </Button>
                   <Button
                     type="button"
@@ -331,7 +332,7 @@ export default function StoreIdentitySection({
                     <Upload className="size-6 text-muted-foreground" />
                   )}
                   <span className="text-sm text-muted-foreground">
-                    {isUploadingCover ? "جاري الرفع..." : "اضغط لرفع صورة الغلاف"}
+                    {isUploadingCover ? tr("جاري الرفع...") : tr("اضغط لرفع صورة الغلاف")}
                   </span>
                 </button>
                 <Button
@@ -343,7 +344,7 @@ export default function StoreIdentitySection({
                   disabled={isUploadingCover}
                 >
                   <Camera className="size-4" />
-                  اختر من Unsplash
+                  {tr("اختر من Unsplash")}
                 </Button>
               </div>
             )}
@@ -361,9 +362,9 @@ export default function StoreIdentitySection({
           <div className="flex items-center gap-3">
             <Type className="size-4 text-primary" />
             <div>
-              <p className="text-sm font-medium">إظهار اسم المتجر</p>
+              <p className="text-sm font-medium">{tr("إظهار اسم المتجر")}</p>
               <p className="text-xs text-muted-foreground">
-                عرض اسم المتجر بجانب اللوجو في شريط التنقل
+                {tr("عرض اسم المتجر بجانب اللوجو في شريط التنقل")}
               </p>
             </div>
           </div>
@@ -380,16 +381,16 @@ export default function StoreIdentitySection({
       <section className="space-y-5">
         <div className="flex items-center gap-2">
           <FileText className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">محتوى المتجر</h3>
+          <h3 className="text-base font-semibold">{tr("محتوى المتجر")}</h3>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 w-full">
           <div className="space-y-2">
-            <Label htmlFor="description">وصف المتجر</Label>
+            <Label htmlFor="description">{tr("وصف المتجر")}</Label>
             <Textarea
               id="description"
               name="description"
-              placeholder="مثال: متجر متخصص في بيع الملابس الكاجوال بأفضل جودة وسعر"
+              placeholder={tr("مثال: متجر متخصص في بيع الملابس الكاجوال بأفضل جودة وسعر")}
               defaultValue={description ?? ""}
               className="min-h-28 resize-none"
             />
@@ -401,11 +402,11 @@ export default function StoreIdentitySection({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="announcementText">النص العلوي</Label>
+            <Label htmlFor="announcementText">{tr("النص العلوي")}</Label>
             <Textarea
               id="announcementText"
               name="announcementText"
-              placeholder="مثال: شحن مجاني للطلبات فوق 500 جنيه"
+              placeholder={tr("مثال: شحن مجاني للطلبات فوق 500 جنيه")}
               defaultValue={announcementText ?? ""}
               className="min-h-28 resize-none"
             />
@@ -423,12 +424,12 @@ export default function StoreIdentitySection({
           {isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              جاري الحفظ...
+              {tr("جاري الحفظ...")}
             </>
           ) : (
             <>
               <Save className="size-4" />
-              حفظ
+              {tr("حفظ")}
             </>
           )}
         </Button>
@@ -446,7 +447,7 @@ export default function StoreIdentitySection({
         onClose={() => setUnsplashOpen(false)}
         onSelect={(url) => {
           setCoverUrl(url);
-          toast.success("تم اختيار الصورة");
+          toast.success(tr("تم اختيار الصورة"));
         }}
       />
     </form>

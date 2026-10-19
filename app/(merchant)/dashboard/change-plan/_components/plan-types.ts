@@ -1,3 +1,4 @@
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 export type Cycle = "MONTHLY" | "YEARLY";
 
 export type PlanFeatureForUI = {
@@ -23,11 +24,11 @@ export type PlanForUI = {
   features: PlanFeatureForUI[];
 };
 
-export const nf = new Intl.NumberFormat("ar-EG");
+export const nf = lazyIntl.number();
 
 export function featureValueLabel(feature: PlanFeatureForUI) {
   if (!feature.enabled) return null;
-  if (feature.isUnlimited) return "غير محدود";
+  if (feature.isUnlimited) return tr("غير محدود");
   if (feature.limitValue !== null) return `${nf.format(feature.limitValue)} ${feature.unit ?? ""}`.trim();
   return null;
 }

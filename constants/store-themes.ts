@@ -15,6 +15,7 @@ import type {
 } from "@/types/store-theme.types";
 import { THEME_PRESET_IDS, THEME_CATEGORY_IDS, isThemePresetId } from "@/types/store-theme.types";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
+import { tr } from "@/lib/i18n/dashboard";
 
 export { THEME_PRESET_IDS, isThemePresetId };
 export type { ThemePresetId, ThemeCategoryId };
@@ -22,12 +23,12 @@ export type { ThemePresetId, ThemeCategoryId };
 // ─── Theme Categories ─────────────────────────────────────────────────────
 
 export const THEME_CATEGORIES: Record<ThemeCategoryId, { label: string; description: string }> = {
-  general: { label: "متجر عام", description: "مناسب لأي نوع من المنتجات" },
-  fashion: { label: "أزياء وإكسسوارات", description: "ملابس، شنط، أحذية، ومجوهرات" },
-  electronics: { label: "إلكترونيات وتقنية", description: "موبايلات، أجهزة، جيمنج، وإكسسواراتها" },
-  beauty: { label: "تجميل وعطور", description: "مستحضرات تجميل، عناية، وعطور" },
-  food: { label: "أكل ومشروبات", description: "مطاعم، حلويات، قهوة، ومنتجات غذائية" },
-  home: { label: "منزل وديكور", description: "أثاث، ديكور، وأدوات منزلية" },
+  general: { get label() { return tr("متجر عام"); }, get description() { return tr("مناسب لأي نوع من المنتجات"); } },
+  fashion: { get label() { return tr("أزياء وإكسسوارات"); }, get description() { return tr("ملابس، شنط، أحذية، ومجوهرات"); } },
+  electronics: { get label() { return tr("إلكترونيات وتقنية"); }, get description() { return tr("موبايلات، أجهزة، جيمنج، وإكسسواراتها"); } },
+  beauty: { get label() { return tr("تجميل وعطور"); }, get description() { return tr("مستحضرات تجميل، عناية، وعطور"); } },
+  food: { get label() { return tr("أكل ومشروبات"); }, get description() { return tr("مطاعم، حلويات، قهوة، ومنتجات غذائية"); } },
+  home: { get label() { return tr("منزل وديكور"); }, get description() { return tr("أثاث، ديكور، وأدوات منزلية"); } },
 };
 
 export const THEME_CATEGORY_LIST = THEME_CATEGORY_IDS.map((id) => ({ id, ...THEME_CATEGORIES[id] }));
@@ -71,8 +72,8 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
   // ── 1. Default (Classic Light) ──────────────────────────────────────────
   default: {
     id: "default",
-    name: "كلاسيك",
-    description: "تصميم نظيف واحترافي مناسب لجميع أنواع المتاجر.",
+    get name() { return tr("كلاسيك"); },
+    get description() { return tr("تصميم نظيف واحترافي مناسب لجميع أنواع المتاجر."); },
     colorScheme: "light",
     categories: ["general", "electronics", "food", "home"],
     tokens: {
@@ -135,8 +136,8 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
   // ── 2. Riwaq (editorial · paper, ink & arches) ──────────────────────────
   riwaq: {
     id: "riwaq",
-    name: "رواق",
-    description: "تصميم تحريري بروح أروقة الأسواق القديمة: ورق دافئ، حبر، وأقواس.",
+    get name() { return tr("رواق"); },
+    get description() { return tr("تصميم تحريري بروح أروقة الأسواق القديمة: ورق دافئ، حبر، وأقواس."); },
     colorScheme: "light",
     categories: ["fashion", "beauty", "home", "general"],
     tokens: {
@@ -199,8 +200,8 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
   // ── 3. Mada (premium modular · pine & signal) ───────────────────────────
   mada: {
     id: "mada",
-    name: "مدى",
-    description: "ثيم متكامل بأقسام مرنة، قائمة كبيرة، سلة جانبية، ونظرة سريعة على المنتجات.",
+    get name() { return tr("مدى"); },
+    get description() { return tr("ثيم متكامل بأقسام مرنة، قائمة كبيرة، سلة جانبية، ونظرة سريعة على المنتجات."); },
     colorScheme: "light",
     categories: ["fashion", "beauty", "electronics", "home", "general"],
     tokens: {
@@ -269,8 +270,8 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
   // ── 4. Casho Dune (editorial · fog, ink & umber) ────────────────────────
   dune: {
     id: "dune",
-    name: "كاشو ديون",
-    description: "ثيم تحريري فاخر: صور كبيرة، عناوين Serif، هيدر شفاف فوق الهيرو، قائمة كبيرة، سلة جانبية، وحركة هادية.",
+    get name() { return tr("كاشو ديون"); },
+    get description() { return tr("ثيم تحريري فاخر: صور كبيرة، عناوين Serif، هيدر شفاف فوق الهيرو، قائمة كبيرة، سلة جانبية، وحركة هادية."); },
     colorScheme: "light",
     categories: ["general", "fashion", "beauty", "home", "electronics", "food"],
     tokens: {
@@ -338,8 +339,8 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
   // ── 5. Maximize (large catalog · emerald, grey plates & red deals) ─────────
   maximize: {
     id: "maximize",
-    name: "ماكسيمايز",
-    description: "ثيم للمتاجر الكبيرة: بحث بالتصنيف، قائمة تصنيفات كبيرة، شبكة عروض، منتجات كثيفة بفلاتر، نظرة سريعة، وسلة جانبية.",
+    get name() { return tr("ماكسيمايز"); },
+    get description() { return tr("ثيم للمتاجر الكبيرة: بحث بالتصنيف، قائمة تصنيفات كبيرة، شبكة عروض، منتجات كثيفة بفلاتر، نظرة سريعة، وسلة جانبية."); },
     colorScheme: "light",
     categories: ["electronics", "general", "home", "beauty", "fashion"],
     tokens: {
@@ -408,8 +409,8 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
   // ── 6. Cello (electronics · Casho blue, navy chrome & yellow search) ────────
   cello: {
     id: "cello",
-    name: "تشيلو",
-    description: "ثيم إلكترونيات أنيق: سلايدر رئيسي، بحث كبير، قائمة تصنيفات، عروض بعدّاد، كروت منتجات بنظرة سريعة، وفوتر كحلي.",
+    get name() { return tr("تشيلو"); },
+    get description() { return tr("ثيم إلكترونيات أنيق: سلايدر رئيسي، بحث كبير، قائمة تصنيفات، عروض بعدّاد، كروت منتجات بنظرة سريعة، وفوتر كحلي."); },
     colorScheme: "light",
     categories: ["electronics", "general", "home", "fashion"],
     tokens: {

@@ -31,6 +31,7 @@ import {
   SyncInstagramConversationsAction,
 } from "@/actions/instagram/instagram.actions";
 import { toast } from "sonner";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
   connection: {
@@ -55,10 +56,10 @@ export function ConnectionStatus({ connection }: Props) {
     startSync(async () => {
       const result = await SyncInstagramConversationsAction();
       if (result.success) {
-        toast.success(`تم مزامنة ${result.synced} محادثة`);
+        toast.success(tr("تم مزامنة {0} محادثة", result.synced));
         router.refresh();
       } else {
-        toast.error(result.error ?? "فشلت المزامنة");
+        toast.error(result.error ?? tr("فشلت المزامنة"));
       }
     });
   }
@@ -67,24 +68,24 @@ export function ConnectionStatus({ connection }: Props) {
     startDisconnect(async () => {
       const result = await DisconnectInstagramAction();
       if (result.success) {
-        toast.success("تم قطع الاتصال بانستجرام");
+        toast.success(tr("تم قطع الاتصال بانستجرام"));
         router.refresh();
       } else {
-        toast.error(result.error ?? "فشل قطع الاتصال");
+        toast.error(result.error ?? tr("فشل قطع الاتصال"));
       }
     });
   }
 
   function formatLastSync(date: Date | null) {
-    if (!date) return "لم تتم مزامنة بعد";
+    if (!date) return tr("لم تتم مزامنة بعد");
     const diff    = Date.now() - new Date(date).getTime();
     const minutes = Math.floor(diff / 60000);
     const hours   = Math.floor(diff / 3600000);
     const days    = Math.floor(diff / 86400000);
-    if (minutes < 1)  return "منذ لحظات";
-    if (minutes < 60) return `منذ ${minutes} دقيقة`;
-    if (hours < 24)   return `منذ ${hours} ساعة`;
-    return `منذ ${days} يوم`;
+    if (minutes < 1)  return tr("منذ لحظات");
+    if (minutes < 60) return tr("منذ {0} دقيقة", minutes);
+    if (hours < 24)   return tr("منذ {0} ساعة", hours);
+    return tr("منذ {0} يوم", days);
   }
 
   return (
@@ -121,13 +122,13 @@ export function ConnectionStatus({ connection }: Props) {
                       : "bg-rose-500/10 text-rose-700 dark:text-rose-400",
                   )}
                 >
-                  {isActive ? "متصل" : "انتهت الصلاحية"}
+                  {isActive ? tr("متصل") : tr("انتهت الصلاحية")}
                 </Badge>
               </div>
 
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                 {connection.igPageName && (
-                  <span>صفحة: {connection.igPageName}</span>
+                  <span>{tr("صفحة: {0}", connection.igPageName)}</span>
                 )}
                 <span className="flex items-center gap-1">
                   {connection.webhookVerified ? (
@@ -135,11 +136,11 @@ export function ConnectionStatus({ connection }: Props) {
                   ) : (
                     <WifiOff className="size-3 text-amber-500" />
                   )}
-                  {connection.webhookVerified ? "Webhook مفعّل" : "Webhook غير مفعّل"}
+                  {connection.webhookVerified ? tr("Webhook مفعّل") : tr("Webhook غير مفعّل")}
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="size-3" />
-                  آخر مزامنة: {formatLastSync(connection.lastSyncAt)}
+                  {tr("آخر مزامنة: {0}", formatLastSync(connection.lastSyncAt))}
                 </span>
               </div>
             </div>
@@ -154,8 +155,8 @@ export function ConnectionStatus({ connection }: Props) {
                 onClick={handleSync}
                 disabled={isSyncing}
               >
-                <RefreshCw className={cn("mr-1.5 size-4", isSyncing && "animate-spin")} />
-                {isSyncing ? "جاري المزامنة..." : "مزامنة الآن"}
+                <RefreshCw className={cn("ms-1.5 size-4", isSyncing && "animate-spin")} />
+                {isSyncing ? tr("جاري المزامنة...") : tr("مزامنة الآن")}
               </Button>
             )}
 
@@ -167,25 +168,24 @@ export function ConnectionStatus({ connection }: Props) {
                   className="rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600"
                   disabled={isDisconnecting}
                 >
-                  <Unlink className="mr-1.5 size-4" />
-                  قطع الاتصال
+                  <Unlink className="ms-1.5 size-4" />
+                  {tr("قطع الاتصال")}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent dir="rtl">
+              <AlertDialogContent dir={tdir()}>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>قطع الاتصال بانستجرام؟</AlertDialogTitle>
+                  <AlertDialogTitle>{tr("قطع الاتصال بانستجرام؟")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    سيتم حذف جميع المحادثات المحفوظة. الطلبات المقترحة ستبقى في سجلك.
-                    لا يمكن التراجع عن هذا الإجراء.
+                    {tr("سيتم حذف جميع المحادثات المحفوظة. الطلبات المقترحة ستبقى في سجلك. لا يمكن التراجع عن هذا الإجراء.")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                  <AlertDialogCancel>{tr("إلغاء")}</AlertDialogCancel>
                   <AlertDialogAction
                     className="bg-rose-600 hover:bg-rose-700"
                     onClick={handleDisconnect}
                   >
-                    قطع الاتصال
+                    {tr("قطع الاتصال")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -196,7 +196,7 @@ export function ConnectionStatus({ connection }: Props) {
         {isExpired && (
           <div className="mt-3 flex items-center gap-2 rounded-xl bg-rose-500/10 px-3 py-2.5 text-sm text-rose-700 dark:text-rose-400">
             <AlertCircle className="size-4 shrink-0" />
-            انتهت صلاحية الربط مع انستجرام — يرجى قطع الاتصال وإعادة الربط
+            {tr("انتهت صلاحية الربط مع انستجرام — يرجى قطع الاتصال وإعادة الربط")}
           </div>
         )}
       </CardContent>

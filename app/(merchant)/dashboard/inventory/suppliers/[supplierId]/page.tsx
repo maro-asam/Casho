@@ -3,13 +3,15 @@ import { ArrowRight, Edit } from "lucide-react";
 import { GetSupplierDetailAction } from "@/actions/inventory/suppliers.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 const PO_STATUS: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  DRAFT: { label: "مسودة", variant: "secondary" },
-  SENT: { label: "مُرسل", variant: "outline" },
-  PARTIAL: { label: "استلام جزئي", variant: "default" },
-  RECEIVED: { label: "مُستلم", variant: "default" },
-  CANCELLED: { label: "ملغي", variant: "destructive" },
+  DRAFT: { get label() { return tr("مسودة"); }, variant: "secondary" },
+  SENT: { get label() { return tr("مُرسل"); }, variant: "outline" },
+  PARTIAL: { get label() { return tr("استلام جزئي"); }, variant: "default" },
+  RECEIVED: { get label() { return tr("مُستلم"); }, variant: "default" },
+  CANCELLED: { get label() { return tr("ملغي"); }, variant: "destructive" },
 };
 
 export default async function SupplierDetailPage({
@@ -17,6 +19,7 @@ export default async function SupplierDetailPage({
 }: {
   params: Promise<{ supplierId: string }>;
 }) {
+  await loadDashboardLocale();
   const { supplierId } = await params;
   const supplier = await GetSupplierDetailAction(supplierId);
 
@@ -26,17 +29,17 @@ export default async function SupplierDetailPage({
         <div className="flex items-center gap-3">
           <Link href="/dashboard/inventory/suppliers">
             <Button variant="ghost" size="sm" className="gap-1">
-              <ArrowRight className="size-4" />
-              الموردون
+              <ArrowRight className="size-4 ltr:-scale-x-100" />
+              {tr("الموردون")}
             </Button>
           </Link>
           <h1 className="text-xl font-bold">{supplier.name}</h1>
-          {!supplier.isActive && <Badge variant="secondary">غير نشط</Badge>}
+          {!supplier.isActive && <Badge variant="secondary">{tr("غير نشط")}</Badge>}
         </div>
         <Link href={`/dashboard/inventory/suppliers/${supplier.id}/edit`}>
           <Button variant="outline" size="sm" className="gap-2">
             <Edit className="size-4" />
-            تعديل
+            {tr("تعديل")}
           </Button>
         </Link>
       </div>
@@ -44,38 +47,38 @@ export default async function SupplierDetailPage({
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Info card */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold">بيانات المورد</h2>
+          <h2 className="mb-4 font-semibold">{tr("بيانات المورد")}</h2>
           <dl className="space-y-3 text-sm">
             {supplier.phone && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">الهاتف</dt>
+                <dt className="text-muted-foreground">{tr("الهاتف")}</dt>
                 <dd dir="ltr">{supplier.phone}</dd>
               </div>
             )}
             {supplier.email && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">البريد</dt>
+                <dt className="text-muted-foreground">{tr("البريد")}</dt>
                 <dd dir="ltr">{supplier.email}</dd>
               </div>
             )}
             {supplier.address && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">العنوان</dt>
+                <dt className="text-muted-foreground">{tr("العنوان")}</dt>
                 <dd className="text-end">{supplier.address}</dd>
               </div>
             )}
             {supplier.taxNumber && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">الرقم الضريبي</dt>
+                <dt className="text-muted-foreground">{tr("الرقم الضريبي")}</dt>
                 <dd dir="ltr">{supplier.taxNumber}</dd>
               </div>
             )}
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">الرصيد المستحق</dt>
+              <dt className="text-muted-foreground">{tr("الرصيد المستحق")}</dt>
               <dd className={supplier.balance > 0 ? "font-semibold text-amber-600" : ""}>
                 {supplier.balance > 0
-                  ? new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(supplier.balance / 100)
-                  : "لا يوجد"}
+                  ? new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(supplier.balance / 100)
+                  : tr("لا يوجد")}
               </dd>
             </div>
           </dl>
@@ -89,12 +92,12 @@ export default async function SupplierDetailPage({
         {/* Products */}
         <div className="rounded-xl border border-border bg-card shadow-sm lg:col-span-2">
           <h2 className="border-b border-border px-5 py-4 font-semibold">
-            المنتجات المرتبطة ({supplier.products.length})
+            {tr("المنتجات المرتبطة ({0})", supplier.products.length)}
           </h2>
           <div className="divide-y divide-border">
             {supplier.products.length === 0 ? (
               <p className="px-5 py-6 text-center text-sm text-muted-foreground">
-                لا توجد منتجات مرتبطة
+                {tr("لا توجد منتجات مرتبطة")}
               </p>
             ) : (
               supplier.products.map(({ product, isPrimary, costPrice }) => (
@@ -106,14 +109,14 @@ export default async function SupplierDetailPage({
                     </Link>
                     {product.sku && <p className="font-mono text-xs text-muted-foreground">{product.sku}</p>}
                   </div>
-                  {isPrimary && <Badge>رئيسي</Badge>}
+                  {isPrimary && <Badge>{tr("رئيسي")}</Badge>}
                   {costPrice && (
                     <span className="text-sm text-muted-foreground">
-                      {costPrice} ج
+                      {tr("{0} ج", costPrice)}
                     </span>
                   )}
                   <span className="text-sm tabular-nums text-muted-foreground">
-                    مخزون: {product.stock}
+                    {tr("مخزون: {0}", product.stock)}
                   </span>
                 </div>
               ))
@@ -126,19 +129,19 @@ export default async function SupplierDetailPage({
       {supplier.purchaseOrders.length > 0 && (
         <div className="rounded-xl border border-border bg-card shadow-sm">
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <h2 className="font-semibold">آخر طلبات الشراء</h2>
+            <h2 className="font-semibold">{tr("آخر طلبات الشراء")}</h2>
             <Link href={`/dashboard/inventory/purchase-orders?supplierId=${supplier.id}`}>
-              <Button variant="ghost" size="sm">عرض الكل</Button>
+              <Button variant="ghost" size="sm">{tr("عرض الكل")}</Button>
             </Link>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/50 text-right text-xs font-semibold uppercase text-muted-foreground">
-                <th className="px-4 py-3">رقم الأمر</th>
-                <th className="px-4 py-3">الحالة</th>
-                <th className="px-4 py-3 text-center">المنتجات</th>
-                <th className="px-4 py-3">الإجمالي</th>
-                <th className="px-4 py-3">التاريخ</th>
+              <tr className="border-b border-border bg-muted/50 text-start text-xs font-semibold uppercase text-muted-foreground">
+                <th className="px-4 py-3">{tr("رقم الأمر")}</th>
+                <th className="px-4 py-3">{tr("الحالة")}</th>
+                <th className="px-4 py-3 text-center">{tr("المنتجات")}</th>
+                <th className="px-4 py-3">{tr("الإجمالي")}</th>
+                <th className="px-4 py-3">{tr("التاريخ")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -153,14 +156,14 @@ export default async function SupplierDetailPage({
                     </td>
                     <td className="px-4 py-3 text-center">{po._count.items}</td>
                     <td className="px-4 py-3 tabular-nums">
-                      {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(po.totalAmount / 100)}
+                      {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(po.totalAmount / 100)}
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {new Intl.DateTimeFormat("ar-EG", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(po.createdAt))}
+                      {new Intl.DateTimeFormat(intlLocale(), { day: "2-digit", month: "short", year: "numeric" }).format(new Date(po.createdAt))}
                     </td>
                     <td className="px-4 py-3">
                       <Link href={`/dashboard/inventory/purchase-orders/${po.id}`}>
-                        <Button variant="ghost" size="sm">عرض</Button>
+                        <Button variant="ghost" size="sm">{tr("عرض")}</Button>
                       </Link>
                     </td>
                   </tr>

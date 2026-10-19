@@ -6,14 +6,20 @@ import { GetCRMAnalyticsAction, GetCRMDashboardStatsAction } from "@/actions/crm
 import { CRMAnalyticsClient } from "./_components/CRMAnalyticsClient";
 import { isEntitlementError } from "@/lib/entitlements";
 import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = { title: "تحليلات العملاء — CRM" };
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return { title: tr("تحليلات العملاء — CRM") };
+}
 
 export default async function CRMAnalyticsPage({
   searchParams,
 }: {
   searchParams?: Promise<{ period?: string }>;
 }) {
+  await loadDashboardLocale();
   const sp = await searchParams;
   const period = (Number(sp?.period ?? 30) as 30 | 60 | 90 | 365) || 30;
 
@@ -28,11 +34,11 @@ export default async function CRMAnalyticsPage({
   } catch (error) {
     if (isEntitlementError(error)) {
       return (
-        <div className="space-y-6" dir="rtl">
-          <DashboardSectionHeader icon={Sparkles} title="تحليلات العملاء" description="فهم عمق سلوك عملائك واتجاهات نموهم" />
+        <div className="space-y-6" dir={tdir()}>
+          <DashboardSectionHeader icon={Sparkles} title={tr("تحليلات العملاء")} description={tr("فهم عمق سلوك عملائك واتجاهات نموهم")} />
           <UpgradeRequiredCard
-            title="تحليلات متقدمة"
-            description="التحليلات المتقدمة غير متاحة في باقتك الحالية."
+            title={tr("تحليلات متقدمة")}
+            description={tr("التحليلات المتقدمة غير متاحة في باقتك الحالية.")}
             requiredPlanSlug={error.requiredPlan}
           />
         </div>
@@ -42,11 +48,11 @@ export default async function CRMAnalyticsPage({
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Sparkles}
-        title="تحليلات العملاء"
-        description="فهم عمق سلوك عملائك واتجاهات نموهم"
+        title={tr("تحليلات العملاء")}
+        description={tr("فهم عمق سلوك عملائك واتجاهات نموهم")}
       />
       <CRMAnalyticsClient analytics={analytics} stats={stats} currentPeriod={period} />
     </div>

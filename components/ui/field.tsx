@@ -3,6 +3,8 @@
 import { useMemo } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
+// Validation messages are written in Arabic; translated for English dashboard users.
+import { trv } from "@/lib/i18n/dashboard"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
@@ -195,14 +197,14 @@ function FieldError({
     ]
 
     if (uniqueErrors?.length == 1) {
-      return uniqueErrors[0]?.message
+      return trv(uniqueErrors[0]?.message)
     }
 
     return (
       <ul className="ms-4 flex list-disc flex-col gap-1">
         {uniqueErrors.map(
           (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>
+            error?.message && <li key={index}>{trv(error.message)}</li>
         )}
       </ul>
     )

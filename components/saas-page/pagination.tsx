@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hrefWith, type SearchParamsRecord } from "./url-state";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 type PaginationProps = {
   page: number;
@@ -13,7 +14,7 @@ type PaginationProps = {
   noun: string;
 };
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 /** 1 … 4 5 [6] 7 8 … 20 */
 function pageWindow(page: number, totalPages: number): (number | "gap")[] {
@@ -34,20 +35,20 @@ export function Pagination({ page, pageSize, total, basePath, searchParams, noun
   return (
     <div className="flex flex-col items-center justify-between gap-3 px-4 py-3 sm:flex-row">
       <p className="text-sm text-muted-foreground tabular-nums">
-        عرض {nf.format(from)}–{nf.format(to)} من {nf.format(total)} {noun}
+        {tr("عرض {0}–{1} من {2} {3}", nf.format(from), nf.format(to), nf.format(total), noun)}
       </p>
 
       {totalPages > 1 && (
-        <nav aria-label="الصفحات" className="flex items-center gap-1">
+        <nav aria-label={tr("الصفحات")} className="flex items-center gap-1">
           {page > 1 ? (
             <Link href={link(page - 1)} className={cn(btn, "text-muted-foreground hover:bg-muted hover:text-foreground")}>
-              <ChevronRight className="size-4" />
-              السابق
+              <ChevronRight className="size-4 ltr:-scale-x-100" />
+              {tr("السابق")}
             </Link>
           ) : (
             <span aria-disabled className={cn(btn, "pointer-events-none text-muted-foreground/40")}>
-              <ChevronRight className="size-4" />
-              السابق
+              <ChevronRight className="size-4 ltr:-scale-x-100" />
+              {tr("السابق")}
             </span>
           )}
 
@@ -77,13 +78,13 @@ export function Pagination({ page, pageSize, total, basePath, searchParams, noun
 
           {page < totalPages ? (
             <Link href={link(page + 1)} className={cn(btn, "text-muted-foreground hover:bg-muted hover:text-foreground")}>
-              التالي
-              <ChevronLeft className="size-4" />
+              {tr("التالي")}
+              <ChevronLeft className="size-4 ltr:-scale-x-100" />
             </Link>
           ) : (
             <span aria-disabled className={cn(btn, "pointer-events-none text-muted-foreground/40")}>
-              التالي
-              <ChevronLeft className="size-4" />
+              {tr("التالي")}
+              <ChevronLeft className="size-4 ltr:-scale-x-100" />
             </span>
           )}
         </nav>

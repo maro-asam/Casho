@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, ExternalLink, Headset, LogOut, Moon, Settings, Sun, Wallet } from "lucide-react";
+import { ChevronLeft, ExternalLink, Headset, Languages, LogOut, Moon, Settings, Sun, Wallet } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { LogoutAction } from "@/actions/auth/logout.actions";
@@ -20,6 +20,8 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import NotificationsBell from "../notifications/NotificationsBell";
 import DashboardSearch from "./DashboardSearch";
 import type { ActiveNav } from "./dashboard-nav";
+import { currentLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { useSwitchLocale } from "@/lib/i18n/dashboard/use-switch-locale";
 
 type Props = {
   store: { name: string; slug: string };
@@ -37,7 +39,7 @@ function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      aria-label="تبديل الوضع الداكن"
+      aria-label={tr("تبديل الوضع الداكن")}
       className="relative size-9 text-muted-foreground hover:text-foreground"
     >
       <Sun className="size-4 scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
@@ -49,11 +51,13 @@ function ThemeToggle() {
 function AccountMenu({ store }: { store: Props["store"] }) {
   const initials = store.name.trim().slice(0, 1).toUpperCase();
   const [isLoggingOut, startLogout] = useTransition();
+  const locale = currentLocale();
+  const { switchTo, pending: switching } = useSwitchLocale();
 
   return (
-    <DropdownMenu dir="rtl" modal={false}>
+    <DropdownMenu dir={tdir()} modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="قائمة الحساب" className="size-9 rounded-full">
+        <Button variant="ghost" size="icon" aria-label={tr("قائمة الحساب")} className="size-9 rounded-full">
           <span className="grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
             {initials}
           </span>
@@ -70,26 +74,37 @@ function AccountMenu({ store }: { store: Props["store"] }) {
         <DropdownMenuItem asChild>
           <Link href={buildStoreUrl(store.slug)} target="_blank" rel="noreferrer">
             <ExternalLink />
-            زيارة المتجر
+            {tr("زيارة المتجر")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/settings">
             <Settings />
-            إعدادات المتجر
+            {tr("إعدادات المتجر")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/balance">
             <Wallet />
-            الرصيد والاشتراك
+            {tr("الرصيد والاشتراك")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/support">
             <Headset />
-            مركز المساعدة
+            {tr("مركز المساعدة")}
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={switching}
+          onSelect={(e) => {
+            e.preventDefault();
+            switchTo(locale === "ar" ? "en" : "ar");
+          }}
+        >
+          <Languages />
+          {/* Always named in the target language, so it's findable either way. */}
+          <span lang={locale === "ar" ? "en" : "ar"}>{locale === "ar" ? "English" : "العربية"}{/* i18n-ignore */}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {/* Not a <form>: selecting an item closes (unmounts) the menu before the
@@ -103,7 +118,7 @@ function AccountMenu({ store }: { store: Props["store"] }) {
           }}
         >
           <LogOut />
-          {isLoggingOut ? "جارٍ تسجيل الخروج…" : "تسجيل الخروج"}
+          {isLoggingOut ? tr("جارٍ تسجيل الخروج…") : tr("تسجيل الخروج")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -116,14 +131,14 @@ export default function DashboardTopbar({ store, active, initialNotifications, i
       {menuSlot}
 
       {/* Where am I */}
-      <nav aria-label="مسار الصفحة" className="min-w-0 flex-1">
+      <nav aria-label={tr("مسار الصفحة")} className="min-w-0 flex-1">
         {active ? (
           <ol className="flex min-w-0 items-center gap-1.5 text-sm">
             {active.child && (
               <>
                 <li className="hidden truncate text-muted-foreground sm:block">{active.item.name}</li>
                 <li aria-hidden className="hidden text-muted-foreground/50 sm:block">
-                  <ChevronLeft className="size-3.5" />
+                  <ChevronLeft className="size-3.5 ltr:-scale-x-100" />
                 </li>
               </>
             )}
@@ -139,7 +154,7 @@ export default function DashboardTopbar({ store, active, initialNotifications, i
         <Button asChild variant="ghost" size="sm" className="hidden h-9 gap-1.5 text-muted-foreground hover:text-foreground lg:inline-flex">
           <Link href={buildStoreUrl(store.slug)} target="_blank" rel="noreferrer">
             <ExternalLink className="size-4" />
-            زيارة المتجر
+            {tr("زيارة المتجر")}
           </Link>
         </Button>
         <NotificationsBell initialNotifications={initialNotifications} initialUnreadCount={initialUnreadCount} />

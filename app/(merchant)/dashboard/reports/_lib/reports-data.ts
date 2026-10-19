@@ -13,12 +13,13 @@ import {
   type ReportRange,
 } from "./range";
 import type { Insight, InventoryRow, ProductRow, ReportsData, TopCustomer } from "./types";
+import { lazyList, tr } from "@/lib/i18n/dashboard";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const VELOCITY_DAYS = 90;
 const RUNNING_OUT_DAYS = 14;
 const DEFAULT_LOW_STOCK = 5;
-const ARABIC_WEEKDAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+const ARABIC_WEEKDAYS = lazyList(["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]);
 
 const orderSelect = {
   id: true,
@@ -493,7 +494,7 @@ export async function getReportsData(
       const profit = s.costKnown ? Math.round(s.net - s.cost) : null;
       return {
         id,
-        name: info?.name ?? "منتج محذوف",
+        name: info?.name ?? tr("منتج محذوف"),
         image: info?.image ?? "/images/product-placeholder.png",
         category: info?.category ?? "—",
         units: s.units,
@@ -602,7 +603,7 @@ export async function getReportsData(
       newRevenue += c.spend;
     } else returningRevenue += c.spend;
     if (c.orders > 1) repeaters++;
-    topCustomers.push({ key, customerId: c.customerId, name: c.name || "عميل", phone: c.phone, orders: c.orders, spend: c.spend, lastOrderAt: c.last, isNew });
+    topCustomers.push({ key, customerId: c.customerId, name: c.name || tr("عميل"), phone: c.phone, orders: c.orders, spend: c.spend, lastOrderAt: c.last, isNew });
   }
   topCustomers.sort((a, b) => b.spend - a.spend);
 
@@ -728,7 +729,7 @@ export async function getReportsData(
       cashiers: [...cashierMap.entries()]
         .map(([id, c]) => ({
           id,
-          name: names.get(id) ?? "غير معروف",
+          name: names.get(id) ?? tr("غير معروف"),
           orders: c.orders,
           netSales: c.netSales,
           aov: Math.round(c.netSales / c.orders),
@@ -748,7 +749,7 @@ export async function getReportsData(
         amount: cur.returns,
         rate: ratio(cur.returns, cur.netBeforeReturns) * 100,
         topProducts: [...returnedProducts.entries()]
-          .map(([id, r]) => ({ name: products.get(id)?.name ?? "منتج محذوف", ...r }))
+          .map(([id, r]) => ({ name: products.get(id)?.name ?? tr("منتج محذوف"), ...r }))
           .sort((a, b) => b.amount - a.amount)
           .slice(0, 5),
       },
@@ -808,19 +809,19 @@ export async function getReportsData(
     const bestDay = [...weekdays].sort((a, b) => b.netSales - a.netSales)[0];
     insights.push({
       tone: "info",
-      text: `أكتر وقت بيجيلك فيه طلبات يوم ${ARABIC_WEEKDAYS[peak.weekday]} من ${hourLabel(peak.hour)} لـ ${hourLabel((peak.hour + 1) % 24)}، وأعلى يوم مبيعات هو ${ARABIC_WEEKDAYS[bestDay.weekday]}.`,
+      text: tr("أكتر وقت بيجيلك فيه طلبات يوم {0} من {1} لـ {2}، وأعلى يوم مبيعات هو {3}.", ARABIC_WEEKDAYS[peak.weekday], hourLabel(peak.hour), hourLabel((peak.hour + 1) % 24), ARABIC_WEEKDAYS[bestDay.weekday]),
     });
   }
   if (concentration && productList.length >= 5) {
     insights.push({
       tone: "info",
-      text: `${formatNumber(concentration.products)} منتج بس من ${formatNumber(productList.length)} بيعملوا ${formatPercent(concentration.share * 100)} من مبيعاتك. خلي بالك إن مخزونهم ميخلصش.`,
+      text: tr("{0} منتج بس من {1} بيعملوا {2} من مبيعاتك. خلي بالك إن مخزونهم ميخلصش.", formatNumber(concentration.products), formatNumber(productList.length), formatPercent(concentration.share * 100)),
     });
   }
   if (outstandingOrders > 0) {
     insights.push({
       tone: "warning",
-      text: `${formatNumber(outstandingOrders)} طلب بـ ${formatMoney(outstanding)} لسه فلوسهم متحصّلتش (قيد المراجعة أو مع شركة الشحن).`,
+      text: tr("{0} طلب بـ {1} لسه فلوسهم متحصّلتش (قيد المراجعة أو مع شركة الشحن).", formatNumber(outstandingOrders), formatMoney(outstanding)),
     });
   }
   if (productsMissingCost > 0 && cur.netBeforeReturns > 0) {
@@ -828,45 +829,45 @@ export async function getReportsData(
       tone: "warning",
       text:
         cur.costCoverage === 0
-          ? `مفيش ولا منتج من اللي اتباعوا (${formatNumber(productsMissingCost)} منتج) ليه سعر تكلفة، فمش هنقدر نحسب ربحك. ضيف سعر التكلفة من صفحة المنتج.`
-          : `${formatNumber(productsMissingCost)} منتج اتباعوا من غير سعر تكلفة، فالربح محسوب على ${formatPercent(cur.costCoverage * 100)} من المبيعات بس. ضيف سعر التكلفة للمنتجات عشان الربح يبقى دقيق.`,
+          ? tr("مفيش ولا منتج من اللي اتباعوا ({0} منتج) ليه سعر تكلفة، فمش هنقدر نحسب ربحك. ضيف سعر التكلفة من صفحة المنتج.", formatNumber(productsMissingCost))
+          : tr("{0} منتج اتباعوا من غير سعر تكلفة، فالربح محسوب على {1} من المبيعات بس. ضيف سعر التكلفة للمنتجات عشان الربح يبقى دقيق.", formatNumber(productsMissingCost), formatPercent(cur.costCoverage * 100)),
     });
   }
   if (runningOut.length > 0) {
     insights.push({
       tone: "warning",
-      text: `${formatNumber(runningOut.length)} منتج هيخلصوا خلال أسبوعين بمعدل البيع الحالي، أولهم "${runningOut[0].name}".`,
+      text: tr("{0} منتج هيخلصوا خلال أسبوعين بمعدل البيع الحالي، أولهم \"{1}\".", formatNumber(runningOut.length), runningOut[0].name),
     });
   }
   if (inventory.deadStockCount > 0) {
     insights.push({
       tone: "warning",
-      text: `بضاعة قيمتها ${formatMoney(inventory.deadStockValue)} (${formatNumber(inventory.deadStockCount)} منتج) متباعتش ولا قطعة من ٩٠ يوم. ممكن تعمل عليها عرض.`,
+      text: tr("بضاعة قيمتها {0} ({1} منتج) متباعتش ولا قطعة من ٩٠ يوم. ممكن تعمل عليها عرض.", formatMoney(inventory.deadStockValue), formatNumber(inventory.deadStockCount)),
     });
   }
   if (byCustomer.size >= 5 && returningRevenue > 0) {
     insights.push({
       tone: "positive",
-      text: `${formatPercent(ratio(returningRevenue, newRevenue + returningRevenue) * 100)} من مبيعات العملاء المعروفين جت من ناس اشتروا منك قبل كده.`,
+      text: tr("{0} من مبيعات العملاء المعروفين جت من ناس اشتروا منك قبل كده.", formatPercent(ratio(returningRevenue, newRevenue + returningRevenue) * 100)),
     });
   }
   if (cur.grossSales > 0 && ratio(cur.discounts, cur.grossSales) >= 0.15) {
     insights.push({
       tone: "warning",
-      text: `الخصومات أخدت ${formatPercent(ratio(cur.discounts, cur.grossSales) * 100)} من إجمالي المبيعات (${formatMoney(cur.discounts)}).`,
+      text: tr("الخصومات أخدت {0} من إجمالي المبيعات ({1}).", formatPercent(ratio(cur.discounts, cur.grossSales) * 100), formatMoney(cur.discounts)),
     });
   }
   if (channels.length > 1) {
     const top = channels[0];
     insights.push({
       tone: "info",
-      text: `${ORDER_CHANNELS[top.source].label} جاب ${formatPercent(top.share * 100)} من صافي المبيعات.`,
+      text: tr("{0} جاب {1} من صافي المبيعات.", ORDER_CHANNELS[top.source].label, formatPercent(top.share * 100)),
     });
   }
   if (pos && pos.shifts.shortage < 0) {
     insights.push({
       tone: "warning",
-      text: `عجز في درج الكاش ${formatMoney(Math.abs(pos.shifts.shortage))} في ${formatNumber(pos.shifts.shortageShifts)} وردية.`,
+      text: tr("عجز في درج الكاش {0} في {1} وردية.", formatMoney(Math.abs(pos.shifts.shortage)), formatNumber(pos.shifts.shortageShifts)),
     });
   }
 

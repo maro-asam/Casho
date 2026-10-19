@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 
 import { generateMarketingFromDataAction } from "@/actions/ai/generate-marketing.actions";
 import type { MarketingContent } from "@/lib/ai/marketing-assistant";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,11 +64,11 @@ type Props = {
 type TabId = "hooks" | "captions" | "hashtags" | "ideas" | "angles";
 
 const TABS: { id: TabId; label: string; icon: React.FC<{ className?: string }> }[] = [
-  { id: "hooks",    label: "هوكس",      icon: Zap         },
-  { id: "captions", label: "كابشن",     icon: FileText    },
-  { id: "hashtags", label: "هاشتاج",    icon: Hash        },
-  { id: "ideas",    label: "أفكار",     icon: Lightbulb   },
-  { id: "angles",   label: "زوايا إعلان", icon: Target    },
+  { id: "hooks",    get label() { return tr("هوكس"); },      icon: Zap         },
+  { id: "captions", get label() { return tr("كابشن"); },     icon: FileText    },
+  { id: "hashtags", get label() { return tr("هاشتاج"); },    icon: Hash        },
+  { id: "ideas",    get label() { return tr("أفكار"); },     icon: Lightbulb   },
+  { id: "angles",   get label() { return tr("زوايا إعلان"); }, icon: Target    },
 ];
 
 // ─── Copy button ──────────────────────────────────────────────────────────────
@@ -85,7 +86,7 @@ function CopyButton({ text }: { text: string }) {
     <button
       onClick={handleCopy}
       className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition group-hover:opacity-100 hover:bg-muted hover:text-foreground"
-      title="نسخ"
+      title={tr("نسخ")}
     >
       {copied ? (
         <Check className="size-3.5 text-green-500" />
@@ -196,7 +197,7 @@ export default function MarketingAssistantModal({
       <Dialog open={open} onOpenChange={(o) => { if (!o) onDone(); }}>
         <DialogContent
           className="max-w-md rounded-2xl"
-          dir="rtl"
+          dir={tdir()}
           aria-describedby="marketing-gate-desc"
         >
           <DialogHeader className="text-center">
@@ -204,13 +205,11 @@ export default function MarketingAssistantModal({
               <Sparkles className="size-7 text-white" />
             </div>
             <DialogTitle className="text-lg">
-              عزّز مبيعاتك بالذكاء الاصطناعي ✨
+              {tr("عزّز مبيعاتك بالذكاء الاصطناعي ✨")}
             </DialogTitle>
             <DialogDescription id="marketing-gate-desc" className="leading-6">
-              احصل على{" "}
-              <span className="font-semibold text-foreground">هوكس فايرل</span>،
-              كابشن سوشيال ميديا، هاشتاجات، أفكار فيديو، وزوايا إعلانية — كلها
-              مولّدة بالـ AI وجاهزة للنشر الآن.
+              {tr("احصل على")}{" "}
+              <span className="font-semibold text-foreground">{tr("هوكس فايرل")}</span>{tr("، كابشن سوشيال ميديا، هاشتاجات، أفكار فيديو، وزوايا إعلانية — كلها مولّدة بالـ AI وجاهزة للنشر الآن.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -231,15 +230,15 @@ export default function MarketingAssistantModal({
               onClick={handleGenerate}
             >
               <Sparkles className="me-2 size-4" />
-              ولّد المحتوى التسويقي
+              {tr("ولّد المحتوى التسويقي")}
             </Button>
             <Button
               variant="ghost"
               className="w-full rounded-xl text-muted-foreground"
               onClick={onDone}
             >
-              الآن لا، أكمل
-              <ChevronRight className="ms-1.5 size-4" />
+              {tr("الآن لا، أكمل")}
+              <ChevronRight className="ms-1.5 size-4 ltr:-scale-x-100" />
             </Button>
           </div>
         </DialogContent>
@@ -253,7 +252,7 @@ export default function MarketingAssistantModal({
       <Dialog open={open}>
         <DialogContent
           className="max-w-md rounded-2xl"
-          dir="rtl"
+          dir={tdir()}
           aria-describedby="marketing-loading-desc"
         >
           <div className="flex flex-col items-center gap-5 py-8 text-center">
@@ -263,10 +262,10 @@ export default function MarketingAssistantModal({
             </div>
             <div>
               <p className="text-base font-semibold" id="marketing-loading-desc">
-                جاري توليد المحتوى…
+                {tr("جاري توليد المحتوى…")}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                الذكاء الاصطناعي يحلل منتجك ويكتب لك محتوى viral ✨
+                {tr("الذكاء الاصطناعي يحلل منتجك ويكتب لك محتوى viral ✨")}
               </p>
             </div>
             <div className="w-full space-y-2">
@@ -295,7 +294,7 @@ export default function MarketingAssistantModal({
     <Dialog open={open} onOpenChange={(o) => { if (!o) onDone(); }}>
       <DialogContent
         className="flex max-h-[90dvh] max-w-2xl flex-col gap-0 rounded-2xl p-0"
-        dir="rtl"
+        dir={tdir()}
         aria-describedby="marketing-results-desc"
       >
         {/* Header */}
@@ -306,7 +305,7 @@ export default function MarketingAssistantModal({
             </div>
             <div>
               <h2 className="text-sm font-semibold leading-none">
-                محتوى تسويقي لـ «{productData.name}»
+                {tr("محتوى تسويقي لـ «{0}»", productData.name)}
               </h2>
               <p className="mt-1 text-xs text-muted-foreground" id="marketing-results-desc">
                 {productData.categoryName}
@@ -377,7 +376,7 @@ export default function MarketingAssistantModal({
               disabled={isPending}
             >
               <Sparkles className="me-1.5 size-3" />
-              أعد التوليد
+              {tr("أعد التوليد")}
             </Button>
             <Button
               variant="ghost"
@@ -388,7 +387,7 @@ export default function MarketingAssistantModal({
               )}
             >
               <Copy className="me-1.5 size-3" />
-              نسخ الكل
+              {tr("نسخ الكل")}
             </Button>
           </div>
           <Button
@@ -396,8 +395,8 @@ export default function MarketingAssistantModal({
             className="rounded-lg text-xs"
             onClick={onDone}
           >
-            انتهيت
-            <ArrowRight className="ms-1.5 size-3" />
+            {tr("انتهيت")}
+            <ArrowRight className="ms-1.5 size-3 ltr:-scale-x-100" />
           </Button>
         </div>
       </DialogContent>

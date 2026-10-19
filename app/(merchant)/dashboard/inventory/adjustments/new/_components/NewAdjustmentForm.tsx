@@ -17,15 +17,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { tr } from "@/lib/i18n/dashboard";
 
 const REASONS: { value: AdjustmentReason; label: string }[] = [
-  { value: "COUNT_CORRECTION", label: "تصحيح جرد" },
-  { value: "DAMAGE", label: "تلف" },
-  { value: "THEFT", label: "سرقة" },
-  { value: "EXPIRY", label: "انتهاء صلاحية" },
-  { value: "LOSS", label: "ضياع" },
-  { value: "FOUND", label: "عثر عليه" },
-  { value: "OTHER", label: "أخرى" },
+  { value: "COUNT_CORRECTION", get label() { return tr("تصحيح جرد"); } },
+  { value: "DAMAGE", get label() { return tr("تلف"); } },
+  { value: "THEFT", get label() { return tr("سرقة"); } },
+  { value: "EXPIRY", get label() { return tr("انتهاء صلاحية"); } },
+  { value: "LOSS", get label() { return tr("ضياع"); } },
+  { value: "FOUND", get label() { return tr("عثر عليه"); } },
+  { value: "OTHER", get label() { return tr("أخرى"); } },
 ];
 
 type Product = {
@@ -103,8 +104,8 @@ export function NewAdjustmentForm({
   }
 
   function handleSubmit() {
-    if (!reason) return toast.error("يجب اختيار سبب التسوية");
-    if (!rows.length) return toast.error("يجب إضافة منتج واحد على الأقل");
+    if (!reason) return toast.error(tr("يجب اختيار سبب التسوية"));
+    if (!rows.length) return toast.error(tr("يجب إضافة منتج واحد على الأقل"));
 
     startTransition(async () => {
       try {
@@ -115,10 +116,10 @@ export function NewAdjustmentForm({
           reference: reference || undefined,
           items: rows.map((r) => ({ productId: r.productId, newQuantity: r.newQuantity })),
         });
-        toast.success("تم حفظ التسوية بنجاح");
+        toast.success(tr("تم حفظ التسوية بنجاح"));
         router.push("/dashboard/inventory/adjustments");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -127,13 +128,13 @@ export function NewAdjustmentForm({
     <div className="mx-auto max-w-3xl space-y-6">
       {/* Header fields */}
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold">بيانات التسوية</h2>
+        <h2 className="mb-4 font-semibold">{tr("بيانات التسوية")}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label>سبب التسوية *</Label>
+            <Label>{tr("سبب التسوية *")}</Label>
             <Select value={reason} onValueChange={(v) => setReason(v as AdjustmentReason)}>
               <SelectTrigger>
-                <SelectValue placeholder="اختر السبب" />
+                <SelectValue placeholder={tr("اختر السبب")} />
               </SelectTrigger>
               <SelectContent>
                 {REASONS.map((r) => (
@@ -147,7 +148,7 @@ export function NewAdjustmentForm({
 
           {branches.length > 0 && (
             <div className="space-y-1.5">
-              <Label>الفرع</Label>
+              <Label>{tr("الفرع")}</Label>
               <Select
                 value={branchId}
                 onValueChange={(next) => {
@@ -162,12 +163,12 @@ export function NewAdjustmentForm({
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="الفرع" />
+                  <SelectValue placeholder={tr("الفرع")} />
                 </SelectTrigger>
                 <SelectContent>
                   {branches.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
-                      {b.name} {b.isDefault && "(افتراضي)"}
+                      {b.name} {b.isDefault && tr("(افتراضي)")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -176,18 +177,18 @@ export function NewAdjustmentForm({
           )}
 
           <div className="space-y-1.5">
-            <Label>رقم المرجع</Label>
+            <Label>{tr("رقم المرجع")}</Label>
             <Input
-              placeholder="مثال: ADJ-001"
+              placeholder={tr("مثال: ADJ-001")}
               value={reference}
               onChange={(e) => setReference(e.target.value)}
             />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>ملاحظات</Label>
+            <Label>{tr("ملاحظات")}</Label>
             <Textarea
-              placeholder="أي تفاصيل إضافية..."
+              placeholder={tr("أي تفاصيل إضافية...")}
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -199,12 +200,12 @@ export function NewAdjustmentForm({
       {/* Product rows */}
       <div className="rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="font-semibold">المنتجات</h2>
+          <h2 className="font-semibold">{tr("المنتجات")}</h2>
           <div className="relative mt-3">
-            <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              className="pr-9"
-              placeholder="ابحث عن منتج للإضافة..."
+              className="ps-9"
+              placeholder={tr("ابحث عن منتج للإضافة...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -215,21 +216,21 @@ export function NewAdjustmentForm({
                 <button
                   key={p.id}
                   type="button"
-                  className="flex w-full items-center gap-3 px-3 py-2 text-right text-sm hover:bg-accent"
+                  className="flex w-full items-center gap-3 px-3 py-2 text-start text-sm hover:bg-accent"
                   onClick={() => addProduct(p)}
                 >
                   <img src={p.image} className="size-8 rounded object-cover" alt={p.name} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      مخزون: {p.stock} {p.sku && `· ${p.sku}`}
+                      {tr("مخزون: {0} {1}", p.stock, p.sku && `· ${p.sku}`)}
                     </p>
                   </div>
                   <Plus className="size-4 text-primary" />
                 </button>
               ))}
               {filtered.length === 0 && (
-                <p className="px-3 py-2 text-sm text-muted-foreground">لا توجد نتائج</p>
+                <p className="px-3 py-2 text-sm text-muted-foreground">{tr("لا توجد نتائج")}</p>
               )}
             </div>
           )}
@@ -237,15 +238,15 @@ export function NewAdjustmentForm({
 
         {rows.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-            ابحث عن منتج وأضفه للتسوية
+            {tr("ابحث عن منتج وأضفه للتسوية")}
           </p>
         ) : (
           <div className="divide-y divide-border">
             <div className="grid grid-cols-[1fr_100px_100px_100px_40px] items-center gap-3 border-b border-border bg-muted/30 px-5 py-2 text-xs font-semibold uppercase text-muted-foreground">
-              <span>المنتج</span>
-              <span className="text-center">المخزون الحالي</span>
-              <span className="text-center">الكمية الجديدة</span>
-              <span className="text-center">الفرق</span>
+              <span>{tr("المنتج")}</span>
+              <span className="text-center">{tr("المخزون الحالي")}</span>
+              <span className="text-center">{tr("الكمية الجديدة")}</span>
+              <span className="text-center">{tr("الفرق")}</span>
               <span />
             </div>
             {rows.map((row) => {
@@ -291,10 +292,10 @@ export function NewAdjustmentForm({
 
       <div className="flex gap-3">
         <Button onClick={handleSubmit} disabled={isPending || !rows.length || !reason}>
-          {isPending ? "جاري الحفظ..." : "حفظ التسوية"}
+          {isPending ? tr("جاري الحفظ...") : tr("حفظ التسوية")}
         </Button>
         <Button variant="outline" onClick={() => router.back()}>
-          إلغاء
+          {tr("إلغاء")}
         </Button>
       </div>
     </div>

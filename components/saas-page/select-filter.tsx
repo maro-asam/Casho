@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { tdir } from "@/lib/i18n/dashboard";
 
 const ALL = "__all";
 
@@ -35,7 +36,7 @@ export function SelectFilter({ param, allLabel, options, label, className }: Sel
   }
 
   return (
-    <Select value={current} onValueChange={onChange} dir="rtl" disabled={pending}>
+    <Select value={current} onValueChange={onChange} dir={tdir()} disabled={pending}>
       <SelectTrigger aria-label={label} className={cn("h-9 w-full rounded-lg sm:w-44", className)}>
         <SelectValue />
       </SelectTrigger>

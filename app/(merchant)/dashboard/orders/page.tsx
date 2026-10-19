@@ -21,10 +21,15 @@ import { ExportOrdersButton } from "./_components/export-orders-button";
 import { buildOrderWhere, parseOrderFilters } from "./_components/order-filters";
 import { ORDER_CHANNELS, ORDER_STATUSES } from "./_components/order-meta";
 import { OrdersTable, type OrderRow } from "./_components/orders-table";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "الطلبات",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("الطلبات"),
 };
+}
 
 const PAGE_SIZE = 20;
 const BASE_PATH = "/orders";
@@ -34,6 +39,7 @@ type OrdersRouteProps = {
 };
 
 const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -46,8 +52,8 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول عشان تستقبل الطلبات وتتابعها من هنا."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول عشان تستقبل الطلبات وتتابعها من هنا.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -116,10 +122,10 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
   const hasFilters = Boolean(q || status || source);
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="الطلبات"
-        description="تابع طلبات المتجر الأونلاين والكاشير وغيّر حالتها من مكان واحد."
+        title={tr("الطلبات")}
+        description={tr("تابع طلبات المتجر الأونلاين والكاشير وغيّر حالتها من مكان واحد.")}
         actions={<ExportOrdersButton />}
       />
 
@@ -127,11 +133,11 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={ShoppingCart}
-            title="لسه مفيش طلبات"
-            description="أول ما عميل يطلب من متجرك أو تبيع من الكاشير، الطلب هيظهر هنا وتقدر تتابعه لحد ما يتسلّم."
+            title={tr("لسه مفيش طلبات")}
+            description={tr("أول ما عميل يطلب من متجرك أو تبيع من الكاشير، الطلب هيظهر هنا وتقدر تتابعه لحد ما يتسلّم.")}
             action={
               <Button asChild variant="outline" size="sm">
-                <Link href="/pos">افتح الكاشير</Link>
+                <Link href="/pos">{tr("افتح الكاشير")}</Link>
               </Button>
             }
           />
@@ -139,12 +145,12 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
       ) : (
         <div className="space-y-4">
           <FilterTabs
-            label="حالة الطلب"
+            label={tr("حالة الطلب")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
             tabs={[
-              { label: "الكل", count: allCount },
+              { label: tr("الكل"), count: allCount },
               ...ORDER_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
             ]}
           />
@@ -152,11 +158,11 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
           <DataCard
             toolbar={
               <>
-                <SearchInput placeholder="ابحث بالاسم أو الموبايل أو رقم الطلب" />
+                <SearchInput placeholder={tr("ابحث بالاسم أو الموبايل أو رقم الطلب")} />
                 <SelectFilter
-                  label="القناة"
+                  label={tr("القناة")}
                   param="source"
-                  allLabel="كل القنوات"
+                  allLabel={tr("كل القنوات")}
                   options={Object.entries(ORDER_CHANNELS).map(([value, { label }]) => ({ value, label }))}
                 />
               </>
@@ -169,7 +175,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
                   total={total}
                   basePath={BASE_PATH}
                   searchParams={params}
-                  noun="طلب"
+                  noun={tr("طلب")}
                 />
               ) : undefined
             }
@@ -179,12 +185,12 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
             ) : (
               <EmptyState
                 icon={SearchX}
-                title="مفيش طلبات بالفلاتر دي"
-                description={q ? `مفيش نتايج لـ "${q}". جرّب اسم أو رقم تاني.` : "جرّب حالة أو قناة تانية."}
+                title={tr("مفيش طلبات بالفلاتر دي")}
+                description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب اسم أو رقم تاني.", q) : tr("جرّب حالة أو قناة تانية.")}
                 action={
                   hasFilters && (
                     <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
                     </Button>
                   )
                 }

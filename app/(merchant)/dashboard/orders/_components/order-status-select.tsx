@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUSES, ORDER_STATUS_META } from "./order-meta";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 interface OrderStatusSelectProps {
   orderId: string;
@@ -37,19 +38,19 @@ export function OrderStatusSelect({ orderId, storeId, currentStatus, className }
     startTransition(async () => {
       try {
         await UpdateOrderStatusAction(orderId, storeId, next);
-        toast.success(`الطلب بقى "${ORDER_STATUS_META[next].label}"`);
+        toast.success(tr("الطلب بقى \"{0}\"", ORDER_STATUS_META[next].label));
       } catch {
         setValue(previous);
-        toast.error("مقدرناش نغيّر حالة الطلب، جرّب تاني.");
+        toast.error(tr("مقدرناش نغيّر حالة الطلب، جرّب تاني."));
       }
     });
   };
 
   return (
-    <DropdownMenu dir="rtl" modal={false}>
+    <DropdownMenu dir={tdir()} modal={false}>
       <DropdownMenuTrigger
         disabled={pending}
-        aria-label={`حالة الطلب: ${current.label}. تغيير الحالة`}
+        aria-label={tr("حالة الطلب: {0}. تغيير الحالة", current.label)}
         className={cn(
           "relative z-10 inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2 text-xs font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 data-[state=open]:bg-muted",
           className,

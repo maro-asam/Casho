@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { RequestRemovePoweredByAction } from "@/actions/services/services.actions";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 type PoweredByCashoCardProps = {
   storeId: string;
@@ -22,10 +23,10 @@ export default function PoweredByCashoCard({
     startTransition(async () => {
       try {
         const result = await RequestRemovePoweredByAction(storeId);
-        toast.success(result.message);
+        toast.success(trv(result.message));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "حدث خطأ أثناء إرسال الطلب",
+          error instanceof Error ? error.message : tr("حدث خطأ أثناء إرسال الطلب"),
         );
       }
     });
@@ -37,14 +38,13 @@ export default function PoweredByCashoCard({
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
             <Sparkles className="size-4" />
-            خدمة إضافية مدفوعة
+            {tr("خدمة إضافية مدفوعة")}
           </div>
 
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold">إزالة Powered by Casho</h3>
+            <h3 className="text-lg font-semibold">{tr("إزالة Powered by Casho")}</h3>
             <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-              لو حابب تشيل عبارة &quot;يتم التشغيل بواسطة Casho&quot; من فوتر متجرك، ابعت
-              طلب من هنا وهيظهر للإدارة للمراجعة والتفعيل.
+              {tr("لو حابب تشيل عبارة \"يتم التشغيل بواسطة Casho\" من فوتر متجرك، ابعت طلب من هنا وهيظهر للإدارة للمراجعة والتفعيل.")}
             </p>
           </div>
         </div>
@@ -52,19 +52,19 @@ export default function PoweredByCashoCard({
         {poweredByRemovalEnabled ? (
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
             <CheckCircle2 className="size-4" />
-            الخدمة مفعلة
+            {tr("الخدمة مفعلة")}
           </div>
         ) : (
           <Button onClick={handleRequest} disabled={isPending}>
             {isPending ? (
               <>
                 <Clock3 className="size-4" />
-                جاري إرسال الطلب...
+                {tr("جاري إرسال الطلب...")}
               </>
             ) : (
               <>
                 <Send className="size-4" />
-                اطلب إزالة Powered by
+                {tr("اطلب إزالة Powered by")}
               </>
             )}
           </Button>

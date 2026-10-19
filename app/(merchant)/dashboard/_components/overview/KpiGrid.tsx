@@ -1,6 +1,7 @@
 import type { Kpi, OverviewData } from "./overview-data";
 import DeltaBadge from "./DeltaBadge";
 import { formatMoney, formatNumber, formatPercent, percentChange } from "./format";
+import { tr } from "@/lib/i18n/dashboard";
 
 function Sparkline({ values }: { values: number[] }) {
   const W = 120;
@@ -62,18 +63,18 @@ function KpiCell({
 }
 
 export default function KpiGrid({ kpis }: { kpis: OverviewData["kpis"] }) {
-  const hint = "الـ٣٠ يوم اللي قبلها";
+  const hint = tr("الـ٣٠ يوم اللي قبلها");
 
   return (
     <section
-      aria-label="المؤشرات الرئيسية"
+      aria-label={tr("المؤشرات الرئيسية")}
       className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:[&>:last-child]:col-span-2 xl:[&>:last-child]:col-span-1"
     >
-      <KpiCell label="الإيرادات" kpi={kpis.revenue} format={formatMoney} hint={hint} />
-      <KpiCell label="الطلبات" kpi={kpis.orders} format={formatNumber} hint={hint} />
-      <KpiCell label="الزيارات" kpi={kpis.visits} format={formatNumber} hint={hint} />
-      <KpiCell label="معدل التحويل" kpi={kpis.conversion} format={formatPercent} hint={hint} />
-      <KpiCell label="متوسط قيمة الطلب" kpi={kpis.aov} format={formatMoney} hint={hint} />
+      <KpiCell label={tr("الإيرادات")} kpi={kpis.revenue} format={formatMoney} hint={hint} />
+      <KpiCell label={tr("الطلبات")} kpi={kpis.orders} format={formatNumber} hint={hint} />
+      <KpiCell label={tr("الزيارات")} kpi={kpis.visits} format={formatNumber} hint={hint} />
+      <KpiCell label={tr("معدل التحويل")} kpi={kpis.conversion} format={formatPercent} hint={hint} />
+      <KpiCell label={tr("متوسط قيمة الطلب")} kpi={kpis.aov} format={formatMoney} hint={hint} />
     </section>
   );
 }

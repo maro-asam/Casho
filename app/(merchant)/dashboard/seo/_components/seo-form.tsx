@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import { cn } from "@/lib/utils";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 type Values = Required<{ [K in keyof SeoInput]: NonNullable<SeoInput[K]> }>;
 
@@ -62,7 +63,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
           variant="ghost"
           size="icon"
           className="size-7"
-          aria-label={`نسخ ${label}`}
+          aria-label={tr("نسخ {0}", label)}
           onClick={() => {
             navigator.clipboard?.writeText(value).catch(() => {});
             setDone(true);
@@ -71,7 +72,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
         >
           {done ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
         </Button>
-        <Button asChild variant="ghost" size="icon" className="size-7" aria-label={`افتح ${label}`}>
+        <Button asChild variant="ghost" size="icon" className="size-7" aria-label={tr("افتح {0}", label)}>
           <a href={value} target="_blank" rel="noreferrer">
             <ExternalLink className="size-3.5" />
           </a>
@@ -108,7 +109,7 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
       setUploading(true);
       set("ogImage", await uploadImageToCloudinary(file, "casho/uploads/seo"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل رفع الصورة");
+      toast.error(err instanceof Error ? err.message : tr("فشل رفع الصورة"));
     } finally {
       setUploading(false);
     }
@@ -120,11 +121,11 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
       const result = await SaveStoreSeoAction(storeId, values);
       if (!result.ok) {
         setError({ field: result.field, message: result.message });
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
       if (result.verification !== null) setValues((v) => ({ ...v, googleSiteVerification: result.verification ?? "" }));
-      toast.success("اتحفظت إعدادات الظهور في جوجل");
+      toast.success(tr("اتحفظت إعدادات الظهور في جوجل"));
       router.refresh();
     });
   }
@@ -134,14 +135,14 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
       {/* ── Search result ───────────────────────────────────────── */}
       <section className="rounded-xl border border-border bg-card">
         <div className="border-b border-border p-4">
-          <h2 className="font-semibold">نتيجة البحث في جوجل</h2>
-          <p className="text-sm text-muted-foreground">العنوان والوصف اللي بيظهروا للناس لما يدوّروا على متجرك.</p>
+          <h2 className="font-semibold">{tr("نتيجة البحث في جوجل")}</h2>
+          <p className="text-sm text-muted-foreground">{tr("العنوان والوصف اللي بيظهروا للناس لما يدوّروا على متجرك.")}</p>
         </div>
         <div className="grid gap-5 p-4 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="seo-title">العنوان</Label>
+                <Label htmlFor="seo-title">{tr("العنوان")}</Label>
                 <Counter value={values.seoTitle} range={TITLE_RANGE} />
               </div>
               <Input
@@ -156,7 +157,7 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="seo-desc">الوصف</Label>
+                <Label htmlFor="seo-desc">{tr("الوصف")}</Label>
                 <Counter value={values.seoDescription} range={DESC_RANGE} />
               </div>
               <Textarea
@@ -174,7 +175,7 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
 
           {/* Google preview */}
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">كده هيظهر في جوجل</p>
+            <p className="text-xs font-medium text-muted-foreground">{tr("كده هيظهر في جوجل")}</p>
             <div className="rounded-xl border border-border bg-white p-4 text-[#202124] dark:bg-[#202124] dark:text-[#e8eaed]" dir="auto">
               <div className="flex items-center gap-2.5">
                 <span className="grid size-7 shrink-0 place-items-center overflow-hidden rounded-full border border-black/10 bg-[#f1f3f4] dark:border-white/10 dark:bg-[#303134]">
@@ -196,7 +197,7 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
               <p className="mt-0.5 line-clamp-2 text-sm leading-[1.58] text-[#4d5156] dark:text-[#bdc1c6]">{description}</p>
             </div>
             <p className="text-xs text-muted-foreground">
-              صفحات المنتجات بتاخد اسم المنتج ووصفه تلقائيًا — عشان كده وصف كل منتج مهم.
+              {tr("صفحات المنتجات بتاخد اسم المنتج ووصفه تلقائيًا — عشان كده وصف كل منتج مهم.")}
             </p>
           </div>
         </div>
@@ -205,17 +206,17 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
       {/* ── Social share ────────────────────────────────────────── */}
       <section className="rounded-xl border border-border bg-card">
         <div className="border-b border-border p-4">
-          <h2 className="font-semibold">المشاركة على واتساب وفيسبوك</h2>
-          <p className="text-sm text-muted-foreground">لما حد يبعت لينك متجرك. سيبها فاضية وهنستخدم بيانات جوجل اللي فوق.</p>
+          <h2 className="font-semibold">{tr("المشاركة على واتساب وفيسبوك")}</h2>
+          <p className="text-sm text-muted-foreground">{tr("لما حد يبعت لينك متجرك. سيبها فاضية وهنستخدم بيانات جوجل اللي فوق.")}</p>
         </div>
         <div className="grid gap-5 p-4 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="og-title">عنوان المشاركة</Label>
+              <Label htmlFor="og-title">{tr("عنوان المشاركة")}</Label>
               <Input id="og-title" value={values.ogTitle} maxLength={90} placeholder={title} onChange={(e) => set("ogTitle", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="og-desc">وصف المشاركة</Label>
+              <Label htmlFor="og-desc">{tr("وصف المشاركة")}</Label>
               <Textarea
                 id="og-desc"
                 rows={2}
@@ -227,20 +228,20 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
               />
             </div>
             <div className="space-y-2">
-              <Label>صورة المشاركة</Label>
+              <Label>{tr("صورة المشاركة")}</Label>
               {values.ogImage ? (
                 <div className="flex items-center gap-2 rounded-lg border border-border p-1.5">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={values.ogImage} alt="" className="h-10 w-20 rounded object-cover" />
-                  <span className="flex-1 text-xs text-muted-foreground">صورة مخصصة</span>
-                  <Button type="button" variant="ghost" size="icon" className="size-7" aria-label="شيل الصورة" onClick={() => set("ogImage", "")}>
+                  <span className="flex-1 text-xs text-muted-foreground">{tr("صورة مخصصة")}</span>
+                  <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={tr("شيل الصورة")} onClick={() => set("ogImage", "")}>
                     <X className="size-3.5" />
                   </Button>
                 </div>
               ) : (
                 <label className="flex h-14 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border text-xs text-muted-foreground transition-colors hover:bg-muted/50">
                   {uploading ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}
-                  {uploading ? "بنرفع…" : "ارفع صورة — أفضل مقاس 1200×630"}
+                  {uploading ? tr("بنرفع…") : tr("ارفع صورة — أفضل مقاس 1200×630")}
                   <input type="file" accept="image/*" className="sr-only" onChange={onImage} disabled={uploading} />
                 </label>
               )}
@@ -249,7 +250,7 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
 
           {/* WhatsApp-style preview */}
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">كده هيظهر في واتساب</p>
+            <p className="text-xs font-medium text-muted-foreground">{tr("كده هيظهر في واتساب")}</p>
             <div className="rounded-xl bg-[#efeae2] p-3 dark:bg-[#0b141a]">
               <div className="ms-auto max-w-[19rem] overflow-hidden rounded-lg bg-[#d9fdd3] text-[#111b21] shadow-sm dark:bg-[#005c4b] dark:text-[#e9edef]">
                 <div className="m-1 overflow-hidden rounded-md bg-black/5 dark:bg-black/20">
@@ -257,7 +258,7 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={shareImage} alt="" className="aspect-[1.91/1] w-full object-cover" />
                   ) : (
-                    <div className="grid aspect-[1.91/1] place-items-center text-xs opacity-60">مفيش صورة</div>
+                    <div className="grid aspect-[1.91/1] place-items-center text-xs opacity-60">{tr("مفيش صورة")}</div>
                   )}
                   <div className="space-y-0.5 p-2" dir="auto">
                     <p className="line-clamp-1 text-[13px] font-semibold">{shareTitle}</p>
@@ -279,39 +280,39 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
       {/* ── Indexing & Search Console ───────────────────────────── */}
       <section className="rounded-xl border border-border bg-card">
         <div className="border-b border-border p-4">
-          <h2 className="font-semibold">الأرشفة وأدوات جوجل</h2>
-          <p className="text-sm text-muted-foreground">خلّي جوجل يعرف متجرك وكل منتجاته بسرعة.</p>
+          <h2 className="font-semibold">{tr("الأرشفة وأدوات جوجل")}</h2>
+          <p className="text-sm text-muted-foreground">{tr("خلّي جوجل يعرف متجرك وكل منتجاته بسرعة.")}</p>
         </div>
         <div className="space-y-4 p-4">
           <label className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-border p-3">
             <span>
-              <span className="block text-sm font-medium">اسمح لجوجل يظهر متجرك</span>
-              <span className="block text-xs text-muted-foreground">لو قفلته، المتجر مش هيظهر في أي محرك بحث — مفيد بس وانت لسه بتجهّزه.</span>
+              <span className="block text-sm font-medium">{tr("اسمح لجوجل يظهر متجرك")}</span>
+              <span className="block text-xs text-muted-foreground">{tr("لو قفلته، المتجر مش هيظهر في أي محرك بحث — مفيد بس وانت لسه بتجهّزه.")}</span>
             </span>
             <Switch checked={values.isIndexed} onCheckedChange={(v) => set("isIndexed", v)} />
           </label>
           {!values.isIndexed && (
             <p className="flex items-center gap-2 rounded-lg bg-rose-500/5 px-3 py-2 text-xs text-rose-700 dark:text-rose-400">
               <AlertTriangle className="size-4 shrink-0" />
-              متجرك مخفي عن جوجل دلوقتي. افتحه أول ما تجهز.
+              {tr("متجرك مخفي عن جوجل دلوقتي. افتحه أول ما تجهز.")}
             </p>
           )}
 
           <div className="grid gap-2 sm:grid-cols-2">
-            <CopyRow label="خريطة الموقع (Sitemap)" value={`${storeUrl}/sitemap.xml`} />
-            <CopyRow label="ملف robots.txt" value={`${storeUrl}/robots.txt`} />
+            <CopyRow label={tr("خريطة الموقع (Sitemap)")} value={`${storeUrl}/sitemap.xml`} />
+            <CopyRow label={tr("ملف robots.txt")} value={`${storeUrl}/robots.txt`} />
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="gsc">ربط Google Search Console</Label>
+              <Label htmlFor="gsc">{tr("ربط Google Search Console")}</Label>
               <a
                 href="https://search.google.com/search-console/welcome"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
               >
-                افتح Search Console
+                {tr("افتح Search Console")}
                 <ExternalLink className="size-3" />
               </a>
             </div>
@@ -326,16 +327,16 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
             />
             <ol className="list-inside list-decimal space-y-1 text-xs leading-5 text-muted-foreground">
               <li>
-                في Search Console اختار <span className="font-medium text-foreground">URL prefix</span> واكتب{" "}
+                {tr("في Search Console اختار")}{" "}<span className="font-medium text-foreground">URL prefix</span>{" "}{tr("واكتب")}{" "}
                 <span className="font-mono" dir="ltr">
                   {storeUrl}
                 </span>
                 .
               </li>
               <li>
-                من طرق التحقق اختار <span className="font-medium text-foreground">HTML tag</span> وانسخه هنا واحفظ، وبعدين دوس Verify هناك.
+                {tr("من طرق التحقق اختار")}{" "}<span className="font-medium text-foreground">HTML tag</span>{" "}{tr("وانسخه هنا واحفظ، وبعدين دوس Verify هناك.")}
               </li>
-              <li>من Sitemaps ضيف الرابط اللي فوق — وجوجل هيبدأ يأرشف كل منتجاتك.</li>
+              <li>{tr("من Sitemaps ضيف الرابط اللي فوق — وجوجل هيبدأ يأرشف كل منتجاتك.")}</li>
             </ol>
           </div>
         </div>
@@ -348,14 +349,14 @@ export function SeoForm({ storeId, storeName, storeUrl, logo, initial, fallbacks
           dirty ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0",
         )}
       >
-        <p className="text-sm text-muted-foreground">{error ? <span className="text-destructive">{error.message}</span> : "عندك تعديلات مش محفوظة"}</p>
+        <p className="text-sm text-muted-foreground">{error ? <span className="text-destructive">{trv(error.message)}</span> : tr("عندك تعديلات مش محفوظة")}</p>
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => setValues(initial)} disabled={pending}>
-            تراجع
+            {tr("تراجع")}
           </Button>
           <Button onClick={save} disabled={pending || uploading} className="gap-1.5">
             {pending && <Loader2 className="size-4 animate-spin" />}
-            حفظ
+            {tr("حفظ")}
           </Button>
         </div>
       </div>

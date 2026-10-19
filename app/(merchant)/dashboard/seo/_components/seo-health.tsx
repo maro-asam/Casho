@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, Check, CircleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type SeoCheck = {
   id: string;
@@ -13,7 +14,7 @@ export type SeoCheck = {
   href?: string;
 };
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 /** Store-wide SEO audit: one score + the concrete fixes, worst first. */
 export function SeoHealth({ checks }: { checks: SeoCheck[] }) {
@@ -47,12 +48,12 @@ export function SeoHealth({ checks }: { checks: SeoCheck[] }) {
           <span className="absolute inset-0 grid place-items-center text-base font-bold tabular-nums">{nf.format(score)}</span>
         </div>
         <div className="space-y-0.5">
-          <p className="text-xs text-muted-foreground">صحة الـ SEO</p>
+          <p className="text-xs text-muted-foreground">{tr("صحة الـ SEO")}</p>
           <p className="font-semibold">
-            {blocked ? "متجرك مخفي عن جوجل" : score >= 80 ? "ممتاز — جاهز للبحث" : score >= 50 ? "كويس، وفي حاجات تفرق" : "محتاج شغل"}
+            {blocked ? tr("متجرك مخفي عن جوجل") : score >= 80 ? tr("ممتاز — جاهز للبحث") : score >= 50 ? tr("كويس، وفي حاجات تفرق") : tr("محتاج شغل")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {nf.format(passed.length)} من {nf.format(checks.length)} تمام
+            {tr("{0} من {1} تمام", nf.format(passed.length), nf.format(checks.length))}
           </p>
         </div>
       </div>
@@ -73,7 +74,7 @@ export function SeoHealth({ checks }: { checks: SeoCheck[] }) {
                   <span className="block text-sm font-medium">{c.label}</span>
                   <span className="block text-xs leading-5 text-muted-foreground">{c.detail}</span>
                 </span>
-                {c.href && <ArrowLeft className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />}
+                {c.href && <ArrowLeft className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5 ltr:-scale-x-100" />}
               </>
             );
             return (
@@ -90,7 +91,7 @@ export function SeoHealth({ checks }: { checks: SeoCheck[] }) {
           })}
         </ul>
       ) : (
-        <p className="p-4 text-sm text-muted-foreground">مفيش أي مشاكل — كمّل ضيف منتجات بأوصاف كويسة.</p>
+        <p className="p-4 text-sm text-muted-foreground">{tr("مفيش أي مشاكل — كمّل ضيف منتجات بأوصاف كويسة.")}</p>
       )}
 
       {passed.length > 0 && (

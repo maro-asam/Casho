@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type StatusRow = {
   label: string;
@@ -14,16 +15,16 @@ export default function StoreStatus({ balance, rows }: { balance: string; rows: 
   return (
     <Card className="gap-0 rounded-xl py-0 shadow-none">
       <CardHeader className="p-5 pb-3">
-        <CardTitle className="text-base font-semibold">حالة المتجر</CardTitle>
+        <CardTitle className="text-base font-semibold">{tr("حالة المتجر")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 p-5 pt-0">
         <div className="flex items-center justify-between gap-3 rounded-lg bg-muted/60 p-3">
           <div>
-            <p className="text-xs text-muted-foreground">الرصيد المتاح</p>
+            <p className="text-xs text-muted-foreground">{tr("الرصيد المتاح")}</p>
             <p className="text-lg font-bold tabular-nums">{balance}</p>
           </div>
           <Button asChild variant="outline" size="sm">
-            <Link href="/balance">شحن الرصيد</Link>
+            <Link href="/balance">{tr("شحن الرصيد")}</Link>
           </Button>
         </div>
 

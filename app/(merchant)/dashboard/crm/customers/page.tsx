@@ -22,8 +22,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import { CustomerStatus } from "@prisma/client";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = { title: "العملاء — CRM" };
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return { title: tr("العملاء — CRM") };
+}
 
 const PAGE_SIZE = 20;
 
@@ -38,6 +43,7 @@ export default async function CustomersListPage({
     segment?: string;
   }>;
 }) {
+  await loadDashboardLocale();
   const sp = await searchParams;
   const page = Math.max(1, Number(sp?.page ?? 1));
   const search = sp?.q ?? "";
@@ -61,11 +67,11 @@ export default async function CustomersListPage({
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Users}
-        title="العملاء"
-        description="جميع عملاء متجرك مع بياناتهم وتحليلاتهم"
+        title={tr("العملاء")}
+        description={tr("جميع عملاء متجرك مع بياناتهم وتحليلاتهم")}
         badge={total}
       />
 
@@ -78,12 +84,12 @@ export default async function CustomersListPage({
             <input type="hidden" name="tag" value={tagId ?? ""} />
             <input type="hidden" name="segment" value={segmentId ?? ""} />
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 name="q"
                 defaultValue={search}
-                placeholder="بحث بالاسم أو الهاتف أو البريد..."
-                className="h-9 w-full rounded-md border border-input bg-background px-3 pr-9 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                placeholder={tr("بحث بالاسم أو الهاتف أو البريد...")}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 ps-9 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
           </form>
@@ -91,11 +97,11 @@ export default async function CustomersListPage({
           {/* Status filter */}
           <div className="flex flex-wrap gap-1.5">
             {[
-              { label: "الكل", value: "" },
-              { label: "نشط", value: "ACTIVE" },
+              { label: tr("الكل"), value: "" },
+              { label: tr("نشط"), value: "ACTIVE" },
               { label: "VIP", value: "VIP" },
-              { label: "غير نشط", value: "INACTIVE" },
-              { label: "محظور", value: "BLOCKED" },
+              { label: tr("غير نشط"), value: "INACTIVE" },
+              { label: tr("محظور"), value: "BLOCKED" },
             ].map((s) => (
               <Link
                 key={s.value}
@@ -111,7 +117,7 @@ export default async function CustomersListPage({
             ))}
           </div>
 
-          <div className="mr-auto">
+          <div className="ms-auto">
             <CreateCustomerDialog />
           </div>
         </CardContent>
@@ -126,7 +132,7 @@ export default async function CustomersListPage({
               !tagId ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-primary/10"
             }`}
           >
-            كل العلامات
+            {tr("كل العلامات")}
           </Link>
           {tags.map((tag) => (
             <Link
@@ -140,7 +146,7 @@ export default async function CustomersListPage({
               style={tag.color && tagId !== tag.id ? { borderColor: tag.color } : undefined}
             >
               {tag.name}
-              <span className="mr-1 text-muted-foreground">({tag._count.assignments})</span>
+              <span className="ms-1 text-muted-foreground">({tag._count.assignments})</span>
             </Link>
           ))}
         </div>
@@ -151,9 +157,9 @@ export default async function CustomersListPage({
         <Card className="py-16">
           <div className="flex flex-col items-center justify-center gap-3 text-center">
             <Users className="size-12 text-muted-foreground/30" />
-            <p className="text-base font-medium">لا يوجد عملاء</p>
+            <p className="text-base font-medium">{tr("لا يوجد عملاء")}</p>
             <p className="text-sm text-muted-foreground">
-              {search ? "لا توجد نتائج لهذا البحث" : "أضف أول عميل لمتجرك"}
+              {search ? tr("لا توجد نتائج لهذا البحث") : tr("أضف أول عميل لمتجرك")}
             </p>
             <CreateCustomerDialog />
           </div>
@@ -164,13 +170,13 @@ export default async function CustomersListPage({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40">
-                  <th className="px-4 py-3 text-right font-medium text-muted-foreground">العميل</th>
-                  <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden sm:table-cell">جهة التواصل</th>
-                  <th className="px-4 py-3 text-center font-medium text-muted-foreground">الطلبات</th>
-                  <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden md:table-cell">إجمالي الإنفاق</th>
-                  <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden lg:table-cell">النقاط</th>
-                  <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden lg:table-cell">الصحة</th>
-                  <th className="px-4 py-3 text-center font-medium text-muted-foreground">الحالة</th>
+                  <th className="px-4 py-3 text-start font-medium text-muted-foreground">{tr("العميل")}</th>
+                  <th className="px-4 py-3 text-start font-medium text-muted-foreground hidden sm:table-cell">{tr("جهة التواصل")}</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground">{tr("الطلبات")}</th>
+                  <th className="px-4 py-3 text-start font-medium text-muted-foreground hidden md:table-cell">{tr("إجمالي الإنفاق")}</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden lg:table-cell">{tr("النقاط")}</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden lg:table-cell">{tr("الصحة")}</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground">{tr("الحالة")}</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -248,7 +254,7 @@ export default async function CustomersListPage({
                           <span className="font-semibold">{c.orderCount}</span>
                           {lastOrderDaysAgo !== null && (
                             <span className="text-[10px] text-muted-foreground">
-                              آخره قبل {lastOrderDaysAgo}د
+                              {tr("آخره قبل {0}د", lastOrderDaysAgo)}
                             </span>
                           )}
                         </div>
@@ -274,7 +280,7 @@ export default async function CustomersListPage({
                         {c.points > 0 ? (
                           <div className="flex items-center justify-center gap-1">
                             <Gift className="size-3 text-violet-500" />
-                            <span className="text-sm font-medium">{c.points.toLocaleString("ar-EG")}</span>
+                            <span className="text-sm font-medium">{c.points.toLocaleString(intlLocale())}</span>
                           </div>
                         ) : (
                           <span className="text-muted-foreground">—</span>
@@ -297,8 +303,8 @@ export default async function CustomersListPage({
                           href={`/dashboard/crm/customers/${c.id}`}
                           className="flex items-center gap-1 text-xs text-primary hover:underline"
                         >
-                          <span>تفاصيل</span>
-                          <ArrowLeft className="size-3" />
+                          <span>{tr("تفاصيل")}</span>
+                          <ArrowLeft className="size-3 ltr:-scale-x-100" />
                         </Link>
                       </td>
                     </tr>
@@ -314,7 +320,7 @@ export default async function CustomersListPage({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            عرض {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} من {total}
+            {tr("عرض {0}–{1} من {2}", (page - 1) * PAGE_SIZE + 1, Math.min(page * PAGE_SIZE, total), total)}
           </p>
           <div className="flex gap-2">
             {page > 1 && (
@@ -322,7 +328,7 @@ export default async function CustomersListPage({
                 href={buildHref({ page: String(page - 1) })}
                 className="rounded-md border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
               >
-                السابق
+                {tr("السابق")}
               </Link>
             )}
             {page < totalPages && (
@@ -330,7 +336,7 @@ export default async function CustomersListPage({
                 href={buildHref({ page: String(page + 1) })}
                 className="rounded-md border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
               >
-                التالي
+                {tr("التالي")}
               </Link>
             )}
           </div>

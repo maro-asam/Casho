@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 export function CopyButton({ value, label, className }: { value: string; label: string; className?: string }) {
   const [copied, setCopied] = useState(false);
@@ -12,10 +13,10 @@ export function CopyButton({ value, label, className }: { value: string; label: 
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
-      toast.success(`تم نسخ ${label}`);
+      toast.success(tr("تم نسخ {0}", label));
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error("مقدرناش ننسخ، انسخه يدوي.");
+      toast.error(tr("مقدرناش ننسخ، انسخه يدوي."));
     }
   }
 
@@ -23,7 +24,7 @@ export function CopyButton({ value, label, className }: { value: string; label: 
     <button
       type="button"
       onClick={copy}
-      aria-label={`نسخ ${label}`}
+      aria-label={tr("نسخ {0}", label)}
       className={cn(
         "grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,

@@ -18,8 +18,10 @@ import { getDailyQuote, getGreeting } from "./_components/overview/daily-quote";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import { formatMoney, formatNumber } from "./_components/overview/format";
 import { getOverviewData } from "./_components/overview/overview-data";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-const todayFormat = new Intl.DateTimeFormat("ar-EG", {
+const todayFormat = lazyIntl.date({
   timeZone: "Africa/Cairo",
   weekday: "long",
   day: "numeric",
@@ -31,6 +33,7 @@ const todayFormat = new Intl.DateTimeFormat("ar-EG", {
 const NEW_MERCHANT_DAYS = 7;
 
 const MerchantDashboardRoute = async () => {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -68,13 +71,13 @@ const MerchantDashboardRoute = async () => {
 
   if (!store) {
     return (
-      <div dir="rtl" className="flex min-h-96 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border p-8 text-center">
+      <div dir={tdir()} className="flex min-h-96 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border p-8 text-center">
         <span className="grid size-10 place-items-center rounded-lg bg-muted text-foreground">
           <Store className="size-5" />
         </span>
-        <h1 className="text-lg font-semibold">لسه معندكش متجر</h1>
+        <h1 className="text-lg font-semibold">{tr("لسه معندكش متجر")}</h1>
         <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-          أنشئ متجرك الأول عشان تضيف منتجاتك وتبدأ تستقبل طلبات أونلاين وفي محلك.
+          {tr("أنشئ متجرك الأول عشان تضيف منتجاتك وتبدأ تستقبل طلبات أونلاين وفي محلك.")}
         </p>
       </div>
     );
@@ -106,56 +109,56 @@ const MerchantDashboardRoute = async () => {
   const starterSteps: StarterGuideStep[] = [
     {
       id: "balance",
-      title: "فعّل الاشتراك",
-      description: "اشحن رصيد واختار باقة عشان متجرك يشتغل.",
+      title: tr("فعّل الاشتراك"),
+      description: tr("اشحن رصيد واختار باقة عشان متجرك يشتغل."),
       href: "/balance",
       completed: subscription === "active",
       icon: "wallet",
     },
     {
       id: "categories",
-      title: "أضف تصنيفاتك",
-      description: "قسّم منتجاتك عشان العملاء يلاقوا اللي عايزينه بسرعة.",
+      title: tr("أضف تصنيفاتك"),
+      description: tr("قسّم منتجاتك عشان العملاء يلاقوا اللي عايزينه بسرعة."),
       href: "/categories",
       completed: store._count.categories > 0,
       icon: "category",
     },
     {
       id: "products",
-      title: "أضف أول منتج",
-      description: "بالصور والسعر والوصف والكمية المتاحة.",
+      title: tr("أضف أول منتج"),
+      description: tr("بالصور والسعر والوصف والكمية المتاحة."),
       href: "/products/new",
       completed: data.productCount > 0,
       icon: "product",
     },
     {
       id: "banners",
-      title: "أضف بانر",
-      description: "اعرض عروضك ومنتجاتك المميزة في واجهة المتجر.",
+      title: tr("أضف بانر"),
+      description: tr("اعرض عروضك ومنتجاتك المميزة في واجهة المتجر."),
       href: "/banners",
       completed: store._count.banners > 0,
       icon: "banner",
     },
     {
       id: "payment",
-      title: "جهّز طرق الدفع",
-      description: "الدفع عند الاستلام، فودافون كاش، InstaPay أو غيرهم.",
+      title: tr("جهّز طرق الدفع"),
+      description: tr("الدفع عند الاستلام، فودافون كاش، InstaPay أو غيرهم."),
       href: "/payment-methods",
       completed: hasPaymentMethods,
       icon: "payment",
     },
     {
       id: "shipping",
-      title: "حدد سعر الشحن",
-      description: "عشان إجمالي الطلب يطلع مظبوط للعميل.",
+      title: tr("حدد سعر الشحن"),
+      description: tr("عشان إجمالي الطلب يطلع مظبوط للعميل."),
       href: "/settings",
       completed: hasShippingPrice,
       icon: "shipping",
     },
     {
       id: "seo",
-      title: "إعدادات الـ SEO",
-      description: "حسّن ظهور متجرك في جوجل وعلى السوشيال.",
+      title: tr("إعدادات الـ SEO"),
+      description: tr("حسّن ظهور متجرك في جوجل وعلى السوشيال."),
       href: "/seo",
       completed: hasSeoSettings,
       icon: "seo",
@@ -164,26 +167,26 @@ const MerchantDashboardRoute = async () => {
 
   const statusRows: StatusRow[] = [
     {
-      label: "الاشتراك",
-      value: subscription === "active" ? "نشط" : subscription === "grace" ? "فترة سماح" : "غير نشط",
+      label: tr("الاشتراك"),
+      value: subscription === "active" ? tr("نشط") : subscription === "grace" ? tr("فترة سماح") : tr("غير نشط"),
       ok: subscription === "active",
       href: "/balance",
     },
     {
-      label: "المنتجات",
-      value: `${formatNumber(data.productCount)} منتج`,
+      label: tr("المنتجات"),
+      value: tr("{0} منتج", formatNumber(data.productCount)),
       ok: data.productCount > 0,
       href: "/products",
     },
     {
-      label: "طرق الدفع",
-      value: hasPaymentMethods ? "مفعّلة" : "مش مكتملة",
+      label: tr("طرق الدفع"),
+      value: hasPaymentMethods ? tr("مفعّلة") : tr("مش مكتملة"),
       ok: hasPaymentMethods,
       href: "/payment-methods",
     },
     {
-      label: "الشحن",
-      value: hasShippingPrice ? formatMoney(shippingPrice) : "مش محدد",
+      label: tr("الشحن"),
+      value: hasShippingPrice ? formatMoney(shippingPrice) : tr("مش محدد"),
       ok: hasShippingPrice,
       href: "/settings",
     },
@@ -205,7 +208,7 @@ const MerchantDashboardRoute = async () => {
   });
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <OverviewHeader
         storeUrl={buildStoreUrl(store.slug)}
         today={todayFormat.format(now)}

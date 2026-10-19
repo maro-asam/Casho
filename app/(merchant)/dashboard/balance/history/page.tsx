@@ -22,32 +22,38 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TX_TYPES, formatMoney, formatSigned, txMeta } from "@/lib/balance-ui/meta";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "سجل الحركات",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("سجل الحركات"),
 };
+}
 
 const PAGE_SIZE = 25;
 const BASE_PATH = "/balance/history";
 const PERIODS = [
-  { value: "30", label: "آخر ٣٠ يوم" },
-  { value: "90", label: "آخر ٣ شهور" },
-  { value: "365", label: "آخر سنة" },
+  { value: "30", get label() { return tr("آخر ٣٠ يوم"); } },
+  { value: "90", get label() { return tr("آخر ٣ شهور"); } },
+  { value: "365", get label() { return tr("آخر سنة"); } },
 ];
-const dtf = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
+const dtf = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 const daysAgo = (days: number) => new Date(new Date().getTime() - days * 86400_000);
 const isoDay = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo" }).format(d);
 
 type HistoryRouteProps = { searchParams?: Promise<SearchParamsRecord> };
 
 export default async function BalanceHistoryRoute({ searchParams }: HistoryRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
   if (!store) {
     return (
-      <EmptyState icon={Store} title="لسه معندكش متجر" description="أنشئ متجرك الأول." className="rounded-xl border border-dashed border-border" />
+      <EmptyState icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول.")} className="rounded-xl border border-dashed border-border" />
     );
   }
 
@@ -94,33 +100,33 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
   const hasFilters = Boolean(q || type || days);
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="سجل الحركات"
+        title={tr("سجل الحركات")}
         description={
           allCount > 0 ? (
             <>
-              دخل <span className="font-medium text-emerald-700 tabular-nums dark:text-emerald-400">{formatMoney(inflow)}</span> · خرج{" "}
+              {tr("دخل")}{" "}<span className="font-medium text-emerald-700 tabular-nums dark:text-emerald-400">{formatMoney(inflow)}</span>{" "}{tr("· خرج")}{" "}
               <span className="font-medium text-foreground tabular-nums">{formatMoney(Math.abs(outflow))}</span>
-              {days ? ` — ${PERIODS.find((p) => Number(p.value) === days)?.label}` : " — من البداية"}
+              {days ? ` — ${PERIODS.find((p) => Number(p.value) === days)?.label}` : tr(" — من البداية")}
             </>
           ) : (
-            "كل شحنة وكل تجديد اتعمل على رصيدك."
+            tr("كل شحنة وكل تجديد اتعمل على رصيدك.")
           )
         }
         actions={
           <>
             <Button asChild variant="ghost" size="sm" className="gap-1.5">
               <Link href="/balance">
-                <ArrowRight className="size-4" />
-                الرصيد
+                <ArrowRight className="size-4 ltr:-scale-x-100" />
+                {tr("الرصيد")}
               </Link>
             </Button>
             {storeHasAny && (
               <Button asChild variant="outline" size="sm" className="gap-1.5">
                 <a href={`/dashboard/balance/history/export?${exportParams.toString()}`}>
                   <Download className="size-4" />
-                  تصدير CSV
+                  {tr("تصدير CSV")}
                 </a>
               </Button>
             )}
@@ -132,11 +138,11 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={History}
-            title="لسه مفيش حركات"
-            description="أول ما تشحن رصيد أو يتجدد الاشتراك، كل حركة هتتسجل هنا بالرصيد قبلها وبعدها."
+            title={tr("لسه مفيش حركات")}
+            description={tr("أول ما تشحن رصيد أو يتجدد الاشتراك، كل حركة هتتسجل هنا بالرصيد قبلها وبعدها.")}
             action={
               <Button asChild size="sm">
-                <Link href="/balance/topup">اشحن رصيد</Link>
+                <Link href="/balance/topup">{tr("اشحن رصيد")}</Link>
               </Button>
             }
           />
@@ -144,35 +150,35 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
       ) : (
         <div className="space-y-4">
           <FilterTabs
-            label="نوع الحركة"
+            label={tr("نوع الحركة")}
             param="type"
             basePath={BASE_PATH}
             searchParams={params}
             tabs={[
-              { label: "الكل", count: allCount },
+              { label: tr("الكل"), count: allCount },
               ...TX_TYPES.filter((t) => countFor(t.value) > 0 || type === t.value).map((t) => ({ label: t.label, value: t.value, count: countFor(t.value) })),
             ]}
           />
           <DataCard
             toolbar={
               <>
-                <SearchInput placeholder="ابحث في الملاحظات أو رقم المرجع" />
-                <SelectFilter label="الفترة" param="days" allLabel="من البداية" options={PERIODS} />
+                <SearchInput placeholder={tr("ابحث في الملاحظات أو رقم المرجع")} />
+                <SelectFilter label={tr("الفترة")} param="days" allLabel={tr("من البداية")} options={PERIODS} />
               </>
             }
             footer={
-              total > 0 ? <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="حركة" /> : undefined
+              total > 0 ? <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("حركة")} /> : undefined
             }
           >
             {rows.length === 0 ? (
               <EmptyState
                 icon={SearchX}
-                title="مفيش حركات بالفلاتر دي"
-                description="جرّب نوع أو فترة تانية."
+                title={tr("مفيش حركات بالفلاتر دي")}
+                description={tr("جرّب نوع أو فترة تانية.")}
                 action={
                   hasFilters && (
                     <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
                     </Button>
                   )
                 }
@@ -183,11 +189,11 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/40 hover:bg-muted/40">
-                        <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">الحركة</TableHead>
-                        <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">التاريخ</TableHead>
-                        <TableHead className="h-10 text-left text-xs font-medium text-muted-foreground">المبلغ</TableHead>
-                        <TableHead className="hidden h-10 text-left text-xs font-medium text-muted-foreground lg:table-cell">قبلها</TableHead>
-                        <TableHead className="h-10 pe-4 text-left text-xs font-medium text-muted-foreground">بعدها</TableHead>
+                        <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("الحركة")}</TableHead>
+                        <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("التاريخ")}</TableHead>
+                        <TableHead className="h-10 text-end text-xs font-medium text-muted-foreground">{tr("المبلغ")}</TableHead>
+                        <TableHead className="hidden h-10 text-end text-xs font-medium text-muted-foreground lg:table-cell">{tr("قبلها")}</TableHead>
+                        <TableHead className="h-10 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("بعدها")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -197,7 +203,7 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
                           <TableRow key={t.id}>
                             <TableCell className="py-3 ps-4">
                               <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                              {t.note && <p className="mt-1 max-w-sm truncate text-xs text-muted-foreground">{t.note}</p>}
+                              {t.note && <p className="mt-1 max-w-sm truncate text-xs text-muted-foreground">{trv(t.note)}</p>}
                               {t.reference && (
                                 <p className="font-mono text-[11px] text-muted-foreground/80" dir="ltr">
                                   #{t.reference.slice(0, 10)}
@@ -211,8 +217,8 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
                             >
                               {formatSigned(t.amount)}
                             </TableCell>
-                            <TableCell className="hidden py-3 text-left text-sm text-muted-foreground tabular-nums lg:table-cell">{formatMoney(t.balanceBefore)}</TableCell>
-                            <TableCell className="py-3 pe-4 text-left text-sm tabular-nums">{formatMoney(t.balanceAfter)}</TableCell>
+                            <TableCell className="hidden py-3 text-end text-sm text-muted-foreground tabular-nums lg:table-cell">{formatMoney(t.balanceBefore)}</TableCell>
+                            <TableCell className="py-3 pe-4 text-end text-sm tabular-nums">{formatMoney(t.balanceAfter)}</TableCell>
                           </TableRow>
                         );
                       })}
@@ -230,10 +236,10 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
                             {formatSigned(t.amount)}
                           </span>
                         </div>
-                        {t.note && <p className="truncate text-xs text-muted-foreground">{t.note}</p>}
+                        {t.note && <p className="truncate text-xs text-muted-foreground">{trv(t.note)}</p>}
                         <p className="flex justify-between text-xs text-muted-foreground">
                           <span>{dtf.format(t.createdAt)}</span>
-                          <span className="tabular-nums">الرصيد {formatMoney(t.balanceAfter)}</span>
+                          <span className="tabular-nums">{tr("الرصيد {0}", formatMoney(t.balanceAfter))}</span>
                         </p>
                       </li>
                     );

@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 /** Inline on/off — optimistic, rolls back on failure. */
 export function CouponActiveSwitch({ couponId, code, isActive }: { couponId: string; code: string; isActive: boolean }) {
@@ -36,7 +37,7 @@ export function CouponActiveSwitch({ couponId, code, isActive }: { couponId: str
     <Switch
       checked={checked}
       disabled={pending}
-      aria-label={`تشغيل ${code}`}
+      aria-label={tr("تشغيل {0}", code)}
       className="relative z-10"
       onCheckedChange={(next) => {
         setChecked(next);
@@ -44,10 +45,10 @@ export function CouponActiveSwitch({ couponId, code, isActive }: { couponId: str
           const result = await SetCouponActiveAction(couponId, next);
           if (!result.ok) {
             setChecked(!next);
-            toast.error(result.message);
+            toast.error(trv(result.message));
             return;
           }
-          toast.success(next ? `${code} شغّال` : `${code} اتوقف`);
+          toast.success(next ? tr("{0} شغّال", code) : tr("{0} اتوقف", code));
           router.refresh();
         });
       }}
@@ -68,17 +69,17 @@ export function CouponRowActions({ coupon, editHref, shareUrl }: Props) {
   const used = coupon.usedCount > 0;
 
   function copy(text: string, message: string) {
-    navigator.clipboard?.writeText(text).then(() => toast.success(message)).catch(() => toast.error("مقدرناش ننسخ"));
+    navigator.clipboard?.writeText(text).then(() => toast.success(trv(message))).catch(() => toast.error(tr("مقدرناش ننسخ")));
   }
 
   function duplicate() {
     startTransition(async () => {
       const result = await DuplicateCouponAction(coupon.id);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
-      toast.success("اتعملت نسخة (متوقفة) — عدّلها وشغّلها");
+      toast.success(tr("اتعملت نسخة (متوقفة) — عدّلها وشغّلها"));
       router.refresh();
     });
   }
@@ -87,24 +88,24 @@ export function CouponRowActions({ coupon, editHref, shareUrl }: Props) {
     startTransition(async () => {
       const result = used ? await SetCouponActiveAction(coupon.id, false) : await DeleteCouponAction(coupon.id);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
       setConfirm(false);
-      toast.success(used ? `${coupon.code} اتوقف` : `اتمسح ${coupon.code}`);
+      toast.success(used ? tr("{0} اتوقف", coupon.code) : tr("اتمسح {0}", coupon.code));
       router.refresh();
     });
   }
 
   return (
     <>
-      <DropdownMenu dir="rtl" modal={false}>
+      <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
             disabled={pending}
-            aria-label={`إجراءات ${coupon.code}`}
+            aria-label={tr("إجراءات {0}", coupon.code)}
             className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
@@ -114,55 +115,55 @@ export function CouponRowActions({ coupon, editHref, shareUrl }: Props) {
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
-              تعديل
+              {tr("تعديل")}
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => copy(shareUrl, "اتنسخ اللينك — الكود هيتطبق لوحده في السلة")}>
+          <DropdownMenuItem onSelect={() => copy(shareUrl, tr("اتنسخ اللينك — الكود هيتطبق لوحده في السلة"))}>
             <Link2 />
-            نسخ لينك بالكود
+            {tr("نسخ لينك بالكود")}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => copy(coupon.code, `اتنسخ ${coupon.code}`)}>
+          <DropdownMenuItem onSelect={() => copy(coupon.code, tr("اتنسخ {0}", coupon.code))}>
             <Copy />
-            نسخ الكود
+            {tr("نسخ الكود")}
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={duplicate}>
             <Copy />
-            نسخة منه
+            {tr("نسخة منه")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {used ? (
             coupon.isActive && (
               <DropdownMenuItem onSelect={() => setConfirm(true)}>
                 <Pause />
-                إيقاف
+                {tr("إيقاف")}
               </DropdownMenuItem>
             )
           ) : (
             <DropdownMenuItem variant="destructive" onSelect={() => setConfirm(true)}>
               <Trash2 />
-              حذف
+              {tr("حذف")}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
 
       <AlertDialog open={confirm} onOpenChange={(open) => !pending && setConfirm(open)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>{used ? `توقف ${coupon.code}؟` : `تمسح ${coupon.code}؟`}</AlertDialogTitle>
+            <AlertDialogTitle>{used ? tr("توقف {0}؟", coupon.code) : tr("تمسح {0}؟", coupon.code)}</AlertDialogTitle>
             <AlertDialogDescription>
               {used
-                ? "الكود اتستخدم في طلبات، فهنحتفظ بيه عشان التقارير — بس محدش هيقدر يستخدمه تاني لحد ما تشغّله."
-                : "الكود هيتمسح نهائي، ولو حد حاططه في السلة هيتشال."}
+                ? tr("الكود اتستخدم في طلبات، فهنحتفظ بيه عشان التقارير — بس محدش هيقدر يستخدمه تاني لحد ما تشغّله.")
+                : tr("الكود هيتمسح نهائي، ولو حد حاططه في السلة هيتشال.")}
               {coupon.popupNames.length > 0 &&
-                ` النافذة المنبثقة "${coupon.popupNames.join("، ")}" بتستخدمه وهتقف عن الظهور.`}
+                tr(" النافذة المنبثقة \"{0}\" بتستخدمه وهتقف عن الظهور.", coupon.popupNames.join(tr("، ")))}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>رجوع</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
             <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
               {pending && <Loader2 className="size-4 animate-spin" />}
-              {used ? "إيقاف" : "حذف نهائي"}
+              {used ? tr("إيقاف") : tr("حذف نهائي")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

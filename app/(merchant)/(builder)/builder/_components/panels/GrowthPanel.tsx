@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { POPUP_TYPE_META, triggerLabel } from "@/lib/popups/popup-config";
 import { cn } from "@/lib/utils";
 import { useBuilder, type BuilderPopup } from "../BuilderContext";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export default function GrowthPanel() {
   const { popups, conversion, whatsappFallback, storeId, reloadPreview, previewPopup } = useBuilder();
@@ -28,14 +29,14 @@ export default function GrowthPanel() {
   }
 
   return (
-    <div className="flex h-full flex-col" dir="rtl">
+    <div className="flex h-full flex-col" dir={tdir()}>
       <div className="flex items-center gap-2 border-b bg-background px-4 py-3">
         <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
           <Sparkles className="size-3.5" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold">أدوات البيع</h2>
-          <p className="text-[10px] text-muted-foreground">شغّلها وشوف شكلها على متجرك حالًا</p>
+          <h2 className="text-sm font-semibold">{tr("أدوات البيع")}</h2>
+          <p className="text-[10px] text-muted-foreground">{tr("شغّلها وشوف شكلها على متجرك حالًا")}</p>
         </div>
       </div>
 
@@ -43,20 +44,20 @@ export default function GrowthPanel() {
         {/* Popups */}
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold">النوافذ المنبثقة</p>
+            <p className="text-xs font-semibold">{tr("النوافذ المنبثقة")}</p>
             <Button asChild variant="ghost" size="sm" className="h-7 gap-1 px-2 text-[11px]">
               <Link href="/customization?tab=popups&popup=new">
                 <Plus className="size-3.5" />
-                جديدة
+                {tr("جديدة")}
               </Link>
             </Button>
           </div>
 
           {popups.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-4 text-center">
-              <p className="text-xs text-muted-foreground">مفيش نوافذ لسه. ابدأ بقالب &quot;خصم أول طلب&quot;.</p>
+              <p className="text-xs text-muted-foreground">{tr("مفيش نوافذ لسه. ابدأ بقالب \"خصم أول طلب\".")}</p>
               <Button asChild size="sm" className="mt-3 h-8 text-xs">
-                <Link href="/customization?tab=popups">اختار قالب</Link>
+                <Link href="/customization?tab=popups">{tr("اختار قالب")}</Link>
               </Button>
             </div>
           ) : (
@@ -77,22 +78,22 @@ export default function GrowthPanel() {
           {previewing && (
             <Button variant="outline" size="sm" className="h-8 w-full gap-1.5 text-xs" onClick={stopPreview}>
               <X className="size-3.5" />
-              اقفل المعاينة
+              {tr("اقفل المعاينة")}
             </Button>
           )}
           <p className="text-[11px] leading-5 text-muted-foreground">
-            &quot;جرّب&quot; بتعرض النافذة فورًا في المعاينة من غير ما تستنى توقيتها — ومن غير ما تتحسب في الإحصائيات.
+            {tr("\"جرّب\" بتعرض النافذة فورًا في المعاينة من غير ما تستنى توقيتها — ومن غير ما تتحسب في الإحصائيات.")}
           </p>
         </section>
 
         {/* WhatsApp */}
         <ToggleCard
           icon={MessageCircle}
-          title="زر واتساب"
+          title={tr("زر واتساب")}
           description={
             conversion.whatsapp.phone || whatsappFallback
-              ? "زر عائم بيبعت لينك الصفحة مع الرسالة."
-              : "محتاج رقم واتساب الأول."
+              ? tr("زر عائم بيبعت لينك الصفحة مع الرسالة.")
+              : tr("محتاج رقم واتساب الأول.")
           }
           checked={conversion.whatsapp.enabled}
           disabled={!(conversion.whatsapp.phone || whatsappFallback)}
@@ -104,8 +105,8 @@ export default function GrowthPanel() {
         {/* Purchase toasts */}
         <ToggleCard
           icon={ShoppingBag}
-          title="إشعارات الشراء"
-          description="من طلباتك الحقيقية بس — بتظهر بعد ٧ ثواني من فتح الصفحة."
+          title={tr("إشعارات الشراء")}
+          description={tr("من طلباتك الحقيقية بس — بتظهر بعد ٧ ثواني من فتح الصفحة.")}
           checked={conversion.purchaseToasts.enabled}
           settingsHref="/customization?tab=social-proof"
           onToggle={(enabled) => UpdateConversionConfigAction(storeId, "purchaseToasts", { ...conversion.purchaseToasts, enabled })}
@@ -144,17 +145,17 @@ function PopupRow({
         <Switch
           checked={active}
           disabled={pending}
-          aria-label={`تشغيل ${item.name}`}
+          aria-label={tr("تشغيل {0}", item.name)}
           onCheckedChange={(next) => {
             setActive(next);
             startTransition(async () => {
               const result = await SetPopupActiveAction(item.id, storeId, next);
               if (!result.ok) {
                 setActive(!next);
-                toast.error(result.message);
+                toast.error(trv(result.message));
                 return;
               }
-              toast.success(next ? "النافذة شغّالة" : "النافذة اتوقفت");
+              toast.success(next ? tr("النافذة شغّالة") : tr("النافذة اتوقفت"));
               onSaved();
             });
           }}
@@ -163,12 +164,12 @@ function PopupRow({
       <div className="flex gap-1.5">
         <Button variant={previewing ? "default" : "outline"} size="sm" className="h-7 flex-1 gap-1 text-[11px]" onClick={onPreview}>
           <Eye className="size-3.5" />
-          جرّب في المعاينة
+          {tr("جرّب في المعاينة")}
         </Button>
         <Button asChild variant="ghost" size="sm" className="h-7 gap-1 px-2 text-[11px]">
           <Link href={`/customization?tab=popups&popup=${item.id}`}>
             <Pencil className="size-3.5" />
-            تعديل
+            {tr("تعديل")}
           </Link>
         </Button>
       </div>
@@ -218,17 +219,17 @@ function ToggleCard({
               const result = await onToggle(next);
               if (!result.ok) {
                 setOn(!next);
-                toast.error(result.message);
+                toast.error(trv(result.message));
                 return;
               }
-              toast.success(next ? `${title} شغّال` : `${title} اتقفل`);
+              toast.success(next ? tr("{0} شغّال", title) : tr("{0} اتقفل", title));
               onSaved();
             });
           }}
         />
       </div>
       <Link href={settingsHref} className="mt-2 inline-block text-[11px] font-medium text-primary hover:underline">
-        كل الإعدادات
+        {tr("كل الإعدادات")}
       </Link>
     </section>
   );

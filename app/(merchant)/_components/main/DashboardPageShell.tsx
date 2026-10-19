@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { tdir } from "@/lib/i18n/dashboard";
 
 type DashboardPageShellProps = {
   eyebrow?: string;
@@ -36,7 +37,7 @@ export function DashboardPageShell({
   className,
 }: DashboardPageShellProps) {
   return (
-    <div dir="rtl" className={cn("space-y-6", className)}>
+    <div dir={tdir()} className={cn("space-y-6", className)}>
       <Card className="relative overflow-hidden ... border-border/70 bg-background/80 shadow-sm shadow-black/5 backdrop-blur-xl">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-bl from-primary/12 via-transparent to-transparent" />
         <CardContent className="relative p-5 sm:p-6 lg:p-7">

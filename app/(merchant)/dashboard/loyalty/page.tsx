@@ -6,13 +6,19 @@ import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardS
 import LoyaltyDashboardClient from "./_components/LoyaltyDashboardClient";
 import { FeatureGate } from "@/components/entitlements/FeatureGate";
 import { FEATURE_KEYS } from "@/lib/entitlements";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "نظام النقاط والمكافآت",
-  description: "إدارة نقاط العملاء وإعدادات برنامج الولاء",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("نظام النقاط والمكافآت"),
+  description: tr("إدارة نقاط العملاء وإعدادات برنامج الولاء"),
 };
+}
 
 export default async function LoyaltyPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -49,19 +55,19 @@ export default async function LoyaltyPage() {
     : [[], 0];
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Gift}
-        title="نظام النقاط والمكافآت"
+        title={tr("نظام النقاط والمكافآت")}
         badge={totalCustomers}
-        description="فعّل برنامج الولاء وتابع نقاط عملائك"
+        description={tr("فعّل برنامج الولاء وتابع نقاط عملائك")}
       />
       {store ? (
         <FeatureGate
           storeId={store.id}
           feature={FEATURE_KEYS.LOYALTY}
-          title="نظام النقاط والمكافآت"
-          description="برنامج نقاط الولاء غير متاح في باقتك الحالية."
+          title={tr("نظام النقاط والمكافآت")}
+          description={tr("برنامج نقاط الولاء غير متاح في باقتك الحالية.")}
         >
           <LoyaltyDashboardClient settings={store.settings} customers={customers} />
         </FeatureGate>

@@ -1,12 +1,18 @@
 import { Metadata } from "next";
 import { GetReferralStatsAction } from "@/actions/referral/referral.actions";
 import { ReferralPageClient } from "./_components/ReferralPageClient";
+import { tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "نظام المكافأت",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("نظام المكافأت"),
 };
+}
 
 export default async function ReferralPage() {
+  await loadDashboardLocale();
   const stats = await GetReferralStatsAction();
 
   const appUrl =

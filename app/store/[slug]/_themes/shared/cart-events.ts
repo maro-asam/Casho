@@ -10,6 +10,8 @@ export type CartAddedDetail = {
   /** EGP per piece. */
   price: number;
   quantity: number;
+  /** Added by accepting an upsell / cross-sell — the offer UI doesn't react to its own adds. */
+  fromOffer?: boolean;
 };
 
 /** Pass the action's `added` after a successful add; omit it for quantity changes/removals. */

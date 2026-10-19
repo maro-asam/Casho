@@ -26,8 +26,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 type Props = {
   storeId: string;
@@ -53,23 +54,23 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
       if (result.ok) {
         setConfirmDelete(false);
         const target = otherCategories.find((c) => c.id === moveTo)?.name;
-        toast.success(hasProducts && target ? `اتمسح "${category.name}" والمنتجات اتنقلت لـ "${target}"` : `اتمسح "${category.name}"`);
+        toast.success(hasProducts && target ? tr("اتمسح \"{0}\" والمنتجات اتنقلت لـ \"{1}\"", category.name, target) : tr("اتمسح \"{0}\"", category.name));
         router.refresh();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
 
   return (
     <>
-      <DropdownMenu dir="rtl" modal={false}>
+      <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
             disabled={pending}
-            aria-label={`إجراءات ${category.name}`}
+            aria-label={tr("إجراءات {0}", category.name)}
             className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
@@ -79,19 +80,19 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
-              تعديل
+              {tr("تعديل")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href={`/products?category=${category.id}`}>
               <Package />
-              منتجات التصنيف
+              {tr("منتجات التصنيف")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href={storefrontUrl} target="_blank" rel="noreferrer">
               <ExternalLink />
-              عرض في المتجر
+              {tr("عرض في المتجر")}
             </a>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -103,43 +104,42 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
             }}
           >
             <Trash2 />
-            حذف
+            {tr("حذف")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <AlertDialog open={confirmDelete} onOpenChange={(open) => !pending && setConfirmDelete(open)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           {blocked ? (
             <>
               <AlertDialogHeader>
-                <AlertDialogTitle>مينفعش نمسح التصنيف ده دلوقتي</AlertDialogTitle>
+                <AlertDialogTitle>{tr("مينفعش نمسح التصنيف ده دلوقتي")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  &quot;{category.name}&quot; فيه {nf.format(category.productCount)} منتج، وكل منتج لازم يبقى في تصنيف. ضيف
-                  تصنيف تاني الأول عشان ننقل له المنتجات.
+                  {tr("\"{0}\" فيه {1} منتج، وكل منتج لازم يبقى في تصنيف. ضيف تصنيف تاني الأول عشان ننقل له المنتجات.", category.name, nf.format(category.productCount))}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>رجوع</AlertDialogCancel>
+                <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
               </AlertDialogFooter>
             </>
           ) : (
             <>
               <AlertDialogHeader>
-                <AlertDialogTitle>تمسح &quot;{category.name}&quot;؟</AlertDialogTitle>
+                <AlertDialogTitle>{tr("تمسح \"{0}\"؟", category.name)}</AlertDialogTitle>
                 <AlertDialogDescription>
                   {hasProducts
-                    ? `التصنيف فيه ${nf.format(category.productCount)} منتج. اختار تصنيف ننقلهم له، والمنتجات والطلبات القديمة هتفضل زي ما هي.`
-                    : "التصنيف فاضي وهيتمسح نهائي من المتجر."}
+                    ? tr("التصنيف فيه {0} منتج. اختار تصنيف ننقلهم له، والمنتجات والطلبات القديمة هتفضل زي ما هي.", nf.format(category.productCount))
+                    : tr("التصنيف فاضي وهيتمسح نهائي من المتجر.")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
               {hasProducts && (
                 <div className="space-y-2">
-                  <Label htmlFor={`move-${category.id}`}>انقل المنتجات لـ</Label>
-                  <Select value={moveTo} onValueChange={setMoveTo} dir="rtl" disabled={pending}>
+                  <Label htmlFor={`move-${category.id}`}>{tr("انقل المنتجات لـ")}</Label>
+                  <Select value={moveTo} onValueChange={setMoveTo} dir={tdir()} disabled={pending}>
                     <SelectTrigger id={`move-${category.id}`} className="w-full">
-                      <SelectValue placeholder="اختار تصنيف" />
+                      <SelectValue placeholder={tr("اختار تصنيف")} />
                     </SelectTrigger>
                     <SelectContent>
                       {otherCategories.map((c) => (
@@ -153,7 +153,7 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
               )}
 
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={pending}>رجوع</AlertDialogCancel>
+                <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
                 <Button
                   variant="destructive"
                   onClick={remove}
@@ -161,7 +161,7 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
                   className="gap-1.5"
                 >
                   {pending && <Loader2 className="size-4 animate-spin" />}
-                  {hasProducts ? "انقل وامسح" : "حذف نهائي"}
+                  {hasProducts ? tr("انقل وامسح") : tr("حذف نهائي")}
                 </Button>
               </AlertDialogFooter>
             </>

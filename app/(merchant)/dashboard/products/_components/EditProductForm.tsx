@@ -36,6 +36,7 @@ import AttributesInput from "./AttributesInput";
 import WholesaleInput, { type WholesaleTier } from "./WholesaleInput";
 import BundleItemsInput, { type BundleItem } from "./BundleItemsInput";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 type Category = {
   id: string;
@@ -133,9 +134,9 @@ export default function EditProductForm({ product, categories, products = [] }: 
     if (!state.message) return;
 
     if (state.success) {
-      toast.success(state.message);
+      toast.success(trv(state.message));
     } else {
-      toast.error(state.message);
+      toast.error(trv(state.message));
     }
   }, [state]);
 
@@ -165,9 +166,9 @@ export default function EditProductForm({ product, categories, products = [] }: 
       setImageValue(url);
       setImageInputMode("upload");
 
-      toast.success("تم رفع الصورة الأساسية بنجاح");
+      toast.success(tr("تم رفع الصورة الأساسية بنجاح"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "فشل رفع الصورة");
+      toast.error(error instanceof Error ? error.message : tr("فشل رفع الصورة"));
     } finally {
       setIsUploadingMainImage(false);
       e.target.value = "";
@@ -187,9 +188,9 @@ export default function EditProductForm({ product, categories, products = [] }: 
 
       setUploadedAdditionalImages((prev) => [...prev, ...urls]);
 
-      toast.success("تم رفع الصور الإضافية بنجاح");
+      toast.success(tr("تم رفع الصور الإضافية بنجاح"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "فشل رفع الصور");
+      toast.error(error instanceof Error ? error.message : tr("فشل رفع الصور"));
     } finally {
       setIsUploadingAdditionalImages(false);
       e.target.value = "";
@@ -204,11 +205,11 @@ export default function EditProductForm({ product, categories, products = [] }: 
     <form action={formAction} className="space-y-6">
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="name">اسم المنتج</Label>
+          <Label htmlFor="name">{tr("اسم المنتج")}</Label>
           <Input
             id="name"
             name="name"
-            placeholder="مثال: تيشيرت أسود مطبوع"
+            placeholder={tr("مثال: تيشيرت أسود مطبوع")}
             defaultValue={product.name}
             required
             className="rounded-xl"
@@ -216,25 +217,25 @@ export default function EditProductForm({ product, categories, products = [] }: 
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="description">وصف المنتج</Label>
+          <Label htmlFor="description">{tr("وصف المنتج")}</Label>
           <Textarea
             id="description"
             name="description"
-            placeholder="اكتب وصف واضح ومختصر للمنتج..."
+            placeholder={tr("اكتب وصف واضح ومختصر للمنتج...")}
             defaultValue={product.description || ""}
             className="min-h-28 resize-none rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">السعر الحالي</Label>
+          <Label htmlFor="price">{tr("السعر الحالي")}</Label>
           <Input
             id="price"
             name="price"
             type="number"
             min="1"
             step="0.01"
-            placeholder="مثال: 299"
+            placeholder={tr("مثال: 299")}
             defaultValue={product.price}
             required
             className="rounded-xl"
@@ -242,61 +243,61 @@ export default function EditProductForm({ product, categories, products = [] }: 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="compareAtPrice">السعر قبل الخصم</Label>
+          <Label htmlFor="compareAtPrice">{tr("السعر قبل الخصم")}</Label>
           <Input
             id="compareAtPrice"
             name="compareAtPrice"
             type="number"
             min="0"
             step="0.01"
-            placeholder="مثال: 399"
+            placeholder={tr("مثال: 399")}
             defaultValue={product.compareAtPrice ?? ""}
             className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="stock">المخزون</Label>
+          <Label htmlFor="stock">{tr("المخزون")}</Label>
           <Input
             id="stock"
             name="stock"
             type="number"
             min="0"
             step="1"
-            placeholder="مثال: 15"
+            placeholder={tr("مثال: 15")}
             defaultValue={product.stock}
             className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lowStockThreshold">حد التنبيه (مخزون منخفض)</Label>
+          <Label htmlFor="lowStockThreshold">{tr("حد التنبيه (مخزون منخفض)")}</Label>
           <Input
             id="lowStockThreshold"
             name="lowStockThreshold"
             type="number"
             min="0"
             step="1"
-            placeholder="افتراضي: 5 قطع"
+            placeholder={tr("افتراضي: 5 قطع")}
             defaultValue={product.lowStockThreshold ?? ""}
             className="rounded-xl"
           />
-          <p className="text-xs text-muted-foreground">سيصلك تنبيه عندما يصل المخزون لهذا الرقم أو أقل</p>
+          <p className="text-xs text-muted-foreground">{tr("سيصلك تنبيه عندما يصل المخزون لهذا الرقم أو أقل")}</p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="brand">البراند</Label>
+          <Label htmlFor="brand">{tr("البراند")}</Label>
           <Input
             id="brand"
             name="brand"
-            placeholder="مثال: Nike أو Samsung"
+            placeholder={tr("مثال: Nike أو Samsung")}
             defaultValue={product.brand || ""}
             className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="costPrice">سعر التكلفة (للربح)</Label>
+          <Label htmlFor="costPrice">{tr("سعر التكلفة (للربح)")}</Label>
           <div className="relative">
             <Input
               id="costPrice"
@@ -308,51 +309,51 @@ export default function EditProductForm({ product, categories, products = [] }: 
               defaultValue={product.costPrice ?? ""}
               className="rounded-xl pe-12"
             />
-            <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">ج.م</span>
+            <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{tr("ج.م")}</span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="sku">كود SKU</Label>
+          <Label htmlFor="sku">{tr("كود SKU")}</Label>
           <Input
             id="sku"
             name="sku"
-            placeholder="مثال: SHIRT-BLK-XL"
+            placeholder={tr("مثال: SHIRT-BLK-XL")}
             defaultValue={product.sku || ""}
             className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="barcode">الباركود</Label>
+          <Label htmlFor="barcode">{tr("الباركود")}</Label>
           <Input
             id="barcode"
             name="barcode"
-            placeholder="مثال: 6221234567890"
+            placeholder={tr("مثال: 6221234567890")}
             defaultValue={product.barcode || ""}
             className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="weight">الوزن</Label>
+          <Label htmlFor="weight">{tr("الوزن")}</Label>
           <Input
             id="weight"
             name="weight"
             type="number"
             min="0"
             step="0.01"
-            placeholder="مثال: 0.5"
+            placeholder={tr("مثال: 0.5")}
             defaultValue={product.weight ?? ""}
             className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="categoryId">التصنيف</Label>
+          <Label htmlFor="categoryId">{tr("التصنيف")}</Label>
           <Select value={categoryId} onValueChange={setCategoryId}>
             <SelectTrigger id="categoryId" className="w-full rounded-xl">
-              <SelectValue placeholder="اختر تصنيف المنتج" />
+              <SelectValue placeholder={tr("اختر تصنيف المنتج")} />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
@@ -366,7 +367,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
         </div>
 
         <div className="space-y-3 md:col-span-2">
-          <Label>الصورة الأساسية</Label>
+          <Label>{tr("الصورة الأساسية")}</Label>
 
           <div className="flex flex-wrap gap-2">
             <Button
@@ -374,7 +375,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
               variant={imageInputMode === "link" ? "default" : "outline"}
               onClick={() => setImageInputMode("link")}
             >
-              إضافة برابط
+              {tr("إضافة برابط")}
             </Button>
 
             <Button
@@ -382,7 +383,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
               variant={imageInputMode === "upload" ? "default" : "outline"}
               onClick={() => setImageInputMode("upload")}
             >
-            رفع صورة من علي الجهاز
+            {tr("رفع صورة من علي الجهاز")}
             </Button>
           </div>
 
@@ -404,13 +405,13 @@ export default function EditProductForm({ product, categories, products = [] }: 
                 {isUploadingMainImage ? (
                   <>
                     <Loader2 className="mb-2 size-5 animate-spin" />
-                    <span className="text-sm">جاري رفع الصورة...</span>
+                    <span className="text-sm">{tr("جاري رفع الصورة...")}</span>
                   </>
                 ) : (
                   <>
                     <Upload className="mb-2 size-5" />
                     <span className="text-sm font-medium">
-                      اضغط لرفع الصورة الأساسية
+                      {tr("اضغط لرفع الصورة الأساسية")}
                     </span>
                     <span className="mt-1 text-xs text-muted-foreground">
                       PNG, JPG, WEBP
@@ -435,9 +436,9 @@ export default function EditProductForm({ product, categories, products = [] }: 
 
         <div className="space-y-3 md:col-span-2">
           <Label htmlFor="images">
-            الصور الإضافية
+            {tr("الصور الإضافية")}
             <span className="ms-2 text-xs text-muted-foreground">
-              تقدر تضيف روابط أو ترفع صور أو تستخدم الاتنين
+              {tr("تقدر تضيف روابط أو ترفع صور أو تستخدم الاتنين")}
             </span>
           </Label>
 
@@ -457,16 +458,16 @@ export default function EditProductForm({ product, categories, products = [] }: 
               {isUploadingAdditionalImages ? (
                 <>
                   <Loader2 className="mb-2 size-5 animate-spin" />
-                  <span className="text-sm">جاري رفع الصور...</span>
+                  <span className="text-sm">{tr("جاري رفع الصور...")}</span>
                 </>
               ) : (
                 <>
                   <Upload className="mb-2 size-5" />
                   <span className="text-sm font-medium">
-                    اضغط لرفع صور إضافية
+                    {tr("اضغط لرفع صور إضافية")}
                   </span>
                   <span className="mt-1 text-xs text-muted-foreground">
-                    تقدر تختار أكتر من صورة
+                    {tr("تقدر تختار أكتر من صورة")}
                   </span>
                 </>
               )}
@@ -493,7 +494,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
                   <div className="relative h-36 w-full">
                     <Image
                       src={url}
-                      alt={`صورة إضافية ${index + 1}`}
+                      alt={tr("صورة إضافية {0}", index + 1)}
                       fill
                       className="object-cover"
                       unoptimized
@@ -505,7 +506,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
                       type="button"
                       size="icon"
                       variant="destructive"
-                      className="absolute left-2 top-2 size-8 rounded-full"
+                      className="absolute end-2 top-2 size-8 rounded-full"
                       onClick={() => removeUploadedAdditionalImage(url)}
                     >
                       <X className="size-4" />
@@ -524,27 +525,27 @@ export default function EditProductForm({ product, categories, products = [] }: 
         </div>
 
         <div className="space-y-1.5">
-          <Label>المقاسات</Label>
+          <Label>{tr("المقاسات")}</Label>
           <TagInput
             name="sizes"
             placeholder="S, M, L, XL..."
             defaultValues={product.sizes}
-            hint="اضغط Enter أو فاصلة لإضافة مقاس"
+            hint={tr("اضغط Enter أو فاصلة لإضافة مقاس")}
           />
         </div>
 
         <div className="space-y-1.5 md:col-span-2">
-          <Label>الألوان</Label>
+          <Label>{tr("الألوان")}</Label>
           <ColorInput name="colors" defaultValues={product.colors} />
         </div>
 
         <div className="space-y-1.5 md:col-span-2">
-          <Label>وسوم (Tags)</Label>
+          <Label>{tr("وسوم (Tags)")}</Label>
           <TagInput
             name="tags"
-            placeholder="جديد، الأكثر مبيعًا، صيفي..."
+            placeholder={tr("جديد، الأكثر مبيعًا، صيفي...")}
             defaultValues={product.tags}
-            hint="تساعد العملاء في البحث عن المنتج"
+            hint={tr("تساعد العملاء في البحث عن المنتج")}
           />
         </div>
       </div>
@@ -554,8 +555,8 @@ export default function EditProductForm({ product, categories, products = [] }: 
           <Separator />
           <div className="space-y-3">
             <div>
-              <p className="text-sm font-medium">نوع المنتج</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">اختر "باقة" لبيع مجموعة منتجات بسعر واحد</p>
+              <p className="text-sm font-medium">{tr("نوع المنتج")}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{tr("اختر \"باقة\" لبيع مجموعة منتجات بسعر واحد")}</p>
             </div>
             <BundleItemsInput
               products={products}
@@ -574,9 +575,9 @@ export default function EditProductForm({ product, categories, products = [] }: 
 
       <div className="space-y-3">
         <div>
-          <p className="text-sm font-medium">أسعار الجملة</p>
+          <p className="text-sm font-medium">{tr("أسعار الجملة")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            شرائح سعرية مخفضة للطلبات الكبيرة — مثل Alibaba
+            {tr("شرائح سعرية مخفضة للطلبات الكبيرة — مثل Alibaba")}
           </p>
         </div>
         <WholesaleInput
@@ -592,9 +593,9 @@ export default function EditProductForm({ product, categories, products = [] }: 
 
       <div className="space-y-3">
         <div>
-          <p className="text-sm font-medium">خصائص مخصصة</p>
+          <p className="text-sm font-medium">{tr("خصائص مخصصة")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            أضف أي معلومة إضافية خاصة بالمنتج — المادة، بلد الصنع، تعليمات العناية...
+            {tr("أضف أي معلومة إضافية خاصة بالمنتج — المادة، بلد الصنع، تعليمات العناية...")}
           </p>
         </div>
         <AttributesInput
@@ -610,7 +611,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
         <CardContent className="p-4">
           <div className="mb-3 flex items-center gap-2">
             <ImageIcon className="size-4 text-muted-foreground" />
-            <p className="text-sm font-medium">معاينة الصورة</p>
+            <p className="text-sm font-medium">{tr("معاينة الصورة")}</p>
           </div>
 
           {previewImage ? (
@@ -627,7 +628,7 @@ export default function EditProductForm({ product, categories, products = [] }: 
             </div>
           ) : (
             <div className="flex min-h-48 items-center justify-center rounded-xl border border-dashed bg-muted/20 text-sm text-muted-foreground">
-              لا توجد صورة للمعاينة
+              {tr("لا توجد صورة للمعاينة")}
             </div>
           )}
         </CardContent>
@@ -643,10 +644,10 @@ export default function EditProductForm({ product, categories, products = [] }: 
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-medium">
               <Eye className="size-4" />
-              حالة المنتج
+              {tr("حالة المنتج")}
             </div>
             <p className="text-sm text-muted-foreground">
-              عند التفعيل سيظهر المنتج داخل المتجر للعملاء.
+              {tr("عند التفعيل سيظهر المنتج داخل المتجر للعملاء.")}
             </p>
           </div>
         </label>
@@ -660,10 +661,10 @@ export default function EditProductForm({ product, categories, products = [] }: 
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-medium">
               <Star className="size-4" />
-              منتج مميز
+              {tr("منتج مميز")}
             </div>
             <p className="text-sm text-muted-foreground">
-              استخدمها لإبراز المنتجات المهمة أو الأكثر مبيعًا.
+              {tr("استخدمها لإبراز المنتجات المهمة أو الأكثر مبيعًا.")}
             </p>
           </div>
         </label>
@@ -677,10 +678,10 @@ export default function EditProductForm({ product, categories, products = [] }: 
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-medium">
               <Layers3 className="size-4" />
-              له خيارات متعددة
+              {tr("له خيارات متعددة")}
             </div>
             <p className="text-sm text-muted-foreground">
-              فعّلها لو المنتج له مقاسات أو ألوان أو نسخ مختلفة.
+              {tr("فعّلها لو المنتج له مقاسات أو ألوان أو نسخ مختلفة.")}
             </p>
           </div>
         </label>
@@ -697,12 +698,12 @@ export default function EditProductForm({ product, categories, products = [] }: 
           {isPending ? (
             <>
               <Loader2 className="me-2 size-4 animate-spin" />
-              جاري حفظ التعديلات...
+              {tr("جاري حفظ التعديلات...")}
             </>
           ) : (
             <>
               <Save className="me-2 size-4" />
-              حفظ التعديلات
+              {tr("حفظ التعديلات")}
             </>
           )}
         </Button>

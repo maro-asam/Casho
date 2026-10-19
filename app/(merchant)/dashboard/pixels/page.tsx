@@ -7,10 +7,15 @@ import { FEATURE_KEYS, hasFeature } from "@/lib/entitlements";
 import { prisma } from "@/lib/prisma";
 import { decryptSecret, maskSecret } from "@/lib/secrets";
 import { PixelsForm } from "./_components/pixels-form";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "البيكسل وتتبع الإعلانات",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("البيكسل وتتبع الإعلانات"),
 };
+}
 
 /** "••••a1b2" for a saved token, null when none (or it can't be read). */
 function tokenHint(encrypted: string | null | undefined) {
@@ -23,6 +28,7 @@ function tokenHint(encrypted: string | null | undefined) {
 }
 
 export default async function PixelsRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -34,8 +40,8 @@ export default async function PixelsRoute() {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها اربط البيكسل بتاعك."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها اربط البيكسل بتاعك.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -45,10 +51,10 @@ export default async function PixelsRoute() {
   const serverTracking = await hasFeature(store.id, FEATURE_KEYS.META_CAPI);
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="البيكسل وتتبع الإعلانات"
-        description="اربط بيكسل فيسبوك وتيك توك وسناب بتوعك عشان تقيس مبيعات إعلاناتك وتخلّي الإعلانات توصل للي هيشتري."
+        title={tr("البيكسل وتتبع الإعلانات")}
+        description={tr("اربط بيكسل فيسبوك وتيك توك وسناب بتوعك عشان تقيس مبيعات إعلاناتك وتخلّي الإعلانات توصل للي هيشتري.")}
       />
       <PixelsForm
         storeId={store.id}

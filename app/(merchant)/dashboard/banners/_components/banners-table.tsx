@@ -10,6 +10,7 @@ import type { BannerStatus } from "@/lib/banners/banner-link";
 import { BannerActiveSwitch } from "./banner-active-switch";
 import { BannerMoveButtons } from "./banner-move-buttons";
 import { BannerRowActions } from "./banner-row-actions";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type BannerRow = {
   id: string;
@@ -27,32 +28,32 @@ export type BannerRow = {
 };
 
 const STATUS: Record<BannerStatus, { label: string; tone: PillTone }> = {
-  live: { label: "ظاهر", tone: "success" },
-  scheduled: { label: "مجدول", tone: "info" },
-  expired: { label: "منتهي", tone: "warning" },
-  hidden: { label: "مخفي", tone: "neutral" },
+  live: { get label() { return tr("ظاهر"); }, tone: "success" },
+  scheduled: { get label() { return tr("مجدول"); }, tone: "info" },
+  expired: { get label() { return tr("منتهي"); }, tone: "warning" },
+  hidden: { get label() { return tr("مخفي"); }, tone: "neutral" },
 };
 
-const dateFormat = new Intl.DateTimeFormat("ar-EG", {
+const dateFormat = lazyIntl.date({
   timeZone: "Africa/Cairo",
   day: "numeric",
   month: "short",
   year: "numeric",
 });
-const dateTimeFormat = new Intl.DateTimeFormat("ar-EG", {
+const dateTimeFormat = lazyIntl.date({
   timeZone: "Africa/Cairo",
   day: "numeric",
   month: "short",
   hour: "numeric",
   minute: "2-digit",
 });
-const numberFormat = new Intl.NumberFormat("ar-EG");
+const numberFormat = lazyIntl.number();
 
 /** "من ١٠ أكتوبر لحد ٢٠ أكتوبر" — the part of the schedule that matters now. */
 function scheduleNote(banner: BannerRow) {
-  if (banner.status === "scheduled" && banner.startsAt) return `يبدأ ${dateTimeFormat.format(banner.startsAt)}`;
-  if (banner.status === "expired" && banner.endsAt) return `انتهى ${dateTimeFormat.format(banner.endsAt)}`;
-  if (banner.endsAt) return `لحد ${dateTimeFormat.format(banner.endsAt)}`;
+  if (banner.status === "scheduled" && banner.startsAt) return tr("يبدأ {0}", dateTimeFormat.format(banner.startsAt));
+  if (banner.status === "expired" && banner.endsAt) return tr("انتهى {0}", dateTimeFormat.format(banner.endsAt));
+  if (banner.endsAt) return tr("لحد {0}", dateTimeFormat.format(banner.endsAt));
   return null;
 }
 
@@ -121,11 +122,11 @@ export function BannersTable({ banners, storeId, storefrontUrl, editHref, reorde
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">البانر</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">بيودّي على</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الحالة</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">النقرات</TableHead>
-              <TableHead className="h-10 w-28 pe-4 text-left text-xs font-medium text-muted-foreground">ظاهر</TableHead>
+              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("البانر")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("بيودّي على")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("النقرات")}</TableHead>
+              <TableHead className="h-10 w-28 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("ظاهر")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -146,7 +147,7 @@ export function BannersTable({ banners, storeId, storefrontUrl, editHref, reorde
                         >
                           {banner.title}
                         </Link>
-                        <p className="text-xs text-muted-foreground">اتضاف {dateFormat.format(banner.createdAt)}</p>
+                        <p className="text-xs text-muted-foreground">{tr("اتضاف {0}", dateFormat.format(banner.createdAt))}</p>
                       </div>
                     </div>
                   </TableCell>
@@ -205,7 +206,7 @@ export function BannersTable({ banners, storeId, storefrontUrl, editHref, reorde
                   <p className="text-xs text-muted-foreground">
                     {STATUS[banner.status].label}
                     {note && ` · ${note}`}
-                    {banner.linkType !== "NONE" && ` · ${numberFormat.format(banner.clicks)} نقرة`}
+                    {banner.linkType !== "NONE" && tr(" · {0} نقرة", numberFormat.format(banner.clicks))}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">

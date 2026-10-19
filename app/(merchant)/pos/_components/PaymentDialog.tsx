@@ -8,15 +8,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { egp, egpNumber } from "./pos-format";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 export type PaymentEntry = { paymentMethod: string; amount: number; reference?: string };
 
 const METHODS: { key: string; label: string; icon: LucideIcon }[] = [
-  { key: "cash", label: "كاش", icon: Banknote },
-  { key: "card", label: "فيزا / بطاقة", icon: CreditCard },
-  { key: "vodafone_cash", label: "فودافون كاش", icon: Smartphone },
-  { key: "instapay", label: "إنستاباي", icon: Wallet },
-  { key: "bank_transfer", label: "تحويل بنكي", icon: Landmark },
+  { key: "cash", get label() { return tr("كاش"); }, icon: Banknote },
+  { key: "card", get label() { return tr("فيزا / بطاقة"); }, icon: CreditCard },
+  { key: "vodafone_cash", get label() { return tr("فودافون كاش"); }, icon: Smartphone },
+  { key: "instapay", get label() { return tr("إنستاباي"); }, icon: Wallet },
+  { key: "bank_transfer", get label() { return tr("تحويل بنكي"); }, icon: Landmark },
 ];
 
 const toPiasters = (value: string) => {
@@ -79,7 +80,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
 
     if (!split) {
       if (short > 0) {
-        setError(`ناقص ${egp(short)}`);
+        setError(tr("ناقص {0}", egp(short)));
         return;
       }
       onConfirm([{ paymentMethod: method, amount: total, reference: reference.trim() || undefined }]);
@@ -91,14 +92,14 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
       .filter((p) => p.amount > 0);
 
     if (splitRemaining > 0) {
-      setError(`لسه ناقص ${egp(splitRemaining)}`);
+      setError(tr("لسه ناقص {0}", egp(splitRemaining)));
       return;
     }
     if (splitChange > 0) {
       // Extra can only be cash change — take it off a cash line.
       const cash = payments.find((p) => p.paymentMethod === "cash" && p.amount >= splitChange);
       if (!cash) {
-        setError("المبلغ الزيادة لازم يكون من الكاش عشان يرجع فكة.");
+        setError(tr("المبلغ الزيادة لازم يكون من الكاش عشان يرجع فكة."));
         return;
       }
       cash.amount -= splitChange;
@@ -111,10 +112,10 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0 p-0" dir="rtl">
+      <DialogContent className="max-w-md gap-0 p-0" dir={tdir()}>
         <DialogHeader className="border-b border-border p-5 text-start">
-          <DialogTitle>الدفع</DialogTitle>
-          <DialogDescription className="sr-only">اختار طريقة الدفع وأكّد البيع</DialogDescription>
+          <DialogTitle>{tr("الدفع")}</DialogTitle>
+          <DialogDescription className="sr-only">{tr("اختار طريقة الدفع وأكّد البيع")}</DialogDescription>
           <p className="pt-2 text-3xl font-bold tracking-tight tabular-nums">{egp(total)}</p>
         </DialogHeader>
 
@@ -127,7 +128,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
         >
           {!split ? (
             <>
-              <div role="radiogroup" aria-label="طريقة الدفع" className="grid grid-cols-3 gap-2">
+              <div role="radiogroup" aria-label={tr("طريقة الدفع")} className="grid grid-cols-3 gap-2">
                 {METHODS.map(({ key, label, icon: Icon }) => (
                   <button
                     key={key}
@@ -153,14 +154,14 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                   className="flex flex-col items-center gap-1.5 rounded-lg border border-dashed border-border px-2 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted"
                 >
                   <Split className="size-5" />
-                  تقسيم الدفع
+                  {tr("تقسيم الدفع")}
                 </button>
               </div>
 
               {method === "cash" ? (
                 <div className="space-y-3">
                   <label htmlFor="pos-received" className="text-sm font-medium">
-                    المبلغ اللي استلمته
+                    {tr("المبلغ اللي استلمته")}
                   </label>
                   <div className="relative">
                     <Input
@@ -179,7 +180,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                       className="h-12 pe-12 text-lg font-semibold tabular-nums"
                     />
                     <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                      ج.م
+                      {tr("ج.م")}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -192,7 +193,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                         className="h-8 tabular-nums"
                         onClick={() => setReceived(String(amount))}
                       >
-                        {i === 0 ? "المبلغ بالظبط" : egpNumber(amount * 100)}
+                        {i === 0 ? tr("المبلغ بالظبط") : egpNumber(amount * 100)}
                       </Button>
                     ))}
                   </div>
@@ -203,14 +204,14 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                     )}
                     aria-live="polite"
                   >
-                    <span className="text-sm font-medium">{short > 0 ? "ناقص" : "الباقي للعميل"}</span>
+                    <span className="text-sm font-medium">{short > 0 ? tr("ناقص") : tr("الباقي للعميل")}</span>
                     <span className="text-2xl font-bold tabular-nums">{egp(short > 0 ? short : change)}</span>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-1.5">
                   <label htmlFor="pos-reference" className="text-sm font-medium">
-                    رقم العملية <span className="text-xs font-normal text-muted-foreground">(اختياري)</span>
+                    {tr("رقم العملية")}{" "}<span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>
                   </label>
                   <Input
                     id="pos-reference"
@@ -218,7 +219,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                     dir="ltr"
                     value={reference}
                     onChange={(e) => setReference(e.target.value)}
-                    placeholder="آخر ٤ أرقام أو رقم التحويل"
+                    placeholder={tr("آخر ٤ أرقام أو رقم التحويل")}
                     className="h-10"
                   />
                 </div>
@@ -227,9 +228,9 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
           ) : (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">تقسيم على أكتر من طريقة</p>
+                <p className="text-sm font-medium">{tr("تقسيم على أكتر من طريقة")}</p>
                 <button type="button" onClick={() => setSplit(false)} className="text-xs text-primary hover:underline">
-                  رجوع لطريقة واحدة
+                  {tr("رجوع لطريقة واحدة")}
                 </button>
               </div>
               {entries.map((entry, i) => (
@@ -237,7 +238,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                   <select
                     value={entry.paymentMethod}
                     onChange={(e) => setEntry(i, { paymentMethod: e.target.value })}
-                    aria-label="طريقة الدفع"
+                    aria-label={tr("طريقة الدفع")}
                     className="h-10 rounded-md border border-input bg-background px-2 text-sm"
                   >
                     {METHODS.map((m) => (
@@ -257,7 +258,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                       if (!entry.amount && splitRemaining > 0) setEntry(i, { amount: String(splitRemaining / 100) });
                     }}
                     placeholder="0"
-                    aria-label="المبلغ"
+                    aria-label={tr("المبلغ")}
                     className="h-10 flex-1 tabular-nums"
                   />
                   {entries.length > 2 && (
@@ -267,7 +268,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                       size="icon"
                       className="size-9 text-muted-foreground"
                       onClick={() => setEntries((prev) => prev.filter((_, j) => j !== i))}
-                      aria-label="شيل"
+                      aria-label={tr("شيل")}
                     >
                       <Trash2 className="size-4" />
                     </Button>
@@ -282,15 +283,15 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
                 onClick={() => setEntries((prev) => [...prev, { paymentMethod: "cash", amount: "", reference: "" }])}
               >
                 <Plus className="size-4" />
-                طريقة كمان
+                {tr("طريقة كمان")}
               </Button>
               <dl className="space-y-1 rounded-lg bg-muted/50 px-4 py-3 text-sm" aria-live="polite">
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">المدفوع</dt>
+                  <dt className="text-muted-foreground">{tr("المدفوع")}</dt>
                   <dd className="font-medium tabular-nums">{egp(splitPaid)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{splitChange > 0 ? "الباقي للعميل" : "المتبقي"}</dt>
+                  <dt className="text-muted-foreground">{splitChange > 0 ? tr("الباقي للعميل") : tr("المتبقي")}</dt>
                   <dd className={cn("font-bold tabular-nums", splitRemaining > 0 ? "text-destructive" : "text-emerald-700 dark:text-emerald-400")}>
                     {egp(splitChange > 0 ? splitChange : splitRemaining)}
                   </dd>
@@ -307,7 +308,7 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
 
           <Button type="submit" size="lg" className="h-12 w-full gap-2 text-base font-semibold" disabled={loading}>
             {loading && <Loader2 className="size-5 animate-spin" />}
-            {loading ? "جاري الحفظ..." : "تأكيد البيع"}
+            {loading ? tr("جاري الحفظ...") : tr("تأكيد البيع")}
           </Button>
         </form>
       </DialogContent>

@@ -10,16 +10,21 @@ import {
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
 import { PrintToolbar } from "../../../_components/print-toolbar";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = { title: "فاتورة" };
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return { title: tr("فاتورة") };
+}
 
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
-const nf = new Intl.NumberFormat("ar-EG");
-const dateFormat = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", dateStyle: "long" });
-const timeFormat = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", timeStyle: "short" });
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const nf = lazyIntl.number();
+const dateFormat = lazyIntl.date({ timeZone: "Africa/Cairo", dateStyle: "long" });
+const timeFormat = lazyIntl.date({ timeZone: "Africa/Cairo", timeStyle: "short" });
 
 const formatMoney = (piasters: number) => money.format(piasters / 100);
-const FEATURE_LABELS: Record<string, string> = { size: "المقاس", color: "اللون" };
+const FEATURE_LABELS: Record<string, string> = { get size() { return tr("المقاس"); }, get color() { return tr("اللون"); } };
 
 function MetaRow({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -36,6 +41,7 @@ type PageProps = {
 };
 
 export default async function OrderInvoicePage({ params, searchParams }: PageProps) {
+  await loadDashboardLocale();
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const userId = await requireUserId();
 
@@ -98,11 +104,11 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
 
   return (
     <>
-      <PrintToolbar backHref={`/orders/${order.id}`} backLabel="رجوع للطلب" autoPrint={query?.print === "1"} />
+      <PrintToolbar backHref={`/orders/${order.id}`} backLabel={tr("رجوع للطلب")} autoPrint={query?.print === "1"} />
 
       <article
         className="relative mx-auto max-w-[210mm] bg-white px-10 py-12 text-[13px] leading-6 shadow-sm ring-1 ring-neutral-200 print:max-w-none print:p-0 print:shadow-none print:ring-0 sm:px-14"
-        aria-label={`فاتورة رقم ${invoiceNo}`}
+        aria-label={tr("فاتورة رقم {0}", invoiceNo)}
       >
         {canceled && (
           <div
@@ -110,7 +116,7 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
             className="pointer-events-none absolute inset-0 grid place-items-center overflow-hidden"
           >
             <span className="-rotate-12 rounded-xl border-4 border-rose-300 px-8 py-2 text-6xl font-black text-rose-300/70">
-              ملغاة
+              {tr("ملغاة")}
             </span>
           </div>
         )}
@@ -136,7 +142,7 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
           </div>
 
           <div className="text-end">
-            <h1 className="text-3xl font-bold tracking-tight text-neutral-900">فاتورة</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-neutral-900">{tr("فاتورة")}</h1>
             <p className="mt-1 font-mono text-sm font-medium text-neutral-600" dir="ltr">
               #{invoiceNo}
             </p>
@@ -147,7 +153,7 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
                   : "mt-3 inline-block rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200"
               }
             >
-              {isPaid ? "مدفوعة" : order.paymentMethod === "cash_on_delivery" ? "الدفع عند الاستلام" : "غير مدفوعة"}
+              {isPaid ? tr("مدفوعة") : order.paymentMethod === "cash_on_delivery" ? tr("الدفع عند الاستلام") : tr("غير مدفوعة")}
             </span>
           </div>
         </header>
@@ -155,7 +161,7 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
         {/* Parties + meta */}
         <section className="grid grid-cols-2 gap-10 py-8">
           <div>
-            <h2 className="mb-2 text-xs font-semibold text-neutral-500">فاتورة إلى</h2>
+            <h2 className="mb-2 text-xs font-semibold text-neutral-500">{tr("فاتورة إلى")}</h2>
             <p className="text-sm font-semibold text-neutral-900">{order.fullName}</p>
             <p className="text-neutral-700 tabular-nums" dir="ltr">
               {order.phone}
@@ -164,11 +170,11 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
           </div>
 
           <dl className="space-y-1.5 self-start">
-            <MetaRow label="تاريخ الفاتورة">{dateFormat.format(order.createdAt)}</MetaRow>
-            <MetaRow label="الوقت">{timeFormat.format(order.createdAt)}</MetaRow>
-            <MetaRow label="طريقة الدفع">{paymentMethodLabel(order.paymentMethod)}</MetaRow>
-            <MetaRow label="القناة">{ORDER_CHANNELS[order.source].label}</MetaRow>
-            {order.shippingMethod && <MetaRow label="الشحن">{order.shippingMethod.name}</MetaRow>}
+            <MetaRow label={tr("تاريخ الفاتورة")}>{dateFormat.format(order.createdAt)}</MetaRow>
+            <MetaRow label={tr("الوقت")}>{timeFormat.format(order.createdAt)}</MetaRow>
+            <MetaRow label={tr("طريقة الدفع")}>{paymentMethodLabel(order.paymentMethod)}</MetaRow>
+            <MetaRow label={tr("القناة")}>{ORDER_CHANNELS[order.source].label}</MetaRow>
+            {order.shippingMethod && <MetaRow label={tr("الشحن")}>{order.shippingMethod.name}</MetaRow>}
           </dl>
         </section>
 
@@ -177,10 +183,10 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
           <thead>
             <tr className="border-y border-neutral-300 text-xs text-neutral-500">
               <th className="w-10 py-2.5 text-start font-semibold">#</th>
-              <th className="py-2.5 text-start font-semibold">المنتج</th>
-              <th className="w-20 py-2.5 text-center font-semibold">الكمية</th>
-              <th className="w-32 py-2.5 text-end font-semibold">سعر الوحدة</th>
-              <th className="w-32 py-2.5 text-end font-semibold">الإجمالي</th>
+              <th className="py-2.5 text-start font-semibold">{tr("المنتج")}</th>
+              <th className="w-20 py-2.5 text-center font-semibold">{tr("الكمية")}</th>
+              <th className="w-32 py-2.5 text-end font-semibold">{tr("سعر الوحدة")}</th>
+              <th className="w-32 py-2.5 text-end font-semibold">{tr("الإجمالي")}</th>
             </tr>
           </thead>
           <tbody>
@@ -215,19 +221,19 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
         {/* Totals */}
         <section className="mt-6 flex justify-end">
           <dl className="w-72 space-y-2">
-            <MetaRow label="الإجمالي الفرعي">
+            <MetaRow label={tr("الإجمالي الفرعي")}>
               <span className="tabular-nums">{formatMoney(order.subtotal)}</span>
             </MetaRow>
-            <MetaRow label="الشحن">
-              <span className="tabular-nums">{order.shipping > 0 ? formatMoney(order.shipping) : "مجاني"}</span>
+            <MetaRow label={tr("الشحن")}>
+              <span className="tabular-nums">{order.shipping > 0 ? formatMoney(order.shipping) : tr("مجاني")}</span>
             </MetaRow>
             {order.discount > 0 && (
-              <MetaRow label={order.couponCode ? `الخصم (${order.couponCode})` : "الخصم"}>
+              <MetaRow label={order.couponCode ? tr("الخصم ({0})", order.couponCode) : tr("الخصم")}>
                 <span className="tabular-nums">−{formatMoney(order.discount)}</span>
               </MetaRow>
             )}
             <div className="flex items-baseline justify-between gap-6 border-t-2 border-neutral-900 pt-3">
-              <dt className="text-sm font-bold text-neutral-900">الإجمالي المستحق</dt>
+              <dt className="text-sm font-bold text-neutral-900">{tr("الإجمالي المستحق")}</dt>
               <dd className="text-xl font-bold text-neutral-900 tabular-nums">{formatMoney(order.total)}</dd>
             </div>
           </dl>
@@ -235,20 +241,20 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
 
         {order.notes && (
           <section className="mt-8 break-inside-avoid rounded-lg bg-neutral-50 p-4 print:border print:border-neutral-200 print:bg-white">
-            <h2 className="mb-1 text-xs font-semibold text-neutral-500">ملاحظات</h2>
+            <h2 className="mb-1 text-xs font-semibold text-neutral-500">{tr("ملاحظات")}</h2>
             <p className="whitespace-pre-line text-neutral-700">{order.notes}</p>
           </section>
         )}
 
         <footer className="mt-12 border-t border-neutral-200 pt-6 text-center text-xs text-neutral-500">
-          <p className="text-sm font-medium text-neutral-700">شكرًا لتسوّقك من {store.name}</p>
+          <p className="text-sm font-medium text-neutral-700">{tr("شكرًا لتسوّقك من {0}", store.name)}</p>
           <p className="mt-1">
-            لأي استفسار عن الطلب تواصل معانا واذكر رقم الفاتورة{" "}
+            {tr("لأي استفسار عن الطلب تواصل معانا واذكر رقم الفاتورة")}{" "}
             <span className="font-mono" dir="ltr">
               #{invoiceNo}
             </span>
           </p>
-          {showPoweredBy && <p className="mt-4 text-[11px] text-neutral-400">اتعملت بواسطة كاشو · casho.store</p>}
+          {showPoweredBy && <p className="mt-4 text-[11px] text-neutral-400">{tr("اتعملت بواسطة كاشو · casho.store")}</p>}
         </footer>
       </article>
     </>

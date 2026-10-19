@@ -18,6 +18,8 @@ import {
   type PaymentMethodKey,
 } from "@/constants/welcome/payment-methods";
 import { createMerchantKashierHppUrl } from "@/lib/kashier-merchant";
+import { governorateName, isGovernorateCode } from "@/constants/egypt-governorates";
+import { shippingPriceFor } from "@/lib/shipping/governorate-pricing";
 import { decryptSecret } from "@/lib/secrets";
 import { createNotification, orderStatusLabels } from "@/lib/notifications/in-app";
 import { isOrderRateLimited, ORDER_RATE_LIMIT_MESSAGE } from "@/lib/store/order-rate-limit";
@@ -31,6 +33,7 @@ import {
   fitCartToStock,
   takeStockForOrder,
 } from "@/lib/inventory/order-stock";
+import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
 
 const kashierAllowedMethodKeys = new Set(
   KASHIER_ALLOWED_METHODS.map((method) => method.key),
@@ -150,12 +153,14 @@ export async function CreateOrderAction(
     fullName: string;
     phone: string;
     address: string;
+    governorate: string;
     paymentMethod: PaymentMethodKey;
   },
 ) {
   const { guestSessionId } = await MustSession();
 
   if (!storeSlug) throw new Error("storeSlug is missing");
+  if (!isGovernorateCode(data.governorate)) throw new Error("اختر المحافظة");
 
   const parsedCustomer = checkoutCustomerSchema.safeParse(data);
   if (!parsedCustomer.success) {
@@ -253,6 +258,7 @@ export async function CreateOrderAction(
             isActive: true,
           },
         },
+        offer: { select: CART_OFFER_SELECT },
       },
     }),
     prisma.appliedCoupon.findUnique({
@@ -298,14 +304,21 @@ export async function CreateOrderAction(
     redirect(`/store/${store.slug}/cart?stock=changed`);
   }
 
-  const subtotal = cartItems.reduce((acc, item) => acc + Math.round(unitPriceFor(item) * 100) * item.quantity, 0);
+  // Upsell / cross-sell / downsell lines are charged their offer price while
+  // the offer still holds (same rules as the cart summary).
+  const offerPricing = priceOfferLines(cartItems);
+  const linePrice = (item: (typeof cartItems)[number]) =>
+    Math.round((offerPricing.validIds.has(item.id) ? offerPricing.unitPrice(item) : unitPriceFor(item)) * 100);
+
+  const subtotal = cartItems.reduce((acc, item) => acc + linePrice(item) * item.quantity, 0);
 
   const cookieStore = await cookies();
   const selectedShippingMethodId = cookieStore.get(`ship_${store.id}`)?.value ?? null;
 
   const shippingMethods = await prisma.shippingMethod.findMany({
     where: { storeId: store.id, isActive: true },
-    select: { id: true, price: true },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    select: { id: true, price: true, governorateRates: { select: { governorate: true, price: true } } },
   });
 
   let shipping = (store.settings?.shippingPrice ?? 0) * 100;
@@ -313,7 +326,7 @@ export async function CreateOrderAction(
   if (shippingMethods.length > 0) {
     const selected = shippingMethods.find((m) => m.id === selectedShippingMethodId);
     const method = selected ?? shippingMethods[0];
-    shipping = method.price;
+    shipping = shippingPriceFor(method, data.governorate);
     resolvedShippingMethodId = method.id;
   }
   let discount = 0;
@@ -404,7 +417,10 @@ export async function CreateOrderAction(
         ...(resolvedShippingMethodId ? { shippingMethodId: resolvedShippingMethodId } : {}),
         fullName: data.fullName,
         phone: data.phone,
-        address: data.address,
+        // Prefixed so every place that shows the address (notifications,
+        // invoice, exports, couriers) carries the governorate too.
+        address: `${governorateName(data.governorate)} - ${data.address}`,
+        governorate: data.governorate,
         ipAddress,
         riskLevel: risk.level,
         riskSignals: risk.signals,
@@ -416,8 +432,9 @@ export async function CreateOrderAction(
           create: cartItems.map((item) => {
             return {
               productId: item.productId,
-              price: Math.round(unitPriceFor(item) * 100),
+              price: linePrice(item),
               quantity: item.quantity,
+              ...(offerPricing.validIds.has(item.id) ? { offerId: item.offerId } : {}),
               ...(item.selectedFeatures
                 ? { selectedFeatures: item.selectedFeatures }
                 : {}),

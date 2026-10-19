@@ -12,27 +12,32 @@ import { getBillingPeriodDays } from "@/lib/subscriptions";
 import { cn } from "@/lib/utils";
 import { AutoRenewSwitch } from "./_components/auto-renew-switch";
 import RenewSubscriptionModal from "./_components/RenewSubscriptionModal";
+import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "الرصيد والاشتراك",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("الرصيد والاشتراك"),
 };
+}
 
-const nf = new Intl.NumberFormat("ar-EG");
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
-const dtf = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+const nf = lazyIntl.number();
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
+const dtf = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
 const STATUS: Record<string, { label: string; tone: "success" | "warning" | "danger" | "neutral" }> = {
-  ACTIVE: { label: "نشط", tone: "success" },
-  GRACE_PERIOD: { label: "فترة سماح", tone: "warning" },
-  PAST_DUE: { label: "متأخر", tone: "danger" },
-  CANCELED: { label: "ملغي", tone: "neutral" },
-  INACTIVE: { label: "غير مفعّل", tone: "neutral" },
+  ACTIVE: { get label() { return tr("نشط"); }, tone: "success" },
+  GRACE_PERIOD: { get label() { return tr("فترة سماح"); }, tone: "warning" },
+  PAST_DUE: { get label() { return tr("متأخر"); }, tone: "danger" },
+  CANCELED: { get label() { return tr("ملغي"); }, tone: "neutral" },
+  INACTIVE: { get label() { return tr("غير مفعّل"); }, tone: "neutral" },
 };
 
 const TOPUP_RESULT = {
-  success: { icon: CheckCircle2, tone: "border-emerald-500/30 bg-emerald-500/5 text-emerald-800 dark:text-emerald-300", text: "الدفع تم بنجاح والرصيد اتضاف لمحفظتك." },
-  failed: { icon: XCircle, tone: "border-rose-500/30 bg-rose-500/5 text-rose-800 dark:text-rose-300", text: "الدفع ما تمش ومفيش أي مبلغ اتخصم. جرّب تاني أو استخدم تحويل يدوي." },
-  invalid: { icon: AlertTriangle, tone: "border-amber-500/30 bg-amber-500/5 text-amber-800 dark:text-amber-300", text: "مقدرناش نتأكد من عملية الدفع. لو المبلغ اتخصم من حسابك كلّمنا من الدعم." },
+  success: { icon: CheckCircle2, tone: "border-emerald-500/30 bg-emerald-500/5 text-emerald-800 dark:text-emerald-300", get text() { return tr("الدفع تم بنجاح والرصيد اتضاف لمحفظتك."); } },
+  failed: { icon: XCircle, tone: "border-rose-500/30 bg-rose-500/5 text-rose-800 dark:text-rose-300", get text() { return tr("الدفع ما تمش ومفيش أي مبلغ اتخصم. جرّب تاني أو استخدم تحويل يدوي."); } },
+  invalid: { icon: AlertTriangle, tone: "border-amber-500/30 bg-amber-500/5 text-amber-800 dark:text-amber-300", get text() { return tr("مقدرناش نتأكد من عملية الدفع. لو المبلغ اتخصم من حسابك كلّمنا من الدعم."); } },
 } as const;
 
 const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400_000);
@@ -41,6 +46,7 @@ const KASHIER_STALE_MS = 60 * 60 * 1000;
 type BalanceRouteProps = { searchParams?: Promise<SearchParamsRecord> };
 
 export default async function BalanceRoute({ searchParams }: BalanceRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -63,8 +69,8 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول عشان تتابع الرصيد والاشتراك."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول عشان تتابع الرصيد والاشتراك.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -98,7 +104,7 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
   // ── Runway: how far the balance carries the subscription ────────────
   const price = store.monthlyPrice;
   const periodDays = getBillingPeriodDays(store.billingCycle);
-  const cycleWord = store.billingCycle === "YEARLY" ? "سنة" : "شهر";
+  const cycleWord = store.billingCycle === "YEARLY" ? tr("سنة") : tr("شهر");
   const renewals = price > 0 ? Math.floor(store.balance / price) : 0;
   const nextRenewal = store.subscriptionEndsAt;
   const coveredUntil = nextRenewal ? addDays(nextRenewal, renewals * periodDays) : null;
@@ -117,22 +123,22 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
   const status = STATUS[store.subscriptionStatus] ?? STATUS.INACTIVE;
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="الرصيد والاشتراك"
-        description="رصيد محفظتك بيجدد اشتراك المتجر تلقائي — اشحن مرة وانسى."
+        title={tr("الرصيد والاشتراك")}
+        description={tr("رصيد محفظتك بيجدد اشتراك المتجر تلقائي — اشحن مرة وانسى.")}
         actions={
           <>
             <Button asChild variant="outline" size="sm" className="gap-1.5">
               <Link href="/balance/history">
                 <History className="size-4" />
-                سجل الحركات
+                {tr("سجل الحركات")}
               </Link>
             </Button>
             <Button asChild size="sm" className="gap-1.5">
               <Link href="/balance/topup">
                 <Plus className="size-4" />
-                شحن رصيد
+                {tr("شحن رصيد")}
               </Link>
             </Button>
           </>
@@ -152,23 +158,22 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
           <section className="rounded-xl border border-border bg-card">
             <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">رصيد المحفظة</p>
+                <p className="text-sm text-muted-foreground">{tr("رصيد المحفظة")}</p>
                 <p className="text-4xl font-bold tracking-tight tabular-nums">{formatMoney(store.balance)}</p>
                 <p className="text-sm text-muted-foreground">
                   {price > 0 &&
                     (renewals > 0 ? (
                       <>
-                        يكفي <span className="font-medium text-foreground">{nf.format(renewals)} تجديد</span>
+                        {tr("يكفي")}{" "}<span className="font-medium text-foreground">{tr("{0} تجديد", nf.format(renewals))}</span>
                         {coveredUntil && (
                           <>
-                            {" "}
-                            — متجرك مغطّي لحد <span className="font-medium text-foreground">{df.format(coveredUntil)}</span>
+                            {" "}{tr("— متجرك مغطّي لحد")}{" "}<span className="font-medium text-foreground">{df.format(coveredUntil)}</span>
                           </>
                         )}
                       </>
                     ) : (
                       <>
-                        ناقصك <span className="font-medium text-foreground">{formatMoney(shortBy)}</span> للتجديد الجاي
+                        {tr("ناقصك")}{" "}<span className="font-medium text-foreground">{formatMoney(shortBy)}</span>{" "}{tr("للتجديد الجاي")}
                       </>
                     ))}
                 </p>
@@ -177,7 +182,7 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
                 <Button asChild variant={urgent ? "default" : "outline"} className="gap-1.5">
                   <Link href={`/balance/topup?amount=${Math.ceil(shortBy / 100)}`}>
                     <Plus className="size-4" />
-                    اشحن {formatMoney(Math.ceil(shortBy / 100) * 100)}
+                    {tr("اشحن {0}", formatMoney(Math.ceil(shortBy / 100) * 100))}
                   </Link>
                 </Button>
               )}
@@ -186,13 +191,13 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
             {price > 0 && (
               <div className="border-t border-border px-5 py-4">
                 <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-                  <span>كل مربع = تجديد {cycleWord} بـ {formatMoney(price)}</span>
+                  <span>{tr("كل مربع = تجديد {0} بـ {1}", cycleWord, formatMoney(price))}</span>
                   <span className="tabular-nums">
                     {nf.format(Math.min(renewals, slots))}
-                    {renewals > slots && "+"} من {nf.format(slots)}
+                    {renewals > slots && "+"}{" "}{tr("من {0}", nf.format(slots))}
                   </span>
                 </div>
-                <div className="grid grid-cols-12 gap-1" role="img" aria-label={`الرصيد يغطي ${renewals} تجديد`}>
+                <div className="grid grid-cols-12 gap-1" role="img" aria-label={tr("الرصيد يغطي {0} تجديد", renewals)}>
                   {Array.from({ length: slots }).map((_, i) => {
                     const partial = i === renewals ? (store.balance % price) / price : 0;
                     return (
@@ -209,7 +214,7 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
             {urgent && (
               <div className="flex items-center gap-2 border-t border-amber-500/30 bg-amber-500/5 px-5 py-3 text-sm text-amber-800 dark:text-amber-300">
                 <AlertTriangle className="size-4 shrink-0" />
-                التجديد {daysToRenewal! <= 0 ? "النهارده" : `بعد ${nf.format(daysToRenewal!)} يوم`} والرصيد مش كفاية — اشحن عشان المتجر ميقفش.
+                {tr("التجديد")}{" "}{daysToRenewal! <= 0 ? tr("النهارده") : tr("بعد {0} يوم", nf.format(daysToRenewal!))}{" "}{tr("والرصيد مش كفاية — اشحن عشان المتجر ميقفش.")}
               </div>
             )}
           </section>
@@ -218,8 +223,8 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
           {visibleRequests.length > 0 && (
             <section className="overflow-hidden rounded-xl border border-border bg-card">
               <div className="border-b border-border px-4 py-3">
-                <h2 className="text-sm font-semibold">طلبات الشحن</h2>
-                <p className="text-xs text-muted-foreground">التحويلات اليدوية بتتراجع عادةً في خلال ساعات العمل.</p>
+                <h2 className="text-sm font-semibold">{tr("طلبات الشحن")}</h2>
+                <p className="text-xs text-muted-foreground">{tr("التحويلات اليدوية بتتراجع عادةً في خلال ساعات العمل.")}</p>
               </div>
               <ul className="divide-y divide-border">
                 {visibleRequests.map((r) => (
@@ -248,26 +253,26 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
           {/* ── Recent activity ──────────────────────────────────── */}
           <section className="overflow-hidden rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <h2 className="text-sm font-semibold">آخر الحركات</h2>
+              <h2 className="text-sm font-semibold">{tr("آخر الحركات")}</h2>
               {transactions.length > 0 && (
                 <Button asChild variant="ghost" size="sm" className="h-7 gap-1 text-xs">
                   <Link href="/balance/history">
-                    كل الحركات
-                    <ArrowLeft className="size-3.5" />
+                    {tr("كل الحركات")}
+                    <ArrowLeft className="size-3.5 ltr:-scale-x-100" />
                   </Link>
                 </Button>
               )}
             </div>
             {transactions.length === 0 ? (
-              <EmptyState icon={History} title="لسه مفيش حركات" description="أول ما تشحن أو يتجدد الاشتراك هتلاقي التفاصيل هنا." />
+              <EmptyState icon={History} title={tr("لسه مفيش حركات")} description={tr("أول ما تشحن أو يتجدد الاشتراك هتلاقي التفاصيل هنا.")} />
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">الحركة</TableHead>
-                    <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground sm:table-cell">التاريخ</TableHead>
-                    <TableHead className="h-10 text-left text-xs font-medium text-muted-foreground">المبلغ</TableHead>
-                    <TableHead className="hidden h-10 pe-4 text-left text-xs font-medium text-muted-foreground md:table-cell">الرصيد بعدها</TableHead>
+                    <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("الحركة")}</TableHead>
+                    <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground sm:table-cell">{tr("التاريخ")}</TableHead>
+                    <TableHead className="h-10 text-end text-xs font-medium text-muted-foreground">{tr("المبلغ")}</TableHead>
+                    <TableHead className="hidden h-10 pe-4 text-end text-xs font-medium text-muted-foreground md:table-cell">{tr("الرصيد بعدها")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -277,7 +282,7 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
                       <TableRow key={t.id}>
                         <TableCell className="py-3 ps-4">
                           <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                          {t.note && <p className="mt-1 max-w-72 truncate text-xs text-muted-foreground">{t.note}</p>}
+                          {t.note && <p className="mt-1 max-w-72 truncate text-xs text-muted-foreground">{trv(t.note)}</p>}
                         </TableCell>
                         <TableCell className="hidden py-3 text-sm text-muted-foreground sm:table-cell">{dtf.format(t.createdAt)}</TableCell>
                         <TableCell
@@ -289,7 +294,7 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
                         >
                           {formatSigned(t.amount)}
                         </TableCell>
-                        <TableCell className="hidden py-3 pe-4 text-left text-sm text-muted-foreground tabular-nums md:table-cell">
+                        <TableCell className="hidden py-3 pe-4 text-end text-sm text-muted-foreground tabular-nums md:table-cell">
                           {formatMoney(t.balanceAfter)}
                         </TableCell>
                       </TableRow>
@@ -306,22 +311,22 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
           <section className="rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div>
-                <p className="text-xs text-muted-foreground">الباقة</p>
-                <p className="font-semibold">{store.plan?.name ?? "الباقة الحالية"}</p>
+                <p className="text-xs text-muted-foreground">{tr("الباقة")}</p>
+                <p className="font-semibold">{trv(store.plan?.name) ?? tr("الباقة الحالية")}</p>
               </div>
               <StatusPill tone={status.tone}>{status.label}</StatusPill>
             </div>
             <dl className="space-y-2.5 px-4 py-3 text-sm">
-              <Row label={`سعر ال${cycleWord}`} value={formatMoney(price)} />
-              <Row label="التجديد الجاي" value={nextRenewal ? df.format(nextRenewal) : "—"} />
+              <Row label={tr("سعر ال{0}", cycleWord)} value={formatMoney(price)} />
+              <Row label={tr("التجديد الجاي")} value={nextRenewal ? df.format(nextRenewal) : "—"} />
               {store.subscriptionStatus === "GRACE_PERIOD" && store.gracePeriodEndsAt && (
-                <Row label="آخر يوم في السماح" value={df.format(store.gracePeriodEndsAt)} warn />
+                <Row label={tr("آخر يوم في السماح")} value={df.format(store.gracePeriodEndsAt)} warn />
               )}
             </dl>
             <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-border px-4 py-3">
               <span>
-                <span className="block text-sm font-medium">التجديد التلقائي</span>
-                <span className="block text-xs text-muted-foreground">بنجدد من الرصيد في الميعاد من غير ما تعمل حاجة.</span>
+                <span className="block text-sm font-medium">{tr("التجديد التلقائي")}</span>
+                <span className="block text-xs text-muted-foreground">{tr("بنجدد من الرصيد في الميعاد من غير ما تعمل حاجة.")}</span>
               </span>
               <AutoRenewSwitch storeId={store.id} initial={store.autoRenew} />
             </label>
@@ -335,17 +340,17 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
                 gracePeriodEndsAt={store.gracePeriodEndsAt}
               />
               <Button asChild variant="ghost" size="sm">
-                <Link href="/change-plan">غيّر الباقة</Link>
+                <Link href="/change-plan">{tr("غيّر الباقة")}</Link>
               </Button>
             </div>
           </section>
 
           <section className="rounded-xl border border-border bg-card px-4 py-3">
-            <p className="mb-2 text-xs text-muted-foreground">آخر ١٢ شهر</p>
+            <p className="mb-2 text-xs text-muted-foreground">{tr("آخر ١٢ شهر")}</p>
             <dl className="space-y-2 text-sm">
-              <Row label="شحنت" value={formatMoney(toppedUp)} />
-              <Row label="اتجدد بيه الاشتراك" value={formatMoney(spent)} />
-              {gifts > 0 && <Row label="رصيد هدية ومكافآت" value={formatMoney(gifts)} />}
+              <Row label={tr("شحنت")} value={formatMoney(toppedUp)} />
+              <Row label={tr("اتجدد بيه الاشتراك")} value={formatMoney(spent)} />
+              {gifts > 0 && <Row label={tr("رصيد هدية ومكافآت")} value={formatMoney(gifts)} />}
             </dl>
           </section>
 
@@ -357,10 +362,10 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
               <Gift className="size-4" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-medium">اشحن ببلاش</span>
-              <span className="block text-xs text-muted-foreground">ادعي تاجر لكاشو وخد رصيد مكافأة لما يشترك.</span>
+              <span className="block text-sm font-medium">{tr("اشحن ببلاش")}</span>
+              <span className="block text-xs text-muted-foreground">{tr("ادعي تاجر لكاشو وخد رصيد مكافأة لما يشترك.")}</span>
             </span>
-            <ArrowLeft className="size-4 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+            <ArrowLeft className="size-4 text-muted-foreground transition-transform group-hover:-translate-x-0.5 ltr:-scale-x-100" />
           </Link>
         </aside>
       </div>

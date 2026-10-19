@@ -16,6 +16,7 @@ import LayoutPanel from "./panels/LayoutPanel";
 import FontsPanel from "./panels/FontsPanel";
 import IdentityPanel from "./panels/IdentityPanel";
 import GrowthPanel from "./panels/GrowthPanel";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 const PANELS: Record<PanelId, React.ComponentType> = {
   sections: SectionsPanel,
@@ -51,20 +52,20 @@ export default function BuilderShell() {
   useShortcuts();
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden" dir="rtl">
+    <div className="flex h-screen flex-col overflow-hidden" dir={tdir()}>
       {/* ── Small screens ────────────────────────────────────────────────── */}
       <div className="flex h-screen flex-col items-center justify-center gap-6 bg-background p-8 text-center lg:hidden">
         <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
           <Monitor className="size-8 text-muted-foreground" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-xl font-bold">المحرر محتاج شاشة أكبر</h2>
+          <h2 className="text-xl font-bold">{tr("المحرر محتاج شاشة أكبر")}</h2>
           <p className="max-w-xs text-sm text-muted-foreground">
-            افتحه من الكمبيوتر عشان تشوف المتجر والإعدادات جنب بعض. كل الإعدادات موجودة كمان في صفحة التخصيص.
+            {tr("افتحه من الكمبيوتر عشان تشوف المتجر والإعدادات جنب بعض. كل الإعدادات موجودة كمان في صفحة التخصيص.")}
           </p>
         </div>
         <Button asChild variant="outline">
-          <Link href="/customization">صفحة التخصيص</Link>
+          <Link href="/customization">{tr("صفحة التخصيص")}</Link>
         </Button>
       </div>
 

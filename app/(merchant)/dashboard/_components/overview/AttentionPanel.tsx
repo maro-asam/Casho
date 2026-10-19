@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, ChevronLeft, Clock3, PackageX, type Lucide
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatNumber } from "./format";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type AttentionItem = {
   id: string;
@@ -33,8 +34,8 @@ export function buildAttentionItems({
   if (subscription === "inactive") {
     items.push({
       id: "subscription",
-      title: "الاشتراك مش مفعّل",
-      description: "المتجر مش ظاهر للعملاء لحد ما تجدد الاشتراك.",
+      title: tr("الاشتراك مش مفعّل"),
+      description: tr("المتجر مش ظاهر للعملاء لحد ما تجدد الاشتراك."),
       href: "/balance",
       tone: "danger",
       icon: AlertTriangle,
@@ -42,8 +43,8 @@ export function buildAttentionItems({
   } else if (subscription === "grace") {
     items.push({
       id: "subscription",
-      title: "الاشتراك في فترة السماح",
-      description: "جدّد قبل ما الفترة تخلص عشان المتجر ميقفش.",
+      title: tr("الاشتراك في فترة السماح"),
+      description: tr("جدّد قبل ما الفترة تخلص عشان المتجر ميقفش."),
       href: "/balance",
       tone: "warning",
       icon: AlertTriangle,
@@ -53,8 +54,8 @@ export function buildAttentionItems({
   if (pendingOrders > 0) {
     items.push({
       id: "pending",
-      title: `${formatNumber(pendingOrders)} طلب مستني مراجعة`,
-      description: "أكّد الطلبات الجديدة عشان تبدأ تجهيزها.",
+      title: tr("{0} طلب مستني مراجعة", formatNumber(pendingOrders)),
+      description: tr("أكّد الطلبات الجديدة عشان تبدأ تجهيزها."),
       href: "/orders",
       tone: "warning",
       icon: Clock3,
@@ -64,8 +65,8 @@ export function buildAttentionItems({
   if (lowStockCount > 0) {
     items.push({
       id: "stock",
-      title: `${formatNumber(lowStockCount)} منتج مخزونه قليل`,
-      description: "زوّد الكمية قبل ما المنتج يخلص أونلاين وفي المحل.",
+      title: tr("{0} منتج مخزونه قليل", formatNumber(lowStockCount)),
+      description: tr("زوّد الكمية قبل ما المنتج يخلص أونلاين وفي المحل."),
       href: "/inventory",
       tone: "neutral",
       icon: PackageX,
@@ -79,7 +80,7 @@ export default function AttentionPanel({ items }: { items: AttentionItem[] }) {
   return (
     <Card className="gap-0 rounded-xl py-0 shadow-none">
       <CardHeader className="p-5 pb-3">
-        <CardTitle className="text-base font-semibold">محتاج انتباهك</CardTitle>
+        <CardTitle className="text-base font-semibold">{tr("محتاج انتباهك")}</CardTitle>
       </CardHeader>
       <CardContent className="p-2 pt-0">
         {items.length > 0 ? (
@@ -99,7 +100,7 @@ export default function AttentionPanel({ items }: { items: AttentionItem[] }) {
                       <span className="block text-sm font-medium">{item.title}</span>
                       <span className="block text-xs leading-5 text-muted-foreground">{item.description}</span>
                     </span>
-                    <ChevronLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+                    <ChevronLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5 ltr:-scale-x-100" />
                   </Link>
                 </li>
               );
@@ -111,8 +112,8 @@ export default function AttentionPanel({ items }: { items: AttentionItem[] }) {
               <CheckCircle2 className="size-4" />
             </span>
             <div>
-              <p className="text-sm font-medium">كله تمام</p>
-              <p className="text-xs text-muted-foreground">مفيش طلبات متأخرة ولا منتجات قربت تخلص.</p>
+              <p className="text-sm font-medium">{tr("كله تمام")}</p>
+              <p className="text-xs text-muted-foreground">{tr("مفيش طلبات متأخرة ولا منتجات قربت تخلص.")}</p>
             </div>
           </div>
         )}

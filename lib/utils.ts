@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+// Arabic everywhere except the merchant dashboard in English (see lib/i18n/dashboard).
+import { intlLocale } from "@/lib/i18n/dashboard/runtime";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -69,7 +71,7 @@ export function generateSlug(value: string) {
 }
 
 export function formatPrice(value: number) {
-  return new Intl.NumberFormat("ar-EG", {
+  return new Intl.NumberFormat(intlLocale(), {
     style: "currency",
     currency: "EGP",
     maximumFractionDigits: 0,
@@ -82,7 +84,7 @@ export function formatDate(
 ): string {
   const d = new Date(date);
 
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(intlLocale(), {
     year: "numeric",
     month: "long", // أو 'short' لو عايز مختصر
     day: "numeric",

@@ -24,10 +24,15 @@ import { readPopupConfig } from "@/lib/popups/popup-config";
 import { prisma } from "@/lib/prisma";
 import { UrlCouponDialog, type EditableCoupon } from "./_components/coupon-form-dialog";
 import { CouponsTable, type CouponRow } from "./_components/coupons-table";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "أكواد الخصم",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("أكواد الخصم"),
 };
+}
 
 const PAGE_SIZE = 20;
 const BASE_PATH = "/coupons";
@@ -37,6 +42,7 @@ type CouponsRouteProps = {
 };
 
 export default async function CouponsRoute({ searchParams }: CouponsRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -46,8 +52,8 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها اعمل أكواد خصم لعملائك."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها اعمل أكواد خصم لعملائك.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -146,16 +152,16 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
   const shareUrl = (code: string) => `${storeUrl}/?coupon=${encodeURIComponent(code)}`;
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="أكواد الخصم"
-        description="اعمل أكواد للعروض والمؤثرين وحملات الواتساب — وكل كود ليه لينك بيطبّقه لوحده في السلة."
+        title={tr("أكواد الخصم")}
+        description={tr("اعمل أكواد للعروض والمؤثرين وحملات الواتساب — وكل كود ليه لينك بيطبّقه لوحده في السلة.")}
         actions={
           storeCouponCount > 0 && (
             <Button asChild size="sm" className="gap-1.5">
               <Link href={newHref} scroll={false}>
                 <Plus className="size-4" />
-                كود جديد
+                {tr("كود جديد")}
               </Link>
             </Button>
           )
@@ -166,13 +172,13 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={TicketPercent}
-            title="لسه معملتش أكواد خصم"
-            description="ابدأ بكود ترحيب لأول طلب، أو كود لمؤثر وتابع هو جاب كام طلب ومبيعات قد إيه."
+            title={tr("لسه معملتش أكواد خصم")}
+            description={tr("ابدأ بكود ترحيب لأول طلب، أو كود لمؤثر وتابع هو جاب كام طلب ومبيعات قد إيه.")}
             action={
               <Button asChild size="sm" className="gap-1.5">
                 <Link href={newHref} scroll={false}>
                   <Plus className="size-4" />
-                  اعمل أول كود
+                  {tr("اعمل أول كود")}
                 </Link>
               </Button>
             }
@@ -181,12 +187,12 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
       ) : (
         <div className="space-y-4">
           <FilterTabs
-            label="حالة الكود"
+            label={tr("حالة الكود")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
             tabs={[
-              { label: "الكل", count: allCount },
+              { label: tr("الكل"), count: allCount },
               ...COUPON_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
             ]}
           />
@@ -194,21 +200,21 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
           <DataCard
             toolbar={
               <>
-                <SearchInput placeholder="ابحث بالكود" />
+                <SearchInput placeholder={tr("ابحث بالكود")} />
                 <SelectFilter
-                  label="نوع الخصم"
+                  label={tr("نوع الخصم")}
                   param="type"
-                  allLabel="كل الأنواع"
+                  allLabel={tr("كل الأنواع")}
                   options={[
-                    { value: "PERCENTAGE", label: "نسبة مئوية" },
-                    { value: "FIXED", label: "مبلغ ثابت" },
+                    { value: "PERCENTAGE", label: tr("نسبة مئوية") },
+                    { value: "FIXED", label: tr("مبلغ ثابت") },
                   ]}
                 />
               </>
             }
             footer={
               total > 0 ? (
-                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="كود" />
+                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("كود")} />
               ) : undefined
             }
           >
@@ -217,12 +223,12 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
             ) : (
               <EmptyState
                 icon={SearchX}
-                title="مفيش أكواد بالفلاتر دي"
-                description={q ? `مفيش كود فيه "${q}".` : "جرّب حالة أو نوع تاني."}
+                title={tr("مفيش أكواد بالفلاتر دي")}
+                description={q ? tr("مفيش كود فيه \"{0}\".", q) : tr("جرّب حالة أو نوع تاني.")}
                 action={
                   hasFilters && (
                     <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
                     </Button>
                   )
                 }

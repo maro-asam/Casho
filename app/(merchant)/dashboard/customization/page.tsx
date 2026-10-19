@@ -29,10 +29,15 @@ import { GrowthTools } from "./_components/studio/growth-tools";
 import { BrandSnapshot, HomeOutline, StorePulse, UpcomingSeasons, type Pulse } from "./_components/studio/overview";
 import { ReadinessCard, type ReadinessItem } from "./_components/studio/readiness-card";
 import { PanelHeader, StudioNav, isStudioTab, studioHref, type StudioTab } from "./_components/studio/studio-nav";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "تخصيص المتجر",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("تخصيص المتجر"),
 };
+}
 
 const daysAgo = (days: number) => new Date(new Date().getTime() - days * 86400_000);
 
@@ -41,6 +46,7 @@ type CustomizationRouteProps = {
 };
 
 export default async function CustomizationRoute({ searchParams }: CustomizationRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
   const tabParam = readParam(params, "tab");
@@ -78,8 +84,8 @@ export default async function CustomizationRoute({ searchParams }: Customization
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها صمّمه من هنا."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها صمّمه من هنا.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -140,23 +146,23 @@ export default async function CustomizationRoute({ searchParams }: Customization
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <link rel="stylesheet" href={font.googleUrl} />
       <PageHeader
-        title="تخصيص المتجر"
-        description="شكل متجرك وأدوات البيع اللي بتشتغل فيه — كل تعديل بيتطبق على المتجر فورًا."
+        title={tr("تخصيص المتجر")}
+        description={tr("شكل متجرك وأدوات البيع اللي بتشتغل فيه — كل تعديل بيتطبق على المتجر فورًا.")}
         actions={
           <>
             <Button asChild variant="outline" size="sm" className="gap-1.5">
               <a href={storeUrl} target="_blank" rel="noreferrer">
                 <ExternalLink className="size-4" />
-                عرض المتجر
+                {tr("عرض المتجر")}
               </a>
             </Button>
             <Button asChild size="sm" className="hidden gap-1.5 lg:inline-flex">
               <Link href="/builder">
                 <Wand2 className="size-4" />
-                المحرر المرئي
+                {tr("المحرر المرئي")}
               </Link>
             </Button>
           </>
@@ -195,14 +201,14 @@ export default async function CustomizationRoute({ searchParams }: Customization
 
           {tab === "theme" && (
             <>
-              <PanelHeader title="الثيم" description="نقطة البداية لشكل متجرك. تغيير الثيم بيحافظ على اللوجو والمنتجات والمحتوى." />
+              <PanelHeader title={tr("الثيم")} description={tr("نقطة البداية لشكل متجرك. تغيير الثيم بيحافظ على اللوجو والمنتجات والمحتوى.")} />
               <ThemePicker storeId={store.id} currentThemeId={presetId} />
             </>
           )}
 
           {tab === "colors" && (
             <>
-              <PanelHeader title="ألوان علامتك" description="اختار من باليتة جاهزة أو طلّع ألوانك من اللوجو — وإحنا بنظبط لون الكلام عشان يفضل واضح." />
+              <PanelHeader title={tr("ألوان علامتك")} description={tr("اختار من باليتة جاهزة أو طلّع ألوانك من اللوجو — وإحنا بنظبط لون الكلام عشان يفضل واضح.")} />
               <BrandColorsPanel
                 storeId={store.id}
                 storeName={store.name}
@@ -216,21 +222,21 @@ export default async function CustomizationRoute({ searchParams }: Customization
 
           {tab === "fonts" && (
             <>
-              <PanelHeader title="الخطوط واللغة" description="الخط بيدّي إحساس العلامة. اختار خط مريح للقراية على الموبايل." />
+              <PanelHeader title={tr("الخطوط واللغة")} description={tr("الخط بيدّي إحساس العلامة. اختار خط مريح للقراية على الموبايل.")} />
               <StoreFontPicker storeId={store.id} currentFontId={settings?.fontId} currentLanguage={settings?.storeLanguage} />
             </>
           )}
 
           {tab === "design" && (
             <>
-              <PanelHeader title="شكل العرض" description="القائمة العلوية، كروت المنتجات، الزراير، وعدد الأعمدة." />
+              <PanelHeader title={tr("شكل العرض")} description={tr("القائمة العلوية، كروت المنتجات، الزراير، وعدد الأعمدة.")} />
               <ThemeLayoutEditor storeId={store.id} currentLayout={theme.layout} />
             </>
           )}
 
           {tab === "identity" && (
             <>
-              <PanelHeader title="الهوية واللوجو" description="اللوجو، صورة الغلاف، وصف المتجر، وشريط الإعلان اللي فوق." />
+              <PanelHeader title={tr("الهوية واللوجو")} description={tr("اللوجو، صورة الغلاف، وصف المتجر، وشريط الإعلان اللي فوق.")} />
               <StoreIdentitySection
                 storeId={store.id}
                 logo={settings?.logo}
@@ -246,7 +252,7 @@ export default async function CustomizationRoute({ searchParams }: Customization
 
           {tab === "sections" && (
             <>
-              <PanelHeader title="أقسام الصفحة الرئيسية" description="شغّل الأقسام اللي تخدم متجرك ورتّبها بالسحب. الأقسام المقفولة مش بتظهر للعميل." />
+              <PanelHeader title={tr("أقسام الصفحة الرئيسية")} description={tr("شغّل الأقسام اللي تخدم متجرك ورتّبها بالسحب. الأقسام المقفولة مش بتظهر للعميل.")} />
               <ThemeSectionsEditor storeId={store.id} currentSections={theme.sections} sectionContent={theme.sectionContent} />
             </>
           )}
@@ -275,8 +281,8 @@ export default async function CustomizationRoute({ searchParams }: Customization
           {tab === "whatsapp" && (
             <>
               <PanelHeader
-                title="زر واتساب العائم"
-                description="أغلب عملاء مصر بيسألوا قبل ما يشتروا. خلّي السؤال على بُعد ضغطة — والرسالة فيها المنتج اللي بيتفرج عليه."
+                title={tr("زر واتساب العائم")}
+                description={tr("أغلب عملاء مصر بيسألوا قبل ما يشتروا. خلّي السؤال على بُعد ضغطة — والرسالة فيها المنتج اللي بيتفرج عليه.")}
               />
               <WhatsAppPanel storeId={store.id} storeHost={storeHost} initial={conversion.whatsapp} fallbackPhone={settings?.whatsappNumber ?? null} />
             </>
@@ -353,23 +359,23 @@ async function Overview(props: {
   const s = props.settings;
   const colorsReadable = contrastRatio(props.primary, readableOn(props.primary)) >= 4.5;
   const items: ReadinessItem[] = [
-    { id: "logo", label: "لوجو المتجر", hint: "أول حاجة العميل بيشوفها — بتفرق في الثقة.", done: Boolean(s?.logo), href: studioHref("identity"), weight: 3 },
-    { id: "banner", label: "بانر في الرئيسية", hint: "عرض واضح فوق الصفحة بيزوّد الضغط على المنتجات.", done: activeBanners > 0, href: "/banners", weight: 2 },
-    { id: "colors", label: "ألوان علامتك", hint: "استخرجها من اللوجو في ثواني.", done: Boolean(s?.primaryColor) && colorsReadable, href: studioHref("colors"), weight: 2 },
-    { id: "whatsapp", label: "زر واتساب", hint: "أسهل طريق للعميل يسأل ويشتري.", done: props.whatsappOn, href: studioHref("whatsapp"), weight: 2 },
-    { id: "description", label: "وصف المتجر", hint: "سطرين عن متجرك بيبنوا ثقة.", done: Boolean(s?.description?.trim()), href: studioHref("identity"), weight: 1 },
-    { id: "cover", label: "صورة غلاف", hint: "بتدّي المتجر شكل احترافي من أول نظرة.", done: Boolean(s?.coverImage), href: studioHref("identity"), weight: 1 },
+    { id: "logo", label: tr("لوجو المتجر"), hint: tr("أول حاجة العميل بيشوفها — بتفرق في الثقة."), done: Boolean(s?.logo), href: studioHref("identity"), weight: 3 },
+    { id: "banner", label: tr("بانر في الرئيسية"), hint: tr("عرض واضح فوق الصفحة بيزوّد الضغط على المنتجات."), done: activeBanners > 0, href: "/banners", weight: 2 },
+    { id: "colors", label: tr("ألوان علامتك"), hint: tr("استخرجها من اللوجو في ثواني."), done: Boolean(s?.primaryColor) && colorsReadable, href: studioHref("colors"), weight: 2 },
+    { id: "whatsapp", label: tr("زر واتساب"), hint: tr("أسهل طريق للعميل يسأل ويشتري."), done: props.whatsappOn, href: studioHref("whatsapp"), weight: 2 },
+    { id: "description", label: tr("وصف المتجر"), hint: tr("سطرين عن متجرك بيبنوا ثقة."), done: Boolean(s?.description?.trim()), href: studioHref("identity"), weight: 1 },
+    { id: "cover", label: tr("صورة غلاف"), hint: tr("بتدّي المتجر شكل احترافي من أول نظرة."), done: Boolean(s?.coverImage), href: studioHref("identity"), weight: 1 },
     {
       id: "categories",
-      label: "تصنيفات بصور",
-      hint: "التصنيفات بالصور بتسهّل التصفح جدًا.",
+      label: tr("تصنيفات بصور"),
+      hint: tr("التصنيفات بالصور بتسهّل التصفح جدًا."),
       done: categories > 0 && categoriesWithImage / categories >= 0.5,
       href: "/categories",
       weight: 1,
     },
-    { id: "sections", label: "٤ أقسام أو أكتر", hint: "صفحة رئيسية غنية بتطوّل وقت الزيارة.", done: props.sectionsOn >= 4, href: studioHref("sections"), weight: 1 },
-    { id: "popup", label: "نافذة ترحيب", hint: "كود خصم لأول طلب بيحوّل زوار أكتر.", done: props.popups.active > 0, href: studioHref("popups"), weight: 1 },
-    { id: "seo", label: "وصف لجوجل", hint: "بيظهر في نتايج البحث وعند المشاركة.", done: Boolean(s?.seoDescription?.trim()), href: "/seo", weight: 1 },
+    { id: "sections", label: tr("٤ أقسام أو أكتر"), hint: tr("صفحة رئيسية غنية بتطوّل وقت الزيارة."), done: props.sectionsOn >= 4, href: studioHref("sections"), weight: 1 },
+    { id: "popup", label: tr("نافذة ترحيب"), hint: tr("كود خصم لأول طلب بيحوّل زوار أكتر."), done: props.popups.active > 0, href: studioHref("popups"), weight: 1 },
+    { id: "seo", label: tr("وصف لجوجل"), hint: tr("بيظهر في نتايج البحث وعند المشاركة."), done: Boolean(s?.seoDescription?.trim()), href: "/seo", weight: 1 },
   ];
 
   return (
@@ -428,7 +434,7 @@ async function PopupsTab({
     const name = prefill.name?.slice(0, 50);
     editing = {
       id: null,
-      name: name ? `عرض ${name}` : template.name,
+      name: name ? tr("عرض {0}", name) : template.name,
       type: template.type,
       isActive: false,
       config: name ? { ...template.config, content: { ...template.config.content, eyebrow: name.slice(0, 40) } } : template.config,
@@ -477,7 +483,7 @@ async function PopupsTab({
             code: c.code,
             isActive: c.isActive,
             expiresAt: c.expiresAt?.toISOString() ?? null,
-            label: c.type === "PERCENTAGE" ? `${c.value}٪` : `${c.value} ج.م`,
+            label: c.type === "PERCENTAGE" ? tr("{0}٪", c.value) : tr("{0} ج.م", c.value),
           }))}
         />
       )}
@@ -501,8 +507,8 @@ async function SocialProofTab({ storeId, initial }: { storeId: string; initial: 
   return (
     <>
       <PanelHeader
-        title="إشعارات الشراء الحية"
-        description="لما الزائر يشوف إن ناس بتشتري فعلًا، بيطمن ويشتري. كله من طلباتك الحقيقية."
+        title={tr("إشعارات الشراء الحية")}
+        description={tr("لما الزائر يشوف إن ناس بتشتري فعلًا، بيطمن ويشتري. كله من طلباتك الحقيقية.")}
       />
       <PurchaseToastsPanel
         storeId={storeId}

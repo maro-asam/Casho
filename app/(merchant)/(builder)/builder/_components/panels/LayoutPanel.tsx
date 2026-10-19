@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useBuilder } from "../BuilderContext";
 import { UpdateThemeLayoutAction } from "@/actions/settings/theme.actions";
 import type { ThemeLayout } from "@/types/store-theme.types";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 // ─── Generic option picker ────────────────────────────────────────────────────
 
@@ -78,24 +79,24 @@ export default function LayoutPanel() {
     startTransition(async () => {
       const result = await UpdateThemeLayoutAction({ storeId, overrides: layout });
       if (result.success) {
-        toast.success("تم حفظ إعدادات التصميم");
+        toast.success(tr("تم حفظ إعدادات التصميم"));
         reloadPreview();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
 
   return (
-    <div className="flex flex-col h-full" dir="rtl">
+    <div className="flex flex-col h-full" dir={tdir()}>
       {/* Header */}
       <div className="flex items-center gap-2 border-b px-4 py-3 bg-background">
         <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
           <LayoutGrid className="size-3.5" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold">التصميم</h2>
-          <p className="text-[10px] text-muted-foreground">تخصيص الهيكل والمظهر العام</p>
+          <h2 className="text-sm font-semibold">{tr("التصميم")}</h2>
+          <p className="text-[10px] text-muted-foreground">{tr("تخصيص الهيكل والمظهر العام")}</p>
         </div>
       </div>
 
@@ -103,99 +104,99 @@ export default function LayoutPanel() {
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
         {/* Hero style */}
         <OptionGroup
-          label="نمط البانر الرئيسي"
+          label={tr("نمط البانر الرئيسي")}
           value={layout.heroStyle}
           onChange={(v) => update("heroStyle", v)}
           options={[
-            { value: "fullscreen", label: "كامل الشاشة", preview: HeroPreviews.fullscreen },
-            { value: "split",      label: "منقسم",        preview: HeroPreviews.split },
-            { value: "compact",    label: "مضغوط",         preview: HeroPreviews.compact },
-            { value: "minimal",    label: "بسيط",          preview: HeroPreviews.minimal },
+            { value: "fullscreen", label: tr("كامل الشاشة"), preview: HeroPreviews.fullscreen },
+            { value: "split",      label: tr("منقسم"),        preview: HeroPreviews.split },
+            { value: "compact",    label: tr("مضغوط"),         preview: HeroPreviews.compact },
+            { value: "minimal",    label: tr("بسيط"),          preview: HeroPreviews.minimal },
           ]}
         />
 
         {/* Product card style */}
         <OptionGroup
-          label="نمط بطاقة المنتج"
+          label={tr("نمط بطاقة المنتج")}
           value={layout.productCardStyle}
           onChange={(v) => update("productCardStyle", v)}
           options={[
-            { value: "default", label: "افتراضي" },
-            { value: "minimal", label: "بسيط" },
-            { value: "bold",    label: "جريء" },
-            { value: "elegant", label: "أنيق" },
+            { value: "default", label: tr("افتراضي") },
+            { value: "minimal", label: tr("بسيط") },
+            { value: "bold",    label: tr("جريء") },
+            { value: "elegant", label: tr("أنيق") },
           ]}
         />
 
         {/* Category card style */}
         <OptionGroup
-          label="نمط بطاقة التصنيف"
+          label={tr("نمط بطاقة التصنيف")}
           value={layout.categoryCardStyle}
           onChange={(v) => update("categoryCardStyle", v)}
           options={[
-            { value: "square", label: "مربع" },
-            { value: "circle", label: "دائري" },
-            { value: "pill",   label: "ممتد" },
+            { value: "square", label: tr("مربع") },
+            { value: "circle", label: tr("دائري") },
+            { value: "pill",   label: tr("ممتد") },
           ]}
         />
 
         {/* Grid columns */}
         <OptionGroup
-          label="أعمدة المنتجات (سطح المكتب)"
+          label={tr("أعمدة المنتجات (سطح المكتب)")}
           value={String(layout.desktopGridCols) as "3" | "4" | "5"}
           onChange={(v) => update("desktopGridCols", Number(v) as 3|4|5)}
           options={[
-            { value: "3", label: "3 أعمدة", preview: GridPreviews["3"] },
-            { value: "4", label: "4 أعمدة", preview: GridPreviews["4"] },
-            { value: "5", label: "5 أعمدة", preview: GridPreviews["5"] },
+            { value: "3", label: tr("3 أعمدة"), preview: GridPreviews["3"] },
+            { value: "4", label: tr("4 أعمدة"), preview: GridPreviews["4"] },
+            { value: "5", label: tr("5 أعمدة"), preview: GridPreviews["5"] },
           ]}
         />
 
         {/* Density */}
         <OptionGroup
-          label="كثافة المحتوى"
+          label={tr("كثافة المحتوى")}
           value={layout.density}
           onChange={(v) => update("density", v)}
           options={[
-            { value: "compact",  label: "مضغوط" },
-            { value: "default",  label: "عادي" },
-            { value: "spacious", label: "مريح" },
+            { value: "compact",  label: tr("مضغوط") },
+            { value: "default",  label: tr("عادي") },
+            { value: "spacious", label: tr("مريح") },
           ]}
         />
 
         {/* Animations */}
         <OptionGroup
-          label="الحركات والتأثيرات"
+          label={tr("الحركات والتأثيرات")}
           value={layout.animations}
           onChange={(v) => update("animations", v)}
           options={[
-            { value: "none",    label: "بدون" },
-            { value: "subtle",  label: "خفيف" },
-            { value: "dynamic", label: "حيوي" },
+            { value: "none",    label: tr("بدون") },
+            { value: "subtle",  label: tr("خفيف") },
+            { value: "dynamic", label: tr("حيوي") },
           ]}
         />
 
         {/* Button style */}
         <OptionGroup
-          label="شكل الأزرار"
+          label={tr("شكل الأزرار")}
           value={layout.buttonStyle}
           onChange={(v) => update("buttonStyle", v)}
           options={[
-            { value: "sharp",   label: "حاد" },
-            { value: "rounded", label: "ناعم" },
-            { value: "pill",    label: "دائري" },
+            { value: "sharp",   label: tr("حاد") },
+            { value: "rounded", label: tr("ناعم") },
+            { value: "pill",    label: tr("دائري") },
           ]}
         />
 
         {/* Image ratio */}
         <OptionGroup
-          label="نسبة صورة المنتج"
+          label={tr("نسبة صورة المنتج")}
           value={layout.imageAspectRatio}
           onChange={(v) => update("imageAspectRatio", v)}
           options={[
-            { value: "square",    label: "مربع 1:1" },
-            { value: "portrait",  label: "طولي 3:4" },
-            { value: "landscape", label: "عرضي 4:3" },
+            { value: "square",    label: tr("مربع 1:1") },
+            { value: "portrait",  label: tr("طولي 3:4") },
+            { value: "landscape", label: tr("عرضي 4:3") },
           ]}
         />
       </div>
@@ -203,7 +204,7 @@ export default function LayoutPanel() {
       {/* Footer */}
       <div className="border-t bg-background px-4 py-3">
         <Button size="sm" className="w-full h-8 text-xs" onClick={handleSave} disabled={isPending}>
-          {isPending ? "جاري الحفظ…" : "حفظ التصميم"}
+          {isPending ? tr("جاري الحفظ…") : tr("حفظ التصميم")}
         </Button>
       </div>
     </div>

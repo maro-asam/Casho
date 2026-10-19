@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { tr } from "@/lib/i18n/dashboard";
 
 export function NewBranchDialog() {
   const router = useRouter();
@@ -19,16 +20,16 @@ export function NewBranchDialog() {
   const [phone, setPhone] = useState("");
 
   function handleSubmit() {
-    if (!name.trim()) return toast.error("اسم الفرع مطلوب");
+    if (!name.trim()) return toast.error(tr("اسم الفرع مطلوب"));
     startTransition(async () => {
       try {
         await CreateBranchAction({ name, address, phone });
-        toast.success("تم إضافة الفرع");
+        toast.success(tr("تم إضافة الفرع"));
         setOpen(false);
         setName(""); setAddress(""); setPhone("");
         router.refresh();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -38,29 +39,29 @@ export function NewBranchDialog() {
       <DialogTrigger asChild>
         <Button size="sm" className="gap-2">
           <Plus className="size-4" />
-          فرع جديد
+          {tr("فرع جديد")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle>إضافة فرع جديد</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{tr("إضافة فرع جديد")}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label>اسم الفرع *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="مثال: فرع المعادي" />
+            <Label>{tr("اسم الفرع *")}</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={tr("مثال: فرع المعادي")} />
           </div>
           <div className="space-y-1.5">
-            <Label>العنوان</Label>
-            <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="عنوان الفرع" />
+            <Label>{tr("العنوان")}</Label>
+            <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={tr("عنوان الفرع")} />
           </div>
           <div className="space-y-1.5">
-            <Label>الهاتف</Label>
+            <Label>{tr("الهاتف")}</Label>
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01xxxxxxxxx" dir="ltr" />
           </div>
           <div className="flex gap-2 pt-1">
             <Button onClick={handleSubmit} disabled={isPending} className="flex-1">
-              {isPending ? "جاري الإضافة..." : "إضافة"}
+              {isPending ? tr("جاري الإضافة...") : tr("إضافة")}
             </Button>
-            <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{tr("إلغاء")}</Button>
           </div>
         </div>
       </DialogContent>

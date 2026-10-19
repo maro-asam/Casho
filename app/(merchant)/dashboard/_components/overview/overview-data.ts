@@ -1,5 +1,6 @@
 import { OrderSource, OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { lazyIntl } from "@/lib/i18n/dashboard";
 
 // Merchants are in Egypt; bucket days by Cairo time, not the server's clock.
 const TIME_ZONE = "Africa/Cairo";
@@ -16,7 +17,7 @@ const dayKeyFormat = new Intl.DateTimeFormat("en-CA", {
   month: "2-digit",
   day: "2-digit",
 });
-const dayLabelFormat = new Intl.DateTimeFormat("ar-EG", { timeZone: TIME_ZONE, day: "numeric", month: "short" });
+const dayLabelFormat = lazyIntl.date({ timeZone: TIME_ZONE, day: "numeric", month: "short" });
 
 const dayKey = (date: Date) => dayKeyFormat.format(date);
 

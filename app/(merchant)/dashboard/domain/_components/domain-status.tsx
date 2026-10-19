@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requiredRecords } from "@/lib/custom-domain/shared";
 import type { DomainCheckReport } from "@/lib/custom-domain/verify";
 import { cn } from "@/lib/utils";
+import { lazyIntl, lazyList, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Status = "PENDING" | "ACTIVE" | "FAILED";
 
@@ -35,55 +36,55 @@ type Props = {
 };
 
 const POLL_MS = 30_000;
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
-const rtf = new Intl.RelativeTimeFormat("ar-EG", { numeric: "auto" });
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
+const rtf = lazyIntl.relative({ numeric: "auto" });
 
 const STATUS_META: Record<Status, { label: string; tone: "success" | "warning" | "danger" }> = {
-  ACTIVE: { label: "شغّال", tone: "success" },
-  PENDING: { label: "مستني الـ DNS", tone: "warning" },
-  FAILED: { label: "فيه مشكلة", tone: "danger" },
+  ACTIVE: { get label() { return tr("شغّال"); }, tone: "success" },
+  PENDING: { get label() { return tr("مستني الـ DNS"); }, tone: "warning" },
+  FAILED: { get label() { return tr("فيه مشكلة"); }, tone: "danger" },
 };
 
 const PROBLEM_TEXT: Record<string, { title: string; body: string }> = {
   "no-records": {
-    title: "لسه مش لاقيين السجلات",
-    body: "ضيف السجلات اللي تحت في لوحة تحكم الدومين. لو لسه ضايفها، التغيير بياخد من دقايق لحد كام ساعة عشان ينتشر.",
+    get title() { return tr("لسه مش لاقيين السجلات"); },
+    get body() { return tr("ضيف السجلات اللي تحت في لوحة تحكم الدومين. لو لسه ضايفها، التغيير بياخد من دقايق لحد كام ساعة عشان ينتشر."); },
   },
   "cloudflare-proxy": {
-    title: "Cloudflare مخبّي الدومين",
-    body: "السحابة البرتقالي شغّالة على السجل. افتح DNS في Cloudflare ودوس على السحابة لحد ما تبقى رمادي (DNS only).",
+    get title() { return tr("Cloudflare مخبّي الدومين"); },
+    get body() { return tr("السحابة البرتقالي شغّالة على السجل. افتح DNS في Cloudflare ودوس على السحابة لحد ما تبقى رمادي (DNS only)."); },
   },
   "wrong-target": {
-    title: "الدومين بيشاور على مكان تاني",
-    body: "في سجل قديم (استضافة قديمة أو صفحة ركن) لنفس الاسم. امسحه وسيب السجلات اللي تحت بس.",
+    get title() { return tr("الدومين بيشاور على مكان تاني"); },
+    get body() { return tr("في سجل قديم (استضافة قديمة أو صفحة ركن) لنفس الاسم. امسحه وسيب السجلات اللي تحت بس."); },
   },
 };
 
 PROBLEM_TEXT["no-ownership"] = {
-  title: "فاضل سجل الـ TXT",
-  body: "الـ DNS بيشاور علينا تمام، بس لازم تضيف سجل الـ TXT اللي تحت عشان نتأكد إن الدومين بتاعك انت. ده بيحمي دومينك إن حد تاني يربطه بمتجره.",
+  get title() { return tr("فاضل سجل الـ TXT"); },
+  get body() { return tr("الـ DNS بيشاور علينا تمام، بس لازم تضيف سجل الـ TXT اللي تحت عشان نتأكد إن الدومين بتاعك انت. ده بيحمي دومينك إن حد تاني يربطه بمتجره."); },
 };
 
 const PROVIDERS = [
   {
     id: "cloudflare",
     name: "Cloudflare",
-    steps: ["افتح الدومين ← DNS ← Records.", "Add record بالقيم اللي فوق.", "خلّي Proxy status رمادي (DNS only) — مهم جدًا."],
+    steps: lazyList(["افتح الدومين ← DNS ← Records.", "Add record بالقيم اللي فوق.", "خلّي Proxy status رمادي (DNS only) — مهم جدًا."]),
   },
   {
     id: "godaddy",
     name: "GoDaddy",
-    steps: ["My Products ← جنب الدومين DNS.", "Add New Record بالقيم اللي فوق.", "لو في سجل A اسمه @ بقيمة Parked امسحه."],
+    steps: lazyList(["My Products ← جنب الدومين DNS.", "Add New Record بالقيم اللي فوق.", "لو في سجل A اسمه @ بقيمة Parked امسحه."]),
   },
   {
     id: "namecheap",
     name: "Namecheap",
-    steps: ["Domain List ← Manage ← Advanced DNS.", "Add New Record بالقيم اللي فوق (Host = @ أو www).", "امسح سجل URL Redirect أو parkingpage لو موجود."],
+    steps: lazyList(["Domain List ← Manage ← Advanced DNS.", "Add New Record بالقيم اللي فوق (Host = @ أو www).", "امسح سجل URL Redirect أو parkingpage لو موجود."]),
   },
   {
     id: "hostinger",
     name: "Hostinger",
-    steps: ["Domains ← اختار الدومين ← DNS / Nameservers.", "ضيف السجلات اللي فوق.", "امسح أي سجل A قديم لنفس الاسم."],
+    steps: lazyList(["Domains ← اختار الدومين ← DNS / Nameservers.", "ضيف السجلات اللي فوق.", "امسح أي سجل A قديم لنفس الاسم."]),
   },
 ];
 
@@ -104,7 +105,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
       variant="ghost"
       size="icon"
       className="size-7 shrink-0 text-muted-foreground"
-      aria-label={`نسخ ${label}`}
+      aria-label={tr("نسخ {0}", label)}
       onClick={() => {
         navigator.clipboard?.writeText(value).catch(() => {});
         setDone(true);
@@ -132,17 +133,17 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
       const result = await verifyCustomDomainAction().catch(() => null);
       setChecking(false);
       if (!result?.ok || !result.data) {
-        if (manual) toast.error(result && !result.ok ? result.message : "مقدرناش نفحص دلوقتي.");
+        if (manual) toast.error(result && !result.ok ? result.message : tr("مقدرناش نفحص دلوقتي."));
         return;
       }
       const data = result.data;
       setReport(data);
       setStatus((prev) => {
         if (prev !== "ACTIVE" && data.status === "ACTIVE") {
-          toast.success(`${domain} شغّال 🎉`);
+          toast.success(tr("{0} شغّال 🎉", domain));
           router.refresh();
         } else if (manual && data.status !== "ACTIVE") {
-          toast("لسه مش جاهز — شوف التفاصيل تحت.");
+          toast(tr("لسه مش جاهز — شوف التفاصيل تحت."));
         }
         return data.status;
       });
@@ -168,21 +169,21 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
     startDisconnect(async () => {
       const result = await disconnectCustomDomainAction();
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(trv(result.message));
         return;
       }
       setConfirm(false);
-      toast.success(result.message ?? "اتفصل الدومين");
+      toast.success(result.message ?? tr("اتفصل الدومين"));
       router.refresh();
     });
   }
 
   function shareInstructions() {
     const text = [
-      `إعدادات الدومين ${domain} لمتجر كاشو:`,
+      tr("إعدادات الدومين {0} لمتجر كاشو:", domain),
       ...records.map((r) => `• ${r.type} — Host: ${r.host} — Value: ${r.value}`),
-      "امسح أي سجل A أو CNAME قديم لنفس الأسماء.",
-      "لو الدومين على Cloudflare: خلّي السحابة رمادي (DNS only).",
+      tr("امسح أي سجل A أو CNAME قديم لنفس الأسماء."),
+      tr("لو الدومين على Cloudflare: خلّي السحابة رمادي (DNS only)."),
     ].join("\n");
     navigator.clipboard?.writeText(text).catch(() => {});
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
@@ -201,9 +202,9 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
   const checkedAgo = report ? rtf.format(Math.round((new Date(report.checkedAt).getTime() - now) / 60000), "minute") : null;
 
   const steps = [
-    { label: "ربطت الدومين بمتجرك", done: true },
-    { label: "سجلات الـ DNS متظبطة", done: dnsOk },
-    { label: "شغّال بشهادة أمان SSL", done: sslOk },
+    { label: tr("ربطت الدومين بمتجرك"), done: true },
+    { label: tr("سجلات الـ DNS متظبطة"), done: dnsOk },
+    { label: tr("شغّال بشهادة أمان SSL"), done: sslOk },
   ];
 
   return (
@@ -213,7 +214,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
         <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              {live && <Lock className="size-4 text-emerald-600" aria-label="آمن" />}
+              {live && <Lock className="size-4 text-emerald-600" aria-label={tr("آمن")} />}
               <p className="truncate font-mono text-lg font-semibold" dir="ltr">
                 {domain}
               </p>
@@ -221,12 +222,12 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
             </div>
             <p className="text-xs text-muted-foreground">
               {live && connectedAt
-                ? `شغّال من ${df.format(new Date(connectedAt))}`
+                ? tr("شغّال من {0}", df.format(new Date(connectedAt)))
                 : checking
-                  ? "بنفحص دلوقتي…"
+                  ? tr("بنفحص دلوقتي…")
                   : checkedAgo
-                    ? `آخر فحص ${checkedAgo} · بنعيد الفحص تلقائي كل ٣٠ ثانية`
-                    : "بنفحص تلقائي…"}
+                    ? tr("آخر فحص {0} · بنعيد الفحص تلقائي كل ٣٠ ثانية", checkedAgo)
+                    : tr("بنفحص تلقائي…")}
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
@@ -234,18 +235,18 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
               <Button asChild size="sm" className="gap-1.5">
                 <a href={`https://${domain}`} target="_blank" rel="noreferrer">
                   <ExternalLink className="size-4" />
-                  افتح المتجر
+                  {tr("افتح المتجر")}
                 </a>
               </Button>
             ) : (
               <Button size="sm" className="gap-1.5" onClick={() => verify(true)} disabled={checking}>
                 <RefreshCw className={cn("size-4", checking && "animate-spin")} />
-                افحص دلوقتي
+                {tr("افحص دلوقتي")}
               </Button>
             )}
             <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => setConfirm(true)}>
               <Unplug className="size-4" />
-              افصل
+              {tr("افصل")}
             </Button>
           </div>
         </div>
@@ -279,24 +280,24 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
       {live && (
         <section className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">رابط متجرك الأساسي</p>
+            <p className="text-xs text-muted-foreground">{tr("رابط متجرك الأساسي")}</p>
             <div className="mt-1 flex items-center justify-between gap-2">
               <p className="truncate font-mono text-sm" dir="ltr">
                 https://{domain}
               </p>
-              <CopyButton value={`https://${domain}`} label="الرابط" />
+              <CopyButton value={`https://${domain}`} label={tr("الرابط")} />
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">ده اللي جوجل والمشاركات هيستخدموه.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{tr("ده اللي جوجل والمشاركات هيستخدموه.")}</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">رابط كاشو</p>
+            <p className="text-xs text-muted-foreground">{tr("رابط كاشو")}</p>
             <div className="mt-1 flex items-center justify-between gap-2">
               <p className="truncate font-mono text-sm text-muted-foreground" dir="ltr">
                 {storeUrl.replace(/^https?:\/\//, "")}
               </p>
-              <CopyButton value={storeUrl} label="رابط كاشو" />
+              <CopyButton value={storeUrl} label={tr("رابط كاشو")} />
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">لسه شغّال — أي لينك قديم مش هيبوظ.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{tr("لسه شغّال — أي لينك قديم مش هيبوظ.")}</p>
           </div>
         </section>
       )}
@@ -312,17 +313,17 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
           <AlertTriangle className={cn("mt-0.5 size-4 shrink-0", status === "FAILED" ? "text-rose-600" : "text-amber-600")} />
           <div className="min-w-0 space-y-1.5 text-sm">
             <p className="font-medium">
-              {problem?.title ?? (hostingWaiting ? "الـ DNS تمام — بنجهّز شهادة الأمان" : "الدومين وقف يشاور على متجرك")}
+              {problem?.title ?? (hostingWaiting ? tr("الـ DNS تمام — بنجهّز شهادة الأمان") : tr("الدومين وقف يشاور على متجرك"))}
             </p>
             <p className="leading-6 text-muted-foreground">
               {problem?.body ??
                 (hostingWaiting
-                  ? "خلاص فاضل دقايق. هنفعّل الدومين لوحده أول ما الشهادة تجهز — مش محتاج تعمل حاجة."
-                  : "حد غيّر إعدادات الـ DNS. رجّع السجلات اللي تحت.")}
+                  ? tr("خلاص فاضل دقايق. هنفعّل الدومين لوحده أول ما الشهادة تجهز — مش محتاج تعمل حاجة.")
+                  : tr("حد غيّر إعدادات الـ DNS. رجّع السجلات اللي تحت."))}
             </p>
             {report && (report.dns.found.a.length > 0 || report.dns.found.cname.length > 0) && (
               <p className="text-xs text-muted-foreground">
-                لقينا دلوقتي:{" "}
+                {tr("لقينا دلوقتي:")}{" "}
                 <span className="font-mono" dir="ltr">
                   {[...report.dns.found.cname.map((c) => `CNAME ${c}`), ...report.dns.found.a.map((ip) => `A ${ip}`)].join(" · ")}
                 </span>
@@ -337,22 +338,22 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
         <section className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex flex-col gap-2 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-semibold">السجلات المطلوبة</h3>
-              <p className="text-xs text-muted-foreground">ضيفها في لوحة تحكم الشركة اللي اشتريت منها الدومين.</p>
+              <h3 className="text-sm font-semibold">{tr("السجلات المطلوبة")}</h3>
+              <p className="text-xs text-muted-foreground">{tr("ضيفها في لوحة تحكم الشركة اللي اشتريت منها الدومين.")}</p>
             </div>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={shareInstructions}>
               <Send className="size-3.5" />
-              ابعتها للي بيظبطلك الدومين
+              {tr("ابعتها للي بيظبطلك الدومين")}
             </Button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-muted/40 text-xs text-muted-foreground">
-                  <th className="h-10 ps-4 text-right font-medium">النوع</th>
-                  <th className="h-10 text-right font-medium">الاسم (Host)</th>
-                  <th className="h-10 text-right font-medium">القيمة (Value)</th>
-                  <th className="hidden h-10 pe-4 text-right font-medium sm:table-cell">ليه</th>
+                  <th className="h-10 ps-4 text-start font-medium">{tr("النوع")}</th>
+                  <th className="h-10 text-start font-medium">{tr("الاسم (Host)")}</th>
+                  <th className="h-10 text-start font-medium">{tr("القيمة (Value)")}</th>
+                  <th className="hidden h-10 pe-4 text-start font-medium sm:table-cell">{tr("ليه")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -366,7 +367,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
                         <span className="font-mono" dir="ltr">
                           {r.host}
                         </span>
-                        <CopyButton value={r.host} label="الاسم" />
+                        <CopyButton value={r.host} label={tr("الاسم")} />
                       </span>
                     </td>
                     <td className="py-3">
@@ -374,7 +375,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
                         <span className="font-mono" dir="ltr">
                           {r.value}
                         </span>
-                        <CopyButton value={r.value} label="القيمة" />
+                        <CopyButton value={r.value} label={tr("القيمة")} />
                       </span>
                     </td>
                     <td className="hidden py-3 pe-4 text-xs text-muted-foreground sm:table-cell">{r.note}</td>
@@ -384,7 +385,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
             </table>
           </div>
           <p className="border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
-            TTL سيبه على الافتراضي (Auto). امسح أي سجل A أو CNAME قديم بنفس الاسم — وإلا الدومين هيفضل يروح للمكان القديم.
+            {tr("TTL سيبه على الافتراضي (Auto). امسح أي سجل A أو CNAME قديم بنفس الاسم — وإلا الدومين هيفضل يروح للمكان القديم.")}
           </p>
         </section>
       )}
@@ -392,8 +393,8 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
       {/* ── Provider guides ─────────────────────────────────────── */}
       {!live && (
         <section className="rounded-xl border border-border bg-card p-4">
-          <h3 className="mb-3 text-sm font-semibold">خطوات حسب شركة الدومين</h3>
-          <Tabs defaultValue="cloudflare" dir="rtl">
+          <h3 className="mb-3 text-sm font-semibold">{tr("خطوات حسب شركة الدومين")}</h3>
+          <Tabs defaultValue="cloudflare" dir={tdir()}>
             <TabsList className="h-auto flex-wrap">
               {PROVIDERS.map((p) => (
                 <TabsTrigger key={p.id} value={p.id} className="text-xs">
@@ -418,20 +419,20 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
       )}
 
       <AlertDialog open={confirm} onOpenChange={(open) => !disconnecting && setConfirm(open)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>تفصل {domain}؟</AlertDialogTitle>
+            <AlertDialogTitle>{tr("تفصل {0}؟", domain)}</AlertDialogTitle>
             <AlertDialogDescription>
               {live
-                ? "اللي هيفتح الدومين ده مش هيلاقي متجرك. متجرك هيفضل شغّال على رابط كاشو."
-                : "هتقدر تربط نفس الدومين أو دومين تاني بعدين."}
+                ? tr("اللي هيفتح الدومين ده مش هيلاقي متجرك. متجرك هيفضل شغّال على رابط كاشو.")
+                : tr("هتقدر تربط نفس الدومين أو دومين تاني بعدين.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={disconnecting}>رجوع</AlertDialogCancel>
+            <AlertDialogCancel disabled={disconnecting}>{tr("رجوع")}</AlertDialogCancel>
             <Button variant="destructive" onClick={disconnect} disabled={disconnecting} className="gap-1.5">
               {disconnecting && <Loader2 className="size-4 animate-spin" />}
-              افصل الدومين
+              {tr("افصل الدومين")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

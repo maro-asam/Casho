@@ -1,4 +1,5 @@
 import { StoreRole } from "@prisma/client";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type StorePermission =
   | "manage_settings"
@@ -60,9 +61,9 @@ export function getPermissions(role: StoreRole): StorePermission[] {
 }
 
 export const ROLE_LABELS: Record<StoreRole, string> = {
-  STORE_OWNER: "مالك المتجر",
-  STORE_MANAGER: "مدير",
-  STORE_STAFF: "موظف",
+  get STORE_OWNER() { return tr("مالك المتجر"); },
+  get STORE_MANAGER() { return tr("مدير"); },
+  get STORE_STAFF() { return tr("موظف"); },
 };
 
 export const ROLE_COLORS: Record<StoreRole, string> = {

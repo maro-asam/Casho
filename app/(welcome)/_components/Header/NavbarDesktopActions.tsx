@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ChevronDown, LayoutDashboard, LogOut, Store } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Store } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -57,8 +57,7 @@ export function UserAvatar({
 export default function NavbarDesktopActions({ user }: Props) {
   const { t, lang } = useLang();
   const displayName = user?.storeName || user?.email?.split("@")[0] || t.navbar.myAccount;
-  const Arrow = lang === "ar" ? ArrowLeft : ArrowRight;
-  const nudge = lang === "ar" ? "group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5";
+  const Chevron = lang === "ar" ? ChevronLeft : ChevronRight;
 
   return (
     <div className="flex items-center gap-2">
@@ -67,14 +66,14 @@ export default function NavbarDesktopActions({ user }: Props) {
         <ThemeToggle />
       </div>
 
-      <span aria-hidden className="mx-1 h-5 w-px bg-border" />
+      <span aria-hidden className="mx-1 h-4 w-px bg-(--al-hair)" />
 
       {user ? (
         <DropdownMenu dir={lang === "ar" ? "rtl" : "ltr"} modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="h-9 gap-2 rounded-lg ps-1 pe-2.5 text-sm font-medium hover:bg-muted data-[state=open]:bg-muted"
+              className="h-9 gap-2 rounded-full ps-1 pe-2.5 text-[13px] font-medium text-(--al-text) hover:bg-black/5 data-[state=open]:bg-black/5 dark:hover:bg-white/10 dark:data-[state=open]:bg-white/10"
             >
               <UserAvatar name={displayName} email={user.email} className="size-7 text-[11px]" />
               <span className="max-w-28 truncate">{displayName}</span>
@@ -82,7 +81,7 @@ export default function NavbarDesktopActions({ user }: Props) {
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" sideOffset={8} className="w-64 rounded-xl p-1.5">
+          <DropdownMenuContent align="end" sideOffset={8} className="w-64 rounded-2xl p-1.5">
             <div className="flex items-center gap-3 px-2.5 py-2.5 text-start">
               <UserAvatar name={displayName} email={user.email} className="size-9 text-xs" />
               <div className="min-w-0">
@@ -124,16 +123,14 @@ export default function NavbarDesktopActions({ user }: Props) {
         </DropdownMenu>
       ) : (
         <>
-          <Button asChild variant="ghost" className="h-9 rounded-lg px-3.5 text-sm font-medium">
-            <Link href="/login">{t.navbar.login}</Link>
-          </Button>
+          <Link href="/login" className="whitespace-nowrap rounded-full px-3 py-2 text-[13px] text-(--al-text)/70 transition-colors hover:text-(--al-text)">
+            {t.navbar.login}
+          </Link>
 
-          <Button asChild className="group h-9 gap-1.5 rounded-lg px-4 text-sm font-semibold">
-            <Link href="/register">
-              {t.navbar.startFree}
-              <Arrow className={cn("size-4 transition-transform duration-200", nudge)} />
-            </Link>
-          </Button>
+          <Link href="/register" className="group al-btn al-btn-filled al-btn-sm gap-1 whitespace-nowrap pe-3">
+            {t.navbar.startFree}
+            <Chevron className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" strokeWidth={2.4} />
+          </Link>
         </>
       )}
     </div>

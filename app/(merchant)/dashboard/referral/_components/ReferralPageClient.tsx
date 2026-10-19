@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import type { ReferralLevel } from "@/lib/referral";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
 type Referral = {
   id: string;
@@ -47,28 +48,28 @@ const LEVEL_CONFIG: Record<
   { label: string; icon: string; badgeClass: string; ringClass: string }
 > = {
   BRONZE: {
-    label: "برونزي",
+    get label() { return tr("برونزي"); },
     icon: "🥉",
     badgeClass:
       "bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
     ringClass: "ring-amber-400",
   },
   SILVER: {
-    label: "فضي",
+    get label() { return tr("فضي"); },
     icon: "🥈",
     badgeClass:
       "bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600",
     ringClass: "ring-slate-400",
   },
   GOLD: {
-    label: "ذهبي",
+    get label() { return tr("ذهبي"); },
     icon: "🥇",
     badgeClass:
       "bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700",
     ringClass: "ring-yellow-400",
   },
   DIAMOND: {
-    label: "ماسي",
+    get label() { return tr("ماسي"); },
     icon: "💎",
     badgeClass:
       "bg-cyan-100 text-cyan-800 border border-cyan-300 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-700",
@@ -97,14 +98,14 @@ export function ReferralPageClient({
   async function copyLink() {
     await navigator.clipboard.writeText(referralLink);
     setCopiedLink(true);
-    toast.success("تم نسخ رابط الإحالة");
+    toast.success(tr("تم نسخ رابط الإحالة"));
     setTimeout(() => setCopiedLink(false), 2000);
   }
 
   async function copyCode() {
     await navigator.clipboard.writeText(referralCode);
     setCopiedCode(true);
-    toast.success("تم نسخ الكود");
+    toast.success(tr("تم نسخ الكود"));
     setTimeout(() => setCopiedCode(false), 2000);
   }
 
@@ -112,8 +113,8 @@ export function ReferralPageClient({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "انضم إلى كاشو",
-          text: "أنشئ متجرك الإلكتروني الآن واحصل على تجربة مجانية! استخدم رابط الدعوة الخاص بي:",
+          title: tr("انضم إلى كاشو"),
+          text: tr("أنشئ متجرك الإلكتروني الآن واحصل على تجربة مجانية! استخدم رابط الدعوة الخاص بي:"),
           url: referralLink,
         });
       } catch {
@@ -139,12 +140,12 @@ export function ReferralPageClient({
   const paymentsUntilFreeMonth = 3 - freeMonthProgress;
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">نظام المكافأت</h1>
+        <h1 className="text-2xl font-bold text-foreground">{tr("نظام المكافأت")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          ادعُ تجاراً جدداً واحصل على مكافآت تتصاعد كلما ارتقيت في المستويات
+          {tr("ادعُ تجاراً جدداً واحصل على مكافآت تتصاعد كلما ارتقيت في المستويات")}
         </p>
       </div>
 
@@ -159,10 +160,10 @@ export function ReferralPageClient({
               {level.icon}
             </div>
 
-            <div className="flex-1 text-center sm:text-right">
+            <div className="flex-1 text-center sm:text-start">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                 <span className="text-xl font-bold text-foreground">
-                  المستوى الحالي
+                  {tr("المستوى الحالي")}
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-sm font-bold ${level.badgeClass}`}
@@ -175,18 +176,17 @@ export function ReferralPageClient({
                 <div className="mt-3 space-y-1.5">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>
-                      {referralSuccessfulPayments} /{" "}
-                      {nextLevelThreshold} دفعة
+                      {tr("{0} / {1} دفعة", referralSuccessfulPayments, nextLevelThreshold)}
                     </span>
                     <span>
-                      {nextLevelThreshold - referralSuccessfulPayments} متبقية للمستوى التالي
+                      {tr("{0} متبقية للمستوى التالي", nextLevelThreshold - referralSuccessfulPayments)}
                     </span>
                   </div>
                   <Progress value={levelProgressPct} className="h-2" />
                 </div>
               ) : (
                 <p className="mt-2 text-sm font-medium text-cyan-600 dark:text-cyan-400">
-                  وصلت للمستوى الأعلى 💎 — أنت في قمة نظام الإحالة!
+                  {tr("وصلت للمستوى الأعلى 💎 — أنت في قمة نظام الإحالة!")}
                 </p>
               )}
             </div>
@@ -216,7 +216,7 @@ export function ReferralPageClient({
                     <span className="text-[10px] font-semibold">{cfg.label}</span>
                     {isActive && (
                       <span className="text-[9px] font-bold text-primary">
-                        أنت هنا
+                        {tr("أنت هنا")}
                       </span>
                     )}
                   </div>
@@ -232,7 +232,7 @@ export function ReferralPageClient({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              إجمالي الأرباح
+              {tr("إجمالي الأرباح")}
             </CardTitle>
             <Wallet className="size-4 text-muted-foreground" />
           </CardHeader>
@@ -241,7 +241,7 @@ export function ReferralPageClient({
               {formatMoneyFromPiasters(totalEarnedPiasters)}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              رصيد مضاف لمتجرك
+              {tr("رصيد مضاف لمتجرك")}
             </p>
           </CardContent>
         </Card>
@@ -249,7 +249,7 @@ export function ReferralPageClient({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              الدفعات الناجحة
+              {tr("الدفعات الناجحة")}
             </CardTitle>
             <TrendingUp className="size-4 text-muted-foreground" />
           </CardHeader>
@@ -258,7 +258,7 @@ export function ReferralPageClient({
               {referralSuccessfulPayments}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              دفعات اشتراك مُحالة
+              {tr("دفعات اشتراك مُحالة")}
             </p>
           </CardContent>
         </Card>
@@ -266,7 +266,7 @@ export function ReferralPageClient({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              أشهر مجانية كُسبت
+              {tr("أشهر مجانية كُسبت")}
             </CardTitle>
             <Calendar className="size-4 text-muted-foreground" />
           </CardHeader>
@@ -275,7 +275,7 @@ export function ReferralPageClient({
               {freeMonthsEarned}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              شهر مجاني بالاشتراك
+              {tr("شهر مجاني بالاشتراك")}
             </p>
           </CardContent>
         </Card>
@@ -291,7 +291,7 @@ export function ReferralPageClient({
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">
-                  شهر مجاني كل 3 دفعات
+                  {tr("شهر مجاني كل 3 دفعات")}
                 </p>
                 <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
                   {freeMonthProgress} / 3
@@ -303,8 +303,8 @@ export function ReferralPageClient({
               />
               <p className="mt-1.5 text-xs text-muted-foreground">
                 {freeMonthProgress === 0
-                  ? "ابدأ الإحالة وسيُضاف شهر مجاني كل 3 دفعات ناجحة"
-                  : `${paymentsUntilFreeMonth} دفع${paymentsUntilFreeMonth === 1 ? "ة" : "ات"} متبقية للشهر المجاني القادم`}
+                  ? tr("ابدأ الإحالة وسيُضاف شهر مجاني كل 3 دفعات ناجحة")
+                  : tr("{0} دفع{1} متبقية للشهر المجاني القادم", paymentsUntilFreeMonth, paymentsUntilFreeMonth === 1 ? tr("ة") : tr("ات"))}
               </p>
             </div>
           </div>
@@ -320,32 +320,32 @@ export function ReferralPageClient({
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">
-                ادعُ المزيد وارتقِ في المستويات — احصل على مكافآت أكبر!
+                {tr("ادعُ المزيد وارتقِ في المستويات — احصل على مكافآت أكبر!")}
               </p>
               <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
-                    ١
+                    {tr("١")}
                   </span>
-                  شارك رابطك — يسجل التاجر ويبدأ تجربته
+                  {tr("شارك رابطك — يسجل التاجر ويبدأ تجربته")}
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
-                    ٢
+                    {tr("٢")}
                   </span>
-                  عند دفع الاشتراك — تحصل على 5 جنيه رصيد فوراً
+                  {tr("عند دفع الاشتراك — تحصل على 5 جنيه رصيد فوراً")}
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
-                    ٣
+                    {tr("٣")}
                   </span>
-                  كل 3 دفعات — شهر مجاني يُضاف لاشتراكك تلقائياً
+                  {tr("كل 3 دفعات — شهر مجاني يُضاف لاشتراكك تلقائياً")}
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
-                    ٤
+                    {tr("٤")}
                   </span>
-                  كلما زادت إحالاتك ارتقيت من برونزي ← ماسي
+                  {tr("كلما زادت إحالاتك ارتقيت من برونزي ← ماسي")}
                 </li>
               </ul>
             </div>
@@ -358,13 +358,13 @@ export function ReferralPageClient({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <LinkIcon className="size-4" />
-            رابط الإحالة الخاص بك
+            {tr("رابط الإحالة الخاص بك")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Code */}
           <div>
-            <p className="mb-1.5 text-xs text-muted-foreground">كود الإحالة</p>
+            <p className="mb-1.5 text-xs text-muted-foreground">{tr("كود الإحالة")}</p>
             <div className="flex items-center gap-2">
               <code className="flex-1 rounded-md border bg-muted px-3 py-2 font-mono text-sm font-bold tracking-widest">
                 {referralCode}
@@ -380,14 +380,14 @@ export function ReferralPageClient({
                 ) : (
                   <Copy className="size-3.5" />
                 )}
-                نسخ
+                {tr("نسخ")}
               </Button>
             </div>
           </div>
 
           {/* Full link */}
           <div>
-            <p className="mb-1.5 text-xs text-muted-foreground">رابط التسجيل</p>
+            <p className="mb-1.5 text-xs text-muted-foreground">{tr("رابط التسجيل")}</p>
             <div className="flex items-center gap-2">
               <div
                 className="flex-1 overflow-hidden rounded-md border bg-muted px-3 py-2 text-sm"
@@ -408,14 +408,14 @@ export function ReferralPageClient({
                 ) : (
                   <Copy className="size-3.5" />
                 )}
-                نسخ
+                {tr("نسخ")}
               </Button>
             </div>
           </div>
 
           <Button className="w-full gap-2" onClick={shareLink}>
             <Share2 className="size-4" />
-            مشاركة رابط الإحالة
+            {tr("مشاركة رابط الإحالة")}
           </Button>
         </CardContent>
       </Card>
@@ -425,7 +425,7 @@ export function ReferralPageClient({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Users className="size-4" />
-            سجل الإحالات
+            {tr("سجل الإحالات")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -434,9 +434,9 @@ export function ReferralPageClient({
               <div className="flex size-12 items-center justify-center rounded-full bg-muted">
                 <Trophy className="size-6 text-muted-foreground" />
               </div>
-              <p className="text-sm font-medium">لا توجد إحالات ناجحة بعد</p>
+              <p className="text-sm font-medium">{tr("لا توجد إحالات ناجحة بعد")}</p>
               <p className="text-xs text-muted-foreground">
-                شارك رابطك مع التجار وابدأ في كسب الرصيد والمستويات
+                {tr("شارك رابطك مع التجار وابدأ في كسب الرصيد والمستويات")}
               </p>
             </div>
           ) : (
@@ -451,9 +451,9 @@ export function ReferralPageClient({
                       {index + 1}
                     </div>
                     <div>
-                      <p className="text-sm font-medium">تاجر جديد</p>
+                      <p className="text-sm font-medium">{tr("تاجر جديد")}</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(ref.createdAt).toLocaleDateString("ar-EG", {
+                        {new Date(ref.createdAt).toLocaleDateString(intlLocale(), {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
@@ -476,8 +476,7 @@ export function ReferralPageClient({
 
       {/* Note */}
       <p className="text-center text-xs text-muted-foreground">
-        الرصيد يُضاف لمتجرك تلقائياً ويُستخدم فقط في تجديد الاشتراك · الأشهر
-        المجانية تُضاف مباشرة لمدة اشتراكك
+        {tr("الرصيد يُضاف لمتجرك تلقائياً ويُستخدم فقط في تجديد الاشتراك · الأشهر المجانية تُضاف مباشرة لمدة اشتراكك")}
       </p>
     </div>
   );

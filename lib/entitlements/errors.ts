@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/dashboard";
 // Structured entitlement errors (spec section 22). Server actions catch
 // these and turn them into a friendly message; API routes can serialize
 // `.toJSON()` directly as the response body.
@@ -70,13 +71,13 @@ export function isEntitlementError(error: unknown): error is EntitlementError {
 // matching the API error shape in spec section 22. This maps it to an
 // Arabic label for human-facing messages only.
 const PLAN_DISPLAY_NAMES: Record<string, string> = {
-  silver: "سيلفر",
-  gold: "جولد",
-  platinum: "بلاتينيوم",
+  get silver() { return tr("سيلفر"); },
+  get gold() { return tr("جولد"); },
+  get platinum() { return tr("بلاتينيوم"); },
 };
 
 function planLabel(slug: string | null): string {
-  if (!slug) return "أعلى";
+  if (!slug) return tr("أعلى");
   return PLAN_DISPLAY_NAMES[slug] ?? slug;
 }
 
@@ -85,11 +86,11 @@ function planLabel(slug: string | null): string {
 export function entitlementErrorMessage(error: EntitlementError): string {
   if (error.code === "FEATURE_NOT_AVAILABLE") {
     return error.requiredPlan
-      ? `هذه الميزة غير متاحة في باقتك الحالية. قم بالترقية إلى باقة ${planLabel(error.requiredPlan)} أو أعلى لاستخدامها.`
-      : "هذه الميزة غير متاحة في باقتك الحالية.";
+      ? tr("هذه الميزة غير متاحة في باقتك الحالية. قم بالترقية إلى باقة {0} أو أعلى لاستخدامها.", planLabel(error.requiredPlan))
+      : tr("هذه الميزة غير متاحة في باقتك الحالية.");
   }
 
   return error.requiredPlan
-    ? `وصلت للحد الأقصى (${error.current}/${error.limit}). قم بالترقية إلى باقة ${planLabel(error.requiredPlan)} أو أعلى للمزيد.`
-    : `وصلت للحد الأقصى (${error.current}/${error.limit}).`;
+    ? tr("وصلت للحد الأقصى ({0}/{1}). قم بالترقية إلى باقة {2} أو أعلى للمزيد.", error.current, error.limit, planLabel(error.requiredPlan))
+    : tr("وصلت للحد الأقصى ({0}/{1}).", error.current, error.limit);
 }

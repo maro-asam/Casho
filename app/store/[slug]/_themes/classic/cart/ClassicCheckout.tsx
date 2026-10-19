@@ -52,7 +52,7 @@ export default function ClassicCheckout({ storeSlug, cart, paymentMethods, creat
       ) : (
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_25rem]">
           <div className="order-2 lg:order-1">
-            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} storeSlug={storeSlug} />
+            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} />
           </div>
 
           {/* Summary first on phones so the shopper sees what they're paying for */}

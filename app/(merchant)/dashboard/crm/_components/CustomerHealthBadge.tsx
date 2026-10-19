@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 type HealthCategory = "HEALTHY" | "ACTIVE" | "AT_RISK" | "LOST";
 
 const config: Record<HealthCategory, { label: string; className: string }> = {
-  HEALTHY: { label: "صحي", className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  ACTIVE: { label: "نشط", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
-  AT_RISK: { label: "في خطر", className: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
-  LOST: { label: "خامل", className: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+  HEALTHY: { get label() { return tr("صحي"); }, className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  ACTIVE: { get label() { return tr("نشط"); }, className: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+  AT_RISK: { get label() { return tr("في خطر"); }, className: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  LOST: { get label() { return tr("خامل"); }, className: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
 };
 
 export function CustomerHealthBadge({
@@ -27,10 +28,10 @@ export function CustomerHealthBadge({
 
 export function CustomerStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
-    ACTIVE: { label: "نشط", className: "bg-emerald-500/10 text-emerald-600" },
+    ACTIVE: { label: tr("نشط"), className: "bg-emerald-500/10 text-emerald-600" },
     VIP: { label: "VIP", className: "bg-amber-500/10 text-amber-600" },
-    INACTIVE: { label: "غير نشط", className: "bg-gray-500/10 text-gray-500" },
-    BLOCKED: { label: "محظور", className: "bg-rose-500/10 text-rose-600" },
+    INACTIVE: { label: tr("غير نشط"), className: "bg-gray-500/10 text-gray-500" },
+    BLOCKED: { label: tr("محظور"), className: "bg-rose-500/10 text-rose-600" },
   };
   const { label, className } = map[status] ?? map.ACTIVE;
   return (

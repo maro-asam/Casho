@@ -18,32 +18,33 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { CompleteOnboardingAction } from "@/actions/onboarding/onboarding.actions";
 import { toast } from "sonner";
+import { lazyList, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 const BUSINESS_CATEGORIES = [
-  { value: "fashion", label: "أزياء وملابس" },
-  { value: "electronics", label: "إلكترونيات وتقنية" },
-  { value: "food", label: "أغذية ومشروبات" },
-  { value: "beauty", label: "عناية وجمال" },
-  { value: "home", label: "أثاث ومنزل" },
-  { value: "sports", label: "رياضة ولياقة" },
-  { value: "books", label: "كتب وقرطاسية" },
-  { value: "other", label: "أخرى" },
+  { value: "fashion", get label() { return tr("أزياء وملابس"); } },
+  { value: "electronics", get label() { return tr("إلكترونيات وتقنية"); } },
+  { value: "food", get label() { return tr("أغذية ومشروبات"); } },
+  { value: "beauty", get label() { return tr("عناية وجمال"); } },
+  { value: "home", get label() { return tr("أثاث ومنزل"); } },
+  { value: "sports", get label() { return tr("رياضة ولياقة"); } },
+  { value: "books", get label() { return tr("كتب وقرطاسية"); } },
+  { value: "other", get label() { return tr("أخرى"); } },
 ];
 
 const LANGUAGES = [
-  { value: "ar", label: "العربية", flag: "🇸🇦" },
+  { value: "ar", get label() { return tr("العربية"); }, flag: "🇸🇦" },
   { value: "en", label: "English", flag: "🇬🇧" },
 ];
 
 const TIMEZONES = [
-  { value: "Africa/Cairo", label: "القاهرة (UTC+2)" },
-  { value: "Asia/Riyadh", label: "الرياض (UTC+3)" },
-  { value: "Asia/Dubai", label: "دبي (UTC+4)" },
-  { value: "Asia/Kuwait", label: "الكويت (UTC+3)" },
-  { value: "Asia/Amman", label: "عمّان (UTC+3)" },
+  { value: "Africa/Cairo", get label() { return tr("القاهرة (UTC+2)"); } },
+  { value: "Asia/Riyadh", get label() { return tr("الرياض (UTC+3)"); } },
+  { value: "Asia/Dubai", get label() { return tr("دبي (UTC+4)"); } },
+  { value: "Asia/Kuwait", get label() { return tr("الكويت (UTC+3)"); } },
+  { value: "Asia/Amman", get label() { return tr("عمّان (UTC+3)"); } },
 ];
 
-const STEPS = ["بيانات النشاط", "تفضيلات المتجر", "إعداد المنتجات", "الانتهاء"] as const;
+const STEPS = lazyList(["بيانات النشاط", "تفضيلات المتجر", "إعداد المنتجات", "الانتهاء"] as const);
 
 type Props = {
   storeName: string;
@@ -77,7 +78,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
   function handleNext() {
     if (step === 1) {
       if (!name.trim()) {
-        toast.error("يرجى كتابة اسم المتجر");
+        toast.error(tr("يرجى كتابة اسم المتجر"));
         return;
       }
       setStep(2);
@@ -91,7 +92,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
 
     if (step === 3) {
       if (useDemoData === null) {
-        toast.error("يرجى اختيار طريقة الإعداد");
+        toast.error(tr("يرجى اختيار طريقة الإعداد"));
         return;
       }
       startTransition(async () => {
@@ -106,7 +107,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
           setIsDone(true);
           setTimeout(() => router.push("/dashboard"), 2500);
         } else {
-          toast.error(result.message);
+          toast.error(trv(result.message));
         }
       });
     }
@@ -119,13 +120,13 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
   const totalSteps = STEPS.length;
 
   return (
-    <div dir="rtl" className="flex min-h-screen flex-col bg-background">
+    <div dir={tdir()} className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="flex h-14 items-center border-b px-6">
-        <Image src="/logo.svg" alt="كاشو" width={32} height={32} className="rounded-lg" />
-        <span className="mr-2 font-bold text-foreground">كاشو</span>
-        <span className="mr-3 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-          {trialDaysLeft} {trialDaysLeft === 1 ? "يوم" : "أيام"} تجريبية
+        <Image src="/logo.svg" alt={tr("كاشو")} width={32} height={32} className="rounded-lg" />
+        <span className="ms-2 font-bold text-foreground">{tr("كاشو")}</span>
+        <span className="ms-3 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+          {trialDaysLeft} {trialDaysLeft === 1 ? tr("يوم") : tr("أيام")}{" "}{tr("تجريبية")}
         </span>
       </header>
 
@@ -180,29 +181,29 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
             <div>
               <div className="mb-1 flex items-center gap-2 text-primary">
                 <Store className="h-5 w-5" />
-                <span className="text-sm font-medium">الخطوة ١ من {totalSteps}</span>
+                <span className="text-sm font-medium">{tr("الخطوة ١ من {0}", totalSteps)}</span>
               </div>
-              <h1 className="text-2xl font-bold">بيانات نشاطك التجاري</h1>
+              <h1 className="text-2xl font-bold">{tr("بيانات نشاطك التجاري")}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                أخبرنا عن متجرك لنساعدك على البدء بأفضل إعداد
+                {tr("أخبرنا عن متجرك لنساعدك على البدء بأفضل إعداد")}
               </p>
             </div>
 
             <div className="space-y-2">
               <label htmlFor="storeName" className="text-sm font-medium">
-                اسم المتجر
+                {tr("اسم المتجر")}
               </label>
               <Input
                 id="storeName"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="مثال: Maro Store"
+                placeholder={tr("مثال: Maro Store")}
                 className="h-11"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">نوع النشاط التجاري</label>
+              <label className="text-sm font-medium">{tr("نوع النشاط التجاري")}</label>
               <div className="grid grid-cols-2 gap-2">
                 {BUSINESS_CATEGORIES.map((cat) => (
                   <button
@@ -210,7 +211,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                     type="button"
                     onClick={() => setCategory(cat.value)}
                     className={cn(
-                      "rounded-xl border px-3 py-2.5 text-right text-sm transition-all",
+                      "rounded-xl border px-3 py-2.5 text-start text-sm transition-all",
                       category === cat.value
                         ? "border-primary bg-primary/5 font-semibold text-primary"
                         : "border-border hover:border-primary/40 hover:bg-muted/50"
@@ -223,8 +224,8 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
             </div>
 
             <Button className="w-full" size="lg" onClick={handleNext} disabled={!name.trim()}>
-              التالي
-              <ChevronLeft className="mr-2 h-4 w-4" />
+              {tr("التالي")}
+              <ChevronLeft className="ms-2 h-4 w-4 ltr:-scale-x-100" />
             </Button>
           </div>
         )}
@@ -235,29 +236,29 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
             <div>
               <div className="mb-1 flex items-center gap-2 text-primary">
                 <Settings2 className="h-5 w-5" />
-                <span className="text-sm font-medium">الخطوة ٢ من {totalSteps}</span>
+                <span className="text-sm font-medium">{tr("الخطوة ٢ من {0}", totalSteps)}</span>
               </div>
-              <h1 className="text-2xl font-bold">تفضيلات المتجر</h1>
+              <h1 className="text-2xl font-bold">{tr("تفضيلات المتجر")}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                اضبط الإعدادات الأساسية لمتجرك
+                {tr("اضبط الإعدادات الأساسية لمتجرك")}
               </p>
             </div>
 
             {/* Currency - display only */}
             <div className="rounded-xl border bg-muted/30 p-4">
               <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                العملة
+                {tr("العملة")}
               </p>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">جنيه مصري</span>
+                <span className="text-lg font-bold">{tr("جنيه مصري")}</span>
                 <span className="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">EGP</span>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">العملة الافتراضية للمنصة</p>
+              <p className="mt-1 text-xs text-muted-foreground">{tr("العملة الافتراضية للمنصة")}</p>
             </div>
 
             {/* Language */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">لغة المتجر</label>
+              <label className="text-sm font-medium">{tr("لغة المتجر")}</label>
               <div className="grid grid-cols-2 gap-2">
                 {LANGUAGES.map((lang) => (
                   <button
@@ -274,7 +275,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                     <span className="text-xl">{lang.flag}</span>
                     {lang.label}
                     {language === lang.value && (
-                      <CheckCircle2 className="mr-auto h-4 w-4 text-primary" />
+                      <CheckCircle2 className="ms-auto h-4 w-4 text-primary" />
                     )}
                   </button>
                 ))}
@@ -283,7 +284,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
 
             {/* Timezone */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">المنطقة الزمنية</label>
+              <label className="text-sm font-medium">{tr("المنطقة الزمنية")}</label>
               <div className="space-y-1.5">
                 {TIMEZONES.map((tz) => (
                   <button
@@ -308,11 +309,11 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
 
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={handleBack}>
-                رجوع
+                {tr("رجوع")}
               </Button>
               <Button className="flex-1" size="lg" onClick={handleNext}>
-                التالي
-                <ChevronLeft className="mr-2 h-4 w-4" />
+                {tr("التالي")}
+                <ChevronLeft className="ms-2 h-4 w-4 ltr:-scale-x-100" />
               </Button>
             </div>
           </div>
@@ -324,11 +325,11 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
             <div>
               <div className="mb-1 flex items-center gap-2 text-primary">
                 <Package className="h-5 w-5" />
-                <span className="text-sm font-medium">الخطوة ٣ من {totalSteps}</span>
+                <span className="text-sm font-medium">{tr("الخطوة ٣ من {0}", totalSteps)}</span>
               </div>
-              <h1 className="text-2xl font-bold">إعداد المنتجات</h1>
+              <h1 className="text-2xl font-bold">{tr("إعداد المنتجات")}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                كيف تريد أن تبدأ متجرك؟
+                {tr("كيف تريد أن تبدأ متجرك؟")}
               </p>
             </div>
 
@@ -338,7 +339,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                 type="button"
                 onClick={() => setUseDemoData(true)}
                 className={cn(
-                  "group relative rounded-2xl border-2 p-5 text-right transition-all",
+                  "group relative rounded-2xl border-2 p-5 text-start transition-all",
                   useDemoData === true
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary/40 hover:bg-muted/30"
@@ -354,12 +355,12 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                     <Sparkles className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="font-semibold">ابدأ ببيانات تجريبية</p>
+                    <p className="font-semibold">{tr("ابدأ ببيانات تجريبية")}</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">
-                      سنضيف منتجات وطلبات وعملاء نموذجيين لتستكشف المنصة بسهولة
+                      {tr("سنضيف منتجات وطلبات وعملاء نموذجيين لتستكشف المنصة بسهولة")}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {["٥ منتجات", "٣ طلبات", "٣ عملاء"].map((t) => (
+                      {[tr("٥ منتجات"), tr("٣ طلبات"), tr("٣ عملاء")].map((t) => (
                         <span
                           key={t}
                           className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
@@ -371,7 +372,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                   </div>
                 </div>
                 {useDemoData === true && (
-                  <CheckCircle2 className="absolute left-4 top-4 h-5 w-5 text-primary" />
+                  <CheckCircle2 className="absolute end-4 top-4 h-5 w-5 text-primary" />
                 )}
               </button>
 
@@ -380,7 +381,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                 type="button"
                 onClick={() => setUseDemoData(false)}
                 className={cn(
-                  "group relative rounded-2xl border-2 p-5 text-right transition-all",
+                  "group relative rounded-2xl border-2 p-5 text-start transition-all",
                   useDemoData === false
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary/40 hover:bg-muted/30"
@@ -396,14 +397,14 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                     <Zap className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="font-semibold">ابدأ من الصفر</p>
+                    <p className="font-semibold">{tr("ابدأ من الصفر")}</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">
-                      متجر نظيف تمامًا، أضف منتجاتك وبياناتك الحقيقية بنفسك
+                      {tr("متجر نظيف تمامًا، أضف منتجاتك وبياناتك الحقيقية بنفسك")}
                     </p>
                   </div>
                 </div>
                 {useDemoData === false && (
-                  <CheckCircle2 className="absolute left-4 top-4 h-5 w-5 text-primary" />
+                  <CheckCircle2 className="absolute end-4 top-4 h-5 w-5 text-primary" />
                 )}
               </button>
             </div>
@@ -415,7 +416,7 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
                 onClick={handleBack}
                 disabled={isPending}
               >
-                رجوع
+                {tr("رجوع")}
               </Button>
               <Button
                 className="flex-1"
@@ -425,13 +426,13 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                    جاري الإعداد...
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    {tr("جاري الإعداد...")}
                   </>
                 ) : (
                   <>
-                    إنهاء الإعداد
-                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    {tr("إنهاء الإعداد")}
+                    <ChevronLeft className="ms-2 h-4 w-4 ltr:-scale-x-100" />
                   </>
                 )}
               </Button>
@@ -450,9 +451,9 @@ export default function OnboardingWizard({ storeName, businessCategory, trialEnd
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold">متجرك جاهز! 🎉</h1>
+              <h1 className="text-2xl font-bold">{tr("متجرك جاهز! 🎉")}</h1>
               <p className="mt-2 text-muted-foreground">
-                تم إعداد متجرك بنجاح، يتم تحويلك إلى لوحة التحكم الآن...
+                {tr("تم إعداد متجرك بنجاح، يتم تحويلك إلى لوحة التحكم الآن...")}
               </p>
             </div>
             <div className="w-full overflow-hidden rounded-full bg-border">

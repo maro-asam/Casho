@@ -29,19 +29,24 @@ import {
 } from "@/lib/banners/banner-link";
 import { UrlBannerDialog, type EditableBanner } from "./_components/banner-form-dialog";
 import { BannersTable, type BannerRow } from "./_components/banners-table";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "البانرز",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("البانرز"),
 };
+}
 
 const PAGE_SIZE = 20;
 const BASE_PATH = "/banners";
 
 const STATUS_LABELS: Record<BannerStatus, string> = {
-  live: "ظاهرة الآن",
-  scheduled: "مجدولة",
-  expired: "منتهية",
-  hidden: "مخفية",
+  get live() { return tr("ظاهرة الآن"); },
+  get scheduled() { return tr("مجدولة"); },
+  get expired() { return tr("منتهية"); },
+  get hidden() { return tr("مخفية"); },
 };
 const isStatus = (v: string | undefined): v is BannerStatus => !!v && v in STATUS_LABELS;
 
@@ -64,6 +69,7 @@ type BannersRouteProps = {
 };
 
 export default async function BannersRoute({ searchParams }: BannersRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -76,8 +82,8 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول عشان تقدر تضيف بانرز للصفحة الرئيسية."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول عشان تقدر تضيف بانرز للصفحة الرئيسية.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -174,16 +180,16 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
   const editHref = (id: string) => hrefWith(BASE_PATH, params, { edit: id, new: null, page: currentPage });
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="البانرز"
-        description="الصور اللي بتظهر أعلى الصفحة الرئيسية لمتجرك — اختار كل بانر يودّي العميل فين، ورتّبها وجدولها للعروض."
+        title={tr("البانرز")}
+        description={tr("الصور اللي بتظهر أعلى الصفحة الرئيسية لمتجرك — اختار كل بانر يودّي العميل فين، ورتّبها وجدولها للعروض.")}
         actions={
           storeBannerCount > 0 && (
             <Button asChild size="sm" className="gap-1.5">
               <Link href={newHref} scroll={false}>
                 <Plus className="size-4" />
-                بانر جديد
+                {tr("بانر جديد")}
               </Link>
             </Button>
           )
@@ -194,13 +200,13 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={GalleryHorizontal}
-            title="لسه مفيش بانرز"
-            description="ضيف بانر لعرض أو خصم، وهيظهر أول حاجة في الصفحة الرئيسية لمتجرك."
+            title={tr("لسه مفيش بانرز")}
+            description={tr("ضيف بانر لعرض أو خصم، وهيظهر أول حاجة في الصفحة الرئيسية لمتجرك.")}
             action={
               <Button asChild size="sm" className="gap-1.5">
                 <Link href={newHref} scroll={false}>
                   <Plus className="size-4" />
-                  ضيف أول بانر
+                  {tr("ضيف أول بانر")}
                 </Link>
               </Button>
             }
@@ -209,18 +215,18 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
       ) : (
         <div className="space-y-4">
           <FilterTabs
-            label="حالة البانر"
+            label={tr("حالة البانر")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
             tabs={[
-              { label: "الكل", count: allCount },
+              { label: tr("الكل"), count: allCount },
               ...statuses.map((value) => ({ label: STATUS_LABELS[value], value, count: countFor(value) })),
             ]}
           />
 
           <DataCard
-            toolbar={<SearchInput placeholder="ابحث بعنوان البانر" />}
+            toolbar={<SearchInput placeholder={tr("ابحث بعنوان البانر")} />}
             footer={
               total > 0 ? (
                 <Pagination
@@ -229,7 +235,7 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
                   total={total}
                   basePath={BASE_PATH}
                   searchParams={params}
-                  noun="بانر"
+                  noun={tr("بانر")}
                 />
               ) : undefined
             }
@@ -247,12 +253,12 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
             ) : (
               <EmptyState
                 icon={SearchX}
-                title="مفيش بانرز بالفلاتر دي"
-                description={q ? `مفيش نتايج لـ "${q}". جرّب عنوان تاني.` : "جرّب تبويب تاني."}
+                title={tr("مفيش بانرز بالفلاتر دي")}
+                description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب عنوان تاني.", q) : tr("جرّب تبويب تاني.")}
                 action={
                   hasFilters && (
                     <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
                     </Button>
                   )
                 }
@@ -287,18 +293,18 @@ function describeDestination(
   const label = BANNER_LINK_TYPES[b.linkType].label;
   switch (b.linkType) {
     case "CATEGORY":
-      return b.linkCategory ? { label, detail: b.linkCategory.name } : { label, warning: "القسم اتمسح — بيودّي على كل المنتجات" };
+      return b.linkCategory ? { label, detail: b.linkCategory.name } : { label, warning: tr("القسم اتمسح — بيودّي على كل المنتجات") };
     case "PRODUCT":
-      if (!b.linkProduct) return { label, warning: "المنتج اتمسح — بيودّي على كل المنتجات" };
+      if (!b.linkProduct) return { label, warning: tr("المنتج اتمسح — بيودّي على كل المنتجات") };
       return b.linkProduct.isActive
         ? { label, detail: b.linkProduct.name }
-        : { label, detail: b.linkProduct.name, warning: "المنتج مخفي — بيودّي على كل المنتجات" };
+        : { label, detail: b.linkProduct.name, warning: tr("المنتج مخفي — بيودّي على كل المنتجات") };
     case "SEARCH":
       return { label, detail: `"${b.linkValue ?? ""}"` };
     case "PAGE":
       return { label, detail: isBannerPageKey(b.linkValue) ? BANNER_PAGES[b.linkValue].label : undefined };
     case "WHATSAPP":
-      return hasWhatsapp ? { label } : { label, warning: "مفيش رقم واتساب — بيودّي على كل المنتجات" };
+      return hasWhatsapp ? { label } : { label, warning: tr("مفيش رقم واتساب — بيودّي على كل المنتجات") };
     case "URL":
       return { label, detail: b.linkValue?.replace(/^https?:\/\//, "") };
     default:

@@ -19,19 +19,22 @@ import { TabOverview } from "./_components/tab-overview";
 import { TabPos } from "./_components/tab-pos";
 import { PRODUCT_SORTS, TabProducts, type ProductSort } from "./_components/tab-products";
 import { TabSales } from "./_components/tab-sales";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 const BASE_PATH = "/reports";
 const TABS: { value: ReportTab; label: string }[] = [
-  { value: "overview", label: "نظرة عامة" },
-  { value: "sales", label: "المبيعات" },
-  { value: "products", label: "المنتجات" },
-  { value: "customers", label: "العملاء" },
-  { value: "inventory", label: "المخزون" },
-  { value: "pos", label: "الكاشير" },
-  { value: "coupons", label: "أكواد الخصم" },
+  { value: "overview", get label() { return tr("نظرة عامة"); } },
+  { value: "sales", get label() { return tr("المبيعات"); } },
+  { value: "products", get label() { return tr("المنتجات"); } },
+  { value: "customers", get label() { return tr("العملاء"); } },
+  { value: "inventory", get label() { return tr("المخزون"); } },
+  { value: "pos", get label() { return tr("الكاشير"); } },
+  { value: "coupons", get label() { return tr("أكواد الخصم"); } },
 ];
 
 export default async function ReportsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await loadDashboardLocale();
   const params = await searchParams;
   const userId = await requireUserId();
 
@@ -61,16 +64,16 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="التقارير"
+        title={tr("التقارير")}
         description={
           <>
-            {multiBranch && <span className="font-medium text-foreground">{scope.branch ? scope.branch.name : "كل الفروع"} · </span>}
+            {multiBranch && <span className="font-medium text-foreground">{scope.branch ? scope.branch.name : tr("كل الفروع")} · </span>}
             {data.range.label}
-            <span className="text-muted-foreground/70"> · مقارنة بـ {data.range.previousLabel}</span>
+            <span className="text-muted-foreground/70">{" "}{tr("· مقارنة بـ {0}", data.range.previousLabel)}</span>
             {scope.branch && multiBranch && (
-              <span className="block text-xs text-muted-foreground/70">مبيعات الكاشير في الفرع ده بس — طلبات المتجر الأونلاين بتظهر في «كل الفروع».</span>
+              <span className="block text-xs text-muted-foreground/70">{tr("مبيعات الكاشير في الفرع ده بس — طلبات المتجر الأونلاين بتظهر في «كل الفروع».")}</span>
             )}
           </>
         }
@@ -94,11 +97,11 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
         <div className="rounded-xl border border-border bg-card">
           <EmptyState
             icon={BarChart3}
-            title="التقارير هتظهر مع أول طلب"
-            description="أول ما يوصلك طلب من المتجر أو تبيع من الكاشير، هتلاقي هنا المبيعات والأرباح والعملاء والمخزون بالتفصيل."
+            title={tr("التقارير هتظهر مع أول طلب")}
+            description={tr("أول ما يوصلك طلب من المتجر أو تبيع من الكاشير، هتلاقي هنا المبيعات والأرباح والعملاء والمخزون بالتفصيل.")}
             action={
               <Button asChild size="sm">
-                <Link href="/pos">افتح الكاشير</Link>
+                <Link href="/pos">{tr("افتح الكاشير")}</Link>
               </Button>
             }
           />
@@ -106,7 +109,7 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
       ) : (
         <>
           <FilterTabs
-            label="أقسام التقارير"
+            label={tr("أقسام التقارير")}
             param="tab"
             basePath={BASE_PATH}
             searchParams={params}

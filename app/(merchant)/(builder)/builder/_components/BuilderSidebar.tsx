@@ -4,33 +4,34 @@ import { Droplets, ImageIcon, Keyboard, Layers, LayoutGrid, Palette, Sparkles, T
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useBuilder, type PanelId } from "./BuilderContext";
+import { isRtl, lazyList, tdir, tr } from "@/lib/i18n/dashboard";
 
 const GROUPS: { id: PanelId; icon: React.ElementType; label: string }[][] = [
   [
-    { id: "sections", icon: Layers, label: "الأقسام" },
-    { id: "identity", icon: ImageIcon, label: "الهوية" },
+    { id: "sections", icon: Layers, get label() { return tr("الأقسام"); } },
+    { id: "identity", icon: ImageIcon, get label() { return tr("الهوية"); } },
   ],
   [
-    { id: "theme", icon: Palette, label: "الثيم" },
-    { id: "colors", icon: Droplets, label: "الألوان" },
-    { id: "fonts", icon: Type, label: "الخطوط" },
-    { id: "layout", icon: LayoutGrid, label: "العرض" },
+    { id: "theme", icon: Palette, get label() { return tr("الثيم"); } },
+    { id: "colors", icon: Droplets, get label() { return tr("الألوان"); } },
+    { id: "fonts", icon: Type, get label() { return tr("الخطوط"); } },
+    { id: "layout", icon: LayoutGrid, get label() { return tr("العرض"); } },
   ],
-  [{ id: "growth", icon: Sparkles, label: "البيع" }],
+  [{ id: "growth", icon: Sparkles, get label() { return tr("البيع"); } }],
 ];
 
 const SHORTCUTS = [
-  ["1", "موبايل"],
-  ["2", "تابلت"],
-  ["3", "كمبيوتر"],
-  ["R", "تحديث المعاينة"],
+  lazyList(["1", "موبايل"]),
+  lazyList(["2", "تابلت"]),
+  lazyList(["3", "كمبيوتر"]),
+  lazyList(["R", "تحديث المعاينة"]),
 ];
 
 export default function BuilderSidebar() {
   const { activePanel, setActivePanel } = useBuilder();
 
   return (
-    <nav aria-label="أقسام المحرر" className="flex w-[4.5rem] shrink-0 flex-col items-center border-e border-border bg-muted/20 py-2">
+    <nav aria-label={tr("أقسام المحرر")} className="flex w-[4.5rem] shrink-0 flex-col items-center border-e border-border bg-muted/20 py-2">
       <div className="flex flex-1 flex-col items-center gap-3">
         {GROUPS.map((group, gi) => (
           <div key={gi} className={cn("flex flex-col gap-1", gi > 0 && "border-t border-border pt-3")}>
@@ -61,13 +62,13 @@ export default function BuilderSidebar() {
           <button
             type="button"
             className="grid size-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label="اختصارات الكيبورد"
+            aria-label={tr("اختصارات الكيبورد")}
           >
             <Keyboard className="size-4" />
           </button>
         </PopoverTrigger>
-        <PopoverContent side="left" align="end" className="w-56 p-3" dir="rtl">
-          <p className="mb-2 text-xs font-semibold">اختصارات</p>
+        <PopoverContent side={isRtl() ? "left" : "right"} align="end" className="w-56 p-3" dir={tdir()}>
+          <p className="mb-2 text-xs font-semibold">{tr("اختصارات")}</p>
           <ul className="space-y-1.5">
             {SHORTCUTS.map(([key, label]) => (
               <li key={key} className="flex items-center justify-between text-xs">

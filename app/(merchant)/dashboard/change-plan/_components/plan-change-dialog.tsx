@@ -12,8 +12,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { formatMoney } from "@/lib/balance-ui/meta";
 import { cn } from "@/lib/utils";
 import { nf, priceOf, type Cycle, type PlanForUI } from "./plan-types";
+import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
 const topupHref = (piasters: number) => `/balance/topup?amount=${Math.ceil(piasters / 100)}`;
 
 type Props = {
@@ -27,7 +28,7 @@ type Props = {
 export function PlanChangeDialog(props: Props) {
   return (
     <Dialog open onOpenChange={(open) => !open && props.onClose()}>
-      <DialogContent dir="rtl" className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent dir={tdir()} className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
         {/* keyed so every plan/cycle combination fetches a fresh quote */}
         <PlanChangeBody key={`${props.plan.id}-${props.cycle}`} {...props} />
       </DialogContent>
@@ -43,7 +44,7 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
   useEffect(() => {
     let alive = true;
     PreviewPlanChangeAction(plan.id, cycle)
-      .catch(() => ({ success: false as const, message: "مقدرناش نجهّز تفاصيل التغيير. جرّب تاني." }))
+      .catch(() => ({ success: false as const, message: tr("مقدرناش نجهّز تفاصيل التغيير. جرّب تاني.") }))
       .then((r) => alive && setResult(r));
     return () => {
       alive = false;
@@ -52,14 +53,14 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
 
   const samePlan = currentPlan?.id === plan.id;
   const up = !currentPlan || plan.sortOrder > currentPlan.sortOrder;
-  const cycleWord = cycle === "YEARLY" ? "سنوي" : "شهري";
+  const cycleWord = cycle === "YEARLY" ? tr("سنوي") : tr("شهري");
   const title = samePlan && cycle === currentCycle
-    ? `تفعيل باقة ${plan.name}`
+    ? tr("تفعيل باقة {0}", plan.name)
     : samePlan
-    ? `تحويل ${plan.name} لاشتراك ${cycleWord}`
+    ? tr("تحويل {0} لاشتراك {1}", plan.name, cycleWord)
     : up
-      ? `ترقية لباقة ${plan.name}`
-      : `النزول لباقة ${plan.name}`;
+      ? tr("ترقية لباقة {0}", plan.name)
+      : tr("النزول لباقة {0}", plan.name);
 
   const ok = result?.success ? result : null;
   const quote = ok?.quote;
@@ -69,14 +70,14 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
     startTransition(async () => {
       const res = await ConfirmPlanChangeAction(plan.id, cycle).catch(() => null);
       if (!res) {
-        toast.error("حصلت مشكلة في الاتصال. جرّب تاني.");
+        toast.error(tr("حصلت مشكلة في الاتصال. جرّب تاني."));
         return;
       }
       if (!res.success) {
-        toast.error(res.message);
+        toast.error(trv(res.message));
         return;
       }
-      toast.success(res.message);
+      toast.success(trv(res.message));
       if (res.shortfall) {
         router.push(topupHref(res.shortfall));
         return;
@@ -88,25 +89,24 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
 
   const blocked = !quote || quote.mode === "same" || (quote.shortfall > 0 && quote.mode === "prorate");
   const confirmLabel = !quote
-    ? "تأكيد"
+    ? tr("تأكيد")
     : quote.shortfall > 0 && quote.mode === "activate"
-      ? "احفظ الاختيار واشحن"
+      ? tr("احفظ الاختيار واشحن")
       : quote.charge > 0
-        ? `ادفع ${formatMoney(quote.charge)} وحوّل`
+        ? tr("ادفع {0} وحوّل", formatMoney(quote.charge))
         : quote.mode === "trial"
-          ? `اختار ${plan.name}`
-          : "تأكيد التحويل";
+          ? tr("اختار {0}", plan.name)
+          : tr("تأكيد التحويل");
 
   return (
     <>
       <DialogHeader className="text-start">
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>
-          {formatMoney(priceOf(plan, cycle))} / {cycle === "YEARLY" ? "سنة" : "شهر"}
+          {formatMoney(priceOf(plan, cycle))} / {cycle === "YEARLY" ? tr("سنة") : tr("شهر")}
           {currentPlan && !samePlan && currentPlan.sortOrder !== plan.sortOrder && (
             <>
-              {" "}
-              · بدل {currentPlan.name} ({formatMoney(priceOf(currentPlan, currentCycle))} / {currentCycle === "YEARLY" ? "سنة" : "شهر"})
+              {" "}{tr("· بدل {0} ({1} /", currentPlan.name, formatMoney(priceOf(currentPlan, currentCycle)))}{" "}{currentCycle === "YEARLY" ? tr("سنة") : tr("شهر")})
             </>
           )}
         </DialogDescription>
@@ -117,17 +117,17 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
           <Loader2 className="size-6 animate-spin text-muted-foreground" />
         </div>
       ) : !ok ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{result.success ? "" : result.message}</p>
+        <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{result.success ? "" : trv(result.message)}</p>
       ) : (
         <div className="space-y-4">
           {/* ── What changes ─────────────────────────────── */}
           {preview && (preview.featuresGained.length > 0 || preview.featuresLost.length > 0) && (
             <div className="grid gap-3 sm:grid-cols-2">
               {preview.featuresGained.length > 0 && (
-                <FeatureList title="هتكسب" items={preview.featuresGained.map((f) => f.name)} kind="gain" />
+                <FeatureList title={tr("هتكسب")} items={preview.featuresGained.map((f) => trv(f.name))} kind="gain" />
               )}
               {preview.featuresLost.length > 0 && (
-                <FeatureList title="هتخسر" items={preview.featuresLost.map((f) => f.name)} kind="loss" />
+                <FeatureList title={tr("هتخسر")} items={preview.featuresLost.map((f) => trv(f.name))} kind="loss" />
               )}
             </div>
           )}
@@ -136,13 +136,12 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800 dark:text-amber-300">
               <p className="mb-1.5 flex items-center gap-1.5 font-medium">
                 <AlertTriangle className="size-4 shrink-0" />
-                إنت فوق حدود {plan.name}
+                {tr("إنت فوق حدود {0}", plan.name)}
               </p>
               <ul className="space-y-1 text-xs leading-5">
                 {preview.overages.map((o) => (
                   <li key={o.key}>
-                    عندك {nf.format(o.current)} {o.unit ?? ""} في «{o.name}» والحد {o.newLimit === 0 ? "مش متاح" : nf.format(o.newLimit)}. مش هنمسح
-                    حاجة، بس مش هتقدر تضيف جديد غير لما تقل عن الحد.
+                    {tr("عندك {0} {1} في «{2}» والحد", nf.format(o.current), trv(o.unit) ?? "", trv(o.name))}{" "}{o.newLimit === 0 ? tr("مش متاح") : nf.format(o.newLimit)}{tr(". مش هنمسح حاجة، بس مش هتقدر تضيف جديد غير لما تقل عن الحد.")}
                   </li>
                 ))}
               </ul>
@@ -152,12 +151,11 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
           {/* ── Money ────────────────────────────────────── */}
           {quote && quote.mode === "trial" && (
             <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm leading-6">
-              إنت لسه في التجربة المجانية — <span className="font-medium">مش هنخصم أي حاجة دلوقتي.</span>
+              {tr("إنت لسه في التجربة المجانية —")}{" "}<span className="font-medium">{tr("مش هنخصم أي حاجة دلوقتي.")}</span>
               {quote.firstChargeAt && (
                 <>
-                  {" "}
-                  أول تجديد يوم <span className="font-medium">{df.format(new Date(quote.firstChargeAt))}</span> بـ{" "}
-                  <span className="font-medium tabular-nums">{formatMoney(quote.price)}</span> من رصيدك.
+                  {" "}{tr("أول تجديد يوم")}{" "}<span className="font-medium">{df.format(new Date(quote.firstChargeAt))}</span>{" "}{tr("بـ")}{" "}
+                  <span className="font-medium tabular-nums">{formatMoney(quote.price)}</span>{" "}{tr("من رصيدك.")}
                 </>
               )}
             </div>
@@ -165,38 +163,38 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
 
           {quote && (quote.mode === "prorate" || quote.mode === "activate") && (
             <dl className="divide-y divide-border rounded-lg border border-border text-sm">
-              <Line label={`سعر ${plan.name} (${cycleWord})`} value={formatMoney(quote.price)} />
+              <Line label={tr("سعر {0} ({1})", plan.name, cycleWord)} value={formatMoney(quote.price)} />
               {quote.mode === "prorate" && (
-                <Line label={`المتبقي من باقتك (${nf.format(quote.remainingDays)} يوم)`} value={`− ${formatMoney(quote.credit)}`} muted />
+                <Line label={tr("المتبقي من باقتك ({0} يوم)", nf.format(quote.remainingDays))} value={`− ${formatMoney(quote.credit)}`} muted />
               )}
               <Line
-                label={quote.charge >= 0 ? "هيتخصم من رصيدك دلوقتي" : "هيرجعلك في الرصيد"}
+                label={quote.charge >= 0 ? tr("هيتخصم من رصيدك دلوقتي") : tr("هيرجعلك في الرصيد")}
                 value={formatMoney(Math.abs(quote.charge))}
                 strong
               />
-              <Line label="رصيدك بعد التغيير" value={quote.shortfall > 0 ? "—" : formatMoney(quote.balanceAfter)} muted />
-              {quote.periodEndsAt && <Line label="الاشتراك شغال لحد" value={df.format(new Date(quote.periodEndsAt))} muted />}
+              <Line label={tr("رصيدك بعد التغيير")} value={quote.shortfall > 0 ? "—" : formatMoney(quote.balanceAfter)} muted />
+              {quote.periodEndsAt && <Line label={tr("الاشتراك شغال لحد")} value={df.format(new Date(quote.periodEndsAt))} muted />}
             </dl>
           )}
 
           {quote && quote.shortfall > 0 && (
             <div className="flex flex-col gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-amber-800 dark:text-amber-300">
-                رصيدك {formatMoney(ok.balance)} — <span className="font-medium">ناقصك {formatMoney(quote.shortfall)}</span>
-                {quote.mode === "activate" && <span className="block text-xs">هنحفظ اختيارك، ولما تشحن الاشتراك هيتفعّل لوحده.</span>}
+                {tr("رصيدك {0} —", formatMoney(ok.balance))}{" "}<span className="font-medium">{tr("ناقصك {0}", formatMoney(quote.shortfall))}</span>
+                {quote.mode === "activate" && <span className="block text-xs">{tr("هنحفظ اختيارك، ولما تشحن الاشتراك هيتفعّل لوحده.")}</span>}
               </p>
               {quote.mode === "prorate" && (
                 <Button asChild size="sm" className="shrink-0 gap-1.5">
                   <Link href={topupHref(quote.shortfall)}>
                     <Wallet className="size-4" />
-                    اشحن {formatMoney(quote.shortfall)}
+                    {tr("اشحن {0}", formatMoney(quote.shortfall))}
                   </Link>
                 </Button>
               )}
             </div>
           )}
 
-          {quote?.mode === "same" && <p className="text-sm text-muted-foreground">إنت مشترك في الباقة دي بالفعل.</p>}
+          {quote?.mode === "same" && <p className="text-sm text-muted-foreground">{tr("إنت مشترك في الباقة دي بالفعل.")}</p>}
         </div>
       )}
 
@@ -206,7 +204,7 @@ function PlanChangeBody({ plan, cycle, currentPlan, currentCycle, onClose }: Pro
           {confirmLabel}
         </Button>
         <Button variant="ghost" onClick={onClose} disabled={pending}>
-          إلغاء
+          {tr("إلغاء")}
         </Button>
       </DialogFooter>
     </>

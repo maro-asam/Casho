@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 type TimelineEvent = {
   id: string;
@@ -46,7 +47,7 @@ export function CustomerTimelineTab({ events }: { events: TimelineEvent[] }) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border py-14 text-center">
         <MoreHorizontal className="mb-3 size-10 text-muted-foreground/30" />
-        <p className="text-sm text-muted-foreground">لا توجد أحداث في السجل بعد</p>
+        <p className="text-sm text-muted-foreground">{tr("لا توجد أحداث في السجل بعد")}</p>
       </div>
     );
   }
@@ -54,7 +55,7 @@ export function CustomerTimelineTab({ events }: { events: TimelineEvent[] }) {
   // Group by date
   const grouped: Record<string, TimelineEvent[]> = {};
   for (const ev of events) {
-    const key = new Date(ev.createdAt).toLocaleDateString("ar-EG", {
+    const key = new Date(ev.createdAt).toLocaleDateString(intlLocale(), {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -84,7 +85,7 @@ export function CustomerTimelineTab({ events }: { events: TimelineEvent[] }) {
                 <div key={ev.id} className="relative flex gap-3">
                   {/* Line */}
                   {!isLast && (
-                    <div className="absolute right-[17px] top-9 h-full w-px bg-border" />
+                    <div className="absolute start-[17px] top-9 h-full w-px bg-border" />
                   )}
 
                   {/* Icon */}
@@ -109,7 +110,7 @@ export function CustomerTimelineTab({ events }: { events: TimelineEvent[] }) {
                         )}
                       </div>
                       <span className="shrink-0 text-[11px] text-muted-foreground">
-                        {new Date(ev.createdAt).toLocaleTimeString("ar-EG", {
+                        {new Date(ev.createdAt).toLocaleTimeString(intlLocale(), {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}

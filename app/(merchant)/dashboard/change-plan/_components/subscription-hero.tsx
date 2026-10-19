@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
 import { AutoRenewSwitch } from "../../balance/_components/auto-renew-switch";
 import RenewSubscriptionModal from "../../balance/_components/RenewSubscriptionModal";
 import { nf } from "./plan-types";
+import { lazyIntl, tr, trv } from "@/lib/i18n/dashboard";
 
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
 const TIER_ICON: Record<string, typeof Sparkles> = { SILVER: ShieldCheck, GOLD: Sparkles, PLATINUM: Gem };
 const DAY = 86_400_000;
 
@@ -40,11 +41,11 @@ export function SubscriptionHero({
   now: Date;
 }) {
   const price = store.monthlyPrice;
-  const cycleWord = store.billingCycle === "YEARLY" ? "سنة" : "شهر";
+  const cycleWord = store.billingCycle === "YEARLY" ? tr("سنة") : tr("شهر");
   const endsAt = store.subscriptionEndsAt;
   const shortfall = Math.max(0, price - store.balance);
   const topup = (amount: number) => `/balance/topup?amount=${Math.ceil(amount / 100)}`;
-  const status = inTrial ? { label: "تجربة مجانية", tone: "info" as const } : (SUBSCRIPTION_STATUS[store.subscriptionStatus] ?? SUBSCRIPTION_STATUS.INACTIVE);
+  const status = inTrial ? { label: tr("تجربة مجانية"), tone: "info" as const } : (SUBSCRIPTION_STATUS[store.subscriptionStatus] ?? SUBSCRIPTION_STATUS.INACTIVE);
   const Icon = TIER_ICON[plan?.key ?? ""] ?? ShieldCheck;
 
   // ── Period timeline ───────────────────────────────────────────────
@@ -60,28 +61,28 @@ export function SubscriptionHero({
   if (s === "PAST_DUE") {
     notice = {
       tone: "danger",
-      text: shortfall > 0 ? `متجرك متوقف عن استقبال الطلبات. اشحن ${formatMoney(shortfall)} وهيرجع يشتغل فورًا.` : "متجرك متوقف عن استقبال الطلبات. جدّد دلوقتي من رصيدك.",
-      action: shortfall > 0 ? { label: `اشحن ${formatMoney(shortfall)}`, href: topup(shortfall) } : undefined,
+      text: shortfall > 0 ? tr("متجرك متوقف عن استقبال الطلبات. اشحن {0} وهيرجع يشتغل فورًا.", formatMoney(shortfall)) : tr("متجرك متوقف عن استقبال الطلبات. جدّد دلوقتي من رصيدك."),
+      action: shortfall > 0 ? { label: tr("اشحن {0}", formatMoney(shortfall)), href: topup(shortfall) } : undefined,
     };
   } else if (s === "GRACE_PERIOD") {
     notice = {
       tone: "warning",
-      text: `متجرك شغال فترة سماح${store.gracePeriodEndsAt ? ` لحد ${df.format(store.gracePeriodEndsAt)}` : ""}. ${shortfall > 0 ? `اشحن ${formatMoney(shortfall)} قبلها عشان ما يتقفلش.` : "جدّد دلوقتي عشان ما يتقفلش."}`,
-      action: shortfall > 0 ? { label: `اشحن ${formatMoney(shortfall)}`, href: topup(shortfall) } : undefined,
+      text: tr("متجرك شغال فترة سماح{0}. {1}", store.gracePeriodEndsAt ? tr(" لحد {0}", df.format(store.gracePeriodEndsAt)) : "", shortfall > 0 ? tr("اشحن {0} قبلها عشان ما يتقفلش.", formatMoney(shortfall)) : tr("جدّد دلوقتي عشان ما يتقفلش.")),
+      action: shortfall > 0 ? { label: tr("اشحن {0}", formatMoney(shortfall)), href: topup(shortfall) } : undefined,
     };
   } else if (s === "CANCELED" || s === "INACTIVE") {
     notice = {
       tone: "info",
-      text: shortfall > 0 ? `اشتراكك مش مفعّل. اشحن ${formatMoney(shortfall)} واختار باقتك تحت.` : "اشتراكك مش مفعّل. اختار باقتك تحت وفعّلها من رصيدك.",
-      action: shortfall > 0 ? { label: `اشحن ${formatMoney(shortfall)}`, href: topup(shortfall) } : undefined,
+      text: shortfall > 0 ? tr("اشتراكك مش مفعّل. اشحن {0} واختار باقتك تحت.", formatMoney(shortfall)) : tr("اشتراكك مش مفعّل. اختار باقتك تحت وفعّلها من رصيدك."),
+      action: shortfall > 0 ? { label: tr("اشحن {0}", formatMoney(shortfall)), href: topup(shortfall) } : undefined,
     };
   } else if (!store.autoRenew && endsAt) {
-    notice = { tone: "info", text: `التجديد التلقائي مقفول — الاشتراك هيخلص يوم ${df.format(endsAt)} والمتجر هيتقفل بعد فترة السماح.` };
+    notice = { tone: "info", text: tr("التجديد التلقائي مقفول — الاشتراك هيخلص يوم {0} والمتجر هيتقفل بعد فترة السماح.", df.format(endsAt)) };
   } else if (shortfall > 0 && endsAt) {
     notice = {
       tone: daysLeft <= 3 ? "danger" : "warning",
-      text: `${inTrial ? "بعد التجربة" : "في التجديد الجاي"} هنخصم ${formatMoney(price)} — رصيدك ${formatMoney(store.balance)}، ناقصك ${formatMoney(shortfall)}.`,
-      action: { label: `اشحن ${formatMoney(shortfall)}`, href: topup(shortfall) },
+      text: tr("{0} هنخصم {1} — رصيدك {2}، ناقصك {3}.", inTrial ? tr("بعد التجربة") : tr("في التجديد الجاي"), formatMoney(price), formatMoney(store.balance), formatMoney(shortfall)),
+      action: { label: tr("اشحن {0}", formatMoney(shortfall)), href: topup(shortfall) },
     };
   }
 
@@ -96,13 +97,13 @@ export function SubscriptionHero({
               <Icon className="size-5" />
             </span>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">باقتك</p>
-              <p className="text-xl font-bold">{plan?.name ?? "مفيش باقة"}</p>
+              <p className="text-xs text-muted-foreground">{tr("باقتك")}</p>
+              <p className="text-xl font-bold">{trv(plan?.name) ?? tr("مفيش باقة")}</p>
             </div>
             <div className="ms-auto flex items-center gap-2">
               <StatusPill tone={status.tone}>{status.label}</StatusPill>
               <span className="rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
-                {store.billingCycle === "YEARLY" ? "سنوي" : "شهري"}
+                {store.billingCycle === "YEARLY" ? tr("سنوي") : tr("شهري")}
               </span>
             </div>
           </div>
@@ -111,24 +112,24 @@ export function SubscriptionHero({
             <div>
               <div className="mb-2 flex items-baseline justify-between gap-3 text-sm">
                 <span className="font-medium">
-                  {inTrial ? "التجربة فاضل فيها" : "فاضل في الفترة دي"} <span className="tabular-nums">{nf.format(daysLeft)}</span> يوم
+                  {inTrial ? tr("التجربة فاضل فيها") : tr("فاضل في الفترة دي")} <span className="tabular-nums">{nf.format(daysLeft)}</span>{" "}{tr("يوم")}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {inTrial ? "تخلص" : "تتجدد"} {df.format(endsAt)}
+                  {inTrial ? tr("تخلص") : tr("تتجدد")} {df.format(endsAt)}
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={Math.round(elapsed)} aria-valuemin={0} aria-valuemax={100} aria-label="الفترة الحالية">
+              <div className="h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={Math.round(elapsed)} aria-valuemin={0} aria-valuemax={100} aria-label={tr("الفترة الحالية")}>
                 <div
                   className={cn("h-full rounded-full", daysLeft <= 3 ? "bg-amber-500" : "bg-primary")}
                   style={{ width: `${Math.max(2, elapsed)}%` }}
                 />
               </div>
-              {start && <p className="mt-1.5 text-xs text-muted-foreground">بدأت {df.format(start)}</p>}
+              {start && <p className="mt-1.5 text-xs text-muted-foreground">{tr("بدأت {0}", df.format(start))}</p>}
             </div>
           ) : (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <CalendarClock className="size-4" />
-              {endsAt ? `آخر فترة خلصت ${df.format(endsAt)}` : "لسه مفيش فترة اشتراك بدأت"}
+              {endsAt ? tr("آخر فترة خلصت {0}", df.format(endsAt)) : tr("لسه مفيش فترة اشتراك بدأت")}
             </p>
           )}
 
@@ -159,18 +160,18 @@ export function SubscriptionHero({
 
         <aside className="border-t border-border bg-muted/20 lg:border-s lg:border-t-0">
           <dl className="space-y-2.5 px-5 py-4 text-sm">
-            <Row label={inTrial ? "أول خصم" : "التجديد الجاي"} value={endsAt && running ? df.format(endsAt) : "—"} />
-            <Row label="المبلغ" value={`${formatMoney(price)} / ${cycleWord}`} />
-            <Row label="رصيدك" value={formatMoney(store.balance)} warn={shortfall > 0} />
+            <Row label={inTrial ? tr("أول خصم") : tr("التجديد الجاي")} value={endsAt && running ? df.format(endsAt) : "—"} />
+            <Row label={tr("المبلغ")} value={`${formatMoney(price)} / ${cycleWord}`} />
+            <Row label={tr("رصيدك")} value={formatMoney(store.balance)} warn={shortfall > 0} />
             <Row
-              label="الرصيد يكفي"
-              value={price > 0 ? (Math.floor(store.balance / price) > 0 ? `${nf.format(Math.floor(store.balance / price))} تجديد` : "ولا تجديد") : "—"}
+              label={tr("الرصيد يكفي")}
+              value={price > 0 ? (Math.floor(store.balance / price) > 0 ? tr("{0} تجديد", nf.format(Math.floor(store.balance / price))) : tr("ولا تجديد")) : "—"}
             />
           </dl>
           <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-border px-5 py-3">
             <span>
-              <span className="block text-sm font-medium">التجديد التلقائي</span>
-              <span className="block text-xs text-muted-foreground">من الرصيد في الميعاد.</span>
+              <span className="block text-sm font-medium">{tr("التجديد التلقائي")}</span>
+              <span className="block text-xs text-muted-foreground">{tr("من الرصيد في الميعاد.")}</span>
             </span>
             <AutoRenewSwitch storeId={store.id} initial={store.autoRenew} />
           </label>
@@ -188,12 +189,12 @@ export function SubscriptionHero({
               <Button asChild size="sm" variant="outline" className="gap-1.5">
                 <Link href="/balance/topup">
                   <Wallet className="size-4" />
-                  شحن رصيد
+                  {tr("شحن رصيد")}
                 </Link>
               </Button>
             )}
             <Button asChild size="sm" variant="ghost">
-              <Link href="/balance">الرصيد والحركات</Link>
+              <Link href="/balance">{tr("الرصيد والحركات")}</Link>
             </Button>
           </div>
         </aside>

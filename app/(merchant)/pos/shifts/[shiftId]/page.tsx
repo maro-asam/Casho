@@ -5,17 +5,20 @@ import { GetShiftByIdAction } from "@/actions/pos/shift.actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 function egp(p: number) {
-  return (p / 100).toLocaleString("ar-EG", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return (p / 100).toLocaleString(intlLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 const paymentLabels: Record<string, string> = {
-  cash: "نقداً", card: "بطاقة", vodafone_cash: "فودافون كاش",
-  instapay: "انستاباي", bank_transfer: "تحويل بنكي",
+  get cash() { return tr("نقداً"); }, get card() { return tr("بطاقة"); }, get vodafone_cash() { return tr("فودافون كاش"); },
+  get instapay() { return tr("انستاباي"); }, get bank_transfer() { return tr("تحويل بنكي"); },
 };
 
 export default async function ShiftDetailPage({ params }: { params: Promise<{ shiftId: string }> }) {
+  await loadDashboardLocale();
   const { shiftId } = await params;
   await requireUserId();
 
@@ -39,25 +42,25 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
   }, {});
 
   return (
-    <div className="min-h-screen bg-background p-6" dir="rtl">
+    <div className="min-h-screen bg-background p-6" dir={tdir()}>
       <div className="mx-auto max-w-3xl space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
           <Button asChild variant="ghost" size="icon">
-            <Link href="/pos/shifts"><ArrowRight className="size-4" /></Link>
+            <Link href="/pos/shifts"><ArrowRight className="size-4 ltr:-scale-x-100" /></Link>
           </Button>
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2">
-              تقرير الوردية
+              {tr("تقرير الوردية")}
               <Badge className={isOpen ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"}>
-                {isOpen ? "مفتوحة" : "مغلقة"}
+                {isOpen ? tr("مفتوحة") : tr("مغلقة")}
               </Badge>
             </h1>
             <p className="text-sm text-muted-foreground">
               {shift.cashier?.name ?? shift.cashier?.email} ·{" "}
               {shift.branch && `${shift.branch.name} · `}
-              {new Date(shift.openedAt).toLocaleString("ar-EG")}
-              {shift.closedAt && ` → ${new Date(shift.closedAt).toLocaleTimeString("ar-EG")}`}
+              {new Date(shift.openedAt).toLocaleString(intlLocale())}
+              {shift.closedAt && ` → ${new Date(shift.closedAt).toLocaleTimeString(intlLocale())}`}
             </p>
           </div>
         </div>
@@ -65,10 +68,10 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
         {/* Key metrics */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
-            { label: "إجمالي المبيعات", value: `${egp(shift.totalSales)} ج`, color: "text-primary" },
-            { label: "الربح الإجمالي", value: `${egp(profitTotal)} ج`, color: profitTotal >= 0 ? "text-emerald-600" : "text-destructive" },
-            { label: "عدد الفواتير", value: shift.transactionCount.toString(), color: "text-foreground" },
-            { label: "الخصومات", value: `${egp(shift.totalDiscount)} ج`, color: "text-amber-600" },
+            { label: tr("إجمالي المبيعات"), value: tr("{0} ج", egp(shift.totalSales)), color: "text-primary" },
+            { label: tr("الربح الإجمالي"), value: tr("{0} ج", egp(profitTotal)), color: profitTotal >= 0 ? "text-emerald-600" : "text-destructive" },
+            { label: tr("عدد الفواتير"), value: shift.transactionCount.toString(), color: "text-foreground" },
+            { label: tr("الخصومات"), value: tr("{0} ج", egp(shift.totalDiscount)), color: "text-amber-600" },
           ].map((m) => (
             <div key={m.label} className="rounded-xl border bg-card p-4 text-center">
               <p className="text-xs text-muted-foreground mb-1">{m.label}</p>
@@ -80,25 +83,25 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
         {/* Cash reconciliation */}
         {!isOpen && (
           <div className="rounded-xl border bg-card p-4 space-y-3">
-            <h2 className="font-semibold text-sm">تسوية الدرج النقدي</h2>
+            <h2 className="font-semibold text-sm">{tr("تسوية الدرج النقدي")}</h2>
             <div className="space-y-1.5 text-sm">
               {[
-                ["رصيد الافتتاح", egp(shift.openingBalance)],
-                ["+ المبيعات النقدية", egp(cashSales)],
-                ["± إيداع / سحب نقدي", egp(cashMoves)],
-                ["− مرتجعات نقدية", egp(cashRefunds)],
-                ["= النقدية المتوقعة", egp(shift.expectedCash ?? 0)],
-                ["النقدية الفعلية", egp(shift.closingBalance ?? 0)],
+                [tr("رصيد الافتتاح"), egp(shift.openingBalance)],
+                [tr("+ المبيعات النقدية"), egp(cashSales)],
+                [tr("± إيداع / سحب نقدي"), egp(cashMoves)],
+                [tr("− مرتجعات نقدية"), egp(cashRefunds)],
+                [tr("= النقدية المتوقعة"), egp(shift.expectedCash ?? 0)],
+                [tr("النقدية الفعلية"), egp(shift.closingBalance ?? 0)],
               ].map(([label, val]) => (
                 <div key={label} className="flex justify-between">
                   <span className="text-muted-foreground">{label}</span>
-                  <span className="font-medium">{val} ج</span>
+                  <span className="font-medium">{tr("{0} ج", val)}</span>
                 </div>
               ))}
               <div className="pt-1.5 border-t flex justify-between font-bold">
-                <span>الفرق</span>
+                <span>{tr("الفرق")}</span>
                 <span className={shift.cashDifference! >= 0 ? "text-emerald-600" : "text-destructive"}>
-                  {shift.cashDifference! >= 0 ? "+" : ""}{egp(shift.cashDifference ?? 0)} ج
+                  {tr("{0}{1} ج", shift.cashDifference! >= 0 ? "+" : "", egp(shift.cashDifference ?? 0))}
                 </span>
               </div>
             </div>
@@ -111,7 +114,7 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
         {/* Payment breakdown */}
         {Object.keys(ordersByPayment).length > 0 && (
           <div className="rounded-xl border bg-card p-4 space-y-3">
-            <h2 className="font-semibold text-sm">توزيع المدفوعات</h2>
+            <h2 className="font-semibold text-sm">{tr("توزيع المدفوعات")}</h2>
             <div className="space-y-1.5">
               {Object.entries(ordersByPayment).map(([method, total]) => (
                 <div key={method} className="flex items-center justify-between text-sm">
@@ -119,7 +122,7 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
                     <span className="size-2 rounded-full bg-primary" />
                     <span>{paymentLabels[method] ?? method}</span>
                   </div>
-                  <span className="font-medium">{egp(total)} ج</span>
+                  <span className="font-medium">{tr("{0} ج", egp(total))}</span>
                 </div>
               ))}
             </div>
@@ -129,11 +132,11 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
         {/* Orders */}
         <div className="rounded-xl border bg-card overflow-hidden">
           <div className="border-b px-4 py-3 flex items-center justify-between">
-            <h2 className="font-semibold text-sm">الفواتير ({shift.orders.length})</h2>
+            <h2 className="font-semibold text-sm">{tr("الفواتير ({0})", shift.orders.length)}</h2>
           </div>
           {shift.orders.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground text-sm">
-              لا توجد فواتير في هذه الوردية
+              {tr("لا توجد فواتير في هذه الوردية")}
             </div>
           ) : (
             <div className="divide-y divide-border">
@@ -143,15 +146,15 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
                     <div>
                       <p className="text-sm font-medium">{order.fullName}</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(order.createdAt).toLocaleTimeString("ar-EG")} ·{" "}
+                        {new Date(order.createdAt).toLocaleTimeString(intlLocale())} ·{" "}
                         {paymentLabels[order.paymentMethod] ?? order.paymentMethod}
                       </p>
                     </div>
-                    <div className="text-left">
-                      <p className="text-sm font-bold text-primary">{egp(order.total)} ج</p>
+                    <div className="text-end">
+                      <p className="text-sm font-bold text-primary">{tr("{0} ج", egp(order.total))}</p>
                       {order.profitTotal !== null && order.profitTotal !== undefined && (
                         <p className={`text-xs ${order.profitTotal >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-                          ربح: {egp(order.profitTotal)} ج
+                          {tr("ربح: {0} ج", egp(order.profitTotal))}
                         </p>
                       )}
                     </div>
@@ -166,26 +169,26 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
         {shift.entries.length > 0 && (
           <div className="rounded-xl border bg-card overflow-hidden">
             <div className="border-b px-4 py-3">
-              <h2 className="font-semibold text-sm">سجل الدرج النقدي</h2>
+              <h2 className="font-semibold text-sm">{tr("سجل الدرج النقدي")}</h2>
             </div>
             <div className="divide-y divide-border">
               {shift.entries.map((entry) => (
                 <div key={entry.id} className="flex items-center justify-between px-4 py-2">
                   <div>
                     <p className="text-xs font-medium">
-                      {entry.type === "OPENING_FLOAT" ? "رصيد الافتتاح" :
-                       entry.type === "CLOSING_COUNT" ? "رصيد الإغلاق" :
-                       entry.type === "CASH_IN" ? "إيداع نقدي" :
-                       entry.type === "CASH_OUT" ? "سحب نقدي" : entry.type}
+                      {entry.type === "OPENING_FLOAT" ? tr("رصيد الافتتاح") :
+                       entry.type === "CLOSING_COUNT" ? tr("رصيد الإغلاق") :
+                       entry.type === "CASH_IN" ? tr("إيداع نقدي") :
+                       entry.type === "CASH_OUT" ? tr("سحب نقدي") : entry.type}
                     </p>
                     {entry.note && <p className="text-xs text-muted-foreground">{entry.note}</p>}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-sm font-bold ${entry.amount >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-                      {entry.amount >= 0 ? "+" : ""}{egp(entry.amount)} ج
+                      {tr("{0}{1} ج", entry.amount >= 0 ? "+" : "", egp(entry.amount))}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(entry.createdAt).toLocaleTimeString("ar-EG")}
+                      {new Date(entry.createdAt).toLocaleTimeString(intlLocale())}
                     </span>
                   </div>
                 </div>

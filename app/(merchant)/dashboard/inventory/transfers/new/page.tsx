@@ -5,6 +5,8 @@ import { GetBranchesAction } from "@/actions/inventory/branches.actions";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
 import { NewTransferForm } from "../_components/NewTransferForm";
+import { tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 async function getProducts(userId: string) {
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
@@ -18,6 +20,7 @@ async function getProducts(userId: string) {
 }
 
 export default async function NewTransferPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const [branches, products] = await Promise.all([GetBranchesAction(), getProducts(userId)]);
 
@@ -26,19 +29,19 @@ export default async function NewTransferPage() {
       <div className="flex items-center gap-3">
         <Link href="/dashboard/inventory/transfers">
           <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowRight className="size-4" />
-            التحويلات
+            <ArrowRight className="size-4 ltr:-scale-x-100" />
+            {tr("التحويلات")}
           </Button>
         </Link>
-        <h1 className="text-xl font-bold">تحويل مخزون جديد</h1>
+        <h1 className="text-xl font-bold">{tr("تحويل مخزون جديد")}</h1>
       </div>
       {branches.length < 2 ? (
         <div className="rounded-xl border border-border bg-card p-8 text-center">
           <p className="text-muted-foreground">
-            تحتاج إلى فرعين على الأقل لإنشاء تحويل.
+            {tr("تحتاج إلى فرعين على الأقل لإنشاء تحويل.")}
           </p>
           <Link href="/dashboard/inventory/branches">
-            <Button className="mt-4">إدارة الفروع</Button>
+            <Button className="mt-4">{tr("إدارة الفروع")}</Button>
           </Link>
         </div>
       ) : (

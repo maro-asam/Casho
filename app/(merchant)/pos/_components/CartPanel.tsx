@@ -14,6 +14,7 @@ import PaymentDialog, { type PaymentEntry } from "./PaymentDialog";
 import ReceiptDialog from "./ReceiptDialog";
 import type { CartAction, CartItem, CartState } from "./PosTerminal";
 import { egp } from "./pos-format";
+import { tr } from "@/lib/i18n/dashboard";
 
 type Shift = { id: string; openingBalance: number; totalSales: number; transactionCount: number; openedAt: string };
 
@@ -97,10 +98,10 @@ export default function CartPanel({
             note: cart.note,
           },
         });
-        toast.success("الفاتورة اتعلّقت. تقدر ترجعلها من «معلّق».");
+        toast.success(tr("الفاتورة اتعلّقت. تقدر ترجعلها من «معلّق»."));
         onHoldComplete();
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "مقدرناش نعلّق الفاتورة");
+        toast.error(e instanceof Error ? e.message : tr("مقدرناش نعلّق الفاتورة"));
       }
     });
   };
@@ -133,7 +134,7 @@ export default function CartPanel({
           });
         }
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "حصلت مشكلة وإحنا بنكمّل البيع");
+        toast.error(e instanceof Error ? e.message : tr("حصلت مشكلة وإحنا بنكمّل البيع"));
       }
     });
   };
@@ -143,8 +144,8 @@ export default function CartPanel({
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
         <div>
-          <h2 className="text-sm font-semibold">الفاتورة الحالية</h2>
-          <p className="text-xs text-muted-foreground">{empty ? "فاضية" : `${itemCount} قطعة`}</p>
+          <h2 className="text-sm font-semibold">{tr("الفاتورة الحالية")}</h2>
+          <p className="text-xs text-muted-foreground">{empty ? tr("فاضية") : tr("{0} قطعة", itemCount)}</p>
         </div>
         {!empty && (
           <Button
@@ -154,7 +155,7 @@ export default function CartPanel({
             onClick={() => dispatch({ type: "CLEAR" })}
           >
             <Trash2 className="size-4" />
-            مسح
+            {tr("مسح")}
           </Button>
         )}
       </div>
@@ -170,8 +171,8 @@ export default function CartPanel({
             <span className="grid size-12 place-items-center rounded-xl bg-muted text-muted-foreground">
               <ScanBarcode className="size-6" />
             </span>
-            <p className="text-sm font-medium">امسح باركود أو اختار منتج</p>
-            <p className="text-xs text-muted-foreground">المنتجات اللي تختارها هتظهر هنا.</p>
+            <p className="text-sm font-medium">{tr("امسح باركود أو اختار منتج")}</p>
+            <p className="text-xs text-muted-foreground">{tr("المنتجات اللي تختارها هتظهر هنا.")}</p>
           </div>
         ) : (
           <ul className="divide-y divide-border">
@@ -199,8 +200,8 @@ export default function CartPanel({
               onChange={(e) => dispatch({ type: "SET_NOTE", note: e.target.value })}
               onBlur={() => setEditingNote(false)}
               onKeyDown={(e) => e.key === "Enter" && setEditingNote(false)}
-              placeholder="ملاحظة على الفاتورة..."
-              aria-label="ملاحظة على الفاتورة"
+              placeholder={tr("ملاحظة على الفاتورة...")}
+              aria-label={tr("ملاحظة على الفاتورة")}
               className="h-8 w-full rounded-md border border-input bg-background px-2.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           ) : (
@@ -221,19 +222,19 @@ export default function CartPanel({
         {!empty && (
           <dl className="space-y-1.5 text-sm">
             <div className="flex justify-between text-muted-foreground">
-              <dt>الإجمالي الفرعي</dt>
+              <dt>{tr("الإجمالي الفرعي")}</dt>
               <dd className="tabular-nums">{egp(subtotal)}</dd>
             </div>
             {totalDiscount > 0 && (
               <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
                 <dt className="flex items-center gap-1.5">
-                  الخصم
+                  {tr("الخصم")}
                   {cart.invoiceDiscount && (
                     <button
                       type="button"
                       onClick={() => dispatch({ type: "SET_INVOICE_DISCOUNT", discount: null })}
                       className="rounded text-muted-foreground hover:text-destructive"
-                      aria-label="شيل خصم الفاتورة"
+                      aria-label={tr("شيل خصم الفاتورة")}
                     >
                       <X className="size-3.5" />
                     </button>
@@ -243,7 +244,7 @@ export default function CartPanel({
               </div>
             )}
             <div className="flex items-baseline justify-between border-t border-border pt-2">
-              <dt className="font-semibold">الإجمالي</dt>
+              <dt className="font-semibold">{tr("الإجمالي")}</dt>
               <dd className="text-2xl font-bold tracking-tight tabular-nums">{egp(total)}</dd>
             </div>
             {costTotal > 0 && (
@@ -255,7 +256,7 @@ export default function CartPanel({
                   aria-pressed={showProfit}
                 >
                   {showProfit ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
-                  الربح
+                  {tr("الربح")}
                 </button>
                 <span
                   className={cn(
@@ -265,7 +266,7 @@ export default function CartPanel({
                   )}
                   aria-hidden={!showProfit}
                 >
-                  {egp(profitTotal)} · {profitMargin.toFixed(0)}٪
+                  {tr("{0} · {1}٪", egp(profitTotal), profitMargin.toFixed(0))}
                 </span>
               </div>
             )}
@@ -275,15 +276,15 @@ export default function CartPanel({
         <div className="grid grid-cols-3 gap-2">
           <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={() => setShowDiscount(true)} disabled={empty}>
             <Tag className="size-4" />
-            خصم
+            {tr("خصم")}
           </Button>
           <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={() => setEditingNote(true)} disabled={empty}>
             <MessageSquare className="size-4" />
-            ملاحظة
+            {tr("ملاحظة")}
           </Button>
           <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={handleHold} disabled={empty || isPending}>
             <Pause className="size-4" />
-            تعليق
+            {tr("تعليق")}
           </Button>
         </div>
 
@@ -296,14 +297,14 @@ export default function CartPanel({
           >
             <span className="flex items-center gap-2">
               {isPending && <Loader2 className="size-5 animate-spin" />}
-              الدفع
+              {tr("الدفع")}
               <kbd className="rounded bg-primary-foreground/15 px-1.5 py-0.5 font-sans text-[11px] font-medium">F9</kbd>
             </span>
             <span className="tabular-nums">{egp(total)}</span>
           </Button>
         ) : (
           <Button size="lg" variant="secondary" className="h-14 w-full text-base font-semibold" onClick={onOpenShift}>
-            افتح وردية عشان تبدأ تبيع
+            {tr("افتح وردية عشان تبدأ تبيع")}
           </Button>
         )}
       </div>
@@ -370,7 +371,7 @@ function CartItemRow({
             <button
               type="button"
               onClick={onRemove}
-              aria-label={`شيل ${item.name}`}
+              aria-label={tr("شيل {0}", item.name)}
               className="shrink-0 rounded p-0.5 text-muted-foreground/60 hover:text-destructive"
             >
               <X className="size-4" />
@@ -382,7 +383,7 @@ function CartItemRow({
               <button
                 type="button"
                 onClick={onDecrement}
-                aria-label="قلّل الكمية"
+                aria-label={tr("قلّل الكمية")}
                 className="grid size-8 place-items-center text-muted-foreground hover:text-foreground"
               >
                 <Minus className="size-3.5" />
@@ -394,8 +395,8 @@ function CartItemRow({
                 type="button"
                 onClick={onIncrement}
                 disabled={atMax}
-                aria-label="زوّد الكمية"
-                title={atMax ? "مفيش كمية أكتر في المخزون" : undefined}
+                aria-label={tr("زوّد الكمية")}
+                title={atMax ? tr("مفيش كمية أكتر في المخزون") : undefined}
                 className="grid size-8 place-items-center text-muted-foreground hover:text-foreground disabled:opacity-30"
               >
                 <Plus className="size-3.5" />
@@ -412,7 +413,7 @@ function CartItemRow({
           {showDiscount ? (
             <div className="mt-2 flex items-center gap-2">
               <label className="text-xs text-muted-foreground" htmlFor={`disc-${item.productId}`}>
-                خصم على الصنف
+                {tr("خصم على الصنف")}
               </label>
               <input
                 id={`disc-${item.productId}`}
@@ -428,7 +429,7 @@ function CartItemRow({
                 placeholder="0"
                 className="h-7 w-20 rounded-md border border-input bg-background px-2 text-xs tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
-              <span className="text-xs text-muted-foreground">ج.م</span>
+              <span className="text-xs text-muted-foreground">{tr("ج.م")}</span>
             </div>
           ) : (
             <button
@@ -437,7 +438,7 @@ function CartItemRow({
               className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
             >
               <Tag className="size-3" />
-              خصم على الصنف
+              {tr("خصم على الصنف")}
             </button>
           )}
         </div>

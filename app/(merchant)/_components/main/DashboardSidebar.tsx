@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { NAV_FOOTER, NAV_SECTIONS, type ActiveNav, type NavItem } from "./dashboard-nav";
+import { isRtl, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
   store: { name: string; slug: string };
@@ -67,7 +68,7 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
               <Icon className={cn("size-4 shrink-0", isActive && "text-sidebar-primary")} />
             </Link>
           </TooltipTrigger>
-          <TooltipContent side="left">{item.name}</TooltipContent>
+          <TooltipContent side={isRtl() ? "left" : "right"}>{item.name}</TooltipContent>
         </Tooltip>
       );
     }
@@ -152,25 +153,25 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
-            aria-label="طي القائمة"
+            aria-label={tr("طي القائمة")}
             className="size-8 shrink-0 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
-            <PanelRightClose className="size-4" />
+            <PanelRightClose className="size-4 ltr:-scale-x-100" />
           </Button>
         )}
       </div>
 
       {/* Navigation */}
-      <nav aria-label="القائمة الرئيسية" className="flex-1 overflow-y-auto px-2 py-3">
+      <nav aria-label={tr("القائمة الرئيسية")} className="flex-1 overflow-y-auto px-2 py-3">
         {onToggleCollapsed && collapsed && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
-            aria-label="توسيع القائمة"
+            aria-label={tr("توسيع القائمة")}
             className="mb-2 h-9 w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
-            <PanelRightOpen className="size-4" />
+            <PanelRightOpen className="size-4 ltr:-scale-x-100" />
           </Button>
         )}
 

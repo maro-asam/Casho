@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 type Branch = { id: string; name: string; isDefault: boolean; isActive: boolean };
 
@@ -24,10 +25,10 @@ export function BranchActions({ branch }: { branch: Branch }) {
     startTransition(async () => {
       try {
         await action();
-        toast.success(msg);
+        toast.success(trv(msg));
         router.refresh();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -41,31 +42,31 @@ export function BranchActions({ branch }: { branch: Branch }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {!branch.isDefault && (
-          <DropdownMenuItem onClick={() => run(() => SetDefaultBranchAction(branch.id), "تم التعيين كفرع افتراضي")}>
-            <Star className="ml-2 size-4" />
-            تعيين كافتراضي
+          <DropdownMenuItem onClick={() => run(() => SetDefaultBranchAction(branch.id), tr("تم التعيين كفرع افتراضي"))}>
+            <Star className="me-2 size-4" />
+            {tr("تعيين كافتراضي")}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
           onClick={() =>
             run(
               () => UpdateBranchAction(branch.id, { isActive: !branch.isActive }),
-              branch.isActive ? "تم تعطيل الفرع" : "تم تفعيل الفرع",
+              branch.isActive ? tr("تم تعطيل الفرع") : tr("تم تفعيل الفرع"),
             )
           }
         >
-          <ToggleLeft className="ml-2 size-4" />
-          {branch.isActive ? "تعطيل" : "تفعيل"}
+          <ToggleLeft className="me-2 size-4" />
+          {branch.isActive ? tr("تعطيل") : tr("تفعيل")}
         </DropdownMenuItem>
         {!branch.isDefault && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => run(() => DeleteBranchAction(branch.id), "تم حذف الفرع")}
+              onClick={() => run(() => DeleteBranchAction(branch.id), tr("تم حذف الفرع"))}
             >
-              <Trash2 className="ml-2 size-4" />
-              حذف
+              <Trash2 className="me-2 size-4" />
+              {tr("حذف")}
             </DropdownMenuItem>
           </>
         )}

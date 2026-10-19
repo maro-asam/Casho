@@ -9,17 +9,18 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { DailyPoint } from "./overview-data";
 import DeltaBadge from "./DeltaBadge";
 import { formatMoney, formatNumber, percentChange } from "./format";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
 type Metric = "revenue" | "orders" | "visits";
 
 const METRICS: Record<Metric, { label: string; format: (v: number) => string; axis: (v: number) => string }> = {
   revenue: {
-    label: "الإيرادات",
+    get label() { return tr("الإيرادات"); },
     format: formatMoney,
-    axis: (v) => new Intl.NumberFormat("ar-EG", { notation: "compact", maximumFractionDigits: 1 }).format(v / 100),
+    axis: (v) => new Intl.NumberFormat(intlLocale(), { notation: "compact", maximumFractionDigits: 1 }).format(v / 100),
   },
-  orders: { label: "الطلبات", format: formatNumber, axis: formatNumber },
-  visits: { label: "الزيارات", format: formatNumber, axis: formatNumber },
+  orders: { get label() { return tr("الطلبات"); }, format: formatNumber, axis: formatNumber },
+  visits: { get label() { return tr("الزيارات"); }, format: formatNumber, axis: formatNumber },
 };
 
 function ChartTooltip({
@@ -37,7 +38,7 @@ function ChartTooltip({
   const { label: metricLabel, format } = METRICS[metric];
 
   return (
-    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-right shadow-md">
+    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-start shadow-md">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-0.5 text-sm font-semibold tabular-nums">
         {metricLabel}: {format(Number(payload[0].value ?? 0))}
@@ -62,15 +63,15 @@ export default function PerformanceChart({
     <Card className="gap-0 rounded-xl py-0 shadow-none">
       <CardHeader className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <CardTitle className="text-base font-semibold">الأداء</CardTitle>
+          <CardTitle className="text-base font-semibold">{tr("الأداء")}</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold tracking-tight tabular-nums">{config.format(total)}</span>
             <DeltaBadge value={percentChange(total, previousTotals[metric])} />
           </div>
-          <p className="text-xs text-muted-foreground">{config.label} · آخر ٣٠ يوم</p>
+          <p className="text-xs text-muted-foreground">{tr("{0} · آخر ٣٠ يوم", config.label)}</p>
         </div>
 
-        <Tabs value={metric} onValueChange={(v) => setMetric(v as Metric)} dir="rtl">
+        <Tabs value={metric} onValueChange={(v) => setMetric(v as Metric)} dir={tdir()}>
           <TabsList>
             {(Object.keys(METRICS) as Metric[]).map((key) => (
               <TabsTrigger key={key} value={key} className="px-3 text-xs">
@@ -129,9 +130,9 @@ export default function PerformanceChart({
         ) : (
           <div className="flex h-72 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border text-center">
             <LineChart className="size-5 text-muted-foreground" />
-            <p className="text-sm font-medium">لسه مفيش بيانات في آخر ٣٠ يوم</p>
+            <p className="text-sm font-medium">{tr("لسه مفيش بيانات في آخر ٣٠ يوم")}</p>
             <p className="max-w-xs text-xs leading-5 text-muted-foreground">
-              أول ما يوصلك زيارات وطلبات، هتشوف أداء متجرك يوم بيوم هنا.
+              {tr("أول ما يوصلك زيارات وطلبات، هتشوف أداء متجرك يوم بيوم هنا.")}
             </p>
           </div>
         )}

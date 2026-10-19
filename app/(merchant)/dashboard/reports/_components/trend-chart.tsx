@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DeltaBadge from "../../_components/overview/DeltaBadge";
 import { formatMoney, formatNumber, percentChange } from "../../_components/overview/format";
 import type { SeriesPoint } from "../_lib/types";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
 
 type Metric = "netSales" | "profit" | "orders" | "visitors";
 const PREV: Record<Metric, keyof SeriesPoint> = {
@@ -18,13 +19,13 @@ const PREV: Record<Metric, keyof SeriesPoint> = {
   visitors: "prevVisitors",
 };
 
-const compact = new Intl.NumberFormat("ar-EG", { notation: "compact", maximumFractionDigits: 1 });
+const compact = lazyIntl.number({ notation: "compact", maximumFractionDigits: 1 });
 
 const METRICS: Record<Metric, { label: string; format: (v: number) => string; axis: (v: number) => string }> = {
-  netSales: { label: "صافي المبيعات", format: formatMoney, axis: (v) => compact.format(v / 100) },
-  profit: { label: "الربح", format: formatMoney, axis: (v) => compact.format(v / 100) },
-  orders: { label: "الطلبات", format: formatNumber, axis: formatNumber },
-  visitors: { label: "الزوار", format: formatNumber, axis: formatNumber },
+  netSales: { get label() { return tr("صافي المبيعات"); }, format: formatMoney, axis: (v) => compact.format(v / 100) },
+  profit: { get label() { return tr("الربح"); }, format: formatMoney, axis: (v) => compact.format(v / 100) },
+  orders: { get label() { return tr("الطلبات"); }, format: formatNumber, axis: formatNumber },
+  visitors: { get label() { return tr("الزوار"); }, format: formatNumber, axis: formatNumber },
 };
 
 type TooltipProps = {
@@ -41,18 +42,18 @@ function ChartTooltip({ active, payload, label, metric }: TooltipProps) {
   const previous = payload.find((p) => p.dataKey === PREV[metric])?.value;
 
   return (
-    <div className="min-w-36 rounded-lg border border-border bg-popover px-3 py-2 text-right text-xs shadow-md" dir="rtl">
+    <div className="min-w-36 rounded-lg border border-border bg-popover px-3 py-2 text-start text-xs shadow-md" dir={tdir()}>
       <p className="text-muted-foreground">{label}</p>
       <p className="mt-1 flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-primary" /> الفترة دي
+          <span className="size-2 rounded-full bg-primary" />{" "}{tr("الفترة دي")}
         </span>
         <span className="font-semibold tabular-nums">{format(Number(current ?? 0))}</span>
       </p>
       {previous !== undefined && (
         <p className="mt-0.5 flex items-center justify-between gap-4 text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-muted-foreground/50" /> اللي قبلها
+            <span className="size-2 rounded-full bg-muted-foreground/50" />{" "}{tr("اللي قبلها")}
           </span>
           <span className="tabular-nums">{format(Number(previous))}</span>
         </p>
@@ -72,16 +73,16 @@ export function TrendChart({ series, previousLabel }: { series: SeriesPoint[]; p
     <Card className="gap-0 rounded-xl py-0 shadow-none">
       <CardHeader className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <CardTitle className="text-sm font-semibold">{config.label} على مدار الفترة</CardTitle>
+          <CardTitle className="text-sm font-semibold">{tr("{0} على مدار الفترة", config.label)}</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold tracking-tight tabular-nums">{config.format(total)}</span>
             <DeltaBadge value={percentChange(total, prevTotal)} />
           </div>
           <p className="text-xs text-muted-foreground">
-            الخط المتقطع = {previousLabel} ({config.format(prevTotal)})
+            {tr("الخط المتقطع = {0} ({1})", previousLabel, config.format(prevTotal))}
           </p>
         </div>
-        <Tabs value={metric} onValueChange={(v) => setMetric(v as Metric)} dir="rtl">
+        <Tabs value={metric} onValueChange={(v) => setMetric(v as Metric)} dir={tdir()}>
           <TabsList>
             {(Object.keys(METRICS) as Metric[]).map((key) => (
               <TabsTrigger key={key} value={key} className="px-3 text-xs">
@@ -147,8 +148,8 @@ export function TrendChart({ series, previousLabel }: { series: SeriesPoint[]; p
         ) : (
           <div className="flex h-72 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border text-center">
             <LineChart className="size-5 text-muted-foreground" />
-            <p className="text-sm font-medium">مفيش مبيعات ولا زيارات في الفترة دي</p>
-            <p className="max-w-xs text-xs leading-5 text-muted-foreground">جرّب فترة أطول من فوق.</p>
+            <p className="text-sm font-medium">{tr("مفيش مبيعات ولا زيارات في الفترة دي")}</p>
+            <p className="max-w-xs text-xs leading-5 text-muted-foreground">{tr("جرّب فترة أطول من فوق.")}</p>
           </div>
         )}
       </CardContent>

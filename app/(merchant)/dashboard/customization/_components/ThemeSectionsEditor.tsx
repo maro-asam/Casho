@@ -63,6 +63,7 @@ import type {
   SectionContentMap,
 } from "@/types/store-theme.types";
 import { DEFAULT_SECTION_ORDER } from "@/types/store-theme.types";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 // ─── Section metadata ──────────────────────────────────────────────────────────
 
@@ -80,104 +81,104 @@ const SECTION_META: Record<SectionKey, SectionMeta> = {
   // ── Core ──────────────────────────────────────────────────────────────────
   showHero: {
     icon: ImageIcon,
-    label: "قسم الهيرو / البانر",
-    description: "الصورة الرئيسية الكبيرة في أعلى الصفحة",
+    get label() { return tr("قسم الهيرو / البانر"); },
+    get description() { return tr("الصورة الرئيسية الكبيرة في أعلى الصفحة"); },
     category: "core",
   },
   showCategories: {
     icon: LayoutGrid,
-    label: "قسم التصنيفات",
-    description: "عرض تصنيفات المتجر بشكل بطاقات",
+    get label() { return tr("قسم التصنيفات"); },
+    get description() { return tr("عرض تصنيفات المتجر بشكل بطاقات"); },
     category: "core",
   },
   showFeaturedProducts: {
     icon: Star,
-    label: "المنتجات المميزة",
-    description: "المنتجات التي تم تمييزها يدويًا",
+    get label() { return tr("المنتجات المميزة"); },
+    get description() { return tr("المنتجات التي تم تمييزها يدويًا"); },
     category: "core",
   },
   showLatestProducts: {
     icon: Clock,
-    label: "أحدث المنتجات",
-    description: "شبكة المنتجات الأحدث إضافةً",
+    get label() { return tr("أحدث المنتجات"); },
+    get description() { return tr("شبكة المنتجات الأحدث إضافةً"); },
     category: "core",
   },
   // ── Sales Funnel ──────────────────────────────────────────────────────────
   showOfferStrip: {
     icon: Megaphone,
-    label: "شريط العروض",
-    description: "شريط متحرك يعرض عروض وميزات المتجر",
+    get label() { return tr("شريط العروض"); },
+    get description() { return tr("شريط متحرك يعرض عروض وميزات المتجر"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showSocialProof: {
     icon: Users,
-    label: "إثبات الثقة",
-    description: "أرقام وإحصاءات تُقنع الزائر بجودة المتجر",
+    get label() { return tr("إثبات الثقة"); },
+    get description() { return tr("أرقام وإحصاءات تُقنع الزائر بجودة المتجر"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showBestSellers: {
     icon: TrendingUp,
-    label: "الأكثر مبيعًا",
-    description: "أقوى المنتجات مبيعًا مع شارات Trending",
+    get label() { return tr("الأكثر مبيعًا"); },
+    get description() { return tr("أقوى المنتجات مبيعًا مع شارات Trending"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showCollections: {
     icon: FolderOpen,
-    label: "معرض المجموعات",
-    description: "عرض مجموعات منتجات بشكل بصري جذاب",
+    get label() { return tr("معرض المجموعات"); },
+    get description() { return tr("عرض مجموعات منتجات بشكل بصري جذاب"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showWhyChooseUs: {
     icon: ThumbsUp,
-    label: "لماذا تختارنا؟",
-    description: "بطاقات تُبرز مزايا المتجر وأسباب الثقة",
+    get label() { return tr("لماذا تختارنا؟"); },
+    get description() { return tr("بطاقات تُبرز مزايا المتجر وأسباب الثقة"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showTestimonials: {
     icon: MessageSquare,
-    label: "آراء العملاء",
-    description: "كاروسيل تقييمات العملاء الحقيقيين",
+    get label() { return tr("آراء العملاء"); },
+    get description() { return tr("كاروسيل تقييمات العملاء الحقيقيين"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showUrgency: {
     icon: Timer,
-    label: "قسم الإلحاح",
-    description: "عداد تنازلي + شارات مخزون محدود لتسريع الشراء",
+    get label() { return tr("قسم الإلحاح"); },
+    get description() { return tr("عداد تنازلي + شارات مخزون محدود لتسريع الشراء"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showAboutBrand: {
     icon: Store,
-    label: "نبذة عن المتجر",
-    description: "قصة قصيرة عن البراند تبني الثقة",
+    get label() { return tr("نبذة عن المتجر"); },
+    get description() { return tr("قصة قصيرة عن البراند تبني الثقة"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   showNewsletter: {
     icon: Mail,
-    label: "الاشتراك البريدي",
-    description: "جمع الإيميلات بخصم أول طلب",
+    get label() { return tr("الاشتراك البريدي"); },
+    get description() { return tr("جمع الإيميلات بخصم أول طلب"); },
     category: "funnel",
-    badge: "جديد",
+    get badge() { return tr("جديد"); },
   },
   // ── Visual Builder ────────────────────────────────────────────────────────
   showHeroBanner: {
     icon: Sparkles,
-    label: "بانر مخصص",
-    description: "هيرو بانر احترافي قابل للتصميم الكامل",
+    get label() { return tr("بانر مخصص"); },
+    get description() { return tr("هيرو بانر احترافي قابل للتصميم الكامل"); },
     category: "funnel",
     badge: "Builder",
   },
   showRichText: {
     icon: FileText,
-    label: "نص غني",
-    description: "كتلة نصية بعنوان وفقرة قابلة للتنسيق",
+    get label() { return tr("نص غني"); },
+    get description() { return tr("كتلة نصية بعنوان وفقرة قابلة للتنسيق"); },
     category: "funnel",
     badge: "Builder",
   },
@@ -194,9 +195,9 @@ function OfferStripEditor({
 }) {
   const [items, setItems] = useState<string[]>(
     content?.items ?? [
-      "🚚 توصيل سريع لجميع المحافظات",
-      "✅ ضمان الاسترجاع 30 يوم",
-      "💳 الدفع عند الاستلام متاح",
+      tr("🚚 توصيل سريع لجميع المحافظات"),
+      tr("✅ ضمان الاسترجاع 30 يوم"),
+      tr("💳 الدفع عند الاستلام متاح"),
     ],
   );
   const [isPending, startTransition] = useTransition();
@@ -207,8 +208,8 @@ function OfferStripEditor({
         storeId,
         updates: { offerStrip: { items: items.filter(Boolean) } },
       });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   };
 
@@ -223,7 +224,7 @@ function OfferStripEditor({
               next[i] = e.target.value;
               setItems(next);
             }}
-            placeholder="مثال: 🚚 توصيل مجاني"
+            placeholder={tr("مثال: 🚚 توصيل مجاني")}
             className="flex-1 text-sm"
           />
           <Button
@@ -244,11 +245,11 @@ function OfferStripEditor({
           onClick={() => setItems([...items, ""])}
         >
           <Plus className="size-3" />
-          إضافة عنصر
+          {tr("إضافة عنصر")}
         </Button>
         <Button size="sm" className="gap-1.5 text-xs" onClick={save} disabled={isPending}>
           <Save className="size-3" />
-          حفظ
+          {tr("حفظ")}
         </Button>
       </div>
     </div>
@@ -262,13 +263,13 @@ function SocialProofEditor({
   storeId: string;
   content?: SectionContentMap["socialProof"];
 }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "لماذا يثق بنا آلاف العملاء؟");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("لماذا يثق بنا آلاف العملاء؟"));
   const [stats, setStats] = useState(
     content?.stats ?? [
-      { icon: "😊", value: "10,000+", label: "عميل سعيد" },
-      { icon: "⭐", value: "4.9", label: "متوسط التقييم" },
-      { icon: "🚚", value: "24h", label: "متوسط التوصيل" },
-      { icon: "🔄", value: "30 يوم", label: "ضمان الاسترجاع" },
+      { icon: "😊", value: "10,000+", label: tr("عميل سعيد") },
+      { icon: "⭐", value: "4.9", label: tr("متوسط التقييم") },
+      { icon: "🚚", value: "24h", label: tr("متوسط التوصيل") },
+      { icon: "🔄", value: tr("30 يوم"), label: tr("ضمان الاسترجاع") },
     ],
   );
   const [isPending, startTransition] = useTransition();
@@ -285,8 +286,8 @@ function SocialProofEditor({
         storeId,
         updates: { socialProof: { headline, stats } },
       });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   };
 
@@ -295,7 +296,7 @@ function SocialProofEditor({
       <Input
         value={headline}
         onChange={(e) => setHeadline(e.target.value)}
-        placeholder="عنوان القسم"
+        placeholder={tr("عنوان القسم")}
         className="text-sm"
       />
       <div className="space-y-2">
@@ -303,13 +304,13 @@ function SocialProofEditor({
           <div key={i} className="grid grid-cols-[2rem_1fr_1fr] gap-2">
             <Input value={stat.icon} onChange={(e) => updateStat(i, "icon", e.target.value)} className="text-center text-sm px-1" maxLength={4} />
             <Input value={stat.value} onChange={(e) => updateStat(i, "value", e.target.value)} placeholder="10,000+" className="text-sm" />
-            <Input value={stat.label} onChange={(e) => updateStat(i, "label", e.target.value)} placeholder="عميل سعيد" className="text-sm" />
+            <Input value={stat.label} onChange={(e) => updateStat(i, "label", e.target.value)} placeholder={tr("عميل سعيد")} className="text-sm" />
           </div>
         ))}
       </div>
       <Button size="sm" className="gap-1.5 text-xs" onClick={save} disabled={isPending}>
         <Save className="size-3" />
-        حفظ
+        {tr("حفظ")}
       </Button>
     </div>
   );
@@ -322,13 +323,13 @@ function WhyChooseUsEditor({
   storeId: string;
   content?: SectionContentMap["whyChooseUs"];
 }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "لماذا تتسوق معنا؟");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("لماذا تتسوق معنا؟"));
   const [cards, setCards] = useState(
     content?.cards ?? [
-      { icon: "🛡️", title: "ضمان الجودة", description: "كل منتج يمر بفحص دقيق قبل الشحن" },
-      { icon: "🚀", title: "شحن سريع", description: "توصيل خلال 24-48 ساعة لجميع المحافظات" },
-      { icon: "💬", title: "دعم متواصل", description: "فريق الدعم جاهز للرد في أي وقت" },
-      { icon: "🔄", title: "إرجاع مجاني", description: "ارجع المنتج خلال 30 يوم" },
+      { icon: "🛡️", title: tr("ضمان الجودة"), description: tr("كل منتج يمر بفحص دقيق قبل الشحن") },
+      { icon: "🚀", title: tr("شحن سريع"), description: tr("توصيل خلال 24-48 ساعة لجميع المحافظات") },
+      { icon: "💬", title: tr("دعم متواصل"), description: tr("فريق الدعم جاهز للرد في أي وقت") },
+      { icon: "🔄", title: tr("إرجاع مجاني"), description: tr("ارجع المنتج خلال 30 يوم") },
     ],
   );
   const [isPending, startTransition] = useTransition();
@@ -339,28 +340,28 @@ function WhyChooseUsEditor({
         storeId,
         updates: { whyChooseUs: { headline, cards } },
       });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   };
 
   return (
     <div className="space-y-3">
-      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="عنوان القسم" className="text-sm" />
+      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder={tr("عنوان القسم")} className="text-sm" />
       <div className="space-y-2">
         {cards.map((card, i) => (
           <div key={i} className="rounded-xl border p-3 space-y-2">
             <div className="flex gap-2">
               <Input value={card.icon} onChange={(e) => { const n=[...cards]; n[i]={...n[i],icon:e.target.value}; setCards(n); }} className="w-16 text-center text-sm px-1" maxLength={4} />
-              <Input value={card.title} onChange={(e) => { const n=[...cards]; n[i]={...n[i],title:e.target.value}; setCards(n); }} placeholder="العنوان" className="flex-1 text-sm" />
+              <Input value={card.title} onChange={(e) => { const n=[...cards]; n[i]={...n[i],title:e.target.value}; setCards(n); }} placeholder={tr("العنوان")} className="flex-1 text-sm" />
             </div>
-            <Input value={card.description} onChange={(e) => { const n=[...cards]; n[i]={...n[i],description:e.target.value}; setCards(n); }} placeholder="الوصف" className="text-sm" />
+            <Input value={card.description} onChange={(e) => { const n=[...cards]; n[i]={...n[i],description:e.target.value}; setCards(n); }} placeholder={tr("الوصف")} className="text-sm" />
           </div>
         ))}
       </div>
       <Button size="sm" className="gap-1.5 text-xs" onClick={save} disabled={isPending}>
         <Save className="size-3" />
-        حفظ
+        {tr("حفظ")}
       </Button>
     </div>
   );
@@ -373,11 +374,11 @@ function TestimonialsEditor({
   storeId: string;
   content?: SectionContentMap["testimonials"];
 }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "ماذا يقول عملاؤنا؟");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("ماذا يقول عملاؤنا؟"));
   const [items, setItems] = useState(
     content?.items ?? [
-      { name: "أحمد محمد", text: "منتجات ممتازة وجودة عالية جدًا", rating: 5, avatar: undefined },
-      { name: "سارة أحمد", text: "أفضل متجر تسوقت منه على الإطلاق", rating: 5, avatar: undefined },
+      { name: tr("أحمد محمد"), text: tr("منتجات ممتازة وجودة عالية جدًا"), rating: 5, avatar: undefined },
+      { name: tr("سارة أحمد"), text: tr("أفضل متجر تسوقت منه على الإطلاق"), rating: 5, avatar: undefined },
     ],
   );
   const [isPending, startTransition] = useTransition();
@@ -385,36 +386,36 @@ function TestimonialsEditor({
   const save = () => {
     startTransition(async () => {
       const res = await UpdateSectionContentAction({ storeId, updates: { testimonials: { headline, items } } });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   };
 
   return (
     <div className="space-y-3">
-      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="عنوان القسم" className="text-sm" />
+      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder={tr("عنوان القسم")} className="text-sm" />
       <div className="space-y-2">
         {items.map((item, i) => (
           <div key={i} className="rounded-xl border p-3 space-y-2">
             <div className="flex gap-2">
-              <Input value={item.name} onChange={(e) => { const n=[...items]; n[i]={...n[i],name:e.target.value}; setItems(n); }} placeholder="الاسم" className="flex-1 text-sm" />
+              <Input value={item.name} onChange={(e) => { const n=[...items]; n[i]={...n[i],name:e.target.value}; setItems(n); }} placeholder={tr("الاسم")} className="flex-1 text-sm" />
               <Input type="number" min={1} max={5} value={item.rating ?? 5} onChange={(e) => { const n=[...items]; n[i]={...n[i],rating:Number(e.target.value)}; setItems(n); }} className="w-16 text-center text-sm" />
               <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setItems(items.filter((_, j) => j !== i))}>
                 <Trash2 className="size-3.5 text-destructive" />
               </Button>
             </div>
-            <Textarea value={item.text} onChange={(e) => { const n=[...items]; n[i]={...n[i],text:e.target.value}; setItems(n); }} placeholder="التقييم..." className="text-sm resize-none" rows={2} />
+            <Textarea value={item.text} onChange={(e) => { const n=[...items]; n[i]={...n[i],text:e.target.value}; setItems(n); }} placeholder={tr("التقييم...")} className="text-sm resize-none" rows={2} />
           </div>
         ))}
       </div>
       <div className="flex gap-2">
         <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setItems([...items, { name: "", text: "", rating: 5 }])}>
           <Plus className="size-3" />
-          إضافة تقييم
+          {tr("إضافة تقييم")}
         </Button>
         <Button size="sm" className="gap-1.5 text-xs" onClick={save} disabled={isPending}>
           <Save className="size-3" />
-          حفظ
+          {tr("حفظ")}
         </Button>
       </div>
     </div>
@@ -430,29 +431,29 @@ function AboutBrandEditor({
 }) {
   const [headline, setHeadline] = useState(content?.headline ?? "");
   const [text, setText] = useState(content?.text ?? "");
-  const [ctaText, setCtaText] = useState(content?.ctaText ?? "اعرف أكثر عنّا");
+  const [ctaText, setCtaText] = useState(content?.ctaText ?? tr("اعرف أكثر عنّا"));
   const [ctaLink, setCtaLink] = useState(content?.ctaLink ?? "/about");
   const [isPending, startTransition] = useTransition();
 
   const save = () => {
     startTransition(async () => {
       const res = await UpdateSectionContentAction({ storeId, updates: { aboutBrand: { headline, text, ctaText, ctaLink } } });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   };
 
   return (
     <div className="space-y-2">
-      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="العنوان الرئيسي" className="text-sm" />
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="نبذة قصيرة عن المتجر..." className="text-sm resize-none" rows={3} />
+      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder={tr("العنوان الرئيسي")} className="text-sm" />
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={tr("نبذة قصيرة عن المتجر...")} className="text-sm resize-none" rows={3} />
       <div className="flex gap-2">
-        <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="نص الزر" className="flex-1 text-sm" />
+        <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder={tr("نص الزر")} className="flex-1 text-sm" />
         <Input value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} placeholder="/about" className="flex-1 text-sm" />
       </div>
       <Button size="sm" className="gap-1.5 text-xs" onClick={save} disabled={isPending}>
         <Save className="size-3" />
-        حفظ
+        {tr("حفظ")}
       </Button>
     </div>
   );
@@ -465,27 +466,27 @@ function NewsletterEditor({
   storeId: string;
   content?: SectionContentMap["newsletter"];
 }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "اشترك واحصل على خصم 15% على أول طلب 🎁");
-  const [subheadline, setSubheadline] = useState(content?.subheadline ?? "كن أول من يعرف عن العروض الحصرية");
-  const [ctaText, setCtaText] = useState(content?.ctaText ?? "اشترك الآن");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("اشترك واحصل على خصم 15% على أول طلب 🎁"));
+  const [subheadline, setSubheadline] = useState(content?.subheadline ?? tr("كن أول من يعرف عن العروض الحصرية"));
+  const [ctaText, setCtaText] = useState(content?.ctaText ?? tr("اشترك الآن"));
   const [isPending, startTransition] = useTransition();
 
   const save = () => {
     startTransition(async () => {
       const res = await UpdateSectionContentAction({ storeId, updates: { newsletter: { headline, subheadline, ctaText } } });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   };
 
   return (
     <div className="space-y-2">
-      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="العنوان" className="text-sm" />
-      <Input value={subheadline} onChange={(e) => setSubheadline(e.target.value)} placeholder="العنوان الفرعي" className="text-sm" />
-      <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="نص الزر" className="text-sm" />
+      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder={tr("العنوان")} className="text-sm" />
+      <Input value={subheadline} onChange={(e) => setSubheadline(e.target.value)} placeholder={tr("العنوان الفرعي")} className="text-sm" />
+      <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder={tr("نص الزر")} className="text-sm" />
       <Button size="sm" className="gap-1.5 text-xs" onClick={save} disabled={isPending}>
         <Save className="size-3" />
-        حفظ
+        {tr("حفظ")}
       </Button>
     </div>
   );
@@ -498,7 +499,7 @@ function UrgencyEditor({
   storeId: string;
   content?: SectionContentMap["urgency"];
 }) {
-  const [headline, setHeadline] = useState(content?.headline ?? "⚡ عرض محدود الوقت — لا تفوّته!");
+  const [headline, setHeadline] = useState(content?.headline ?? tr("⚡ عرض محدود الوقت — لا تفوّته!"));
   const [timerEndDate, setTimerEndDate] = useState(content?.timerEndDate ?? "");
   const [showStockBadge, setShowStockBadge] = useState(content?.showStockBadge ?? true);
   const [showViewersBadge, setShowViewersBadge] = useState(content?.showViewersBadge ?? true);
@@ -510,31 +511,31 @@ function UrgencyEditor({
         storeId,
         updates: { urgency: { headline, timerEndDate: timerEndDate || undefined, showStockBadge, showViewersBadge } },
       });
-      if (res.success) toast.success(res.message);
-      else toast.error(res.message);
+      if (res.success) toast.success(trv(res.message));
+      else toast.error(trv(res.message));
     });
   };
 
   return (
     <div className="space-y-2">
-      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="العنوان" className="text-sm" />
+      <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder={tr("العنوان")} className="text-sm" />
       <div>
-        <label className="mb-1 block text-xs text-muted-foreground">تاريخ انتهاء العرض (اختياري)</label>
+        <label className="mb-1 block text-xs text-muted-foreground">{tr("تاريخ انتهاء العرض (اختياري)")}</label>
         <Input type="datetime-local" value={timerEndDate} onChange={(e) => setTimerEndDate(e.target.value)} className="text-sm" />
       </div>
       <div className="flex gap-4 text-sm">
         <label className="flex items-center gap-2 cursor-pointer">
           <Switch checked={showStockBadge} onCheckedChange={setShowStockBadge} />
-          <span>شارة المخزون</span>
+          <span>{tr("شارة المخزون")}</span>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
           <Switch checked={showViewersBadge} onCheckedChange={setShowViewersBadge} />
-          <span>عدد المتصفحين</span>
+          <span>{tr("عدد المتصفحين")}</span>
         </label>
       </div>
       <Button size="sm" className="gap-1.5 text-xs" onClick={save} disabled={isPending}>
         <Save className="size-3" />
-        حفظ
+        {tr("حفظ")}
       </Button>
     </div>
   );
@@ -634,7 +635,7 @@ function SortableRow({
           {...attributes}
           {...listeners}
           className="cursor-grab touch-none text-muted-foreground/40 hover:text-muted-foreground transition-colors active:cursor-grabbing"
-          aria-label="اسحب لإعادة الترتيب"
+          aria-label={tr("اسحب لإعادة الترتيب")}
           tabIndex={-1}
         >
           <GripVertical className="size-4" />
@@ -680,7 +681,7 @@ function SortableRow({
               : "bg-muted text-muted-foreground"
           }`}
         >
-          {isOn ? "مُفعّل" : "مُخفي"}
+          {isOn ? tr("مُفعّل") : tr("مُخفي")}
         </span>
 
         {/* Expand button (for funnel sections with editors) */}
@@ -688,7 +689,7 @@ function SortableRow({
           <button
             onClick={() => setExpanded((e) => !e)}
             className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            aria-label={expanded ? "طي" : "تخصيص"}
+            aria-label={expanded ? tr("طي") : tr("تخصيص")}
           >
             {expanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
           </button>
@@ -707,7 +708,7 @@ function SortableRow({
       {hasEditor && isOn && expanded && (
         <div className="border-t bg-muted/20 px-4 py-4">
           <p className="mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            تخصيص المحتوى
+            {tr("تخصيص المحتوى")}
           </p>
           <SectionContentEditor
             sectionKey={sectionKey}
@@ -775,15 +776,15 @@ export default function ThemeSectionsEditor({
           updates: { [key]: value },
         });
         if (result.success) {
-          toast.success(result.message);
+          toast.success(trv(result.message));
           router.refresh();
         } else {
           setVisibility((prev) => ({ ...prev, [key]: !value }));
-          toast.error(result.message);
+          toast.error(trv(result.message));
         }
       } catch {
         setVisibility((prev) => ({ ...prev, [key]: !value }));
-        toast.error("حصل خطأ غير متوقع، حاول تاني");
+        toast.error(tr("حصل خطأ غير متوقع، حاول تاني"));
       }
     });
   }
@@ -799,15 +800,15 @@ export default function ThemeSectionsEditor({
       try {
         const result = await UpdateSectionOrderAction({ storeId, order: newOrder });
         if (result.success) {
-          toast.success(result.message);
+          toast.success(trv(result.message));
           router.refresh();
         } else {
           setOrder(order);
-          toast.error(result.message);
+          toast.error(trv(result.message));
         }
       } catch {
         setOrder(order);
-        toast.error("حصل خطأ أثناء حفظ الترتيب");
+        toast.error(tr("حصل خطأ أثناء حفظ الترتيب"));
       }
     });
   }
@@ -831,7 +832,7 @@ export default function ThemeSectionsEditor({
   );
 
   return (
-    <Card dir="rtl">
+    <Card dir={tdir()}>
       <CardContent className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -839,9 +840,9 @@ export default function ThemeSectionsEditor({
             <Layers className="size-4" />
           </div>
           <div>
-            <h2 className="font-semibold">إدارة أقسام المتجر</h2>
+            <h2 className="font-semibold">{tr("إدارة أقسام المتجر")}</h2>
             <p className="text-xs text-muted-foreground">
-              اسحب لإعادة الترتيب • فعّل أو أخفِ كل قسم • خصّص المحتوى
+              {tr("اسحب لإعادة الترتيب • فعّل أو أخفِ كل قسم • خصّص المحتوى")}
             </p>
           </div>
         </div>
@@ -855,7 +856,7 @@ export default function ThemeSectionsEditor({
             {/* Core Sections */}
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                الأقسام الأساسية
+                {tr("الأقسام الأساسية")}
               </h3>
               <div className="divide-y divide-border rounded-2xl border overflow-hidden">
                 {coreSectionKeys.map(renderRow)}
@@ -866,14 +867,14 @@ export default function ThemeSectionsEditor({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  أقسام Sales Funnel
+                  {tr("أقسام Sales Funnel")}
                 </h3>
                 <Badge variant="default" className="h-4 px-1.5 text-[9px] font-bold">
-                  جديد
+                  {tr("جديد")}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground -mt-1">
-                فعّل هذه الأقسام لتحويل متجرك إلى محرك مبيعات حقيقي 🔥
+                {tr("فعّل هذه الأقسام لتحويل متجرك إلى محرك مبيعات حقيقي 🔥")}
               </p>
               <div className="divide-y divide-border rounded-2xl border overflow-hidden">
                 {allFunnelKeys.map(renderRow)}

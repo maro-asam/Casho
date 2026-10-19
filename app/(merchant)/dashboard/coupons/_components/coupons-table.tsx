@@ -4,6 +4,7 @@ import { StatusPill } from "@/components/saas-page";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { couponStatusMeta, formatCouponValue, type CouponStatus } from "@/lib/coupons/coupon-status";
 import { CouponActiveSwitch, CouponRowActions } from "./coupon-row-actions";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type CouponRow = {
   id: string;
@@ -23,16 +24,16 @@ export type CouponRow = {
   popupNames: string[];
 };
 
-const nf = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 });
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
-const df = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short" });
+const nf = lazyIntl.number({ maximumFractionDigits: 2 });
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short" });
 
 type Props = { coupons: CouponRow[]; editHref: (id: string) => string; shareUrl: (code: string) => string };
 
 function conditions(c: CouponRow) {
   return [
-    c.type === "PERCENTAGE" && c.maxDiscount && `أقصى ${nf.format(c.maxDiscount)} ج.م`,
-    c.minSubtotal && `من ${nf.format(c.minSubtotal)} ج.م`,
+    c.type === "PERCENTAGE" && c.maxDiscount && tr("أقصى {0} ج.م", nf.format(c.maxDiscount)),
+    c.minSubtotal && tr("من {0} ج.م", nf.format(c.minSubtotal)),
   ]
     .filter(Boolean)
     .join(" · ");
@@ -42,7 +43,7 @@ function Usage({ c }: { c: CouponRow }) {
   if (!c.usageLimit) {
     return (
       <div className="text-sm">
-        <span className="tabular-nums">{nf.format(c.usedCount)}</span> <span className="text-xs text-muted-foreground">مرة · مفتوح</span>
+        <span className="tabular-nums">{nf.format(c.usedCount)}</span> <span className="text-xs text-muted-foreground">{tr("مرة · مفتوح")}</span>
       </div>
     );
   }
@@ -50,12 +51,12 @@ function Usage({ c }: { c: CouponRow }) {
   return (
     <div className="w-28 space-y-1">
       <p className="text-sm tabular-nums">
-        {nf.format(c.usedCount)} <span className="text-xs text-muted-foreground">من {nf.format(c.usageLimit)}</span>
+        {nf.format(c.usedCount)} <span className="text-xs text-muted-foreground">{tr("من {0}", nf.format(c.usageLimit))}</span>
       </p>
       <div
         className="h-1.5 overflow-hidden rounded-full bg-muted"
         role="img"
-        aria-label={`اتستخدم ${c.usedCount} من ${c.usageLimit}`}
+        aria-label={tr("اتستخدم {0} من {1}", c.usedCount, c.usageLimit)}
       >
         <div className="h-full rounded-full bg-primary" style={{ width: `${ratio * 100}%` }} />
       </div>
@@ -64,10 +65,10 @@ function Usage({ c }: { c: CouponRow }) {
 }
 
 function Validity({ c }: { c: CouponRow }) {
-  if (!c.startsAt && !c.expiresAt) return <span className="text-sm text-muted-foreground">من غير تاريخ</span>;
+  if (!c.startsAt && !c.expiresAt) return <span className="text-sm text-muted-foreground">{tr("من غير تاريخ")}</span>;
   return (
     <span className="text-sm tabular-nums">
-      {c.startsAt ? df.format(c.startsAt) : "الآن"} <span className="text-muted-foreground">←</span> {c.expiresAt ? df.format(c.expiresAt) : "مفتوح"}
+      {c.startsAt ? df.format(c.startsAt) : tr("الآن")} <span className="text-muted-foreground">←</span> {c.expiresAt ? df.format(c.expiresAt) : tr("مفتوح")}
     </span>
   );
 }
@@ -91,12 +92,12 @@ export function CouponsTable({ coupons, editHref, shareUrl }: Props) {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">الكود</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الاستخدام</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">الصلاحية</TableHead>
-              <TableHead className="hidden h-10 text-left text-xs font-medium text-muted-foreground xl:table-cell">مبيعات بالكود</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الحالة</TableHead>
-              <TableHead className="h-10 w-28 pe-4 text-left text-xs font-medium text-muted-foreground">تشغيل</TableHead>
+              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("الكود")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الاستخدام")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("الصلاحية")}</TableHead>
+              <TableHead className="hidden h-10 text-end text-xs font-medium text-muted-foreground xl:table-cell">{tr("مبيعات بالكود")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
+              <TableHead className="h-10 w-28 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("تشغيل")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -124,7 +125,7 @@ export function CouponsTable({ coupons, editHref, shareUrl }: Props) {
                   <TableCell className="hidden py-3 lg:table-cell">
                     <Validity c={c} />
                   </TableCell>
-                  <TableCell className="hidden py-3 text-left text-sm tabular-nums xl:table-cell">
+                  <TableCell className="hidden py-3 text-end text-sm tabular-nums xl:table-cell">
                     {c.revenue ? money.format(c.revenue / 100) : <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="py-3">
@@ -159,8 +160,7 @@ export function CouponsTable({ coupons, editHref, shareUrl }: Props) {
                 <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
                 <span className="tabular-nums">
                   {nf.format(c.usedCount)}
-                  {c.usageLimit ? ` من ${nf.format(c.usageLimit)}` : ""} استخدام
-                  {c.revenue ? ` · ${money.format(c.revenue / 100)}` : ""}
+                  {c.usageLimit ? tr(" من {0}", nf.format(c.usageLimit)) : ""}{" "}{tr("استخدام{0}", c.revenue ? ` · ${money.format(c.revenue / 100)}` : "")}
                 </span>
               </div>
             </li>

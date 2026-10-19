@@ -9,14 +9,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { useBuilder, type PreviewDevice } from "./BuilderContext";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
 
 const DEVICES: { id: PreviewDevice; icon: React.ElementType; label: string; key: string }[] = [
-  { id: "mobile", icon: Smartphone, label: "موبايل", key: "1" },
-  { id: "tablet", icon: Tablet, label: "تابلت", key: "2" },
-  { id: "desktop", icon: Monitor, label: "كمبيوتر", key: "3" },
+  { id: "mobile", icon: Smartphone, get label() { return tr("موبايل"); }, key: "1" },
+  { id: "tablet", icon: Tablet, get label() { return tr("تابلت"); }, key: "2" },
+  { id: "desktop", icon: Monitor, get label() { return tr("كمبيوتر"); }, key: "3" },
 ];
 
-const rtf = new Intl.RelativeTimeFormat("ar-EG", { numeric: "auto" });
+const rtf = lazyIntl.relative({ numeric: "auto" });
 
 function useRelativeTime(ts: number | null) {
   const [now, setNow] = useState(() => Date.now());
@@ -27,7 +28,7 @@ function useRelativeTime(ts: number | null) {
   }, [ts]);
   if (!ts) return null;
   const sec = Math.round((ts - now) / 1000);
-  return Math.abs(sec) < 45 ? "دلوقتي" : rtf.format(Math.round(sec / 60), "minute");
+  return Math.abs(sec) < 45 ? tr("دلوقتي") : rtf.format(Math.round(sec / 60), "minute");
 }
 
 export default function BuilderTopBar() {
@@ -36,13 +37,13 @@ export default function BuilderTopBar() {
   const savedAgo = useRelativeTime(lastSavedAt);
 
   const pages = [
-    { path: "/", label: "الصفحة الرئيسية" },
-    { path: "/products", label: "كل المنتجات" },
-    ...(sampleProductSlug ? [{ path: `/products/${sampleProductSlug}`, label: "صفحة منتج" }] : []),
-    { path: "/categories", label: "التصنيفات" },
-    { path: "/cart", label: "السلة" },
-    { path: "/about", label: "من نحن" },
-    { path: "/contact", label: "تواصل معنا" },
+    { path: "/", label: tr("الصفحة الرئيسية") },
+    { path: "/products", label: tr("كل المنتجات") },
+    ...(sampleProductSlug ? [{ path: `/products/${sampleProductSlug}`, label: tr("صفحة منتج") }] : []),
+    { path: "/categories", label: tr("التصنيفات") },
+    { path: "/cart", label: tr("السلة") },
+    { path: "/about", label: tr("من نحن") },
+    { path: "/contact", label: tr("تواصل معنا") },
   ];
   const known = pages.some((p) => p.path === previewPath);
 
@@ -54,26 +55,26 @@ export default function BuilderTopBar() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" asChild className="size-8 shrink-0">
-                <Link href="/customization" aria-label="رجوع للتخصيص">
-                  <ArrowRight className="size-4" />
+                <Link href="/customization" aria-label={tr("رجوع للتخصيص")}>
+                  <ArrowRight className="size-4 ltr:-scale-x-100" />
                 </Link>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>رجوع للتخصيص</TooltipContent>
+            <TooltipContent>{tr("رجوع للتخصيص")}</TooltipContent>
           </Tooltip>
           <div className="min-w-0 border-s border-border ps-3">
             <p className="truncate text-sm font-semibold leading-tight">{storeName}</p>
             <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <Check className="size-3 text-emerald-600" />
-              {savedAgo ? `اتحفظ ${savedAgo} · ظاهر للعملاء` : "التعديلات بتتحفظ وتتنشر تلقائي"}
+              {savedAgo ? tr("اتحفظ {0} · ظاهر للعملاء", savedAgo) : tr("التعديلات بتتحفظ وتتنشر تلقائي")}
             </p>
           </div>
         </div>
 
         {/* Center: page + device */}
         <div className="flex items-center gap-2">
-          <Select value={known ? previewPath : "__custom"} onValueChange={(v) => v !== "__custom" && setPreviewPath(v)} dir="rtl">
-            <SelectTrigger className="h-8 w-44 text-xs" aria-label="الصفحة المعروضة">
+          <Select value={known ? previewPath : "__custom"} onValueChange={(v) => v !== "__custom" && setPreviewPath(v)} dir={tdir()}>
+            <SelectTrigger className="h-8 w-44 text-xs" aria-label={tr("الصفحة المعروضة")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -90,7 +91,7 @@ export default function BuilderTopBar() {
             </SelectContent>
           </Select>
 
-          <div className="flex rounded-lg bg-muted p-0.5" role="radiogroup" aria-label="حجم الشاشة">
+          <div className="flex rounded-lg bg-muted p-0.5" role="radiogroup" aria-label={tr("حجم الشاشة")}>
             {DEVICES.map(({ id, icon: Icon, label, key }) => (
               <Tooltip key={id}>
                 <TooltipTrigger asChild>
@@ -120,18 +121,18 @@ export default function BuilderTopBar() {
         <div className="flex items-center justify-end gap-1.5">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={reloadPreview} className="size-8 text-muted-foreground" aria-label="تحديث المعاينة">
+              <Button variant="ghost" size="icon" onClick={reloadPreview} className="size-8 text-muted-foreground" aria-label={tr("تحديث المعاينة")}>
                 <RefreshCw className="size-3.5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              تحديث المعاينة <kbd className="ms-1 font-mono">R</kbd>
+              {tr("تحديث المعاينة")}{" "}<kbd className="ms-1 font-mono">R</kbd>
             </TooltipContent>
           </Tooltip>
           <Button size="sm" asChild className="h-8 gap-1.5">
             <a href={buildStoreUrl(storeSlug, previewPath === "/" ? "" : previewPath)} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="size-3.5" />
-              افتح المتجر
+              {tr("افتح المتجر")}
             </a>
           </Button>
         </div>

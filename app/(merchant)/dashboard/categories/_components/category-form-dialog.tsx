@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { imageSource, uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import { cn } from "@/lib/utils";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 export type EditableCategory = { id: string; name: string; slug: string; image: string | null };
 
@@ -38,7 +39,7 @@ type CategoryFormDialogProps = {
 export function CategoryFormDialog({ open, onOpenChange, ...props }: CategoryFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="sm:max-w-md">
+      <DialogContent dir={tdir()} className="sm:max-w-md">
         {/* Content unmounts on close, so each open starts from the record's current values. */}
         <CategoryForm key={props.category?.id ?? "new"} {...props} onDone={() => onOpenChange(false)} />
       </DialogContent>
@@ -70,7 +71,7 @@ function CategoryForm({
       setUploading(true);
       setImage(await uploadImageToCloudinary(file, "casho/uploads/categories"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "فشل رفع الصورة");
+      toast.error(err instanceof Error ? err.message : tr("فشل رفع الصورة"));
     } finally {
       setUploading(false);
     }
@@ -80,7 +81,7 @@ function CategoryForm({
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("اكتب اسم التصنيف.");
+      setError(tr("اكتب اسم التصنيف."));
       return;
     }
     startTransition(async () => {
@@ -91,7 +92,7 @@ function CategoryForm({
         setError(result.message);
         return;
       }
-      toast.success(category ? "اتحفظت التعديلات" : `اتضاف تصنيف "${trimmed}"`);
+      toast.success(category ? tr("اتحفظت التعديلات") : tr("اتضاف تصنيف \"{0}\"", trimmed));
       onDone();
       onSaved?.();
     });
@@ -99,16 +100,16 @@ function CategoryForm({
 
   return (
         <form onSubmit={submit} className="min-w-0 space-y-5">
-          <DialogHeader className="text-right sm:text-right">
-            <DialogTitle>{isEdit ? "تعديل التصنيف" : "تصنيف جديد"}</DialogTitle>
+          <DialogHeader className="text-start sm:text-start">
+            <DialogTitle>{isEdit ? tr("تعديل التصنيف") : tr("تصنيف جديد")}</DialogTitle>
             <DialogDescription>
-              {isEdit ? "الرابط في المتجر بيتغيّر لو غيّرت الاسم بس." : "التصنيفات بتنظّم منتجاتك وبتسهّل على العميل يلاقي اللي عايزه."}
+              {isEdit ? tr("الرابط في المتجر بيتغيّر لو غيّرت الاسم بس.") : tr("التصنيفات بتنظّم منتجاتك وبتسهّل على العميل يلاقي اللي عايزه.")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="category-name">الاسم</Label>
+              <Label htmlFor="category-name">{tr("الاسم")}</Label>
               <span className="text-xs text-muted-foreground tabular-nums">
                 {name.trim().length}/{NAME_MAX}
               </span>
@@ -122,7 +123,7 @@ function CategoryForm({
                 setName(e.target.value);
                 setError(null);
               }}
-              placeholder="مثال: ملابس رجالي"
+              placeholder={tr("مثال: ملابس رجالي")}
               aria-invalid={!!error || undefined}
               aria-describedby={error ? "category-error" : undefined}
               className="h-10"
@@ -134,7 +135,7 @@ function CategoryForm({
             )}
             {isEdit && category && (
               <p className="text-xs text-muted-foreground">
-                الرابط الحالي:{" "}
+                {tr("الرابط الحالي:")}{" "}
                 <span className="font-mono" dir="ltr">
                   /categories/{category.slug}
                 </span>
@@ -145,14 +146,14 @@ function CategoryForm({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>
-                الصورة <span className="text-xs font-normal text-muted-foreground">(اختياري)</span>
+                {tr("الصورة")}{" "}<span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>
               </Label>
               {!image && (
-                <div className="flex rounded-lg bg-muted p-0.5 text-xs" role="tablist" aria-label="طريقة إضافة الصورة">
+                <div className="flex rounded-lg bg-muted p-0.5 text-xs" role="tablist" aria-label={tr("طريقة إضافة الصورة")}>
                   {(
                     [
-                      ["upload", "رفع"],
-                      ["link", "رابط"],
+                      ["upload", tr("رفع")],
+                      ["link", tr("رابط")],
                     ] as const
                   ).map(([value, label]) => (
                     <button
@@ -179,7 +180,7 @@ function CategoryForm({
                   <Image src={image} alt="" fill sizes="56px" className="object-cover" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">صورة التصنيف</p>
+                  <p className="text-sm font-medium">{tr("صورة التصنيف")}</p>
                   <p className="truncate text-right text-xs text-muted-foreground" dir="ltr">
                     {imageSource(image)}
                   </p>
@@ -190,7 +191,7 @@ function CategoryForm({
                   size="icon"
                   className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
                   onClick={() => setImage("")}
-                  aria-label="شيل الصورة"
+                  aria-label={tr("شيل الصورة")}
                   disabled={busy}
                 >
                   <X className="size-4" />
@@ -207,13 +208,13 @@ function CategoryForm({
                 {uploading ? (
                   <>
                     <Loader2 className="size-5 animate-spin text-primary" />
-                    <span className="text-sm font-medium">بنرفع الصورة…</span>
+                    <span className="text-sm font-medium">{tr("بنرفع الصورة…")}</span>
                   </>
                 ) : (
                   <>
                     <Upload className="size-5 text-muted-foreground" />
-                    <span className="text-sm font-medium">اضغط لرفع صورة</span>
-                    <span className="text-xs text-muted-foreground">PNG أو JPG أو WEBP — لحد ٥ ميجا</span>
+                    <span className="text-sm font-medium">{tr("اضغط لرفع صورة")}</span>
+                    <span className="text-xs text-muted-foreground">{tr("PNG أو JPG أو WEBP — لحد ٥ ميجا")}</span>
                   </>
                 )}
                 <input
@@ -233,10 +234,10 @@ function CategoryForm({
           <DialogFooter className="gap-2 sm:justify-start">
             <Button type="submit" disabled={busy} className="gap-1.5">
               {pending && <Loader2 className="size-4 animate-spin" />}
-              {isEdit ? "حفظ التعديلات" : "إضافة التصنيف"}
+              {isEdit ? tr("حفظ التعديلات") : tr("إضافة التصنيف")}
             </Button>
             <Button type="button" variant="outline" onClick={onDone} disabled={busy}>
-              إلغاء
+              {tr("إلغاء")}
             </Button>
           </DialogFooter>
         </form>
@@ -267,7 +268,7 @@ function LinkInput({ onSubmit }: { onSubmit: (url: string) => void }) {
         />
       </div>
       <Button type="button" variant="outline" disabled={!valid} onClick={() => onSubmit(value.trim())}>
-        استخدام
+        {tr("استخدام")}
       </Button>
     </div>
   );

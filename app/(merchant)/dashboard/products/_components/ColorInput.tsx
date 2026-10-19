@@ -5,6 +5,7 @@ import { AlertTriangle, Check, X } from "lucide-react";
 
 import { PRODUCT_COLOR_PALETTE, isLightSwatch, normalizeColorKey, swatchColor } from "@/lib/colors/product-colors";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 /** A color dot exactly as the storefront will render it; dashed "?" when unknown. */
 function Swatch({ label, className }: { label: string; className?: string }) {
@@ -67,7 +68,7 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
         {colors.map((c) => (
           <span
             key={c}
-            title={swatchColor(c) ? undefined : "مش متعرف كلون — هيظهر للعميل كنص"}
+            title={swatchColor(c) ? undefined : tr("مش متعرف كلون — هيظهر للعميل كنص")}
             className={cn(
               "flex items-center gap-1.5 rounded-lg py-0.5 pe-1.5 ps-1 text-sm",
               swatchColor(c) ? "bg-muted" : "bg-amber-500/10 text-amber-800 dark:text-amber-300",
@@ -81,7 +82,7 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
                 e.stopPropagation();
                 remove(c);
               }}
-              aria-label={`شيل ${c}`}
+              aria-label={tr("شيل {0}", c)}
               className="text-muted-foreground hover:text-foreground"
             >
               <X className="size-3" />
@@ -94,7 +95,7 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
             ref={inputRef}
             type="text"
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            placeholder={colors.length === 0 ? "اختار من تحت أو اكتب لون…" : "لون تاني…"}
+            placeholder={colors.length === 0 ? tr("اختار من تحت أو اكتب لون…") : tr("لون تاني…")}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
@@ -111,7 +112,7 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
         <input type="hidden" name={name} value={colors.join(", ")} />
       </div>
 
-      <div role="group" aria-label="ألوان جاهزة" className="flex flex-wrap gap-1.5">
+      <div role="group" aria-label={tr("ألوان جاهزة")} className="flex flex-wrap gap-1.5">
         {PRODUCT_COLOR_PALETTE.map(({ name: label, hex }) => {
           const on = has(label);
           return (
@@ -119,8 +120,8 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
               key={label}
               type="button"
               aria-pressed={on}
-              aria-label={label}
-              title={label}
+              aria-label={tr(label)}
+              title={tr(label)}
               onClick={() => toggle(label)}
               className={cn(
                 "grid size-8 place-items-center rounded-full border-2 transition-all",
@@ -142,13 +143,12 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
         <p className="flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-400">
           <AlertTriangle className="mt-px size-3.5 shrink-0" />
           <span>
-            {unknown.map((c) => `"${c}"`).join("، ")} مش متعرف كلون، فهيظهر للعميل كنص. جرّب اسم قريب من الألوان اللي فوق، أو زوّد
-            &quot;فاتح&quot; / &quot;غامق&quot;.
+            {unknown.map((c) => `"${c}"`).join(tr("، "))}{" "}{tr("مش متعرف كلون، فهيظهر للعميل كنص. جرّب اسم قريب من الألوان اللي فوق، أو زوّد \"فاتح\" / \"غامق\".")}
           </span>
         </p>
       ) : (
         <p className="text-xs text-muted-foreground">
-          دوس على لون عشان تضيفه، أو اكتب أي اسم — زي &quot;كحلي غامق&quot; أو &quot;أسود × أبيض&quot; — والعميل هيشوفه كلون.
+          {tr("دوس على لون عشان تضيفه، أو اكتب أي اسم — زي \"كحلي غامق\" أو \"أسود × أبيض\" — والعميل هيشوفه كلون.")}
         </p>
       )}
     </div>

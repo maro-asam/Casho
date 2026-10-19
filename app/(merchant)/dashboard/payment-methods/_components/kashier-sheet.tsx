@@ -29,6 +29,7 @@ import { SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/compon
 import { cn } from "@/lib/utils";
 import { KASHIER_DASHBOARD_URL, KASHIER_SIGNUP_URL } from "./method-meta";
 import { MethodLogo } from "./shared";
+import { intlLocale, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsSettingsData; onDone: (enabled: boolean) => void }) {
   const connected = Boolean(initial.kashierApiKeyHint && initial.kashierMerchantId);
@@ -55,10 +56,10 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
       const res = await SaveKashierAction({ merchantId, apiKey: apiKey || undefined, allowedMethods: allowed, mode }).catch(() => null);
       if (!res?.success) {
         setErrors(res?.errors ?? {});
-        toast.error(res?.message ?? "مقدرناش نحفظ. جرّب تاني.");
+        toast.error(res?.message ?? tr("مقدرناش نحفظ. جرّب تاني."));
         return;
       }
-      toast.success(res.message);
+      toast.success(trv(res.message));
       onDone(true);
     });
   }
@@ -67,7 +68,7 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
     startTest(async () => {
       const res = await StartKashierTestPaymentAction().catch(() => null);
       if (!res?.success) {
-        toast.error(res?.message ?? "مقدرناش نبدأ التجربة");
+        toast.error(res?.message ?? tr("مقدرناش نبدأ التجربة"));
         return;
       }
       window.location.href = res.url;
@@ -78,10 +79,10 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
     startDisconnect(async () => {
       const res = await DisconnectKashierAction().catch(() => null);
       if (!res?.success) {
-        toast.error(res?.message ?? "مقدرناش نفصل Kashier");
+        toast.error(res?.message ?? tr("مقدرناش نفصل Kashier"));
         return;
       }
-      toast.success(res.message);
+      toast.success(trv(res.message));
       onDone(false);
     });
   }
@@ -92,8 +93,8 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
         <div className="flex items-center gap-3">
           <MethodLogo src={PAYMENT_METHODS_BY_KEY.kashier.logo} alt="Kashier" />
           <div className="min-w-0">
-            <SheetTitle>{connected ? "إعدادات Kashier" : "اربط Kashier"}</SheetTitle>
-            <SheetDescription>٣ خطوات وعملاءك يدفعوا بالكارت والمحفظة.</SheetDescription>
+            <SheetTitle>{connected ? tr("إعدادات Kashier") : tr("اربط Kashier")}</SheetTitle>
+            <SheetDescription>{tr("٣ خطوات وعملاءك يدفعوا بالكارت والمحفظة.")}</SheetDescription>
           </div>
         </div>
       </SheetHeader>
@@ -101,12 +102,12 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
       <div className="flex-1 overflow-y-auto px-4">
         <ol className="relative space-y-8 before:absolute before:inset-y-3 before:start-[13px] before:w-px before:bg-border">
           {/* 1 — credentials */}
-          <Step n={1} done={credsDone} title="بيانات الربط من حسابك على Kashier">
+          <Step n={1} done={credsDone} title={tr("بيانات الربط من حسابك على Kashier")}>
             {!connected && (
               <p className="text-xs leading-6 text-muted-foreground">
-                هتلاقيهم في لوحة Kashier من <span className="font-medium text-foreground">Integrate now</span>. معندكش حساب؟{" "}
+                {tr("هتلاقيهم في لوحة Kashier من")}{" "}<span className="font-medium text-foreground">Integrate now</span>{tr(". معندكش حساب؟")}{" "}
                 <a href={KASHIER_SIGNUP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline">
-                  افتح حساب مجاني
+                  {tr("افتح حساب مجاني")}
                   <ExternalLink className="size-3" />
                 </a>
               </p>
@@ -143,7 +144,7 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
                     setApiKey(e.target.value);
                     setErrors((x) => ({ ...x, apiKey: "" }));
                   }}
-                  placeholder="الصق المفتاح هنا"
+                  placeholder={tr("الصق المفتاح هنا")}
                   aria-invalid={!!errors.apiKey}
                   className="font-mono"
                 />
@@ -154,18 +155,18 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
                     {initial.kashierApiKeyHint}
                   </span>
                   <button type="button" onClick={() => setReplacingKey(true)} className="text-xs font-medium text-primary hover:underline">
-                    غيّره
+                    {tr("غيّره")}
                   </button>
                 </div>
               )}
               <p className={errors.apiKey ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
-                {errors.apiKey || "بيتحفظ مشفّر — محدش يقدر يشوفه بعد كده."}
+                {errors.apiKey || tr("بيتحفظ مشفّر — محدش يقدر يشوفه بعد كده.")}
               </p>
             </div>
           </Step>
 
           {/* 2 — methods */}
-          <Step n={2} done={allowed.length > 0} title="العميل يقدر يدفع بـ">
+          <Step n={2} done={allowed.length > 0} title={tr("العميل يقدر يدفع بـ")}>
             <div className="grid gap-2">
               {KASHIER_ALLOWED_METHODS.map((am) => {
                 const active = allowed.includes(am.key);
@@ -200,27 +201,27 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
               })}
             </div>
             <p className={errors.allowedMethods ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
-              {errors.allowedMethods || "اختار بس اللي متفعّل في حسابك على Kashier."}
+              {errors.allowedMethods || tr("اختار بس اللي متفعّل في حسابك على Kashier.")}
             </p>
           </Step>
 
           {/* 3 — mode */}
-          <Step n={3} done={mode === "LIVE"} title="جرّب وبعدين شغّل">
+          <Step n={3} done={mode === "LIVE"} title={tr("جرّب وبعدين شغّل")}>
             <div className="grid grid-cols-2 gap-2">
-              <ModeCard active={mode === "TEST"} onClick={() => setMode("TEST")} icon={FlaskConical} title="تجربة" text="مفيش فلوس حقيقية — عشان تتأكد إن كله شغال." tone="amber" />
-              <ModeCard active={mode === "LIVE"} onClick={() => setMode("LIVE")} icon={Zap} title="لايف" text="الدفع حقيقي والفلوس بتوصل حسابك." tone="emerald" />
+              <ModeCard active={mode === "TEST"} onClick={() => setMode("TEST")} icon={FlaskConical} title={tr("تجربة")} text={tr("مفيش فلوس حقيقية — عشان تتأكد إن كله شغال.")} tone="amber" />
+              <ModeCard active={mode === "LIVE"} onClick={() => setMode("LIVE")} icon={Zap} title={tr("لايف")} text={tr("الدفع حقيقي والفلوس بتوصل حسابك.")} tone="emerald" />
             </div>
             <div className="rounded-lg border border-dashed border-border p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium">جرّب عملية دفع</p>
+                  <p className="text-sm font-medium">{tr("جرّب عملية دفع")}</p>
                   <p className="text-xs text-muted-foreground">
-                    {!connected ? "احفظ بيانات الربط الأول." : dirty ? "احفظ تغييراتك الأول." : "بجنيه واحد في وضع التجربة — بنتأكد إن الربط سليم."}
+                    {!connected ? tr("احفظ بيانات الربط الأول.") : dirty ? tr("احفظ تغييراتك الأول.") : tr("بجنيه واحد في وضع التجربة — بنتأكد إن الربط سليم.")}
                   </p>
                 </div>
                 <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={runTest} disabled={!connected || dirty || testing}>
                   {testing ? <Loader2 className="size-4 animate-spin" /> : <FlaskConical className="size-4" />}
-                  جرّب
+                  {tr("جرّب")}
                 </Button>
               </div>
             </div>
@@ -231,12 +232,12 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
       <SheetFooter className="flex-row items-center justify-between gap-2 border-t border-border">
         <Button onClick={save} disabled={saving || (!dirty && connected)} className="gap-1.5">
           {saving && <Loader2 className="size-4 animate-spin" />}
-          {connected ? "احفظ" : "اربط Kashier"}
+          {connected ? tr("احفظ") : tr("اربط Kashier")}
         </Button>
         <div className="flex items-center">
           <Button asChild variant="ghost" size="sm" className="gap-1 text-muted-foreground">
             <a href={KASHIER_DASHBOARD_URL} target="_blank" rel="noreferrer">
-              لوحة Kashier
+              {tr("لوحة Kashier")}
               <ExternalLink className="size-3" />
             </a>
           </Button>
@@ -245,19 +246,19 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-1 text-destructive hover:text-destructive" disabled={disconnecting}>
                   <Unplug className="size-3.5" />
-                  افصل
+                  {tr("افصل")}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent dir="rtl">
+              <AlertDialogContent dir={tdir()}>
                 <AlertDialogHeader className="text-start">
-                  <AlertDialogTitle>تفصل Kashier؟</AlertDialogTitle>
-                  <AlertDialogDescription>هنمسح بيانات الربط والدفع الأونلاين هيختفي من متجرك. الطلبات القديمة مش هتتأثر.</AlertDialogDescription>
+                  <AlertDialogTitle>{tr("تفصل Kashier؟")}</AlertDialogTitle>
+                  <AlertDialogDescription>{tr("هنمسح بيانات الربط والدفع الأونلاين هيختفي من متجرك. الطلبات القديمة مش هتتأثر.")}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="gap-2 sm:justify-start">
                   <AlertDialogAction onClick={disconnect} className="bg-destructive text-white hover:bg-destructive/90">
-                    افصل
+                    {tr("افصل")}
                   </AlertDialogAction>
-                  <AlertDialogCancel>رجوع</AlertDialogCancel>
+                  <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -277,7 +278,7 @@ function Step({ n, done, title, children }: { n: number; done: boolean; title: s
           done ? "bg-primary text-primary-foreground" : "border border-border bg-popover text-muted-foreground",
         )}
       >
-        {done ? <Check className="size-3.5" /> : n.toLocaleString("ar-EG")}
+        {done ? <Check className="size-3.5" /> : n.toLocaleString(intlLocale())}
       </span>
       <p className="mb-3 pt-1 text-sm font-semibold">{title}</p>
       <div className="space-y-3">{children}</div>

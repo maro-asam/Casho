@@ -15,10 +15,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "تعديل المنتج",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("تعديل المنتج"),
 };
+}
 
 type EditProductPageProps = {
   params: Promise<{ productId: string }>;
@@ -27,6 +32,7 @@ type EditProductPageProps = {
 export default async function EditProductPage({
   params,
 }: EditProductPageProps) {
+  await loadDashboardLocale();
   const { productId } = await params;
   const userId = await requireUserId();
 
@@ -94,13 +100,13 @@ export default async function EditProductPage({
   ]);
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={FilePenLine}
-        title="تعديل المنتج"
+        title={tr("تعديل المنتج")}
         description={
           <>
-            تعديل بيانات المنتج داخل متجر{" "}
+            {tr("تعديل بيانات المنتج داخل متجر")}{" "}
             <span className="font-semibold text-foreground">{store.name}</span>
           </>
         }
@@ -114,10 +120,9 @@ export default async function EditProductPage({
             </div>
 
             <div>
-              <CardTitle className="text-xl">بيانات المنتج</CardTitle>
+              <CardTitle className="text-xl">{tr("بيانات المنتج")}</CardTitle>
               <CardDescription className="mt-1 leading-6">
-                عدّل الاسم والسعر والصورة والتصنيف وحالة المنتج، ثم احفظ
-                التغييرات.
+                {tr("عدّل الاسم والسعر والصورة والتصنيف وحالة المنتج، ثم احفظ التغييرات.")}
               </CardDescription>
             </div>
           </CardHeader>

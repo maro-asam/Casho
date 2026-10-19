@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBuilder, type PreviewDevice } from "./BuilderContext";
+import { tr } from "@/lib/i18n/dashboard";
 
 /** Real viewport sizes the store is rendered at, then scaled to fit the canvas. */
 const DEVICE_SPECS: Record<PreviewDevice, { width: number; height: number | null; label: string }> = {
-  mobile: { width: 390, height: 844, label: "موبايل · ٣٩٠" },
-  tablet: { width: 820, height: 1180, label: "تابلت · ٨٢٠" },
-  desktop: { width: 1440, height: null, label: "كمبيوتر · ١٤٤٠" },
+  mobile: { width: 390, height: 844, get label() { return tr("موبايل · ٣٩٠"); } },
+  tablet: { width: 820, height: 1180, get label() { return tr("تابلت · ٨٢٠"); } },
+  desktop: { width: 1440, height: null, get label() { return tr("كمبيوتر · ١٤٤٠"); } },
 };
 
 const PAD = 32;
@@ -59,7 +60,7 @@ export default function BuilderPreviewFrame() {
     <div ref={canvas} className="relative flex min-w-0 flex-1 flex-col items-center overflow-hidden bg-[radial-gradient(circle,var(--color-border)_1px,transparent_1px)] bg-muted/40 [background-size:16px_16px]">
       <p className="mt-3 h-6 shrink-0 text-[11px] tabular-nums text-muted-foreground">
         {spec.label}
-        {scale < 0.999 && ` · ${Math.round(scale * 100)}٪`}
+        {scale < 0.999 && tr(" · {0}٪", Math.round(scale * 100))}
       </p>
 
       {box.width > 0 && (
@@ -76,9 +77,9 @@ export default function BuilderPreviewFrame() {
             ref={previewFrameRef}
             key={frameKey}
             src={src}
-            title="معاينة المتجر"
+            title={tr("معاينة المتجر")}
             onLoad={onLoad}
-            className="absolute left-0 top-0 origin-top-left border-0 bg-white"
+            className="absolute end-0 top-0 origin-top-left border-0 bg-white"
             style={{ width: spec.width, height: viewportH, transform: `scale(${scale})` }}
             sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
           />

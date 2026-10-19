@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
 type Supplier = { id: string; name: string };
 type Branch = { id: string; name: string; isDefault: boolean };
@@ -80,9 +81,9 @@ export function NewPOForm({
   const total = rows.reduce((s, r) => s + r.quantity * r.unitCost, 0);
 
   function handleSubmit() {
-    if (!rows.length) return toast.error("يجب إضافة منتج واحد على الأقل");
+    if (!rows.length) return toast.error(tr("يجب إضافة منتج واحد على الأقل"));
     for (const r of rows) {
-      if (r.quantity <= 0) return toast.error(`الكمية يجب أن تكون أكبر من صفر: ${r.name}`);
+      if (r.quantity <= 0) return toast.error(tr("الكمية يجب أن تكون أكبر من صفر: {0}", r.name));
     }
 
     startTransition(async () => {
@@ -98,10 +99,10 @@ export function NewPOForm({
             unitCost: r.unitCost,
           })),
         });
-        toast.success(`تم إنشاء طلب الشراء ${po.orderNumber}`);
+        toast.success(tr("تم إنشاء طلب الشراء {0}", po.orderNumber));
         router.push(`/dashboard/inventory/purchase-orders/${po.id}`);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "حدث خطأ");
+        toast.error(err instanceof Error ? err.message : tr("حدث خطأ"));
       }
     });
   }
@@ -110,16 +111,16 @@ export function NewPOForm({
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold">بيانات الطلب</h2>
+        <h2 className="mb-4 font-semibold">{tr("بيانات الطلب")}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label>المورد</Label>
+            <Label>{tr("المورد")}</Label>
             <Select value={supplierId} onValueChange={setSupplierId}>
               <SelectTrigger>
-                <SelectValue placeholder="اختر مورداً (اختياري)" />
+                <SelectValue placeholder={tr("اختر مورداً (اختياري)")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">بدون مورد</SelectItem>
+                <SelectItem value="none">{tr("بدون مورد")}</SelectItem>
                 {suppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
@@ -129,16 +130,16 @@ export function NewPOForm({
 
           {branches.length > 0 && (
             <div className="space-y-1.5">
-              <Label>الفرع</Label>
+              <Label>{tr("الفرع")}</Label>
               <Select value={branchId} onValueChange={setBranchId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر الفرع" />
+                  <SelectValue placeholder={tr("اختر الفرع")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">غير محدد</SelectItem>
+                  <SelectItem value="none">{tr("غير محدد")}</SelectItem>
                   {branches.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
-                      {b.name} {b.isDefault && "(افتراضي)"}
+                      {b.name} {b.isDefault && tr("(افتراضي)")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -147,13 +148,13 @@ export function NewPOForm({
           )}
 
           <div className="space-y-1.5">
-            <Label>تاريخ الاستلام المتوقع</Label>
+            <Label>{tr("تاريخ الاستلام المتوقع")}</Label>
             <Input type="date" value={expectedDate} onChange={(e) => setExpectedDate(e.target.value)} dir="ltr" />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>ملاحظات</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="أي ملاحظات..." />
+            <Label>{tr("ملاحظات")}</Label>
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder={tr("أي ملاحظات...")} />
           </div>
         </div>
       </div>
@@ -161,12 +162,12 @@ export function NewPOForm({
       {/* Products */}
       <div className="rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="font-semibold">المنتجات</h2>
+          <h2 className="font-semibold">{tr("المنتجات")}</h2>
           <div className="relative mt-3">
-            <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              className="pr-9"
-              placeholder="ابحث عن منتج للإضافة..."
+              className="ps-9"
+              placeholder={tr("ابحث عن منتج للإضافة...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -177,21 +178,21 @@ export function NewPOForm({
                 <button
                   key={p.id}
                   type="button"
-                  className="flex w-full items-center gap-3 px-3 py-2 text-right text-sm hover:bg-accent"
+                  className="flex w-full items-center gap-3 px-3 py-2 text-start text-sm hover:bg-accent"
                   onClick={() => addProduct(p)}
                 >
                   <img src={p.image} className="size-8 rounded object-cover" alt={p.name} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      مخزون: {p.stock} {p.sku && `· ${p.sku}`}
+                      {tr("مخزون: {0} {1}", p.stock, p.sku && `· ${p.sku}`)}
                     </p>
                   </div>
                   <Plus className="size-4 text-primary" />
                 </button>
               ))}
               {filtered.length === 0 && (
-                <p className="px-3 py-2 text-sm text-muted-foreground">لا توجد نتائج</p>
+                <p className="px-3 py-2 text-sm text-muted-foreground">{tr("لا توجد نتائج")}</p>
               )}
             </div>
           )}
@@ -199,15 +200,15 @@ export function NewPOForm({
 
         {rows.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-            ابحث عن منتج وأضفه للطلب
+            {tr("ابحث عن منتج وأضفه للطلب")}
           </p>
         ) : (
           <>
             <div className="grid grid-cols-[1fr_90px_110px_110px_40px] items-center gap-3 border-b border-border bg-muted/30 px-5 py-2 text-xs font-semibold uppercase text-muted-foreground">
-              <span>المنتج</span>
-              <span className="text-center">مخزون حالي</span>
-              <span className="text-center">الكمية</span>
-              <span className="text-center">سعر الوحدة (ق)</span>
+              <span>{tr("المنتج")}</span>
+              <span className="text-center">{tr("مخزون حالي")}</span>
+              <span className="text-center">{tr("الكمية")}</span>
+              <span className="text-center">{tr("سعر الوحدة (ق)")}</span>
               <span />
             </div>
             {rows.map((row) => (
@@ -245,9 +246,9 @@ export function NewPOForm({
             ))}
             <div className="flex justify-end border-t border-border px-5 py-3">
               <p className="text-sm font-semibold">
-                الإجمالي:{" "}
+                {tr("الإجمالي:")}{" "}
                 <span className="text-base">
-                  {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(total / 100)}
+                  {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(total / 100)}
                 </span>
               </p>
             </div>
@@ -257,9 +258,9 @@ export function NewPOForm({
 
       <div className="flex gap-3">
         <Button onClick={handleSubmit} disabled={isPending || !rows.length}>
-          {isPending ? "جاري الإنشاء..." : "إنشاء طلب الشراء"}
+          {isPending ? tr("جاري الإنشاء...") : tr("إنشاء طلب الشراء")}
         </Button>
-        <Button variant="outline" onClick={() => router.back()}>إلغاء</Button>
+        <Button variant="outline" onClick={() => router.back()}>{tr("إلغاء")}</Button>
       </div>
     </div>
   );

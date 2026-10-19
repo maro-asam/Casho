@@ -30,6 +30,8 @@ model User {
   country             String?
   businessType        String?
   role                UserRole             @default(USER)
+  /// Merchant dashboard UI language: "ar" | "en".
+  locale              String               @default("ar")
   emailVerified       Boolean              @default(false)
   stores              Store[]
   createdAt           DateTime             @default(now())
@@ -195,6 +197,7 @@ model Store {
 
   coupons        Coupon[]
   appliedCoupons AppliedCoupon[]
+  productOffers  ProductOffer[]
 
   shippingMethods      ShippingMethod[]
   customers            Customer[]
@@ -423,6 +426,7 @@ model Product {
   purchaseOrderItems PurchaseOrderItem[]
   transferItems      StockTransferItem[]
   adjustmentItems    InventoryAdjustmentItem[]
+  offeredIn          ProductOffer[]
 
   @@index([storeId, isActive])
   @@index([storeId, isActive, createdAt])
@@ -554,6 +558,11 @@ model CartItem {
   quantity         Int   @default(1)
   selectedFeatures Json?
 
+  /// Added by accepting an upsell / cross-sell / downsell — priced by the offer
+  /// while it stays valid (lib/offers/offer-pricing.ts).
+  offerId String?
+  offer   ProductOffer? @relation(fields: [offerId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
 
   userId String?
@@ -590,6 +599,58 @@ model Coupon {
   @@index([storeId, code, isActive])
 }
 
+/// UPSELL     — after adding a trigger product: "upgrade to this instead" (replaces it).
+/// CROSS_SELL — after adding / in the cart: "goes well with" (added next to it).
+/// DOWNSELL   — shown when the shopper says no to an upsell: a cheaper extra.
+enum ProductOfferType {
+  UPSELL
+  CROSS_SELL
+  DOWNSELL
+}
+
+enum OfferDiscountType {
+  NONE
+  PERCENTAGE
+  FIXED
+}
+
+/// Merchant-made upsell / cross-sell / downsell (dashboard: /offers).
+model ProductOffer {
+  id      String @id @default(uuid())
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  type     ProductOfferType
+  /// Internal name in the dashboard.
+  name     String
+  /// What the shopper reads; a default per type when empty.
+  headline String?
+  isActive Boolean          @default(true)
+  priority Int              @default(0)
+
+  /// Products that trigger the offer. Empty = any product.
+  triggerProductIds String[] @default([])
+
+  offerProductId String
+  offerProduct   Product @relation(fields: [offerProductId], references: [id], onDelete: Cascade)
+
+  discountType  OfferDiscountType @default(NONE)
+  /// Percent, or pounds off each piece for FIXED.
+  discountValue Float             @default(0)
+
+  views   Int @default(0)
+  accepts Int @default(0)
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId, isActive, type])
+  @@index([offerProductId])
+}
+
 model AppliedCoupon {
   id             String @id @default(uuid())
   guestSessionId String
@@ -618,9 +679,24 @@ model ShippingMethod {
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
 
-  orders Order[]
+  orders           Order[]
+  governorateRates ShippingGovernorateRate[]
 
   @@index([storeId, isActive])
+}
+
+/// Per-governorate price override for a shipping method (lib/shipping/governorate-pricing).
+/// Governorates without a row pay the method's default `price`.
+model ShippingGovernorateRate {
+  id               String         @id @default(uuid())
+  shippingMethodId String
+  shippingMethod   ShippingMethod @relation(fields: [shippingMethodId], references: [id], onDelete: Cascade)
+  /// Code from constants/egypt-governorates.ts
+  governorate      String
+  /// Piasters
+  price            Int
+
+  @@unique([shippingMethodId, governorate])
 }
 
 enum CustomerStatus {
@@ -852,6 +928,8 @@ model Order {
   fullName  String
   phone     String
   address   String
+  /// Code from constants/egypt-governorates.ts (online checkout); its name is also prefixed to `address`.
+  governorate String?
   /// Online checkout only — rate-limits order floods (lib/store/order-rate-limit).
   ipAddress String?
 
@@ -930,10 +1008,15 @@ model OrderItem {
   quantity         Int
   selectedFeatures Json?
 
+  /// The upsell / cross-sell / downsell that sold this line (offer revenue).
+  offerId String?
+  offer   ProductOffer? @relation(fields: [offerId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
 
   @@index([orderId])
   @@index([productId])
+  @@index([offerId])
 }
 
 enum KashierMode {
@@ -2212,21 +2295,20 @@ model WebhookDelivery {
 // Shipping Integrations (Logistics Engine)
 // ─────────────────────────────────────────────────────────────
 
-enum ShippingProvider {
-  BOSTA
-  ARAMEX
-}
-
 model ShippingIntegration {
-  id          String           @id @default(uuid())
+  id          String   @id @default(uuid())
   storeId     String
-  store       Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  provider    ShippingProvider
-  isActive    Boolean          @default(true)
-  /// AES-256-GCM encrypted JSON string of provider-specific credentials (via lib/secrets.ts)
-  credentials String
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  /// Carrier key from lib/shipping/carriers.ts (BOSTA, ARAMEX, MYLERZ, …)
+  provider    String
+  isActive    Boolean  @default(true)
+  /// AES-256-GCM encrypted JSON string of provider-specific credentials (via lib/secrets.ts).
+  /// Null for carriers connected manually (no API).
+  credentials String?
+  /// CarrierSettings (lib/shipping/carriers.ts): tracking link template, default weight, pickup governorate…
+  settings    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@unique([storeId, provider])
   @@index([storeId])
@@ -2260,6 +2342,18 @@ model Shipment {
   status             ShipmentStatus @default(CREATED)
   courierName        String?
   cost               Int?
+  /// Cash the courier collects from the customer (piasters); 0/null = prepaid.
+  codAmount          Int?
+  /// When the merchant received the collected cash from the carrier.
+  codCollectedAt     DateTime?
+  labelUrl           String?
+  /// Public tracking page, resolved from the carrier's link template at creation.
+  trackingUrl        String?
+  weightKg           Float?
+  notes              String?
+  /// ShipmentEvent[] (lib/shipping/shipment-status.ts) — the shipment timeline.
+  events             Json?
+  lastSyncedAt       DateTime?
   estimatedDelivery  DateTime?
   providerPayload    Json?
   canceledAt         DateTime?
@@ -2268,6 +2362,7 @@ model Shipment {
   updatedAt          DateTime       @updatedAt
 
   @@index([storeId])
+  @@index([storeId, status, createdAt])
   @@index([orderId])
   @@index([trackingNumber])
   @@index([status])

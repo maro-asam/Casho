@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { formatMoney, formatNumber, formatPercent } from "../../_components/overview/format";
 import type { ProductRow, ReportsData } from "../_lib/types";
 import { EmptyNote, Panel, ReportTable, ShareBar, Thumb } from "./report-ui";
+import { tr } from "@/lib/i18n/dashboard";
 
 export const PRODUCT_SORTS = ["sales", "units", "profit", "margin"] as const;
 export type ProductSort = (typeof PRODUCT_SORTS)[number];
@@ -30,7 +31,7 @@ function SortHead({
 }) {
   const active = sort === current;
   return (
-    <th className="text-left!">
+    <th className="text-end!">
       <Link
         href={hrefWith("/reports", params, { sort: sort === "sales" ? undefined : sort })}
         scroll={false}
@@ -49,14 +50,12 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
   return (
     <div className="space-y-6">
       <Panel
-        title="أداء المنتجات"
+        title={tr("أداء المنتجات")}
         description={
           data.productsSoldCount
-            ? `${formatNumber(data.productsSoldCount)} منتج اتباع في الفترة${
-                data.concentration
-                  ? ` · ${formatNumber(data.concentration.products)} منهم بيعملوا ${formatPercent(data.concentration.share * 100)} من المبيعات`
-                  : ""
-              }`
+            ? tr("{0} منتج اتباع في الفترة{1}", formatNumber(data.productsSoldCount), data.concentration
+                  ? tr(" · {0} منهم بيعملوا {1} من المبيعات", formatNumber(data.concentration.products), formatPercent(data.concentration.share * 100))
+                  : "")
             : undefined
         }
         contentClassName={rows.length ? "p-0" : undefined}
@@ -66,13 +65,13 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
             head={
               <>
                 <th className="w-8">#</th>
-                <th>المنتج</th>
-                <SortHead label="القطع" sort="units" current={sort} params={params} />
-                <SortHead label="صافي المبيعات" sort="sales" current={sort} params={params} />
-                <th className="hidden md:table-cell">النسبة</th>
-                <SortHead label="الربح" sort="profit" current={sort} params={params} />
-                <SortHead label="الهامش" sort="margin" current={sort} params={params} />
-                <th className="hidden text-left! lg:table-cell">المخزون</th>
+                <th>{tr("المنتج")}</th>
+                <SortHead label={tr("القطع")} sort="units" current={sort} params={params} />
+                <SortHead label={tr("صافي المبيعات")} sort="sales" current={sort} params={params} />
+                <th className="hidden md:table-cell">{tr("النسبة")}</th>
+                <SortHead label={tr("الربح")} sort="profit" current={sort} params={params} />
+                <SortHead label={tr("الهامش")} sort="margin" current={sort} params={params} />
+                <th className="hidden text-end! lg:table-cell">{tr("المخزون")}</th>
               </>
             }
           >
@@ -91,31 +90,31 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
                     </span>
                   </Link>
                 </td>
-                <td className="text-left tabular-nums">{formatNumber(p.units)}</td>
-                <td className="text-left font-medium tabular-nums">{formatMoney(p.netSales)}</td>
+                <td className="text-end tabular-nums">{formatNumber(p.units)}</td>
+                <td className="text-end font-medium tabular-nums">{formatMoney(p.netSales)}</td>
                 <td className="hidden w-32 md:table-cell">
                   <div className="flex items-center gap-2">
                     <ShareBar value={p.share} className="flex-1" />
                     <span className="w-10 text-xs text-muted-foreground tabular-nums">{formatPercent(p.share * 100)}</span>
                   </div>
                 </td>
-                <td className={cn("text-left tabular-nums", p.profit !== null && p.profit < 0 && "text-rose-600 dark:text-rose-400")}>
-                  {p.profit === null ? <span className="text-xs text-muted-foreground">بدون تكلفة</span> : formatMoney(p.profit)}
+                <td className={cn("text-end tabular-nums", p.profit !== null && p.profit < 0 && "text-rose-600 dark:text-rose-400")}>
+                  {p.profit === null ? <span className="text-xs text-muted-foreground">{tr("بدون تكلفة")}</span> : formatMoney(p.profit)}
                 </td>
-                <td className="text-left tabular-nums">{p.margin === null ? "—" : formatPercent(p.margin)}</td>
-                <td className={cn("hidden text-left tabular-nums lg:table-cell", p.stock <= 0 && "text-rose-600 dark:text-rose-400")}>
-                  {p.stock <= 0 ? "نفد" : formatNumber(p.stock)}
+                <td className="text-end tabular-nums">{p.margin === null ? "—" : formatPercent(p.margin)}</td>
+                <td className={cn("hidden text-end tabular-nums lg:table-cell", p.stock <= 0 && "text-rose-600 dark:text-rose-400")}>
+                  {p.stock <= 0 ? tr("نفد") : formatNumber(p.stock)}
                 </td>
               </tr>
             ))}
           </ReportTable>
         ) : (
-          <EmptyNote icon={Package} title="مفيش منتجات اتباعت في الفترة دي" description="جرّب فترة أطول من فوق." />
+          <EmptyNote icon={Package} title={tr("مفيش منتجات اتباعت في الفترة دي")} description={tr("جرّب فترة أطول من فوق.")} />
         )}
       </Panel>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Panel title="التصنيفات" description="نصيب كل تصنيف من صافي المبيعات">
+        <Panel title={tr("التصنيفات")} description={tr("نصيب كل تصنيف من صافي المبيعات")}>
           {data.categories.length ? (
             <ul className="space-y-4">
               {data.categories.slice(0, 10).map((c) => (
@@ -126,23 +125,23 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
                   </div>
                   <ShareBar value={c.share} />
                   <p className="text-xs text-muted-foreground tabular-nums">
-                    {formatPercent(c.share * 100)} · {formatNumber(c.units)} قطعة
-                    {c.profit !== null && ` · ربح ${formatMoney(c.profit)}`}
+                    {tr("{0} · {1} قطعة", formatPercent(c.share * 100), formatNumber(c.units))}
+                    {c.profit !== null && tr(" · ربح {0}", formatMoney(c.profit))}
                   </p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">مفيش مبيعات في الفترة دي.</p>
+            <p className="text-sm text-muted-foreground">{tr("مفيش مبيعات في الفترة دي.")}</p>
           )}
         </Panel>
 
         <Panel
-          title="منتجات متباعتش"
+          title={tr("منتجات متباعتش")}
           description={
             data.unsoldCount
-              ? `${formatNumber(data.unsoldCount)} منتج نشط وعنده مخزون ومتباعش ولا قطعة في الفترة`
-              : "منتجات نشطة وعندها مخزون ومتباعتش في الفترة"
+              ? tr("{0} منتج نشط وعنده مخزون ومتباعش ولا قطعة في الفترة", formatNumber(data.unsoldCount))
+              : tr("منتجات نشطة وعندها مخزون ومتباعتش في الفترة")
           }
           contentClassName={data.unsold.length ? "p-0" : undefined}
         >
@@ -154,7 +153,7 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
                   <Link href={`/products/${p.id}/edit`} className="min-w-0 flex-1 after:absolute after:inset-0">
                     <span className="block truncate text-sm font-medium">{p.name}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {p.category} · {formatNumber(p.stock)} في المخزون
+                      {tr("{0} · {1} في المخزون", p.category, formatNumber(p.stock))}
                     </span>
                   </Link>
                   <span className="text-xs text-muted-foreground tabular-nums">{formatMoney(p.valueRetail)}</span>
@@ -162,7 +161,7 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
               ))}
             </ul>
           ) : (
-            <EmptyNote icon={PackageX} title="كل منتجاتك اتباع منها في الفترة دي" />
+            <EmptyNote icon={PackageX} title={tr("كل منتجاتك اتباع منها في الفترة دي")} />
           )}
         </Panel>
       </div>

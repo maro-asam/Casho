@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 export type BranchOption = { id: string; name: string; isActive: boolean; isDefault: boolean };
 export type MemberBranchAccess = { allBranches: boolean; branchIds: string[] };
@@ -43,25 +44,25 @@ export function MemberBranchesDialog({ open, onOpenChange, memberId, memberName,
       try {
         await SetMemberBranchesAction({ memberId, allBranches, branchIds: selected });
         onSaved({ allBranches, branchIds: allBranches ? [] : selected });
-        toast.success("تم تحديث فروع العضو");
+        toast.success(tr("تم تحديث فروع العضو"));
         onOpenChange(false);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "حدث خطأ");
+        toast.error(error instanceof Error ? error.message : tr("حدث خطأ"));
       }
     });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="sm:max-w-md">
+      <DialogContent dir={tdir()} className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>فروع {memberName}</DialogTitle>
-          <DialogDescription>الفروع اللي يقدر يفتح فيها وردية ويبيع من مخزونها.</DialogDescription>
+          <DialogTitle>{tr("فروع {0}", memberName)}</DialogTitle>
+          <DialogDescription>{tr("الفروع اللي يقدر يفتح فيها وردية ويبيع من مخزونها.")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <Label htmlFor="all-branches" className="text-sm font-medium">
-              كل الفروع (والفروع الجديدة)
+              {tr("كل الفروع (والفروع الجديدة)")}
             </Label>
             <Switch id="all-branches" checked={allBranches} onCheckedChange={setAllBranches} />
           </div>
@@ -75,8 +76,8 @@ export function MemberBranchesDialog({ open, onOpenChange, memberId, memberName,
                 >
                   <Checkbox checked={selected.includes(b.id)} onCheckedChange={(v) => toggle(b.id, v === true)} />
                   <span className="flex-1">{b.name}</span>
-                  {b.isDefault && <span className="text-xs text-muted-foreground">رئيسي</span>}
-                  {!b.isActive && <span className="text-xs text-muted-foreground">موقوف</span>}
+                  {b.isDefault && <span className="text-xs text-muted-foreground">{tr("رئيسي")}</span>}
+                  {!b.isActive && <span className="text-xs text-muted-foreground">{tr("موقوف")}</span>}
                 </label>
               ))}
             </div>
@@ -85,7 +86,7 @@ export function MemberBranchesDialog({ open, onOpenChange, memberId, memberName,
 
         <DialogFooter>
           <Button onClick={save} disabled={pending || (!allBranches && selected.length === 0)}>
-            حفظ
+            {tr("حفظ")}
           </Button>
         </DialogFooter>
       </DialogContent>

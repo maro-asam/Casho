@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AcceptInvitationAction, DeclineInvitationAction } from "@/actions/store/members.actions";
+import { tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = { invitationId: string };
 
@@ -17,11 +18,11 @@ export default function AcceptInvitationClient({ invitationId }: Props) {
     startTransition(async () => {
       const res = await AcceptInvitationAction(invitationId);
       if (res.success) {
-        toast.success(res.message);
+        toast.success(trv(res.message));
         // Team members work from the POS of the store that invited them.
         router.push("/pos");
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -31,10 +32,10 @@ export default function AcceptInvitationClient({ invitationId }: Props) {
       const res = await DeclineInvitationAction(invitationId);
       if (res.success) {
         setDeclined(true);
-        toast.success(res.message);
+        toast.success(trv(res.message));
         setTimeout(() => router.push("/dashboard"), 1500);
       } else {
-        toast.error(res.message);
+        toast.error(trv(res.message));
       }
     });
   }
@@ -42,7 +43,7 @@ export default function AcceptInvitationClient({ invitationId }: Props) {
   if (declined) {
     return (
       <p className="text-center text-sm text-muted-foreground">
-        تم رفض الدعوة. جاري التحويل...
+        {tr("تم رفض الدعوة. جاري التحويل...")}
       </p>
     );
   }
@@ -54,7 +55,7 @@ export default function AcceptInvitationClient({ invitationId }: Props) {
         onClick={handleAccept}
         disabled={isPending}
       >
-        {isPending ? "جاري القبول..." : "قبول الدعوة والانضمام"}
+        {isPending ? tr("جاري القبول...") : tr("قبول الدعوة والانضمام")}
       </Button>
       <Button
         variant="ghost"
@@ -62,7 +63,7 @@ export default function AcceptInvitationClient({ invitationId }: Props) {
         onClick={handleDecline}
         disabled={isPending}
       >
-        رفض الدعوة
+        {tr("رفض الدعوة")}
       </Button>
     </div>
   );

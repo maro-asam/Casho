@@ -22,97 +22,58 @@ export default function Footer() {
     },
   ];
 
+  const columns = [
+    { title: ft.sections.product, links: ft.links.product },
+    { title: ft.sections.company, links: ft.links.company },
+    { title: ft.sections.legal, links: ft.links.legal },
+  ];
+
+  // Apple-style footer: dense 12px links on the surface tone, hairline rules.
   return (
-    <footer className="border-t border-border/70 bg-background">
-      <div className="wrapper py-14">
-        <div className="grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-4">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Store className="size-5" />
-              </div>
+    <footer className="al bg-(--al-surface) text-[12px] text-(--al-muted)">
+      <div className="al-container py-10">
+        <Link href="/" className="inline-flex items-center gap-2 text-(--al-text)">
+          <Store className="size-4" strokeWidth={1.8} />
+          <span className="text-[14px] font-semibold">كاشو</span>
+          <span className="text-(--al-muted)">· {ft.tagline}</span>
+        </Link>
+        <p className="mt-3 max-w-[560px] leading-relaxed">{ft.description}</p>
 
-              <div>
-                <p className="text-lg font-extrabold text-foreground">كاشو</p>
-                <p className="text-sm text-muted-foreground">
-                  {ft.tagline}
-                </p>
-              </div>
-            </Link>
-
-            <p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">
-              {ft.description}
-            </p>
-          </div>
-
-          <div className="grid gap-8 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">{ft.sections.product}</h3>
-              <div className="mt-4 space-y-3">
-                {ft.links.product.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
+        <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-(--al-hair) pt-6 md:grid-cols-4">
+          {columns.map((col) => (
+            <div key={col.title}>
+              <h3 className="font-semibold text-(--al-text)">{col.title}</h3>
+              <ul className="mt-3 space-y-2.5">
+                {col.links.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href} className="transition-colors hover:text-(--al-text) hover:underline">
+                      {link.name}
+                    </Link>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
+          ))}
 
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">{ft.sections.company}</h3>
-              <div className="mt-4 space-y-3">
-                {ft.links.company.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">{ft.sections.legal}</h3>
-              <div className="mt-4 space-y-3">
-                {ft.links.legal.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">{ft.sections.contact}</h3>
-              <div className="mt-4 space-y-3">
-                {contactItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      <Icon className="size-4 shrink-0" />
+          <div className="col-span-2 md:col-span-1">
+            <h3 className="font-semibold text-(--al-text)">{ft.sections.contact}</h3>
+            <ul className="mt-3 space-y-2.5">
+              {contactItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.name}>
+                    <Link href={item.href} className="inline-flex items-start gap-2 transition-colors hover:text-(--al-text)">
+                      <Icon className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.8} />
                       <span>{item.name}</span>
                     </Link>
-                  );
-                })}
-              </div>
-            </div>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-border/70 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-2 border-t border-(--al-hair) pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p>{ft.copyright}</p>
           <p>{ft.madeWith}</p>
         </div>

@@ -29,21 +29,22 @@ import {
 import { toneDot } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUSES, ORDER_STATUS_META } from "../../_components/order-meta";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Step = { status: OrderStatus; label: string };
 
 const STEP_LABELS: Record<OrderStatus, string> = {
-  PENDING: "اتطلب",
-  PAID: "اتدفع",
-  SHIPPED: "اتشحن",
-  DELIVERED: "اتسلّم",
-  CANCELED: "اتلغى",
+  get PENDING() { return tr("اتطلب"); },
+  get PAID() { return tr("اتدفع"); },
+  get SHIPPED() { return tr("اتشحن"); },
+  get DELIVERED() { return tr("اتسلّم"); },
+  get CANCELED() { return tr("اتلغى"); },
 };
 
 const NEXT_ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
-  PAID: "تأكيد الدفع",
-  SHIPPED: "تحديد كمشحون",
-  DELIVERED: "تحديد كمتسلّم",
+  get PAID() { return tr("تأكيد الدفع"); },
+  get SHIPPED() { return tr("تحديد كمشحون"); },
+  get DELIVERED() { return tr("تحديد كمتسلّم"); },
 };
 
 /** The stages that make sense for how this order is paid and fulfilled. */
@@ -99,12 +100,12 @@ export function OrderProgress({
     startTransition(async () => {
       try {
         await UpdateOrderStatusAction(orderId, storeId, to, { returned: toReturned });
-        toast.success(toReturned ? "اتسجّل إن العميل رفض الاستلام" : `الطلب بقى "${ORDER_STATUS_META[to].label}"`);
+        toast.success(toReturned ? tr("اتسجّل إن العميل رفض الاستلام") : tr("الطلب بقى \"{0}\"", ORDER_STATUS_META[to].label));
         router.refresh();
       } catch {
         setStatus(previous.status);
         setReturned(previous.returned);
-        toast.error("مقدرناش نغيّر حالة الطلب، جرّب تاني.");
+        toast.error(tr("مقدرناش نغيّر حالة الطلب، جرّب تاني."));
       }
     });
   }
@@ -114,30 +115,30 @@ export function OrderProgress({
       <div className="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 id="order-progress-title" className="text-base font-semibold">
-            حالة الطلب
+            {tr("حالة الطلب")}
           </h2>
           <p className="text-sm text-muted-foreground">
             {canceled && returned
-              ? "العميل رفض استلام الطلب ده (مرتجع) — اتحسب في سمعة الرقم."
+              ? tr("العميل رفض استلام الطلب ده (مرتجع) — اتحسب في سمعة الرقم.")
               : canceled
-              ? "الطلب ده اتلغى. تقدر ترجّعه من قايمة الحالة لو اتلغى بالغلط."
+              ? tr("الطلب ده اتلغى. تقدر ترجّعه من قايمة الحالة لو اتلغى بالغلط.")
               : next
-                ? `الخطوة الجاية: ${NEXT_ACTION_LABELS[next.status] ?? next.label}`
-                : "الطلب خلص واتسلّم للعميل."}
+                ? tr("الخطوة الجاية: {0}", NEXT_ACTION_LABELS[next.status] ?? next.label)
+                : tr("الطلب خلص واتسلّم للعميل.")}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <DropdownMenu dir="rtl" modal={false}>
+          <DropdownMenu dir={tdir()} modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 gap-1.5" disabled={pending}>
                 <span aria-hidden className={cn("size-1.5 rounded-full", toneDot(ORDER_STATUS_META[status].tone))} />
-                {canceled && returned ? "مرتجع" : ORDER_STATUS_META[status].label}
+                {canceled && returned ? tr("مرتجع") : ORDER_STATUS_META[status].label}
                 <ChevronDown className="size-3.5 opacity-60" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">غيّر الحالة يدوي</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">{tr("غيّر الحالة يدوي")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {ORDER_STATUSES.filter((s) => s.value !== "CANCELED").map((s) => (
                 <DropdownMenuItem key={s.value} onSelect={() => change(s.value)} className="gap-2">
@@ -150,19 +151,19 @@ export function OrderProgress({
               {canceled && (
                 <DropdownMenuItem onSelect={() => change("PENDING")} className="gap-2">
                   <RotateCcw className="size-3.5" />
-                  رجّع الطلب لقيد المراجعة
+                  {tr("رجّع الطلب لقيد المراجعة")}
                 </DropdownMenuItem>
               )}
               {!canceled && (
                 <DropdownMenuItem variant="destructive" onSelect={() => setConfirm("cancel")} className="gap-2">
                   <CircleSlash className="size-3.5" />
-                  إلغاء الطلب
+                  {tr("إلغاء الطلب")}
                 </DropdownMenuItem>
               )}
               {!(canceled && returned) && source !== "POS" && (
                 <DropdownMenuItem variant="destructive" onSelect={() => setConfirm("return")} className="gap-2">
                   <PackageX className="size-3.5" />
-                  العميل رفض الاستلام (مرتجع)
+                  {tr("العميل رفض الاستلام (مرتجع)")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -178,7 +179,7 @@ export function OrderProgress({
       </div>
 
       {/* Stepper */}
-      <ol className={cn("flex items-start gap-2 p-5", canceled && "opacity-50")} aria-label="مراحل الطلب">
+      <ol className={cn("flex items-start gap-2 p-5", canceled && "opacity-50")} aria-label={tr("مراحل الطلب")}>
         {steps.map((step, i) => {
           const done = !canceled && i <= currentIndex;
           const isCurrent = !canceled && i === currentIndex;
@@ -214,22 +215,22 @@ export function OrderProgress({
       </ol>
 
       <AlertDialog open={confirm !== null} onOpenChange={(open) => !open && setConfirm(null)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={tdir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>{confirm === "return" ? "العميل رفض يستلم الطلب؟" : "تلغي الطلب ده؟"}</AlertDialogTitle>
+            <AlertDialogTitle>{confirm === "return" ? tr("العميل رفض يستلم الطلب؟") : tr("تلغي الطلب ده؟")}</AlertDialogTitle>
             <AlertDialogDescription>
               {confirm === "return"
-                ? "الطلب هيتلغى والمنتجات ترجع للمخزون، والرفض هيتحسب في سمعة الرقم — عشان المرة الجاية تعرف قبل ما تشحن، وكمان باقي متاجر كاشو."
-                : "الطلب هيتحوّل لـ \"ملغي\" ومش هيتحسب في الإيرادات. تقدر ترجّعه بعدين من قايمة الحالة."}
+                ? tr("الطلب هيتلغى والمنتجات ترجع للمخزون، والرفض هيتحسب في سمعة الرقم — عشان المرة الجاية تعرف قبل ما تشحن، وكمان باقي متاجر كاشو.")
+                : tr("الطلب هيتحوّل لـ \"ملغي\" ومش هيتحسب في الإيرادات. تقدر ترجّعه بعدين من قايمة الحالة.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>رجوع</AlertDialogCancel>
+            <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-white hover:bg-destructive/90"
               onClick={() => change("CANCELED", { returned: confirm === "return" })}
             >
-              {confirm === "return" ? "تسجيل كمرتجع" : "إلغاء الطلب"}
+              {confirm === "return" ? tr("تسجيل كمرتجع") : tr("إلغاء الطلب")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

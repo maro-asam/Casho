@@ -4,22 +4,24 @@ import { GetPurchaseOrdersAction } from "@/actions/inventory/purchase-orders.act
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseOrderStatus } from "@prisma/client";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 const STATUS_CONFIG: Record<PurchaseOrderStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  DRAFT: { label: "مسودة", variant: "secondary" },
-  SENT: { label: "مُرسل للمورد", variant: "outline" },
-  PARTIAL: { label: "استلام جزئي", variant: "default" },
-  RECEIVED: { label: "مُستلم بالكامل", variant: "default" },
-  CANCELLED: { label: "ملغي", variant: "destructive" },
+  DRAFT: { get label() { return tr("مسودة"); }, variant: "secondary" },
+  SENT: { get label() { return tr("مُرسل للمورد"); }, variant: "outline" },
+  PARTIAL: { get label() { return tr("استلام جزئي"); }, variant: "default" },
+  RECEIVED: { get label() { return tr("مُستلم بالكامل"); }, variant: "default" },
+  CANCELLED: { get label() { return tr("ملغي"); }, variant: "destructive" },
 };
 
 const STATUS_FILTERS = [
-  { value: "", label: "الكل" },
-  { value: "DRAFT", label: "مسودة" },
-  { value: "SENT", label: "مُرسل" },
-  { value: "PARTIAL", label: "جزئي" },
-  { value: "RECEIVED", label: "مُستلم" },
-  { value: "CANCELLED", label: "ملغي" },
+  { value: "", get label() { return tr("الكل"); } },
+  { value: "DRAFT", get label() { return tr("مسودة"); } },
+  { value: "SENT", get label() { return tr("مُرسل"); } },
+  { value: "PARTIAL", get label() { return tr("جزئي"); } },
+  { value: "RECEIVED", get label() { return tr("مُستلم"); } },
+  { value: "CANCELLED", get label() { return tr("ملغي"); } },
 ];
 
 export default async function PurchaseOrdersPage({
@@ -27,6 +29,7 @@ export default async function PurchaseOrdersPage({
 }: {
   searchParams: { page?: string; status?: string };
 }) {
+  await loadDashboardLocale();
   const page = parseInt(searchParams.page ?? "1", 10);
   const status = searchParams.status as PurchaseOrderStatus | undefined;
 
@@ -38,16 +41,16 @@ export default async function PurchaseOrdersPage({
         <div className="flex items-center gap-3">
           <Link href="/dashboard/inventory">
             <Button variant="ghost" size="sm" className="gap-1">
-              <ArrowRight className="size-4" />
-              المخزون
+              <ArrowRight className="size-4 ltr:-scale-x-100" />
+              {tr("المخزون")}
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">طلبات الشراء</h1>
+          <h1 className="text-xl font-bold">{tr("طلبات الشراء")}</h1>
         </div>
         <Link href="/dashboard/inventory/purchase-orders/new">
           <Button size="sm" className="gap-2">
             <Plus className="size-4" />
-            طلب شراء جديد
+            {tr("طلب شراء جديد")}
           </Button>
         </Link>
       </div>
@@ -72,11 +75,11 @@ export default async function PurchaseOrdersPage({
       {data.items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center">
           <ShoppingCart className="mx-auto mb-3 size-10 text-muted-foreground/40" />
-          <p className="text-muted-foreground">لا توجد طلبات شراء</p>
+          <p className="text-muted-foreground">{tr("لا توجد طلبات شراء")}</p>
           <Link href="/dashboard/inventory/purchase-orders/new">
             <Button size="sm" className="mt-4 gap-2">
               <Plus className="size-4" />
-              إنشاء أول طلب شراء
+              {tr("إنشاء أول طلب شراء")}
             </Button>
           </Link>
         </div>
@@ -84,14 +87,14 @@ export default async function PurchaseOrdersPage({
         <div className="rounded-xl border border-border bg-card shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/50 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 py-3">رقم الأمر</th>
-                <th className="px-4 py-3">المورد</th>
-                <th className="px-4 py-3">الفرع</th>
-                <th className="px-4 py-3">الحالة</th>
-                <th className="px-4 py-3 text-center">المنتجات</th>
-                <th className="px-4 py-3">الإجمالي</th>
-                <th className="px-4 py-3">تاريخ الإنشاء</th>
+              <tr className="border-b border-border bg-muted/50 text-start text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <th className="px-4 py-3">{tr("رقم الأمر")}</th>
+                <th className="px-4 py-3">{tr("المورد")}</th>
+                <th className="px-4 py-3">{tr("الفرع")}</th>
+                <th className="px-4 py-3">{tr("الحالة")}</th>
+                <th className="px-4 py-3 text-center">{tr("المنتجات")}</th>
+                <th className="px-4 py-3">{tr("الإجمالي")}</th>
+                <th className="px-4 py-3">{tr("تاريخ الإنشاء")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -110,14 +113,14 @@ export default async function PurchaseOrdersPage({
                     </td>
                     <td className="px-4 py-3 text-center tabular-nums">{po._count.items}</td>
                     <td className="px-4 py-3 tabular-nums">
-                      {new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(po.totalAmount / 100)}
+                      {new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(po.totalAmount / 100)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-                      {new Intl.DateTimeFormat("ar-EG", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(po.createdAt))}
+                      {new Intl.DateTimeFormat(intlLocale(), { day: "2-digit", month: "short", year: "numeric" }).format(new Date(po.createdAt))}
                     </td>
                     <td className="px-4 py-3">
                       <Link href={`/dashboard/inventory/purchase-orders/${po.id}`}>
-                        <Button variant="ghost" size="sm">عرض</Button>
+                        <Button variant="ghost" size="sm">{tr("عرض")}</Button>
                       </Link>
                     </td>
                   </tr>
@@ -127,16 +130,16 @@ export default async function PurchaseOrdersPage({
           </table>
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm">
-              <span className="text-muted-foreground">{data.total} طلب</span>
+              <span className="text-muted-foreground">{tr("{0} طلب", data.total)}</span>
               <div className="flex gap-2">
                 {page > 1 && (
                   <Link href={`?page=${page - 1}${status ? `&status=${status}` : ""}`}>
-                    <Button variant="outline" size="sm">السابق</Button>
+                    <Button variant="outline" size="sm">{tr("السابق")}</Button>
                   </Link>
                 )}
                 {page < data.totalPages && (
                   <Link href={`?page=${page + 1}${status ? `&status=${status}` : ""}`}>
-                    <Button variant="outline" size="sm">التالي</Button>
+                    <Button variant="outline" size="sm">{tr("التالي")}</Button>
                   </Link>
                 )}
               </div>

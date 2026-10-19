@@ -8,14 +8,20 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { getBillingPeriodDays } from "@/lib/subscriptions";
 import { TopupStudio } from "../_components/topup-studio";
+import { tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "شحن الرصيد",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("شحن الرصيد"),
 };
+}
 
 type TopupRouteProps = { searchParams?: Promise<SearchParamsRecord> };
 
 export default async function TopupRoute({ searchParams }: TopupRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -28,8 +34,8 @@ export default async function TopupRoute({ searchParams }: TopupRouteProps) {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول وبعدها اشحن رصيده."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول وبعدها اشحن رصيده.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -39,22 +45,22 @@ export default async function TopupRoute({ searchParams }: TopupRouteProps) {
   const failed = readParam(params, "topup");
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="شحن الرصيد"
-        description="الرصيد بيتخصم منه الاشتراك تلقائي في ميعاده."
+        title={tr("شحن الرصيد")}
+        description={tr("الرصيد بيتخصم منه الاشتراك تلقائي في ميعاده.")}
         actions={
           <Button asChild variant="ghost" size="sm" className="gap-1.5">
             <Link href="/balance">
-              <ArrowRight className="size-4" />
-              الرصيد
+              <ArrowRight className="size-4 ltr:-scale-x-100" />
+              {tr("الرصيد")}
             </Link>
           </Button>
         }
       />
       {(failed === "failed" || failed === "invalid") && (
         <p className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4 text-sm text-rose-800 dark:text-rose-300" role="status">
-          {failed === "failed" ? "الدفع ما تمش ومفيش أي مبلغ اتخصم. جرّب تاني أو استخدم تحويل يدوي." : "مقدرناش نتأكد من عملية الدفع. لو المبلغ اتخصم كلّمنا من الدعم."}
+          {failed === "failed" ? tr("الدفع ما تمش ومفيش أي مبلغ اتخصم. جرّب تاني أو استخدم تحويل يدوي.") : tr("مقدرناش نتأكد من عملية الدفع. لو المبلغ اتخصم كلّمنا من الدعم.")}
         </p>
       )}
       <TopupStudio
@@ -62,7 +68,7 @@ export default async function TopupRoute({ searchParams }: TopupRouteProps) {
         balance={store.balance}
         price={store.monthlyPrice}
         periodDays={getBillingPeriodDays(store.billingCycle)}
-        cycleWord={store.billingCycle === "YEARLY" ? "سنة" : "شهر"}
+        cycleWord={store.billingCycle === "YEARLY" ? tr("سنة") : tr("شهر")}
         nextRenewal={store.subscriptionEndsAt?.toISOString() ?? null}
         initialAmount={Number.isFinite(requested) && requested > 0 ? Math.ceil(requested) : null}
       />

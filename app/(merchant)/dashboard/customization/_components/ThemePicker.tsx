@@ -12,6 +12,7 @@ import ThemeCategoryFilter, {
   filterThemesByCategory,
   type ThemeCategoryFilterValue,
 } from "@/components/common/ThemeCategoryFilter";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type ThemePickerProps = {
   storeId: string;
@@ -215,9 +216,9 @@ export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProp
     startTransition(async () => {
       const result = await UpdateThemeAction({ storeId, themeId });
       if (result.success) {
-        toast.success(result.message);
+        toast.success(trv(result.message));
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   };
@@ -226,15 +227,15 @@ export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProp
   const themes = filterThemesByCategory(allThemes, category);
 
   return (
-    <Card dir="rtl">
+    <Card dir={tdir()}>
       <CardContent className="space-y-5">
         <div className="flex items-center gap-3">
           <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <Palette className="size-4" />
           </div>
           <div>
-            <h2 className="font-semibold">ثيم المتجر</h2>
-            <p className="text-xs text-muted-foreground">اختر التصميم المناسب لهوية متجرك</p>
+            <h2 className="font-semibold">{tr("ثيم المتجر")}</h2>
+            <p className="text-xs text-muted-foreground">{tr("اختر التصميم المناسب لهوية متجرك")}</p>
           </div>
         </div>
 
@@ -252,7 +253,7 @@ export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProp
                 onClick={() => handleChange(theme.id)}
                 disabled={isPending}
                 className={cn(
-                  "relative overflow-hidden rounded-2xl border p-4 text-right transition-all duration-200",
+                  "relative overflow-hidden rounded-2xl border p-4 text-start transition-all duration-200",
                   "disabled:pointer-events-none disabled:opacity-60",
                   isActive
                     ? "border-primary bg-primary/5 shadow-sm ring-2 ring-primary/20"
@@ -260,7 +261,7 @@ export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProp
                 )}
               >
                 {isActive && (
-                  <div className="absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm">
+                  <div className="absolute end-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm">
                     <Check className="h-3 w-3" />
                   </div>
                 )}
@@ -269,7 +270,7 @@ export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProp
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold">{theme.name}</h4>
                       {isActive && (
-                        <span className="text-[10px] font-medium text-primary">مُفعّل</span>
+                        <span className="text-[10px] font-medium text-primary">{tr("مُفعّل")}</span>
                       )}
                     </div>
                     <p className="mt-0.5 text-xs text-muted-foreground">{theme.description}</p>

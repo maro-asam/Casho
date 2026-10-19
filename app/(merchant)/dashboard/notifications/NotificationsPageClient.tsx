@@ -29,6 +29,7 @@ import {
   MarkNotificationAsReadAction,
 } from "@/actions/notifications/notifications.actions";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
+import { intlLocale, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type NotificationsPageClientProps = {
   initialNotifications: NotificationDTO[];
@@ -83,7 +84,7 @@ const notificationIconColors: Partial<Record<NotificationDTO["type"], string>> =
 };
 
 function formatDate(dateIso: string) {
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(intlLocale(), {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -93,9 +94,9 @@ function formatDate(dateIso: string) {
 }
 
 const FILTERS: { key: Filter; label: string }[] = [
-  { key: "all", label: "الكل" },
-  { key: "unread", label: "غير مقروء" },
-  { key: "read", label: "مقروء" },
+  { key: "all", get label() { return tr("الكل"); } },
+  { key: "unread", get label() { return tr("غير مقروء"); } },
+  { key: "read", get label() { return tr("مقروء"); } },
 ];
 
 export default function NotificationsPageClient({
@@ -149,11 +150,11 @@ export default function NotificationsPageClient({
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <DashboardSectionHeader
         icon={Bell}
-        title="الإشعارات"
-        description="متابعة الطلبات الجديدة، تحديثات الرصيد، وكل ما يخص متجرك."
+        title={tr("الإشعارات")}
+        description={tr("متابعة الطلبات الجديدة، تحديثات الرصيد، وكل ما يخص متجرك.")}
         badge={unreadCount > 0 ? unreadCount : undefined}
       />
 
@@ -206,7 +207,7 @@ export default function NotificationsPageClient({
             onClick={markAllAsRead}
           >
             <CheckCheck className="size-3.5" />
-            تعليم الكل كمقروء
+            {tr("تعليم الكل كمقروء")}
           </Button>
           <Button
             type="button"
@@ -217,7 +218,7 @@ export default function NotificationsPageClient({
             onClick={deleteReadNotifications}
           >
             <Trash2 className="size-3.5" />
-            حذف المقروء
+            {tr("حذف المقروء")}
           </Button>
         </div>
       </div>
@@ -230,9 +231,9 @@ export default function NotificationsPageClient({
               <Inbox className="size-7" />
             </div>
             <div>
-              <p className="font-bold">مفيش إشعارات هنا</p>
+              <p className="font-bold">{tr("مفيش إشعارات هنا")}</p>
               <p className="mt-1 max-w-xs text-sm leading-7 text-muted-foreground">
-                لما يحصل نشاط جديد في المتجر، الإشعارات هتظهر هنا تلقائيًا.
+                {tr("لما يحصل نشاط جديد في المتجر، الإشعارات هتظهر هنا تلقائيًا.")}
               </p>
             </div>
           </CardContent>
@@ -268,19 +269,19 @@ export default function NotificationsPageClient({
                   {/* Content */}
                   <button
                     type="button"
-                    className="min-w-0 flex-1 text-right"
+                    className="min-w-0 flex-1 text-start"
                     onClick={() => openNotification(notification)}
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-bold">{notification.title}</span>
+                      <span className="text-sm font-bold">{trv(notification.title)}</span>
                       {unread && (
                         <Badge className="h-4 rounded-full border-0 bg-primary/10 px-1.5 text-[10px] font-bold text-primary hover:bg-primary/10">
-                          جديد
+                          {tr("جديد")}
                         </Badge>
                       )}
                     </div>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      {notification.message}
+                      {trv(notification.message)}
                     </p>
                     <p className="mt-1.5 text-xs text-muted-foreground/60">
                       {formatDate(notification.createdAt)}
@@ -297,7 +298,7 @@ export default function NotificationsPageClient({
                         className="h-7 rounded-lg px-2 text-xs text-muted-foreground hover:text-foreground"
                         onClick={() => markOneAsRead(notification.id)}
                       >
-                        مقروء
+                        {tr("مقروء")}
                       </Button>
                     )}
                     <Button

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { InvoiceDiscount } from "./PosTerminal";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
   open: boolean;
@@ -41,11 +42,11 @@ export default function DiscountDialog({ open, onOpenChange, currentDiscount, su
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm" dir="rtl">
+      <DialogContent className="max-w-sm" dir={tdir()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Tag className="size-4" />
-            خصم الفاتورة
+            {tr("خصم الفاتورة")}
           </DialogTitle>
         </DialogHeader>
 
@@ -59,7 +60,7 @@ export default function DiscountDialog({ open, onOpenChange, currentDiscount, su
                 type === "percentage" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
               )}
             >
-              نسبة مئوية %
+              {tr("نسبة مئوية %")}
             </button>
             <button
               onClick={() => setType("fixed")}
@@ -68,7 +69,7 @@ export default function DiscountDialog({ open, onOpenChange, currentDiscount, su
                 type === "fixed" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
               )}
             >
-              مبلغ ثابت ج
+              {tr("مبلغ ثابت ج")}
             </button>
           </div>
 
@@ -105,8 +106,8 @@ export default function DiscountDialog({ open, onOpenChange, currentDiscount, su
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-center text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-primary/50"
               autoFocus
             />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-muted-foreground">
-              {type === "percentage" ? "%" : "ج"}
+            <span className="absolute end-3 top-1/2 -translate-y-1/2 text-lg text-muted-foreground">
+              {type === "percentage" ? "%" : tr("ج")}
             </span>
           </div>
 
@@ -114,16 +115,16 @@ export default function DiscountDialog({ open, onOpenChange, currentDiscount, su
           {numVal > 0 && (
             <div className="rounded-md bg-muted/50 px-3 py-2 space-y-1 text-sm">
               <div className="flex justify-between text-muted-foreground">
-                <span>قبل الخصم:</span>
-                <span>{(subtotal / 100).toFixed(0)} ج</span>
+                <span>{tr("قبل الخصم:")}</span>
+                <span>{tr("{0} ج", (subtotal / 100).toFixed(0))}</span>
               </div>
               <div className="flex justify-between text-emerald-600">
-                <span>الخصم:</span>
-                <span>−{(discountAmount / 100).toFixed(0)} ج</span>
+                <span>{tr("الخصم:")}</span>
+                <span>{tr("−{0} ج", (discountAmount / 100).toFixed(0))}</span>
               </div>
               <div className="flex justify-between font-bold">
-                <span>بعد الخصم:</span>
-                <span className="text-primary">{(afterDiscount / 100).toFixed(0)} ج</span>
+                <span>{tr("بعد الخصم:")}</span>
+                <span className="text-primary">{tr("{0} ج", (afterDiscount / 100).toFixed(0))}</span>
               </div>
             </div>
           )}
@@ -132,11 +133,11 @@ export default function DiscountDialog({ open, onOpenChange, currentDiscount, su
             {currentDiscount && (
               <Button variant="outline" className="gap-1.5" onClick={() => onApply(null)}>
                 <X className="size-3.5" />
-                إزالة الخصم
+                {tr("إزالة الخصم")}
               </Button>
             )}
             <Button className="flex-1" onClick={handleApply}>
-              تطبيق الخصم
+              {tr("تطبيق الخصم")}
             </Button>
           </div>
         </div>

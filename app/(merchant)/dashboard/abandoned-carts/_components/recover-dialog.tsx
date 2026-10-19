@@ -17,8 +17,9 @@ import { Textarea } from "@/components/ui/textarea";
 import type { AbandonedCartRow } from "@/lib/cart-recovery/abandoned";
 import { toWhatsAppDigits } from "@/lib/conversion/conversion-config";
 import { recoveryMeta } from "./recovery-meta";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
 
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
 const NO_COUPON = "__none";
 
 type Props = {
@@ -43,7 +44,7 @@ export function RecoverDialog(props: Props) {
 
   return (
     <Dialog open={Boolean(props.cart)} onOpenChange={(o) => !o && close()}>
-      <DialogContent dir="rtl" className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent dir={tdir()} className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
         {props.cart && <RecoverPanel key={props.cart.key} {...props} cart={props.cart} />}
       </DialogContent>
     </Dialog>
@@ -53,13 +54,13 @@ export function RecoverDialog(props: Props) {
 function buildMessage(cart: AbandonedCartRow, storeName: string, link: string, coupon: string | null) {
   const first = cart.fullName?.trim().split(/\s+/)[0];
   const lines = cart.items.slice(0, 3).map((i) => `• ${i.name}${i.quantity > 1 ? ` (×${i.quantity})` : ""}`);
-  if (cart.items.length > 3) lines.push(`• و${cart.items.length - 3} منتج تاني`);
+  if (cart.items.length > 3) lines.push(tr("• و{0} منتج تاني", cart.items.length - 3));
   return [
-    `أهلاً${first ? ` ${first}` : ""} 👋`,
-    `لاحظنا إن في منتجات مستنياك في سلتك في ${storeName}:`,
+    tr("أهلاً{0} 👋", first ? ` ${first}` : ""),
+    tr("لاحظنا إن في منتجات مستنياك في سلتك في {0}:", storeName),
     ...lines,
-    coupon ? `\nوعشانك، ليك خصم بالكود ${coupon} 🎁 هيتطبق لوحده.` : "",
-    `\nكمّل طلبك من هنا 👇\n${link}`,
+    coupon ? tr("\nوعشانك، ليك خصم بالكود {0} 🎁 هيتطبق لوحده.", coupon) : "",
+    tr("\nكمّل طلبك من هنا 👇\n{0}", link),
   ]
     .filter(Boolean)
     .join("\n");
@@ -84,7 +85,7 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
         if (r.ok) setToken(r.token);
         else setLinkError(r.message);
       })
-      .catch(() => !cancelled && setLinkError("مقدرناش نجهّز اللينك."));
+      .catch(() => !cancelled && setLinkError(tr("مقدرناش نجهّز اللينك.")));
     return () => {
       cancelled = true;
     };
@@ -110,7 +111,7 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
     if (!cart.phone) return;
     window.open(`https://wa.me/${toWhatsAppDigits(cart.phone)}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
     markContacted();
-    toast.success("اتفتح الواتساب — اتسجلت إنك تواصلت");
+    toast.success(tr("اتفتح الواتساب — اتسجلت إنك تواصلت"));
   }
 
   function copy(text: string, what: "msg" | "link") {
@@ -123,9 +124,9 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
 
   return (
     <div className="min-w-0 space-y-5">
-      <DialogHeader className="text-right sm:text-right">
+      <DialogHeader className="text-start sm:text-start">
         <div className="flex items-center gap-2">
-          <DialogTitle>{cart.fullName || (cart.phone ? "عميل" : "زائر من غير رقم")}</DialogTitle>
+          <DialogTitle>{cart.fullName || (cart.phone ? tr("عميل") : tr("زائر من غير رقم"))}</DialogTitle>
           <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
         </div>
         <DialogDescription>
@@ -134,20 +135,20 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
               {cart.phone}
             </span>
           ) : (
-            "مسابش رقمه — تقدر تبعتله اللينك لو بيكلمك على إنستجرام أو ماسنجر."
+            tr("مسابش رقمه — تقدر تبعتله اللينك لو بيكلمك على إنستجرام أو ماسنجر.")
           )}
-          {cart.contactCount > 0 && ` · اتواصلت ${cart.contactCount} مرة`}
+          {cart.contactCount > 0 && tr(" · اتواصلت {0} مرة", cart.contactCount)}
         </DialogDescription>
       </DialogHeader>
 
       {recovered ? (
         <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm">
-          <p className="font-medium">رجع وطلب بـ {money.format(cart.value / 100)} بعد ما تواصلت معاه 🎉</p>
+          <p className="font-medium">{tr("رجع وطلب بـ {0} بعد ما تواصلت معاه 🎉", money.format(cart.value / 100))}</p>
           {cart.orderId && (
             <Button asChild size="sm" variant="outline" className="gap-1.5">
               <Link href={`/orders/${cart.orderId}`}>
                 <ExternalLink className="size-4" />
-                افتح الطلب
+                {tr("افتح الطلب")}
               </Link>
             </Button>
           )}
@@ -170,27 +171,27 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
               </li>
             ))}
             <li className="flex items-center justify-between bg-muted/40 px-3 py-2 text-sm">
-              <span className="text-muted-foreground">الإجمالي</span>
+              <span className="text-muted-foreground">{tr("الإجمالي")}</span>
               <span className="font-semibold tabular-nums">{money.format(cart.value / 100)}</span>
             </li>
           </ul>
 
           {coupons.length > 0 && (
             <div className="space-y-2">
-              <Label>تضيف كود خصم؟</Label>
+              <Label>{tr("تضيف كود خصم؟")}</Label>
               <Select
                 value={coupon}
                 onValueChange={(v) => {
                   setCoupon(v);
                   setEdited(null);
                 }}
-                dir="rtl"
+                dir={tdir()}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_COUPON}>من غير خصم</SelectItem>
+                  <SelectItem value={NO_COUPON}>{tr("من غير خصم")}</SelectItem>
                   {coupons.map((c) => (
                     <SelectItem key={c.code} value={c.code}>
                       <span className="font-mono" dir="ltr">
@@ -201,16 +202,16 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">الكود بيتطبق لوحده لما يفتح اللينك.</p>
+              <p className="text-xs text-muted-foreground">{tr("الكود بيتطبق لوحده لما يفتح اللينك.")}</p>
             </div>
           )}
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="recover-message">الرسالة</Label>
+              <Label htmlFor="recover-message">{tr("الرسالة")}</Label>
               {edited !== null && (
                 <button type="button" className="text-xs text-primary hover:underline" onClick={() => setEdited(null)}>
-                  رجّع الرسالة الأصلية
+                  {tr("رجّع الرسالة الأصلية")}
                 </button>
               )}
             </div>
@@ -235,19 +236,19 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
             {cart.phone && (
               <Button onClick={sendWhatsApp} disabled={!token || pending} className="gap-1.5 bg-[#25D366] text-white hover:bg-[#1ebe5b]">
                 <WhatsAppIcon className="size-4" />
-                ابعت على واتساب
+                {tr("ابعت على واتساب")}
               </Button>
             )}
             <Button variant="outline" className="gap-1.5" disabled={!token} onClick={() => copy(message, "msg")}>
               {copied === "msg" ? <Check className="size-4" /> : <Copy className="size-4" />}
-              انسخ الرسالة
+              {tr("انسخ الرسالة")}
             </Button>
             <Button variant="ghost" className="gap-1.5" disabled={!token} onClick={() => copy(link, "link")}>
               {copied === "link" ? <Check className="size-4" /> : <Copy className="size-4" />}
-              اللينك بس
+              {tr("اللينك بس")}
             </Button>
             {cart.phone && (
-              <Button asChild variant="ghost" size="icon" aria-label="اتصال">
+              <Button asChild variant="ghost" size="icon" aria-label={tr("اتصال")}>
                 <a href={`tel:${cart.phone}`} onClick={markContacted}>
                   <Phone className="size-4" />
                 </a>
@@ -256,7 +257,7 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
           </div>
           {!cart.phone && token && (
             <button type="button" className="text-xs text-muted-foreground hover:text-foreground hover:underline" onClick={markContacted}>
-              بعتهاله بطريقة تانية؟ علّمها إنك تواصلت
+              {tr("بعتهاله بطريقة تانية؟ علّمها إنك تواصلت")}
             </button>
           )}
         </>

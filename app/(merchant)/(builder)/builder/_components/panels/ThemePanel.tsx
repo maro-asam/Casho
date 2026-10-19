@@ -11,6 +11,7 @@ import ThemeCategoryFilter, {
   filterThemesByCategory,
   type ThemeCategoryFilterValue,
 } from "@/components/common/ThemeCategoryFilter";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 // ─── Inline previews (compact 80px cards) ────────────────────────────────────
 
@@ -143,21 +144,21 @@ export default function ThemePanel() {
     if (themeId === activeTheme) return;
     startTransition(async () => {
       const result = await UpdateThemeAction({ storeId, themeId });
-      if (result.success) { toast.success("تم تغيير الثيم"); reloadPreview(); }
-      else toast.error(result.message);
+      if (result.success) { toast.success(tr("تم تغيير الثيم")); reloadPreview(); }
+      else toast.error(trv(result.message));
     });
   };
 
   return (
-    <div className="flex flex-col h-full" dir="rtl">
+    <div className="flex flex-col h-full" dir={tdir()}>
       {/* Header */}
       <div className="flex items-center gap-2 border-b px-4 py-3 bg-background">
         <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
           <Palette className="size-3.5" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold">الثيم</h2>
-          <p className="text-[10px] text-muted-foreground">اختر التصميم الأساسي للمتجر</p>
+          <h2 className="text-sm font-semibold">{tr("الثيم")}</h2>
+          <p className="text-[10px] text-muted-foreground">{tr("اختر التصميم الأساسي للمتجر")}</p>
         </div>
       </div>
 
@@ -175,7 +176,7 @@ export default function ThemePanel() {
                 onClick={() => handleChange(theme.id)}
                 disabled={isPending}
                 className={cn(
-                  "relative overflow-hidden rounded-xl border p-2 text-right transition-all duration-200",
+                  "relative overflow-hidden rounded-xl border p-2 text-start transition-all duration-200",
                   "disabled:pointer-events-none disabled:opacity-60",
                   isActive
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
@@ -183,14 +184,14 @@ export default function ThemePanel() {
                 )}
               >
                 {isActive && (
-                  <div className="absolute left-2 top-2 flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm z-10">
+                  <div className="absolute end-2 top-2 flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm z-10">
                     <Check className="size-2.5" />
                   </div>
                 )}
                 <Preview />
                 <div className="mt-1.5 flex items-center justify-between">
                   <p className="text-xs font-semibold">{theme.name}</p>
-                  {isActive && <span className="text-[10px] font-medium text-primary">مُفعّل</span>}
+                  {isActive && <span className="text-[10px] font-medium text-primary">{tr("مُفعّل")}</span>}
                 </div>
               </button>
             );

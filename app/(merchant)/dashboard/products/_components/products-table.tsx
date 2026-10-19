@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { DEFAULT_LOW_STOCK_THRESHOLD } from "./product-filters";
 import { ProductRowActions } from "./product-row-actions";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type ProductRow = {
   id: string;
@@ -26,8 +27,8 @@ export type ProductRow = {
   soldCount: number;
 };
 
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
-const nf = new Intl.NumberFormat("ar-EG");
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const nf = lazyIntl.number();
 
 const editHref = (id: string) => `/products/${id}/edit`;
 
@@ -44,11 +45,11 @@ function Thumb({ product }: { product: ProductRow }) {
 }
 
 function StockPill({ product }: { product: ProductRow }) {
-  if (product.stock <= 0) return <StatusPill tone="danger">نفد</StatusPill>;
+  if (product.stock <= 0) return <StatusPill tone="danger">{tr("نفد")}</StatusPill>;
   if (product.stock <= (product.lowStockThreshold ?? DEFAULT_LOW_STOCK_THRESHOLD)) {
-    return <StatusPill tone="warning">{nf.format(product.stock)} · قليل</StatusPill>;
+    return <StatusPill tone="warning">{tr("{0} · قليل", nf.format(product.stock))}</StatusPill>;
   }
-  return <span className="text-sm tabular-nums">{nf.format(product.stock)} قطعة</span>;
+  return <span className="text-sm tabular-nums">{tr("{0} قطعة", nf.format(product.stock))}</span>;
 }
 
 function Price({ product, className }: { product: ProductRow; className?: string }) {
@@ -66,9 +67,9 @@ function NameBadges({ product }: { product: ProductRow }) {
   return (
     <>
       {product.isFeatured && (
-        <Star aria-label="منتج مميز" className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />
+        <Star aria-label={tr("منتج مميز")} className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />
       )}
-      {product.type === "BUNDLE" && <Layers aria-label="باقة منتجات" className="size-3.5 shrink-0 text-muted-foreground" />}
+      {product.type === "BUNDLE" && <Layers aria-label={tr("باقة منتجات")} className="size-3.5 shrink-0 text-muted-foreground" />}
     </>
   );
 }
@@ -80,18 +81,18 @@ export function ProductsTable({ products, storeSlug }: { products: ProductRow[];
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">المنتج</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">
-                التصنيف
+              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("المنتج")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">
+                {tr("التصنيف")}
               </TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الحالة</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">المخزون</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground xl:table-cell">
-                اتباع
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("المخزون")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground xl:table-cell">
+                {tr("اتباع")}
               </TableHead>
-              <TableHead className="h-10 text-left text-xs font-medium text-muted-foreground">السعر</TableHead>
+              <TableHead className="h-10 text-end text-xs font-medium text-muted-foreground">{tr("السعر")}</TableHead>
               <TableHead className="h-10 w-12 pe-4">
-                <span className="sr-only">إجراءات</span>
+                <span className="sr-only">{tr("إجراءات")}</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -120,9 +121,9 @@ export function ProductsTable({ products, storeSlug }: { products: ProductRow[];
                 <TableCell className="hidden py-3 text-sm text-muted-foreground lg:table-cell">{product.categoryName}</TableCell>
                 <TableCell className="py-3">
                   {product.isActive ? (
-                    <StatusPill tone="success">ظاهر</StatusPill>
+                    <StatusPill tone="success">{tr("ظاهر")}</StatusPill>
                   ) : (
-                    <StatusPill tone="neutral">مخفي</StatusPill>
+                    <StatusPill tone="neutral">{tr("مخفي")}</StatusPill>
                   )}
                 </TableCell>
                 <TableCell className="py-3">
@@ -131,10 +132,10 @@ export function ProductsTable({ products, storeSlug }: { products: ProductRow[];
                 <TableCell className="hidden py-3 text-sm tabular-nums text-muted-foreground xl:table-cell">
                   {nf.format(product.soldCount)}
                 </TableCell>
-                <TableCell className="py-3 text-left">
+                <TableCell className="py-3 text-end">
                   <Price product={product} />
                 </TableCell>
-                <TableCell className="py-3 pe-4 text-left">
+                <TableCell className="py-3 pe-4 text-end">
                   <ProductRowActions
                     product={product}
                     storefrontUrl={buildStoreUrl(storeSlug, `/products/${product.slug}`)}
@@ -161,13 +162,13 @@ export function ProductsTable({ products, storeSlug }: { products: ProductRow[];
                   </Link>
                   <NameBadges product={product} />
                 </div>
-                <Price product={product} className="shrink-0 text-left" />
+                <Price product={product} className="shrink-0 text-end" />
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 {product.isActive ? (
-                  <StatusPill tone="success">ظاهر</StatusPill>
+                  <StatusPill tone="success">{tr("ظاهر")}</StatusPill>
                 ) : (
-                  <StatusPill tone="neutral">مخفي</StatusPill>
+                  <StatusPill tone="neutral">{tr("مخفي")}</StatusPill>
                 )}
                 <StockPill product={product} />
                 <span>{product.categoryName}</span>

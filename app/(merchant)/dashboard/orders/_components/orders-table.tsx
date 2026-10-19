@@ -4,6 +4,7 @@ import { StatusPill } from "@/components/saas-page";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ORDER_CHANNELS, ORDER_RISK_META, paymentMethodLabel } from "./order-meta";
 import { OrderStatusSelect } from "./order-status-select";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type OrderRow = {
   id: string;
@@ -24,9 +25,9 @@ export type OrderRow = {
   returned: boolean;
 };
 
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
-const nf = new Intl.NumberFormat("ar-EG");
-const dateFormat = new Intl.DateTimeFormat("ar-EG", {
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
+const nf = lazyIntl.number();
+const dateFormat = lazyIntl.date({
   timeZone: "Africa/Cairo",
   day: "numeric",
   month: "short",
@@ -54,7 +55,7 @@ function Products({ order }: { order: OrderRow }) {
         {order.firstProduct ?? "—"}
         {order.otherProducts > 0 && <span className="text-muted-foreground"> +{nf.format(order.otherProducts)}</span>}
       </p>
-      <p className="text-xs text-muted-foreground">{nf.format(order.itemCount)} قطعة</p>
+      <p className="text-xs text-muted-foreground">{tr("{0} قطعة", nf.format(order.itemCount))}</p>
     </div>
   );
 }
@@ -72,12 +73,12 @@ function Flags({ order }: { order: OrderRow }) {
       )}
       {order.awaitingCode && (
         <StatusPill tone="warning" className="text-[11px]">
-          مستني التأكيد
+          {tr("مستني التأكيد")}
         </StatusPill>
       )}
       {order.returned && (
         <StatusPill tone="danger" className="text-[11px]">
-          مرتجع
+          {tr("مرتجع")}
         </StatusPill>
       )}
     </div>
@@ -92,16 +93,16 @@ export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: 
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">الطلب</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">العميل</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">
-                المنتجات
+              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("الطلب")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("العميل")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">
+                {tr("المنتجات")}
               </TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground xl:table-cell">
-                القناة
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground xl:table-cell">
+                {tr("القناة")}
               </TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">الحالة</TableHead>
-              <TableHead className="h-10 pe-4 text-left text-xs font-medium text-muted-foreground">المبلغ</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
+              <TableHead className="h-10 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("المبلغ")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -134,7 +135,7 @@ export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: 
                 <TableCell className="py-3">
                   <OrderStatusSelect orderId={order.id} storeId={storeId} currentStatus={order.status} />
                 </TableCell>
-                <TableCell className="py-3 pe-4 text-left">
+                <TableCell className="py-3 pe-4 text-end">
                   <p className="text-sm font-semibold tabular-nums">{money.format(order.total / 100)}</p>
                   <p className="text-xs text-muted-foreground">{paymentMethodLabel(order.paymentMethod)}</p>
                 </TableCell>

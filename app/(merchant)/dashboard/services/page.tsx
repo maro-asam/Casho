@@ -22,11 +22,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import RequestServiceDialog from "./_components/RequestServiceDialog";
+import { lazyList, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "خدمات اضافية",
-  description: "خدمات إضافية تساعدك تبيع أكتر وتدير متجرك بشكل أسهل",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("خدمات اضافية"),
+  description: tr("خدمات إضافية تساعدك تبيع أكتر وتدير متجرك بشكل أسهل"),
 };
+}
 
 type ServiceItem = {
   id: string;
@@ -42,93 +47,93 @@ type ServiceItem = {
 const brandingServices: ServiceItem[] = [
   {
     id: "logo-design",
-    title: "تصميم لوجو",
-    description: "لوجو بسيط واحترافي يخلي متجرك يبان كبراند من أول نظرة.",
-    price: "يبدأ من 799 جنيه",
-    duration: "2 - 4 أيام",
+    get title() { return tr("تصميم لوجو"); },
+    get description() { return tr("لوجو بسيط واحترافي يخلي متجرك يبان كبراند من أول نظرة."); },
+    get price() { return tr("يبدأ من 799 جنيه"); },
+    get duration() { return tr("2 - 4 أيام"); },
     icon: Palette,
     popular: true,
-    features: ["لوجو احترافي", "نسخة مناسبة للبروفايل", "ألوان مناسبة للهوية"],
+    features: lazyList(["لوجو احترافي", "نسخة مناسبة للبروفايل", "ألوان مناسبة للهوية"]),
   },
   {
     id: "store-banner-design",
-    title: "تصميم بنرات المتجر",
-    description: "بنرات وكفرات احترافية للعروض والمنتجات بشكل يلفت العميل بسرعة.",
-    price: "يبدأ من 599 جنيه",
-    duration: "1 - 3 أيام",
+    get title() { return tr("تصميم بنرات المتجر"); },
+    get description() { return tr("بنرات وكفرات احترافية للعروض والمنتجات بشكل يلفت العميل بسرعة."); },
+    get price() { return tr("يبدأ من 599 جنيه"); },
+    get duration() { return tr("1 - 3 أيام"); },
     icon: BrushCleaning,
-    features: ["بانر رئيسي للمتجر", "تصميم متناسق مع البراند", "جاهز للرفع فورًا"],
+    features: lazyList(["بانر رئيسي للمتجر", "تصميم متناسق مع البراند", "جاهز للرفع فورًا"]),
   },
   {
     id: "delete-powered-by-casho",
-    title: "إزالة يتم التشغيل بواسطة كاشو",
-    description: "إزالة شعار كاشو من المتجر تدي مظهر احترافي وتخلي البراند بتاعك هو البطل.",
-    price: "150 ج.م",
-    duration: "شهريًا",
+    get title() { return tr("إزالة يتم التشغيل بواسطة كاشو"); },
+    get description() { return tr("إزالة شعار كاشو من المتجر تدي مظهر احترافي وتخلي البراند بتاعك هو البطل."); },
+    get price() { return tr("150 ج.م"); },
+    get duration() { return tr("شهريًا"); },
     icon: LayoutTemplate,
-    features: ["إزالة شعار كاشو", "مظهر أكثر احترافية", "تجربة مستخدم أنظف"],
+    features: lazyList(["إزالة شعار كاشو", "مظهر أكثر احترافية", "تجربة مستخدم أنظف"]),
   },
 ];
 
 const contentServices: ServiceItem[] = [
   {
     id: "content-creation",
-    title: "صناعة محتوى",
-    description: "محتوى جاهز للنشر يساعدك تعرض منتجاتك وتشد العملاء بشكل أفضل.",
-    price: "يبدأ من 1499 جنيه",
-    duration: "3 - 5 أيام",
+    get title() { return tr("صناعة محتوى"); },
+    get description() { return tr("محتوى جاهز للنشر يساعدك تعرض منتجاتك وتشد العملاء بشكل أفضل."); },
+    get price() { return tr("يبدأ من 1499 جنيه"); },
+    get duration() { return tr("3 - 5 أيام"); },
     icon: PenSquare,
     popular: true,
-    features: ["أفكار بوستات", "كابشنات جاهزة", "محتوى مناسب للجمهور"],
+    features: lazyList(["أفكار بوستات", "كابشنات جاهزة", "محتوى مناسب للجمهور"]),
   },
   {
     id: "product-description",
-    title: "كتابة وصف المنتجات",
-    description: "كتابة وصف احترافي ومنظم للمنتجات بدل الوصف العشوائي أو الناقص.",
-    price: "يبدأ من 499 جنيه",
-    duration: "1 - 3 أيام",
+    get title() { return tr("كتابة وصف المنتجات"); },
+    get description() { return tr("كتابة وصف احترافي ومنظم للمنتجات بدل الوصف العشوائي أو الناقص."); },
+    get price() { return tr("يبدأ من 499 جنيه"); },
+    get duration() { return tr("1 - 3 أيام"); },
     icon: FileText,
-    features: ["وصف واضح وجذاب", "إبراز مميزات المنتج", "صياغة مناسبة للبيع"],
+    features: lazyList(["وصف واضح وجذاب", "إبراز مميزات المنتج", "صياغة مناسبة للبيع"]),
   },
   {
     id: "social-posts-package",
-    title: "باكدج بوستات سوشيال",
-    description: "بوستات جاهزة للنشر تساعدك تنشط صفحتك وتعرض منتجاتك بشكل أفضل.",
-    price: "يبدأ من 1299 جنيه",
-    duration: "3 - 6 أيام",
+    get title() { return tr("باكدج بوستات سوشيال"); },
+    get description() { return tr("بوستات جاهزة للنشر تساعدك تنشط صفحتك وتعرض منتجاتك بشكل أفضل."); },
+    get price() { return tr("يبدأ من 1299 جنيه"); },
+    get duration() { return tr("3 - 6 أيام"); },
     icon: ImageIcon,
-    features: ["أفكار + كابشن", "تنظيم المحتوى", "مناسب للسوشيال ميديا"],
+    features: lazyList(["أفكار + كابشن", "تنظيم المحتوى", "مناسب للسوشيال ميديا"]),
   },
 ];
 
 const operationServices: ServiceItem[] = [
   {
     id: "moderator",
-    title: "إدارة البيزنس",
-    description: "الرد على العملاء والاستفسارات بسرعة بدل ما الأوردرات تضيع وسط الرسائل.",
-    price: "يبدأ من 2499 جنيه / شهريًا",
-    duration: "خدمة شهرية",
+    get title() { return tr("إدارة البيزنس"); },
+    get description() { return tr("الرد على العملاء والاستفسارات بسرعة بدل ما الأوردرات تضيع وسط الرسائل."); },
+    get price() { return tr("يبدأ من 2499 جنيه / شهريًا"); },
+    get duration() { return tr("خدمة شهرية"); },
     icon: MessageCircleMore,
     popular: true,
-    features: ["الرد على الرسائل", "تنظيم الاستفسارات", "تسريع التواصل مع العملاء"],
+    features: lazyList(["الرد على الرسائل", "تنظيم الاستفسارات", "تسريع التواصل مع العملاء"]),
   },
   {
     id: "product-uploading",
-    title: "رفع المنتجات",
-    description: "نرفع المنتجات ونرتبها داخل المتجر بدل ما تضيع وقتك في الإدخال والتنسيق.",
-    price: "يبدأ من 399 جنيه",
-    duration: "حسب عدد المنتجات",
+    get title() { return tr("رفع المنتجات"); },
+    get description() { return tr("نرفع المنتجات ونرتبها داخل المتجر بدل ما تضيع وقتك في الإدخال والتنسيق."); },
+    get price() { return tr("يبدأ من 399 جنيه"); },
+    get duration() { return tr("حسب عدد المنتجات"); },
     icon: PackagePlus,
-    features: ["إدخال المنتجات", "تنسيق الاسم والسعر", "ترتيب أفضل داخل المتجر"],
+    features: lazyList(["إدخال المنتجات", "تنسيق الاسم والسعر", "ترتيب أفضل داخل المتجر"]),
   },
   {
     id: "monthly-store-management",
-    title: "إدارة شهرية للمتجر",
-    description: "مساعدة مستمرة في تشغيل المتجر وتنظيم المنتجات بشكل عام.",
-    price: "حسب الاتفاق",
-    duration: "خدمة شهرية",
+    get title() { return tr("إدارة شهرية للمتجر"); },
+    get description() { return tr("مساعدة مستمرة في تشغيل المتجر وتنظيم المنتجات بشكل عام."); },
+    get price() { return tr("حسب الاتفاق"); },
+    get duration() { return tr("خدمة شهرية"); },
     icon: Store,
-    features: ["متابعة مستمرة", "تنظيم التشغيل", "مساعدة في إدارة المتجر"],
+    features: lazyList(["متابعة مستمرة", "تنظيم التشغيل", "مساعدة في إدارة المتجر"]),
   },
 ];
 
@@ -137,7 +142,7 @@ function ServiceCard({ service, storeId }: { service: ServiceItem; storeId?: str
 
   return (
     <Card
-      dir="rtl"
+      dir={tdir()}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-200",
         "hover:-translate-y-1 hover:shadow-lg p-0",
@@ -148,7 +153,7 @@ function ServiceCard({ service, storeId }: { service: ServiceItem; storeId?: str
     >
       {service.popular && (
         <div className="bg-primary px-4 py-1.5 text-center text-xs font-semibold text-primary-foreground">
-          ⭐ الأكثر طلبًا
+          {tr("⭐ الأكثر طلبًا")}
         </div>
       )}
 
@@ -177,7 +182,7 @@ function ServiceCard({ service, storeId }: { service: ServiceItem; storeId?: str
 
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            الخدمة تشمل
+            {tr("الخدمة تشمل")}
           </p>
           <ul className="space-y-1.5">
             {service.features.map((feature) => (
@@ -210,7 +215,7 @@ function SectionHeader({
   description: string;
 }) {
   return (
-    <div dir="rtl" className="mb-5 flex items-center gap-3">
+    <div dir={tdir()} className="mb-5 flex items-center gap-3">
       <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
         <Icon className="size-4" />
       </div>
@@ -226,6 +231,7 @@ function SectionHeader({
 }
 
 export default async function ServicesRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const store = await prisma.store.findFirst({
     where: { userId },
@@ -233,28 +239,27 @@ export default async function ServicesRoute() {
   });
 
   return (
-    <div className="space-y-10" dir="rtl">
+    <div className="space-y-10" dir={tdir()}>
       {/* ── Hero ── */}
       <section className="relative overflow-hidden rounded-2xl border border-border/60 px-8 py-10 text-center shadow-sm">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -start-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -end-20 bottom-0 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />
 
         <div className="relative">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
             <Sparkles className="size-3.5" />
-            خدمات إضافية تساعدك تبيع أكتر
+            {tr("خدمات إضافية تساعدك تبيع أكتر")}
           </div>
 
           <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
-            كل اللي متجرك محتاجه
+            {tr("كل اللي متجرك محتاجه")}
             <span className="mt-2 block bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
-              في مكان واحد
+              {tr("في مكان واحد")}
             </span>
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-            لو محتاج تجهز شكل متجرك، تعمل محتوى، ترفع منتجات، أو تتابع الرسائل
-            والمبيعات، تقدر تطلب الخدمة المناسبة بسهولة ومن غير لخبطة.
+            {tr("لو محتاج تجهز شكل متجرك، تعمل محتوى، ترفع منتجات، أو تتابع الرسائل والمبيعات، تقدر تطلب الخدمة المناسبة بسهولة ومن غير لخبطة.")}
           </p>
         </div>
       </section>
@@ -263,8 +268,8 @@ export default async function ServicesRoute() {
       <section>
         <SectionHeader
           icon={Palette}
-          title="خدمات الهوية والتأسيس"
-          description="خدمات تساعدك تخلي متجرك شكله احترافي من البداية وتجهز البراند بشكل يدي ثقة أكبر للعميل."
+          title={tr("خدمات الهوية والتأسيس")}
+          description={tr("خدمات تساعدك تخلي متجرك شكله احترافي من البداية وتجهز البراند بشكل يدي ثقة أكبر للعميل.")}
         />
         <div className="grid gap-5 lg:grid-cols-3">
           {brandingServices.map((service) => (
@@ -277,8 +282,8 @@ export default async function ServicesRoute() {
       <section>
         <SectionHeader
           icon={PenSquare}
-          title="خدمات المحتوى"
-          description="مناسبة للتاجر اللي محتاج يعرض منتجاته بشكل أحسن ويكون عنده محتوى جاهز يساعده في البيع والتسويق."
+          title={tr("خدمات المحتوى")}
+          description={tr("مناسبة للتاجر اللي محتاج يعرض منتجاته بشكل أحسن ويكون عنده محتوى جاهز يساعده في البيع والتسويق.")}
         />
         <div className="grid gap-5 lg:grid-cols-3">
           {contentServices.map((service) => (
@@ -291,8 +296,8 @@ export default async function ServicesRoute() {
       <section>
         <SectionHeader
           icon={ShoppingBag}
-          title="خدمات التشغيل والمبيعات"
-          description="الخدمات دي تساعدك تشغل المتجر بشكل أسهل، تتابع العملاء، وتوفر وقتك في الحاجات اليومية المتكررة."
+          title={tr("خدمات التشغيل والمبيعات")}
+          description={tr("الخدمات دي تساعدك تشغل المتجر بشكل أسهل، تتابع العملاء، وتوفر وقتك في الحاجات اليومية المتكررة.")}
         />
         <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {operationServices.map((service) => (
@@ -304,17 +309,16 @@ export default async function ServicesRoute() {
       {/* ── Custom CTA ── */}
       <section className="pb-4">
         <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-linear-to-l from-primary/8 via-background to-sky-500/5 p-8">
-          <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-sky-500/8 blur-3xl" />
+          <div className="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-sky-500/8 blur-3xl" />
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <h3 className="text-xl font-bold">عايز خدمة مخصصة؟</h3>
+              <h3 className="text-xl font-bold">{tr("عايز خدمة مخصصة؟")}</h3>
               <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
-                لو محتاج خدمة مش موجودة فوق، زي إدارة إعلانات، تجهيز كامل للمتجر، أو باكدج مخصوص ليك،
-                ابعت طلبك وهنراجع أنسب حل ليك.
+                {tr("لو محتاج خدمة مش موجودة فوق، زي إدارة إعلانات، تجهيز كامل للمتجر، أو باكدج مخصوص ليك، ابعت طلبك وهنراجع أنسب حل ليك.")}
               </p>
             </div>
             <Button size="lg" className="h-11 shrink-0 rounded-xl px-6">
-              اطلب خدمة مخصصة
+              {tr("اطلب خدمة مخصصة")}
               <ArrowUpLeft className="ms-2 size-4" />
             </Button>
           </div>

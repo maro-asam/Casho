@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, MessageCircle, ShoppingBag, Sparkles, type LucideIcon } from "lucide-react";
 import { StatusPill } from "@/components/saas-page";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 type Tool = {
   href: string;
@@ -11,7 +12,7 @@ type Tool = {
   stat?: string;
 };
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyIntl.number();
 
 export function GrowthTools({
   popups,
@@ -29,25 +30,25 @@ export function GrowthTools({
     {
       href: "/customization?tab=popups",
       icon: Sparkles,
-      title: "النوافذ المنبثقة",
-      description: "كود خصم، جمع أرقام، أو إعلان — يظهر في الوقت الصح.",
+      title: tr("النوافذ المنبثقة"),
+      description: tr("كود خصم، جمع أرقام، أو إعلان — يظهر في الوقت الصح."),
       on: popups.active > 0,
-      stat: popups.views ? `${nf.format(popups.views)} مشاهدة · ${nf.format(rate)}٪ تحويل` : undefined,
+      stat: popups.views ? tr("{0} مشاهدة · {1}٪ تحويل", nf.format(popups.views), nf.format(rate)) : undefined,
     },
     {
       href: "/customization?tab=whatsapp",
       icon: MessageCircle,
-      title: "زر واتساب العائم",
-      description: "العميل يسألك عن المنتج اللي قدامه بضغطة — والرسالة فيها لينكه.",
+      title: tr("زر واتساب العائم"),
+      description: tr("العميل يسألك عن المنتج اللي قدامه بضغطة — والرسالة فيها لينكه."),
       on: whatsappOn,
     },
     {
       href: "/customization?tab=social-proof",
       icon: ShoppingBag,
-      title: "إشعارات الشراء الحية",
-      description: "\"محمد طلب …\" من طلباتك الحقيقية — ثقة من غير أي فبركة.",
+      title: tr("إشعارات الشراء الحية"),
+      description: tr("\"محمد طلب …\" من طلباتك الحقيقية — ثقة من غير أي فبركة."),
       on: toastsOn,
-      stat: `${nf.format(recentOrders)} طلب في آخر ٧ أيام`,
+      stat: tr("{0} طلب في آخر ٧ أيام", nf.format(recentOrders)),
     },
   ];
 
@@ -55,8 +56,8 @@ export function GrowthTools({
     <section className="space-y-3">
       <div className="flex items-end justify-between">
         <div>
-          <h3 className="font-semibold">زوّد مبيعاتك</h3>
-          <p className="text-sm text-muted-foreground">أدوات بتحوّل الزائر لعميل — شغّلها من غير أي كود.</p>
+          <h3 className="font-semibold">{tr("زوّد مبيعاتك")}</h3>
+          <p className="text-sm text-muted-foreground">{tr("أدوات بتحوّل الزائر لعميل — شغّلها من غير أي كود.")}</p>
         </div>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
@@ -70,7 +71,7 @@ export function GrowthTools({
               <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
                 <tool.icon className="size-4" />
               </span>
-              <StatusPill tone={tool.on ? "success" : "neutral"}>{tool.on ? "شغّال" : "متوقف"}</StatusPill>
+              <StatusPill tone={tool.on ? "success" : "neutral"}>{tool.on ? tr("شغّال") : tr("متوقف")}</StatusPill>
             </div>
             <div className="space-y-1">
               <p className="text-sm font-semibold">{tool.title}</p>
@@ -79,8 +80,8 @@ export function GrowthTools({
             <div className="mt-auto flex items-center justify-between text-xs">
               <span className="text-muted-foreground tabular-nums">{tool.stat ?? ""}</span>
               <span className="inline-flex items-center gap-1 font-medium text-primary">
-                {tool.on ? "إدارة" : "شغّله"}
-                <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+                {tool.on ? tr("إدارة") : tr("شغّله")}
+                <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5 ltr:-scale-x-100" />
               </span>
             </div>
           </Link>

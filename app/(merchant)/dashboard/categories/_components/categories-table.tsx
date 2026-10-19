@@ -5,6 +5,7 @@ import { Tag } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { CategoryRowActions } from "./category-row-actions";
+import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
 export type CategoryRow = {
   id: string;
@@ -16,8 +17,8 @@ export type CategoryRow = {
   createdAt: Date;
 };
 
-const nf = new Intl.NumberFormat("ar-EG");
-const dateFormat = new Intl.DateTimeFormat("ar-EG", {
+const nf = lazyIntl.number();
+const dateFormat = lazyIntl.date({
   timeZone: "Africa/Cairo",
   day: "numeric",
   month: "short",
@@ -46,15 +47,15 @@ function Thumb({ category }: { category: CategoryRow }) {
 }
 
 function ProductCount({ category }: { category: CategoryRow }) {
-  if (category.productCount === 0) return <span className="text-sm text-muted-foreground">فاضي</span>;
+  if (category.productCount === 0) return <span className="text-sm text-muted-foreground">{tr("فاضي")}</span>;
   const hidden = category.productCount - category.activeCount;
   return (
     <Link
       href={`/products?category=${category.id}`}
       className="relative z-10 inline-flex flex-col text-sm hover:underline"
     >
-      <span className="tabular-nums">{nf.format(category.productCount)} منتج</span>
-      {hidden > 0 && <span className="text-xs text-muted-foreground">{nf.format(hidden)} مخفي</span>}
+      <span className="tabular-nums">{tr("{0} منتج", nf.format(category.productCount))}</span>
+      {hidden > 0 && <span className="text-xs text-muted-foreground">{tr("{0} مخفي", nf.format(hidden))}</span>}
     </Link>
   );
 }
@@ -77,16 +78,16 @@ export function CategoriesTable({ categories, storeId, storeSlug, allCategories,
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-right text-xs font-medium text-muted-foreground">التصنيف</TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium text-muted-foreground">المنتجات</TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground lg:table-cell">
-                الرابط
+              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("التصنيف")}</TableHead>
+              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("المنتجات")}</TableHead>
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">
+                {tr("الرابط")}
               </TableHead>
-              <TableHead className="hidden h-10 text-right text-xs font-medium text-muted-foreground xl:table-cell">
-                اتضاف في
+              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground xl:table-cell">
+                {tr("اتضاف في")}
               </TableHead>
               <TableHead className="h-10 w-12 pe-4">
-                <span className="sr-only">إجراءات</span>
+                <span className="sr-only">{tr("إجراءات")}</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -117,7 +118,7 @@ export function CategoriesTable({ categories, storeId, storeSlug, allCategories,
                 <TableCell className="hidden py-3 text-sm text-muted-foreground xl:table-cell">
                   {dateFormat.format(category.createdAt)}
                 </TableCell>
-                <TableCell className="py-3 pe-4 text-left">{actionsFor(category)}</TableCell>
+                <TableCell className="py-3 pe-4 text-end">{actionsFor(category)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -137,7 +138,7 @@ export function CategoriesTable({ categories, storeId, storeSlug, allCategories,
                 {category.name}
               </Link>
               <p className="text-xs text-muted-foreground">
-                {category.productCount > 0 ? `${nf.format(category.productCount)} منتج` : "فاضي"} ·{" "}
+                {category.productCount > 0 ? tr("{0} منتج", nf.format(category.productCount)) : tr("فاضي")} ·{" "}
                 {dateFormat.format(category.createdAt)}
               </p>
             </div>

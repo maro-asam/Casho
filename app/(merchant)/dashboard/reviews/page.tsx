@@ -21,16 +21,21 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { UrlReviewDialog, type EditableReview } from "./_components/review-form-dialog";
 import { ReviewsTable, type ReviewRow } from "./_components/reviews-table";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "المراجعات",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("المراجعات"),
 };
+}
 
 const PAGE_SIZE = 20;
 const BASE_PATH = "/reviews";
 const RATINGS = [5, 4, 3, 2, 1] as const;
-const nf = new Intl.NumberFormat("ar-EG");
-const avgFormat = new Intl.NumberFormat("ar-EG", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const nf = lazyIntl.number();
+const avgFormat = lazyIntl.number({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const cairoDay = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo" }).format(d);
 
 type ReviewsRouteProps = {
@@ -38,6 +43,7 @@ type ReviewsRouteProps = {
 };
 
 export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -50,8 +56,8 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول عشان تتابع آراء عملائك."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول عشان تتابع آراء عملائك.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -162,18 +168,18 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
   const reviewedNames = products.filter((p) => reviewedProducts.some((r) => r.productId === p.id));
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="المراجعات"
+        title={tr("المراجعات")}
         description={
           storeReviewCount > 0 ? (
             <span className="inline-flex flex-wrap items-center gap-x-1.5">
               <Star className="size-3.5 fill-amber-400 text-amber-400" />
               <span className="font-medium text-foreground tabular-nums">{avgFormat.format(summary._avg.rating ?? 0)}</span>
-              متوسط من {nf.format(storeReviewCount)} مراجعة على {nf.format(reviewedProducts.length)} منتج
+              {tr("متوسط من {0} مراجعة على {1} منتج", nf.format(storeReviewCount), nf.format(reviewedProducts.length))}
             </span>
           ) : (
-            "آراء عملائك على المنتجات — بتظهر في صفحة كل منتج وبتزوّد الثقة."
+            tr("آراء عملائك على المنتجات — بتظهر في صفحة كل منتج وبتزوّد الثقة.")
           )
         }
         actions={
@@ -182,7 +188,7 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
             <Button asChild size="sm" className="gap-1.5">
               <Link href={newHref} scroll={false}>
                 <Plus className="size-4" />
-                إضافة مراجعة
+                {tr("إضافة مراجعة")}
               </Link>
             </Button>
           )
@@ -193,23 +199,23 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={MessageSquareText}
-            title="لسه مفيش مراجعات"
+            title={tr("لسه مفيش مراجعات")}
             description={
               products.length
-                ? "لو عميل بعتلك رأيه على الواتساب أو الإنستجرام، سجّله هنا — ولو ربطته بطلبه هيظهر بعلامة \"مشتري موثق\"."
-                : "ضيف منتجاتك الأول، وبعدها تقدر تسجّل آراء العملاء عليها."
+                ? tr("لو عميل بعتلك رأيه على الواتساب أو الإنستجرام، سجّله هنا — ولو ربطته بطلبه هيظهر بعلامة \"مشتري موثق\".")
+                : tr("ضيف منتجاتك الأول، وبعدها تقدر تسجّل آراء العملاء عليها.")
             }
             action={
               products.length ? (
                 <Button asChild size="sm" className="gap-1.5">
                   <Link href={newHref} scroll={false}>
                     <Plus className="size-4" />
-                    ضيف أول مراجعة
+                    {tr("ضيف أول مراجعة")}
                   </Link>
                 </Button>
               ) : (
                 <Button asChild size="sm" variant="outline">
-                  <Link href="/products/new">ضيف منتج</Link>
+                  <Link href="/products/new">{tr("ضيف منتج")}</Link>
                 </Button>
               )
             }
@@ -218,12 +224,12 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
       ) : (
         <div className="space-y-4">
           <FilterTabs
-            label="التقييم"
+            label={tr("التقييم")}
             param="rating"
             basePath={BASE_PATH}
             searchParams={params}
             tabs={[
-              { label: "الكل", count: allCount },
+              { label: tr("الكل"), count: allCount },
               ...RATINGS.map((r) => ({ label: `${nf.format(r)} ★`, value: String(r), count: countFor(r) })),
             ]}
           />
@@ -231,22 +237,22 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
           <DataCard
             toolbar={
               <>
-                <SearchInput placeholder="ابحث باسم العميل أو المنتج أو كلام المراجعة" />
+                <SearchInput placeholder={tr("ابحث باسم العميل أو المنتج أو كلام المراجعة")} />
                 <div className="flex gap-2">
                   <SelectFilter
-                    label="المنتج"
+                    label={tr("المنتج")}
                     param="product"
-                    allLabel="كل المنتجات"
+                    allLabel={tr("كل المنتجات")}
                     options={reviewedNames.map((p) => ({ value: p.id, label: p.name }))}
                   />
                   <SelectFilter
-                    label="التوثيق"
+                    label={tr("التوثيق")}
                     param="verified"
-                    allLabel="الكل"
+                    allLabel={tr("الكل")}
                     className="sm:w-36"
                     options={[
-                      { value: "yes", label: "مشتري موثق" },
-                      { value: "no", label: "غير موثق" },
+                      { value: "yes", label: tr("مشتري موثق") },
+                      { value: "no", label: tr("غير موثق") },
                     ]}
                   />
                 </div>
@@ -254,7 +260,7 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
             }
             footer={
               total > 0 ? (
-                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="مراجعة" />
+                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("مراجعة")} />
               ) : undefined
             }
           >
@@ -263,12 +269,12 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
             ) : (
               <EmptyState
                 icon={SearchX}
-                title="مفيش مراجعات بالفلاتر دي"
-                description={q ? `مفيش نتايج لـ "${q}". جرّب كلمة تانية.` : "جرّب تقييم أو منتج تاني."}
+                title={tr("مفيش مراجعات بالفلاتر دي")}
+                description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب كلمة تانية.", q) : tr("جرّب تقييم أو منتج تاني.")}
                 action={
                   hasFilters && (
                     <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
                     </Button>
                   )
                 }

@@ -8,15 +8,16 @@ import type { ImportableEntity } from "@/lib/integrations/import/types";
 import type { ConnectionView } from "@/lib/integrations/import/views";
 import type { ShopifyPreviewCounts } from "@/lib/integrations/shopify/source";
 import { ENTITY_META, NOT_IMPORTED, nf } from "./import-meta";
+import { tr } from "@/lib/i18n/dashboard";
 
 const ENTITY_ORDER: ImportableEntity[] = ["COLLECTION", "PRODUCT", "CUSTOMER", "ORDER"];
 
 export function PreviewSkeleton() {
   return (
-    <section className="rounded-xl border border-border bg-card p-5" aria-busy="true" aria-label="جاري تجهيز المعاينة">
+    <section className="rounded-xl border border-border bg-card p-5" aria-busy="true" aria-label={tr("جاري تجهيز المعاينة")}>
       <p className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="size-4 animate-spin" />
-        بنعدّ البيانات في متجرك على Shopify…
+        {tr("بنعدّ البيانات في متجرك على Shopify…")}
       </p>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -38,12 +39,12 @@ type Props = {
 
 export function PreviewPanel({ counts, connection, selected, onToggle, onStart, starting }: Props) {
   const found = [
-    { label: "منتج", value: counts.products },
-    { label: "نوع منتج (Variant)", value: counts.variants },
-    { label: "عنصر مخزون", value: counts.variants },
-    { label: "تصنيف (Collection)", value: counts.collections },
-    { label: "عميل", value: counts.customers },
-    { label: "طلب", value: counts.orders },
+    { label: tr("منتج"), value: counts.products },
+    { label: tr("نوع منتج (Variant)"), value: counts.variants },
+    { label: tr("عنصر مخزون"), value: counts.variants },
+    { label: tr("تصنيف (Collection)"), value: counts.collections },
+    { label: tr("عميل"), value: counts.customers },
+    { label: tr("طلب"), value: counts.orders },
   ];
   const countFor: Record<ImportableEntity, number> = {
     COLLECTION: counts.collections,
@@ -54,25 +55,25 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
 
   const notes: string[] = [];
   if (connection.currencyCode && connection.currencyCode !== "EGP") {
-    notes.push(`عملة متجرك على Shopify ${connection.currencyCode}. الأسعار هتتنقل بنفس الأرقام من غير تحويل لعملة الجنيه — راجعها بعد الاستيراد.`);
+    notes.push(tr("عملة متجرك على Shopify {0}. الأسعار هتتنقل بنفس الأرقام من غير تحويل لعملة الجنيه — راجعها بعد الاستيراد.", connection.currencyCode));
   }
   if (!connection.hasAllOrders && selected.includes("ORDER")) {
-    notes.push("Shopify بيسمح لنا بقراءة طلبات آخر 60 يوم بس. الرقم اللي فوق هو عدد الطلبات اللي هتتنقل.");
+    notes.push(tr("Shopify بيسمح لنا بقراءة طلبات آخر 60 يوم بس. الرقم اللي فوق هو عدد الطلبات اللي هتتنقل."));
   }
   if (selected.includes("ORDER") && !selected.includes("PRODUCT")) {
-    notes.push("الطلبات من غير المنتجات هتترتبط بمنتج «غير متاح» عام. الأفضل تنقل المنتجات معاها.");
+    notes.push(tr("الطلبات من غير المنتجات هتترتبط بمنتج «غير متاح» عام. الأفضل تنقل المنتجات معاها."));
   }
   if (selected.includes("CUSTOMER")) {
-    notes.push("العملاء اللي مالهمش رقم موبايل مش هيتنقلوا، لأن Kasho بيعرّف العميل برقمه. هتلاقي عددهم في النتيجة.");
+    notes.push(tr("العملاء اللي مالهمش رقم موبايل مش هيتنقلوا، لأن Kasho بيعرّف العميل برقمه. هتلاقي عددهم في النتيجة."));
   }
   if (selected.includes("PRODUCT")) {
-    notes.push("المنتجات اللي مش متتبع مخزونها في Shopify هتتنقل بمخزون 999. والصور هتفضل على سيرفرات Shopify، يعني لو قفلت متجر Shopify نهائياً لازم ترفعها تاني.");
+    notes.push(tr("المنتجات اللي مش متتبع مخزونها في Shopify هتتنقل بمخزون 999. والصور هتفضل على سيرفرات Shopify، يعني لو قفلت متجر Shopify نهائياً لازم ترفعها تاني."));
   }
 
   return (
     <section className="space-y-5 rounded-xl border border-border bg-card p-5">
       <div>
-        <h2 className="text-base font-semibold">لقينا في متجرك</h2>
+        <h2 className="text-base font-semibold">{tr("لقينا في متجرك")}</h2>
         <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {found.map((item) => (
             <div key={item.label} className="rounded-lg bg-muted/50 px-3 py-2.5">
@@ -85,7 +86,7 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
 
       <div className="grid gap-5 lg:grid-cols-[1fr_18rem]">
         <fieldset>
-          <legend className="text-sm font-semibold">هيتنقل</legend>
+          <legend className="text-sm font-semibold">{tr("هيتنقل")}</legend>
           <ul className="mt-2 divide-y divide-border rounded-lg border border-border">
             {ENTITY_ORDER.map((entity) => {
               const meta = ENTITY_META[entity];
@@ -118,7 +119,7 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
         </fieldset>
 
         <div>
-          <p className="text-sm font-semibold">مش هيتنقل حالياً</p>
+          <p className="text-sm font-semibold">{tr("مش هيتنقل حالياً")}</p>
           <ul className="mt-2 space-y-1.5">
             {NOT_IMPORTED.map((item) => (
               <li key={item} className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
@@ -143,11 +144,11 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
 
       <div className="flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs leading-5 text-muted-foreground">
-          الاستيراد بيشتغل في الخلفية. لو عملته تاني مش هيتكرر أي حاجة: المنتجات والعملاء هيتحدّثوا، والطلبات المنقولة هتفضل زي ما هي.
+          {tr("الاستيراد بيشتغل في الخلفية. لو عملته تاني مش هيتكرر أي حاجة: المنتجات والعملاء هيتحدّثوا، والطلبات المنقولة هتفضل زي ما هي.")}
         </p>
         <Button onClick={onStart} disabled={starting || selected.length === 0} className="shrink-0">
           {starting ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
-          ابدأ الاستيراد
+          {tr("ابدأ الاستيراد")}
         </Button>
       </div>
     </section>

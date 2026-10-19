@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 export type ReadinessItem = {
   id: string;
@@ -21,7 +22,7 @@ export function ReadinessCard({ items }: { items: ReadinessItem[] }) {
   const score = Math.round((items.filter((i) => i.done).reduce((s, i) => s + i.weight, 0) / total) * 100);
   const missing = items.filter((i) => !i.done).sort((a, b) => b.weight - a.weight);
   const doneCount = items.length - missing.length;
-  const verdict = score >= 90 ? "متجرك جاهز يبيع 🎉" : score >= 60 ? "قربت — كام خطوة كمان" : "لسه في حاجات مهمة ناقصة";
+  const verdict = score >= 90 ? tr("متجرك جاهز يبيع 🎉") : score >= 60 ? tr("قربت — كام خطوة كمان") : tr("لسه في حاجات مهمة ناقصة");
   const r = 34;
   const c = 2 * Math.PI * r;
 
@@ -45,13 +46,13 @@ export function ReadinessCard({ items }: { items: ReadinessItem[] }) {
               strokeDashoffset={c * (1 - score / 100)}
             />
           </svg>
-          <span className="absolute inset-0 grid place-items-center text-lg font-bold tabular-nums">{score}٪</span>
+          <span className="absolute inset-0 grid place-items-center text-lg font-bold tabular-nums">{tr("{0}٪", score)}</span>
         </div>
         <div className="min-w-0 space-y-1">
-          <p className="text-xs text-muted-foreground">جاهزية المتجر</p>
+          <p className="text-xs text-muted-foreground">{tr("جاهزية المتجر")}</p>
           <p className="font-semibold">{verdict}</p>
           <p className="text-xs text-muted-foreground">
-            {doneCount} من {items.length} خطوات خلصت
+            {tr("{0} من {1} خطوات خلصت", doneCount, items.length)}
           </p>
         </div>
       </div>
@@ -73,7 +74,7 @@ export function ReadinessCard({ items }: { items: ReadinessItem[] }) {
                   <span className="block text-sm font-medium">{item.label}</span>
                   <span className="block truncate text-xs text-muted-foreground">{item.hint}</span>
                 </span>
-                <ArrowLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+                <ArrowLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5 ltr:-scale-x-100" />
               </Link>
             </li>
           ))}
@@ -83,7 +84,7 @@ export function ReadinessCard({ items }: { items: ReadinessItem[] }) {
           <span className="grid size-10 place-items-center rounded-full bg-emerald-500/10 text-emerald-600">
             <Check className="size-5" />
           </span>
-          <p className="text-sm text-muted-foreground">كل الأساسيات متظبطة. ركّز على المنتجات والعروض.</p>
+          <p className="text-sm text-muted-foreground">{tr("كل الأساسيات متظبطة. ركّز على المنتجات والعروض.")}</p>
         </div>
       )}
 

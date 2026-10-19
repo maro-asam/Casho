@@ -22,13 +22,14 @@ import { Field, FormSection } from "./product-form/form-section";
 import { MediaInput } from "./product-form/media-input";
 import { MoneyInput } from "./product-form/money-input";
 import { ProductPreview } from "./product-form/product-preview";
+import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Category = { id: string; name: string };
 type AvailableProduct = { id: string; name: string; image: string };
 
 const initialState: ProductFormState = { success: false, message: "" };
-const pct = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 0 });
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const pct = lazyIntl.number({ maximumFractionDigits: 0 });
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
 
 const toNumber = (value: string) => (value.trim() === "" || Number.isNaN(Number(value)) ? null : Number(value));
 
@@ -79,11 +80,11 @@ export default function CreateProductForm({
   useEffect(() => {
     if (!state?.message) return;
     if (state.success) {
-      toast.success(state.message);
+      toast.success(trv(state.message));
       // With product data the AI marketing modal opens (below); otherwise go back to the list.
       if (!state.productData) router.push("/products");
     } else {
-      toast.error(state.message);
+      toast.error(trv(state.message));
     }
   }, [state, router]);
 
@@ -100,7 +101,7 @@ export default function CreateProductForm({
   function validateBeforeSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (!categoryId) {
       e.preventDefault();
-      setCategoryError("اختار تصنيف للمنتج");
+      setCategoryError(tr("اختار تصنيف للمنتج"));
       categoryRef.current?.focus();
     }
   }
@@ -108,7 +109,7 @@ export default function CreateProductForm({
   const saveButton = (
     <Button type="submit" className="h-9 gap-1.5" disabled={isPending || uploading}>
       {isPending && <Loader2 className="size-4 animate-spin" />}
-      {isPending ? "جاري الحفظ..." : uploading ? "استنى الصور..." : "حفظ المنتج"}
+      {isPending ? tr("جاري الحفظ...") : uploading ? tr("استنى الصور...") : tr("حفظ المنتج")}
     </Button>
   );
 
@@ -122,14 +123,14 @@ export default function CreateProductForm({
               href="/products"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ArrowRight className="size-3.5" />
-              المنتجات
+              <ArrowRight className="size-3.5 ltr:-scale-x-100" />
+              {tr("المنتجات")}
             </Link>
-            <h1 className="truncate text-xl font-bold tracking-tight">{name.trim() || "منتج جديد"}</h1>
+            <h1 className="truncate text-xl font-bold tracking-tight">{name.trim() || tr("منتج جديد")}</h1>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button asChild variant="ghost" className="hidden h-9 sm:inline-flex">
-              <Link href="/products">إلغاء</Link>
+              <Link href="/products">{tr("إلغاء")}</Link>
             </Button>
             {saveButton}
           </div>
@@ -139,46 +140,46 @@ export default function CreateProductForm({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* ── Main column ─────────────────────────────────────────── */}
         <div className="space-y-6 lg:col-span-2">
-          <FormSection title="التفاصيل" description="الاسم والوصف اللي العميل هيشوفهم في صفحة المنتج.">
+          <FormSection title={tr("التفاصيل")} description={tr("الاسم والوصف اللي العميل هيشوفهم في صفحة المنتج.")}>
             <div className="space-y-4">
-              <Field label="اسم المنتج" htmlFor="name">
+              <Field label={tr("اسم المنتج")} htmlFor="name">
                 <Input
                   id="name"
                   name="name"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="مثال: تيشيرت قطن أسود"
+                  placeholder={tr("مثال: تيشيرت قطن أسود")}
                   className="h-9"
                 />
               </Field>
-              <Field label="الوصف" htmlFor="description" optional hint="اكتب الخامة والمقاسات وأي تفاصيل تساعد العميل يقرر.">
+              <Field label={tr("الوصف")} htmlFor="description" optional hint={tr("اكتب الخامة والمقاسات وأي تفاصيل تساعد العميل يقرر.")}>
                 <Textarea
                   id="description"
                   name="description"
-                  placeholder="وصف واضح لمميزات المنتج..."
+                  placeholder={tr("وصف واضح لمميزات المنتج...")}
                   className="min-h-32 resize-y"
                 />
               </Field>
             </div>
           </FormSection>
 
-          <FormSection title="الصور" description="أول صورة هي اللي بتظهر في المتجر. تقدر تغيّرها بعلامة النجمة.">
+          <FormSection title={tr("الصور")} description={tr("أول صورة هي اللي بتظهر في المتجر. تقدر تغيّرها بعلامة النجمة.")}>
             <MediaInput onChange={setImages} onUploadingChange={setUploading} />
           </FormSection>
 
-          <FormSection title="التسعير">
+          <FormSection title={tr("التسعير")}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="السعر" htmlFor="price">
+              <Field label={tr("السعر")} htmlFor="price">
                 <MoneyInput id="price" name="price" required value={price} onChange={(e) => setPrice(e.target.value)} />
               </Field>
               <Field
-                label="السعر قبل الخصم"
+                label={tr("السعر قبل الخصم")}
                 htmlFor="compareAtPrice"
                 optional
-                error={compareTooLow ? "لازم يكون أكبر من السعر، وإلا مش هيظهر للعميل." : undefined}
+                error={compareTooLow ? tr("لازم يكون أكبر من السعر، وإلا مش هيظهر للعميل.") : undefined}
                 hint={
-                  discount !== null ? `هيظهر للعميل خصم ${pct.format(discount)}٪` : "بيظهر مشطوب جنب السعر عشان يبان الخصم."
+                  discount !== null ? tr("هيظهر للعميل خصم {0}٪", pct.format(discount)) : tr("بيظهر مشطوب جنب السعر عشان يبان الخصم.")
                 }
               >
                 <MoneyInput
@@ -189,13 +190,13 @@ export default function CreateProductForm({
                   aria-invalid={compareTooLow || undefined}
                 />
               </Field>
-              <Field label="سعر التكلفة" htmlFor="costPrice" optional hint="مش بيظهر للعميل. بنستخدمه نحسب ربحك في التقارير والكاشير.">
+              <Field label={tr("سعر التكلفة")} htmlFor="costPrice" optional hint={tr("مش بيظهر للعميل. بنستخدمه نحسب ربحك في التقارير والكاشير.")}>
                 <MoneyInput id="costPrice" name="costPrice" value={costPrice} onChange={(e) => setCostPrice(e.target.value)} />
               </Field>
               <div className="flex items-end">
                 <dl className="grid w-full grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border text-sm">
                   <div className="bg-muted/40 px-3 py-2">
-                    <dt className="text-xs text-muted-foreground">ربحك في القطعة</dt>
+                    <dt className="text-xs text-muted-foreground">{tr("ربحك في القطعة")}</dt>
                     <dd
                       className={
                         profit !== null && profit < 0
@@ -207,20 +208,20 @@ export default function CreateProductForm({
                     </dd>
                   </div>
                   <div className="bg-muted/40 px-3 py-2">
-                    <dt className="text-xs text-muted-foreground">هامش الربح</dt>
-                    <dd className="font-semibold tabular-nums">{margin !== null ? `${pct.format(margin)}٪` : "—"}</dd>
+                    <dt className="text-xs text-muted-foreground">{tr("هامش الربح")}</dt>
+                    <dd className="font-semibold tabular-nums">{margin !== null ? tr("{0}٪", pct.format(margin)) : "—"}</dd>
                   </div>
                 </dl>
               </div>
             </div>
           </FormSection>
 
-          <FormSection title="المخزون" description="الكمية بتتخصم تلقائي مع كل بيعة أونلاين أو من الكاشير.">
+          <FormSection title={tr("المخزون")} description={tr("الكمية بتتخصم تلقائي مع كل بيعة أونلاين أو من الكاشير.")}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="الكمية المتاحة" htmlFor="stock">
+              <Field label={tr("الكمية المتاحة")} htmlFor="stock">
                 <Input id="stock" name="stock" type="number" inputMode="numeric" min="0" step="1" defaultValue="0" className="h-9 tabular-nums" />
               </Field>
-              <Field label="نبّهني لما توصل لـ" htmlFor="lowStockThreshold" optional hint="لو سبتها فاضية هننبهك عند ٥ قطع.">
+              <Field label={tr("نبّهني لما توصل لـ")} htmlFor="lowStockThreshold" optional hint={tr("لو سبتها فاضية هننبهك عند ٥ قطع.")}>
                 <Input
                   id="lowStockThreshold"
                   name="lowStockThreshold"
@@ -232,60 +233,60 @@ export default function CreateProductForm({
                   className="h-9 tabular-nums"
                 />
               </Field>
-              <Field label="SKU" htmlFor="sku" optional hint="كود داخلي تعرف بيه المنتج.">
+              <Field label="SKU" htmlFor="sku" optional hint={tr("كود داخلي تعرف بيه المنتج.")}>
                 <Input id="sku" name="sku" dir="ltr" placeholder="SHIRT-BLK-XL" className="h-9" />
               </Field>
-              <Field label="الباركود" htmlFor="barcode" optional hint="للبيع بالسكانر من الكاشير.">
+              <Field label={tr("الباركود")} htmlFor="barcode" optional hint={tr("للبيع بالسكانر من الكاشير.")}>
                 <Input id="barcode" name="barcode" dir="ltr" inputMode="numeric" placeholder="6221234567890" className="h-9" />
               </Field>
             </div>
           </FormSection>
 
           <FormSection
-            title="المقاسات والألوان"
-            description="لو المنتج ليه أكتر من مقاس أو لون، العميل هيختار منهم قبل ما يطلب."
+            title={tr("المقاسات والألوان")}
+            description={tr("لو المنتج ليه أكتر من مقاس أو لون، العميل هيختار منهم قبل ما يطلب.")}
             aside={
               <Switch
                 name="hasVariants"
                 checked={hasVariants}
                 onCheckedChange={setHasVariants}
-                aria-label="المنتج ليه مقاسات أو ألوان"
+                aria-label={tr("المنتج ليه مقاسات أو ألوان")}
               />
             }
           >
             {hasVariants ? (
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="المقاسات">
-                  <TagInput name="sizes" placeholder="S, M, L, XL" hint="دوس Enter أو فاصلة بعد كل مقاس" />
+                <Field label={tr("المقاسات")}>
+                  <TagInput name="sizes" placeholder="S, M, L, XL" hint={tr("دوس Enter أو فاصلة بعد كل مقاس")} />
                 </Field>
                 {/* Full width: the swatch palette needs the room. */}
                 <div className="sm:col-span-2">
-                  <Field label="الألوان">
+                  <Field label={tr("الألوان")}>
                     <ColorInput name="colors" />
                   </Field>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">المنتج ده بنسخة واحدة. فعّل الزرار لو ليه مقاسات أو ألوان.</p>
+              <p className="text-sm text-muted-foreground">{tr("المنتج ده بنسخة واحدة. فعّل الزرار لو ليه مقاسات أو ألوان.")}</p>
             )}
           </FormSection>
 
           {products.length > 0 && (
-            <FormSection title="باقة منتجات" description="بيع مجموعة من منتجاتك مع بعض بسعر واحد." collapsible>
+            <FormSection title={tr("باقة منتجات")} description={tr("بيع مجموعة من منتجاتك مع بعض بسعر واحد.")} collapsible>
               <BundleItemsInput products={products} />
             </FormSection>
           )}
 
-          <FormSection title="أسعار الجملة" description="أسعار أقل لما العميل يطلب كميات أكبر." collapsible>
+          <FormSection title={tr("أسعار الجملة")} description={tr("أسعار أقل لما العميل يطلب كميات أكبر.")} collapsible>
             <WholesaleInput />
           </FormSection>
 
-          <FormSection title="تفاصيل إضافية" description="الوزن للشحن، وأي خصائص زي الخامة أو بلد الصنع." collapsible>
+          <FormSection title={tr("تفاصيل إضافية")} description={tr("الوزن للشحن، وأي خصائص زي الخامة أو بلد الصنع.")} collapsible>
             <div className="space-y-4">
-              <Field label="الوزن" htmlFor="weight" optional hint="بالكيلو، بيتحسب بيه الشحن لو شركة الشحن بتطلبه.">
+              <Field label={tr("الوزن")} htmlFor="weight" optional hint={tr("بالكيلو، بيتحسب بيه الشحن لو شركة الشحن بتطلبه.")}>
                 <Input id="weight" name="weight" type="number" inputMode="decimal" step="0.01" min="0" placeholder="0.5" className="h-9 sm:max-w-40" />
               </Field>
-              <Field label="خصائص مخصصة" optional>
+              <Field label={tr("خصائص مخصصة")} optional>
                 <AttributesInput />
               </Field>
             </div>
@@ -294,26 +295,26 @@ export default function CreateProductForm({
 
         {/* ── Side column ─────────────────────────────────────────── */}
         <div className="space-y-6">
-          <FormSection title="الظهور">
+          <FormSection title={tr("الظهور")}>
             <div className="divide-y divide-border">
-              <ToggleRow name="isActive" label="ظاهر في المتجر" description="العملاء يقدروا يشوفوه ويطلبوه." defaultChecked />
-              <ToggleRow name="isFeatured" label="منتج مميز" description="بيظهر في أماكن المنتجات المميزة في واجهة المتجر." />
+              <ToggleRow name="isActive" label={tr("ظاهر في المتجر")} description={tr("العملاء يقدروا يشوفوه ويطلبوه.")} defaultChecked />
+              <ToggleRow name="isFeatured" label={tr("منتج مميز")} description={tr("بيظهر في أماكن المنتجات المميزة في واجهة المتجر.")} />
             </div>
           </FormSection>
 
-          <FormSection title="التنظيم">
+          <FormSection title={tr("التنظيم")}>
             <div className="space-y-4">
-              <Field label="التصنيف" htmlFor="categoryId" error={categoryError}>
+              <Field label={tr("التصنيف")} htmlFor="categoryId" error={categoryError}>
                 <Select
                   value={categoryId}
                   onValueChange={(v) => {
                     setCategoryId(v);
                     setCategoryError(undefined);
                   }}
-                  dir="rtl"
+                  dir={tdir()}
                 >
                   <SelectTrigger ref={categoryRef} id="categoryId" className="h-9 w-full" aria-invalid={!!categoryError || undefined}>
-                    <SelectValue placeholder="اختار تصنيف" />
+                    <SelectValue placeholder={tr("اختار تصنيف")} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
@@ -325,17 +326,17 @@ export default function CreateProductForm({
                 </Select>
                 <input type="hidden" name="categoryId" value={categoryId} />
               </Field>
-              <Field label="البراند" htmlFor="brand" optional>
-                <Input id="brand" name="brand" placeholder="مثال: Nike" className="h-9" />
+              <Field label={tr("البراند")} htmlFor="brand" optional>
+                <Input id="brand" name="brand" placeholder={tr("مثال: Nike")} className="h-9" />
               </Field>
-              <Field label="الوسوم" optional>
-                <TagInput name="tags" placeholder="جديد، عروض..." hint="بتساعد العملاء يلاقوا المنتج في البحث." />
+              <Field label={tr("الوسوم")} optional>
+                <TagInput name="tags" placeholder={tr("جديد، عروض...")} hint={tr("بتساعد العملاء يلاقوا المنتج في البحث.")} />
               </Field>
             </div>
           </FormSection>
 
           <div className="lg:sticky lg:top-36">
-            <FormSection title="معاينة" description="شكل المنتج في المتجر تقريبًا.">
+            <FormSection title={tr("معاينة")} description={tr("شكل المنتج في المتجر تقريبًا.")}>
               <ProductPreview
                 name={name}
                 image={images[0]}

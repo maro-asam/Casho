@@ -24,6 +24,7 @@ import {
 import { MustSession } from "@/actions/auth/auth-helpers.actions";
 import { purchaseEventId } from "@/lib/pixels/shared";
 import { PixelEvent } from "../../_components/pixels/PixelEvent";
+import { ShipmentTracking } from "./_components/ShipmentTracking";
 import { prisma } from "@/lib/prisma";
 import { getPaymentMethodLabel as getCatalogueLabel, isManualPaymentMethod } from "@/constants/welcome/payment-methods";
 
@@ -288,6 +289,20 @@ export default async function OrderDetailsPage({
           },
         },
       },
+      shipments: {
+        where: { status: { not: "CANCELED" } },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          courierName: true,
+          trackingNumber: true,
+          trackingUrl: true,
+          status: true,
+          codAmount: true,
+          estimatedDelivery: true,
+          events: true,
+        },
+      },
       store: {
         select: {
           name: true,
@@ -492,6 +507,8 @@ export default async function OrderDetailsPage({
             </div>
           </CardContent>
         </Card>
+
+        {order.shipments[0] && <ShipmentTracking shipment={order.shipments[0]} />}
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">

@@ -3,10 +3,12 @@ import { ArrowRight, Plus, Users } from "lucide-react";
 import { GetSuppliersAction } from "@/actions/inventory/suppliers.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { intlLocale, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 function formatBalance(piasters: number) {
   if (piasters === 0) return null;
-  return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP" }).format(
+  return new Intl.NumberFormat(intlLocale(), { style: "currency", currency: "EGP" }).format(
     piasters / 100,
   );
 }
@@ -16,6 +18,7 @@ export default async function SuppliersPage({
 }: {
   searchParams: { page?: string };
 }) {
+  await loadDashboardLocale();
   const page = parseInt(searchParams.page ?? "1", 10);
   const data = await GetSuppliersAction({ page });
 
@@ -25,16 +28,16 @@ export default async function SuppliersPage({
         <div className="flex items-center gap-3">
           <Link href="/dashboard/inventory">
             <Button variant="ghost" size="sm" className="gap-1">
-              <ArrowRight className="size-4" />
-              المخزون
+              <ArrowRight className="size-4 ltr:-scale-x-100" />
+              {tr("المخزون")}
             </Button>
           </Link>
-          <h1 className="text-xl font-bold">الموردون</h1>
+          <h1 className="text-xl font-bold">{tr("الموردون")}</h1>
         </div>
         <Link href="/dashboard/inventory/suppliers/new">
           <Button size="sm" className="gap-2">
             <Plus className="size-4" />
-            مورد جديد
+            {tr("مورد جديد")}
           </Button>
         </Link>
       </div>
@@ -42,11 +45,11 @@ export default async function SuppliersPage({
       {data.items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center">
           <Users className="mx-auto mb-3 size-10 text-muted-foreground/40" />
-          <p className="text-muted-foreground">لا يوجد موردون بعد</p>
+          <p className="text-muted-foreground">{tr("لا يوجد موردون بعد")}</p>
           <Link href="/dashboard/inventory/suppliers/new">
             <Button size="sm" className="mt-4 gap-2">
               <Plus className="size-4" />
-              إضافة أول مورد
+              {tr("إضافة أول مورد")}
             </Button>
           </Link>
         </div>
@@ -54,13 +57,13 @@ export default async function SuppliersPage({
         <div className="rounded-xl border border-border bg-card shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/50 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 py-3">الاسم</th>
-                <th className="px-4 py-3">التواصل</th>
-                <th className="px-4 py-3 text-center">المنتجات</th>
-                <th className="px-4 py-3 text-center">طلبات الشراء</th>
-                <th className="px-4 py-3">الرصيد المستحق</th>
-                <th className="px-4 py-3">الحالة</th>
+              <tr className="border-b border-border bg-muted/50 text-start text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <th className="px-4 py-3">{tr("الاسم")}</th>
+                <th className="px-4 py-3">{tr("التواصل")}</th>
+                <th className="px-4 py-3 text-center">{tr("المنتجات")}</th>
+                <th className="px-4 py-3 text-center">{tr("طلبات الشراء")}</th>
+                <th className="px-4 py-3">{tr("الرصيد المستحق")}</th>
+                <th className="px-4 py-3">{tr("الحالة")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -88,12 +91,12 @@ export default async function SuppliersPage({
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant={s.isActive ? "default" : "secondary"}>
-                      {s.isActive ? "نشط" : "غير نشط"}
+                      {s.isActive ? tr("نشط") : tr("غير نشط")}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
                     <Link href={`/dashboard/inventory/suppliers/${s.id}`}>
-                      <Button variant="ghost" size="sm">تفاصيل</Button>
+                      <Button variant="ghost" size="sm">{tr("تفاصيل")}</Button>
                     </Link>
                   </td>
                 </tr>
@@ -102,16 +105,16 @@ export default async function SuppliersPage({
           </table>
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm">
-              <span className="text-muted-foreground">{data.total} مورد</span>
+              <span className="text-muted-foreground">{tr("{0} مورد", data.total)}</span>
               <div className="flex gap-2">
                 {page > 1 && (
                   <Link href={`?page=${page - 1}`}>
-                    <Button variant="outline" size="sm">السابق</Button>
+                    <Button variant="outline" size="sm">{tr("السابق")}</Button>
                   </Link>
                 )}
                 {page < data.totalPages && (
                   <Link href={`?page=${page + 1}`}>
-                    <Button variant="outline" size="sm">التالي</Button>
+                    <Button variant="outline" size="sm">{tr("التالي")}</Button>
                   </Link>
                 )}
               </div>

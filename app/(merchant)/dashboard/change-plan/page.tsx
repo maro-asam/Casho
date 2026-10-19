@@ -14,43 +14,49 @@ import { cn } from "@/lib/utils";
 import { PlanPicker } from "./_components/plan-picker";
 import { featureValueLabel, nf, type PlanForUI } from "./_components/plan-types";
 import { SubscriptionHero } from "./_components/subscription-hero";
+import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "الباقة والاشتراك",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("الباقة والاشتراك"),
 };
+}
 
-const dtf = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
+const dtf = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
 
 const HISTORY_LABEL: Record<string, { label: string; icon: typeof ArrowUp }> = {
-  subscription_upgraded: { label: "ترقية", icon: ArrowUp },
-  subscription_downgraded: { label: "نزول", icon: ArrowDown },
-  subscription_cycle_changed: { label: "تغيير دورة الدفع", icon: Repeat },
-  subscription_selected: { label: "اختيار باقة", icon: Check },
-  subscription_activated: { label: "تفعيل الاشتراك", icon: Check },
-  subscription_plan_selected: { label: "اختيار باقة", icon: Check },
-  subscription_plan_changed: { label: "تغيير الباقة", icon: Repeat },
+  subscription_upgraded: { get label() { return tr("ترقية"); }, icon: ArrowUp },
+  subscription_downgraded: { get label() { return tr("نزول"); }, icon: ArrowDown },
+  subscription_cycle_changed: { get label() { return tr("تغيير دورة الدفع"); }, icon: Repeat },
+  subscription_selected: { get label() { return tr("اختيار باقة"); }, icon: Check },
+  subscription_activated: { get label() { return tr("تفعيل الاشتراك"); }, icon: Check },
+  subscription_plan_selected: { get label() { return tr("اختيار باقة"); }, icon: Check },
+  subscription_plan_changed: { get label() { return tr("تغيير الباقة"); }, icon: Repeat },
 };
 
 const FAQ = [
   {
-    q: "لو رقّيت في نص الشهر هدفع كام؟",
-    a: "بنحسب الأيام اللي فاضلة من باقتك الحالية ونخصم قيمتها من سعر الباقة الجديدة، وتبدأ فترة جديدة كاملة من النهارده. بتشوف المبلغ بالظبط قبل ما تأكد.",
+    get q() { return tr("لو رقّيت في نص الشهر هدفع كام؟"); },
+    get a() { return tr("بنحسب الأيام اللي فاضلة من باقتك الحالية ونخصم قيمتها من سعر الباقة الجديدة، وتبدأ فترة جديدة كاملة من النهارده. بتشوف المبلغ بالظبط قبل ما تأكد."); },
   },
   {
-    q: "لو نزلت باقة هخسر منتجاتي؟",
-    a: "لأ، مفيش أي حاجة بتتمسح. لو عندك أكتر من حد الباقة الجديدة هتفضل موجودة، بس مش هتقدر تضيف جديد. وقيمة الأيام المتبقية بترجعلك رصيد.",
+    get q() { return tr("لو نزلت باقة هخسر منتجاتي؟"); },
+    get a() { return tr("لأ، مفيش أي حاجة بتتمسح. لو عندك أكتر من حد الباقة الجديدة هتفضل موجودة، بس مش هتقدر تضيف جديد. وقيمة الأيام المتبقية بترجعلك رصيد."); },
   },
   {
-    q: "إيه اللي بيحصل لو الرصيد خلص؟",
-    a: "بنبعتلك تنبيه قبل التجديد بـ ٣ أيام. لو الرصيد مكفاش، المتجر بيفضل شغال ٣ أيام سماح. بعدها بيتوقف لحد ما تشحن، ولما تشحن بيرجع يشتغل لوحده.",
+    get q() { return tr("إيه اللي بيحصل لو الرصيد خلص؟"); },
+    get a() { return tr("بنبعتلك تنبيه قبل التجديد بـ ٣ أيام. لو الرصيد مكفاش، المتجر بيفضل شغال ٣ أيام سماح. بعدها بيتوقف لحد ما تشحن، ولما تشحن بيرجع يشتغل لوحده."); },
   },
   {
-    q: "أقدر أوقف الاشتراك؟",
-    a: "اقفل التجديد التلقائي في أي وقت. الاشتراك هيفضل شغال لآخر يوم إنت دافعه، ورصيدك بيفضل محفوظ.",
+    get q() { return tr("أقدر أوقف الاشتراك؟"); },
+    get a() { return tr("اقفل التجديد التلقائي في أي وقت. الاشتراك هيفضل شغال لآخر يوم إنت دافعه، ورصيدك بيفضل محفوظ."); },
   },
 ];
 
 export default async function ChangePlanRoute() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
 
   const store = await prisma.store.findFirst({
@@ -76,8 +82,8 @@ export default async function ChangePlanRoute() {
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول عشان تختار باقتك."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول عشان تختار باقتك.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -99,8 +105,9 @@ export default async function ChangePlanRoute() {
     id: plan.id,
     key: plan.key,
     slug: plan.slug,
-    name: plan.name,
-    description: plan.description,
+    // Plan/feature names live in the DB in Arabic; shown in the dashboard language.
+    name: trv(plan.name),
+    description: trv(plan.description),
     monthlyPrice: plan.monthlyPrice,
     yearlyPrice: plan.yearlyPrice,
     originalMonthlyPrice: plan.originalMonthlyPrice,
@@ -111,8 +118,8 @@ export default async function ChangePlanRoute() {
       .sort((a, b) => a.feature.sortOrder - b.feature.sortOrder)
       .map((pf) => ({
         key: pf.feature.key,
-        name: pf.feature.name,
-        unit: pf.feature.unit,
+        name: trv(pf.feature.name),
+        unit: trv(pf.feature.unit),
         enabled: pf.enabled,
         isUnlimited: pf.isUnlimited,
         limitValue: pf.limitValue,
@@ -144,7 +151,7 @@ export default async function ChangePlanRoute() {
     if (better) {
       recommendedPlanId = better.id;
       const f = better.features.find((x) => x.key === tight.key)!;
-      recommendReason = `إنت مستخدم ${nf.format(tight.used)} من ${nf.format(tight.limit!)} ${tight.unit ?? ""} — ${better.name} فيها ${f.isUnlimited ? "عدد غير محدود" : nf.format(f.limitValue!)}.`;
+      recommendReason = tr("إنت مستخدم {0} من {1} {2} — {3} فيها {4}.", nf.format(tight.used), nf.format(tight.limit!), tight.unit ?? "", better.name, f.isUnlimited ? tr("عدد غير محدود") : nf.format(f.limitValue!));
     }
   }
   if (!recommendedPlanId) {
@@ -153,22 +160,22 @@ export default async function ChangePlanRoute() {
   }
 
   return (
-    <div className="space-y-8" dir="rtl">
+    <div className="space-y-8" dir={tdir()}>
       <PageHeader
-        title="الباقة والاشتراك"
-        description="باقتك، تجديدك، واستخدامك في مكان واحد — وأي تغيير بتشوف تمنه بالظبط قبل ما تأكد."
+        title={tr("الباقة والاشتراك")}
+        description={tr("باقتك، تجديدك، واستخدامك في مكان واحد — وأي تغيير بتشوف تمنه بالظبط قبل ما تأكد.")}
         actions={
           <>
             <Button asChild variant="outline" size="sm" className="gap-1.5">
               <Link href="/balance/history">
                 <History className="size-4" />
-                سجل الرصيد
+                {tr("سجل الرصيد")}
               </Link>
             </Button>
             <Button asChild size="sm" className="gap-1.5">
               <Link href="/balance/topup">
                 <Wallet className="size-4" />
-                شحن رصيد
+                {tr("شحن رصيد")}
               </Link>
             </Button>
           </>
@@ -180,7 +187,7 @@ export default async function ChangePlanRoute() {
       {usage.length > 0 && (
         <section aria-labelledby="usage-title" className="space-y-3">
           <h2 id="usage-title" className="text-base font-semibold">
-            استخدامك من الباقة
+            {tr("استخدامك من الباقة")}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {usage.map((u) => {
@@ -189,12 +196,12 @@ export default async function ChangePlanRoute() {
               const near = !full && pct >= 80;
               return (
                 <div key={u.key} className="rounded-xl border border-border bg-card p-4">
-                  <p className="text-sm text-muted-foreground">{u.name}</p>
+                  <p className="text-sm text-muted-foreground">{trv(u.name)}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums">
                     {nf.format(u.used)}
                     <span className="text-sm font-normal text-muted-foreground">
                       {" "}
-                      / {u.isUnlimited ? "غير محدود" : u.limit === null || u.limit === 0 ? "مش متاح" : nf.format(u.limit)}
+                      / {u.isUnlimited ? tr("غير محدود") : u.limit === null || u.limit === 0 ? tr("مش متاح") : nf.format(u.limit)}
                     </span>
                   </p>
                   {!u.isUnlimited && !!u.limit && (
@@ -207,7 +214,7 @@ export default async function ChangePlanRoute() {
                   )}
                   {(full || near) && (
                     <p className={cn("mt-2 text-xs", full ? "text-destructive" : "text-amber-700 dark:text-amber-400")}>
-                      {full ? "وصلت للحد — رقّي عشان تضيف أكتر." : `مستخدم ${nf.format(pct)}٪ من الحد.`}
+                      {full ? tr("وصلت للحد — رقّي عشان تضيف أكتر.") : tr("مستخدم {0}٪ من الحد.", nf.format(pct))}
                     </p>
                   )}
                 </div>
@@ -230,20 +237,20 @@ export default async function ChangePlanRoute() {
       {plans.length > 0 && (
         <section aria-labelledby="compare-title" className="space-y-3">
           <h2 id="compare-title" className="text-base font-semibold">
-            قارن كل المميزات
+            {tr("قارن كل المميزات")}
           </h2>
           <div className="overflow-x-auto rounded-xl border border-border bg-card">
             <Table className="min-w-[560px]">
               <TableHeader>
                 <TableRow className="bg-muted/40 hover:bg-muted/40">
-                  <TableHead className="h-10 ps-4 text-xs font-medium text-muted-foreground">الميزة</TableHead>
+                  <TableHead className="h-10 ps-4 text-xs font-medium text-muted-foreground">{tr("الميزة")}</TableHead>
                   {plans.map((p) => (
                     <TableHead
                       key={p.id}
                       className={cn("h-10 text-center text-xs font-medium last:pe-4", p.id === store.planId ? "text-primary" : "text-muted-foreground")}
                     >
                       {p.name}
-                      {p.id === store.planId && <span className="block text-[10px] font-normal">باقتك</span>}
+                      {p.id === store.planId && <span className="block text-[10px] font-normal">{tr("باقتك")}</span>}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -258,11 +265,11 @@ export default async function ChangePlanRoute() {
                       return (
                         <TableCell key={p.id} className={cn("py-3 text-center text-sm last:pe-4", p.id === store.planId && "bg-primary/[0.03]")}>
                           {!pf?.enabled ? (
-                            <Minus className="mx-auto size-4 text-muted-foreground/50" aria-label="مش متاح" />
+                            <Minus className="mx-auto size-4 text-muted-foreground/50" aria-label={tr("مش متاح")} />
                           ) : value ? (
                             <span className="tabular-nums">{value}</span>
                           ) : (
-                            <Check className="mx-auto size-4 text-primary" aria-label="متاح" />
+                            <Check className="mx-auto size-4 text-primary" aria-label={tr("متاح")} />
                           )}
                         </TableCell>
                       );
@@ -270,7 +277,7 @@ export default async function ChangePlanRoute() {
                   </TableRow>
                 ))}
                 <TableRow className="hover:bg-transparent">
-                  <TableCell className="py-3 ps-4 text-sm font-medium">السعر الشهري</TableCell>
+                  <TableCell className="py-3 ps-4 text-sm font-medium">{tr("السعر الشهري")}</TableCell>
                   {plans.map((p) => (
                     <TableCell key={p.id} className={cn("py-3 text-center text-sm font-medium tabular-nums last:pe-4", p.id === store.planId && "bg-primary/[0.03]")}>
                       {formatMoney(p.monthlyPrice)}
@@ -286,15 +293,15 @@ export default async function ChangePlanRoute() {
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="history-title" className="space-y-3">
           <h2 id="history-title" className="text-base font-semibold">
-            تغييرات الباقة
+            {tr("تغييرات الباقة")}
           </h2>
           <div className="rounded-xl border border-border bg-card">
             {history.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-muted-foreground">لسه ما غيّرتش باقتك.</p>
+              <p className="px-4 py-8 text-center text-sm text-muted-foreground">{tr("لسه ما غيّرتش باقتك.")}</p>
             ) : (
               <ul className="divide-y divide-border">
                 {history.map((h) => {
-                  const meta = HISTORY_LABEL[h.action] ?? { label: "تحديث", icon: Repeat };
+                  const meta = HISTORY_LABEL[h.action] ?? { label: tr("تحديث"), icon: Repeat };
                   const before = (h.before ?? {}) as { planId?: string | null; billingCycle?: string };
                   const after = (h.after ?? {}) as { billingCycle?: string; charge?: number };
                   const fromName = before.planId ? planById.get(before.planId)?.name : null;
@@ -310,9 +317,9 @@ export default async function ChangePlanRoute() {
                           {h.plan?.name && (
                             <span className="font-normal text-muted-foreground">
                               {" "}
-                              · {fromName && fromName !== h.plan.name ? `${fromName} ← ` : ""}
-                              {h.plan.name}
-                              {after.billingCycle && ` (${after.billingCycle === "YEARLY" ? "سنوي" : "شهري"})`}
+                              · {fromName && fromName !== h.plan.name ? `${trv(fromName)} ← ` : ""}
+                              {trv(h.plan.name)}
+                              {after.billingCycle && ` (${after.billingCycle === "YEARLY" ? tr("سنوي") : tr("شهري")})`}
                             </span>
                           )}
                         </p>
@@ -339,7 +346,7 @@ export default async function ChangePlanRoute() {
 
         <section aria-labelledby="faq-title" className="space-y-3">
           <h2 id="faq-title" className="text-base font-semibold">
-            إزاي الفلوس بتتحسب؟
+            {tr("إزاي الفلوس بتتحسب؟")}
           </h2>
           <div className="divide-y divide-border rounded-xl border border-border bg-card">
             {FAQ.map((item) => (

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useBuilder } from "../BuilderContext";
 import { UpdateThemeTokensAction } from "@/actions/settings/theme.actions";
 import { resolveStoreTheme } from "@/constants/store-themes";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 // ─── Color swatch picker ──────────────────────────────────────────────────────
 
@@ -102,10 +103,10 @@ export default function ColorsPanel() {
         overrides: { primary, primaryForeground: primaryFg, secondary, background, foreground, accent },
       });
       if (result.success) {
-        toast.success("تم حفظ الألوان");
+        toast.success(tr("تم حفظ الألوان"));
         reloadPreview();
       } else {
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -119,41 +120,41 @@ export default function ColorsPanel() {
     setAccent(tokens.accent);
     startTransition(async () => {
       await UpdateThemeTokensAction({ storeId, overrides: {} });
-      toast.success("تمت إعادة تعيين الألوان");
+      toast.success(tr("تمت إعادة تعيين الألوان"));
       reloadPreview();
     });
   }
 
   return (
-    <div className="flex flex-col h-full" dir="rtl">
+    <div className="flex flex-col h-full" dir={tdir()}>
       {/* Header */}
       <div className="flex items-center gap-2 border-b px-4 py-3 bg-background">
         <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
           <Droplets className="size-3.5" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold">الألوان</h2>
-          <p className="text-[10px] text-muted-foreground">التغييرات تظهر فورًا في المعاينة</p>
+          <h2 className="text-sm font-semibold">{tr("الألوان")}</h2>
+          <p className="text-[10px] text-muted-foreground">{tr("التغييرات تظهر فورًا في المعاينة")}</p>
         </div>
       </div>
 
       {/* Color pickers */}
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
         <div className="space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">ألوان رئيسية</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">{tr("ألوان رئيسية")}</p>
           <div className="space-y-3 rounded-xl border bg-muted/10 p-3">
-            <ColorSwatch label="اللون الأساسي" value={primary} onChange={handlePrimary} hint="الأزرار والروابط والعناصر المميزة" />
-            <ColorSwatch label="نص الأساسي" value={primaryFg} onChange={setPrimaryFg} hint="النص على اللون الأساسي" />
-            <ColorSwatch label="اللون الثانوي" value={secondary} onChange={handleSecondary} />
+            <ColorSwatch label={tr("اللون الأساسي")} value={primary} onChange={handlePrimary} hint={tr("الأزرار والروابط والعناصر المميزة")} />
+            <ColorSwatch label={tr("نص الأساسي")} value={primaryFg} onChange={setPrimaryFg} hint={tr("النص على اللون الأساسي")} />
+            <ColorSwatch label={tr("اللون الثانوي")} value={secondary} onChange={handleSecondary} />
           </div>
         </div>
 
         <div className="space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">الخلفية والنصوص</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">{tr("الخلفية والنصوص")}</p>
           <div className="space-y-3 rounded-xl border bg-muted/10 p-3">
-            <ColorSwatch label="خلفية الصفحة" value={background} onChange={handleBackground} />
-            <ColorSwatch label="لون النصوص" value={foreground} onChange={handleForeground} />
-            <ColorSwatch label="لون التمييز" value={accent} onChange={handleAccent} hint="تأثيرات الـ hover والتفاصيل" />
+            <ColorSwatch label={tr("خلفية الصفحة")} value={background} onChange={handleBackground} />
+            <ColorSwatch label={tr("لون النصوص")} value={foreground} onChange={handleForeground} />
+            <ColorSwatch label={tr("لون التمييز")} value={accent} onChange={handleAccent} hint={tr("تأثيرات الـ hover والتفاصيل")} />
           </div>
         </div>
 
@@ -161,7 +162,7 @@ export default function ColorsPanel() {
         <div className="rounded-lg bg-green-500/10 border border-green-500/20 px-3 py-2">
           <p className="text-[10px] text-green-700 dark:text-green-400 flex items-center gap-1.5">
             <span className="inline-block size-1.5 rounded-full bg-green-500 animate-pulse" />
-            تحديث فوري في المعاينة
+            {tr("تحديث فوري في المعاينة")}
           </p>
         </div>
       </div>
@@ -170,10 +171,10 @@ export default function ColorsPanel() {
       <div className="flex gap-2 border-t bg-background px-4 py-3">
         <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={handleReset} disabled={isPending}>
           <RefreshCw className="size-3" />
-          إعادة التعيين
+          {tr("إعادة التعيين")}
         </Button>
         <Button size="sm" className="gap-1.5 h-8 text-xs flex-1" onClick={handleSave} disabled={isPending}>
-          {isPending ? "جاري الحفظ…" : "حفظ الألوان"}
+          {isPending ? tr("جاري الحفظ…") : tr("حفظ الألوان")}
         </Button>
       </div>
     </div>

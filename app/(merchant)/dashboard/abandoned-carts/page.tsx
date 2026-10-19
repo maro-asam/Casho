@@ -26,27 +26,33 @@ import { prisma } from "@/lib/prisma";
 import { CartsTable } from "./_components/carts-table";
 import { RecoverDialog } from "./_components/recover-dialog";
 import { RECOVERY_STATUSES } from "./_components/recovery-meta";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "السلات المتروكة",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("عربات التسوق المهجورة"),
 };
+}
 
 const PAGE_SIZE = 20;
 const BASE_PATH = "/abandoned-carts";
 const PERIODS = [
-  { value: "1", label: "آخر ٢٤ ساعة" },
-  { value: "7", label: "آخر ٧ أيام" },
-  { value: "90", label: "آخر ٩٠ يوم" },
+  { value: "1", get label() { return tr("آخر ٢٤ ساعة"); } },
+  { value: "7", get label() { return tr("آخر ٧ أيام"); } },
+  { value: "90", get label() { return tr("آخر ٩٠ يوم"); } },
 ];
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 });
-const nf = new Intl.NumberFormat("ar-EG");
-const DESCRIPTION = "عملاء حطّوا منتجات في السلة ومكمّلوش — ابعتلهم رسالة بلينك يرجّع سلتهم زي ما هي.";
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
+const nf = lazyIntl.number();
+const description = () => tr("عملاء حطّوا منتجات في السلة ومكمّلوش — ابعتلهم رسالة بلينك يرجّع سلتهم زي ما هي.");
 
 type AbandonedCartsRouteProps = {
   searchParams?: Promise<SearchParamsRecord>;
 };
 
 export default async function AbandonedCartsRoute({ searchParams }: AbandonedCartsRouteProps) {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const params = await searchParams;
 
@@ -59,8 +65,8 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
     return (
       <EmptyState
         icon={Store}
-        title="لسه معندكش متجر"
-        description="أنشئ متجرك الأول عشان تتابع السلات المتروكة."
+        title={tr("لسه معندكش متجر")}
+        description={tr("أنشئ متجرك الأول عشان تتابع السلات المتروكة.")}
         className="rounded-xl border border-dashed border-border"
       />
     );
@@ -69,9 +75,9 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
   if (!(await hasFeature(store.id, FEATURE_KEYS.ABANDONED_CART))) {
     const { requiredPlan } = await checkLimit(store.id, FEATURE_KEYS.ABANDONED_CART);
     return (
-      <div className="space-y-6" dir="rtl">
-        <PageHeader title="السلات المتروكة" description={DESCRIPTION} />
-        <UpgradeRequiredCard title="السلات المتروكة" description="متابعة واسترجاع السلات المتروكة مش متاحة في باقتك الحالية." requiredPlanSlug={requiredPlan} />
+      <div className="space-y-6" dir={tdir()}>
+        <PageHeader title={tr("عربات التسوق المهجورة")} description={description()} />
+        <UpgradeRequiredCard title={tr("السلات المتروكة")} description={tr("متابعة واسترجاع السلات المتروكة مش متاحة في باقتك الحالية.")} requiredPlanSlug={requiredPlan} />
       </div>
     );
   }
@@ -123,32 +129,30 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
   const currentPage = readParam(params, "page");
   const openHref = (key: string) => hrefWith(BASE_PATH, params, { cart: key, page: currentPage });
   const hasFilters = Boolean(q || status || periodParam);
-  const periodLabel = PERIODS.find((p) => Number(p.value) === days)?.label ?? "آخر ٣٠ يوم";
+  const periodLabel = PERIODS.find((p) => Number(p.value) === days)?.label ?? tr("آخر ٣٠ يوم");
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       <PageHeader
-        title="السلات المتروكة"
+        title={tr("السلات المتروكة")}
         description={
           all.length ? (
             <>
               {periodLabel}:{" "}
               <span className="font-medium text-foreground">
-                {nf.format(open.length)} سلة بـ {money.format(openValue / 100)}
-              </span>{" "}
-              مستنية
+                {tr("{0} سلة بـ {1}", nf.format(open.length), money.format(openValue / 100))}
+              </span>{" "}{tr("مستنية")}
               {recovered.length > 0 && (
                 <>
-                  {" "}
-                  · رجّعت{" "}
+                  {" "}{tr("· رجّعت")}{" "}
                   <span className="font-medium text-emerald-700 dark:text-emerald-400">
-                    {nf.format(recovered.length)} بـ {money.format(recoveredValue / 100)}
+                    {tr("{0} بـ {1}", nf.format(recovered.length), money.format(recoveredValue / 100))}
                   </span>
                 </>
               )}
             </>
           ) : (
-            DESCRIPTION
+            description()
           )
         }
       />
@@ -157,19 +161,19 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={ShoppingCart}
-            title="مفيش سلات متروكة"
-            description="أول ما عميل يسيب منتجات في السلة أكتر من ساعة من غير ما يطلب، هتظهر هنا — ولو كتب رقمه في صفحة الدفع هتقدر تبعتله على الواتساب بضغطة."
+            title={tr("مفيش سلات متروكة")}
+            description={tr("أول ما عميل يسيب منتجات في السلة أكتر من ساعة من غير ما يطلب، هتظهر هنا — ولو كتب رقمه في صفحة الدفع هتقدر تبعتله على الواتساب بضغطة.")}
           />
         </div>
       ) : (
         <div className="space-y-4">
           <FilterTabs
-            label="حالة السلة"
+            label={tr("حالة السلة")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
             tabs={[
-              { label: "الكل", count: searched.length },
+              { label: tr("الكل"), count: searched.length },
               ...RECOVERY_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
             ]}
           />
@@ -177,13 +181,13 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
           <DataCard
             toolbar={
               <>
-                <SearchInput placeholder="ابحث بالاسم أو الموبايل أو المنتج" />
-                <SelectFilter label="الفترة" param="days" allLabel="آخر ٣٠ يوم" options={PERIODS} />
+                <SearchInput placeholder={tr("ابحث بالاسم أو الموبايل أو المنتج")} />
+                <SelectFilter label={tr("الفترة")} param="days" allLabel={tr("آخر ٣٠ يوم")} options={PERIODS} />
               </>
             }
             footer={
               total > 0 ? (
-                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="سلة" />
+                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("سلة")} />
               ) : undefined
             }
           >
@@ -192,12 +196,12 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
             ) : (
               <EmptyState
                 icon={SearchX}
-                title="مفيش سلات بالفلاتر دي"
-                description={q ? `مفيش نتايج لـ "${q}".` : "جرّب حالة أو فترة تانية."}
+                title={tr("مفيش سلات بالفلاتر دي")}
+                description={q ? tr("مفيش نتايج لـ \"{0}\".", q) : tr("جرّب حالة أو فترة تانية.")}
                 action={
                   hasFilters && (
                     <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>مسح الفلاتر</Link>
+                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
                     </Button>
                   )
                 }

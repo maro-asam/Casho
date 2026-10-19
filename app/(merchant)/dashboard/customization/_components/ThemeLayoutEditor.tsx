@@ -12,6 +12,7 @@ import {
   UpdateNavbarVariantAction,
 } from "@/actions/settings/theme.actions";
 import type { ThemeLayout, NavbarVariant, ButtonStyle, ImageAspectRatio, AnimationStyle } from "@/types/store-theme.types";
+import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
   storeId: string;
@@ -41,7 +42,7 @@ function OptionCard({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "relative flex flex-col gap-3 rounded-2xl border p-4 text-right transition-all duration-200",
+        "relative flex flex-col gap-3 rounded-2xl border p-4 text-start transition-all duration-200",
         "disabled:pointer-events-none disabled:opacity-60",
         isActive
           ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
@@ -49,7 +50,7 @@ function OptionCard({
       )}
     >
       {isActive && (
-        <div className="absolute left-3 top-3 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+        <div className="absolute end-3 top-3 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
           <Check className="size-3" />
         </div>
       )}
@@ -117,7 +118,7 @@ function ButtonPreview({ style }: { style: ButtonStyle }) {
   return (
     <div className="flex items-center gap-2">
       <div className={cn("h-7 w-16 border-2 border-primary/60 bg-primary/10 text-[9px] font-bold text-primary flex items-center justify-center", radius)}>
-        اضف للسلة
+        {tr("اضف للسلة")}
       </div>
       <div className={cn("h-7 w-10 border border-border bg-card flex items-center justify-center", radius)}>
         <div className="h-1 w-6 rounded-full bg-muted-foreground/40" />
@@ -188,7 +189,7 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
     startTransition(async () => {
       const result = await UpdateThemeLayoutAction({ storeId, overrides });
       if (result.success) {
-        toast.success(result.message);
+        toast.success(trv(result.message));
         router.refresh();
       } else {
         // Revert on failure
@@ -199,7 +200,7 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
           });
           return reverted;
         });
-        toast.error(result.message);
+        toast.error(trv(result.message));
       }
     });
   }
@@ -214,48 +215,48 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
         UpdateNavbarVariantAction({ storeId, variant: navbar }),
       ]);
       if (r1.success) {
-        toast.success("تم تحديث القائمة العلوية");
+        toast.success(tr("تم تحديث القائمة العلوية"));
         router.refresh();
       } else {
         // Revert on failure
         setLocalLayout((prev) => ({ ...prev, navbar: currentLayout.navbar }));
-        toast.error(r1.message);
+        toast.error(trv(r1.message));
       }
     });
   }
 
   const NAVBAR_OPTIONS: { value: NavbarVariant; label: string; desc: string }[] = [
-    { value: "default",  label: "افتراضي",  desc: "لوجو يسار، روابط وسط، أيقونات يمين" },
-    { value: "centered", label: "محوري",   desc: "لوجو في المنتصف، روابط على الجانبين" },
-    { value: "compact",  label: "مضغوط",   desc: "شريط بحث كامل — مناسب للكتالوجات الكبيرة" },
+    { value: "default",  label: tr("افتراضي"),  desc: tr("لوجو يسار، روابط وسط، أيقونات يمين") },
+    { value: "centered", label: tr("محوري"),   desc: tr("لوجو في المنتصف، روابط على الجانبين") },
+    { value: "compact",  label: tr("مضغوط"),   desc: tr("شريط بحث كامل — مناسب للكتالوجات الكبيرة") },
   ];
 
   const BUTTON_OPTIONS: { value: ButtonStyle; label: string }[] = [
-    { value: "sharp",   label: "حاد" },
-    { value: "rounded", label: "مدور" },
-    { value: "pill",    label: "دائري" },
+    { value: "sharp",   label: tr("حاد") },
+    { value: "rounded", label: tr("مدور") },
+    { value: "pill",    label: tr("دائري") },
   ];
 
   const ASPECT_OPTIONS: { value: ImageAspectRatio; label: string; desc: string }[] = [
-    { value: "square",    label: "مربع",    desc: "1:1" },
-    { value: "portrait",  label: "بورتريه", desc: "3:4" },
-    { value: "landscape", label: "أفقي",    desc: "4:3" },
+    { value: "square",    label: tr("مربع"),    desc: "1:1" },
+    { value: "portrait",  label: tr("بورتريه"), desc: "3:4" },
+    { value: "landscape", label: tr("أفقي"),    desc: "4:3" },
   ];
 
   const COLS_OPTIONS: { value: 3 | 4 | 5; label: string; desc: string }[] = [
-    { value: 3, label: "٣ أعمدة",  desc: "بطاقات أوسع" },
-    { value: 4, label: "٤ أعمدة",  desc: "التوازن المثالي" },
-    { value: 5, label: "٥ أعمدة",  desc: "عرض أكثر منتجات" },
+    { value: 3, label: tr("٣ أعمدة"),  desc: tr("بطاقات أوسع") },
+    { value: 4, label: tr("٤ أعمدة"),  desc: tr("التوازن المثالي") },
+    { value: 5, label: tr("٥ أعمدة"),  desc: tr("عرض أكثر منتجات") },
   ];
 
   const ANIM_OPTIONS: { value: AnimationStyle; label: string; desc: string }[] = [
-    { value: "none",    label: "بدون حركة", desc: "أداء أعلى" },
-    { value: "subtle",  label: "ناعمة",      desc: "تفاعل هادئ" },
-    { value: "dynamic", label: "حيوية",      desc: "تجربة غامرة" },
+    { value: "none",    label: tr("بدون حركة"), desc: tr("أداء أعلى") },
+    { value: "subtle",  label: tr("ناعمة"),      desc: tr("تفاعل هادئ") },
+    { value: "dynamic", label: tr("حيوية"),      desc: tr("تجربة غامرة") },
   ];
 
   return (
-    <Card dir="rtl">
+    <Card dir={tdir()}>
       <CardContent className="space-y-8">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -263,13 +264,13 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
             <LayoutGrid className="size-4" />
           </div>
           <div>
-            <h2 className="font-semibold">خيارات التصميم</h2>
-            <p className="text-xs text-muted-foreground">تحكم في هيكل وشكل المتجر بشكل كامل</p>
+            <h2 className="font-semibold">{tr("خيارات التصميم")}</h2>
+            <p className="text-xs text-muted-foreground">{tr("تحكم في هيكل وشكل المتجر بشكل كامل")}</p>
           </div>
         </div>
 
         {/* ── Navbar ─────────────────────────────────────────────────── */}
-        <Section title="القائمة العلوية (Navbar)">
+        <Section title={tr("القائمة العلوية (Navbar)")}>
           <div className="grid gap-3 sm:grid-cols-3">
             {NAVBAR_OPTIONS.map((opt) => (
               <OptionCard
@@ -286,7 +287,7 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
         </Section>
 
         {/* ── Button Style ────────────────────────────────────────────── */}
-        <Section title="شكل الأزرار">
+        <Section title={tr("شكل الأزرار")}>
           <div className="grid gap-3 sm:grid-cols-3">
             {BUTTON_OPTIONS.map((opt) => (
               <OptionCard
@@ -302,7 +303,7 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
         </Section>
 
         {/* ── Image Aspect ─────────────────────────────────────────────── */}
-        <Section title="نسبة صور المنتجات">
+        <Section title={tr("نسبة صور المنتجات")}>
           <div className="grid gap-3 sm:grid-cols-3">
             {ASPECT_OPTIONS.map((opt) => (
               <OptionCard
@@ -319,7 +320,7 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
         </Section>
 
         {/* ── Grid Cols ────────────────────────────────────────────────── */}
-        <Section title="أعمدة المنتجات (Desktop)">
+        <Section title={tr("أعمدة المنتجات (Desktop)")}>
           <div className="grid gap-3 sm:grid-cols-3">
             {COLS_OPTIONS.map((opt) => (
               <OptionCard
@@ -336,7 +337,7 @@ export default function ThemeLayoutEditor({ storeId, currentLayout }: Props) {
         </Section>
 
         {/* ── Animations ──────────────────────────────────────────────── */}
-        <Section title="الحركات والتأثيرات">
+        <Section title={tr("الحركات والتأثيرات")}>
           <div className="grid gap-3 sm:grid-cols-3">
             {ANIM_OPTIONS.map((opt) => (
               <OptionCard

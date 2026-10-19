@@ -124,7 +124,6 @@ export class BostaProvider implements ShippingProvider {
       providerShipmentId: data._id,
       trackingNumber: data.trackingNumber,
       courierName: "Bosta",
-      costPiasters: data.cod?.amount ? Math.round(data.cod.amount * 100) : undefined,
       estimatedDelivery: data.promisedDate ? new Date(data.promisedDate) : undefined,
       rawResponse: data as unknown as Record<string, unknown>,
     };

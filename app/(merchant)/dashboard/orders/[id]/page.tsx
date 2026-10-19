@@ -16,15 +16,25 @@ import { canonicalPhone } from "@/lib/fraud/phone";
 import { BlockPhoneButton } from "./_components/block-phone-button";
 import { CopyButton } from "./_components/copy-button";
 import { OrderProgress } from "./_components/order-progress";
+import { ShipmentCard, type ShipCarrierOption, type ShipmentView } from "./_components/shipment-card";
+import { getStoreCarriers } from "@/lib/shipping/store-carriers";
+import { carrierDisplayName, getCarrier } from "@/lib/shipping/carriers";
+import { readShipmentEvents } from "@/lib/shipping/shipment-status";
+import { governorateName } from "@/constants/egypt-governorates";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
-export const metadata: Metadata = {
-  title: "تفاصيل الطلب",
+export async function generateMetadata(): Promise<Metadata> {
+  await loadDashboardLocale();
+  return {
+  title: tr("تفاصيل الطلب"),
 };
+}
 
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
-const nf = new Intl.NumberFormat("ar-EG");
-const longDate = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", dateStyle: "long", timeStyle: "short" });
-const shortDate = new Intl.DateTimeFormat("ar-EG", {
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const nf = lazyIntl.number();
+const longDate = lazyIntl.date({ timeZone: "Africa/Cairo", dateStyle: "long", timeStyle: "short" });
+const shortDate = lazyIntl.date({
   timeZone: "Africa/Cairo",
   day: "numeric",
   month: "short",
@@ -34,7 +44,7 @@ const shortDate = new Intl.DateTimeFormat("ar-EG", {
 
 const formatMoney = (piasters: number) => money.format(piasters / 100);
 
-const FEATURE_LABELS: Record<string, string> = { size: "المقاس", color: "اللون" };
+const FEATURE_LABELS: Record<string, string> = { get size() { return tr("المقاس"); }, get color() { return tr("اللون"); } };
 
 /** Egyptian mobile → international digits for wa.me (01xxxxxxxxx → 201xxxxxxxxx). */
 function whatsappNumber(phone: string) {
@@ -68,6 +78,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 export default async function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  await loadDashboardLocale();
   const { id } = await params;
   const userId = await requireUserId();
 
@@ -83,10 +94,11 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
       store: { select: { name: true, slug: true } },
       shippingMethod: { select: { name: true } },
       cashierUser: { select: { name: true, email: true } },
+      // Latest live shipment — canceled ones stay in the shipments list only.
       shipments: {
+        where: { status: { not: "CANCELED" } },
         orderBy: { createdAt: "desc" },
         take: 1,
-        select: { provider: true, trackingNumber: true, courierName: true },
       },
       items: {
         include: { product: { select: { id: true, name: true, image: true, slug: true } } },
@@ -96,7 +108,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   if (!order) notFound();
 
   const isOnline = order.source === "ONLINE";
-  const [previousOrders, reputation, blocked] = await Promise.all([
+  const [previousOrders, reputation, blocked, storeCarriers] = await Promise.all([
     prisma.order.count({ where: { storeId: store.id, phone: order.phone, id: { not: order.id } } }),
     // Live reputation (may have changed since checkout), this order excluded.
     isOnline ? assessPhoneRisk(store.id, order.phone, { excludeOrderId: order.id }) : null,
@@ -104,6 +116,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
       where: { storeId_phone: { storeId: store.id, phone: canonicalPhone(order.phone) } },
       select: { id: true },
     }),
+    isOnline ? getStoreCarriers(store.id) : [],
   ]);
   const awaitingCode = order.confirmationStatus === "PENDING" && order.status === "PENDING";
   const returned = order.status === "CANCELED" && order.returnedAt !== null;
@@ -114,44 +127,75 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   const ChannelIcon = channel.icon;
   const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
   const shipment = order.shipments[0];
-  const trackingNumber = order.trackingNumber ?? shipment?.trackingNumber ?? null;
-  const shippingProvider = order.shippingProvider ?? shipment?.courierName ?? shipment?.provider ?? null;
+  const destination = governorateName(order.governorate);
   const isPaid =
     Boolean(order.paidAt) ||
     order.paymentStatus === "PAID" ||
     (order.paymentMethod !== "cash_on_delivery" && ["PAID", "SHIPPED", "DELIVERED"].includes(order.status)) ||
     order.status === "DELIVERED";
 
+  const shipCarriers: ShipCarrierOption[] = storeCarriers.flatMap((c) => {
+    const carrier = getCarrier(c.provider);
+    if (!carrier || !c.isActive) return [];
+    return [
+      {
+        key: carrier.key,
+        name: carrierDisplayName(carrier, c.settings),
+        isApi: carrier.integration === "api",
+        cod: carrier.features.cod,
+        defaultWeightKg: c.settings.defaultWeightKg ?? null,
+      },
+    ];
+  });
+  const shipmentView: ShipmentView | null = shipment
+    ? {
+        id: shipment.id,
+        provider: shipment.provider,
+        courierName: shipment.courierName ?? getCarrier(shipment.provider)?.nameAr ?? shipment.provider,
+        isApi: getCarrier(shipment.provider)?.integration === "api" && Boolean(shipment.providerShipmentId),
+        status: shipment.status,
+        trackingNumber: shipment.trackingNumber,
+        trackingUrl: shipment.trackingUrl,
+        labelUrl: shipment.labelUrl,
+        codAmount: shipment.codAmount ?? 0,
+        codCollectedAt: shipment.codCollectedAt?.toISOString() ?? null,
+        cost: shipment.cost,
+        weightKg: shipment.weightKg,
+        events: readShipmentEvents(shipment.events),
+        lastSyncedAt: shipment.lastSyncedAt?.toISOString() ?? null,
+      }
+    : null;
+
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={tdir()}>
       {/* Header */}
       <div className="space-y-3">
         <Link
           href="/orders"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowRight className="size-4" />
-          الطلبات
+          <ArrowRight className="size-4 ltr:-scale-x-100" />
+          {tr("الطلبات")}
         </Link>
 
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">
-                طلب{" "}
+                {tr("طلب")}{" "}
                 <span className="font-mono font-bold" dir="ltr">
                   #{shortId}
                 </span>
               </h1>
-              <StatusPill tone={returned ? "danger" : status.tone}>{returned ? "مرتجع" : status.label}</StatusPill>
-              {awaitingCode && <StatusPill tone="warning">مستني تأكيد العميل</StatusPill>}
+              <StatusPill tone={returned ? "danger" : status.tone}>{returned ? tr("مرتجع") : status.label}</StatusPill>
+              {awaitingCode && <StatusPill tone="warning">{tr("مستني تأكيد العميل")}</StatusPill>}
               <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                 <ChannelIcon className="size-3.5" />
                 {channel.label}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
-              {longDate.format(order.createdAt)} · {nf.format(itemCount)} قطعة · {formatMoney(order.total)}
+              {tr("{0} · {1} قطعة · {2}", longDate.format(order.createdAt), nf.format(itemCount), formatMoney(order.total))}
             </p>
           </div>
 
@@ -175,20 +219,31 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
             returned={returned}
           />
 
+          {isOnline && (
+            <ShipmentCard
+              orderId={order.id}
+              orderCanceled={order.status === "CANCELED"}
+              carriers={shipCarriers}
+              shipment={shipmentView}
+              defaultCod={isPaid ? 0 : order.total}
+              destination={destination}
+            />
+          )}
+
           {/* Items + totals */}
           <section aria-labelledby="order-items-title" className="rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between px-5 pt-4 pb-3">
               <h2 id="order-items-title" className="text-sm font-semibold">
-                المنتجات
+                {tr("المنتجات")}
               </h2>
               <span className="text-xs text-muted-foreground">
-                {nf.format(order.items.length)} منتج · {nf.format(itemCount)} قطعة
+                {tr("{0} منتج · {1} قطعة", nf.format(order.items.length), nf.format(itemCount))}
               </span>
             </div>
 
             {order.items.length === 0 ? (
               <p className="mx-5 mb-5 rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                مفيش منتجات في الطلب ده.
+                {tr("مفيش منتجات في الطلب ده.")}
               </p>
             ) : (
               <ul className="divide-y divide-border border-y border-border">
@@ -232,19 +287,19 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
 
             <dl className="space-y-2 px-5 py-4 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">الإجمالي الفرعي</dt>
+                <dt className="text-muted-foreground">{tr("الإجمالي الفرعي")}</dt>
                 <dd className="tabular-nums">{formatMoney(order.subtotal)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">
-                  الشحن{order.shippingMethod ? ` (${order.shippingMethod.name})` : ""}
+                  {tr("الشحن{0}", order.shippingMethod ? ` (${order.shippingMethod.name})` : "")}
                 </dt>
-                <dd className="tabular-nums">{order.shipping > 0 ? formatMoney(order.shipping) : "مجاني"}</dd>
+                <dd className="tabular-nums">{order.shipping > 0 ? formatMoney(order.shipping) : tr("مجاني")}</dd>
               </div>
               {order.discount > 0 && (
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">
-                    الخصم
+                    {tr("الخصم")}
                     {order.couponCode && (
                       <span className="ms-1.5 rounded bg-muted px-1.5 py-px font-mono text-xs" dir="ltr">
                         {order.couponCode}
@@ -255,12 +310,12 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                 </div>
               )}
               <div className="flex items-baseline justify-between border-t border-border pt-3">
-                <dt className="font-semibold">الإجمالي</dt>
+                <dt className="font-semibold">{tr("الإجمالي")}</dt>
                 <dd className="text-lg font-bold tabular-nums">{formatMoney(order.total)}</dd>
               </div>
               {order.profitTotal !== null && (
                 <div className="flex justify-between text-xs">
-                  <dt className="text-muted-foreground">ربحك من الطلب</dt>
+                  <dt className="text-muted-foreground">{tr("ربحك من الطلب")}</dt>
                   <dd className="font-medium tabular-nums">{formatMoney(order.profitTotal)}</dd>
                 </div>
               )}
@@ -268,7 +323,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
           </section>
 
           {order.notes && (
-            <Panel title="ملاحظات العميل">
+            <Panel title={tr("ملاحظات العميل")}>
               <p className="whitespace-pre-line text-sm leading-7">{order.notes}</p>
             </Panel>
           )}
@@ -278,12 +333,12 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
         <div className="space-y-6">
           {reputation && (
             <Panel
-              title="سمعة الرقم"
+              title={tr("سمعة الرقم")}
               action={<StatusPill tone={ORDER_RISK_META[reputation.level].tone}>{ORDER_RISK_META[reputation.level].label}</StatusPill>}
             >
               {awaitingCode && (
                 <p className="mb-3 rounded-lg bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-700 dark:text-amber-400">
-                  العميل لسه ماأكدش الطلب بالكود. لو ماأكدش خلال ٦ ساعات، الطلب هيتلغى لوحده والمخزون يرجع.
+                  {tr("العميل لسه ماأكدش الطلب بالكود. لو ماأكدش خلال ٦ ساعات، الطلب هيتلغى لوحده والمخزون يرجع.")}
                 </p>
               )}
               <ul className="space-y-1.5 text-sm">
@@ -296,11 +351,11 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
               </ul>
               <dl className="mt-3 grid grid-cols-2 gap-2 text-center">
                 <div className="rounded-lg bg-muted/50 p-2">
-                  <dt className="text-xs text-muted-foreground">اتسلّم (كل كاشو)</dt>
+                  <dt className="text-xs text-muted-foreground">{tr("اتسلّم (كل كاشو)")}</dt>
                   <dd className="font-semibold tabular-nums">{nf.format(reputation.platform.delivered)}</dd>
                 </div>
                 <div className="rounded-lg bg-muted/50 p-2">
-                  <dt className="text-xs text-muted-foreground">رفض الاستلام</dt>
+                  <dt className="text-xs text-muted-foreground">{tr("رفض الاستلام")}</dt>
                   <dd className="font-semibold tabular-nums">{nf.format(reputation.platform.returned)}</dd>
                 </div>
               </dl>
@@ -310,11 +365,11 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
             </Panel>
           )}
           <Panel
-            title="العميل"
+            title={tr("العميل")}
             action={
               order.customerId ? (
                 <Link href={`/crm/customers/${order.customerId}`} className="text-xs font-medium text-primary hover:underline">
-                  ملف العميل
+                  {tr("ملف العميل")}
                 </Link>
               ) : undefined
             }
@@ -326,7 +381,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{order.fullName}</p>
                 <p className="text-xs text-muted-foreground">
-                  {previousOrders > 0 ? `${nf.format(previousOrders)} طلب قبل كده` : "أول طلب ليه"}
+                  {previousOrders > 0 ? tr("{0} طلب قبل كده", nf.format(previousOrders)) : tr("أول طلب ليه")}
                 </p>
               </div>
             </div>
@@ -335,59 +390,50 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
               <span className="text-sm font-medium tabular-nums" dir="ltr">
                 {order.phone}
               </span>
-              <CopyButton value={order.phone} label="رقم الموبايل" />
+              <CopyButton value={order.phone} label={tr("رقم الموبايل")} />
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Button asChild variant="outline" size="sm" className="h-9 gap-1.5">
                 <a href={`tel:${order.phone}`}>
                   <Phone className="size-4" />
-                  اتصال
+                  {tr("اتصال")}
                 </a>
               </Button>
               <Button asChild variant="outline" size="sm" className="h-9 gap-1.5">
                 <a href={`https://wa.me/${whatsappNumber(order.phone)}`} target="_blank" rel="noreferrer">
                   <MessageCircle className="size-4" />
-                  واتساب
+                  {tr("واتساب")}
                 </a>
               </Button>
             </div>
           </Panel>
 
-          <Panel title={order.source === "POS" ? "الاستلام" : "الشحن"}>
+          <Panel title={order.source === "POS" ? tr("الاستلام") : tr("الشحن")}>
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm leading-7">{order.address || "—"}</p>
-              {order.address && <CopyButton value={order.address} label="العنوان" />}
+              {order.address && <CopyButton value={order.address} label={tr("العنوان")} />}
             </div>
-            {(order.shippingMethod || trackingNumber || shippingProvider) && (
+            {(order.shippingMethod || destination || shipment) && (
               <dl className="mt-3 divide-y divide-border border-t border-border pt-3">
-                {order.shippingMethod && <Field label="طريقة الشحن">{order.shippingMethod.name}</Field>}
-                {shippingProvider && <Field label="شركة الشحن">{shippingProvider}</Field>}
-                {trackingNumber && (
-                  <Field label="رقم التتبع">
-                    <span className="inline-flex items-center gap-1">
-                      <span className="font-mono" dir="ltr">
-                        {trackingNumber}
-                      </span>
-                      <CopyButton value={trackingNumber} label="رقم التتبع" className="size-6" />
-                    </span>
-                  </Field>
-                )}
+                {destination && <Field label={tr("المحافظة")}>{destination}</Field>}
+                {order.shippingMethod && <Field label={tr("طريقة الشحن")}>{order.shippingMethod.name}</Field>}
+                {shipment && <Field label={tr("شركة الشحن")}>{shipmentView?.courierName}</Field>}
               </dl>
             )}
           </Panel>
 
-          <Panel title="الدفع">
+          <Panel title={tr("الدفع")}>
             <dl className="divide-y divide-border">
-              <Field label="الطريقة">{paymentMethodLabel(order.paymentMethod)}</Field>
-              <Field label="الحالة">
+              <Field label={tr("الطريقة")}>{paymentMethodLabel(order.paymentMethod)}</Field>
+              <Field label={tr("الحالة")}>
                 <StatusPill tone={isPaid ? "success" : "warning"}>
-                  {isPaid ? "مدفوع" : order.paymentMethod === "cash_on_delivery" ? "هيتدفع عند الاستلام" : "مستني الدفع"}
+                  {isPaid ? tr("مدفوع") : order.paymentMethod === "cash_on_delivery" ? tr("هيتدفع عند الاستلام") : tr("مستني الدفع")}
                 </StatusPill>
               </Field>
-              {order.paidAt && <Field label="اتدفع في">{shortDate.format(order.paidAt)}</Field>}
+              {order.paidAt && <Field label={tr("اتدفع في")}>{shortDate.format(order.paidAt)}</Field>}
               {order.paymentReference && (
-                <Field label="المرجع">
+                <Field label={tr("المرجع")}>
                   <span className="font-mono text-xs" dir="ltr">
                     {order.paymentReference}
                   </span>
@@ -396,25 +442,25 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
             </dl>
           </Panel>
 
-          <Panel title="تفاصيل إضافية">
+          <Panel title={tr("تفاصيل إضافية")}>
             <dl className="divide-y divide-border">
-              <Field label="القناة">{channel.label}</Field>
-              {order.cashierUser && <Field label="الكاشير">{order.cashierUser.name ?? order.cashierUser.email}</Field>}
+              <Field label={tr("القناة")}>{channel.label}</Field>
+              {order.cashierUser && <Field label={tr("الكاشير")}>{order.cashierUser.name ?? order.cashierUser.email}</Field>}
               {order.couponCode && (
-                <Field label="كوبون">
+                <Field label={tr("كوبون")}>
                   <span className="font-mono" dir="ltr">
                     {order.couponCode}
                   </span>
                 </Field>
               )}
-              {!!order.pointsEarned && <Field label="نقاط اكتسبها">{nf.format(order.pointsEarned)}</Field>}
-              {!!order.pointsRedeemed && <Field label="نقاط استخدمها">{nf.format(order.pointsRedeemed)}</Field>}
-              <Field label="رقم الطلب الكامل">
+              {!!order.pointsEarned && <Field label={tr("نقاط اكتسبها")}>{nf.format(order.pointsEarned)}</Field>}
+              {!!order.pointsRedeemed && <Field label={tr("نقاط استخدمها")}>{nf.format(order.pointsRedeemed)}</Field>}
+              <Field label={tr("رقم الطلب الكامل")}>
                 <span className="inline-flex items-center gap-1">
                   <span className="max-w-32 truncate font-mono text-xs" dir="ltr">
                     {order.id}
                   </span>
-                  <CopyButton value={order.id} label="رقم الطلب" className="size-6" />
+                  <CopyButton value={order.id} label={tr("رقم الطلب")} className="size-6" />
                 </span>
               </Field>
             </dl>

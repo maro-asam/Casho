@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 export function MethodLogo({ src, alt, size = "md", className }: { src: string; alt: string; size?: "xs" | "sm" | "md" | "lg"; className?: string }) {
   return (
@@ -22,7 +23,7 @@ export function OnDot({ on, label }: { on: boolean; label?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-xs", on ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground")}>
       <span className={cn("size-1.5 rounded-full", on ? "bg-emerald-500" : "bg-muted-foreground/40")} />
-      {label ?? (on ? "ظاهر للعملاء" : "مش مفعّل")}
+      {label ?? (on ? tr("ظاهر للعملاء") : tr("مش مفعّل"))}
     </span>
   );
 }

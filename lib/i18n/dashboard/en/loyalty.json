@@ -1,0 +1,20 @@
+{
+ "1 نقطة = كم مليم خصم": "1 point = how many millimes off",
+ "أدخل عدد نقاط": "Enter a number of points",
+ "أقل عدد نقاط يمكن استردادها": "Minimum points that can be redeemed",
+ "إدارة نقاط العملاء وإعدادات برنامج الولاء": "Manage customer points and loyalty settings",
+ "إعدادات برنامج الولاء": "Loyalty program settings",
+ "الحد الأدنى للاسترداد (نقطة)": "Minimum redemption (points)",
+ "الرقم": "Number",
+ "العملاء ({0})": "Customers ({0})",
+ "برنامج نقاط الولاء غير متاح في باقتك الحالية.": "The loyalty program isn't on your current plan.",
+ "تفعيل نظام النقاط": "Enable loyalty points",
+ "حدد كيف يكسب العملاء النقاط وكيف يستردونها": "Set how customers earn and redeem points",
+ "سيظهر هنا العملاء الذين لديهم نقاط بعد أول طلب": "Customers with points will show here after their first order",
+ "عدد النقاط": "Points",
+ "فعّل برنامج الولاء وتابع نقاط عملائك": "Enable the loyalty program and track your customers' points",
+ "قيمة النقطة (مليم)": "Point value (millimes)",
+ "مثال: 1 = نقطة لكل جنيه": "e.g. 1 = one point per pound",
+ "نظام النقاط والمكافآت": "Points & rewards",
+ "نقاط لكل جنيه مصري": "Points per Egyptian pound"
+}

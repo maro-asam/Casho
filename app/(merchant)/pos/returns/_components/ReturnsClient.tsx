@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { GetOrderForReturnAction, ProcessReturnAction } from "@/actions/pos/returns.actions";
 import { useRouter } from "next/navigation";
+import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
 type OrderItem = {
   id: string;
@@ -49,7 +50,7 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
       data.items.forEach((item) => { initial[item.productId] = 0; });
       setReturnItems(initial);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "طلب غير موجود");
+      setError(e instanceof Error ? e.message : tr("طلب غير موجود"));
     } finally {
       setLoading(false);
     }
@@ -82,7 +83,7 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
       }));
 
     if (itemsToReturn.length === 0) {
-      setError("اختر على الأقل منتج واحد للإرجاع");
+      setError(tr("اختر على الأقل منتج واحد للإرجاع"));
       return;
     }
 
@@ -100,7 +101,7 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
         setOrderId("");
         router.refresh();
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "حدث خطأ");
+        setError(e instanceof Error ? e.message : tr("حدث خطأ"));
       }
     });
   };
@@ -109,13 +110,13 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
     <>
       <Button onClick={() => setOpen(true)} className="gap-1.5">
         <Plus className="size-4" />
-        إرجاع جديد
+        {tr("إرجاع جديد")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg" dir="rtl">
+        <DialogContent className="max-w-lg" dir={tdir()}>
           <DialogHeader>
-            <DialogTitle>معالجة مرتجع</DialogTitle>
+            <DialogTitle>{tr("معالجة مرتجع")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -125,12 +126,12 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && loadOrder()}
-                placeholder="رقم الطلب..."
+                placeholder={tr("رقم الطلب...")}
                 className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               <Button onClick={loadOrder} disabled={loading} size="sm" className="gap-1.5">
                 <Search className="size-3.5" />
-                بحث
+                {tr("بحث")}
               </Button>
             </div>
 
@@ -141,9 +142,8 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
                 {/* Order info */}
                 <div className="rounded-md bg-muted/50 px-3 py-2 text-sm">
                   <span className="font-medium">{order.fullName}</span>
-                  <span className="text-muted-foreground mr-2">
-                    {new Date(order.createdAt).toLocaleDateString("ar-EG")} ·{" "}
-                    {(order.total / 100).toFixed(0)} ج
+                  <span className="text-muted-foreground ms-2">
+                    {tr("{0} · {1} ج", new Date(order.createdAt).toLocaleDateString(intlLocale()), (order.total / 100).toFixed(0))}
                   </span>
                 </div>
 
@@ -164,7 +164,7 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
                         returnType === t ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"
                       }`}
                     >
-                      {t === "FULL_RETURN" ? "إرجاع كامل" : "إرجاع جزئي"}
+                      {t === "FULL_RETURN" ? tr("إرجاع كامل") : tr("إرجاع جزئي")}
                     </button>
                   ))}
                 </div>
@@ -178,10 +178,10 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate">{item.product.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            قابل للإرجاع: {returnable} من {item.quantity}
+                            {tr("قابل للإرجاع: {0} من {1}", returnable, item.quantity)}
                           </p>
                         </div>
-                        <div className="flex items-center gap-1.5 mr-2">
+                        <div className="flex items-center gap-1.5 ms-2">
                           <button
                             onClick={() => setReturnItems((prev) => ({ ...prev, [item.productId]: Math.max(0, (prev[item.productId] ?? 0) - 1) }))}
                             className="flex size-6 items-center justify-center rounded border text-sm"
@@ -208,7 +208,7 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
                 <input
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="سبب الإرجاع (اختياري)"
+                  placeholder={tr("سبب الإرجاع (اختياري)")}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none"
                 />
 
@@ -218,15 +218,15 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
                   onChange={(e) => setRefundMethod(e.target.value)}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none"
                 >
-                  <option value="cash">نقداً</option>
-                  <option value="card">بطاقة</option>
-                  <option value="store_credit">رصيد بالمتجر</option>
+                  <option value="cash">{tr("نقداً")}</option>
+                  <option value="card">{tr("بطاقة")}</option>
+                  <option value="store_credit">{tr("رصيد بالمتجر")}</option>
                 </select>
 
                 {refundAmount > 0 && (
                   <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-center">
-                    <p className="text-xs text-amber-700">مبلغ الاسترداد</p>
-                    <p className="text-xl font-bold text-amber-800">{(refundAmount / 100).toFixed(0)} ج</p>
+                    <p className="text-xs text-amber-700">{tr("مبلغ الاسترداد")}</p>
+                    <p className="text-xl font-bold text-amber-800">{tr("{0} ج", (refundAmount / 100).toFixed(0))}</p>
                   </div>
                 )}
 
@@ -235,7 +235,7 @@ export default function ReturnsClient({ storeId: _storeId }: { storeId: string }
                   onClick={handleSubmit}
                   disabled={isPending || refundAmount === 0}
                 >
-                  {isPending ? "جاري المعالجة..." : "تأكيد الإرجاع"}
+                  {isPending ? tr("جاري المعالجة...") : tr("تأكيد الإرجاع")}
                 </Button>
               </>
             )}

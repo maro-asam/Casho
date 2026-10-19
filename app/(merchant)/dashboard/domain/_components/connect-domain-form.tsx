@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { checkDomainAvailabilityAction, connectCustomDomainAction } from "@/actions/store/custom-domain.actions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { tr } from "@/lib/i18n/dashboard";
 
 type Check = { state: "idle" | "checking" } | { state: "ok"; domain: string } | { state: "error"; message: string };
 
@@ -27,7 +28,7 @@ export function ConnectDomainForm() {
       const result = await checkDomainAvailabilityAction(input).catch(() => null);
       if (cancelled || !result) return;
       if (result.status === "valid") setCheck({ state: "ok", domain: result.domain });
-      else if (result.status === "taken") setCheck({ state: "error", message: "الدومين ده مربوط بمتجر تاني على كاشو." });
+      else if (result.status === "taken") setCheck({ state: "error", message: tr("الدومين ده مربوط بمتجر تاني على كاشو.") });
       else setCheck({ state: "error", message: result.reason });
     }, 450);
     return () => {
@@ -45,7 +46,7 @@ export function ConnectDomainForm() {
         setCheck({ state: "error", message: result.message });
         return;
       }
-      toast.success(result.data?.status === "ACTIVE" ? "الدومين شغّال على طول 🎉" : "اتربط الدومين — فاضل خطوة الـ DNS");
+      toast.success(result.data?.status === "ACTIVE" ? tr("الدومين شغّال على طول 🎉") : tr("اتربط الدومين — فاضل خطوة الـ DNS"));
       router.refresh();
     });
   }
@@ -69,7 +70,7 @@ export function ConnectDomainForm() {
             placeholder="mystore.com"
             autoComplete="off"
             spellCheck={false}
-            aria-label="الدومين"
+            aria-label={tr("الدومين")}
             aria-invalid={shownCheck.state === "error" || undefined}
             className="h-full min-w-0 flex-1 bg-transparent px-1 text-sm outline-none"
           />
@@ -81,15 +82,15 @@ export function ConnectDomainForm() {
         </div>
         <Button type="submit" className="h-11 gap-1.5 px-6" disabled={shownCheck.state !== "ok" || pending}>
           {pending && <Loader2 className="size-4 animate-spin" />}
-          اربط الدومين
+          {tr("اربط الدومين")}
         </Button>
       </div>
       <p className={cn("text-xs", shownCheck.state === "error" ? "text-destructive" : "text-muted-foreground")}>
         {shownCheck.state === "error"
           ? shownCheck.message
           : shownCheck.state === "ok"
-            ? `${shownCheck.domain} جاهز للربط.`
-            : "اكتب الدومين اللي اشتريته — دومين أساسي (mystore.com) أو فرعي (shop.mystore.com)."}
+            ? tr("{0} جاهز للربط.", shownCheck.domain)
+            : tr("اكتب الدومين اللي اشتريته — دومين أساسي (mystore.com) أو فرعي (shop.mystore.com).")}
       </p>
     </form>
   );

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
 import { GetCartItemsAction } from "@/actions/store/cart.actions";
+import { getCartCrossSells } from "@/lib/offers/storefront-offers";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId } from "../_lib/storefront";
+import { CartOffers } from "../_components/offers/CartOffers";
 
 export const metadata: Metadata = { title: "السلة", robots: { index: false, follow: false } };
 
@@ -19,15 +21,22 @@ export default async function CartPage({
   const [cart, themeId] = await Promise.all([GetCartItemsAction(slug), getStoreThemeId(slug)]);
   const theme = getStorefrontTheme(themeId);
 
+  // Cross-sells for what the shopper picked (offer lines don't trigger more offers).
+  const anchors = cart.items.filter((i) => !i.offer || i.offer.type === "UPSELL").map((i) => i.productId);
+  const crossSells = await getCartCrossSells(cart.store.id, [...new Set(anchors)]).catch(() => []);
+
   return (
-    <theme.Cart
-      storeSlug={slug}
-      cart={cart}
-      notice={{
-        couponStatus: query?.couponStatus,
-        couponMessage: query?.couponMessage,
-        stockChanged: query?.stock === "changed",
-      }}
-    />
+    <>
+      <theme.Cart
+        storeSlug={slug}
+        cart={cart}
+        notice={{
+          couponStatus: query?.couponStatus,
+          couponMessage: query?.couponMessage,
+          stockChanged: query?.stock === "changed",
+        }}
+      />
+      <CartOffers storeSlug={slug} offers={crossSells} />
+    </>
   );
 }

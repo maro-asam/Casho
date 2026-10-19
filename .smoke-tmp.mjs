@@ -1,0 +1,15 @@
+import { chromium } from "playwright";
+import fs from "node:fs";
+const token = fs.readFileSync(process.argv[2], "utf8").split(" ")[1];
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+await ctx.addCookies([{ name: "sessionToken", value: token, domain: "app.localhost", path: "/" }]);
+const p = await ctx.newPage();
+const errs = []; p.on("pageerror", (e) => errs.push(e.message)); p.on("console", (m) => m.type() === "error" && errs.push(m.text().slice(0, 200)));
+const res = await p.goto("http://app.localhost:3000/", { waitUntil: "load", timeout: 120000 });
+await p.waitForTimeout(3000); console.log("status", res.status(), p.url());
+console.log("html dir/lang", await p.evaluate(() => [document.documentElement.dir, document.documentElement.lang]));
+console.log("h1", await p.locator("h1").first().innerText().catch(() => "-"));
+await p.screenshot({ path: process.argv[3] });
+console.log("errors", errs.slice(0, 6));
+await b.close();

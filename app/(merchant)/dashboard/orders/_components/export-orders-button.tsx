@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Format = "xlsx" | "csv";
 
@@ -49,11 +50,11 @@ export function ExportOrdersButton() {
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { code?: string; error?: string } | null;
         if (body?.code === "FEATURE_NOT_AVAILABLE") {
-          toast.error("تصدير الطلبات مش متاح في باقتك الحالية", {
-            action: { label: "ترقية الباقة", onClick: () => router.push("/change-plan") },
+          toast.error(tr("تصدير الطلبات مش متاح في باقتك الحالية"), {
+            action: { label: tr("ترقية الباقة"), onClick: () => router.push("/change-plan") },
           });
         } else {
-          toast.error(body?.error ?? "مقدرناش نجهّز الملف، جرّب تاني.");
+          toast.error(body?.error ?? tr("مقدرناش نجهّز الملف، جرّب تاني."));
         }
         return;
       }
@@ -68,26 +69,26 @@ export function ExportOrdersButton() {
       link.remove();
       URL.revokeObjectURL(url);
 
-      toast.success(format === "xlsx" ? "تم تنزيل ملف Excel" : "تم تنزيل ملف CSV");
+      toast.success(format === "xlsx" ? tr("تم تنزيل ملف Excel") : tr("تم تنزيل ملف CSV"));
     } catch {
-      toast.error("حصلت مشكلة في الاتصال، اتأكد من النت وجرّب تاني.");
+      toast.error(tr("حصلت مشكلة في الاتصال، اتأكد من النت وجرّب تاني."));
     } finally {
       setExporting(null);
     }
   }
 
   return (
-    <DropdownMenu dir="rtl" modal={false}>
+    <DropdownMenu dir={tdir()} modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="h-9 gap-1.5" disabled={exporting !== null}>
           {exporting ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
-          {exporting ? "جاري التجهيز..." : "تصدير"}
+          {exporting ? tr("جاري التجهيز...") : tr("تصدير")}
           {!exporting && <ChevronDown className="size-3.5 opacity-60" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-          {hasFilters ? "هيتصدّر الطلبات اللي ظاهرة بالفلاتر الحالية" : "هيتصدّر كل الطلبات"}
+          {hasFilters ? tr("هيتصدّر الطلبات اللي ظاهرة بالفلاتر الحالية") : tr("هيتصدّر كل الطلبات")}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => exportAs("xlsx")} className="gap-2">

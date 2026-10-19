@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { entityPercent, overallPercent, totalFailed, totalRemaining } from "@/lib/integrations/import/progress";
 import type { JobView } from "@/lib/integrations/import/views";
 import { ENTITY_META, JOB_STATUS_META, nf } from "./import-meta";
+import { tdir, tr } from "@/lib/i18n/dashboard";
 
 export function Bar({ value, tone = "primary" }: { value: number; tone?: "primary" | "warning" | "success" }) {
   return (
@@ -55,41 +56,41 @@ export function ProgressPanel({ job, onResume, onCancel, busy, needsReconnect }:
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-semibold">
-              {paused ? "الاستيراد متوقف" : job.kind === "RETRY" ? "بنعيد محاولة العناصر الفاشلة…" : "بننقل بيانات متجرك من Shopify…"}
+              {paused ? tr("الاستيراد متوقف") : job.kind === "RETRY" ? tr("بنعيد محاولة العناصر الفاشلة…") : tr("بننقل بيانات متجرك من Shopify…")}
             </h2>
             {status && <StatusPill tone={status.tone}>{status.label}</StatusPill>}
           </div>
           <p className="text-sm text-muted-foreground">
             {paused
-              ? "كل اللي اتنقل محفوظ. لما تستكمل هنكمل من نفس المكان من غير تكرار."
-              : "تقدر تقفل الصفحة دي — الاستيراد شغال في الخلفية وهيوصلك إشعار لما يخلص."}
+              ? tr("كل اللي اتنقل محفوظ. لما تستكمل هنكمل من نفس المكان من غير تكرار.")
+              : tr("تقدر تقفل الصفحة دي — الاستيراد شغال في الخلفية وهيوصلك إشعار لما يخلص.")}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {paused && !needsReconnect && (
             <Button size="sm" onClick={onResume} disabled={busy}>
               {busy ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
-              استكمل الاستيراد
+              {tr("استكمل الاستيراد")}
             </Button>
           )}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button size="sm" variant="outline" disabled={busy}>
                 <X className="size-4" />
-                إلغاء
+                {tr("إلغاء")}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent dir="rtl">
+            <AlertDialogContent dir={tdir()}>
               <AlertDialogHeader>
-                <AlertDialogTitle>إلغاء الاستيراد؟</AlertDialogTitle>
+                <AlertDialogTitle>{tr("إلغاء الاستيراد؟")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  البيانات اللي اتنقلت لحد دلوقتي هتفضل في متجرك. تقدر تبدأ استيراد جديد بعدين ومش هيتكرر اللي اتنقل.
+                  {tr("البيانات اللي اتنقلت لحد دلوقتي هتفضل في متجرك. تقدر تبدأ استيراد جديد بعدين ومش هيتكرر اللي اتنقل.")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>كمّل الاستيراد</AlertDialogCancel>
+                <AlertDialogCancel>{tr("كمّل الاستيراد")}</AlertDialogCancel>
                 <AlertDialogAction className="bg-rose-600 hover:bg-rose-700" onClick={onCancel}>
-                  إلغاء الاستيراد
+                  {tr("إلغاء الاستيراد")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -107,20 +108,20 @@ export function ProgressPanel({ job, onResume, onCancel, busy, needsReconnect }:
           {paused ? <Pause className="mt-0.5 size-4 shrink-0" /> : <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin" />}
           <span>
             {job.lastError}
-            {!paused && " — بنعيد المحاولة تلقائياً."}
+            {!paused && tr(" — بنعيد المحاولة تلقائياً.")}
           </span>
         </p>
       )}
 
       <div className="space-y-2">
         <div className="flex items-baseline justify-between text-sm">
-          <span className="font-medium">الإجمالي</span>
-          <span className="text-2xl font-bold tabular-nums">{nf.format(percent)}٪</span>
+          <span className="font-medium">{tr("الإجمالي")}</span>
+          <span className="text-2xl font-bold tabular-nums">{tr("{0}٪", nf.format(percent))}</span>
         </div>
         <Bar value={percent} tone={paused ? "warning" : "primary"} />
         <p className="flex flex-wrap gap-x-4 text-xs text-muted-foreground">
-          {remaining > 0 && <span>متبقي تقريباً {nf.format(remaining)} عنصر</span>}
-          {failed > 0 && <span className="text-amber-700 dark:text-amber-400">{nf.format(failed)} عنصر فشل لحد دلوقتي</span>}
+          {remaining > 0 && <span>{tr("متبقي تقريباً {0} عنصر", nf.format(remaining))}</span>}
+          {failed > 0 && <span className="text-amber-700 dark:text-amber-400">{tr("{0} عنصر فشل لحد دلوقتي", nf.format(failed))}</span>}
         </p>
       </div>
 

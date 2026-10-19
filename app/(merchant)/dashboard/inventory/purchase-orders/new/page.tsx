@@ -6,6 +6,8 @@ import { GetBranchesAction } from "@/actions/inventory/branches.actions";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
 import { NewPOForm } from "../_components/NewPOForm";
+import { tr } from "@/lib/i18n/dashboard";
+import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 async function getProducts(userId: string) {
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
@@ -19,6 +21,7 @@ async function getProducts(userId: string) {
 }
 
 export default async function NewPOPage() {
+  await loadDashboardLocale();
   const userId = await requireUserId();
   const [suppliersData, branches, products] = await Promise.all([
     GetSuppliersAction({ pageSize: 100 }),
@@ -31,11 +34,11 @@ export default async function NewPOPage() {
       <div className="flex items-center gap-3">
         <Link href="/dashboard/inventory/purchase-orders">
           <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowRight className="size-4" />
-            طلبات الشراء
+            <ArrowRight className="size-4 ltr:-scale-x-100" />
+            {tr("طلبات الشراء")}
           </Button>
         </Link>
-        <h1 className="text-xl font-bold">طلب شراء جديد</h1>
+        <h1 className="text-xl font-bold">{tr("طلب شراء جديد")}</h1>
       </div>
       <NewPOForm
         suppliers={suppliersData.items}

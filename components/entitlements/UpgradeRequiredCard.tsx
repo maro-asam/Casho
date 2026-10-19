@@ -3,11 +3,12 @@ import { Lock, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { tr } from "@/lib/i18n/dashboard";
 
 const PLAN_DISPLAY_NAMES: Record<string, string> = {
-  silver: "سيلفر",
-  gold: "جولد",
-  platinum: "بلاتينيوم",
+  get silver() { return tr("سيلفر"); },
+  get gold() { return tr("جولد"); },
+  get platinum() { return tr("بلاتينيوم"); },
 };
 
 export function UpgradeRequiredCard({
@@ -33,15 +34,13 @@ export function UpgradeRequiredCard({
           <CardTitle>{title}</CardTitle>
         </div>
         <CardDescription>
-          {description ?? "هذه الميزة غير متاحة في باقتك الحالية."}
+          {description ?? tr("هذه الميزة غير متاحة في باقتك الحالية.")}
           {requiredPlanLabel ? (
             <>
-              {" "}
-              متاحة من باقة{" "}
+              {" "}{tr("متاحة من باقة")}{" "}
               <Badge variant="secondary" className="align-middle">
                 {requiredPlanLabel}
-              </Badge>{" "}
-              وما فوق.
+              </Badge>{" "}{tr("وما فوق.")}
             </>
           ) : null}
         </CardDescription>
@@ -50,7 +49,7 @@ export function UpgradeRequiredCard({
         <Button asChild size="sm">
           <Link href={requiredPlanSlug ? `/change-plan?plan=${requiredPlanSlug}` : "/change-plan"}>
             <Sparkles className="size-4" />
-            ترقية الباقة
+            {tr("ترقية الباقة")}
           </Link>
         </Button>
       </CardContent>
