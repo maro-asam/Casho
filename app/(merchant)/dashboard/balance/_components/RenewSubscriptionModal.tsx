@@ -1,17 +1,10 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import {
-  RefreshCcw,
-  Wallet,
-  AlertTriangle,
-  CheckCircle2,
-  Loader2,
-  CalendarClock,
-} from "lucide-react";
+import { Loader2, RefreshCcw, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { Row, Rows, StatusText, appleButton } from "@/components/saas-page";
 import {
   Dialog,
   DialogClose,
@@ -22,9 +15,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { SubscriptionStatus } from "@prisma/client";
 import { RenewStoreSubscriptionAction } from "@/actions/subscription/subscription.actions";
+import { cn } from "@/lib/utils";
 import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
 type RenewSubscriptionModalProps = {
@@ -78,27 +71,32 @@ export default function RenewSubscriptionModal({
     switch (subscriptionStatus) {
       case SubscriptionStatus.ACTIVE:
         return {
+          tone: "success" as const,
           label: tr("نشط"),
           description: tr("الاشتراك شغال حاليًا"),
         };
       case SubscriptionStatus.GRACE_PERIOD:
         return {
+          tone: "warning" as const,
           label: tr("فترة سماح"),
           description: tr("المتجر داخل فترة السماح حاليًا"),
         };
       case SubscriptionStatus.PAST_DUE:
         return {
+          tone: "danger" as const,
           label: tr("متأخر"),
           description: tr("الاشتراك متأخر ويحتاج تجديد"),
         };
       case SubscriptionStatus.CANCELED:
         return {
+          tone: "neutral" as const,
           label: tr("ملغي"),
           description: tr("تم إلغاء الاشتراك مسبقًا"),
         };
       case SubscriptionStatus.INACTIVE:
       default:
         return {
+          tone: "neutral" as const,
           label: tr("غير نشط"),
           description: tr("الاشتراك غير مفعل حاليًا"),
         };
@@ -129,160 +127,68 @@ export default function RenewSubscriptionModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className={className} variant={`outline`}>
+        <button type="button" className={cn(appleButton.tinted, className)}>
+          <RefreshCcw className="size-4" />
           {tr("تجديد الاشتراك")}
-          <RefreshCcw className="ms-2 size-4" />
-        </Button>
+        </button>
       </DialogTrigger>
 
-      <DialogContent className="overflow-hidden p-0 sm:max-w-xl" dir={tdir()}>
-        <div className="border-b border-border/20 bg-muted/30 px-6 py-5">
-          <DialogHeader className="text-start">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <RefreshCcw className="size-5" />
-                </div>
+      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md" dir={tdir()}>
+        <DialogHeader className="items-center px-6 pt-7 pb-4 text-center sm:text-center">
+          <span className="mb-2 grid size-14 place-items-center rounded-[16px] bg-primary text-primary-foreground">
+            <RefreshCcw className="size-7" />
+          </span>
+          <DialogTitle>{tr("تجديد اشتراك المتجر")}</DialogTitle>
+          <DialogDescription className="text-[15px] leading-6">
+            {tr("{0}. راجع البيانات قبل تأكيد الخصم.", statusMeta.description)}
+          </DialogDescription>
+        </DialogHeader>
 
-                <Badge variant="outline" className="rounded-xl px-3 py-1">
-                  {statusMeta.label}
-                </Badge>
+        <div className="space-y-4 px-5 pb-5">
+          <div className="overflow-hidden rounded-[14px] bg-(--fill-3)">
+            <Rows className="pb-0 [--row-inset:16px]">
+              <Row label={tr("الحالة")}>
+                <StatusText tone={statusMeta.tone}>{statusMeta.label}</StatusText>
+              </Row>
+              <Row label={tr("الرصيد الحالي")}>
+                <span className="tabular-nums">{formatPrice(balance)}</span>
+              </Row>
+              <Row label={tr("قيمة التجديد الشهري")}>
+                <span className="tabular-nums">{formatPrice(monthlyPrice)}</span>
+              </Row>
+              <Row label={tr("نهاية الاشتراك الحالية")}>{formatDate(subscriptionEndsAt)}</Row>
+              {gracePeriodEndsAt && <Row label={tr("نهاية فترة السماح")}>{formatDate(gracePeriodEndsAt)}</Row>}
+              <div className="flex min-h-11 items-center justify-between gap-4 px-5 py-3 text-[15px] font-semibold">
+                <dt>{enoughForRenewal ? tr("بعد خصم قيمة الاشتراك، الرصيد المتبقي هيكون:") : tr("محتاج تشحن رصيد إضافي بقيمة:")}</dt>
+                <dd className={cn("shrink-0 tabular-nums", enoughForRenewal ? "text-(--sys-green)" : "text-(--sys-orange)")}>
+                  {formatPrice(enoughForRenewal ? remainingAfterRenewal : shortage)}
+                </dd>
               </div>
-            </div>
+            </Rows>
+          </div>
 
-            <DialogTitle className="text-xl font-semibold">
-              {tr("تجديد اشتراك المتجر")}
-            </DialogTitle>
-
-            <DialogDescription className="mt-1 text-sm leading-6">
-              {tr("{0}. راجع البيانات قبل تأكيد الخصم.", statusMeta.description)}
-            </DialogDescription>
-          </DialogHeader>
+          <p className="px-1 text-[13px] leading-5 text-muted-foreground">
+            {tr("عند تأكيد العملية، هيتم خصم قيمة الاشتراك من رصيد المتجر فورًا، وتفعيل الاشتراك أو تمديده لمدة شهر جديد، مع تسجيل العملية في سجل الحركات.")}
+          </p>
         </div>
 
-        <div className="space-y-4 px-6 py-5">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-border/20 bg-background p-4">
-              <p className="mb-1 text-sm text-muted-foreground">
-                {tr("الرصيد الحالي")}
-              </p>
-              <p className="text-lg font-semibold">{formatPrice(balance)}</p>
-            </div>
-
-            <div className="rounded-xl border border-border/20 bg-background p-4">
-              <p className="mb-1 text-sm text-muted-foreground">
-                {tr("قيمة التجديد الشهري")}
-              </p>
-              <p className="text-lg font-semibold">{formatPrice(monthlyPrice)}</p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-border/20 bg-background p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <CalendarClock className="size-4 text-primary" />
-                <p className="text-sm font-medium">{tr("نهاية الاشتراك الحالية")}</p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {formatDate(subscriptionEndsAt)}
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-border/20 bg-background p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <CalendarClock className="size-4 text-primary" />
-                <p className="text-sm font-medium">{tr("نهاية فترة السماح")}</p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {formatDate(gracePeriodEndsAt)}
-              </p>
-            </div>
-          </div>
-
+        <DialogFooter className="flex-col gap-2 px-5 pb-5 sm:flex-col">
           {enoughForRenewal ? (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-500/5 p-4">
-              <div className="mb-2 flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
-                <CheckCircle2 className="size-5" />
-                <p className="font-semibold">{tr("الرصيد كافي للتجديد")}</p>
-              </div>
-
-              <p className="text-sm leading-6 text-muted-foreground">
-                {tr("بعد خصم قيمة الاشتراك، الرصيد المتبقي هيكون:")}
-              </p>
-
-              <p className="mt-2 text-xl font-semibold text-emerald-700 dark:text-emerald-400">
-                {formatPrice(remainingAfterRenewal)}
-              </p>
-            </div>
+            <button type="button" onClick={handleRenew} disabled={isPending} className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}>
+              {isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCcw className="size-4" />}
+              {isPending ? tr("جاري التجديد...") : tr("تأكيد التجديد")}
+            </button>
           ) : (
-            <div className="rounded-xl border border-amber-200 bg-amber-500/5 p-4">
-              <div className="mb-2 flex items-center gap-2 text-amber-700 dark:text-amber-400">
-                <AlertTriangle className="size-5" />
-                <p className="font-semibold">{tr("الرصيد غير كافٍ للتجديد")}</p>
-              </div>
-
-              <p className="text-sm leading-6 text-muted-foreground">
-                {tr("محتاج تشحن رصيد إضافي بقيمة:")}
-              </p>
-
-              <p className="mt-2 text-xl font-semibold text-amber-700 dark:text-amber-400">
-                {formatPrice(shortage)}
-              </p>
-            </div>
-          )}
-
-          <div className="rounded-xl border border-border/20 bg-muted/30 p-4">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Wallet className="size-4" />
-              </div>
-
-              <div className="space-y-1">
-                <p className="font-medium">{tr("معلومة مهمة")}</p>
-                <p className="text-sm leading-6 text-muted-foreground">
-                  {tr("عند تأكيد العملية، هيتم خصم قيمة الاشتراك من رصيد المتجر فورًا، وتفعيل الاشتراك أو تمديده لمدة شهر جديد، مع تسجيل العملية في سجل الحركات.")}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter className="flex-col-reverse gap-2 border-t border-border/20 px-6 py-4 sm:flex-row sm:justify-start">
-          {enoughForRenewal ? (
-            <Button
-              onClick={handleRenew}
-              disabled={isPending}
-              className="w-full rounded-xl sm:w-auto"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="ms-2 size-4 animate-spin" />
-                  {tr("جاري التجديد...")}
-                </>
-              ) : (
-                <>
-                  <RefreshCcw className="ms-2 size-4" />
-                  {tr("تأكيد التجديد")}
-                </>
-              )}
-            </Button>
-          ) : (
-            <Button asChild className="w-full rounded-xl sm:w-auto">
-              <a href="/balance/topup">
-                <Wallet className="ms-2 size-4" />
-                {tr("شحن رصيد")}
-              </a>
-            </Button>
+            <a href="/balance/topup" className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}>
+              <Wallet className="size-4" />
+              {tr("شحن رصيد")}
+            </a>
           )}
 
           <DialogClose asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full rounded-xl sm:w-auto"
-            >
+            <button type="button" className={cn(appleButton.plain, "mx-0 h-11 w-full")}>
               {tr("إلغاء")}
-            </Button>
+            </button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

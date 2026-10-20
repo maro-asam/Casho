@@ -1,11 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowDown, ArrowUp, Check, History, Minus, Repeat, Store, Wallet } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ChevronDown, History, Repeat, Store, Wallet } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { EmptyState, PageHeader } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, LargeTitle, Unavailable, appleButton } from "@/components/saas-page";
 import { hasRunningPaidPeriod, isInTrial } from "@/lib/billing/plan-quote";
 import { formatMoney } from "@/lib/balance-ui/meta";
 import { getAllActivePlans, getEntitlementsSnapshot, PLAN_KEYS } from "@/lib/entitlements";
@@ -14,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { PlanPicker } from "./_components/plan-picker";
 import { featureValueLabel, nf, type PlanForUI } from "./_components/plan-types";
 import { SubscriptionHero } from "./_components/subscription-hero";
+import { TierGlyph } from "./_components/tier-glyph";
 import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -26,14 +25,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const dtf = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
 
-const HISTORY_LABEL: Record<string, { label: string; icon: typeof ArrowUp }> = {
-  subscription_upgraded: { get label() { return tr("ترقية"); }, icon: ArrowUp },
-  subscription_downgraded: { get label() { return tr("نزول"); }, icon: ArrowDown },
-  subscription_cycle_changed: { get label() { return tr("تغيير دورة الدفع"); }, icon: Repeat },
-  subscription_selected: { get label() { return tr("اختيار باقة"); }, icon: Check },
-  subscription_activated: { get label() { return tr("تفعيل الاشتراك"); }, icon: Check },
-  subscription_plan_selected: { get label() { return tr("اختيار باقة"); }, icon: Check },
-  subscription_plan_changed: { get label() { return tr("تغيير الباقة"); }, icon: Repeat },
+const HISTORY_LABEL: Record<string, { label: string; icon: typeof ArrowUp; tint: string }> = {
+  subscription_upgraded: { get label() { return tr("ترقية"); }, icon: ArrowUp, tint: "bg-(--sys-green)" },
+  subscription_downgraded: { get label() { return tr("نزول"); }, icon: ArrowDown, tint: "bg-(--sys-orange)" },
+  subscription_cycle_changed: { get label() { return tr("تغيير دورة الدفع"); }, icon: Repeat, tint: "bg-(--sys-indigo)" },
+  subscription_selected: { get label() { return tr("اختيار باقة"); }, icon: Check, tint: "bg-primary" },
+  subscription_activated: { get label() { return tr("تفعيل الاشتراك"); }, icon: Check, tint: "bg-(--sys-green)" },
+  subscription_plan_selected: { get label() { return tr("اختيار باقة"); }, icon: Check, tint: "bg-primary" },
+  subscription_plan_changed: { get label() { return tr("تغيير الباقة"); }, icon: Repeat, tint: "bg-(--sys-indigo)" },
 };
 
 const FAQ = [
@@ -80,12 +79,9 @@ export default async function ChangePlanRoute() {
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول عشان تختار باقتك.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول عشان تختار باقتك.")} />
+      </div>
     );
   }
 
@@ -159,70 +155,67 @@ export default async function ChangePlanRoute() {
     if (gold && (inTrial || !currentPlan || currentPlan.sortOrder < gold.sortOrder)) recommendedPlanId = gold.id;
   }
 
+  const cols = { gridTemplateColumns: `minmax(10rem,1.4fr) repeat(${plans.length}, minmax(6.5rem,1fr))` };
+
   return (
-    <div className="space-y-8" dir={tdir()}>
-      <PageHeader
-        title={tr("الباقة والاشتراك")}
-        description={tr("باقتك، تجديدك، واستخدامك في مكان واحد — وأي تغيير بتشوف تمنه بالظبط قبل ما تأكد.")}
-        actions={
-          <>
-            <Button asChild variant="outline" size="sm" className="gap-1.5">
-              <Link href="/balance/history">
+    <div className="space-y-10" dir={tdir()}>
+      <div className="space-y-6">
+        <LargeTitle
+          title={tr("الباقة والاشتراك")}
+          subtitle={tr("باقتك، تجديدك، واستخدامك في مكان واحد — وأي تغيير بتشوف تمنه بالظبط قبل ما تأكد.")}
+          actions={
+            <>
+              <Link href="/balance/history" className={appleButton.gray}>
                 <History className="size-4" />
                 {tr("سجل الرصيد")}
               </Link>
-            </Button>
-            <Button asChild size="sm" className="gap-1.5">
-              <Link href="/balance/topup">
+              <Link href="/balance/topup" className={appleButton.filled}>
                 <Wallet className="size-4" />
                 {tr("شحن رصيد")}
               </Link>
-            </Button>
-          </>
-        }
-      />
+            </>
+          }
+        />
 
-      <SubscriptionHero store={store} plan={store.plan} inTrial={inTrial} now={now} />
+        <SubscriptionHero store={store} plan={store.plan} inTrial={inTrial} now={now} />
 
-      {usage.length > 0 && (
-        <section aria-labelledby="usage-title" className="space-y-3">
-          <h2 id="usage-title" className="text-base font-semibold">
-            {tr("استخدامك من الباقة")}
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {usage.map((u) => {
-              const pct = u.isUnlimited || !u.limit ? 0 : Math.min(100, Math.round((u.used / u.limit) * 100));
-              const full = !u.isUnlimited && u.limit !== null && u.used >= u.limit;
-              const near = !full && pct >= 80;
-              return (
-                <div key={u.key} className="rounded-xl border border-border bg-card p-4">
-                  <p className="text-sm text-muted-foreground">{trv(u.name)}</p>
-                  <p className="mt-1 text-lg font-semibold tabular-nums">
-                    {nf.format(u.used)}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      {" "}
-                      / {u.isUnlimited ? tr("غير محدود") : u.limit === null || u.limit === 0 ? tr("مش متاح") : nf.format(u.limit)}
-                    </span>
-                  </p>
-                  {!u.isUnlimited && !!u.limit && (
-                    <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={cn("h-full rounded-full", full ? "bg-destructive" : near ? "bg-amber-500" : "bg-primary")}
-                        style={{ width: `${Math.max(2, pct)}%` }}
-                      />
+        {/* ── Usage, iPhone-Storage style ─────────────────────── */}
+        {usage.length > 0 && (
+          <Card title={tr("استخدامك من الباقة")} id="usage">
+            <div className="grid gap-x-10 px-5 pb-5 sm:grid-cols-2 lg:grid-cols-4">
+              {usage.map((u) => {
+                const pct = u.isUnlimited || !u.limit ? 0 : Math.min(100, Math.round((u.used / u.limit) * 100));
+                const full = !u.isUnlimited && u.limit !== null && u.used >= u.limit;
+                const near = !full && pct >= 80;
+                return (
+                  <div key={u.key} className="space-y-2 py-3">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="truncate text-[15px]">{trv(u.name)}</p>
+                      <p className="shrink-0 text-[13px] text-muted-foreground tabular-nums">
+                        <span className="font-semibold text-foreground">{nf.format(u.used)}</span>
+                        {" / "}
+                        {u.isUnlimited ? "∞" : u.limit === null || u.limit === 0 ? tr("مش متاح") : nf.format(u.limit)}
+                      </p>
                     </div>
-                  )}
-                  {(full || near) && (
-                    <p className={cn("mt-2 text-xs", full ? "text-destructive" : "text-amber-700 dark:text-amber-400")}>
-                      {full ? tr("وصلت للحد — رقّي عشان تضيف أكتر.") : tr("مستخدم {0}٪ من الحد.", nf.format(pct))}
+                    <div className="h-1.5 overflow-hidden rounded-full bg-(--fill-3)">
+                      {!u.isUnlimited && !!u.limit && (
+                        <div
+                          className={cn("h-full rounded-full", full ? "bg-(--sys-red)" : near ? "bg-(--sys-orange)" : "bg-primary")}
+                          style={{ width: `${Math.max(2, pct)}%` }}
+                        />
+                      )}
+                      {u.isUnlimited && <div className="h-full w-full rounded-full bg-(--sys-green)/35" />}
+                    </div>
+                    <p className={cn("h-4 text-[12px]", full ? "text-(--sys-red)" : near ? "text-(--sys-orange)" : "text-muted-foreground")}>
+                      {full ? tr("وصلت للحد — رقّي عشان تضيف أكتر.") : near ? tr("مستخدم {0}٪ من الحد.", nf.format(pct)) : u.isUnlimited ? tr("غير محدود") : ""}
                     </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+      </div>
 
       <PlanPicker
         plans={plans}
@@ -234,132 +227,119 @@ export default async function ChangePlanRoute() {
         covered={covered}
       />
 
+      {/* ── Compare, apple.com style ─────────────────────────── */}
       {plans.length > 0 && (
-        <section aria-labelledby="compare-title" className="space-y-3">
-          <h2 id="compare-title" className="text-base font-semibold">
+        <section aria-labelledby="compare-title" className="space-y-6">
+          <h2 id="compare-title" className="text-center text-[28px] leading-[34px] font-bold ltr:tracking-[-0.015em]">
             {tr("قارن كل المميزات")}
           </h2>
-          <div className="overflow-x-auto rounded-xl border border-border bg-card">
-            <Table className="min-w-[560px]">
-              <TableHeader>
-                <TableRow className="bg-muted/40 hover:bg-muted/40">
-                  <TableHead className="h-10 ps-4 text-xs font-medium text-muted-foreground">{tr("الميزة")}</TableHead>
-                  {plans.map((p) => (
-                    <TableHead
-                      key={p.id}
-                      className={cn("h-10 text-center text-xs font-medium last:pe-4", p.id === store.planId ? "text-primary" : "text-muted-foreground")}
-                    >
-                      {p.name}
-                      {p.id === store.planId && <span className="block text-[10px] font-normal">{tr("باقتك")}</span>}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <div className="apple-card overflow-x-auto">
+            <div className="min-w-[560px]" role="table" aria-labelledby="compare-title">
+              <div role="row" className="sticky top-0 grid items-end bg-card px-5 pt-6 pb-4" style={cols}>
+                <span role="columnheader" className="sr-only">
+                  {tr("الميزة")}
+                </span>
+                {plans.map((p) => (
+                  <div role="columnheader" key={p.id} className="flex flex-col items-center gap-2 text-center">
+                    <TierGlyph tier={p.key} size="sm" />
+                    <span className="text-[15px] font-semibold">{p.name}</span>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                      {formatMoney(p.monthlyPrice)} / {tr("شهر")}
+                    </span>
+                    <span className={cn("h-4 text-[12px] font-semibold", p.id === store.planId ? "text-primary" : "")}>
+                      {p.id === store.planId ? tr("باقتك") : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="apple-rows border-t-[0.5px] border-border pb-2 [--row-inset:20px]">
                 {plans[0].features.map((f) => (
-                  <TableRow key={f.key}>
-                    <TableCell className="py-3 ps-4 text-sm">{f.name}</TableCell>
+                  <div role="row" key={f.key} className="grid min-h-12 items-center px-5 py-2.5" style={cols}>
+                    <span role="rowheader" className="text-[15px]">
+                      {f.name}
+                    </span>
                     {plans.map((p) => {
                       const pf = p.features.find((x) => x.key === f.key);
                       const value = pf ? featureValueLabel(pf) : null;
                       return (
-                        <TableCell key={p.id} className={cn("py-3 text-center text-sm last:pe-4", p.id === store.planId && "bg-primary/[0.03]")}>
+                        <span role="cell" key={p.id} className="text-center text-[15px]">
                           {!pf?.enabled ? (
-                            <Minus className="mx-auto size-4 text-muted-foreground/50" aria-label={tr("مش متاح")} />
+                            <span className="text-(--label-3)" aria-label={tr("مش متاح")}>
+                              —
+                            </span>
                           ) : value ? (
                             <span className="tabular-nums">{value}</span>
                           ) : (
-                            <Check className="mx-auto size-4 text-primary" aria-label={tr("متاح")} />
+                            <Check className="mx-auto size-[18px] text-primary" strokeWidth={2.6} aria-label={tr("متاح")} />
                           )}
-                        </TableCell>
+                        </span>
                       );
                     })}
-                  </TableRow>
+                  </div>
                 ))}
-                <TableRow className="hover:bg-transparent">
-                  <TableCell className="py-3 ps-4 text-sm font-medium">{tr("السعر الشهري")}</TableCell>
-                  {plans.map((p) => (
-                    <TableCell key={p.id} className={cn("py-3 text-center text-sm font-medium tabular-nums last:pe-4", p.id === store.planId && "bg-primary/[0.03]")}>
-                      {formatMoney(p.monthlyPrice)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableBody>
-            </Table>
+              </div>
+            </div>
           </div>
         </section>
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section aria-labelledby="history-title" className="space-y-3">
-          <h2 id="history-title" className="text-base font-semibold">
-            {tr("تغييرات الباقة")}
-          </h2>
-          <div className="rounded-xl border border-border bg-card">
-            {history.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-muted-foreground">{tr("لسه ما غيّرتش باقتك.")}</p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {history.map((h) => {
-                  const meta = HISTORY_LABEL[h.action] ?? { label: tr("تحديث"), icon: Repeat };
-                  const before = (h.before ?? {}) as { planId?: string | null; billingCycle?: string };
-                  const after = (h.after ?? {}) as { billingCycle?: string; charge?: number };
-                  const fromName = before.planId ? planById.get(before.planId)?.name : null;
-                  const Icon = meta.icon;
-                  return (
-                    <li key={h.id} className="flex items-center gap-3 px-4 py-3">
-                      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-                        <Icon className="size-4" />
+        <Card title={tr("تغييرات الباقة")} id="history">
+          {history.length === 0 ? (
+            <Unavailable icon={Repeat} title={tr("لسه ما غيّرتش باقتك.")} className="py-10" />
+          ) : (
+            <ul className="apple-rows pb-2 [--row-inset:64px]">
+              {history.map((h) => {
+                const meta = HISTORY_LABEL[h.action] ?? { label: tr("تحديث"), icon: Repeat, tint: "bg-(--sys-gray)" };
+                const before = (h.before ?? {}) as { planId?: string | null; billingCycle?: string };
+                const after = (h.after ?? {}) as { billingCycle?: string; charge?: number };
+                const fromName = before.planId ? planById.get(before.planId)?.name : null;
+                const Icon = meta.icon;
+                return (
+                  <li key={h.id} className="flex items-center gap-3 px-5 py-3">
+                    <span className={cn("grid size-8 shrink-0 place-items-center rounded-full text-white", meta.tint)}>
+                      <Icon className="size-4" strokeWidth={2.4} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[15px] font-medium">
+                        {meta.label}
+                        {h.plan?.name && (
+                          <span className="font-normal text-muted-foreground">
+                            {" "}
+                            · {fromName && fromName !== h.plan.name ? `${trv(fromName)} ← ` : ""}
+                            {trv(h.plan.name)}
+                            {after.billingCycle && ` (${after.billingCycle === "YEARLY" ? tr("سنوي") : tr("شهري")})`}
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-[13px] text-muted-foreground">{dtf.format(h.createdAt)}</p>
+                    </div>
+                    {typeof after.charge === "number" && after.charge !== 0 && (
+                      <span dir="ltr" className={cn("shrink-0 text-[15px] font-semibold tabular-nums", after.charge < 0 && "text-(--sys-green)")}>
+                        {after.charge < 0 ? "+" : "−"}
+                        {formatMoney(Math.abs(after.charge))}
                       </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">
-                          {meta.label}
-                          {h.plan?.name && (
-                            <span className="font-normal text-muted-foreground">
-                              {" "}
-                              · {fromName && fromName !== h.plan.name ? `${trv(fromName)} ← ` : ""}
-                              {trv(h.plan.name)}
-                              {after.billingCycle && ` (${after.billingCycle === "YEARLY" ? tr("سنوي") : tr("شهري")})`}
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{dtf.format(h.createdAt)}</p>
-                      </div>
-                      {typeof after.charge === "number" && after.charge !== 0 && (
-                        <span
-                          className={cn(
-                            "shrink-0 text-sm font-medium tabular-nums",
-                            after.charge < 0 ? "text-emerald-700 dark:text-emerald-400" : "text-foreground",
-                          )}
-                        >
-                          {after.charge < 0 ? "+" : "−"}
-                          {formatMoney(Math.abs(after.charge))}
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-        </section>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Card>
 
-        <section aria-labelledby="faq-title" className="space-y-3">
-          <h2 id="faq-title" className="text-base font-semibold">
-            {tr("إزاي الفلوس بتتحسب؟")}
-          </h2>
-          <div className="divide-y divide-border rounded-xl border border-border bg-card">
+        <Card title={tr("إزاي الفلوس بتتحسب؟")} id="faq">
+          <div className="apple-rows pb-2 [--row-inset:20px]">
             {FAQ.map((item) => (
-              <details key={item.q} className="group px-4 py-3 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium">
+              <details key={item.q} className="group [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 text-[15px] font-medium">
                   {item.q}
-                  <span className="text-muted-foreground transition-transform group-open:rotate-45">+</span>
+                  <ChevronDown className="size-[18px] shrink-0 text-(--label-3) transition-transform duration-300 ease-(--ease-apple) group-open:rotate-180" strokeWidth={2.4} />
                 </summary>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.a}</p>
+                <p className="-mt-1 px-5 pb-4 text-[15px] leading-6 text-muted-foreground">{item.a}</p>
               </details>
             ))}
           </div>
-        </section>
+        </Card>
       </div>
     </div>
   );

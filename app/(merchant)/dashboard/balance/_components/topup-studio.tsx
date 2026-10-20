@@ -2,12 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, CreditCard, ImagePlus, Landmark, Loader2, ShieldCheck, Smartphone, Wallet, X, Zap } from "lucide-react";
+import { Check, Copy, CreditCard, ImagePlus, Landmark, Loader2, Lock, Smartphone, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 import type { TopupMethod } from "@prisma/client";
 
 import { CreateTopupRequestAction, InitiateKashierTopupAction } from "@/actions/balance/topup.actions";
-import { Button } from "@/components/ui/button";
+import { Card, Row, Rows, SegmentedButtons, appleButton } from "@/components/saas-page";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -107,74 +107,72 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
     });
   }
 
+  const tileOn = "bg-primary/10 ring-2 ring-primary";
+  const tileOff = "bg-(--fill-3) hover:bg-(--fill-3)/70";
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <div className="space-y-4">
+    <div className="apple-form grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="min-w-0 space-y-6">
         {/* ── 1. Amount ───────────────────────────────────────── */}
-        <section className="space-y-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="font-semibold">{tr("١. المبلغ")}</h2>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {presets.map((p) => (
-              <button
-                key={p.egp}
-                type="button"
-                onClick={() => setAmount(String(p.egp))}
-                aria-pressed={egp === p.egp}
-                className={cn(
-                  "rounded-lg border p-3 text-start transition-colors",
-                  egp === p.egp ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30",
-                )}
-              >
-                <span className="block text-base font-semibold tabular-nums">{formatMoney(p.egp * 100)}</span>
-                {p.label && <span className="block text-xs text-muted-foreground">{p.label}</span>}
-              </button>
-            ))}
+        <Card title={tr("المبلغ")}>
+          <div className="space-y-3 px-5 pb-5">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {presets.map((p) => (
+                <button
+                  key={p.egp}
+                  type="button"
+                  onClick={() => setAmount(String(p.egp))}
+                  aria-pressed={egp === p.egp}
+                  className={cn(TILE, egp === p.egp ? tileOn : tileOff)}
+                >
+                  <span className="block text-[17px] font-semibold tabular-nums">{formatMoney(p.egp * 100)}</span>
+                  <span className="block text-[13px] text-muted-foreground">{p.label || "\u00a0"}</span>
+                </button>
+              ))}
+            </div>
+            <div className="apple-field flex h-14 items-center">
+              <input
+                type="number"
+                inputMode="decimal"
+                min={MIN_EGP}
+                step="any"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                aria-label={tr("مبلغ مخصص")}
+                className="h-full min-w-0 flex-1 bg-transparent px-4 text-[22px] font-semibold tabular-nums outline-none"
+              />
+              <span className="pe-4 text-[15px] text-muted-foreground">{tr("جنيه")}</span>
+            </div>
           </div>
-          <div className="flex h-11 items-center rounded-lg border border-input bg-background focus-within:ring-2 focus-within:ring-ring/30">
-            <input
-              type="number"
-              inputMode="decimal"
-              min={MIN_EGP}
-              step="any"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              aria-label={tr("مبلغ مخصص")}
-              className="h-full min-w-0 flex-1 bg-transparent px-3 text-base tabular-nums outline-none"
-            />
-            <span className="pe-3 text-sm text-muted-foreground">{tr("جنيه")}</span>
-          </div>
-        </section>
+        </Card>
 
         {/* ── 2. Method ───────────────────────────────────────── */}
-        <section className="space-y-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="font-semibold">{tr("٢. طريقة الدفع")}</h2>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <ModeCard
-              active={mode === "online"}
-              onClick={() => setMode("online")}
-              icon={Zap}
-              title={tr("دفع فوري")}
-              hint={tr("كارت أو محفظة — الرصيد بيتضاف في ثانية")}
-              badge={tr("الأسرع")}
+        <Card
+          title={tr("طريقة الدفع")}
+          action={
+            <SegmentedButtons
+              label={tr("طريقة الدفع")}
+              value={mode}
+              onChange={setMode}
+              role="tablist"
+              options={[
+                ["online", tr("دفع فوري")],
+                ["manual", tr("تحويل يدوي")],
+              ]}
             />
-            <ModeCard
-              active={mode === "manual"}
-              onClick={() => setMode("manual")}
-              icon={Landmark}
-              title={tr("تحويل يدوي")}
-              hint={tr("فودافون كاش أو إنستاباي أو بنك — بيتراجع يدوي")}
-            />
-          </div>
-
+          }
+        >
           {mode === "online" ? (
-            <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3 text-sm">
-              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-              <p className="leading-6 text-muted-foreground">
+            <div className="flex items-start gap-3 px-5 pb-5">
+              <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-(--sys-green) text-white">
+                <Lock className="size-[18px]" />
+              </span>
+              <p className="text-[15px] leading-6 text-muted-foreground">
                 {tr("هتتحوّل لصفحة الدفع الآمنة (Kashier) — فيزا، ماستركارد، ميزة، أو محفظة إلكترونية. بعد الدفع هترجع هنا والرصيد مضاف.")}
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5 px-5 pb-5">
               <div className="grid gap-2 sm:grid-cols-3">
                 {TOPUP_METHODS.map((m) => {
                   const Icon = METHOD_ICONS[m.value] ?? CreditCard;
@@ -184,61 +182,63 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
                       type="button"
                       onClick={() => setMethod(m.value)}
                       aria-pressed={method === m.value}
-                      className={cn(
-                        "flex items-center gap-2 rounded-lg border p-3 text-sm transition-colors",
-                        method === m.value ? "border-primary bg-primary/5 font-medium" : "border-border hover:border-foreground/30",
-                      )}
+                      className={cn(TILE, "flex items-center gap-2.5 text-[15px]", method === m.value ? cn(tileOn, "font-semibold") : tileOff)}
                     >
-                      <Icon className="size-4" />
+                      <Icon className="size-[18px] text-primary" />
                       {m.label}
                     </button>
                   );
                 })}
               </div>
 
-              <div className="rounded-lg border border-dashed border-primary/40 bg-primary/[0.03] p-3">
-                <p className="text-xs text-muted-foreground">
+              <div className="rounded-[14px] bg-primary/6 p-4">
+                <p className="text-[13px] text-muted-foreground">
                   {tr("حوّل")}{" "}<span className="font-semibold text-foreground">{valid ? formatMoney(piasters) : tr("المبلغ")}</span>{" "}{tr("على {0}:", selected.label)}
                 </p>
-                <div className="mt-1 flex items-center justify-between gap-2">
-                  <p className="font-mono text-lg font-semibold tracking-wide" dir="ltr">
+                <div className="mt-1.5 flex items-center justify-between gap-2">
+                  <p className="font-mono text-[20px] font-semibold tracking-wide" dir="ltr">
                     {accountOf(selected.instructions)}
                   </p>
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 gap-1"
+                    className={appleButton.tinted}
                     onClick={() => {
                       navigator.clipboard?.writeText(accountOf(selected.instructions).split(" ")[0]).catch(() => {});
                       setCopied(true);
                       setTimeout(() => setCopied(false), 1500);
                     }}
                   >
-                    {copied ? <Check className="size-4 text-emerald-600" /> : <Copy className="size-4" />}
+                    {copied ? <Check className="size-4 text-(--sys-green)" /> : <Copy className="size-4" />}
                     {tr("نسخ")}
-                  </Button>
+                  </button>
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="ref">{tr("رقم العملية")}</Label>
+                  <Label htmlFor="ref" className="text-[13px] font-normal text-muted-foreground">
+                    {tr("رقم العملية")}
+                  </Label>
                   <Input id="ref" dir="ltr" value={transferRef} onChange={(e) => setTransferRef(e.target.value)} placeholder={tr("من رسالة التحويل")} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{tr("صورة الإيصال")}</Label>
+                  <Label className="text-[13px] font-normal text-muted-foreground">{tr("صورة الإيصال")}</Label>
                   {receipt ? (
-                    <div className="flex h-10 items-center gap-2 rounded-md border border-border px-2">
+                    <div className="apple-field flex h-11 items-center gap-2 px-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={receipt} alt="" className="size-7 rounded object-cover" />
-                      <span className="flex-1 text-xs text-muted-foreground">{tr("اترفعت")}</span>
-                      <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={tr("شيل الإيصال")} onClick={() => setReceipt("")}>
+                      <img src={receipt} alt="" className="size-8 rounded-md object-cover" />
+                      <span className="flex-1 text-[13px] text-muted-foreground">{tr("اترفعت")}</span>
+                      <button
+                        type="button"
+                        aria-label={tr("شيل الإيصال")}
+                        onClick={() => setReceipt("")}
+                        className="apple-press grid size-7 place-items-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
+                      >
                         <X className="size-3.5" />
-                      </Button>
+                      </button>
                     </div>
                   ) : (
-                    <label className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border text-xs text-muted-foreground hover:bg-muted/50">
+                    <label className="apple-field apple-press flex h-11 cursor-pointer items-center justify-center gap-2 text-[15px] text-primary">
                       {uploading ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}
                       {uploading ? tr("بنرفع…") : tr("ارفع سكرين شوت")}
                       <input type="file" accept="image/*" className="sr-only" onChange={onReceipt} disabled={uploading} />
@@ -247,38 +247,36 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="note" className="text-xs">
-                  {tr("ملاحظة")}{" "}<span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>
+                <Label htmlFor="note" className="text-[13px] font-normal text-muted-foreground">
+                  {tr("ملاحظة")}{" "}{tr("(اختياري)")}
                 </Label>
                 <Textarea id="note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} className="resize-none" />
               </div>
             </div>
           )}
-        </section>
+        </Card>
       </div>
 
       {/* ── Summary ─────────────────────────────────────────────── */}
       <aside className="space-y-3 lg:sticky lg:top-20 lg:self-start">
-        <section className="rounded-xl border border-border bg-card">
-          <dl className="space-y-2.5 p-4 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">{tr("رصيدك دلوقتي")}</dt>
-              <dd className="tabular-nums">{formatMoney(balance)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">{tr("الشحن")}</dt>
-              <dd className="tabular-nums text-emerald-700 dark:text-emerald-400">+ {valid ? formatMoney(piasters) : "—"}</dd>
-            </div>
-            <div className="flex justify-between border-t border-border pt-2.5 font-semibold">
+        <Card title={tr("الملخص")}>
+          <Rows className="pb-0">
+            <Row label={tr("رصيدك دلوقتي")}>
+              <span className="tabular-nums">{formatMoney(balance)}</span>
+            </Row>
+            <Row label={tr("الشحن")}>
+              <span className="text-(--sys-green) tabular-nums">+ {valid ? formatMoney(piasters) : "—"}</span>
+            </Row>
+            <div className="flex min-h-11 items-center justify-between gap-4 px-5 py-3 text-[15px] font-semibold">
               <dt>{tr("الرصيد بعد الشحن")}</dt>
-              <dd className="tabular-nums">{formatMoney(after)}</dd>
+              <dd className="text-[17px] tabular-nums">{formatMoney(after)}</dd>
             </div>
-          </dl>
+          </Rows>
           {price > 0 && (
-            <p className="border-t border-border bg-muted/40 px-4 py-3 text-xs leading-5 text-muted-foreground">
+            <p className="border-t-[0.5px] border-border px-5 py-3.5 text-[13px] leading-5 text-muted-foreground">
               {renewals > 0 ? (
                 <>
-                  {tr("يكفي")}{" "}<span className="font-medium text-foreground">{tr("{0} تجديد", nf.format(renewals))}</span>
+                  {tr("يكفي")}{" "}<span className="font-semibold text-foreground">{tr("{0} تجديد", nf.format(renewals))}</span>
                   {coveredUntil && <>{" "}{tr("— متجرك شغّال لحد {0}", df.format(coveredUntil))}</>}
                 </>
               ) : (
@@ -286,15 +284,24 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
               )}
             </p>
           )}
-        </section>
+        </Card>
 
-        {error && <p className="rounded-lg bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+        {error && (
+          <p role="alert" className="rounded-[14px] bg-(--sys-red)/10 px-4 py-3 text-[15px] text-(--sys-red)">
+            {error}
+          </p>
+        )}
 
-        <Button className="h-11 w-full gap-1.5" disabled={pending || uploading || !valid} onClick={mode === "online" ? payOnline : submitManual}>
+        <button
+          type="button"
+          className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}
+          disabled={pending || uploading || !valid}
+          onClick={mode === "online" ? payOnline : submitManual}
+        >
           {pending && <Loader2 className="size-4 animate-spin" />}
           {mode === "online" ? tr("ادفع {0}", valid ? formatMoney(piasters) : "") : tr("ابعت طلب الشحن")}
-        </Button>
-        <p className="text-center text-xs text-muted-foreground">
+        </button>
+        <p className="px-4 text-center text-[13px] text-muted-foreground">
           {mode === "online" ? tr("مش هنحفظ بيانات كارتك — الدفع كله على Kashier.") : tr("هيوصلك إشعار أول ما الرصيد يتضاف.")}
         </p>
       </aside>
@@ -302,38 +309,4 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
   );
 }
 
-function ModeCard({
-  active,
-  onClick,
-  icon: Icon,
-  title,
-  hint,
-  badge,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: typeof Zap;
-  title: string;
-  hint: string;
-  badge?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn("flex gap-3 rounded-lg border p-3 text-start transition-colors", active ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30")}
-    >
-      <span className={cn("grid size-9 shrink-0 place-items-center rounded-lg", active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
-        <Icon className="size-4" />
-      </span>
-      <span className="min-w-0">
-        <span className="flex items-center gap-1.5 text-sm font-medium">
-          {title}
-          {badge && <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">{badge}</span>}
-        </span>
-        <span className="block text-xs leading-5 text-muted-foreground">{hint}</span>
-      </span>
-    </button>
-  );
-}
+const TILE = "apple-press rounded-[14px] p-3.5 text-start ring-inset transition-[background-color,box-shadow] duration-200 ease-(--ease-apple) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";

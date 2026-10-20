@@ -2,16 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  Loader2,
-  Save,
-  Phone,
-  Store as StoreIcon,
-  CheckCircle2,
-  XCircle,
-  Sparkles,
-  FileText,
-} from "lucide-react";
+import { AtSign, Camera, Check, Loader2, MessageCircle, Music2, Share2, Sparkles, Truck, X } from "lucide-react";
 
 import {
   UpdateStoreSettingsAction,
@@ -22,11 +13,10 @@ import {
   type StoreNameAvailabilityResult,
 } from "@/actions/store/check-store-name.actions";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { appleButton } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
 import { tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { Group, IconTile } from "./settings-ui";
 
 type Props = {
   store: {
@@ -133,192 +123,148 @@ export default function StoreSettingsForm({ store }: Props) {
   }, [store.id, store.name, store.slug, storeName]);
 
   const settings = store.settings;
+  const slug = storeNameStatus?.suggestedSlug || store.slug;
 
   return (
     <form action={formAction} className="space-y-8" dir={tdir()}>
       <input type="hidden" name="storeId" value={store.id} />
 
-      <section className="space-y-5">
-        <div className="flex items-center gap-2">
-          <StoreIcon className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">{tr("بيانات المتجر")}</h3>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="storeName">{tr("اسم المتجر")}</Label>
-          <Input
+      {/* ── Store ─────────────────────────────────────────── */}
+      <Group id="store" title={tr("بيانات المتجر")} footer={tr("الاسم بيظهر لعملاءك في كل مكان، والرابط بيتعمل منه تلقائي.")}>
+        <InlineField label={tr("اسم المتجر")} htmlFor="storeName" error={state.errors?.storeName?.[0]}>
+          <input
             id="storeName"
             name="storeName"
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
             placeholder={tr("اكتب اسم متجرك")}
+            className={INLINE_INPUT}
           />
-
-          {state.errors?.storeName && (
-            <p className="text-sm text-destructive">
-              {state.errors.storeName[0]}
-            </p>
-          )}
-
-          {(isCheckingStoreName || storeNameStatus) && (
-            <div className="rounded-xl border bg-muted/40 p-4">
-              {isCheckingStoreName ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="size-4 animate-spin" />
-                  <span>{tr("جارٍ فحص اسم المتجر...")}</span>
-                </div>
-              ) : storeNameStatus ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    {storeNameStatus.available ? (
-                      <>
-                        <CheckCircle2 className="size-4 text-green-600" />
-                        <span className="font-medium">
-                          {trv(storeNameStatus.message)}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="size-4 text-amber-600" />
-                        <span className="font-medium">
-                          {trv(storeNameStatus.message)}
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="space-y-1 text-sm">
-                    <p className="text-muted-foreground">{tr("رابط المتجر هيبقى:")}</p>
-                    <div
-                      dir="ltr"
-                      className="rounded-xl border bg-primary/10 px-3 py-2 font-medium"
-                    >
-                      <span className="text-primary text-lg">
-                        {storeNameStatus.suggestedSlug || store.slug}
-                      </span>
-                      .casho.store
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 text-sm">
-                    <p className="text-muted-foreground">
-                      {tr("الاسم بعد التحويل للرابط:")}
-                    </p>
-                    <div
-                      dir="ltr"
-                      className="rounded-xl border bg-primary/10 px-3 py-2"
-                    >
-                      {storeNameStatus.normalizedSlug || store.slug}
-                    </div>
-                  </div>
-
-                  {!storeNameStatus.available && (
-                    <div className="flex items-start gap-2 rounded-xl border border-dashed bg-background px-3 py-2 text-sm">
-                      <Sparkles className="mt-0.5 size-4 text-primary" />
-                      <p className="text-muted-foreground">
-                        {tr("الاسم ده متاخد، والبديل المتاح:")}
-                        <span
-                          className="mx-1 font-semibold text-foreground"
-                          dir="ltr"
-                        >
-                          {storeNameStatus.suggestedSlug}
-                        </span>
-                      </p>
-                    </div>
+        </InlineField>
+        <div className="flex min-h-11 items-center justify-between gap-4 px-4 py-3 text-[15px]">
+          <span className="shrink-0">{tr("رابط المتجر هيبقى:")}</span>
+          <span dir="ltr" className="min-w-0 truncate text-muted-foreground">
+            <span className="font-semibold text-primary">{slug}</span>.casho.store
+          </span>
+        </div>
+        {(isCheckingStoreName || storeNameStatus) && (
+          <div className="flex items-start gap-2.5 px-4 py-3 text-[13px] leading-5">
+            {isCheckingStoreName ? (
+              <>
+                <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground" />
+                <span className="text-muted-foreground">{tr("جارٍ فحص اسم المتجر...")}</span>
+              </>
+            ) : storeNameStatus ? (
+              <>
+                <span
+                  className={cn(
+                    "mt-0.5 grid size-4 shrink-0 place-items-center rounded-full text-white",
+                    storeNameStatus.available ? "bg-(--sys-green)" : "bg-(--sys-orange)",
                   )}
-                </div>
-              ) : null}
-            </div>
-          )}
-        </div>
-      </section>
-
-      <Separator />
-
-      <section className="space-y-5">
-        <div className="flex items-center gap-2">
-          <FileText className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">{tr("الشحن")}</h3>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="shippingPrice">{tr("سعر الشحن")}</Label>
-            <Input
-              id="shippingPrice"
-              name="shippingPrice"
-              type="number"
-              min={0}
-              step={1}
-              placeholder={tr("مثال: 50")}
-              defaultValue={settings?.shippingPrice ?? 0}
-            />
-
-            {state.errors?.shippingPrice && (
-              <p className="text-sm text-destructive">
-                {state.errors.shippingPrice[0]}
-              </p>
-            )}
-
-            <p className="text-sm text-muted-foreground">
-              {tr("السعر اللي هيتضاف تلقائيًا على إجمالي الطلب.")}
-            </p>
+                >
+                  {storeNameStatus.available ? <Check className="size-2.5" strokeWidth={4} /> : <X className="size-2.5" strokeWidth={4} />}
+                </span>
+                <span className="min-w-0">
+                  <span className="text-foreground/85">{trv(storeNameStatus.message)}</span>
+                  {!storeNameStatus.available && (
+                    <span className="mt-1 flex items-center gap-1.5 text-muted-foreground">
+                      <Sparkles className="size-3.5 text-primary" />
+                      {tr("الاسم ده متاخد، والبديل المتاح:")}
+                      <span className="font-semibold text-foreground" dir="ltr">
+                        {storeNameStatus.suggestedSlug}
+                      </span>
+                    </span>
+                  )}
+                </span>
+              </>
+            ) : null}
           </div>
-        </div>
-      </section>
-      <Separator />
+        )}
+      </Group>
 
-      <section className="space-y-5">
-        <div className="flex items-center gap-2">
-          <Phone className="size-4 text-primary" />
-          <h3 className="text-base font-semibold">{tr("روابط التواصل")}</h3>
-        </div>
+      {/* ── Shipping ──────────────────────────────────────── */}
+      <Group id="shipping" title={tr("الشحن")} footer={tr("السعر اللي هيتضاف تلقائيًا على إجمالي الطلب.")}>
+        <InlineField
+          label={tr("سعر الشحن")}
+          htmlFor="shippingPrice"
+          icon={<IconTile icon={Truck} tint="bg-(--sys-orange)" />}
+          error={state.errors?.shippingPrice?.[0]}
+        >
+          <input
+            id="shippingPrice"
+            name="shippingPrice"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            step={1}
+            placeholder={tr("مثال: 50")}
+            defaultValue={settings?.shippingPrice ?? 0}
+            className={cn(INLINE_INPUT, "tabular-nums")}
+          />
+          <span className="shrink-0 text-[15px] text-muted-foreground">{tr("ج.م")}</span>
+        </InlineField>
+      </Group>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <Input
-            name="whatsappNumber"
-            placeholder="201001234567"
-            defaultValue={settings?.whatsappNumber ?? ""}
-          />
-          <Input
-            name="instagram"
-            placeholder="Instagram link"
-            defaultValue={settings?.instagram ?? ""}
-          />
-          <Input
-            name="facebook"
-            placeholder="Facebook link"
-            defaultValue={settings?.facebook ?? ""}
-          />
-          <Input
-            name="tiktok"
-            placeholder="Tiktok link"
-            defaultValue={settings?.tiktok ?? ""}
-          />
-          <Input
-            name="email"
-            placeholder="your-email@example.com"
-            className="md:col-span-2"
-            defaultValue={settings?.email ?? ""}
-          />
-        </div>
-      </section>
+      {/* ── Contact links ─────────────────────────────────── */}
+      <Group id="contact" inset={57} title={tr("روابط التواصل")} footer={tr("بتظهر في فوتر متجرك وصفحة «من نحن».")}>
+        <InlineField label={tr("واتساب")} htmlFor="whatsappNumber" icon={<IconTile icon={MessageCircle} tint="bg-(--sys-green)" />}>
+          <input id="whatsappNumber" name="whatsappNumber" dir="ltr" inputMode="tel" placeholder="201001234567" defaultValue={settings?.whatsappNumber ?? ""} className={INLINE_INPUT} />
+        </InlineField>
+        <InlineField label="Instagram" htmlFor="instagram" icon={<IconTile icon={Camera} tint="bg-linear-to-br from-[#feda75] via-[#d62976] to-[#4f5bd5]" />}>
+          <input id="instagram" name="instagram" dir="ltr" placeholder="instagram.com/…" defaultValue={settings?.instagram ?? ""} className={INLINE_INPUT} />
+        </InlineField>
+        <InlineField label="Facebook" htmlFor="facebook" icon={<IconTile icon={Share2} tint="bg-[#1877f2]" />}>
+          <input id="facebook" name="facebook" dir="ltr" placeholder="facebook.com/…" defaultValue={settings?.facebook ?? ""} className={INLINE_INPUT} />
+        </InlineField>
+        <InlineField label="TikTok" htmlFor="tiktok" icon={<IconTile icon={Music2} tint="bg-[#111111]" />}>
+          <input id="tiktok" name="tiktok" dir="ltr" placeholder="tiktok.com/@…" defaultValue={settings?.tiktok ?? ""} className={INLINE_INPUT} />
+        </InlineField>
+        <InlineField label={tr("البريد الإلكتروني")} htmlFor="email" icon={<IconTile icon={AtSign} tint="bg-primary" />}>
+          <input id="email" name="email" type="email" dir="ltr" placeholder="you@example.com" defaultValue={settings?.email ?? ""} className={INLINE_INPUT} />
+        </InlineField>
+      </Group>
 
-      <div className="flex justify-start">
-        <Button type="submit" disabled={isPending} className="min-w-45 gap-2">
-          {isPending ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              {tr("جاري الحفظ...")}
-            </>
-          ) : (
-            <>
-              <Save className="size-4" />
-              {tr("حفظ الإعدادات")}
-            </>
-          )}
-        </Button>
+      {/* Floating save bar (functional layer, glass). */}
+      <div className="sticky bottom-4 z-20 flex justify-end">
+        <div className="apple-glass flex items-center gap-3 rounded-full p-1.5 ps-4">
+          <span className="text-[13px] text-muted-foreground">{tr("بيانات المتجر والشحن والتواصل")}</span>
+          <button type="submit" disabled={isPending} className={cn(appleButton.filled, "h-10")}>
+            {isPending && <Loader2 className="size-4 animate-spin" />}
+            {isPending ? tr("جاري الحفظ...") : tr("حفظ الإعدادات")}
+          </button>
+        </div>
       </div>
     </form>
+  );
+}
+
+const INLINE_INPUT =
+  "h-11 min-w-0 flex-1 bg-transparent text-end text-[15px] text-muted-foreground outline-none placeholder:text-(--label-3) focus:text-foreground";
+
+/** iOS form row: label leading, borderless value field trailing. */
+function InlineField({
+  label,
+  htmlFor,
+  icon,
+  error,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  icon?: React.ReactNode;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="px-4">
+      <div className="flex min-h-11 items-center gap-3">
+        {icon}
+        <label htmlFor={htmlFor} className="shrink-0 text-[15px]">
+          {label}
+        </label>
+        <div className="flex min-w-0 flex-1 items-center gap-2">{children}</div>
+      </div>
+      {error && <p className="pb-2.5 text-[13px] text-(--sys-red)">{trv(error)}</p>}
+    </div>
   );
 }

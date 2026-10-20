@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, CircleCheck, Loader2, RefreshCw, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertTriangle, ChevronLeft, Loader2 } from "lucide-react";
+import { appleButton } from "@/components/saas-page";
 import type { ImportableEntity, SkipReason } from "@/lib/integrations/import/types";
 import type { JobView } from "@/lib/integrations/import/views";
-import { ENTITY_META, ITEM_ENTITY_LABEL, SKIP_REASON_LABEL, dateTime, nf } from "./import-meta";
+import { cn } from "@/lib/utils";
 import { tr, trv } from "@/lib/i18n/dashboard";
+import { Group, IconTile } from "../../../settings/_components/settings-ui";
+import { ENTITY_META, ITEM_ENTITY_LABEL, SKIP_REASON_LABEL, dateTime, nf } from "./import-meta";
+import { ENTITY_TILE, MigrationGlyph } from "./import-ui";
 
 const LINKS: Record<ImportableEntity, string> = {
   COLLECTION: "/categories",
@@ -26,110 +29,82 @@ export function ResultPanel({ job, onRetry, onNewImport, busy }: Props) {
   const warnings = job.status === "COMPLETED_WITH_ERRORS";
 
   return (
-    <section className="space-y-5 rounded-xl border border-border bg-card p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3">
-          <span
-            className={
-              warnings
-                ? "grid size-10 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                : "grid size-10 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-            }
-          >
-            {warnings ? <AlertTriangle className="size-5" /> : <CircleCheck className="size-5" />}
-          </span>
-          <div>
-            <h2 className="text-base font-semibold">{warnings ? tr("الاستيراد اكتمل مع بعض المشاكل") : tr("الاستيراد اكتمل بنجاح")}</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {job.completedAt ? tr("خلص {0}", dateTime.format(new Date(job.completedAt))) : null}
-              {warnings && tr(" · {0} عنصر محتاج مراجعة", nf.format(job.unresolvedFailures))}
-            </p>
-          </div>
-        </div>
-        <Button variant="outline" size="sm" onClick={onNewImport} disabled={busy} className="self-start">
-          <RefreshCw className="size-4" />
+    <div className="space-y-6">
+      <section className="apple-card flex flex-col items-center px-6 pt-10 pb-8 text-center">
+        <MigrationGlyph done={!warnings} />
+        <h2 className="mt-6 text-[28px] leading-[34px] font-bold ltr:tracking-[-0.015em]">
+          {warnings ? tr("الاستيراد اكتمل مع بعض المشاكل") : tr("الاستيراد اكتمل بنجاح")}
+        </h2>
+        <p className="mt-1.5 text-[15px] text-muted-foreground">
+          {job.completedAt ? tr("خلص {0}", dateTime.format(new Date(job.completedAt))) : null}
+          {warnings && <span className="text-(--sys-orange)">{tr(" · {0} عنصر محتاج مراجعة", nf.format(job.unresolvedFailures))}</span>}
+        </p>
+        <button type="button" onClick={onNewImport} disabled={busy} className={cn(appleButton.tinted, "mt-6 h-11 px-5")}>
           {tr("استيراد مرة تانية")}
-        </Button>
-      </div>
+        </button>
+      </section>
 
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <Group title={tr("اللي اتنقل")} inset={58}>
         {job.entities.map((entity) => {
           const p = job.progress[entity];
           if (!p) return null;
           const meta = ENTITY_META[entity];
+          const tile = ENTITY_TILE[entity];
           const skipReasons = Object.entries(p.skipReasons) as [SkipReason, number][];
+          const details = [
+            p.updated > 0 && tr("{0} كان موجود واتحدّث", nf.format(p.updated)),
+            p.unchanged > 0 && tr("{0} اتنقل قبل كده (من غير تكرار)", nf.format(p.unchanged)),
+            ...skipReasons.map(([reason, count]) => tr("{0} اتجاهل: {1}", nf.format(count), SKIP_REASON_LABEL[reason] ?? reason)),
+          ].filter(Boolean) as string[];
           return (
-            <li key={entity} className="rounded-lg border border-border px-4 py-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold">{meta.label}</span>
-                <Link href={LINKS[entity]} className="text-xs text-primary hover:underline">
-                  {tr("عرض")}
-                </Link>
-              </div>
-              <ul className="mt-2 space-y-1 text-sm">
-                <li className="flex items-center gap-2">
-                  <CircleCheck className="size-3.5 text-emerald-600" />
-                  <span className="tabular-nums">{nf.format(p.imported)}</span>{" "}{tr("{0} اتنقل", meta.noun)}
-                </li>
-                {p.updated > 0 && (
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <RefreshCw className="size-3.5" />
-                    <span className="tabular-nums">{nf.format(p.updated)}</span>{" "}{tr("كان موجود واتحدّث")}
-                  </li>
-                )}
-                {p.unchanged > 0 && (
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <CircleCheck className="size-3.5" />
-                    <span className="tabular-nums">{nf.format(p.unchanged)}</span>{" "}{tr("اتنقل قبل كده (من غير تكرار)")}
-                  </li>
-                )}
-                {skipReasons.map(([reason, count]) => (
-                  <li key={reason} className="flex items-start gap-2 text-muted-foreground">
-                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted-foreground" aria-hidden />
-                    <span>
-                      <span className="tabular-nums">{nf.format(count)}</span>{" "}{tr("اتجاهل: {0}", SKIP_REASON_LABEL[reason] ?? reason)}
+            <Link key={entity} href={LINKS[entity]} className="group flex items-center gap-3.5 px-4 py-3 hover:bg-(--fill-3)/50">
+              <IconTile icon={tile.icon} tint={tile.tint} />
+              <span className="min-w-0 flex-1">
+                <span className="flex items-baseline gap-2 text-[15px] leading-5">
+                  <span className="font-medium">{meta.label}</span>
+                  {p.failed > 0 && (
+                    <span className="inline-flex items-center gap-1 text-[13px] text-(--sys-orange)">
+                      <AlertTriangle className="size-3" />
+                      {tr("{0} فشل", nf.format(p.failed))}
                     </span>
-                  </li>
-                ))}
-                {p.failed > 0 && (
-                  <li className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-                    <AlertTriangle className="size-3.5" />
-                    <span className="tabular-nums">{nf.format(p.failed)}</span>{" "}{tr("فشل")}
-                  </li>
-                )}
-              </ul>
-            </li>
+                  )}
+                </span>
+                {details.length > 0 && <span className="mt-0.5 block text-[13px] leading-[18px] text-muted-foreground">{details.join(" · ")}</span>}
+              </span>
+              <span className="text-end">
+                <span className="block text-[20px] leading-6 font-semibold tabular-nums">{nf.format(p.imported)}</span>
+                <span className="block text-[12px] text-muted-foreground">{tr("{0} اتنقل", meta.noun)}</span>
+              </span>
+              <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" />
+            </Link>
           );
         })}
-      </ul>
+      </Group>
 
       {job.unresolvedFailures > 0 && (
-        <div className="overflow-hidden rounded-lg border border-border">
-          <div className="flex flex-col gap-2 border-b border-border bg-muted/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-semibold">
-              {tr("العناصر اللي فشلت ({0})", nf.format(job.unresolvedFailures))}
-              {job.unresolvedFailures > job.failures.length && (
-                <span className="ms-1 text-xs font-normal text-muted-foreground">{tr("— أول {0}", nf.format(job.failures.length))}</span>
-              )}
-            </p>
-            <Button size="sm" onClick={onRetry} disabled={busy}>
-              {busy ? <Loader2 className="size-4 animate-spin" /> : <RotateCcw className="size-4" />}
+        <Group
+          title={tr("العناصر اللي فشلت ({0})", nf.format(job.unresolvedFailures))}
+          action={
+            <button type="button" onClick={onRetry} disabled={busy} className={cn(appleButton.plain, "h-7 text-[13px] font-semibold")}>
+              {busy && <Loader2 className="size-3.5 animate-spin" />}
               {tr("إعادة محاولة العناصر الفاشلة")}
-            </Button>
-          </div>
-          <ul className="max-h-80 divide-y divide-border overflow-y-auto">
+            </button>
+          }
+          footer={job.unresolvedFailures > job.failures.length ? tr("بنعرض أول {0} بس.", nf.format(job.failures.length)) : undefined}
+        >
+          <div className="apple-rows max-h-96 overflow-y-auto [--row-inset:16px]">
             {job.failures.map((f) => (
-              <li key={`${f.entityType}-${f.externalId}`} className="flex flex-col gap-0.5 px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <span className="min-w-0 truncate">
-                  <span className="text-xs text-muted-foreground">{ITEM_ENTITY_LABEL[f.entityType] ?? f.entityType} · </span>
-                  <span className="font-medium">{f.label ?? f.externalId.split("/").pop()}</span>
+              <div key={`${f.entityType}-${f.externalId}`} className="flex flex-col gap-0.5 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <span className="min-w-0 truncate text-[15px]">
+                  <span className="text-[13px] text-muted-foreground">{ITEM_ENTITY_LABEL[f.entityType] ?? f.entityType} · </span>
+                  {f.label ?? f.externalId.split("/").pop()}
                 </span>
-                <span className="shrink-0 text-xs text-amber-700 dark:text-amber-400">{trv(f.message)}</span>
-              </li>
+                <span className="shrink-0 text-[13px] text-(--sys-orange)">{trv(f.message)}</span>
+              </div>
             ))}
-          </ul>
-        </div>
+          </div>
+        </Group>
       )}
-    </section>
+    </div>
   );
 }

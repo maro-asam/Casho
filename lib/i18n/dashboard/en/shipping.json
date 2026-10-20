@@ -92,5 +92,11 @@
   "نوع الشركة": "Carrier type",
   "هل أنت متأكد من حذف طريقة الشحن هذه؟": "Are you sure you want to delete this shipping method?",
   "وصف مختصر": "Short description",
-  "وصلتني": "Received"
+  "وصلتني": "Received",
+  "تعديل طريقة الشحن": "Edit shipping method",
+  "العميل بيختار منها في صفحة الدفع.": "Customers pick one at checkout.",
+  "مدة التوصيل": "Delivery time",
+  "ابحث عن محافظة": "Search governorates",
+  "كده العميل هيشوفها في صفحة الدفع": "How customers see it at checkout",
+  "{0} طريقة شغّالة": "{0} active methods"
 }

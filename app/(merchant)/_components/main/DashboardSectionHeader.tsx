@@ -2,7 +2,6 @@ import Link from "next/link";
 import { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 type DashboardSectionHeaderProps = {
   icon: LucideIcon;
@@ -22,29 +21,27 @@ export default function DashboardSectionHeader({
   actionHref,
 }: DashboardSectionHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3">
-        <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="size-4.5" />
+    <header className="flex flex-col gap-5 pt-2 lg:flex-row lg:items-end lg:justify-between">
+      <div className="min-w-0 space-y-1">
+        <p className="flex items-center gap-1.5 text-[13px] font-semibold text-primary">
+          <Icon className="size-4" aria-hidden />
+        </p>
+        <div className="flex items-center gap-2.5">
+          <h1 className="text-[34px] leading-[41px] font-bold ltr:tracking-[-0.02em]">{title}</h1>
+          {badge !== undefined && (
+            <span className="rounded-full bg-(--fill-3) px-2.5 py-0.5 text-[13px] font-semibold text-muted-foreground tabular-nums">
+              {badge}
+            </span>
+          )}
         </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight">{title}</h1>
-            {badge !== undefined && (
-              <Badge variant="secondary" className="rounded-lg px-2 py-0.5 text-xs">
-                {badge}
-              </Badge>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
+        <p className="text-[15px] text-muted-foreground">{description}</p>
       </div>
 
       {actionLabel && actionHref && (
-        <Button asChild className="shrink-0 ">
+        <Button asChild className="h-11 shrink-0 rounded-full px-5 text-[15px] font-semibold">
           <Link href={actionHref}>{actionLabel}</Link>
         </Button>
       )}
-    </div>
+    </header>
   );
 }

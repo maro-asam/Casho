@@ -84,5 +84,18 @@
   "يبدأ من 399 جنيه": "From EGP 399",
   "يبدأ من 499 جنيه": "From EGP 499",
   "يبدأ من 599 جنيه": "From EGP 599",
-  "يبدأ من 799 جنيه": "From EGP 799"
+  "يبدأ من 799 جنيه": "From EGP 799",
+  "طلبك وصل": "Request received",
+  "هنتواصل معاك بخصوص «{0}» في أسرع وقت. تقدر تتابع حالة الطلب من «طلباتك».": "We'll contact you about “{0}” as soon as possible. You can track it under “Your requests”.",
+  "تمام": "Done",
+  "بياناتك للتواصل": "Your contact details",
+  "رقم واتساب (اختياري)": "WhatsApp number (optional)",
+  "اطلب": "Get",
+  "خدمة مخصصة": "Custom service",
+  "طلباتك": "Your requests",
+  "بنحدّث حالة كل طلب أول بأول.": "We keep each request's status up to date.",
+  "اتنفذت": "Completed",
+  "نوع الخدمة": "Service type",
+  "أو كلّم الدعم": "Or contact support",
+  "الأكثر طلبًا": "Most requested"
 }

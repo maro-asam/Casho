@@ -1,28 +1,26 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import type { BalanceTransactionType, Prisma } from "@prisma/client";
-import { ArrowRight, Download, History, SearchX, Store } from "lucide-react";
+import { ChevronRight, Download, History, SearchX, Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
   SearchInput,
+  Segmented,
   SelectFilter,
-  StatusPill,
+  Unavailable,
+  appleButton,
   readPage,
   readParam,
   type SearchParamsRecord,
 } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TX_TYPES, formatMoney, formatSigned, txMeta } from "@/lib/balance-ui/meta";
+import { TX_TYPES, formatMoney } from "@/lib/balance-ui/meta";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
-import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { TxRow } from "../_components/tx-row";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,7 +51,9 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
   if (!store) {
     return (
-      <EmptyState icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول.")} className="rounded-xl border border-dashed border-border" />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول.")} />
+      </div>
     );
   }
 
@@ -101,13 +101,19 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
+        eyebrow={
+          <Link href="/balance" className={cn(appleButton.plain, "-ms-1 h-8 gap-0.5 px-1")}>
+            <ChevronRight className="size-[18px] ltr:-scale-x-100" strokeWidth={2.4} />
+            {tr("الرصيد")}
+          </Link>
+        }
         title={tr("سجل الحركات")}
-        description={
+        subtitle={
           allCount > 0 ? (
             <>
-              {tr("دخل")}{" "}<span className="font-medium text-emerald-700 tabular-nums dark:text-emerald-400">{formatMoney(inflow)}</span>{" "}{tr("· خرج")}{" "}
-              <span className="font-medium text-foreground tabular-nums">{formatMoney(Math.abs(outflow))}</span>
+              {tr("دخل")}{" "}<span className="font-semibold text-(--sys-green) tabular-nums">{formatMoney(inflow)}</span>{" "}{tr("· خرج")}{" "}
+              <span className="font-semibold text-foreground tabular-nums">{formatMoney(Math.abs(outflow))}</span>
               {days ? ` — ${PERIODS.find((p) => Number(p.value) === days)?.label}` : tr(" — من البداية")}
             </>
           ) : (
@@ -115,139 +121,85 @@ export default async function BalanceHistoryRoute({ searchParams }: HistoryRoute
           )
         }
         actions={
-          <>
-            <Button asChild variant="ghost" size="sm" className="gap-1.5">
-              <Link href="/balance">
-                <ArrowRight className="size-4 ltr:-scale-x-100" />
-                {tr("الرصيد")}
-              </Link>
-            </Button>
-            {storeHasAny && (
-              <Button asChild variant="outline" size="sm" className="gap-1.5">
-                <a href={`/dashboard/balance/history/export?${exportParams.toString()}`}>
-                  <Download className="size-4" />
-                  {tr("تصدير CSV")}
-                </a>
-              </Button>
-            )}
-          </>
+          storeHasAny && (
+            <a href={`/dashboard/balance/history/export?${exportParams.toString()}`} className={appleButton.gray}>
+              <Download className="size-4" />
+              {tr("تصدير CSV")}
+            </a>
+          )
         }
       />
 
       {!storeHasAny ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={History}
             title={tr("لسه مفيش حركات")}
             description={tr("أول ما تشحن رصيد أو يتجدد الاشتراك، كل حركة هتتسجل هنا بالرصيد قبلها وبعدها.")}
             action={
-              <Button asChild size="sm">
-                <Link href="/balance/topup">{tr("اشحن رصيد")}</Link>
-              </Button>
+              <Link href="/balance/topup" className={appleButton.filled}>
+                {tr("اشحن رصيد")}
+              </Link>
             }
           />
         </div>
       ) : (
         <div className="space-y-4">
-          <FilterTabs
+          <Segmented
             label={tr("نوع الحركة")}
             param="type"
             basePath={BASE_PATH}
             searchParams={params}
-            tabs={[
+            segments={[
               { label: tr("الكل"), count: allCount },
               ...TX_TYPES.filter((t) => countFor(t.value) > 0 || type === t.value).map((t) => ({ label: t.label, value: t.value, count: countFor(t.value) })),
             ]}
           />
-          <DataCard
-            toolbar={
-              <>
-                <SearchInput placeholder={tr("ابحث في الملاحظات أو رقم المرجع")} />
-                <SelectFilter label={tr("الفترة")} param="days" allLabel={tr("من البداية")} options={PERIODS} />
-              </>
-            }
-            footer={
-              total > 0 ? <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("حركة")} /> : undefined
-            }
-          >
+
+          <section className="apple-card overflow-hidden">
+            <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <SearchInput
+                placeholder={tr("ابحث في الملاحظات أو رقم المرجع")}
+                className="sm:max-w-sm"
+                inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
+              />
+              <SelectFilter
+                label={tr("الفترة")}
+                param="days"
+                allLabel={tr("من البداية")}
+                options={PERIODS}
+                className="h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-40"
+              />
+            </div>
+
             {rows.length === 0 ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title={tr("مفيش حركات بالفلاتر دي")}
                 description={tr("جرّب نوع أو فترة تانية.")}
+                className="border-t-[0.5px] border-border"
                 action={
                   hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
+                    <Link href={BASE_PATH} className={appleButton.tinted}>
+                      {tr("مسح الفلاتر")}
+                    </Link>
                   )
                 }
               />
             ) : (
-              <>
-                <div className="hidden md:block">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/40 hover:bg-muted/40">
-                        <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("الحركة")}</TableHead>
-                        <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("التاريخ")}</TableHead>
-                        <TableHead className="h-10 text-end text-xs font-medium text-muted-foreground">{tr("المبلغ")}</TableHead>
-                        <TableHead className="hidden h-10 text-end text-xs font-medium text-muted-foreground lg:table-cell">{tr("قبلها")}</TableHead>
-                        <TableHead className="h-10 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("بعدها")}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {rows.map((t) => {
-                        const meta = txMeta(t.type);
-                        return (
-                          <TableRow key={t.id}>
-                            <TableCell className="py-3 ps-4">
-                              <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                              {t.note && <p className="mt-1 max-w-sm truncate text-xs text-muted-foreground">{trv(t.note)}</p>}
-                              {t.reference && (
-                                <p className="font-mono text-[11px] text-muted-foreground/80" dir="ltr">
-                                  #{t.reference.slice(0, 10)}
-                                </p>
-                              )}
-                            </TableCell>
-                            <TableCell className="py-3 text-sm text-muted-foreground">{dtf.format(t.createdAt)}</TableCell>
-                            <TableCell
-                              dir="ltr"
-                              className={cn("py-3 text-left text-sm font-semibold tabular-nums", t.amount > 0 && "text-emerald-700 dark:text-emerald-400")}
-                            >
-                              {formatSigned(t.amount)}
-                            </TableCell>
-                            <TableCell className="hidden py-3 text-end text-sm text-muted-foreground tabular-nums lg:table-cell">{formatMoney(t.balanceBefore)}</TableCell>
-                            <TableCell className="py-3 pe-4 text-end text-sm tabular-nums">{formatMoney(t.balanceAfter)}</TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-                <ul className="divide-y divide-border md:hidden">
-                  {rows.map((t) => {
-                    const meta = txMeta(t.type);
-                    return (
-                      <li key={t.id} className="space-y-1.5 p-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                          <span dir="ltr" className={cn("text-sm font-semibold tabular-nums", t.amount > 0 && "text-emerald-700 dark:text-emerald-400")}>
-                            {formatSigned(t.amount)}
-                          </span>
-                        </div>
-                        {t.note && <p className="truncate text-xs text-muted-foreground">{trv(t.note)}</p>}
-                        <p className="flex justify-between text-xs text-muted-foreground">
-                          <span>{dtf.format(t.createdAt)}</span>
-                          <span className="tabular-nums">{tr("الرصيد {0}", formatMoney(t.balanceAfter))}</span>
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
+              <ul className="apple-rows border-t-[0.5px] border-border [--row-inset:72px]">
+                {rows.map((t) => (
+                  <TxRow key={t.id} t={t} date={dtf.format(t.createdAt)} showBefore />
+                ))}
+              </ul>
             )}
-          </DataCard>
+
+            {total > 0 && (
+              <div className="border-t-[0.5px] border-border">
+                <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("حركة")} />
+              </div>
+            )}
+          </section>
         </div>
       )}
     </div>

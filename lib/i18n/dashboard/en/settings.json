@@ -59,5 +59,12 @@
   "نقل الملكية إليه": "Transfer ownership to them",
   "نقل ملكية المتجر": "Transfer store ownership",
   "هذا إجراء لا يمكن التراجع عنه. سيصبح": "This can't be undone. They will become",
-  "يجب إنشاء متجر أولًا قبل تعديل الإعدادات.": "Create a store before editing settings."
+  "يجب إنشاء متجر أولًا قبل تعديل الإعدادات.": "Create a store before editing settings.",
+  "إنهاء": "End",
+  "بتظهر في فوتر متجرك وصفحة «من نحن».": "Shown in your store footer and About page.",
+  "الاسم بيظهر لعملاءك في كل مكان، والرابط بيتعمل منه تلقائي.": "Customers see this name everywhere, and your link is generated from it.",
+  "بيانات المتجر والشحن والتواصل": "Store, shipping and contact details",
+  "خيارات {0}": "Options for {0}",
+  "أقسام الإعدادات": "Settings sections",
+  "تخصيص شكل المتجر": "Customize store design"
 }

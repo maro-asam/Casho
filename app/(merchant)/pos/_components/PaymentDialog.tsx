@@ -1,24 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Banknote, CreditCard, Landmark, Loader2, Plus, Smartphone, Split, Trash2, Wallet, type LucideIcon } from "lucide-react";
+import { Check, Loader2, Minus, Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { egp, egpNumber } from "./pos-format";
+import { PAYMENT_META, Tile } from "./pos-ui";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 
 export type PaymentEntry = { paymentMethod: string; amount: number; reference?: string };
 
-const METHODS: { key: string; label: string; icon: LucideIcon }[] = [
-  { key: "cash", get label() { return tr("كاش"); }, icon: Banknote },
-  { key: "card", get label() { return tr("فيزا / بطاقة"); }, icon: CreditCard },
-  { key: "vodafone_cash", get label() { return tr("فودافون كاش"); }, icon: Smartphone },
-  { key: "instapay", get label() { return tr("إنستاباي"); }, icon: Wallet },
-  { key: "bank_transfer", get label() { return tr("تحويل بنكي"); }, icon: Landmark },
-];
+const METHOD_KEYS = ["cash", "card", "vodafone_cash", "instapay", "bank_transfer"] as const;
 
 const toPiasters = (value: string) => {
   const n = Number(value);
@@ -55,6 +48,7 @@ export default function PaymentDialog(props: Props) {
 }
 
 function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Props) {
+  const METHODS = METHOD_KEYS.map((key) => ({ key, label: PAYMENT_META[key].label() }));
   const [split, setSplit] = useState(false);
   const [method, setMethod] = useState("cash");
   const [received, setReceived] = useState("");
@@ -110,13 +104,15 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
   const setEntry = (i: number, patch: Partial<(typeof entries)[number]>) =>
     setEntries((prev) => prev.map((e, j) => (j === i ? { ...e, ...patch } : e)));
 
+  const field = "h-11 rounded-[10px] bg-(--fill-3) px-3 text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0 p-0" dir={tdir()}>
-        <DialogHeader className="border-b border-border p-5 text-start">
-          <DialogTitle>{tr("الدفع")}</DialogTitle>
+      <DialogContent className="apple-ui max-h-[94vh] max-w-md gap-0 overflow-y-auto bg-background p-0 text-foreground" dir={tdir()}>
+        <DialogHeader className="items-center gap-0 px-6 pt-7 pb-5 text-center sm:text-center">
+          <DialogTitle className="text-[13px] font-semibold text-muted-foreground">{tr("الدفع")}</DialogTitle>
           <DialogDescription className="sr-only">{tr("اختار طريقة الدفع وأكّد البيع")}</DialogDescription>
-          <p className="pt-2 text-3xl font-bold tracking-tight tabular-nums">{egp(total)}</p>
+          <p className="pt-1 text-[44px] leading-[52px] font-bold tabular-nums ltr:tracking-[-0.02em]">{egp(total)}</p>
         </DialogHeader>
 
         <form
@@ -124,175 +120,184 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
             e.preventDefault();
             confirm();
           }}
-          className="space-y-5 p-5"
+          className="space-y-5 px-4 pb-5"
         >
           {!split ? (
             <>
               <div role="radiogroup" aria-label={tr("طريقة الدفع")} className="grid grid-cols-3 gap-2">
-                {METHODS.map(({ key, label, icon: Icon }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    role="radio"
-                    aria-checked={method === key}
-                    onClick={() => {
-                      setMethod(key);
-                      setError(undefined);
-                    }}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                      method === key ? "border-primary bg-primary/5 text-foreground" : "border-border text-muted-foreground hover:bg-muted",
-                    )}
-                  >
-                    <Icon className={cn("size-5", method === key && "text-primary")} />
-                    {label}
-                  </button>
-                ))}
+                {METHODS.map(({ key, label }) => {
+                  const meta = PAYMENT_META[key];
+                  const active = method === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => {
+                        setMethod(key);
+                        setError(undefined);
+                      }}
+                      className={cn(
+                        "apple-press relative flex flex-col items-center gap-2 rounded-[14px] bg-card px-2 pt-3.5 pb-3 text-[13px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        active && "ring-2 ring-primary",
+                      )}
+                    >
+                      <Tile icon={meta.icon} tint={meta.tint} />
+                      {label}
+                      {active && (
+                        <span className="absolute inset-e-1.5 top-1.5 grid size-4 place-items-center rounded-full bg-primary text-primary-foreground">
+                          <Check className="size-2.5" strokeWidth={3.5} />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
                 <button
                   type="button"
                   onClick={() => setSplit(true)}
-                  className="flex flex-col items-center gap-1.5 rounded-lg border border-dashed border-border px-2 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted"
+                  className="apple-press flex flex-col items-center gap-2 rounded-[14px] bg-card px-2 pt-3.5 pb-3 text-[13px] font-medium text-primary"
                 >
-                  <Split className="size-5" />
+                  <Tile icon={PAYMENT_META.split.icon} tint={PAYMENT_META.split.tint} />
                   {tr("تقسيم الدفع")}
                 </button>
               </div>
 
               {method === "cash" ? (
                 <div className="space-y-3">
-                  <label htmlFor="pos-received" className="text-sm font-medium">
-                    {tr("المبلغ اللي استلمته")}
-                  </label>
-                  <div className="relative">
-                    <Input
-                      id="pos-received"
-                      autoFocus
-                      type="number"
-                      inputMode="decimal"
-                      min="0"
-                      step="0.5"
-                      value={received}
-                      onChange={(e) => {
-                        setReceived(e.target.value);
-                        setError(undefined);
-                      }}
-                      placeholder={egpNumber(total)}
-                      className="h-12 pe-12 text-lg font-semibold tabular-nums"
-                    />
-                    <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                      {tr("ج.م")}
-                    </span>
+                  <div className="overflow-hidden rounded-[14px] bg-card">
+                    <label htmlFor="pos-received" className="flex items-center gap-3 px-4">
+                      <span className="shrink-0 text-[15px]">{tr("المبلغ اللي استلمته")}</span>
+                      <input
+                        id="pos-received"
+                        autoFocus
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        step="0.5"
+                        value={received}
+                        onChange={(e) => {
+                          setReceived(e.target.value);
+                          setError(undefined);
+                        }}
+                        placeholder={egpNumber(total)}
+                        className="h-14 min-w-0 flex-1 bg-transparent text-end text-[22px] font-semibold tabular-nums outline-none placeholder:text-(--label-3)"
+                      />
+                      <span className="text-[15px] text-muted-foreground">{tr("ج.م")}</span>
+                    </label>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {quickCashAmounts(total).map((amount, i) => (
-                      <Button
+                      <button
                         key={amount}
                         type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-8 tabular-nums"
                         onClick={() => setReceived(String(amount))}
+                        className={cn(
+                          "apple-press h-9 rounded-full px-4 text-[15px] font-medium tabular-nums",
+                          receivedPiasters === Math.round(amount * 100) && received ? "bg-primary text-primary-foreground" : "bg-card",
+                        )}
                       >
                         {i === 0 ? tr("المبلغ بالظبط") : egpNumber(amount * 100)}
-                      </Button>
+                      </button>
                     ))}
                   </div>
                   <div
-                    className={cn(
-                      "flex items-center justify-between rounded-lg px-4 py-3",
-                      short > 0 ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-                    )}
+                    className={cn("flex items-center justify-between rounded-[14px] px-4 py-3", short > 0 ? "bg-(--sys-red)/10" : "bg-(--sys-green)/12")}
                     aria-live="polite"
                   >
-                    <span className="text-sm font-medium">{short > 0 ? tr("ناقص") : tr("الباقي للعميل")}</span>
-                    <span className="text-2xl font-bold tabular-nums">{egp(short > 0 ? short : change)}</span>
+                    <span className="text-[15px] font-medium">{short > 0 ? tr("ناقص") : tr("الباقي للعميل")}</span>
+                    <span className={cn("text-[28px] font-bold tabular-nums", short > 0 ? "text-(--sys-red)" : "text-(--sys-green)")}>
+                      {egp(short > 0 ? short : change)}
+                    </span>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-1.5">
-                  <label htmlFor="pos-reference" className="text-sm font-medium">
-                    {tr("رقم العملية")}{" "}<span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>
+                <div className="overflow-hidden rounded-[14px] bg-card">
+                  <label htmlFor="pos-reference" className="flex items-center gap-3 px-4">
+                    <span className="shrink-0 text-[15px]">{tr("رقم العملية")}</span>
+                    <input
+                      id="pos-reference"
+                      autoFocus
+                      dir="ltr"
+                      value={reference}
+                      onChange={(e) => setReference(e.target.value)}
+                      placeholder={tr("آخر ٤ أرقام أو رقم التحويل")}
+                      className="h-12 min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-(--label-3) rtl:text-left"
+                    />
                   </label>
-                  <Input
-                    id="pos-reference"
-                    autoFocus
-                    dir="ltr"
-                    value={reference}
-                    onChange={(e) => setReference(e.target.value)}
-                    placeholder={tr("آخر ٤ أرقام أو رقم التحويل")}
-                    className="h-10"
-                  />
                 </div>
               )}
             </>
           ) : (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">{tr("تقسيم على أكتر من طريقة")}</p>
-                <button type="button" onClick={() => setSplit(false)} className="text-xs text-primary hover:underline">
+            <div className="space-y-2">
+              <div className="flex items-end justify-between px-4">
+                <p className="text-[13px] font-semibold text-muted-foreground">{tr("تقسيم على أكتر من طريقة")}</p>
+                <button type="button" onClick={() => setSplit(false)} className="text-[13px] font-semibold text-primary">
                   {tr("رجوع لطريقة واحدة")}
                 </button>
               </div>
-              {entries.map((entry, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <select
-                    value={entry.paymentMethod}
-                    onChange={(e) => setEntry(i, { paymentMethod: e.target.value })}
-                    aria-label={tr("طريقة الدفع")}
-                    className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                  >
-                    {METHODS.map((m) => (
-                      <option key={m.key} value={m.key}>
-                        {m.label}
-                      </option>
-                    ))}
-                  </select>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    min="0"
-                    step="0.5"
-                    value={entry.amount}
-                    onChange={(e) => setEntry(i, { amount: e.target.value })}
-                    onFocus={() => {
-                      if (!entry.amount && splitRemaining > 0) setEntry(i, { amount: String(splitRemaining / 100) });
-                    }}
-                    placeholder="0"
-                    aria-label={tr("المبلغ")}
-                    className="h-10 flex-1 tabular-nums"
-                  />
-                  {entries.length > 2 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="size-9 text-muted-foreground"
-                      onClick={() => setEntries((prev) => prev.filter((_, j) => j !== i))}
-                      aria-label={tr("شيل")}
+              <ul className="apple-rows overflow-hidden rounded-[14px] bg-card [--row-inset:16px]">
+                {entries.map((entry, i) => (
+                  <li key={i} className="flex items-center gap-2 px-3 py-2">
+                    <select
+                      value={entry.paymentMethod}
+                      onChange={(e) => setEntry(i, { paymentMethod: e.target.value })}
+                      aria-label={tr("طريقة الدفع")}
+                      className={cn(field, "w-36 shrink-0")}
                     >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="gap-1.5 text-muted-foreground"
-                onClick={() => setEntries((prev) => [...prev, { paymentMethod: "cash", amount: "", reference: "" }])}
-              >
-                <Plus className="size-4" />
-                {tr("طريقة كمان")}
-              </Button>
-              <dl className="space-y-1 rounded-lg bg-muted/50 px-4 py-3 text-sm" aria-live="polite">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{tr("المدفوع")}</dt>
+                      {METHODS.map((m) => (
+                        <option key={m.key} value={m.key}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      step="0.5"
+                      value={entry.amount}
+                      onChange={(e) => setEntry(i, { amount: e.target.value })}
+                      onFocus={() => {
+                        if (!entry.amount && splitRemaining > 0) setEntry(i, { amount: String(splitRemaining / 100) });
+                      }}
+                      placeholder="0"
+                      aria-label={tr("المبلغ")}
+                      className={cn(field, "min-w-0 flex-1 text-end tabular-nums")}
+                    />
+                    {entries.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => setEntries((prev) => prev.filter((_, j) => j !== i))}
+                        aria-label={tr("شيل")}
+                        className="grid size-6 shrink-0 place-items-center rounded-full bg-(--sys-red) text-white"
+                      >
+                        <Minus className="size-3.5" strokeWidth={3} />
+                      </button>
+                    )}
+                  </li>
+                ))}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setEntries((prev) => [...prev, { paymentMethod: "cash", amount: "", reference: "" }])}
+                    className="flex h-11 w-full items-center gap-2 px-4 text-[15px] text-primary hover:bg-(--fill-3)/50"
+                  >
+                    <span className="grid size-5 place-items-center rounded-full bg-(--sys-green) text-white">
+                      <Plus className="size-3.5" strokeWidth={3} />
+                    </span>
+                    {tr("طريقة كمان")}
+                  </button>
+                </li>
+              </ul>
+              <dl className="apple-rows overflow-hidden rounded-[14px] bg-card text-[15px] [--row-inset:16px]" aria-live="polite">
+                <div className="flex min-h-11 items-center justify-between px-4">
+                  <dt>{tr("المدفوع")}</dt>
                   <dd className="font-medium tabular-nums">{egp(splitPaid)}</dd>
                 </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{splitChange > 0 ? tr("الباقي للعميل") : tr("المتبقي")}</dt>
-                  <dd className={cn("font-bold tabular-nums", splitRemaining > 0 ? "text-destructive" : "text-emerald-700 dark:text-emerald-400")}>
+                <div className="flex min-h-11 items-center justify-between px-4">
+                  <dt>{splitChange > 0 ? tr("الباقي للعميل") : tr("المتبقي")}</dt>
+                  <dd className={cn("font-bold tabular-nums", splitRemaining > 0 ? "text-(--sys-red)" : "text-(--sys-green)")}>
                     {egp(splitChange > 0 ? splitChange : splitRemaining)}
                   </dd>
                 </div>
@@ -301,15 +306,19 @@ function PaymentDialogBody({ open, onOpenChange, total, onConfirm, loading }: Pr
           )}
 
           {error && (
-            <p role="alert" className="text-sm font-medium text-destructive">
+            <p role="alert" className="px-1 text-[13px] font-medium text-(--sys-red)">
               {error}
             </p>
           )}
 
-          <Button type="submit" size="lg" className="h-12 w-full gap-2 text-base font-semibold" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="apple-press flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[17px] font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+          >
             {loading && <Loader2 className="size-5 animate-spin" />}
             {loading ? tr("جاري الحفظ...") : tr("تأكيد البيع")}
-          </Button>
+          </button>
         </form>
       </DialogContent>
     </Dialog>

@@ -5,37 +5,38 @@ import { Plus, SearchX, Store, TicketPercent } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
   SearchInput,
+  Segmented,
   SelectFilter,
+  Unavailable,
+  appleButton,
   hrefWith,
   readPage,
   readParam,
   type SearchParamsRecord,
 } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { COUPON_STATUSES, couponStatus, couponStatusWhere, isCouponStatus } from "@/lib/coupons/coupon-status";
 import { readPopupConfig } from "@/lib/popups/popup-config";
 import { prisma } from "@/lib/prisma";
 import { UrlCouponDialog, type EditableCoupon } from "./_components/coupon-form-dialog";
 import { CouponsTable, type CouponRow } from "./_components/coupons-table";
-import { tdir, tr } from "@/lib/i18n/dashboard";
+import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   await loadDashboardLocale();
   return {
-  title: tr("أكواد الخصم"),
-};
+    title: tr("أكواد الخصم"),
+  };
 }
 
 const PAGE_SIZE = 20;
 const BASE_PATH = "/coupons";
+const nf = lazyIntl.number();
+const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
 
 type CouponsRouteProps = {
   searchParams?: Promise<SearchParamsRecord>;
@@ -50,12 +51,9 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول وبعدها اعمل أكواد خصم لعملائك.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول وبعدها اعمل أكواد خصم لعملائك.")} />
+      </div>
     );
   }
 
@@ -77,10 +75,17 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
   };
 
   // Tab counts share search + type with the list, so each number matches its tab.
-  const [statusCounts, storeCouponCount, editRow] = await Promise.all([
+  const [statusCounts, storeCouponCount, editRow, liveCount, usage, couponSales] = await Promise.all([
     Promise.all(COUPON_STATUSES.map((s) => prisma.coupon.count({ where: { AND: [baseWhere, couponStatusWhere(s.value, now, limitField)] } }))),
     prisma.coupon.count({ where: { storeId: store.id } }),
     editId ? prisma.coupon.findFirst({ where: { id: editId, storeId: store.id } }) : Promise.resolve(null),
+    prisma.coupon.count({ where: { AND: [{ storeId: store.id }, couponStatusWhere("active", now, limitField)] } }),
+    prisma.coupon.aggregate({ where: { storeId: store.id }, _sum: { usedCount: true } }),
+    prisma.order.aggregate({
+      where: { storeId: store.id, couponCode: { not: null }, status: { not: "CANCELED" } },
+      _sum: { total: true },
+      _count: { _all: true },
+    }),
   ]);
   const countFor = (s: string) => statusCounts[COUPON_STATUSES.findIndex((x) => x.value === s)] ?? 0;
   const allCount = statusCounts.reduce((a, b) => a + b, 0);
@@ -151,91 +156,116 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
   const storeUrl = buildStoreUrl(store.slug);
   const shareUrl = (code: string) => `${storeUrl}/?coupon=${encodeURIComponent(code)}`;
 
+  const filterClass = "h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-40";
+  const stats = [
+    { label: tr("أكواد شغّالة"), value: nf.format(liveCount), hint: tr("من {0} كود", nf.format(storeCouponCount)) },
+    { label: tr("مرات الاستخدام"), value: nf.format(usage._sum.usedCount ?? 0), hint: tr("على كل الأكواد") },
+    {
+      label: tr("مبيعات بالأكواد"),
+      value: money.format((couponSales._sum.total ?? 0) / 100),
+      hint: tr("{0} طلب استخدم كود", nf.format(couponSales._count._all)),
+    },
+  ];
+
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("أكواد الخصم")}
-        description={tr("اعمل أكواد للعروض والمؤثرين وحملات الواتساب — وكل كود ليه لينك بيطبّقه لوحده في السلة.")}
+        subtitle={tr("اعمل أكواد للعروض والمؤثرين وحملات الواتساب — وكل كود ليه لينك بيطبّقه لوحده في السلة.")}
         actions={
           storeCouponCount > 0 && (
-            <Button asChild size="sm" className="gap-1.5">
-              <Link href={newHref} scroll={false}>
-                <Plus className="size-4" />
-                {tr("كود جديد")}
-              </Link>
-            </Button>
+            <Link href={newHref} scroll={false} className={appleButton.filled}>
+              <Plus className="size-4" />
+              {tr("كود جديد")}
+            </Link>
           )
         }
       />
 
       {storeCouponCount === 0 ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={TicketPercent}
             title={tr("لسه معملتش أكواد خصم")}
             description={tr("ابدأ بكود ترحيب لأول طلب، أو كود لمؤثر وتابع هو جاب كام طلب ومبيعات قد إيه.")}
             action={
-              <Button asChild size="sm" className="gap-1.5">
-                <Link href={newHref} scroll={false}>
-                  <Plus className="size-4" />
-                  {tr("اعمل أول كود")}
-                </Link>
-              </Button>
+              <Link href={newHref} scroll={false} className={appleButton.filled}>
+                <Plus className="size-4" />
+                {tr("اعمل أول كود")}
+              </Link>
             }
           />
         </div>
       ) : (
-        <div className="space-y-4">
-          <FilterTabs
-            label={tr("حالة الكود")}
-            param="status"
-            basePath={BASE_PATH}
-            searchParams={params}
-            tabs={[
-              { label: tr("الكل"), count: allCount },
-              ...COUPON_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
-            ]}
-          />
+        <>
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-[22px] bg-border/60 sm:grid-cols-3">
+            {stats.map((m) => (
+              <div key={m.label} className="flex flex-col bg-card px-5 py-4">
+                <dt className="text-[13px] text-muted-foreground">{m.label}</dt>
+                <dd className="mt-0.5 text-[28px] leading-[34px] font-bold tabular-nums">{m.value}</dd>
+                <dd className="text-[12px] text-muted-foreground">{m.hint}</dd>
+              </div>
+            ))}
+          </dl>
 
-          <DataCard
-            toolbar={
-              <>
-                <SearchInput placeholder={tr("ابحث بالكود")} />
-                <SelectFilter
-                  label={tr("نوع الخصم")}
-                  param="type"
-                  allLabel={tr("كل الأنواع")}
-                  options={[
-                    { value: "PERCENTAGE", label: tr("نسبة مئوية") },
-                    { value: "FIXED", label: tr("مبلغ ثابت") },
-                  ]}
+          <div className="space-y-4">
+            <Segmented
+              label={tr("حالة الكود")}
+              param="status"
+              basePath={BASE_PATH}
+              searchParams={params}
+              segments={[{ label: tr("الكل"), count: allCount }, ...COUPON_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) }))]}
+            />
+
+            <section className="apple-card overflow-hidden">
+              <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:px-5">
+                <SearchInput
+                  placeholder={tr("ابحث بالكود")}
+                  className="sm:max-w-sm sm:flex-1"
+                  inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
                 />
-              </>
-            }
-            footer={
-              total > 0 ? (
-                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("كود")} />
-              ) : undefined
-            }
-          >
-            {rows.length > 0 ? (
-              <CouponsTable coupons={rows} editHref={editHref} shareUrl={shareUrl} />
-            ) : (
-              <EmptyState
-                icon={SearchX}
-                title={tr("مفيش أكواد بالفلاتر دي")}
-                description={q ? tr("مفيش كود فيه \"{0}\".", q) : tr("جرّب حالة أو نوع تاني.")}
-                action={
-                  hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
-                  )
-                }
-              />
-            )}
-          </DataCard>
-        </div>
+                <div className="flex gap-2 sm:ms-auto">
+                  <SelectFilter
+                    label={tr("نوع الخصم")}
+                    param="type"
+                    allLabel={tr("كل الأنواع")}
+                    className={filterClass}
+                    options={[
+                      { value: "PERCENTAGE", label: tr("نسبة مئوية") },
+                      { value: "FIXED", label: tr("مبلغ ثابت") },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {rows.length > 0 ? (
+                <div className="border-t-[0.5px] border-border">
+                  <CouponsTable coupons={rows} editHref={editHref} shareUrl={shareUrl} />
+                </div>
+              ) : (
+                <Unavailable
+                  icon={SearchX}
+                  title={tr("مفيش أكواد بالفلاتر دي")}
+                  description={q ? tr("مفيش كود فيه \"{0}\".", q) : tr("جرّب حالة أو نوع تاني.")}
+                  className="border-t-[0.5px] border-border"
+                  action={
+                    hasFilters && (
+                      <Link href={BASE_PATH} className={appleButton.tinted}>
+                        {tr("مسح الفلاتر")}
+                      </Link>
+                    )
+                  }
+                />
+              )}
+
+              {total > 0 && (
+                <div className="border-t-[0.5px] border-border">
+                  <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("كود")} />
+                </div>
+              )}
+            </section>
+          </div>
+        </>
       )}
 
       <UrlCouponDialog mode={dialogMode} coupon={editing} />

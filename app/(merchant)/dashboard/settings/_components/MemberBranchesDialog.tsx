@@ -3,8 +3,9 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { SetMemberBranchesAction } from "@/actions/inventory/branches.actions";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Check } from "lucide-react";
+import { appleButton } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 
@@ -53,41 +53,46 @@ export function MemberBranchesDialog({ open, onOpenChange, memberId, memberName,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir={tdir()} className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{tr("فروع {0}", memberName)}</DialogTitle>
-          <DialogDescription>{tr("الفروع اللي يقدر يفتح فيها وردية ويبيع من مخزونها.")}</DialogDescription>
+      <DialogContent dir={tdir()} className="gap-0 p-0 sm:max-w-md">
+        <DialogHeader className="px-6 pt-7 pb-5 text-center sm:text-center">
+          <DialogTitle className="text-[20px] font-bold">{tr("فروع {0}", memberName)}</DialogTitle>
+          <DialogDescription className="text-[15px]">{tr("الفروع اللي يقدر يفتح فيها وردية ويبيع من مخزونها.")}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between rounded-lg border border-border p-3">
-            <Label htmlFor="all-branches" className="text-sm font-medium">
-              {tr("كل الفروع (والفروع الجديدة)")}
-            </Label>
-            <Switch id="all-branches" checked={allBranches} onCheckedChange={setAllBranches} />
-          </div>
+        <div className="space-y-4 px-5 pb-5">
+          <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-[14px] bg-(--fill-3) px-4 py-2.5">
+            <span className="text-[15px]">{tr("كل الفروع (والفروع الجديدة)")}</span>
+            <Switch id="all-branches" className="apple-switch" checked={allBranches} onCheckedChange={setAllBranches} />
+          </label>
 
           {!allBranches && (
-            <div className="space-y-2">
-              {branches.map((b) => (
-                <label
-                  key={b.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2.5 text-sm hover:bg-muted/40"
-                >
-                  <Checkbox checked={selected.includes(b.id)} onCheckedChange={(v) => toggle(b.id, v === true)} />
-                  <span className="flex-1">{b.name}</span>
-                  {b.isDefault && <span className="text-xs text-muted-foreground">{tr("رئيسي")}</span>}
-                  {!b.isActive && <span className="text-xs text-muted-foreground">{tr("موقوف")}</span>}
-                </label>
-              ))}
+            <div className="apple-rows overflow-hidden rounded-[14px] bg-(--fill-3) [--row-inset:16px]">
+              {branches.map((b) => {
+                const on = selected.includes(b.id);
+                return (
+                  <button
+                    key={b.id}
+                    type="button"
+                    role="checkbox"
+                    aria-checked={on}
+                    onClick={() => toggle(b.id, !on)}
+                    className="flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-start text-[15px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                  >
+                    <span className="flex-1">{b.name}</span>
+                    {b.isDefault && <span className="text-[13px] text-muted-foreground">{tr("رئيسي")}</span>}
+                    {!b.isActive && <span className="text-[13px] text-muted-foreground">{tr("موقوف")}</span>}
+                    <Check className={cn("size-5 shrink-0 text-primary", on ? "opacity-100" : "opacity-0")} strokeWidth={2.6} />
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        <DialogFooter>
-          <Button onClick={save} disabled={pending || (!allBranches && selected.length === 0)}>
+        <DialogFooter className="px-5 pb-5">
+          <button type="button" className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")} onClick={save} disabled={pending || (!allBranches && selected.length === 0)}>
             {tr("حفظ")}
-          </Button>
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

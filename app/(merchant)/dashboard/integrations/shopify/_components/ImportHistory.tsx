@@ -1,8 +1,9 @@
-import { History } from "lucide-react";
-import { DataCard, EmptyState, StatusPill } from "@/components/saas-page";
+import { History, RotateCcw } from "lucide-react";
+import { StatusText, Unavailable } from "@/components/saas-page";
 import type { JobView } from "@/lib/integrations/import/views";
-import { ENTITY_META, JOB_STATUS_META, dateTime, nf } from "./import-meta";
 import { tr } from "@/lib/i18n/dashboard";
+import { ENTITY_META, JOB_STATUS_META, dateTime, nf } from "./import-meta";
+import { ShopifyMark } from "./import-ui";
 
 function summary(job: JobView) {
   return job.entities
@@ -23,38 +24,52 @@ function failedCount(job: JobView) {
 /** Every import of this store, newest first. */
 export function ImportHistory({ history }: { history: JobView[] }) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-semibold text-muted-foreground">{tr("سجل الاستيراد")}</h2>
-      <DataCard>
+    <section className="space-y-2">
+      <h2 className="px-4 text-[13px] font-semibold text-muted-foreground">{tr("سجل الاستيراد")}</h2>
+      <div className="apple-card overflow-hidden rounded-[14px]">
         {history.length === 0 ? (
-          <EmptyState icon={History} title={tr("مفيش عمليات استيراد لسه")} description={tr("أول ما تبدأ استيراد هتلاقي تفاصيله هنا: بدأ امتى، خلص امتى، واتنقل كام عنصر.")} />
+          <Unavailable
+            icon={History}
+            className="py-12"
+            title={tr("مفيش عمليات استيراد لسه")}
+            description={tr("أول ما تبدأ استيراد هتلاقي تفاصيله هنا: بدأ امتى، خلص امتى، واتنقل كام عنصر.")}
+          />
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="apple-rows [--row-inset:58px]">
             {history.map((job) => {
               const status = JOB_STATUS_META[job.status];
               const failed = failedCount(job);
+              const retry = job.kind === "RETRY";
               return (
-                <li key={job.id} className="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                  <div className="min-w-0 space-y-0.5">
-                    <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
-                      {job.kind === "RETRY" ? tr("إعادة محاولة العناصر الفاشلة") : tr("استيراد من Shopify")}
-                      {status && <StatusPill tone={status.tone}>{status.label}</StatusPill>}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {tr("بدأ {0}", dateTime.format(new Date(job.startedAt ?? job.createdAt)))}
-                      {job.completedAt && tr(" · انتهى {0}", dateTime.format(new Date(job.completedAt)))}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-xs text-muted-foreground sm:text-end">
-                    <p className="tabular-nums">{summary(job) || "—"}</p>
-                    {failed > 0 && <p className="text-amber-700 tabular-nums dark:text-amber-400">{tr("{0} فشل", nf.format(failed))}</p>}
+                <li key={job.id} className="flex items-center gap-3.5 px-4 py-3">
+                  {retry ? (
+                    <span aria-hidden className="grid size-[29px] shrink-0 place-items-center rounded-[7px] bg-(--sys-gray) text-white">
+                      <RotateCcw className="size-[17px]" />
+                    </span>
+                  ) : (
+                    <ShopifyMark size="sm" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="truncate text-[15px] font-medium">{retry ? tr("إعادة محاولة العناصر الفاشلة") : tr("استيراد من Shopify")}</p>
+                      <time className="shrink-0 text-[13px] text-muted-foreground" dateTime={job.startedAt ?? job.createdAt}>
+                        {dateTime.format(new Date(job.startedAt ?? job.createdAt))}
+                      </time>
+                    </div>
+                    <div className="mt-0.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                      <p className="min-w-0 truncate text-[13px] tabular-nums text-muted-foreground">
+                        {summary(job) || "—"}
+                        {failed > 0 && <span className="text-(--sys-orange)"> · {tr("{0} فشل", nf.format(failed))}</span>}
+                      </p>
+                      {status && <StatusText tone={status.tone}>{status.label}</StatusText>}
+                    </div>
                   </div>
                 </li>
               );
             })}
           </ul>
         )}
-      </DataCard>
+      </div>
     </section>
   );
 }

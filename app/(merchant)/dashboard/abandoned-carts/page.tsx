@@ -1,23 +1,22 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { SearchX, ShoppingCart, Store } from "lucide-react";
+import { Clock, Percent, RotateCcw, SearchX, ShoppingCart, Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
   SearchInput,
+  Segmented,
+  Unavailable,
+  appleButton,
   SelectFilter,
   hrefWith,
   readPage,
   readParam,
   type SearchParamsRecord,
 } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { loadAbandonedCarts, type RecoveryStatus } from "@/lib/cart-recovery/abandoned";
 import { couponStatusWhere, formatCouponValue } from "@/lib/coupons/coupon-status";
@@ -63,12 +62,9 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول عشان تتابع السلات المتروكة.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول عشان تتابع السلات المتروكة.")} />
+      </div>
     );
   }
 
@@ -76,7 +72,7 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
     const { requiredPlan } = await checkLimit(store.id, FEATURE_KEYS.ABANDONED_CART);
     return (
       <div className="space-y-6" dir={tdir()}>
-        <PageHeader title={tr("عربات التسوق المهجورة")} description={description()} />
+        <LargeTitle title={tr("عربات التسوق المهجورة")} subtitle={description()} />
         <UpgradeRequiredCard title={tr("السلات المتروكة")} description={tr("متابعة واسترجاع السلات المتروكة مش متاحة في باقتك الحالية.")} requiredPlanSlug={requiredPlan} />
       </div>
     );
@@ -131,83 +127,99 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
   const hasFilters = Boolean(q || status || periodParam);
   const periodLabel = PERIODS.find((p) => Number(p.value) === days)?.label ?? tr("آخر ٣٠ يوم");
 
+  const contacted = all.filter((c) => c.status === "contacted" || c.status === "recovered").length;
+  const rate = contacted ? Math.round((recovered.length / contacted) * 100) : null;
+
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
-        title={tr("السلات المتروكة")}
-        description={
-          all.length ? (
-            <>
-              {periodLabel}:{" "}
-              <span className="font-medium text-foreground">
-                {tr("{0} سلة بـ {1}", nf.format(open.length), money.format(openValue / 100))}
-              </span>{" "}{tr("مستنية")}
-              {recovered.length > 0 && (
-                <>
-                  {" "}{tr("· رجّعت")}{" "}
-                  <span className="font-medium text-emerald-700 dark:text-emerald-400">
-                    {tr("{0} بـ {1}", nf.format(recovered.length), money.format(recoveredValue / 100))}
-                  </span>
-                </>
-              )}
-            </>
-          ) : (
-            description()
-          )
-        }
-      />
+      <LargeTitle title={tr("السلات المتروكة")} subtitle={description()} />
 
       {all.length === 0 && !hasFilters ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={ShoppingCart}
             title={tr("مفيش سلات متروكة")}
             description={tr("أول ما عميل يسيب منتجات في السلة أكتر من ساعة من غير ما يطلب، هتظهر هنا — ولو كتب رقمه في صفحة الدفع هتقدر تبعتله على الواتساب بضغطة.")}
           />
         </div>
       ) : (
-        <div className="space-y-4">
-          <FilterTabs
+        <div className="space-y-6">
+          {/* ── Overview ─────────────────────────────────────── */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Stat
+              icon={Clock}
+              tint="bg-(--sys-orange)"
+              label={tr("مستنية")}
+              value={money.format(openValue / 100)}
+              sub={tr("{0} سلة · {1}", nf.format(open.length), periodLabel)}
+            />
+            <Stat
+              icon={RotateCcw}
+              tint="bg-(--sys-green)"
+              label={tr("رجّعت")}
+              value={money.format(recoveredValue / 100)}
+              sub={tr("{0} سلة", nf.format(recovered.length))}
+            />
+            <Stat
+              icon={Percent}
+              tint="bg-primary"
+              label={tr("نسبة الاسترجاع")}
+              value={rate === null ? "—" : tr("{0}٪", nf.format(rate))}
+              sub={tr("من السلات اللي تواصلت معاها")}
+            />
+          </div>
+
+          <Segmented
             label={tr("حالة السلة")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
-            tabs={[
+            segments={[
               { label: tr("الكل"), count: searched.length },
               ...RECOVERY_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
             ]}
           />
 
-          <DataCard
-            toolbar={
-              <>
-                <SearchInput placeholder={tr("ابحث بالاسم أو الموبايل أو المنتج")} />
-                <SelectFilter label={tr("الفترة")} param="days" allLabel={tr("آخر ٣٠ يوم")} options={PERIODS} />
-              </>
-            }
-            footer={
-              total > 0 ? (
-                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("سلة")} />
-              ) : undefined
-            }
-          >
+          <section className="apple-card overflow-hidden">
+            <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <SearchInput
+                placeholder={tr("ابحث بالاسم أو الموبايل أو المنتج")}
+                className="sm:max-w-sm"
+                inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
+              />
+              <SelectFilter
+                label={tr("الفترة")}
+                param="days"
+                allLabel={tr("آخر ٣٠ يوم")}
+                options={PERIODS}
+                className="h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-40"
+              />
+            </div>
+
             {rows.length > 0 ? (
               <CartsTable carts={rows} openHref={openHref} now={now.getTime()} />
             ) : (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title={tr("مفيش سلات بالفلاتر دي")}
                 description={q ? tr("مفيش نتايج لـ \"{0}\".", q) : tr("جرّب حالة أو فترة تانية.")}
+                className="border-t-[0.5px] border-border"
                 action={
                   hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
+                    <Link href={BASE_PATH} className={appleButton.tinted}>
+                      {tr("مسح الفلاتر")}
+                    </Link>
                   )
                 }
               />
             )}
-          </DataCard>
+
+            {total > 0 && (
+              <div className="border-t-[0.5px] border-border">
+                <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("سلة")} />
+              </div>
+            )}
+          </section>
         </div>
       )}
 
@@ -217,6 +229,21 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
         storeBaseUrl={storeBaseUrl}
         coupons={coupons.map((c) => ({ code: c.code, label: formatCouponValue(c.type, c.value) }))}
       />
+    </div>
+  );
+}
+
+function Stat({ icon: Icon, tint, label, value, sub }: { icon: typeof Clock; tint: string; label: string; value: string; sub: string }) {
+  return (
+    <div className="apple-card space-y-2 p-5">
+      <p className="flex items-center gap-2 text-[13px] font-semibold text-muted-foreground">
+        <span className={`grid size-6 place-items-center rounded-full text-white ${tint}`}>
+          <Icon className="size-3.5" strokeWidth={2.6} />
+        </span>
+        {label}
+      </p>
+      <p className="text-[28px] leading-none font-bold tabular-nums ltr:tracking-[-0.015em]">{value}</p>
+      <p className="text-[13px] text-muted-foreground">{sub}</p>
     </div>
   );
 }

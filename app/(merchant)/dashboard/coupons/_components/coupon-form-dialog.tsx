@@ -6,14 +6,12 @@ import { Loader2, Shuffle } from "lucide-react";
 import { toast } from "sonner";
 
 import { SaveCouponAction, type CouponInput } from "@/actions/coupons/coupons.actions";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SegmentedButtons, appleButton } from "@/components/saas-page";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { formatCouponValue } from "@/lib/coupons/coupon-status";
 import { cn } from "@/lib/utils";
-import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export type EditableCoupon = {
   id: string;
@@ -62,7 +60,7 @@ export function UrlCouponDialog({ mode, coupon }: { mode: "new" | "edit" | null;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close()}>
-      <DialogContent dir={tdir()} className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent dir={tdir()} className="apple-ui apple-form max-h-[92dvh] gap-0 overflow-y-auto bg-background p-0 text-foreground sm:max-w-lg">
         {open && <CouponForm key={coupon?.id ?? "new"} coupon={mode === "edit" ? coupon : null} onDone={close} />}
       </DialogContent>
     </Dialog>
@@ -124,165 +122,194 @@ function CouponForm({ coupon, onDone }: { coupon: EditableCoupon | null; onDone:
     });
   }
 
+  const rowCls = "flex min-h-11 items-center gap-4 px-4";
+  const shownValue = numericValue > 0 ? formatCouponValue(type, numericValue) : type === "PERCENTAGE" ? tr("{0}٪", "—") : tr("{0} ج.م", "—");
+
   return (
-    <form onSubmit={submit} className="min-w-0 space-y-5">
-      <DialogHeader className="text-start sm:text-start">
+    <form onSubmit={submit} className="min-w-0">
+      <DialogHeader className="items-center gap-1 px-6 pt-7 pb-5 text-center sm:text-center">
         <DialogTitle>{coupon ? tr("تعديل كود الخصم") : tr("كود خصم جديد")}</DialogTitle>
-        <DialogDescription>{tr("العميل بيكتبه في السلة — أو يدخل من لينك الكود وبيتطبق لوحده.")}</DialogDescription>
+        <DialogDescription className="max-w-sm text-[13px]">{tr("العميل بيكتبه في السلة — أو يدخل من لينك الكود وبيتطبق لوحده.")}</DialogDescription>
+
+        {/* Live pass preview */}
+        <div className="mt-4 flex h-24 w-full max-w-xs overflow-hidden rounded-[16px] bg-card text-start shadow-[0_6px_24px_rgba(0,0,0,0.08)]" aria-hidden>
+          <div
+            className={cn(
+              "flex w-24 shrink-0 flex-col items-center justify-center text-white transition-colors",
+              isActive ? "bg-linear-to-b from-primary/85 to-primary" : "bg-linear-to-b from-[#aeaeb2] to-[#8e8e93]",
+            )}
+          >
+            <span className="text-[22px] leading-7 font-bold tabular-nums">{shownValue}</span>
+            <span className="text-[11px] text-white/80">{tr("خصم")}</span>
+          </div>
+          <div className="relative w-0 border-s-2 border-dashed border-background">
+            <span className="absolute -top-2 -start-2 size-4 rounded-full bg-background" />
+            <span className="absolute -bottom-2 -start-2 size-4 rounded-full bg-background" />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col justify-center px-4">
+            <p dir="ltr" className={cn("truncate font-mono text-[17px] font-bold tracking-[0.08em] rtl:text-right", !code && "text-(--label-3)")}>
+              {code || "SUMMER20"}
+            </p>
+            <p className="line-clamp-2 text-[12px] leading-4 text-muted-foreground">{summary ?? tr("على أي طلب")}</p>
+          </div>
+        </div>
       </DialogHeader>
 
-      <div className="space-y-2">
-        <Label htmlFor="coupon-code">{tr("الكود")}</Label>
-        <div className="flex gap-2" dir="ltr">
-          <Input
-            id="coupon-code"
-            value={code}
-            disabled={codeLocked}
-            maxLength={30}
-            onChange={(e) => setCode(e.target.value.toUpperCase().replace(/\s+/g, ""))}
-            placeholder="SUMMER20"
-            className="h-10 font-mono tracking-wider uppercase"
-            autoComplete="off"
-          />
-          {!codeLocked && (
-            <Button type="button" variant="outline" className="h-10 gap-1.5" onClick={() => setCode(randomCode())}>
-              <Shuffle className="size-4" />
-              <span dir={tdir()}>{tr("عشوائي")}</span>
-            </Button>
-          )}
+      <div className="space-y-6 px-4 pb-5">
+        {/* Code */}
+        <section className="space-y-2">
+          <div className="flex items-center gap-2 overflow-hidden rounded-[14px] bg-card ps-4 pe-2">
+            <label htmlFor="coupon-code" className="shrink-0 text-[15px]">
+              {tr("الكود")}
+            </label>
+            <input
+              id="coupon-code"
+              dir="ltr"
+              value={code}
+              disabled={codeLocked}
+              maxLength={30}
+              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/\s+/g, ""))}
+              placeholder="SUMMER20"
+              autoComplete="off"
+              className="h-12 min-w-0 flex-1 bg-transparent text-end font-mono text-[17px] font-semibold tracking-wider uppercase outline-none placeholder:text-(--label-3) disabled:text-muted-foreground"
+            />
+            {!codeLocked && (
+              <button
+                type="button"
+                onClick={() => setCode(randomCode())}
+                className="apple-press inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-(--fill-3) px-3 text-[13px] font-medium text-primary"
+              >
+                <Shuffle className="size-3.5" />
+                {tr("عشوائي")}
+              </button>
+            )}
+          </div>
+          <p className="px-4 text-[13px] leading-[18px] text-muted-foreground">
+            {codeLocked ? tr("اتستخدم {0} مرة، فاسمه مقفول.", nf.format(coupon!.usedCount)) : tr("حروف إنجليزي وأرقام — سهل يتكتب ويتفتكر.")}
+          </p>
+        </section>
+
+        {/* Discount */}
+        <section className="space-y-2">
+          <div className="flex items-end justify-between gap-3 px-4">
+            <h3 className="text-[13px] font-semibold text-muted-foreground">{tr("نوع الخصم")}</h3>
+            <SegmentedButtons
+              label={tr("نوع الخصم")}
+              value={type}
+              onChange={setType}
+              options={[
+                ["PERCENTAGE", tr("نسبة مئوية")],
+                ["FIXED", tr("مبلغ ثابت")],
+              ]}
+            />
+          </div>
+          <div className="apple-rows overflow-hidden rounded-[14px] bg-card [--row-inset:16px]">
+            <NumberRow
+              id="coupon-value"
+              label={type === "PERCENTAGE" ? tr("النسبة") : tr("المبلغ")}
+              suffix={type === "PERCENTAGE" ? tr("٪") : tr("ج.م")}
+              value={value}
+              onChange={setValue}
+              max={type === "PERCENTAGE" ? 100 : undefined}
+              placeholder={type === "PERCENTAGE" ? "10" : "50"}
+            />
+            {type === "PERCENTAGE" && (
+              <NumberRow id="coupon-max" label={tr("أقصى خصم")} suffix={tr("ج.م")} value={maxDiscount} onChange={setMaxDiscount} placeholder={tr("اختياري")} />
+            )}
+          </div>
+        </section>
+
+        {/* Conditions */}
+        <section className="space-y-2">
+          <h3 className="px-4 text-[13px] font-semibold text-muted-foreground">{tr("الشروط")}</h3>
+          <div className="apple-rows overflow-hidden rounded-[14px] bg-card [--row-inset:16px]">
+            <NumberRow id="coupon-min" label={tr("أقل قيمة للطلب")} suffix={tr("ج.م")} value={minSubtotal} onChange={setMinSubtotal} placeholder={tr("اختياري")} />
+            <NumberRow id="coupon-limit" label={tr("عدد مرات الاستخدام")} suffix={tr("مرة")} value={usageLimit} onChange={setUsageLimit} integer placeholder={tr("فاضي = مفتوح")} />
+            <label htmlFor="coupon-start" className={rowCls}>
+              <span className="shrink-0 text-[15px]">{tr("يبدأ")}</span>
+              <input
+                id="coupon-start"
+                type="datetime-local"
+                value={startsAt}
+                onChange={(e) => setStartsAt(e.target.value)}
+                className="h-11 min-w-0 flex-1 bg-transparent text-end text-[15px] text-muted-foreground outline-none"
+              />
+            </label>
+            <label htmlFor="coupon-end" className={rowCls}>
+              <span className="shrink-0 text-[15px]">{tr("ينتهي")}</span>
+              <input
+                id="coupon-end"
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value)}
+                className="h-11 min-w-0 flex-1 bg-transparent text-end text-[15px] text-muted-foreground outline-none"
+              />
+            </label>
+          </div>
+          <p className="px-4 text-[13px] text-muted-foreground">{tr("سيب التاريخ فاضي لو الكود شغّال على طول.")}</p>
+        </section>
+
+        {/* Active */}
+        <section className="space-y-2">
+          <label className={cn(rowCls, "cursor-pointer rounded-[14px] bg-card")}>
+            <span className="flex-1 text-[15px]">{tr("شغّال")}</span>
+            <Switch checked={isActive} onCheckedChange={setIsActive} className="apple-switch" />
+          </label>
+          <p className="px-4 text-[13px] text-muted-foreground">{tr("لو قفلته، الكود يفضل محفوظ بس محدش يقدر يستخدمه.")}</p>
+        </section>
+
+        {error && <p className="px-4 text-[13px] text-(--sys-red)">{trv(error)}</p>}
+
+        <div className="space-y-1">
+          <button type="submit" disabled={pending} className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}>
+            {pending && <Loader2 className="size-4 animate-spin" />}
+            {coupon ? tr("حفظ التعديلات") : tr("إنشاء الكود")}
+          </button>
+          <button type="button" onClick={onDone} disabled={pending} className="h-11 w-full rounded-full text-[15px] text-primary hover:bg-primary/8">
+            {tr("إلغاء")}
+          </button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {codeLocked ? tr("اتستخدم {0} مرة، فاسمه مقفول.", nf.format(coupon!.usedCount)) : tr("حروف إنجليزي وأرقام — سهل يتكتب ويتفتكر.")}
-        </p>
       </div>
-
-      <div className="space-y-2">
-        <Label>{tr("نوع الخصم")}</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {(
-            [
-              ["PERCENTAGE", tr("نسبة مئوية"), tr("مثال: ١٠٪")],
-              ["FIXED", tr("مبلغ ثابت"), tr("مثال: ٥٠ ج.م")],
-            ] as const
-          ).map(([v, label, hint]) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => setType(v)}
-              aria-pressed={type === v}
-              className={cn(
-                "rounded-lg border p-3 text-start transition-colors",
-                type === v ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30",
-              )}
-            >
-              <span className="block text-sm font-medium">{label}</span>
-              <span className="block text-xs text-muted-foreground">{hint}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <MoneyField
-          id="coupon-value"
-          label={type === "PERCENTAGE" ? tr("النسبة") : tr("المبلغ")}
-          suffix={type === "PERCENTAGE" ? tr("٪") : tr("ج.م")}
-          value={value}
-          onChange={setValue}
-          max={type === "PERCENTAGE" ? 100 : undefined}
-        />
-        {type === "PERCENTAGE" ? (
-          <MoneyField id="coupon-max" label={tr("أقصى خصم")} hint={tr("اختياري")} suffix={tr("ج.م")} value={maxDiscount} onChange={setMaxDiscount} />
-        ) : (
-          <div className="hidden sm:block" />
-        )}
-        <MoneyField id="coupon-min" label={tr("أقل قيمة للطلب")} hint={tr("اختياري")} suffix={tr("ج.م")} value={minSubtotal} onChange={setMinSubtotal} />
-        <MoneyField id="coupon-limit" label={tr("عدد مرات الاستخدام")} hint={tr("فاضي = مفتوح")} suffix={tr("مرة")} value={usageLimit} onChange={setUsageLimit} integer />
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="coupon-start" className="text-xs">
-            {tr("يبدأ")}{" "}<span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>
-          </Label>
-          <Input id="coupon-start" type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} className="text-xs" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="coupon-end" className="text-xs">
-            {tr("ينتهي")}{" "}<span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>
-          </Label>
-          <Input id="coupon-end" type="datetime-local" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} className="text-xs" />
-        </div>
-      </div>
-
-      <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-border p-3">
-        <span>
-          <span className="block text-sm font-medium">{tr("شغّال")}</span>
-          <span className="block text-xs text-muted-foreground">{tr("لو قفلته، الكود يفضل محفوظ بس محدش يقدر يستخدمه.")}</span>
-        </span>
-        <Switch checked={isActive} onCheckedChange={setIsActive} />
-      </label>
-
-      {summary && (
-        <p className="rounded-lg bg-muted/60 px-3 py-2 text-sm">
-          <span className="text-muted-foreground">{tr("العميل هياخد:")}{" "}</span>
-          {summary}
-        </p>
-      )}
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
-      <DialogFooter className="gap-2 sm:justify-start">
-        <Button type="submit" disabled={pending} className="gap-1.5">
-          {pending && <Loader2 className="size-4 animate-spin" />}
-          {coupon ? tr("حفظ التعديلات") : tr("إنشاء الكود")}
-        </Button>
-        <Button type="button" variant="outline" onClick={onDone} disabled={pending}>
-          {tr("إلغاء")}
-        </Button>
-      </DialogFooter>
     </form>
   );
 }
 
-function MoneyField({
+/** iOS form row: label leading, numeric field + unit trailing. */
+function NumberRow({
   id,
   label,
-  hint,
   suffix,
   value,
   onChange,
   max,
   integer,
+  placeholder,
 }: {
   id: string;
   label: string;
-  hint?: string;
   suffix: string;
   value: string;
   onChange: (v: string) => void;
   max?: number;
   integer?: boolean;
+  placeholder?: string;
 }) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id} className="text-xs">
-        {label} {hint && <span className="font-normal text-muted-foreground">({hint})</span>}
-      </Label>
-      <div className="flex h-10 items-center rounded-md border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring/30">
-        <input
-          id={id}
-          type="number"
-          inputMode="decimal"
-          min={0}
-          max={max}
-          step={integer ? 1 : "any"}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm tabular-nums outline-none"
-        />
-        <span className="pe-3 text-xs text-muted-foreground">{suffix}</span>
-      </div>
-    </div>
+    <label htmlFor={id} className="flex min-h-11 items-center gap-3 px-4">
+      <span className="shrink-0 text-[15px]">{label}</span>
+      <input
+        id={id}
+        type="number"
+        inputMode="decimal"
+        min={0}
+        max={max}
+        step={integer ? 1 : "any"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="h-11 min-w-0 flex-1 bg-transparent text-end text-[15px] tabular-nums outline-none placeholder:text-(--label-3)"
+      />
+      <span className="shrink-0 text-[15px] text-muted-foreground">{suffix}</span>
+    </label>
   );
 }

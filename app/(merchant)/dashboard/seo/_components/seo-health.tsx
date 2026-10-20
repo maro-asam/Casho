@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, Check, CircleAlert } from "lucide-react";
+import { AlertTriangle, Check, ChevronLeft, Info, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
@@ -25,85 +25,103 @@ export function SeoHealth({ checks }: { checks: SeoCheck[] }) {
     .filter((c) => !c.done)
     .sort((a, b) => ({ critical: 0, warn: 1, tip: 2 })[a.severity] - ({ critical: 0, warn: 1, tip: 2 })[b.severity] || b.weight - a.weight);
   const passed = checks.filter((c) => c.done);
-  const r = 30;
+  const r = 52;
   const circ = 2 * Math.PI * r;
+  const tone = blocked || score < 50 ? "red" : score >= 80 ? "green" : "orange";
+  const ring = { red: "stroke-(--sys-red)", orange: "stroke-(--sys-orange)", green: "stroke-(--sys-green)" }[tone];
+  const headline = blocked ? tr("متجرك مخفي عن جوجل") : score >= 80 ? tr("ممتاز — جاهز للبحث") : score >= 50 ? tr("كويس، وفي حاجات تفرق") : tr("محتاج شغل");
 
   return (
-    <section className="rounded-xl border border-border bg-card">
-      <div className="flex items-center gap-4 border-b border-border p-4">
-        <div className="relative size-[4.5rem] shrink-0">
-          <svg viewBox="0 0 72 72" className="size-full -rotate-90">
-            <circle cx="36" cy="36" r={r} className="fill-none stroke-muted" strokeWidth="6" />
-            <circle
-              cx="36"
-              cy="36"
-              r={r}
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={circ}
-              strokeDashoffset={circ * (1 - score / 100)}
-              className={cn("fill-none", score >= 80 ? "stroke-emerald-500" : score >= 50 ? "stroke-amber-500" : "stroke-rose-500")}
-            />
-          </svg>
-          <span className="absolute inset-0 grid place-items-center text-base font-bold tabular-nums">{nf.format(score)}</span>
+    <section aria-labelledby="seo-health" className="apple-card overflow-hidden">
+      <div className="grid lg:grid-cols-[20rem_minmax(0,1fr)]">
+        {/* Score */}
+        <div className="flex items-center gap-5 p-6 lg:flex-col lg:items-start lg:justify-center lg:gap-4 lg:p-8">
+          <div className="relative size-28 shrink-0 lg:size-32">
+            <svg viewBox="0 0 120 120" className="size-full -rotate-90">
+              <circle cx="60" cy="60" r={r} fill="none" strokeWidth="12" className="stroke-(--fill-3)" />
+              <circle
+                cx="60"
+                cy="60"
+                r={r}
+                fill="none"
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeDasharray={circ}
+                strokeDashoffset={circ * (1 - Math.max(score, 1) / 100)}
+                className={cn(ring, "transition-[stroke-dashoffset] duration-700 ease-(--ease-apple)")}
+              />
+            </svg>
+            <span className="absolute inset-0 grid place-content-center text-center">
+              <span className="text-[34px] leading-none font-bold tabular-nums">{nf.format(score)}</span>
+              <span className="text-[12px] text-muted-foreground">/ {nf.format(100)}</span>
+            </span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[13px] font-semibold text-muted-foreground">{tr("صحة الـ SEO")}</p>
+            <h2 id="seo-health" className="text-[22px] leading-[28px] font-bold">
+              {headline}
+            </h2>
+            <p className="text-[15px] text-muted-foreground">{tr("{0} من {1} تمام", nf.format(passed.length), nf.format(checks.length))}</p>
+          </div>
         </div>
-        <div className="space-y-0.5">
-          <p className="text-xs text-muted-foreground">{tr("صحة الـ SEO")}</p>
-          <p className="font-semibold">
-            {blocked ? tr("متجرك مخفي عن جوجل") : score >= 80 ? tr("ممتاز — جاهز للبحث") : score >= 50 ? tr("كويس، وفي حاجات تفرق") : tr("محتاج شغل")}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {tr("{0} من {1} تمام", nf.format(passed.length), nf.format(checks.length))}
-          </p>
+
+        {/* Fixes, worst first */}
+        <div className="border-t-[0.5px] border-border lg:border-t-0 lg:border-s-[0.5px]">
+          {issues.length > 0 ? (
+            <ul className="apple-rows [--row-inset:60px]">
+              {issues.map((c) => {
+                const Icon = c.severity === "critical" ? AlertTriangle : c.severity === "warn" ? Info : Lightbulb;
+                const body = (
+                  <>
+                    <span
+                      className={cn(
+                        "mt-0.5 grid size-7 shrink-0 place-items-center rounded-full text-white",
+                        c.severity === "critical" ? "bg-(--sys-red)" : c.severity === "warn" ? "bg-(--sys-orange)" : "bg-primary",
+                      )}
+                    >
+                      <Icon className="size-3.5" strokeWidth={2.6} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[15px] font-medium">{c.label}</span>
+                      <span className="block text-[13px] leading-[18px] text-muted-foreground">{c.detail}</span>
+                    </span>
+                    {c.href && <ChevronLeft className="mt-1 size-[18px] shrink-0 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />}
+                  </>
+                );
+                return (
+                  <li key={c.id}>
+                    {c.href ? (
+                      <Link href={c.href} className="flex gap-3 px-5 py-3 transition-colors hover:bg-(--fill-3)/50">
+                        {body}
+                      </Link>
+                    ) : (
+                      <div className="flex gap-3 px-5 py-3">{body}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className="flex h-full items-center gap-3 p-6 text-[15px] text-muted-foreground">
+              <span className="grid size-7 place-items-center rounded-full bg-(--sys-green) text-white">
+                <Check className="size-4" strokeWidth={3} />
+              </span>
+              {tr("مفيش أي مشاكل — كمّل ضيف منتجات بأوصاف كويسة.")}
+            </div>
+          )}
+
+          {passed.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 border-t-[0.5px] border-border px-5 py-3.5">
+              {passed.map((c) => (
+                <span key={c.id} className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                  <Check className="size-3.5 text-(--sys-green)" strokeWidth={3} />
+                  {c.label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      {issues.length > 0 ? (
-        <ul className="divide-y divide-border">
-          {issues.map((c) => {
-            const Icon = c.severity === "critical" ? AlertTriangle : CircleAlert;
-            const body = (
-              <>
-                <Icon
-                  className={cn(
-                    "mt-0.5 size-4 shrink-0",
-                    c.severity === "critical" ? "text-rose-600" : c.severity === "warn" ? "text-amber-600" : "text-muted-foreground",
-                  )}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium">{c.label}</span>
-                  <span className="block text-xs leading-5 text-muted-foreground">{c.detail}</span>
-                </span>
-                {c.href && <ArrowLeft className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5 ltr:-scale-x-100" />}
-              </>
-            );
-            return (
-              <li key={c.id}>
-                {c.href ? (
-                  <Link href={c.href} className="group flex gap-3 px-4 py-3 transition-colors hover:bg-muted/40">
-                    {body}
-                  </Link>
-                ) : (
-                  <div className="flex gap-3 px-4 py-3">{body}</div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      ) : (
-        <p className="p-4 text-sm text-muted-foreground">{tr("مفيش أي مشاكل — كمّل ضيف منتجات بأوصاف كويسة.")}</p>
-      )}
-
-      {passed.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 border-t border-border p-3">
-          {passed.map((c) => (
-            <span key={c.id} className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-              <Check className="size-3 text-emerald-600" />
-              {c.label}
-            </span>
-          ))}
-        </div>
-      )}
     </section>
   );
 }

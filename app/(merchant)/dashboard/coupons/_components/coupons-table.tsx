@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { CalendarClock, TrendingUp } from "lucide-react";
 
-import { StatusPill } from "@/components/saas-page";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { StatusText } from "@/components/saas-page";
 import { couponStatusMeta, formatCouponValue, type CouponStatus } from "@/lib/coupons/coupon-status";
+import { cn } from "@/lib/utils";
 import { CouponActiveSwitch, CouponRowActions } from "./coupon-row-actions";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
@@ -28,6 +29,15 @@ const nf = lazyIntl.number({ maximumFractionDigits: 2 });
 const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
 const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short" });
 
+/** Wallet-pass stub color per state: live codes are tinted, dead ones go gray. */
+const STUB: Record<CouponStatus, string> = {
+  active: "bg-linear-to-b from-primary/85 to-primary",
+  scheduled: "bg-linear-to-b from-[#7d7aff] to-[#5e5ce6]",
+  used_up: "bg-linear-to-b from-[#ffb340] to-[#ff8d28]",
+  expired: "bg-linear-to-b from-[#aeaeb2] to-[#8e8e93]",
+  paused: "bg-linear-to-b from-[#aeaeb2] to-[#8e8e93]",
+};
+
 type Props = { coupons: CouponRow[]; editHref: (id: string) => string; shareUrl: (code: string) => string };
 
 function conditions(c: CouponRow) {
@@ -42,131 +52,92 @@ function conditions(c: CouponRow) {
 function Usage({ c }: { c: CouponRow }) {
   if (!c.usageLimit) {
     return (
-      <div className="text-sm">
-        <span className="tabular-nums">{nf.format(c.usedCount)}</span> <span className="text-xs text-muted-foreground">{tr("مرة · مفتوح")}</span>
-      </div>
+      <p className="text-[13px] text-muted-foreground">
+        <span className="font-semibold text-foreground tabular-nums">{nf.format(c.usedCount)}</span> {tr("مرة · مفتوح")}
+      </p>
     );
   }
   const ratio = Math.min(1, c.usedCount / c.usageLimit);
   return (
-    <div className="w-28 space-y-1">
-      <p className="text-sm tabular-nums">
-        {nf.format(c.usedCount)} <span className="text-xs text-muted-foreground">{tr("من {0}", nf.format(c.usageLimit))}</span>
+    <div className="space-y-1">
+      <p className="text-[13px] text-muted-foreground tabular-nums">
+        <span className="font-semibold text-foreground">{nf.format(c.usedCount)}</span> {tr("من {0}", nf.format(c.usageLimit))}
       </p>
-      <div
-        className="h-1.5 overflow-hidden rounded-full bg-muted"
-        role="img"
-        aria-label={tr("اتستخدم {0} من {1}", c.usedCount, c.usageLimit)}
-      >
-        <div className="h-full rounded-full bg-primary" style={{ width: `${ratio * 100}%` }} />
+      <div className="h-1 overflow-hidden rounded-full bg-(--fill-3)" role="img" aria-label={tr("اتستخدم {0} من {1}", c.usedCount, c.usageLimit)}>
+        <div className={cn("h-full rounded-full", ratio >= 1 ? "bg-(--sys-orange)" : "bg-primary")} style={{ width: `${ratio * 100}%` }} />
       </div>
     </div>
   );
 }
 
-function Validity({ c }: { c: CouponRow }) {
-  if (!c.startsAt && !c.expiresAt) return <span className="text-sm text-muted-foreground">{tr("من غير تاريخ")}</span>;
-  return (
-    <span className="text-sm tabular-nums">
-      {c.startsAt ? df.format(c.startsAt) : tr("الآن")} <span className="text-muted-foreground">←</span> {c.expiresAt ? df.format(c.expiresAt) : tr("مفتوح")}
-    </span>
-  );
+function validity(c: CouponRow) {
+  if (!c.startsAt && !c.expiresAt) return tr("من غير تاريخ");
+  return `${c.startsAt ? df.format(c.startsAt) : tr("الآن")} ← ${c.expiresAt ? df.format(c.expiresAt) : tr("مفتوح")}`;
 }
 
-/** Desktop: table. Mobile: stacked rows — same data, same row link. */
+/** Codes as Wallet passes: a tinted stub with the discount, a perforation, then the details. */
 export function CouponsTable({ coupons, editHref, shareUrl }: Props) {
-  const controls = (c: CouponRow) => (
-    <div className="flex items-center justify-end gap-2">
-      <CouponActiveSwitch key={String(c.isActive)} couponId={c.id} code={c.code} isActive={c.isActive} />
-      <CouponRowActions
-        coupon={{ id: c.id, code: c.code, usedCount: c.usedCount, isActive: c.isActive, popupNames: c.popupNames }}
-        editHref={editHref(c.id)}
-        shareUrl={shareUrl(c.code)}
-      />
-    </div>
-  );
-
   return (
-    <>
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("الكود")}</TableHead>
-              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الاستخدام")}</TableHead>
-              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("الصلاحية")}</TableHead>
-              <TableHead className="hidden h-10 text-end text-xs font-medium text-muted-foreground xl:table-cell">{tr("مبيعات بالكود")}</TableHead>
-              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
-              <TableHead className="h-10 w-28 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("تشغيل")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {coupons.map((c) => {
-              const meta = couponStatusMeta(c.status);
-              return (
-                <TableRow key={c.id} className="relative">
-                  <TableCell className="py-3 ps-4">
-                    <Link
-                      href={editHref(c.id)}
-                      scroll={false}
-                      dir="ltr"
-                      className="font-mono text-sm font-semibold tracking-wide after:absolute after:inset-0 hover:underline focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
-                    >
-                      {c.code}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">{formatCouponValue(c.type, c.value)}</span>
-                      {conditions(c) && ` · ${conditions(c)}`}
-                    </p>
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <Usage c={c} />
-                  </TableCell>
-                  <TableCell className="hidden py-3 lg:table-cell">
-                    <Validity c={c} />
-                  </TableCell>
-                  <TableCell className="hidden py-3 text-end text-sm tabular-nums xl:table-cell">
-                    {c.revenue ? money.format(c.revenue / 100) : <span className="text-muted-foreground">—</span>}
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                  </TableCell>
-                  <TableCell className="py-3 pe-4">{controls(c)}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+    <ul className="grid gap-3 p-3 sm:p-4 md:grid-cols-2 2xl:grid-cols-3">
+      {coupons.map((c) => {
+        const meta = couponStatusMeta(c.status);
+        const cond = conditions(c);
+        return (
+          <li key={c.id} className="group relative flex min-h-40 overflow-hidden rounded-[18px] bg-(--fill-3)/55 transition-colors hover:bg-(--fill-3)/80">
+            {/* Stub */}
+            <div className={cn("flex w-26 shrink-0 flex-col items-center justify-center gap-0.5 px-2 text-center text-white", STUB[c.status])}>
+              <span className="text-[26px] leading-8 font-bold tabular-nums ltr:tracking-[-0.02em]">{formatCouponValue(c.type, c.value)}</span>
+              <span className="text-[12px] font-medium text-white/80">{tr("خصم")}</span>
+            </div>
 
-      <ul className="divide-y divide-border md:hidden">
-        {coupons.map((c) => {
-          const meta = couponStatusMeta(c.status);
-          return (
-            <li key={c.id} className="relative space-y-2 p-4">
-              <div className="flex items-start justify-between gap-3">
+            {/* Perforation with punched notches */}
+            <div aria-hidden className="relative w-0 border-s-2 border-dashed border-card">
+              <span className="absolute -top-2 -start-2 size-4 rounded-full bg-card" />
+              <span className="absolute -bottom-2 -start-2 size-4 rounded-full bg-card" />
+            </div>
+
+            {/* Details */}
+            <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
+              <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <Link href={editHref(c.id)} scroll={false} dir="ltr" className="block truncate font-mono text-sm font-semibold after:absolute after:inset-0">
+                  <Link
+                    href={editHref(c.id)}
+                    scroll={false}
+                    dir="ltr"
+                    className="block truncate font-mono text-[17px] font-bold tracking-[0.08em] after:absolute after:inset-0 after:rounded-[18px] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring rtl:text-right"
+                  >
                     {c.code}
                   </Link>
-                  <p className="text-xs text-muted-foreground">
-                    {formatCouponValue(c.type, c.value)}
-                    {conditions(c) && ` · ${conditions(c)}`}
-                  </p>
+                  <p className="truncate text-[13px] text-muted-foreground">{cond || tr("على أي طلب")}</p>
                 </div>
-                {controls(c)}
+                <CouponRowActions
+                  coupon={{ id: c.id, code: c.code, usedCount: c.usedCount, isActive: c.isActive, popupNames: c.popupNames }}
+                  editHref={editHref(c.id)}
+                  shareUrl={shareUrl(c.code)}
+                />
               </div>
-              <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                <span className="tabular-nums">
-                  {nf.format(c.usedCount)}
-                  {c.usageLimit ? tr(" من {0}", nf.format(c.usageLimit)) : ""}{" "}{tr("استخدام{0}", c.revenue ? ` · ${money.format(c.revenue / 100)}` : "")}
-                </span>
+
+              <Usage c={c} />
+
+              <div className="space-y-0.5 text-[12px] text-muted-foreground">
+                <p className="flex items-center gap-1.5 tabular-nums">
+                  <CalendarClock className="size-3.5 shrink-0" />
+                  {validity(c)}
+                </p>
+                <p className="flex items-center gap-1.5 tabular-nums">
+                  <TrendingUp className="size-3.5 shrink-0" />
+                  {c.revenue ? tr("{0} مبيعات بالكود", money.format(c.revenue / 100)) : tr("لسه مفيش مبيعات")}
+                </p>
               </div>
-            </li>
-          );
-        })}
-      </ul>
-    </>
+
+              <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+                <StatusText tone={meta.tone}>{meta.label}</StatusText>
+                <CouponActiveSwitch key={String(c.isActive)} couponId={c.id} code={c.code} isActive={c.isActive} />
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ImageIcon } from "lucide-react";
 
-import { StatusPill } from "@/components/saas-page";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { StatusText } from "@/components/saas-page";
 import type { AbandonedCartRow } from "@/lib/cart-recovery/abandoned";
+import { cn } from "@/lib/utils";
 import { CartRowActions } from "./cart-row-actions";
 import { recoveryMeta } from "./recovery-meta";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
@@ -12,7 +12,7 @@ const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFract
 const nf = lazyIntl.number();
 const rtf = lazyIntl.relative({ numeric: "auto" });
 
-function ago(date: Date, now: number) {
+export function ago(date: Date, now: number) {
   const minutes = Math.round((date.getTime() - now) / 60000);
   if (minutes > -60) return rtf.format(minutes, "minute");
   const hours = Math.round(minutes / 60);
@@ -20,123 +20,90 @@ function ago(date: Date, now: number) {
   return rtf.format(Math.round(hours / 24), "day");
 }
 
-function Customer({ cart }: { cart: AbandonedCartRow }) {
-  if (!cart.phone && !cart.fullName) return <span className="text-sm text-muted-foreground">{tr("زائر من غير رقم")}</span>;
-  return (
-    <div className="min-w-0">
-      <p className="max-w-40 truncate text-sm font-medium">{cart.fullName || tr("عميل")}</p>
-      {cart.phone && (
-        <p className="text-xs text-muted-foreground tabular-nums" dir="ltr">
-          {cart.phone}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function Products({ cart }: { cart: AbandonedCartRow }) {
-  if (cart.status === "recovered") return <span className="text-sm text-muted-foreground">{tr("اتحولت لطلب")}</span>;
+/** Overlapping product thumbnails (like a stack of photos). */
+export function ThumbStack({ cart, size = "md" }: { cart: AbandonedCartRow; size?: "md" | "lg" }) {
   const shown = cart.items.slice(0, 3);
+  const box = size === "md" ? "size-11 rounded-[10px]" : "size-14 rounded-[13px]";
   return (
-    <div className="flex min-w-0 items-center gap-2.5">
-      <div className="flex shrink-0 -space-x-2 space-x-reverse">
-        {shown.map((i) => (
-          <span key={i.productId} className="relative grid size-8 place-items-center overflow-hidden rounded-md border-2 border-card bg-muted">
+    <div className="flex shrink-0">
+      {shown.length === 0 ? (
+        <span className={cn("grid place-items-center bg-(--fill-3)", box)}>
+          <ImageIcon className="size-4 text-(--label-3)" />
+        </span>
+      ) : (
+        shown.map((i, n) => (
+          <span
+            key={i.productId}
+            className={cn("relative grid place-items-center overflow-hidden bg-(--fill-3) ring-2 ring-card", box, n > 0 && "-ms-5")}
+            style={{ zIndex: 3 - n }}
+          >
             {i.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={i.image} alt="" className="size-full object-cover" />
             ) : (
-              <ImageIcon className="size-3.5 text-muted-foreground/60" />
+              <ImageIcon className="size-4 text-(--label-3)" />
             )}
           </span>
-        ))}
-      </div>
-      <div className="min-w-0">
-        <p className="max-w-48 truncate text-sm">{cart.items[0]?.name}</p>
-        <p className="text-xs text-muted-foreground">
-          {tr("{0} قطعة", nf.format(cart.itemCount))}{cart.items.length > 1 && tr(" · {0} منتجات", nf.format(cart.items.length))}
-        </p>
-      </div>
+        ))
+      )}
     </div>
   );
 }
 
 type Props = { carts: AbandonedCartRow[]; openHref: (key: string) => string; now: number };
 
-/** Desktop: table. Mobile: stacked rows — same data, same row link. */
+/** Mail-style list: who, what they left, how long ago, value — one row link to the recovery sheet. */
 export function CartsTable({ carts, openHref, now }: Props) {
   return (
-    <>
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("العميل")}</TableHead>
-              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("المنتجات")}</TableHead>
-              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("آخر نشاط")}</TableHead>
-              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
-              <TableHead className="h-10 text-end text-xs font-medium text-muted-foreground">{tr("القيمة")}</TableHead>
-              <TableHead className="h-10 w-36 pe-4">
-                <span className="sr-only">{tr("إجراءات")}</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {carts.map((cart) => {
-              const meta = recoveryMeta(cart.status);
-              return (
-                <TableRow key={`${cart.status}-${cart.key}`} className="relative">
-                  <TableCell className="py-3 ps-4">
-                    <Link
-                      href={openHref(cart.key)}
-                      scroll={false}
-                      className="block after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
-                      aria-label={tr("افتح سلة {0}", cart.fullName ?? cart.phone ?? tr("زائر"))}
-                    >
-                      <Customer cart={cart} />
-                    </Link>
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <Products cart={cart} />
-                  </TableCell>
-                  <TableCell className="hidden py-3 text-sm text-muted-foreground lg:table-cell">{ago(cart.lastActivityAt, now)}</TableCell>
-                  <TableCell className="py-3">
-                    <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                  </TableCell>
-                  <TableCell className="py-3 text-end text-sm font-semibold tabular-nums">{money.format(cart.value / 100)}</TableCell>
-                  <TableCell className="py-3 pe-4">
-                    <CartRowActions cartKey={cart.key} phone={cart.phone} status={cart.status} openHref={openHref(cart.key)} />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-
-      <ul className="divide-y divide-border md:hidden">
-        {carts.map((cart) => {
-          const meta = recoveryMeta(cart.status);
-          return (
-            <li key={`${cart.status}-${cart.key}`} className="relative space-y-2 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <Link href={openHref(cart.key)} scroll={false} className="min-w-0 after:absolute after:inset-0">
-                  <Customer cart={cart} />
+    <ul className="apple-rows border-t-[0.5px] border-border [--row-inset:20px]">
+      {carts.map((cart) => {
+        const meta = recoveryMeta(cart.status);
+        const who = cart.fullName || (cart.phone ? tr("عميل") : tr("زائر من غير رقم"));
+        return (
+          <li key={`${cart.status}-${cart.key}`} className="relative flex items-center gap-3 px-5 py-3 transition-colors hover:bg-(--fill-3)/40">
+            <ThumbStack cart={cart} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <Link
+                  href={openHref(cart.key)}
+                  scroll={false}
+                  className={cn(
+                    "truncate text-[15px] font-semibold after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring",
+                    !cart.fullName && !cart.phone && "font-normal text-muted-foreground",
+                  )}
+                  aria-label={tr("افتح سلة {0}", cart.fullName ?? cart.phone ?? tr("زائر"))}
+                >
+                  {who}
                 </Link>
-                <p className="shrink-0 text-sm font-semibold tabular-nums">{money.format(cart.value / 100)}</p>
+                <span className="shrink-0 text-[13px] text-muted-foreground">{ago(cart.lastActivityAt, now)}</span>
               </div>
-              <Products cart={cart} />
-              <div className="flex items-center justify-between gap-3">
-                <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-                  {ago(cart.lastActivityAt, now)}
+              <p className="truncate text-[13px] text-muted-foreground">
+                {cart.status === "recovered"
+                  ? tr("اتحولت لطلب")
+                  : (
+                    <>
+                      {cart.items[0]?.name}
+                      {cart.items.length > 1 && tr(" · {0} منتجات", nf.format(cart.items.length))}
+                    </>
+                  )}
+                {cart.phone && (
+                  <span className="hidden sm:inline" dir="ltr">
+                    {" · "}
+                    {cart.phone}
+                  </span>
+                )}
+              </p>
+              <div className="mt-1 flex items-center justify-between gap-3">
+                <span className="flex items-center gap-3">
+                  <StatusText tone={meta.tone}>{meta.label}</StatusText>
+                  <span className="text-[15px] font-semibold tabular-nums">{money.format(cart.value / 100)}</span>
                 </span>
                 <CartRowActions cartKey={cart.key} phone={cart.phone} status={cart.status} openHref={openHref(cart.key)} />
               </div>
-            </li>
-          );
-        })}
-      </ul>
-    </>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

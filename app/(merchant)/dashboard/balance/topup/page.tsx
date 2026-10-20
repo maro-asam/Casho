@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, Store } from "lucide-react";
+import { ChevronRight, Store, XCircle } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { EmptyState, PageHeader, readParam, type SearchParamsRecord } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
+import { LargeTitle, Unavailable, appleButton, readParam, type SearchParamsRecord } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { getBillingPeriodDays } from "@/lib/subscriptions";
 import { TopupStudio } from "../_components/topup-studio";
@@ -32,12 +32,9 @@ export default async function TopupRoute({ searchParams }: TopupRouteProps) {
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول وبعدها اشحن رصيده.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول وبعدها اشحن رصيده.")} />
+      </div>
     );
   }
 
@@ -46,22 +43,21 @@ export default async function TopupRoute({ searchParams }: TopupRouteProps) {
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
-        title={tr("شحن الرصيد")}
-        description={tr("الرصيد بيتخصم منه الاشتراك تلقائي في ميعاده.")}
-        actions={
-          <Button asChild variant="ghost" size="sm" className="gap-1.5">
-            <Link href="/balance">
-              <ArrowRight className="size-4 ltr:-scale-x-100" />
-              {tr("الرصيد")}
-            </Link>
-          </Button>
+      <LargeTitle
+        eyebrow={
+          <Link href="/balance" className={cn(appleButton.plain, "-ms-1 h-8 gap-0.5 px-1")}>
+            <ChevronRight className="size-[18px] ltr:-scale-x-100" strokeWidth={2.4} />
+            {tr("الرصيد")}
+          </Link>
         }
+        title={tr("شحن الرصيد")}
+        subtitle={tr("الرصيد بيتخصم منه الاشتراك تلقائي في ميعاده.")}
       />
       {(failed === "failed" || failed === "invalid") && (
-        <p className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4 text-sm text-rose-800 dark:text-rose-300" role="status">
+        <div className="apple-card flex items-center gap-3 px-5 py-4 text-[15px]" role="status">
+          <XCircle className="size-6 shrink-0 text-(--sys-red)" />
           {failed === "failed" ? tr("الدفع ما تمش ومفيش أي مبلغ اتخصم. جرّب تاني أو استخدم تحويل يدوي.") : tr("مقدرناش نتأكد من عملية الدفع. لو المبلغ اتخصم كلّمنا من الدعم.")}
-        </p>
+        </div>
       )}
       <TopupStudio
         storeId={store.id}

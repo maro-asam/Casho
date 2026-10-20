@@ -110,5 +110,8 @@
   "هنبعتلك لينك دفع مدى بعد تأكيد الطلب": "We'll send you a mada payment link after confirming your order",
   "هنمسح بيانات الربط والدفع الأونلاين هيختفي من متجرك. الطلبات القديمة مش هتتأثر.": "We'll delete the connection details and online payment will disappear from your store. Past orders aren't affected.",
   "وضع التجربة شغال — العملاء بيشوفوا Kashier بس الدفع مش حقيقي.": "Test mode is on — customers see Kashier but payments aren't real.",
-  "وضع تجربة": "Test mode"
+  "وضع تجربة": "Test mode",
+  "تأكيد الطلب": "Place order",
+  "فعّل طريقة دفع واحدة على الأقل.": "Turn on at least one payment method.",
+  "{0} {1}": "{0} {1}"
 }

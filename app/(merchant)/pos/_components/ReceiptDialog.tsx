@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Check, MessageCircle, Printer, X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Check, MessageCircle, Printer } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { GetPOSOrderAction } from "@/actions/pos/pos.actions";
 import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
@@ -206,104 +206,110 @@ export default function ReceiptDialog({ open, onClose, orderId, store, cashierNa
     bank_transfer: tr("تحويل بنكي"),
   };
 
+  const money = (p: number) => tr("{0} ج", (p / 100).toFixed(0));
+  const row = "flex items-baseline justify-between gap-3";
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-sm" dir={tdir()}>
+      <DialogContent className="apple-ui max-h-[94vh] max-w-sm gap-0 overflow-y-auto bg-background p-0 text-foreground" dir={tdir()}>
         {/* Success header */}
-        <div className="flex flex-col items-center gap-2 pb-2">
-          <div className="flex size-12 items-center justify-center rounded-full bg-emerald-100">
-            <Check className="size-6 text-emerald-600" />
-          </div>
-          <p className="text-base font-bold text-emerald-600">{tr("تم البيع بنجاح!")}</p>
+        <div className="flex flex-col items-center gap-2 px-6 pt-8 pb-5 text-center">
+          <span className="grid size-16 place-items-center rounded-full bg-(--sys-green) text-white">
+            <Check className="size-8" strokeWidth={3} />
+          </span>
+          <DialogTitle className="pt-1 text-[22px] font-bold">{tr("تم البيع بنجاح!")}</DialogTitle>
+          {order && <p className="text-[34px] leading-10 font-bold tabular-nums">{money(order.total)}</p>}
         </div>
 
-        {/* Receipt */}
-        <div
-          ref={printRef}
-          className="receipt rounded-lg border border-dashed border-border p-4 bg-muted/20 text-sm space-y-2"
-        >
-          <div className="center bold text-base">{store.name}</div>
-          {order?.branch && <div className="center text-xs text-muted-foreground">{order.branch.name}</div>}
-          <div className="center text-xs text-muted-foreground">
-            {tr("فاتورة #{0}", orderId.slice(-6).toUpperCase())}
-          </div>
-          <div className="center text-xs text-muted-foreground">
-            {new Date().toLocaleString(intlLocale())}
-          </div>
-          <div className="line" />
+        {/* Paper receipt */}
+        <div className="px-5">
+          <div
+            ref={printRef}
+            className="space-y-2 rounded-[14px] bg-card px-5 py-4 text-[13px] shadow-[0_1px_3px_rgba(0,0,0,0.06)] [mask-image:radial-gradient(circle_at_50%_100%,transparent_5px,#000_5.5px)] [mask-position:bottom] [mask-size:14px_100%] [mask-repeat:repeat-x] pb-6"
+          >
+            <div className="text-center">
+              <p className="text-[17px] font-bold">{store.name}</p>
+              {order?.branch && <p className="text-[12px] text-muted-foreground">{order.branch.name}</p>}
+              <p className="text-[12px] text-muted-foreground tabular-nums">
+                {tr("فاتورة #{0}", orderId.slice(-6).toUpperCase())} · {new Date().toLocaleString(intlLocale())}
+              </p>
+            </div>
+            <div className="border-t border-dashed border-border" />
 
-          {order ? (
-            <>
-              {order.items.map((item) => (
-                <div key={item.id} className="row">
-                  <span className="flex-1">{item.product.name} ×{item.quantity}</span>
-                  <span>{tr("{0} ج", (item.price * item.quantity / 100).toFixed(0))}</span>
-                </div>
-              ))}
-
-              <div className="line" />
-
-              {order.discount > 0 && (
-                <div className="row text-emerald-600">
-                  <span>{tr("الخصم")}</span>
-                  <span>{tr("−{0} ج", (order.discount / 100).toFixed(0))}</span>
-                </div>
-              )}
-
-              <div className="row total">
-                <span>{tr("الإجمالي")}</span>
-                <span>{tr("{0} ج", (order.total / 100).toFixed(0))}</span>
-              </div>
-
-              <div className="line" />
-
-              {order.splitPayments.length > 0 ? (
-                order.splitPayments.map((p, i) => (
-                  <div key={i} className="row text-xs">
-                    <span>{paymentLabels[p.paymentMethod] ?? p.paymentMethod}</span>
-                    <span>{tr("{0} ج", (p.amount / 100).toFixed(0))}</span>
+            {order ? (
+              <>
+                {order.items.map((item) => (
+                  <div key={item.id} className={row}>
+                    <span className="min-w-0 flex-1">
+                      {item.product.name} <span className="text-muted-foreground tabular-nums">×{item.quantity}</span>
+                    </span>
+                    <span className="tabular-nums">{money(item.price * item.quantity)}</span>
                   </div>
-                ))
-              ) : (
-                <div className="row text-xs">
-                  <span>{paymentLabels[order.paymentMethod] ?? order.paymentMethod}</span>
-                  <span>{tr("{0} ج", (order.total / 100).toFixed(0))}</span>
+                ))}
+                <div className="border-t border-dashed border-border" />
+                {order.discount > 0 && (
+                  <div className={cn(row, "text-(--sys-green)")}>
+                    <span>{tr("الخصم")}</span>
+                    <span className="tabular-nums">−{money(order.discount)}</span>
+                  </div>
+                )}
+                <div className={cn(row, "text-[15px] font-bold")}>
+                  <span>{tr("الإجمالي")}</span>
+                  <span className="tabular-nums">{money(order.total)}</span>
                 </div>
-              )}
-
-              <div className="line" />
-              <div className="center text-xs text-muted-foreground">
-                {tr("الكاشير: {0}", cashierName)}
+                {(order.splitPayments.length > 0
+                  ? order.splitPayments.map((p) => ({ method: p.paymentMethod, amount: p.amount }))
+                  : [{ method: order.paymentMethod, amount: order.total }]
+                ).map((p, i) => (
+                  <div key={i} className={cn(row, "text-muted-foreground")}>
+                    <span>{paymentLabels[p.method] ?? p.method}</span>
+                    <span className="tabular-nums">{money(p.amount)}</span>
+                  </div>
+                ))}
+                <div className="border-t border-dashed border-border" />
+                <p className="text-center text-[12px] text-muted-foreground">{tr("الكاشير: {0}", cashierName)}</p>
+              </>
+            ) : (
+              <div className="space-y-2 py-2" aria-busy="true" aria-label={tr("جاري التحميل...")}>
+                <div className="h-3 w-3/4 animate-pulse rounded-full bg-(--fill-3)" />
+                <div className="h-3 w-1/2 animate-pulse rounded-full bg-(--fill-3)" />
               </div>
-              <div className="center text-xs text-muted-foreground">
-                {tr("شكراً لتسوقكم معنا 🙏")}
-              </div>
-            </>
-          ) : (
-            <div className="text-center text-muted-foreground text-xs">{tr("جاري التحميل...")}</div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 gap-1.5" onClick={handlePrint}>
-            <Printer className="size-4" />
-            {tr("طباعة")}
-          </Button>
-          {store.settings?.whatsappNumber && (
-            <Button
-              variant="outline"
-              className="flex-1 gap-1.5 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
-              onClick={handleWhatsApp}
+        <div className="space-y-2 px-5 pt-5 pb-5">
+          <div className={cn("grid gap-2", store.settings?.whatsappNumber ? "grid-cols-2" : "grid-cols-1")}>
+            <button
+              type="button"
+              onClick={handlePrint}
+              disabled={!order}
+              className="apple-press flex h-11 items-center justify-center gap-2 rounded-full bg-card text-[15px] font-medium disabled:opacity-50"
             >
-              <MessageCircle className="size-4" />
-              {tr("واتساب")}
-            </Button>
-          )}
-          <Button className="flex-1 gap-1.5" onClick={onClose}>
-            <X className="size-4" />
-            {tr("إغلاق")}
-          </Button>
+              <Printer className="size-4" />
+              {tr("طباعة")}
+            </button>
+            {store.settings?.whatsappNumber && (
+              <button
+                type="button"
+                onClick={handleWhatsApp}
+                disabled={!order}
+                className="apple-press flex h-11 items-center justify-center gap-2 rounded-full bg-(--sys-green)/12 text-[15px] font-medium text-(--sys-green) disabled:opacity-50"
+              >
+                <MessageCircle className="size-4" />
+                {tr("واتساب")}
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            autoFocus
+            className="apple-press h-[50px] w-full rounded-full bg-primary text-[17px] font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            {tr("فاتورة جديدة")}
+          </button>
         </div>
       </DialogContent>
     </Dialog>

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { ExternalLink, Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { EmptyState, PageHeader } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
+import { LargeTitle, Unavailable, appleButton } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
 import { metaText, storeBaseUrl } from "@/lib/seo/store-seo";
 import { SeoForm } from "./_components/seo-form";
@@ -53,12 +52,9 @@ export default async function SeoRoute() {
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول وبعدها ظبّط ظهوره في جوجل.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول وبعدها ظبّط ظهوره في جوجل.")} />
+      </div>
     );
   }
 
@@ -208,42 +204,43 @@ export default async function SeoRoute() {
   ];
 
   return (
-    <div className="space-y-6" dir={tdir()}>
-      <PageHeader
-        title={tr("الظهور في جوجل")}
-        description={tr("ازاي متجرك ومنتجاته بيظهروا في البحث وفي المشاركات — وإيه اللي يخليهم يظهروا أحسن.")}
-        actions={
-          <Button asChild variant="outline" size="sm" className="gap-1.5">
-            <a href={`https://www.google.com/search?q=site:${encodeURIComponent(storeUrl.replace(/^https?:\/\//, ""))}`} target="_blank" rel="noreferrer">
+    <div className="space-y-10" dir={tdir()}>
+      <div className="space-y-6">
+        <LargeTitle
+          title={tr("الظهور في جوجل")}
+          subtitle={tr("ازاي متجرك ومنتجاته بيظهروا في البحث وفي المشاركات — وإيه اللي يخليهم يظهروا أحسن.")}
+          actions={
+            <a
+              href={`https://www.google.com/search?q=site:${encodeURIComponent(storeUrl.replace(/^https?:\/\//, ""))}`}
+              target="_blank"
+              rel="noreferrer"
+              className={appleButton.gray}
+            >
               <ExternalLink className="size-4" />
               {tr("شوف متجرك في جوجل")}
             </a>
-          </Button>
-        }
-      />
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <SeoForm
-          storeId={store.id}
-          storeName={store.name}
-          storeUrl={storeUrl}
-          logo={s?.logo ?? null}
-          initial={{
-            seoTitle: s?.seoTitle ?? "",
-            seoDescription: s?.seoDescription ?? "",
-            ogTitle: s?.ogTitle ?? "",
-            ogDescription: s?.ogDescription ?? "",
-            ogImage: s?.ogImage ?? "",
-            googleSiteVerification: s?.googleSiteVerification ?? "",
-            isIndexed: s?.isIndexed ?? true,
-          }}
-          fallbacks={fallbacks}
-          suggestions={{ titles: titleSuggestions, descriptions: descriptionSuggestions }}
+          }
         />
-        <aside className="xl:sticky xl:top-20 xl:self-start">
-          <SeoHealth checks={checks} />
-        </aside>
+        <SeoHealth checks={checks} />
       </div>
+
+      <SeoForm
+        storeId={store.id}
+        storeName={store.name}
+        storeUrl={storeUrl}
+        logo={s?.logo ?? null}
+        initial={{
+          seoTitle: s?.seoTitle ?? "",
+          seoDescription: s?.seoDescription ?? "",
+          ogTitle: s?.ogTitle ?? "",
+          ogDescription: s?.ogDescription ?? "",
+          ogImage: s?.ogImage ?? "",
+          googleSiteVerification: s?.googleSiteVerification ?? "",
+          isIndexed: s?.isIndexed ?? true,
+        }}
+        fallbacks={fallbacks}
+        suggestions={{ titles: titleSuggestions, descriptions: descriptionSuggestions }}
+      />
     </div>
   );
 }

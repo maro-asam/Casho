@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { BadgeCheck, Loader2, Star } from "lucide-react";
+import { BadgeCheck, ChevronDown, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -10,14 +10,11 @@ import {
   SaveReviewAction,
   type ReviewOrderOption,
 } from "@/actions/products/reviews.actions";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { appleButton } from "@/components/saas-page";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { lazyIntl, lazyList, tdir, tr } from "@/lib/i18n/dashboard";
+import { lazyIntl, lazyList, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export type EditableReview = {
   id: string;
@@ -63,7 +60,7 @@ export function UrlReviewDialog({ mode, review, products, defaultProductId }: Pr
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close()}>
-      <DialogContent dir={tdir()} className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent dir={tdir()} className="apple-ui apple-form max-h-[92dvh] gap-0 overflow-y-auto bg-background p-0 text-foreground sm:max-w-lg">
         {open && (
           <ReviewForm
             key={review?.id ?? "new"}
@@ -155,84 +152,20 @@ function ReviewForm({
 
   const shown = hover || rating;
 
+  const rowCls = "flex min-h-11 items-center gap-4 px-4";
+  const inlineInput = "h-11 min-w-0 flex-1 bg-transparent text-end text-[15px] outline-none placeholder:text-(--label-3)";
+
   return (
-    <form onSubmit={submit} className="min-w-0 space-y-5">
-      <DialogHeader className="text-start sm:text-start">
+    <form onSubmit={submit} className="min-w-0">
+      <DialogHeader className="items-center gap-1 px-6 pt-7 pb-5 text-center sm:text-center">
         <DialogTitle>{review ? tr("تعديل المراجعة") : tr("إضافة مراجعة")}</DialogTitle>
-        <DialogDescription>
+        <DialogDescription className="max-w-sm text-[13px]">
           {review ? review.productName : tr("سجّل رأي عميل حقيقي — مثلًا وصلك على الواتساب أو الإنستجرام.")}
         </DialogDescription>
-      </DialogHeader>
 
-      {!review && (
-        <div className="space-y-2">
-          <Label>{tr("المنتج")}</Label>
-          <Select
-            value={productId}
-            onValueChange={(v) => {
-              setProductId(v);
-              setOrders(null);
-              setOrderId(NO_ORDER);
-            }}
-            dir={tdir()}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={tr("اختار منتج")} />
-            </SelectTrigger>
-            <SelectContent>
-              {products.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* Verified purchase — only from a real order */}
-      {productId &&
-        (alreadyVerified ? (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
-            <span className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
-              <BadgeCheck className="size-4" />
-              {tr("مشتري موثق")}
-            </span>
-            <Button type="button" variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setRemoveVerified(true)}>
-              {tr("شيل العلامة")}
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Label>{tr("من طلب حقيقي؟")}</Label>
-            <Select value={orderId} onValueChange={pickOrder} dir={tdir()} disabled={orders === null}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={orders === null ? tr("بنجيب الطلبات…") : tr("اختار")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NO_ORDER}>{tr("لأ — من غير علامة \"مشتري موثق\"")}</SelectItem>
-                {orders?.map((o) => (
-                  <SelectItem key={o.id} value={o.id}>
-                    {o.fullName} · {orderDate.format(new Date(o.createdAt))}{" "}
-                    <span className="font-mono text-muted-foreground" dir="ltr">
-                      #{o.id.slice(0, 6)}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              {orders && orders.length === 0
-                ? tr("مفيش طلبات للمنتج ده لسه، فالمراجعة هتظهر من غير علامة التوثيق.")
-                : tr("علامة \"مشتري موثق\" بتظهر بس للمراجعات المربوطة بطلب فعلي فيه المنتج — عشان العملاء يثقوا فيها.")}
-            </p>
-          </div>
-        ))}
-
-      <div className="space-y-2">
-        <Label>{tr("التقييم")}</Label>
-        <div className="flex items-center gap-3">
-          <div className="flex" role="radiogroup" aria-label={tr("التقييم")} onMouseLeave={() => setHover(0)}>
+        {/* Tap to rate — the App Store way. */}
+        <div className="flex flex-col items-center gap-1 pt-4">
+          <div className="flex gap-1" role="radiogroup" aria-label={tr("التقييم")} onMouseLeave={() => setHover(0)}>
             {[1, 2, 3, 4, 5].map((n) => (
               <button
                 key={n}
@@ -242,68 +175,161 @@ function ReviewForm({
                 aria-label={tr("{0} نجوم", n)}
                 onClick={() => setRating(n)}
                 onMouseEnter={() => setHover(n)}
-                className="p-0.5"
+                className="apple-press rounded-full p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <Star className={cn("size-7 transition-colors", n <= shown ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30")} />
+                <Star strokeWidth={0} className={cn("size-9 transition-colors", n <= shown ? "fill-(--sys-orange)" : "fill-(--sys-gray)/30")} />
               </button>
             ))}
           </div>
-          <span className="text-sm text-muted-foreground">{RATING_LABELS[shown]}</span>
+          <span className="h-5 text-[13px] font-medium text-muted-foreground">{shown ? RATING_LABELS[shown] : tr("اضغط على النجوم")}</span>
+        </div>
+      </DialogHeader>
+
+      <div className="space-y-6 px-4 pb-5">
+        {/* Product + verification */}
+        {(!review || productId) && (
+          <section className="space-y-2">
+            <div className="apple-rows overflow-hidden rounded-[14px] bg-card [--row-inset:16px]">
+              {!review && (
+                <div className={rowCls}>
+                  <span className="shrink-0 text-[15px]">{tr("المنتج")}</span>
+                  <Select
+                    value={productId}
+                    onValueChange={(v) => {
+                      setProductId(v);
+                      setOrders(null);
+                      setOrderId(NO_ORDER);
+                    }}
+                    dir={tdir()}
+                  >
+                    <SelectTrigger className="h-11 min-w-0 flex-1 justify-end gap-1 border-0 bg-transparent px-0 text-[15px] text-muted-foreground shadow-none focus-visible:ring-0 dark:bg-transparent">
+                      <SelectValue placeholder={tr("اختار منتج")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {productId &&
+                (alreadyVerified ? (
+                  <div className={rowCls}>
+                    <span className="flex flex-1 items-center gap-2 text-[15px] text-(--sys-green)">
+                      <BadgeCheck className="size-[18px]" />
+                      {tr("مشتري موثق")}
+                    </span>
+                    <button type="button" onClick={() => setRemoveVerified(true)} className="text-[15px] text-(--sys-red)">
+                      {tr("شيل العلامة")}
+                    </button>
+                  </div>
+                ) : (
+                  <div className={rowCls}>
+                    <span className="shrink-0 text-[15px]">{tr("من طلب حقيقي؟")}</span>
+                    <Select value={orderId} onValueChange={pickOrder} dir={tdir()} disabled={orders === null}>
+                      <SelectTrigger className="h-11 min-w-0 flex-1 justify-end gap-1 border-0 bg-transparent px-0 text-[15px] text-muted-foreground shadow-none focus-visible:ring-0 dark:bg-transparent">
+                        <SelectValue placeholder={orders === null ? tr("بنجيب الطلبات…") : tr("اختار")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NO_ORDER}>{tr("لأ — من غير علامة \"مشتري موثق\"")}</SelectItem>
+                        {orders?.map((o) => (
+                          <SelectItem key={o.id} value={o.id}>
+                            {o.fullName} · {orderDate.format(new Date(o.createdAt))}{" "}
+                            <span className="font-mono text-muted-foreground" dir="ltr">
+                              #{o.id.slice(0, 6)}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+            </div>
+            {productId && !alreadyVerified && (
+              <p className="px-4 text-[13px] leading-[18px] text-muted-foreground">
+                {orders && orders.length === 0
+                  ? tr("مفيش طلبات للمنتج ده لسه، فالمراجعة هتظهر من غير علامة التوثيق.")
+                  : tr("علامة \"مشتري موثق\" بتظهر بس للمراجعات المربوطة بطلب فعلي فيه المنتج — عشان العملاء يثقوا فيها.")}
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* Who & when */}
+        <div className="apple-rows overflow-hidden rounded-[14px] bg-card [--row-inset:16px]">
+          <label htmlFor="review-name" className={rowCls}>
+            <span className="shrink-0 text-[15px]">{tr("اسم العميل")}</span>
+            <input id="review-name" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder={tr("أحمد م.")} className={inlineInput} />
+          </label>
+          <label htmlFor="review-date" className={rowCls}>
+            <span className="shrink-0 text-[15px]">{tr("التاريخ")}</span>
+            <input
+              id="review-date"
+              type="date"
+              value={date}
+              max={cairoDay(new Date())}
+              onChange={(e) => setDate(e.target.value)}
+              className={cn(inlineInput, "text-muted-foreground")}
+            />
+          </label>
+          <label htmlFor="review-title" className={rowCls}>
+            <span className="shrink-0 text-[15px]">{tr("العنوان")}</span>
+            <input
+              id="review-title"
+              value={title}
+              maxLength={100}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={tr("مثال: الخامة أحسن من الصور")}
+              className={inlineInput}
+            />
+          </label>
+        </div>
+
+        {/* The review */}
+        <section className="space-y-2">
+          <div className="flex items-end justify-between px-4">
+            <label htmlFor="review-content" className="text-[13px] font-semibold text-muted-foreground">
+              {tr("المراجعة")}
+            </label>
+            <span className="text-[12px] text-muted-foreground tabular-nums">{content.trim().length}/2000</span>
+          </div>
+          <textarea
+            id="review-content"
+            rows={5}
+            maxLength={2000}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder={tr("كلام العميل زي ما قاله")}
+            className="w-full resize-none rounded-[14px] bg-card px-4 py-3 text-[15px] leading-[22px] outline-none placeholder:text-(--label-3) focus-visible:ring-2 focus-visible:ring-ring"
+          />
+        </section>
+
+        <details className="group overflow-hidden rounded-[14px] bg-card">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-4 text-[15px]">
+            {tr("صورة العميل (اختياري)")}
+            <ChevronDown className="size-4 text-(--label-3) transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="border-t-[0.5px] border-border px-4">
+            <input dir="ltr" value={avatar} onChange={(e) => setAvatar(e.target.value)} placeholder="https://…" aria-label={tr("صورة العميل (اختياري)")} className="h-11 w-full bg-transparent text-[15px] outline-none placeholder:text-(--label-3)" />
+          </div>
+        </details>
+
+        {error && <p className="px-4 text-[13px] text-(--sys-red)">{trv(error)}</p>}
+
+        <div className="space-y-1">
+          <button type="submit" disabled={pending} className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}>
+            {pending && <Loader2 className="size-4 animate-spin" />}
+            {review ? tr("حفظ التعديلات") : tr("إضافة المراجعة")}
+          </button>
+          <button type="button" onClick={onDone} disabled={pending} className="h-11 w-full rounded-full text-[15px] text-primary hover:bg-primary/8">
+            {tr("إلغاء")}
+          </button>
         </div>
       </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="review-name">{tr("اسم العميل")}</Label>
-          <Input id="review-name" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder={tr("أحمد م.")} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="review-date">{tr("التاريخ")}</Label>
-          <Input id="review-date" type="date" value={date} max={cairoDay(new Date())} onChange={(e) => setDate(e.target.value)} />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="review-title">
-          {tr("العنوان")}{" "}<span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>
-        </Label>
-        <Input id="review-title" value={title} maxLength={100} onChange={(e) => setTitle(e.target.value)} placeholder={tr("مثال: الخامة أحسن من الصور")} />
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="review-content">{tr("المراجعة")}</Label>
-          <span className="text-xs text-muted-foreground tabular-nums">{content.trim().length}/2000</span>
-        </div>
-        <Textarea
-          id="review-content"
-          rows={4}
-          maxLength={2000}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="resize-none"
-          placeholder={tr("كلام العميل زي ما قاله")}
-        />
-      </div>
-
-      <details className="group rounded-lg border border-border">
-        <summary className="cursor-pointer list-none px-3 py-2 text-xs text-muted-foreground">{tr("صورة العميل (اختياري)")}</summary>
-        <div className="border-t border-border p-3">
-          <Input dir="ltr" value={avatar} onChange={(e) => setAvatar(e.target.value)} placeholder="https://…" />
-        </div>
-      </details>
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
-      <DialogFooter className="gap-2 sm:justify-start">
-        <Button type="submit" disabled={pending} className="gap-1.5">
-          {pending && <Loader2 className="size-4 animate-spin" />}
-          {review ? tr("حفظ التعديلات") : tr("إضافة المراجعة")}
-        </Button>
-        <Button type="button" variant="outline" onClick={onDone} disabled={pending}>
-          {tr("إلغاء")}
-        </Button>
-      </DialogFooter>
     </form>
   );
 }

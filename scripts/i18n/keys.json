@@ -36,9 +36,6 @@
   " · اتواصلت {0} مرة": [
    "app/(merchant)/dashboard/abandoned-carts/_components/recover-dialog.tsx"
   ],
-  " · انتهى {0}": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ImportHistory.tsx"
-  ],
   " · رايح {0}": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
   ],
@@ -69,17 +66,11 @@
   " لو عايز توقفه مؤقتًا، اخفيه بدل ما تمسحه.": [
    "app/(merchant)/dashboard/banners/_components/banner-row-actions.tsx"
   ],
-  " من {0}": [
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
-  ],
   " و": [
    "app/(merchant)/dashboard/seo/page.tsx"
   ],
   " والدفع عند الاستلام": [
    "app/(merchant)/dashboard/seo/page.tsx"
-  ],
-  "— أول {0}": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
   ],
   "— لحد ٥ ميجا": [
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx"
@@ -110,7 +101,7 @@
    "app/(merchant)/dashboard/crm/page.tsx"
   ],
   ". اكتب الدومين وهنقولك بالظبط تعمل إيه.": [
-   "app/(merchant)/dashboard/domain/page.tsx"
+   "app/(merchant)/dashboard/domain/_components/connect-domain-form.tsx"
   ],
   ". الفرع اللي عليه حركات بيتقفل (إيقاف) بدل ما يتمسح عشان السجل يفضل محفوظ.": [
    "app/(merchant)/dashboard/inventory/branches/page.tsx"
@@ -132,9 +123,6 @@
   ],
   "· خرج": [
    "app/(merchant)/dashboard/balance/history/page.tsx"
-  ],
-  "· رجّعت": [
-   "app/(merchant)/dashboard/abandoned-carts/page.tsx"
   ],
   "· مقارنة بـ {0}": [
    "app/(merchant)/dashboard/reports/page.tsx"
@@ -162,9 +150,6 @@
   "\"اتحصّل\" = طلبات مدفوعة أو اتسلّمت. \"لسه\" = {0} طلب قيد المراجعة أو مع شركة الشحن (الدفع عند الاستلام).": [
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx"
   ],
-  "({0} دقيقة)": [
-   "app/(merchant)/pos/shifts/page.tsx"
-  ],
   "({0} مفتوحة)": [
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
   ],
@@ -173,13 +158,10 @@
   ],
   "(اختياري)": [
    "app/(merchant)/pos/_components/CustomerPicker.tsx",
-   "app/(merchant)/pos/_components/PaymentDialog.tsx",
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx",
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx",
    "app/(merchant)/dashboard/categories/_components/category-form-dialog.tsx",
-   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
    "app/(merchant)/dashboard/offers/_components/offer-form-dialog.tsx",
-   "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx",
    "app/(merchant)/dashboard/products/_components/product-form/form-section.tsx"
   ],
   "(افتراضي)": [
@@ -203,12 +185,6 @@
   ],
   "{0} · {1}": [
    "app/(merchant)/_components/main/DashboardSearch.tsx"
-  ],
-  "{0} · {1} · الكاشير: {2}": [
-   "app/(merchant)/pos/returns/page.tsx"
-  ],
-  "{0} · {1} ج": [
-   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
   ],
   "{0} · {1} طلب · متوسط {2}": [
    "app/(merchant)/dashboard/reports/_components/tab-overview.tsx"
@@ -240,6 +216,9 @@
   "{0} (جديد)": [
    "app/(merchant)/dashboard/api-keys/_components/ApiKeysClient.tsx"
   ],
+  "{0} {1}": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
+  ],
   "{0} {1}: {2} طلب": [
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx"
   ],
@@ -249,18 +228,21 @@
   "{0} أونلاين | {1}": [
    "app/(merchant)/dashboard/seo/page.tsx"
   ],
+  "{0} اتجاهل: {1}": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
+  ],
   "{0} اتلغى": [
    "app/(merchant)/dashboard/payment-methods/_components/method-performance.tsx"
   ],
   "{0} اتنقل": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
   ],
+  "{0} اتنقل قبل كده (من غير تكرار)": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
+  ],
   "{0} اتوقف": [
    "app/(merchant)/dashboard/coupons/_components/coupon-row-actions.tsx",
    "app/(merchant)/dashboard/offers/_components/offer-row-actions.tsx"
-  ],
-  "{0} بـ {1}": [
-   "app/(merchant)/dashboard/abandoned-carts/page.tsx"
   ],
   "{0} بيعة في الكاشير بـ {1} من غير بيانات عميل، ومش داخلة في أرقام العملاء. اطلب رقم العميل في الكاشير عشان تعرف مين بيرجع.": [
    "app/(merchant)/dashboard/reports/_components/tab-customers.tsx"
@@ -295,9 +277,9 @@
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
   ],
   "{0} ج": [
-   "app/(merchant)/pos/_components/DiscountDialog.tsx",
    "app/(merchant)/pos/_components/ReceiptDialog.tsx",
    "app/(merchant)/pos/_components/ShiftModal.tsx",
+   "app/(merchant)/pos/returns/page.tsx",
    "app/(merchant)/pos/shifts/page.tsx",
    "app/(merchant)/dashboard/products/_components/ImportProductsForm.tsx",
    "app/(merchant)/pos/returns/_components/ReturnsClient.tsx",
@@ -307,7 +289,8 @@
   "{0} ج.م": [
    "lib/coupons/coupon-status.ts",
    "app/(merchant)/(builder)/builder/page.tsx",
-   "app/(merchant)/pos/_components/pos-format.ts"
+   "app/(merchant)/pos/_components/pos-format.ts",
+   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
   ],
   "{0} جاب {1} من صافي المبيعات.": [
    "app/(merchant)/dashboard/reports/_lib/reports-data.ts"
@@ -320,6 +303,9 @@
   ],
   "{0} خطأ": [
    "app/(merchant)/dashboard/products/_components/ImportProductsForm.tsx"
+  ],
+  "{0} د": [
+   "app/(merchant)/pos/shifts/page.tsx"
   ],
   "{0} دفع{1} متبقية للشهر المجاني القادم": [
    "app/(merchant)/dashboard/referral/_components/ReferralPageClient.tsx"
@@ -336,7 +322,13 @@
   "{0} زيارة": [
    "app/(merchant)/dashboard/reports/_components/tab-overview.tsx"
   ],
-  "{0} سلة بـ {1}": [
+  "{0} س {1} د": [
+   "app/(merchant)/pos/shifts/page.tsx"
+  ],
+  "{0} سلة": [
+   "app/(merchant)/dashboard/abandoned-carts/page.tsx"
+  ],
+  "{0} سلة · {1}": [
    "app/(merchant)/dashboard/abandoned-carts/page.tsx"
   ],
   "{0} شغّال": [
@@ -358,12 +350,18 @@
   "{0} طريقة تحويل — بياناتها بتظهر للعميل بعد الطلب.": [
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
+  "{0} طريقة شغّالة": [
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
+  ],
   "{0} طلب": [
    "app/(merchant)/dashboard/_components/overview/ChannelBreakdown.tsx",
    "app/(merchant)/dashboard/inventory/purchase-orders/page.tsx",
    "app/(merchant)/dashboard/offers/_components/offers-table.tsx",
    "app/(merchant)/dashboard/payment-methods/_components/method-performance.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx"
+  ],
+  "{0} طلب استخدم كود": [
+   "app/(merchant)/dashboard/coupons/page.tsx"
   ],
   "{0} طلب بـ {1} لسه فلوسهم متحصّلتش (قيد المراجعة أو مع شركة الشحن).": [
    "app/(merchant)/dashboard/reports/_lib/reports-data.ts"
@@ -402,20 +400,22 @@
    "app/(merchant)/_components/notifications/NotificationsBell.tsx"
   ],
   "{0} فاتورة": [
+   "app/(merchant)/pos/shifts/page.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
   ],
   "{0} فاتورة · {1}": [
    "app/(merchant)/pos/_components/PosTerminal.tsx"
   ],
   "{0} فشل": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ImportHistory.tsx"
+   "app/(merchant)/dashboard/integrations/shopify/_components/ImportHistory.tsx",
+   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
   ],
   "{0} قسم": [
    "app/(merchant)/(builder)/builder/_components/panels/HomePanel.tsx"
   ],
   "{0} قطعة": [
    "app/(merchant)/pos/_components/CartPanel.tsx",
-   "app/(merchant)/dashboard/abandoned-carts/_components/carts-table.tsx",
+   "app/(merchant)/pos/_components/HeldOrdersDialog.tsx",
    "app/(merchant)/dashboard/orders/_components/orders-table.tsx",
    "app/(merchant)/dashboard/products/_components/products-table.tsx"
   ],
@@ -425,17 +425,20 @@
   "{0} قطعة · {1}": [
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
   ],
-  "{0} قطعة · {1} ج · {2}": [
-   "app/(merchant)/pos/_components/HeldOrdersDialog.tsx"
-  ],
   "{0} قطعة · {1}/يوم": [
    "app/(merchant)/dashboard/reports/_components/tab-inventory.tsx"
+  ],
+  "{0} كان موجود واتحدّث": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
   ],
   "{0} لسه مفتوحة": [
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
   ],
   "{0} مابتحصّلش عند الاستلام": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
+  ],
+  "{0} مبيعات بالكود": [
+   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
   ],
   "{0} متاح": [
    "app/(merchant)/pos/_components/ProductGrid.tsx"
@@ -451,6 +454,9 @@
   ],
   "{0} مخفي": [
    "app/(merchant)/dashboard/categories/_components/categories-table.tsx"
+  ],
+  "{0} مراجعة على {1} منتج": [
+   "app/(merchant)/dashboard/reviews/page.tsx"
   ],
   "{0} مرتجع · {1} من المبيعات": [
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
@@ -476,6 +482,9 @@
   "{0} من {1} مشاهدة": [
    "app/(merchant)/dashboard/offers/_components/offers-table.tsx"
   ],
+  "{0} من {1} هيتنقلوا": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/PreviewPanel.tsx"
+  ],
   "{0} من ٥ نجوم": [
    "app/(merchant)/dashboard/reviews/_components/stars.tsx"
   ],
@@ -490,6 +499,9 @@
   ],
   "{0} من مبيعات العملاء المعروفين جت من ناس اشتروا منك قبل كده.": [
    "app/(merchant)/dashboard/reports/_lib/reports-data.ts"
+  ],
+  "{0} من مشترين موثقين": [
+   "app/(merchant)/dashboard/reviews/page.tsx"
   ],
   "{0} منتج": [
    "app/(merchant)/dashboard/page.tsx",
@@ -551,6 +563,9 @@
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx",
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
   ],
+  "{0} نجوم: {1} مراجعة": [
+   "app/(merchant)/dashboard/reviews/page.tsx"
+  ],
   "{0} هنخصم {1} — رصيدك {2}، ناقصك {3}.": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
   ],
@@ -575,19 +590,20 @@
    "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx"
   ],
   "{0}{1} ج": [
-   "app/(merchant)/pos/shifts/page.tsx",
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
   ],
   "{0}٪": [
    "lib/coupons/coupon-status.ts",
    "app/(merchant)/(builder)/builder/page.tsx",
+   "app/(merchant)/dashboard/abandoned-carts/page.tsx",
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx",
    "app/(merchant)/dashboard/_components/overview/format.ts",
+   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
    "app/(merchant)/dashboard/offers/_components/offers-table.tsx",
    "app/(merchant)/dashboard/payment-methods/_components/method-performance.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-coupons.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/HomePanel.tsx",
-   "app/(merchant)/dashboard/integrations/shopify/_components/ProgressPanel.tsx",
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx",
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
   "{0}٪ قبول · {1}": [
@@ -624,19 +640,11 @@
   "− مرتجعات نقدية": [
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
   ],
-  "−{0} ج": [
-   "app/(merchant)/pos/_components/DiscountDialog.tsx",
-   "app/(merchant)/pos/_components/ReceiptDialog.tsx",
-   "app/(merchant)/pos/returns/page.tsx"
-  ],
   "⚡ عرض محدود الوقت — لا تفوّته!": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
   ],
   "✅ ضمان الاسترجاع 30 يوم": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
-  ],
-  "⭐ الأكثر طلبًا": [
-   "app/(merchant)/dashboard/services/page.tsx"
   ],
   "🎉 ألف مبروك! تم تفعيل متجرك لمدة 30 يوم من دلوقتي": [
    "app/(merchant)/_components/ActivateStoreBtn.tsx"
@@ -668,9 +676,6 @@
   "١. العميل بيختار {0} في صفحة الدفع ويأكد الطلب.": [
    "app/(merchant)/dashboard/payment-methods/_components/manual-sheet.tsx"
   ],
-  "١. المبلغ": [
-   "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
-  ],
   "١٢ شهر": [
    "app/(merchant)/dashboard/reports/_lib/range.ts"
   ],
@@ -685,9 +690,6 @@
   ],
   "٢. بيظهرله الكلام اللي هتكتبه هنا عشان يحوّل.": [
    "app/(merchant)/dashboard/payment-methods/_components/manual-sheet.tsx"
-  ],
-  "٢. طريقة الدفع": [
-   "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
   ],
   "٣": [
    "app/(merchant)/dashboard/referral/_components/ReferralPageClient.tsx"
@@ -770,6 +772,9 @@
   ],
   "F1 بحث · F2 المعلّق · F9 الدفع": [
    "app/(merchant)/pos/_components/PosTerminal.tsx"
+  ],
+  "F2 يفتح القائمة دي في أي وقت.": [
+   "app/(merchant)/pos/_components/HeldOrdersDialog.tsx"
   ],
   "https://… أو /products?sort=price-asc": [
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx"
@@ -898,9 +903,6 @@
   "آخر مزامنة: {0}": [
    "app/(merchant)/dashboard/integrations/instagram/_components/ConnectionStatus.tsx"
   ],
-  "آخر نشاط": [
-   "app/(merchant)/dashboard/abandoned-carts/_components/carts-table.tsx"
-  ],
   "آخر يوم في السماح": [
    "app/(merchant)/dashboard/balance/page.tsx"
   ],
@@ -915,9 +917,6 @@
   ],
   "آراء عملائك على المنتجات — بتظهر في صفحة كل منتج وبتزوّد الثقة.": [
    "app/(merchant)/dashboard/reviews/page.tsx"
-  ],
-  "آمن": [
-   "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
   "أبريل": [
    "app/(merchant)/dashboard/crm/analytics/_components/CRMAnalyticsClient.tsx"
@@ -1020,9 +1019,6 @@
   "أسعار الجملة": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
-  "أسعار الشحن حسب المحافظة — {0}": [
-   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
-  ],
   "أسعار المحافظات": [
    "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
@@ -1075,6 +1071,7 @@
    "app/(merchant)/dashboard/integrations/shopify/_components/ConnectPanel.tsx"
   ],
   "أعضاء المتجر": [
+   "app/(merchant)/dashboard/settings/page.tsx",
    "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx"
   ],
   "أعلى": [
@@ -1121,6 +1118,9 @@
   ],
   "أقدر أوقف الاشتراك؟": [
    "app/(merchant)/dashboard/change-plan/page.tsx"
+  ],
+  "أقسام الإعدادات": [
+   "app/(merchant)/dashboard/settings/page.tsx"
   ],
   "أقسام التقارير": [
    "app/(merchant)/dashboard/reports/page.tsx"
@@ -1194,6 +1194,9 @@
   ],
   "أكواد الخصم والعروض": [
    "app/(merchant)/dashboard/integrations/shopify/_components/import-meta.ts"
+  ],
+  "أكواد شغّالة": [
+   "app/(merchant)/dashboard/coupons/page.tsx"
   ],
   "ألوان": [
    "app/(merchant)/_components/main/QuickCustomizeSheet.tsx"
@@ -1317,6 +1320,9 @@
   "أو ضيف صورة من لينك": [
    "app/(merchant)/dashboard/products/_components/product-form/media-input.tsx"
   ],
+  "أو كلّم الدعم": [
+   "app/(merchant)/dashboard/services/page.tsx"
+  ],
   "أوسع تغطية في مصر، حتى القرى والمناطق البعيدة.": [
    "lib/shipping/carriers.ts"
   ],
@@ -1365,6 +1371,9 @@
   "أول ما تشحن رصيد أو يتجدد الاشتراك، كل حركة هتتسجل هنا بالرصيد قبلها وبعدها.": [
    "app/(merchant)/dashboard/balance/history/page.tsx"
   ],
+  "أول ما تفتح وردية من نقطة البيع هتظهر هنا بتقريرها.": [
+   "app/(merchant)/pos/shifts/page.tsx"
+  ],
   "أول ما توصلك طلبات، هتشوف هنا كل طريقة دفع جابت كام وكام اتلغى منها.": [
    "app/(merchant)/dashboard/payment-methods/_components/method-performance.tsx"
   ],
@@ -1403,7 +1412,8 @@
    "app/(merchant)/dashboard/offers/_components/offer-form-dialog.tsx"
   ],
   "أيام": [
-   "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
+   "app/(merchant)/onboarding/_components/OnboardingWizard.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "أيقونة": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
@@ -1415,11 +1425,10 @@
    "app/(merchant)/dashboard/services/page.tsx"
   ],
   "إجراءات": [
-   "app/(merchant)/dashboard/abandoned-carts/_components/carts-table.tsx",
    "app/(merchant)/dashboard/categories/_components/categories-table.tsx",
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx",
    "app/(merchant)/dashboard/products/_components/products-table.tsx",
-   "app/(merchant)/dashboard/reviews/_components/reviews-table.tsx"
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "إجراءات {0}": [
    "app/(merchant)/dashboard/banners/_components/banner-row-actions.tsx",
@@ -1606,6 +1615,9 @@
   "إزاي الفلوس بتتحسب؟": [
    "app/(merchant)/dashboard/change-plan/page.tsx"
   ],
+  "إزاي بنحميك": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "إشعارات الشراء": [
    "app/(merchant)/(builder)/builder/_components/StudioNavigator.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/HomePanel.tsx"
@@ -1779,11 +1791,7 @@
    "lib/popups/popup-config.ts"
   ],
   "إغلاق": [
-   "app/(merchant)/pos/_components/ReceiptDialog.tsx",
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
-  ],
-  "إغلاق النافذة": [
-   "app/(merchant)/pos/_components/ShiftModal.tsx"
   ],
   "إغلاق الوردية": [
    "app/(merchant)/pos/_components/ShiftModal.tsx"
@@ -1875,7 +1883,7 @@
   ],
   "إنستاباي": [
    "lib/balance-ui/meta.ts",
-   "app/(merchant)/pos/_components/PaymentDialog.tsx",
+   "app/(merchant)/pos/_components/pos-ui.tsx",
    "app/(merchant)/dashboard/orders/_components/order-meta.ts"
   ],
   "إنستجرام": [
@@ -1939,11 +1947,11 @@
   "إنشاء وحذف Webhooks": [
    "app/(merchant)/dashboard/api-keys/_components/CreateKeyDialog.tsx"
   ],
+  "إنهاء": [
+   "app/(merchant)/dashboard/settings/_components/ActiveSessions.tsx"
+  ],
   "إنهاء الإعداد": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
-  ],
-  "إنهاء هذه الجلسة": [
-   "app/(merchant)/dashboard/settings/_components/ActiveSessions.tsx"
   ],
   "إيداع نقدي": [
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
@@ -1989,6 +1997,9 @@
   "ابحث بالكود": [
    "app/(merchant)/dashboard/coupons/page.tsx"
   ],
+  "ابحث برقم أو سبب": [
+   "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
+  ],
   "ابحث بعنوان البانر": [
    "app/(merchant)/dashboard/banners/page.tsx"
   ],
@@ -2003,6 +2014,9 @@
   ],
   "ابحث عن صورة... (مثال: nature, food, fashion)": [
    "app/(merchant)/(builder)/builder/_components/media/UnsplashPickerModal.tsx"
+  ],
+  "ابحث عن محافظة": [
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "ابحث عن مقال...": [
    "app/(merchant)/dashboard/blog/page.tsx"
@@ -2088,9 +2102,6 @@
   "اتبع الخطوات دي وهتبقى مرتبط في أقل من دقيقة": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
   ],
-  "اتجاهل: {0}": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
-  ],
   "اتجدد بيه الاشتراك": [
    "app/(merchant)/dashboard/balance/page.tsx"
   ],
@@ -2135,6 +2146,9 @@
   ],
   "اتربط الدومين — فاضل خطوة الـ DNS": [
    "app/(merchant)/dashboard/domain/_components/connect-domain-form.tsx"
+  ],
+  "اترد {0}": [
+   "app/(merchant)/pos/returns/page.tsx"
   ],
   "اترفعت": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
@@ -2272,8 +2286,8 @@
   "اتنشر — العملاء شايفين الشكل الجديد دلوقتي 🎉": [
    "app/(merchant)/(builder)/builder/_components/BuilderContext.tsx"
   ],
-  "اتنقل قبل كده (من غير تكرار)": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
+  "اتنفذت": [
+   "app/(merchant)/dashboard/services/page.tsx"
   ],
   "اتواصلت": [
    "app/(merchant)/dashboard/abandoned-carts/_components/recovery-meta.ts"
@@ -2299,11 +2313,14 @@
   "احصل على إشعارات فورية لكل طلب جديد مباشرة على تيليجرام": [
    "app/(merchant)/dashboard/telegram/page.tsx"
   ],
-  "احظر": [
+  "احظر الرقم": [
    "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
   ],
   "احظر الرقم ده من متجرك": [
    "app/(merchant)/dashboard/orders/[id]/_components/block-phone-button.tsx"
+  ],
+  "احظر رقم": [
+   "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
   ],
   "احفظ": [
    "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx"
@@ -2364,6 +2381,9 @@
   "اختار تصنيف للمنتج": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
+  "اختار حاجة واحدة على الأقل": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/PreviewPanel.tsx"
+  ],
   "اختار خط مريح للقراية على الموبايل — بيتطبق على كل كلام المتجر.": [
    "app/(merchant)/(builder)/builder/_components/panels/FontsPanel.tsx"
   ],
@@ -2384,6 +2404,9 @@
   ],
   "اختار منتج": [
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
+  ],
+  "اختبار": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "اختر السبب": [
    "app/(merchant)/dashboard/inventory/adjustments/new/_components/NewAdjustmentForm.tsx"
@@ -2424,7 +2447,6 @@
   ],
   "اختياري": [
    "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
-   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx",
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
   ],
   "ادعُ المزيد وارتقِ في المستويات — احصل على مكافآت أكبر!": [
@@ -2474,7 +2496,7 @@
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
   ],
   "اربط دومينك": [
-   "app/(merchant)/dashboard/domain/page.tsx"
+   "app/(merchant)/dashboard/domain/_components/connect-domain-form.tsx"
   ],
   "اربط شركات الشحن اللي بتتعامل معاها، واشحن أي طلب منها بضغطة من صفحة الطلب.": [
    "app/(merchant)/dashboard/shipping/integrations/page.tsx"
@@ -2491,6 +2513,9 @@
   ],
   "اربط شركة شحن — أو مندوبك — عشان تشحن الطلب من هنا وتتابع حالته وتحصيله.": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
+  ],
+  "اربط متجرك": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
   ],
   "اربط متجرك على Shopify": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ConnectPanel.tsx"
@@ -2552,9 +2577,6 @@
   "استخدام": [
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx",
    "app/(merchant)/dashboard/categories/_components/category-form-dialog.tsx"
-  ],
-  "استخدام{0}": [
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
   ],
   "استخدامك من الباقة": [
    "app/(merchant)/dashboard/change-plan/page.tsx"
@@ -2709,9 +2731,6 @@
   "اسم النافذة (ليك انت بس)": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
   ],
-  "اسم طريقة الشحن *": [
-   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
-  ],
   "اسمح لجوجل يظهر متجرك": [
    "app/(merchant)/dashboard/seo/_components/seo-form.tsx"
   ],
@@ -2786,6 +2805,9 @@
   "اضغط على الصورة عشان تغيّرها": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
   ],
+  "اضغط على النجوم": [
+   "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
+  ],
   "اضغط لرفع صورة": [
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx",
    "app/(merchant)/dashboard/categories/_components/category-form-dialog.tsx"
@@ -2793,14 +2815,14 @@
   "اطبعه على الكياس والكروت والمنيو — العميل يمسحه ويوصل للمتجر أو منتج أو عرض على طول.": [
    "app/(merchant)/dashboard/qr-code/page.tsx"
   ],
+  "اطلب": [
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
+  ],
   "اطلب إزالة Powered by": [
    "app/(merchant)/_components/PoweredByCashoCard.tsx"
   ],
-  "اطلب الخدمة": [
-   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
-  ],
   "اطلب خدمة مخصصة": [
-   "app/(merchant)/dashboard/services/page.tsx"
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
   ],
   "اطلب رقم الموبايل قبل الكود": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
@@ -2900,7 +2922,6 @@
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
   "افصل": [
-   "app/(merchant)/dashboard/domain/_components/domain-status.tsx",
    "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx"
   ],
   "افصل الدومين": [
@@ -2934,9 +2955,6 @@
   "اكتب اسم متجرك": [
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
   ],
-  "اكتب اسمك": [
-   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
-  ],
   "اكتب الخامة والمقاسات وأي تفاصيل تساعد العميل يقرر.": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
@@ -2951,6 +2969,9 @@
   ],
   "اكتب رابط متجر Shopify صحيح، مثلاً my-store.myshopify.com": [
    "app/(merchant)/dashboard/integrations/shopify/_components/import-meta.ts"
+  ],
+  "اكتب رقم الطلب واختار اللي راجع.": [
+   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
   ],
   "اكتب رقم العملية أو ارفع صورة الإيصال عشان نلاقي التحويل.": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
@@ -3073,6 +3094,9 @@
   "الأرقام المحظورة": [
    "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
   ],
+  "الأرقام المشبوهة لازم تأكد قبل ما الطلب يوصلك، والنصابين مش هيقدروا يطلبوا كاش.": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "الأرقام دي عن آخر ٩٠ يوم. علّم الطلب \"مرتجع\" من صفحته لما العميل يرفض الاستلام — ده اللي بيبني سمعة الرقم.": [
    "app/(merchant)/dashboard/fraud/page.tsx"
   ],
@@ -3084,9 +3108,6 @@
   ],
   "الأساسية": [
    "app/(merchant)/dashboard/products/_components/product-form/media-input.tsx"
-  ],
-  "الأسرع": [
-   "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
   ],
   "الأسعار": [
    "app/(merchant)/_components/shared/footer/index.tsx",
@@ -3106,6 +3127,9 @@
   ],
   "الأكثر اختيارًا": [
    "app/(merchant)/dashboard/change-plan/_components/plan-picker.tsx"
+  ],
+  "الأكثر طلبًا": [
+   "app/(merchant)/dashboard/services/page.tsx"
   ],
   "الأكثر مبيعًا": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx",
@@ -3142,7 +3166,7 @@
    "app/(merchant)/dashboard/abandoned-carts/_components/recover-dialog.tsx",
    "app/(merchant)/dashboard/inventory/purchase-orders/page.tsx",
    "app/(merchant)/dashboard/orders/[id]/page.tsx",
-   "app/(merchant)/dashboard/integrations/shopify/_components/ProgressPanel.tsx",
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx",
    "app/(merchant)/dashboard/inventory/purchase-orders/[poId]/page.tsx",
    "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx",
    "app/(merchant)/dashboard/suggested-orders/[id]/_components/ApproveForm.tsx",
@@ -3196,7 +3220,6 @@
    "app/(merchant)/dashboard/reports/_lib/reports-data.ts"
   ],
   "الاستخدام": [
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-coupons.tsx"
   ],
   "الاستلام": [
@@ -3204,6 +3227,9 @@
   ],
   "الاستمرار بيغلب الموهبة لما الموهبة متستمرش.": [
    "app/(merchant)/dashboard/_components/overview/daily-quote.ts"
+  ],
+  "الاستيراد": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
   ],
   "الاستيراد اكتمل بنجاح": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
@@ -3229,13 +3255,11 @@
    "app/(merchant)/dashboard/inventory/suppliers/page.tsx",
    "app/(merchant)/dashboard/products/_components/ImportProductsForm.tsx",
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/dashboard/suggested-orders/[id]/page.tsx"
   ],
   "الاسم · الهاتف · العنوان · المبلغ · الدفع": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
-  ],
-  "الاسم (Host)": [
-   "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
   "الاسم (أ-ي)": [
    "app/(merchant)/dashboard/categories/page.tsx"
@@ -3247,7 +3271,7 @@
   "الاسم اللي يظهر للعميل": [
    "app/(merchant)/dashboard/shipping/integrations/_components/ShippingIntegrationsClient.tsx"
   ],
-  "الاسم بعد التحويل للرابط:": [
+  "الاسم بيظهر لعملاءك في كل مكان، والرابط بيتعمل منه تلقائي.": [
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
   ],
   "الاسم ده متاخد، والبديل المتاح:": [
@@ -3352,6 +3376,7 @@
    "app/(merchant)/_components/shared/footer/index.tsx",
    "app/(merchant)/dashboard/crm/_components/CreateCustomerDialog.tsx",
    "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx",
+   "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx",
    "app/(merchant)/dashboard/inventory/suppliers/_components/SupplierForm.tsx",
    "app/(merchant)/dashboard/crm/customers/[id]/_components/CustomerProfileClient.tsx"
   ],
@@ -3387,17 +3412,13 @@
    "app/(merchant)/dashboard/_components/overview/daily-quote.ts"
   ],
   "التاريخ": [
-   "app/(merchant)/dashboard/balance/page.tsx",
    "app/(merchant)/pos/_components/ReceiptDialog.tsx",
-   "app/(merchant)/dashboard/balance/history/page.tsx",
    "app/(merchant)/dashboard/inventory/adjustments/page.tsx",
    "app/(merchant)/dashboard/inventory/movements/page.tsx",
    "app/(merchant)/dashboard/inventory/transfers/page.tsx",
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx",
-   "app/(merchant)/dashboard/reviews/_components/reviews-table.tsx",
    "app/(merchant)/dashboard/balance/history/export/route.ts",
-   "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx",
-   "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx"
+   "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx"
   ],
   "التالي": [
    "components/saas-page/apple-kit.tsx",
@@ -3413,6 +3434,12 @@
   ],
   "التالي: {0}": [
    "app/(merchant)/_components/main/StarterGuideCard.tsx"
+  ],
+  "التتبع من السيرفر (Conversions API)": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
+  ],
+  "التتبع من السيرفر (Events API)": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "التجديد": [
    "app/(merchant)/dashboard/balance/page.tsx"
@@ -3438,8 +3465,7 @@
   "التحصيل": [
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx",
    "app/(merchant)/dashboard/shipping/shipments/page.tsx",
-   "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx",
-   "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx"
+   "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
   ],
   "التحصيل من العميل (ج.م)": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
@@ -3506,6 +3532,7 @@
    "app/(merchant)/dashboard/seo/page.tsx"
   ],
   "التفاصيل": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ProgressPanel.tsx",
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
   "التقارير": [
@@ -3528,7 +3555,8 @@
    "app/(merchant)/dashboard/reports/_components/tab-inventory.tsx"
   ],
   "التكاملات": [
-   "app/(merchant)/dashboard/integrations/page.tsx"
+   "app/(merchant)/dashboard/integrations/page.tsx",
+   "app/(merchant)/dashboard/integrations/shopify/page.tsx"
   ],
   "التكبير": [
    "app/(merchant)/(builder)/builder/_components/media/LogoEditorModal.tsx"
@@ -3564,6 +3592,7 @@
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
   ],
   "الجلسات النشطة": [
+   "app/(merchant)/dashboard/settings/page.tsx",
    "app/(merchant)/dashboard/settings/_components/ActiveSessions.tsx"
   ],
   "الجمعة": [
@@ -3581,9 +3610,8 @@
   ],
   "الحالة": [
    "app/(merchant)/dashboard/offers/page.tsx",
-   "app/(merchant)/dashboard/abandoned-carts/_components/carts-table.tsx",
+   "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx",
    "app/(merchant)/dashboard/banners/_components/banners-table.tsx",
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx",
    "app/(merchant)/dashboard/crm/_components/CreateCustomerDialog.tsx",
    "app/(merchant)/dashboard/crm/customers/page.tsx",
    "app/(merchant)/dashboard/inventory/purchase-orders/page.tsx",
@@ -3596,7 +3624,6 @@
    "app/(merchant)/dashboard/reports/_components/tab-coupons.tsx",
    "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx",
    "app/(merchant)/dashboard/inventory/transfers/[transferId]/page.tsx",
-   "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx",
    "app/(merchant)/dashboard/crm/customers/[id]/_components/CustomerProfileClient.tsx"
   ],
   "الحالة تتحدّث، العميل يتابع، وتعرف فلوسك فين.": [
@@ -3633,8 +3660,6 @@
    "app/(merchant)/dashboard/inventory/page.tsx"
   ],
   "الحركة": [
-   "app/(merchant)/dashboard/balance/page.tsx",
-   "app/(merchant)/dashboard/balance/history/page.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
   "الحساب": [
@@ -3645,8 +3670,14 @@
   "الحساب والدعم": [
    "app/(merchant)/_components/main/DashboardSearch.tsx"
   ],
+  "الحظر": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "الحقول المخصصة (Metafields) والتطبيقات": [
    "app/(merchant)/dashboard/integrations/shopify/_components/import-meta.ts"
+  ],
+  "الحماية": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
   ],
   "الحماية من الأوردرات الوهمية": [
    "app/(merchant)/dashboard/fraud/page.tsx"
@@ -3661,7 +3692,7 @@
    "app/(merchant)/dashboard/services/page.tsx"
   ],
   "الخدمة تشمل": [
-   "app/(merchant)/dashboard/services/page.tsx"
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
   ],
   "الخدمة مفعلة": [
    "app/(merchant)/_components/PoweredByCashoCard.tsx"
@@ -3770,6 +3801,7 @@
   ],
   "الدفع عند الاستلام": [
    "constants/welcome/payment-methods.ts",
+   "app/(merchant)/dashboard/fraud/_components/fraud-settings-form.tsx",
    "app/(merchant)/dashboard/orders/_components/order-meta.ts",
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx",
    "app/(merchant)/print/orders/[id]/invoice/page.tsx"
@@ -3830,7 +3862,8 @@
   ],
   "الرابط": [
    "app/(merchant)/dashboard/categories/_components/categories-table.tsx",
-   "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
+   "app/(merchant)/dashboard/domain/_components/domain-status.tsx",
+   "app/(merchant)/dashboard/integrations/shopify/_components/ShopCard.tsx"
   ],
   "الرابط الحالي:": [
    "app/(merchant)/dashboard/categories/_components/category-form-dialog.tsx"
@@ -3845,6 +3878,9 @@
   ],
   "الربح الإجمالي": [
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
+  ],
+  "الربط آمن": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ConnectPanel.tsx"
   ],
   "الربط سليم، بس العملية التجريبية اترفضت أو اتلغت. ده طبيعي لو قفلت الصفحة أو استخدمت كارت تجربة مرفوض.": [
    "app/(merchant)/dashboard/payment-methods/page.tsx"
@@ -3892,7 +3928,7 @@
    "app/(merchant)/dashboard/balance/topup/page.tsx"
   ],
   "الرصيد {0}": [
-   "app/(merchant)/dashboard/balance/history/page.tsx"
+   "app/(merchant)/dashboard/balance/_components/tx-row.tsx"
   ],
   "الرصيد الحالي": [
    "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx"
@@ -3910,20 +3946,11 @@
   "الرصيد بعد الشحن": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
   ],
-  "الرصيد بعدها": [
-   "app/(merchant)/dashboard/balance/page.tsx"
-  ],
   "الرصيد بيتخصم منه الاشتراك تلقائي في ميعاده.": [
    "app/(merchant)/dashboard/balance/topup/page.tsx"
   ],
-  "الرصيد غير كافٍ للتجديد": [
-   "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx"
-  ],
   "الرصيد قبل": [
    "app/(merchant)/dashboard/balance/history/export/route.ts"
-  ],
-  "الرصيد كافي للتجديد": [
-   "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx"
   ],
   "الرصيد والاشتراك": [
    "app/(merchant)/_components/main/DashboardTopbar.tsx",
@@ -3952,6 +3979,9 @@
   "الرقم اللي {0} اديتهولك": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
   ],
+  "الرقم اللي بيكرر الرفض تحظره ومش هيقدر يطلب تاني.": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "الرقم اللي رفض استلام قبل كده لازم يأكد بكود على واتساب أو SMS. العملاء العاديين مش هيحسوا بحاجة.": [
    "app/(merchant)/dashboard/fraud/_components/fraud-settings-form.tsx"
   ],
@@ -3960,6 +3990,9 @@
   ],
   "الرقم المحظور مش هيقدر يعمل طلب من متجرك خالص. تقدر كمان تحظر من صفحة أي طلب.": [
    "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
+  ],
+  "الرقم المشبوه بيأكد بكود، والطلب اللي ماتأكدش بيتلغى لوحده.": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
   ],
   "الرقم ده محظور من متجرك": [
    "lib/fraud/reputation.ts"
@@ -4006,10 +4039,10 @@
    "app/(merchant)/dashboard/inventory/transfers/page.tsx"
   ],
   "السبب": [
+   "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx",
    "app/(merchant)/dashboard/inventory/adjustments/page.tsx"
   ],
   "السبب (اختياري)": [
-   "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx",
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx"
   ],
   "السبب: {0}": [
@@ -4034,16 +4067,11 @@
   "السعر": [
    "app/(merchant)/dashboard/products/_components/ImportProductsForm.tsx",
    "app/(merchant)/dashboard/products/_components/products-table.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
-  ],
-  "السعر (بالجنيه) *": [
-   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "السعر (جنيه)": [
    "app/(merchant)/dashboard/suggested-orders/[id]/_components/ApproveForm.tsx"
-  ],
-  "السعر الشهري": [
-   "app/(merchant)/dashboard/change-plan/page.tsx"
   ],
   "السعر اللي هيتضاف تلقائيًا على إجمالي الطلب.": [
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
@@ -4069,10 +4097,12 @@
   "الشحن": [
    "app/(merchant)/dashboard/page.tsx",
    "app/(merchant)/_components/main/dashboard-nav.ts",
+   "app/(merchant)/dashboard/settings/page.tsx",
    "app/(merchant)/dashboard/api-keys/_components/CreateKeyDialog.tsx",
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx",
    "app/(merchant)/dashboard/orders/[id]/page.tsx",
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx",
+   "app/(merchant)/dashboard/shipping/_components/shipping-tabs.tsx",
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx",
    "app/(merchant)/print/orders/[id]/invoice/page.tsx"
   ],
@@ -4087,11 +4117,9 @@
   ],
   "الشحنات": [
    "app/(merchant)/_components/main/dashboard-nav.ts",
+   "app/(merchant)/dashboard/shipping/_components/shipping-tabs.tsx",
    "app/(merchant)/dashboard/shipping/integrations/page.tsx",
    "app/(merchant)/dashboard/shipping/shipments/page.tsx"
-  ],
-  "الشحنة": [
-   "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx"
   ],
   "الشحنة رجعت — الطلب اتسجّل مرتجع والمخزون رجع.": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
@@ -4105,6 +4133,9 @@
   "الشرائح": [
    "app/(merchant)/_components/main/dashboard-nav.ts",
    "app/(merchant)/dashboard/crm/page.tsx"
+  ],
+  "الشروط": [
+   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
   ],
   "الشروط والأحكام": [
    "app/(merchant)/_components/shared/footer/index.tsx"
@@ -4154,9 +4185,6 @@
   ],
   "الصلاحيات": [
    "app/(merchant)/dashboard/api-keys/_components/CreateKeyDialog.tsx"
-  ],
-  "الصلاحية": [
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
   ],
   "الصنف": [
    "app/(merchant)/pos/_components/ReceiptDialog.tsx"
@@ -4329,31 +4357,29 @@
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
   "العملة": [
-   "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
+   "app/(merchant)/onboarding/_components/OnboardingWizard.tsx",
+   "app/(merchant)/dashboard/integrations/shopify/_components/ShopCard.tsx"
   ],
   "العملة الافتراضية للمنصة": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
-  ],
-  "العملة: {0}": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ShopCard.tsx"
   ],
   "العمليات": [
    "app/(merchant)/_components/main/dashboard-nav.ts"
   ],
   "العميل": [
-   "app/(merchant)/dashboard/abandoned-carts/_components/carts-table.tsx",
    "app/(merchant)/dashboard/crm/customers/page.tsx",
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx",
    "app/(merchant)/dashboard/orders/_components/orders-table.tsx",
    "app/(merchant)/dashboard/orders/[id]/page.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-customers.tsx",
-   "app/(merchant)/dashboard/reviews/_components/reviews-table.tsx",
    "app/(merchant)/dashboard/crm/analytics/_components/CRMAnalyticsClient.tsx",
-   "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx",
    "app/(merchant)/dashboard/suggested-orders/[id]/_components/ConversationViewer.tsx"
   ],
   "العميل اللي بيرجع تاني أغلى من عشرة جداد — اهتم بيه.": [
    "app/(merchant)/dashboard/_components/overview/daily-quote.ts"
+  ],
+  "العميل بيختار منها في صفحة الدفع.": [
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "العميل بيكتبه في السلة — أو يدخل من لينك الكود وبيتطبق لوحده.": [
    "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
@@ -4372,9 +4398,6 @@
   ],
   "العميل لسه ماأكدش الطلب بالكود. لو ماأكدش خلال ٦ ساعات، الطلب هيتلغى لوحده والمخزون يرجع.": [
    "app/(merchant)/dashboard/orders/[id]/page.tsx"
-  ],
-  "العميل هياخد:": [
-   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
   ],
   "العميل هيدفع:": [
    "app/(merchant)/dashboard/offers/_components/offer-form-dialog.tsx"
@@ -4562,15 +4585,11 @@
    "app/(merchant)/_components/main/dashboard-nav.ts"
   ],
   "القيمة": [
-   "app/(merchant)/dashboard/abandoned-carts/_components/carts-table.tsx",
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx",
    "app/(merchant)/dashboard/products/_components/AttributesInput.tsx"
   ],
   "القيمة (30%)": [
    "app/(merchant)/dashboard/crm/customers/[id]/_components/CustomerProfileClient.tsx"
-  ],
-  "القيمة (Value)": [
-   "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
   "الكاشير": [
    "app/(merchant)/dashboard/reports/page.tsx",
@@ -4586,7 +4605,8 @@
    "app/(merchant)/pos/_components/ShiftModal.tsx"
   ],
   "الكاشير: {0}": [
-   "app/(merchant)/pos/_components/ReceiptDialog.tsx"
+   "app/(merchant)/pos/_components/ReceiptDialog.tsx",
+   "app/(merchant)/pos/returns/page.tsx"
   ],
   "الكل": [
    "components/common/ThemeCategoryFilter.tsx",
@@ -4600,6 +4620,7 @@
    "app/(merchant)/dashboard/orders/page.tsx",
    "app/(merchant)/dashboard/products/page.tsx",
    "app/(merchant)/dashboard/reviews/page.tsx",
+   "app/(merchant)/dashboard/services/page.tsx",
    "app/(merchant)/dashboard/suggested-orders/page.tsx",
    "app/(merchant)/pos/_components/PosTerminal.tsx",
    "app/(merchant)/dashboard/balance/history/page.tsx",
@@ -4664,8 +4685,7 @@
    "app/(merchant)/dashboard/reports/_components/tab-coupons.tsx"
   ],
   "الكود": [
-   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
+   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
   ],
   "الكود اتستخدم في طلبات، فهنحتفظ بيه عشان التقارير — بس محدش هيقدر يستخدمه تاني لحد ما تشغّله.": [
    "app/(merchant)/dashboard/coupons/_components/coupon-row-actions.tsx"
@@ -4714,6 +4734,9 @@
    "app/(merchant)/_components/main/QuickCustomizeSheet.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/ColorsPanel.tsx"
   ],
+  "اللي اتنقل": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
+  ],
   "اللي قبلها": [
    "app/(merchant)/dashboard/reports/_components/trend-chart.tsx"
   ],
@@ -4734,11 +4757,8 @@
    "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx"
   ],
   "المبلغ": [
-   "app/(merchant)/dashboard/balance/page.tsx",
    "app/(merchant)/pos/_components/PaymentDialog.tsx",
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx",
-   "app/(merchant)/dashboard/balance/history/page.tsx",
-   "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx",
    "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
    "app/(merchant)/dashboard/orders/_components/orders-table.tsx",
    "app/(merchant)/dashboard/balance/history/export/route.ts"
@@ -4761,9 +4781,6 @@
    "app/(merchant)/dashboard/reports/_components/tab-coupons.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
   ],
-  "المبيعات + الافتتاح": [
-   "app/(merchant)/pos/shifts/page.tsx"
-  ],
   "المبيعات حسب أيام الأسبوع": [
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx"
   ],
@@ -4784,6 +4801,7 @@
   "المتجر": [
    "components/branch/StoreSwitcher.tsx",
    "app/(merchant)/_components/main/dashboard-nav.ts",
+   "app/(merchant)/dashboard/domain/page.tsx",
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
   "المتجر الأونلاين": [
@@ -4810,12 +4828,8 @@
   "المحاذاة": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
   ],
-  "المحافظات": [
-   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
-  ],
   "المحافظة": [
-   "app/(merchant)/dashboard/orders/[id]/page.tsx",
-   "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx"
+   "app/(merchant)/dashboard/orders/[id]/page.tsx"
   ],
   "المحتوى": [
    "app/(merchant)/(builder)/builder/_components/panels/HomePanel.tsx",
@@ -4864,8 +4878,7 @@
    "app/(merchant)/dashboard/reviews/page.tsx"
   ],
   "المراجعة": [
-   "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx",
-   "app/(merchant)/dashboard/reviews/_components/reviews-table.tsx"
+   "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
   ],
   "المراجعة هتختفي من صفحة المنتج نهائي، ومتوسط التقييم هيتحسب من غيرها.": [
    "app/(merchant)/dashboard/reviews/_components/review-row-actions.tsx"
@@ -4924,6 +4937,9 @@
   "الملاحظة": [
    "app/(merchant)/dashboard/balance/history/export/route.ts"
   ],
+  "الملخص": [
+   "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
+  ],
   "المميزات": [
    "app/(merchant)/_components/shared/footer/index.tsx",
    "app/(merchant)/_components/shared/header/index.tsx",
@@ -4935,7 +4951,6 @@
    "app/(merchant)/dashboard/products/_components/products-table.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-products.tsx",
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx",
-   "app/(merchant)/dashboard/reviews/_components/reviews-table.tsx",
    "app/(merchant)/dashboard/inventory/purchase-orders/_components/NewPOForm.tsx",
    "app/(merchant)/dashboard/inventory/purchase-orders/[poId]/page.tsx",
    "app/(merchant)/dashboard/inventory/transfers/_components/NewTransferForm.tsx",
@@ -4983,7 +4998,6 @@
    "app/(merchant)/dashboard/reports/page.tsx",
    "app/(merchant)/pos/_components/PosTerminal.tsx",
    "app/(merchant)/(builder)/builder/_components/section-meta.tsx",
-   "app/(merchant)/dashboard/abandoned-carts/_components/carts-table.tsx",
    "app/(merchant)/dashboard/api-keys/_components/CreateKeyDialog.tsx",
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx",
    "app/(merchant)/dashboard/categories/_components/categories-table.tsx",
@@ -5048,7 +5062,8 @@
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
   ],
   "المنصة": [
-   "app/(merchant)/_components/shared/footer/index.tsx"
+   "app/(merchant)/_components/shared/footer/index.tsx",
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "المنطقة الزمنية": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
@@ -5123,7 +5138,6 @@
    "app/(merchant)/(builder)/builder/_components/panels/HomePanel.tsx"
   ],
   "النوع": [
-   "app/(merchant)/dashboard/domain/_components/domain-status.tsx",
    "app/(merchant)/dashboard/inventory/movements/page.tsx",
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx",
    "app/(merchant)/dashboard/balance/history/export/route.ts"
@@ -5149,7 +5163,8 @@
   ],
   "الورديات": [
    "app/(merchant)/pos/_components/PosTerminal.tsx",
-   "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
+   "app/(merchant)/dashboard/reports/_components/tab-pos.tsx",
+   "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
   ],
   "الوردية مفتوحة": [
    "app/(merchant)/pos/_components/PosTerminal.tsx"
@@ -5187,6 +5202,9 @@
   ],
   "اليوم 🎂": [
    "app/(merchant)/dashboard/crm/page.tsx"
+  ],
+  "امسح": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "امسح أي سجل A أو CNAME قديم لنفس الأسماء.": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
@@ -5245,8 +5263,7 @@
   ],
   "انستاباي": [
    "constants/welcome/payment-methods.ts",
-   "app/(merchant)/pos/_components/ReceiptDialog.tsx",
-   "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
+   "app/(merchant)/pos/_components/ReceiptDialog.tsx"
   ],
   "انستجرام": [
    "app/(merchant)/dashboard/integrations/page.tsx",
@@ -5322,9 +5339,6 @@
   "بالتكلفة": [
    "app/(merchant)/dashboard/reports/_components/tab-inventory.tsx"
   ],
-  "بالشكل ده: 1a2b3c4d-1234-5678-9abc-1a2b3c4d5e6f": [
-   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
-  ],
   "بالصور والسعر والوصف والكمية المتاحة.": [
    "app/(merchant)/dashboard/page.tsx"
   ],
@@ -5369,11 +5383,17 @@
   "بتشوف التغيير في المعاينة على طول، وبيتحفظ في المسودة لوحده.": [
    "app/(merchant)/(builder)/builder/_components/panels/ColorsPanel.tsx"
   ],
+  "بتشوف سمعة الرقم جنب كل طلب بس. فعّل كود التأكيد أو رفض الكاش للأرقام الخطرة.": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "بتظهر بهدوء في ركن الشاشة، من طلباتك الحقيقية بس.": [
    "app/(merchant)/(builder)/builder/_components/panels/SocialProofPanel.tsx"
   ],
   "بتظهر في صفحة «من نحن» وفي بعض الثيمات أول الصفحة.": [
    "app/(merchant)/(builder)/builder/_components/panels/IdentityPanel.tsx"
+  ],
+  "بتظهر في فوتر متجرك وصفحة «من نحن».": [
+   "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
   ],
   "بتوفّر {0}": [
    "app/(merchant)/dashboard/change-plan/_components/plan-picker.tsx"
@@ -5402,14 +5422,8 @@
   "بدء الدفع": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
-  "بدأ {0}": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ImportHistory.tsx"
-  ],
   "بدأ الاستيراد": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ShopifyImportClient.tsx"
-  ],
-  "بدأت {0}": [
-   "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
   ],
   "بدأنا نعيد محاولة العناصر الفاشلة": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ShopifyImportClient.tsx"
@@ -5476,9 +5490,9 @@
   ],
   "بطاقة": [
    "app/(merchant)/pos/_components/ReceiptDialog.tsx",
+   "app/(merchant)/pos/returns/page.tsx",
    "app/(merchant)/dashboard/orders/_components/order-meta.ts",
-   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx",
-   "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
+   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
   ],
   "بعتهاله بطريقة تانية؟ علّمها إنك تواصلت": [
    "app/(merchant)/dashboard/abandoned-carts/_components/recover-dialog.tsx"
@@ -5520,9 +5534,6 @@
   "بعد وقت": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
   ],
-  "بعدها": [
-   "app/(merchant)/dashboard/balance/history/page.tsx"
-  ],
   "بقى من المنتجات المميزة": [
    "app/(merchant)/dashboard/products/_components/product-row-actions.tsx"
   ],
@@ -5551,6 +5562,9 @@
   "بنجيب الطلبات…": [
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
   ],
+  "بنحدّث حالة كل طلب أول بأول.": [
+   "app/(merchant)/dashboard/services/page.tsx"
+  ],
   "بنحسب الأيام اللي فاضلة من باقتك الحالية ونخصم قيمتها من سعر الباقة الجديدة، وتبدأ فترة جديدة كاملة من النهارده. بتشوف المبلغ بالظبط قبل ما تأكد.": [
    "app/(merchant)/dashboard/change-plan/page.tsx"
   ],
@@ -5574,6 +5588,9 @@
   ],
   "بنعدّ البيانات في متجرك على Shopify…": [
    "app/(merchant)/dashboard/integrations/shopify/_components/PreviewPanel.tsx"
+  ],
+  "بنعرض أول {0} بس.": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
   ],
   "بنعيد محاولة العناصر الفاشلة…": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ProgressPanel.tsx"
@@ -5648,6 +5665,10 @@
    "app/(merchant)/dashboard/suggested-orders/[id]/_components/ApproveForm.tsx"
   ],
   "بيانات المتجر": [
+   "app/(merchant)/dashboard/settings/page.tsx",
+   "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
+  ],
+  "بيانات المتجر والشحن والتواصل": [
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
   ],
   "بيانات المورد": [
@@ -5661,6 +5682,9 @@
   ],
   "بيانات نشاطك التجاري": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
+  ],
+  "بياناتك للتواصل": [
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
   ],
   "بياناتك هتظهر هنا…": [
    "app/(merchant)/dashboard/payment-methods/_components/manual-sheet.tsx"
@@ -5679,6 +5703,9 @@
   ],
   "بيجيلك إشعار فوري على تيليجرام عند كل طلب جديد": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
+  ],
+  "بيشتغل في الخلفية": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
   ],
   "بيظهر على البانر في أغلب الثيمات، وكنص بديل للصورة.": [
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx"
@@ -5713,6 +5740,9 @@
   ],
   "بيعدّ لحد انتهاء الكود أو نهاية الجدولة — أقرب واحد.": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
+  ],
+  "بيكسل المتصفح": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "بيودّي على": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx",
@@ -5760,6 +5790,9 @@
   ],
   "تأكيد الشحن": [
    "app/(merchant)/dashboard/inventory/transfers/[transferId]/_components/TransferActions.tsx"
+  ],
+  "تأكيد الطلب": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "تأكيد الطلب بالكود مش متاح حاليًا على كاشو. سمعة الأرقام والحظر شغالين عادي.": [
    "app/(merchant)/dashboard/fraud/_components/fraud-settings-form.tsx"
@@ -5831,6 +5864,9 @@
   "تتجدد": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
   ],
+  "تجاهل": [
+   "app/(merchant)/dashboard/fraud/_components/fraud-settings-form.tsx"
+  ],
   "تجاهل التعديلات": [
    "app/(merchant)/(builder)/builder/_components/BuilderTopBar.tsx"
   ],
@@ -5844,7 +5880,8 @@
    "app/(merchant)/dashboard/api-keys/_components/ApiKeysClient.tsx"
   ],
   "تجربة": [
-   "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx"
+   "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx",
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "تجربة مجانية": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
@@ -5917,10 +5954,9 @@
   "تحويل بنكي": [
    "constants/welcome/payment-methods.ts",
    "lib/balance-ui/meta.ts",
-   "app/(merchant)/pos/_components/PaymentDialog.tsx",
+   "app/(merchant)/pos/_components/pos-ui.tsx",
    "app/(merchant)/pos/_components/ReceiptDialog.tsx",
-   "app/(merchant)/dashboard/orders/_components/order-meta.ts",
-   "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
+   "app/(merchant)/dashboard/orders/_components/order-meta.ts"
   ],
   "تحويل جديد": [
    "app/(merchant)/dashboard/inventory/transfers/page.tsx"
@@ -5978,12 +6014,16 @@
    "app/(merchant)/_components/main/QuickCustomizeSheet.tsx",
    "app/(merchant)/(builder)/builder/_components/StudioNavigator.tsx"
   ],
+  "تخصيص شكل المتجر": [
+   "app/(merchant)/dashboard/settings/page.tsx"
+  ],
   "تخلص": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
   ],
   "تراجع": [
    "app/(merchant)/(builder)/builder/_components/BuilderTopBar.tsx",
    "app/(merchant)/dashboard/api-keys/_components/ApiKeysClient.tsx",
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx",
    "app/(merchant)/dashboard/seo/_components/seo-form.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/SocialProofPanel.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/ThemePanel.tsx",
@@ -6064,7 +6104,6 @@
    "app/(merchant)/dashboard/inventory/adjustments/new/page.tsx"
   ],
   "تشغيل": [
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx",
    "app/(merchant)/dashboard/offers/_components/offers-table.tsx"
   ],
   "تشغيل \"{0}\"": [
@@ -6160,6 +6199,7 @@
    "app/(merchant)/dashboard/offers/_components/offer-row-actions.tsx",
    "app/(merchant)/dashboard/products/_components/product-row-actions.tsx",
    "app/(merchant)/dashboard/reviews/_components/review-row-actions.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/PopupsPanel.tsx",
    "app/(merchant)/(builder)/builder/_components/popups/popup-row-actions.tsx",
    "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx",
@@ -6191,12 +6231,18 @@
   "تعديل بالضغط": [
    "app/(merchant)/(builder)/builder/_components/BuilderTopBar.tsx"
   ],
+  "تعديل طريقة الشحن": [
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
+  ],
   "تعديل كود الخصم": [
    "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
   ],
   "تعديل يدوي": [
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx",
    "app/(merchant)/dashboard/balance/history/export/route.ts"
+  ],
+  "تعذّر تحميل الصفحة": [
+   "app/(merchant)/dashboard/integrations/shopify/page.tsx"
   ],
   "تعذّر تحميل المعاينة — جرّب تاني": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ShopifyImportClient.tsx"
@@ -6311,7 +6357,8 @@
    "constants/welcome/payment-methods.ts"
   ],
   "تقسيم الدفع": [
-   "app/(merchant)/pos/_components/PaymentDialog.tsx"
+   "app/(merchant)/pos/_components/PaymentDialog.tsx",
+   "app/(merchant)/pos/_components/pos-ui.tsx"
   ],
   "تقسيم على أكتر من طريقة": [
    "app/(merchant)/pos/_components/PaymentDialog.tsx"
@@ -6366,9 +6413,6 @@
   ],
   "تم": [
    "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx"
-  ],
-  "تم إرسال الطلب": [
-   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
   ],
   "تم إرسال الطلب بنجاح": [
    "app/(merchant)/dashboard/support/_components/support-form.tsx"
@@ -6455,6 +6499,9 @@
   ],
   "تم التعيين كفرع افتراضي": [
    "app/(merchant)/dashboard/inventory/branches/_components/BranchActions.tsx"
+  ],
+  "تم التواصل": [
+   "app/(merchant)/dashboard/services/page.tsx"
   ],
   "تم الدفع": [
    "app/(merchant)/_components/main/RecentOrders.tsx"
@@ -6566,6 +6613,9 @@
   "تم نسخ لينك المتجر": [
    "app/(merchant)/dashboard/_components/overview/OverviewHeader.tsx"
   ],
+  "تمام": [
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
+  ],
   "تمت الموافقة": [
    "app/(merchant)/dashboard/inventory/transfers/[transferId]/_components/TransferActions.tsx"
   ],
@@ -6614,6 +6664,9 @@
   ],
   "تواصل معنا": [
    "app/(merchant)/(builder)/builder/_components/BuilderTopBar.tsx"
+  ],
+  "توزيع التقييمات": [
+   "app/(merchant)/dashboard/reviews/page.tsx"
   ],
   "توزيع المدفوعات": [
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
@@ -6691,8 +6744,11 @@
   "ج.م": [
    "app/(merchant)/pos/_components/CartPanel.tsx",
    "app/(merchant)/pos/_components/PaymentDialog.tsx",
+   "app/(merchant)/pos/_components/ShiftModal.tsx",
    "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
    "app/(merchant)/dashboard/products/_components/WholesaleInput.tsx",
+   "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/dashboard/products/_components/product-form/money-input.tsx"
   ],
   "ج.م للقطعة": [
@@ -6756,12 +6812,18 @@
    "components/saas-page/table-skeleton.tsx",
    "app/(merchant)/dashboard/balance/loading.tsx",
    "app/(merchant)/dashboard/change-plan/loading.tsx",
+   "app/(merchant)/dashboard/coupons/loading.tsx",
    "app/(merchant)/dashboard/domain/loading.tsx",
    "app/(merchant)/dashboard/fraud/loading.tsx",
    "app/(merchant)/dashboard/payment-methods/loading.tsx",
    "app/(merchant)/dashboard/pixels/loading.tsx",
+   "app/(merchant)/dashboard/qr-code/loading.tsx",
    "app/(merchant)/dashboard/reports/loading.tsx",
+   "app/(merchant)/dashboard/reviews/loading.tsx",
    "app/(merchant)/dashboard/seo/loading.tsx",
+   "app/(merchant)/dashboard/services/loading.tsx",
+   "app/(merchant)/dashboard/settings/loading.tsx",
+   "app/(merchant)/dashboard/shipping/loading.tsx",
    "app/(merchant)/dashboard/integrations/shopify/loading.tsx",
    "app/(merchant)/dashboard/orders/[id]/loading.tsx",
    "app/(merchant)/dashboard/reports/_components/range-picker.tsx"
@@ -6774,6 +6836,9 @@
   ],
   "جاري التفعيل...": [
    "app/(merchant)/_components/ActivateStoreBtn.tsx"
+  ],
+  "جاري التنفيذ": [
+   "app/(merchant)/dashboard/services/page.tsx"
   ],
   "جاري الحفظ...": [
    "app/(merchant)/pos/_components/PaymentDialog.tsx",
@@ -6843,7 +6908,8 @@
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
   "جرّب": [
-   "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx"
+   "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx",
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "جرّب اسم تاني، أو امسح الباركود مباشرة.": [
    "app/(merchant)/pos/_components/ProductGrid.tsx"
@@ -6996,14 +7062,12 @@
   "حد غيّر إعدادات الـ DNS. رجّع السجلات اللي تحت.": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
-  "حدّث اسم المتجر وسعر الشحن وروابط التواصل الاجتماعي.": [
-   "app/(merchant)/dashboard/settings/page.tsx"
-  ],
   "حدث خطأ": [
    "app/(merchant)/pos/_components/ShiftModal.tsx",
    "app/(merchant)/dashboard/api-keys/_components/CreateKeyDialog.tsx",
    "app/(merchant)/dashboard/settings/_components/ActiveSessions.tsx",
    "app/(merchant)/dashboard/settings/_components/MemberBranchesDialog.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/pos/returns/_components/ReturnsClient.tsx",
    "app/(merchant)/dashboard/inventory/branches/_components/BranchActions.tsx",
    "app/(merchant)/dashboard/inventory/branches/_components/NewBranchDialog.tsx",
@@ -7039,6 +7103,7 @@
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx"
   ],
   "حذف": [
+   "app/(merchant)/pos/_components/HeldOrdersDialog.tsx",
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx",
    "app/(merchant)/dashboard/banners/_components/banner-row-actions.tsx",
    "app/(merchant)/dashboard/categories/_components/category-row-actions.tsx",
@@ -7049,6 +7114,7 @@
    "app/(merchant)/dashboard/products/_components/product-row-actions.tsx",
    "app/(merchant)/dashboard/products/_components/WholesaleInput.tsx",
    "app/(merchant)/dashboard/reviews/_components/review-row-actions.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/(builder)/builder/_components/popups/popup-row-actions.tsx",
    "app/(merchant)/dashboard/crm/segments/_components/SegmentsClient.tsx",
    "app/(merchant)/dashboard/crm/tags/_components/TagsClient.tsx",
@@ -7189,6 +7255,15 @@
    "app/(merchant)/(builder)/builder/_components/panels/SocialProofPanel.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/WhatsAppPanel.tsx"
   ],
+  "حماية أساسية": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
+  "حماية قوية": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
+  "حماية متوسطة": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "حمّل {0} للطباعة": [
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
@@ -7247,6 +7322,9 @@
   "خدمة شهرية": [
    "app/(merchant)/dashboard/services/page.tsx"
   ],
+  "خدمة مخصصة": [
+   "app/(merchant)/dashboard/services/page.tsx"
+  ],
   "خروج من ملء الشاشة": [
    "app/(merchant)/pos/_components/PosTerminal.tsx"
   ],
@@ -7259,11 +7337,10 @@
   "خصائص مخصصة": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
-  "خصص مظهر وروابط متجر": [
-   "app/(merchant)/dashboard/settings/page.tsx"
-  ],
   "خصم": [
    "app/(merchant)/pos/_components/CartPanel.tsx",
+   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
+   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx",
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx",
    "app/(merchant)/dashboard/crm/customers/[id]/_components/CustomerProfileClient.tsx"
   ],
@@ -7303,6 +7380,7 @@
    "app/(merchant)/dashboard/orders/_components/order-meta.ts"
   ],
   "خطوات الربط": [
+   "app/(merchant)/dashboard/domain/_components/domain-status.tsx",
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
   ],
   "خطوات تخلّي متجرك أحسن": [
@@ -7355,6 +7433,9 @@
   ],
   "خليها الصورة الأساسية": [
    "app/(merchant)/dashboard/products/_components/product-form/media-input.tsx"
+  ],
+  "خيارات {0}": [
+   "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx"
   ],
   "دائري": [
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx",
@@ -7503,11 +7584,17 @@
   "رابط متجرك الأساسي": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
+  "راجع البيانات": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
+  ],
   "راجع الطلبات": [
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx"
   ],
   "راجع الطلبات المقترحة": [
    "app/(merchant)/dashboard/integrations/instagram/page.tsx"
+  ],
+  "راجع النتيجة": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
   ],
   "راجعين": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
@@ -7597,6 +7684,9 @@
   "رجع وطلب بـ {0} بعد ما تواصلت معاه 🎉": [
    "app/(merchant)/dashboard/abandoned-carts/_components/recover-dialog.tsx"
   ],
+  "رجّعت": [
+   "app/(merchant)/dashboard/abandoned-carts/page.tsx"
+  ],
   "رجعنا للنسخة المنشورة": [
    "app/(merchant)/(builder)/builder/_components/BuilderContext.tsx"
   ],
@@ -7656,12 +7746,10 @@
    "app/(merchant)/dashboard/inventory/_components/StockMovementBadge.tsx"
   ],
   "رصيد الإغلاق": [
-   "app/(merchant)/pos/shifts/page.tsx",
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
   ],
   "رصيد الافتتاح": [
    "app/(merchant)/pos/_components/ShiftModal.tsx",
-   "app/(merchant)/pos/shifts/page.tsx",
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
   ],
   "رصيد الدرج الافتتاحي (ج)": [
@@ -7672,6 +7760,7 @@
    "app/(merchant)/dashboard/crm/customers/[id]/_components/CustomerProfileClient.tsx"
   ],
   "رصيد بالمتجر": [
+   "app/(merchant)/pos/returns/page.tsx",
    "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
   ],
   "رصيد محفظتك بيجدد اشتراك المتجر تلقائي — اشحن مرة وانسى.": [
@@ -7772,6 +7861,7 @@
    "app/(merchant)/dashboard/inventory/adjustments/new/_components/NewAdjustmentForm.tsx"
   ],
   "رقم الموبايل": [
+   "app/(merchant)/pos/_components/CustomerPicker.tsx",
    "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx",
    "app/(merchant)/dashboard/orders/[id]/page.tsx",
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
@@ -7801,6 +7891,9 @@
   "رقم واتساب": [
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
   ],
+  "رقم واتساب (اختياري)": [
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
+  ],
   "رقّي باقتك": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
@@ -7817,7 +7910,11 @@
    "app/(merchant)/(builder)/builder/_components/seasons.ts"
   ],
   "روابط التواصل": [
+   "app/(merchant)/dashboard/settings/page.tsx",
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
+  ],
+  "روابط متجرك": [
+   "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
   "رواق": [
    "constants/store-themes.ts"
@@ -7850,7 +7947,8 @@
    "app/(merchant)/dashboard/products/_components/MarketingAssistantModal.tsx"
   ],
   "زوّد الكمية": [
-   "app/(merchant)/pos/_components/CartPanel.tsx"
+   "app/(merchant)/pos/_components/CartPanel.tsx",
+   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
   ],
   "زوّد الكمية قبل ما المنتج يخلص أونلاين وفي المحل.": [
    "app/(merchant)/dashboard/_components/overview/AttentionPanel.tsx"
@@ -7863,6 +7961,9 @@
   ],
   "زيادة {0}": [
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
+  ],
+  "زيادة {0} ج": [
+   "app/(merchant)/pos/shifts/page.tsx"
   ],
   "زيادة: +{0} ج": [
    "app/(merchant)/pos/_components/ShiftModal.tsx"
@@ -7982,6 +8083,7 @@
    "lib/shipping/carriers.ts"
   ],
   "سمعة الرقم": [
+   "app/(merchant)/dashboard/fraud/page.tsx",
    "app/(merchant)/dashboard/orders/[id]/page.tsx"
   ],
   "سناب شات": [
@@ -8016,6 +8118,9 @@
   ],
   "سياسة الخصوصية": [
    "app/(merchant)/_components/shared/footer/index.tsx"
+  ],
+  "سيب التاريخ فاضي لو الكود شغّال على طول.": [
+   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
   ],
   "سيب الخانة فاضية عشان المحافظة تاخد السعر الأساسي ({0}). اكتب 0 للشحن المجاني.": [
    "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
@@ -8129,6 +8234,7 @@
   ],
   "شركات الشحن": [
    "app/(merchant)/_components/main/dashboard-nav.ts",
+   "app/(merchant)/dashboard/shipping/_components/shipping-tabs.tsx",
    "app/(merchant)/dashboard/shipping/integrations/page.tsx",
    "app/(merchant)/dashboard/shipping/shipments/page.tsx"
   ],
@@ -8190,9 +8296,6 @@
   "شكراً لتسوقكم معنا": [
    "app/(merchant)/pos/_components/ReceiptDialog.tsx"
   ],
-  "شكراً لتسوقكم معنا 🙏": [
-   "app/(merchant)/pos/_components/ReceiptDialog.tsx"
-  ],
   "شكل الإشعار": [
    "app/(merchant)/(builder)/builder/_components/panels/SocialProofPanel.tsx"
   ],
@@ -8220,6 +8323,7 @@
   ],
   "شهر": [
    "app/(merchant)/dashboard/balance/page.tsx",
+   "app/(merchant)/dashboard/change-plan/page.tsx",
    "app/(merchant)/dashboard/trial-expired/page.tsx",
    "app/(merchant)/dashboard/balance/topup/page.tsx",
    "app/(merchant)/dashboard/change-plan/_components/plan-change-dialog.tsx",
@@ -8269,6 +8373,9 @@
   ],
   "شيل الإيصال": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
+  ],
+  "شيل الحظر": [
+   "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
   ],
   "شيل الحظر عن {0}": [
    "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
@@ -8512,10 +8619,12 @@
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx"
   ],
   "طرق الشحن": [
-   "app/(merchant)/dashboard/shipping/page.tsx"
+   "app/(merchant)/dashboard/shipping/page.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "طرق وأسعار الشحن": [
-   "app/(merchant)/_components/main/dashboard-nav.ts"
+   "app/(merchant)/_components/main/dashboard-nav.ts",
+   "app/(merchant)/dashboard/shipping/_components/shipping-tabs.tsx"
   ],
   "طريقة": [
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
@@ -8524,8 +8633,12 @@
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx",
    "app/(merchant)/dashboard/categories/_components/category-form-dialog.tsx"
   ],
+  "طريقة الاسترداد": [
+   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
+  ],
   "طريقة الدفع": [
    "app/(merchant)/pos/_components/PaymentDialog.tsx",
+   "app/(merchant)/dashboard/balance/_components/topup-studio.tsx",
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx",
    "app/(merchant)/print/orders/[id]/invoice/page.tsx"
   ],
@@ -8614,6 +8727,12 @@
   "طلبات وهمية اتلغت لوحدها": [
    "app/(merchant)/dashboard/fraud/page.tsx"
   ],
+  "طلباتك": [
+   "app/(merchant)/dashboard/services/page.tsx"
+  ],
+  "طلبك وصل": [
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
+  ],
   "طلبك وصل — هنضيف الرصيد أول ما نتأكد من التحويل": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
   ],
@@ -8642,8 +8761,7 @@
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
   "ظاهر للعملاء": [
-   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx",
-   "app/(merchant)/dashboard/payment-methods/_components/shared.tsx"
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "ظاهرة الآن": [
    "app/(merchant)/dashboard/banners/page.tsx"
@@ -8664,6 +8782,9 @@
   "عثر عليه": [
    "app/(merchant)/dashboard/inventory/adjustments/page.tsx",
    "app/(merchant)/dashboard/inventory/adjustments/new/_components/NewAdjustmentForm.tsx"
+  ],
+  "عجز {0} ج": [
+   "app/(merchant)/pos/shifts/page.tsx"
   ],
   "عجز {0} في {1} وردية": [
    "app/(merchant)/dashboard/reports/_components/tab-pos.tsx"
@@ -8708,9 +8829,6 @@
   "عدّل الاسم والسعر والصورة والتصنيف وحالة المنتج، ثم احفظ التغييرات.": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
-  "عدّل البيانات": [
-   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
-  ],
   "عربات التسوق المهجورة": [
    "app/(merchant)/_components/main/dashboard-nav.ts",
    "app/(merchant)/dashboard/abandoned-carts/page.tsx"
@@ -8724,7 +8842,6 @@
    "app/(merchant)/dashboard/inventory/purchase-orders/page.tsx",
    "app/(merchant)/dashboard/reports/_components/range-picker.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/ColorsPanel.tsx",
-   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx",
    "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx"
   ],
   "عرض {0}": [
@@ -8812,6 +8929,9 @@
   "علامة \"مشتري موثق\" بتظهر بس للمراجعات المربوطة بطلب فعلي فيه المنتج — عشان العملاء يثقوا فيها.": [
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
   ],
+  "علّق فاتورة من زرار «تعليق» وارجعلها بعدين.": [
+   "app/(merchant)/pos/_components/HeldOrdersDialog.tsx"
+  ],
   "على {0}": [
    "app/(merchant)/dashboard/offers/_components/offers-table.tsx"
   ],
@@ -8821,6 +8941,10 @@
   "على {0}:": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
   ],
+  "على أي طلب": [
+   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
+   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
+  ],
   "على الشاشات الكبيرة بس.": [
    "app/(merchant)/(builder)/builder/_components/panels/WhatsAppPanel.tsx"
   ],
@@ -8829,6 +8953,9 @@
   ],
   "على الكمبيوتر: لما الماوس يطلع ناحية قفل التاب. على الموبايل: لما يطلع لفوق بسرعة بعد ما يتصفح شوية.": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
+  ],
+  "على كل الأكواد": [
+   "app/(merchant)/dashboard/coupons/page.tsx"
   ],
   "على كل المنتجات": [
    "app/(merchant)/dashboard/offers/_components/offers-table.tsx"
@@ -8933,7 +9060,11 @@
    "app/(merchant)/(builder)/builder/_components/panels/SocialProofPanel.tsx"
   ],
   "عندك تعديلات مش محفوظة": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx",
    "app/(merchant)/dashboard/seo/_components/seo-form.tsx"
+  ],
+  "عندك تغييرات مش محفوظة": [
+   "app/(merchant)/dashboard/fraud/_components/fraud-settings-form.tsx"
   ],
   "عندك متجر على Shopify؟": [
    "app/(merchant)/dashboard/products/import/page.tsx"
@@ -9046,6 +9177,9 @@
   "فاتورة بيع — نقطة البيع": [
    "app/(merchant)/pos/_components/ReceiptDialog.tsx"
   ],
+  "فاتورة جديدة": [
+   "app/(merchant)/pos/_components/ReceiptDialog.tsx"
+  ],
   "فاتورة رقم {0}": [
    "app/(merchant)/print/orders/[id]/invoice/page.tsx"
   ],
@@ -9113,9 +9247,6 @@
   "فريق الدعم جاهز للرد في أي وقت": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
   ],
-  "فشل": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
-  ],
   "فشل — {0}": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
@@ -9172,6 +9303,9 @@
   "فعّل برنامج الولاء وتابع نقاط عملائك": [
    "app/(merchant)/dashboard/loyalty/page.tsx"
   ],
+  "فعّل طريقة دفع واحدة على الأقل.": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
+  ],
   "فلكستوك": [
    "lib/shipping/carriers.ts"
   ],
@@ -9189,16 +9323,12 @@
   ],
   "فودافون كاش": [
    "lib/balance-ui/meta.ts",
-   "app/(merchant)/pos/_components/PaymentDialog.tsx",
+   "app/(merchant)/pos/_components/pos-ui.tsx",
    "app/(merchant)/pos/_components/ReceiptDialog.tsx",
-   "app/(merchant)/dashboard/orders/_components/order-meta.ts",
-   "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
+   "app/(merchant)/dashboard/orders/_components/order-meta.ts"
   ],
   "فودافون كاش / محفظة الكترونية": [
    "constants/welcome/payment-methods.ts"
-  ],
-  "فودافون كاش أو إنستاباي أو بنك — بيتراجع يدوي": [
-   "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
   ],
   "فور فتح الصفحة": [
    "lib/popups/popup-config.ts"
@@ -9250,10 +9380,13 @@
    "lib/shipping/carriers.ts"
   ],
   "فيزا / بطاقة": [
-   "app/(merchant)/pos/_components/PaymentDialog.tsx"
+   "app/(merchant)/pos/_components/pos-ui.tsx"
   ],
   "فيسبوك وإنستجرام (Meta)": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
+  ],
+  "فيه طبقة حماية شغالة. فعّل التانية عشان تقفل الباب على الطلبات الوهمية.": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
   ],
   "فيه مشكلة": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
@@ -9303,8 +9436,8 @@
   "قبل الخصم:": [
    "app/(merchant)/pos/_components/DiscountDialog.tsx"
   ],
-  "قبلها": [
-   "app/(merchant)/dashboard/balance/history/page.tsx"
+  "قبل ما تبدأ": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/PreviewPanel.tsx"
   ],
   "قبلها {0}": [
    "app/(merchant)/dashboard/reports/_components/report-ui.tsx"
@@ -9367,7 +9500,8 @@
    "app/(merchant)/dashboard/products/_components/WholesaleInput.tsx"
   ],
   "قلّل الكمية": [
-   "app/(merchant)/pos/_components/CartPanel.tsx"
+   "app/(merchant)/pos/_components/CartPanel.tsx",
+   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
   ],
   "قم بالترقية": [
    "components/entitlements/UsageBar.tsx"
@@ -9384,6 +9518,7 @@
   ],
   "قيد المراجعة": [
    "lib/balance-ui/meta.ts",
+   "app/(merchant)/dashboard/services/page.tsx",
    "app/(merchant)/dashboard/suggested-orders/page.tsx",
    "app/(merchant)/dashboard/_components/overview/RecentOrdersTable.tsx",
    "app/(merchant)/dashboard/orders/_components/order-meta.ts",
@@ -9425,9 +9560,6 @@
   "كارت": [
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
-  "كارت أو محفظة — الرصيد بيتضاف في ثانية": [
-   "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
-  ],
   "كارت المنتج": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
@@ -9435,7 +9567,7 @@
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
   "كاش": [
-   "app/(merchant)/pos/_components/PaymentDialog.tsx",
+   "app/(merchant)/pos/_components/pos-ui.tsx",
    "app/(merchant)/dashboard/orders/_components/order-meta.ts"
   ],
   "كــاشو": [
@@ -9469,9 +9601,6 @@
   "كامل الشاشة": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
-  "كان موجود واتحدّث": [
-   "app/(merchant)/dashboard/integrations/shopify/_components/ResultPanel.tsx"
-  ],
   "كبسولة": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
@@ -9489,6 +9618,9 @@
   ],
   "كده العميل هيشوفها بعد ما يطلب": [
    "app/(merchant)/dashboard/payment-methods/_components/manual-sheet.tsx"
+  ],
+  "كده العميل هيشوفها في صفحة الدفع": [
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "كده صفحة الدفع عند عميلك": [
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
@@ -9606,6 +9738,9 @@
   "كل شحنة وكل تجديد اتعمل على رصيدك.": [
    "app/(merchant)/dashboard/balance/history/page.tsx"
   ],
+  "كل طلب بيظهر جنبه تاريخ الرقم: استلم كام مرة ورفض كام مرة.": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "كل طلب صغير النهارده هو خطوة في براند كبير بكرة.": [
    "app/(merchant)/dashboard/_components/overview/daily-quote.ts"
   ],
@@ -9693,6 +9828,9 @@
   "كمّل الاستيراد": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ProgressPanel.tsx"
   ],
+  "كمّل البيع": [
+   "app/(merchant)/pos/_components/ShiftModal.tsx"
+  ],
   "كمية:": [
    "app/(merchant)/dashboard/products/_components/BundleItemsInput.tsx"
   ],
@@ -9707,6 +9845,9 @@
   ],
   "كود الإحالة": [
    "app/(merchant)/dashboard/referral/_components/ReferralPageClient.tsx"
+  ],
+  "كود التأكيد": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
   ],
   "كود التاجر أو رقم الخدمة في فوري.": [
    "app/(merchant)/dashboard/payment-methods/_components/method-meta.ts"
@@ -9911,7 +10052,8 @@
    "app/(merchant)/dashboard/integrations/instagram/page.tsx"
   ],
   "لايف": [
-   "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx"
+   "app/(merchant)/dashboard/payment-methods/_components/kashier-sheet.tsx",
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "لبس العيد — الطلبات بتبدأ قبلها بأسبوعين.": [
    "app/(merchant)/(builder)/builder/_components/seasons.ts"
@@ -10007,10 +10149,14 @@
   ],
   "لسه مفيش طلبات": [
    "app/(merchant)/dashboard/orders/page.tsx",
-   "app/(merchant)/dashboard/_components/overview/RecentOrdersTable.tsx"
+   "app/(merchant)/dashboard/_components/overview/RecentOrdersTable.tsx",
+   "app/(merchant)/dashboard/payment-methods/_components/method-performance.tsx"
   ],
   "لسه مفيش فترة اشتراك بدأت": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
+  ],
+  "لسه مفيش مبيعات": [
+   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
   ],
   "لسه مفيش مراجعات": [
    "app/(merchant)/dashboard/reviews/page.tsx"
@@ -10023,6 +10169,7 @@
    "app/(merchant)/(builder)/builder/_components/panels/FontsPanel.tsx"
   ],
   "لغة لوحة التحكم": [
+   "app/(merchant)/dashboard/settings/page.tsx",
    "app/(merchant)/dashboard/settings/_components/LanguageSettings.tsx"
   ],
   "لفوق": [
@@ -10077,8 +10224,14 @@
   "لما العميل يضيف": [
    "app/(merchant)/dashboard/offers/_components/offer-form-dialog.tsx"
   ],
+  "لما تحظر رقم هيظهر هنا، وتقدر تشيل الحظر في أي وقت.": [
+   "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
+  ],
   "لما حد يبعت لينك متجرك. سيبها فاضية وهنستخدم بيانات جوجل اللي فوق.": [
    "app/(merchant)/dashboard/seo/_components/seo-form.tsx"
+  ],
+  "لما عميل يرجّع حاجة، دوس «إرجاع جديد» واكتب رقم الطلب — المخزون بيرجع لوحده.": [
+   "app/(merchant)/pos/returns/page.tsx"
   ],
   "لما يتصفح": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
@@ -10215,11 +10368,11 @@
   "لينك المتجر": [
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
   ],
-  "ليه": [
-   "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
-  ],
   "ليه تشتري مننا؟": [
    "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
+  ],
+  "ليه دومين خاص؟": [
+   "app/(merchant)/dashboard/domain/page.tsx"
   ],
   "م": [
    "app/(merchant)/dashboard/reports/_lib/range.ts"
@@ -10276,8 +10429,8 @@
   "مبيعات الكاشير في الفرع ده بس — طلبات المتجر الأونلاين بتظهر في «كل الفروع».": [
    "app/(merchant)/dashboard/reports/page.tsx"
   ],
-  "مبيعات بالكود": [
-   "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
+  "مبيعات بالأكواد": [
+   "app/(merchant)/dashboard/coupons/page.tsx"
   ],
   "مبيعات بكوبون": [
    "app/(merchant)/dashboard/reports/_components/tab-coupons.tsx"
@@ -10336,10 +10489,13 @@
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
   "متجرك دلوقتي على": [
-   "app/(merchant)/dashboard/domain/page.tsx"
+   "app/(merchant)/dashboard/domain/_components/connect-domain-form.tsx"
   ],
   "متجرك شغال فترة سماح{0}. {1}": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
+  ],
+  "متجرك على Shopify": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/ShopCard.tsx"
   ],
   "متجرك متوقف عن استقبال الطلبات. اشحن {0} وهيرجع يشتغل فورًا.": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
@@ -10355,6 +10511,12 @@
   ],
   "متجرك مش بيستقبل طلبات دلوقتي، بس كل بياناتك محفوظة. اشحن وهيرجع يشتغل فورًا.": [
    "app/(merchant)/dashboard/trial-expired/page.tsx"
+  ],
+  "متصفح + سيرفر": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
+  ],
+  "متصفح بس": [
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "متصل": [
    "app/(merchant)/dashboard/integrations/instagram/_components/ConnectionStatus.tsx",
@@ -10391,9 +10553,6 @@
   "متوسط قيمة العميل مدى الحياة": [
    "app/(merchant)/dashboard/crm/analytics/_components/CRMAnalyticsClient.tsx"
   ],
-  "متوسط من {0} مراجعة على {1} منتج": [
-   "app/(merchant)/dashboard/reviews/page.tsx"
-  ],
   "متوسطة": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
   ],
@@ -10403,7 +10562,6 @@
    "app/(merchant)/dashboard/offers/page.tsx",
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-coupons.tsx",
-   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/dashboard/integrations/shopify/_components/import-meta.ts"
   ],
   "متوقفة": [
@@ -10428,9 +10586,6 @@
   "مثال: 10-49 قطعة بسعر 45 ج.م، و50+ قطعة بسعر 38 ج.م": [
    "app/(merchant)/dashboard/products/_components/WholesaleInput.tsx"
   ],
-  "مثال: ١٠٪": [
-   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
-  ],
   "مثال: 20016": [
    "lib/shipping/carriers.ts"
   ],
@@ -10439,9 +10594,6 @@
   ],
   "مثال: 50": [
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
-  ],
-  "مثال: ٥٠ ج.م": [
-   "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
   ],
   "مثال: ADJ-001": [
    "app/(merchant)/dashboard/inventory/adjustments/new/_components/NewAdjustmentForm.tsx"
@@ -10517,6 +10669,7 @@
   ],
   "مجاني": [
    "app/(merchant)/dashboard/orders/[id]/page.tsx",
+   "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/print/orders/[id]/invoice/page.tsx"
   ],
   "مجدول": [
@@ -10549,9 +10702,6 @@
   ],
   "محتاج إعادة ربط": [
    "app/(merchant)/dashboard/integrations/shopify/_components/ShopCard.tsx"
-  ],
-  "محتاج إعداد": [
-   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "محتاج انتباه": [
    "app/(merchant)/dashboard/orders/_components/order-meta.ts"
@@ -10647,7 +10797,7 @@
   "مخفية": [
    "app/(merchant)/dashboard/banners/page.tsx"
   ],
-  "مدة التوصيل (أيام)": [
+  "مدة التوصيل": [
    "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
   ],
   "مدفوع": [
@@ -10672,6 +10822,9 @@
   "مدير": [
    "lib/store/permissions.ts",
    "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx"
+  ],
+  "مرات الاستخدام": [
+   "app/(merchant)/dashboard/coupons/page.tsx"
   ],
   "مراجعات على المنتجات": [
    "app/(merchant)/dashboard/seo/page.tsx"
@@ -10823,6 +10976,9 @@
   "مستنية الاستلام": [
    "app/(merchant)/dashboard/shipping/shipments/_components/shipment-filters.ts"
   ],
+  "مستوى الحماية": [
+   "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
   "مسح": [
    "app/(merchant)/pos/_components/CartPanel.tsx"
   ],
@@ -10882,10 +11038,11 @@
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
   ],
   "مش مربوط": [
-   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx",
+   "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "مش مفعّل": [
-   "app/(merchant)/dashboard/payment-methods/_components/shared.tsx"
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "مش مكتملة": [
    "app/(merchant)/dashboard/page.tsx"
@@ -10998,9 +11155,6 @@
   "معلق — بانتظار الموافقة": [
    "app/(merchant)/dashboard/inventory/transfers/[transferId]/page.tsx"
   ],
-  "معلومة مهمة": [
-   "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx"
-  ],
   "معندكش أكواد خصم شغّالة.": [
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
@@ -11030,6 +11184,9 @@
   "مفتوحة": [
    "app/(merchant)/pos/shifts/page.tsx",
    "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
+  ],
+  "مفتوحة دلوقتي": [
+   "app/(merchant)/pos/shifts/page.tsx"
   ],
   "مُفعّل": [
    "app/(merchant)/_components/main/QuickCustomizeSheet.tsx"
@@ -11199,6 +11356,9 @@
   ],
   "مفيش منصة متظبطة للتتبع من السيرفر.": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
+  ],
+  "مفيش نتايج": [
+   "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
   ],
   "مفيش نتايج لـ \"{0}\".": [
    "app/(merchant)/dashboard/abandoned-carts/page.tsx"
@@ -11379,6 +11539,9 @@
   "ملخص أداء متجرك في آخر ٣٠ يوم.": [
    "app/(merchant)/dashboard/_components/overview/OverviewHeader.tsx"
   ],
+  "ملخص التقييمات": [
+   "app/(merchant)/dashboard/reviews/page.tsx"
+  ],
   "ملخص الطلب المقترح": [
    "app/(merchant)/dashboard/suggested-orders/[id]/page.tsx"
   ],
@@ -11392,6 +11555,7 @@
    "lib/balance-ui/meta.ts",
    "app/(merchant)/_components/main/RecentOrders.tsx",
    "app/(merchant)/dashboard/balance/page.tsx",
+   "app/(merchant)/dashboard/services/page.tsx",
    "app/(merchant)/dashboard/_components/overview/RecentOrdersTable.tsx",
    "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx",
    "app/(merchant)/dashboard/inventory/purchase-orders/page.tsx",
@@ -11431,6 +11595,12 @@
   "من {0} ج.م": [
    "app/(merchant)/dashboard/coupons/_components/coupons-table.tsx"
   ],
+  "من {0} كود": [
+   "app/(merchant)/dashboard/coupons/page.tsx"
+  ],
+  "من ٥": [
+   "app/(merchant)/dashboard/reviews/page.tsx"
+  ],
   "من ٥ · {0} تقييم": [
    "app/(merchant)/dashboard/reports/_components/tab-inventory.tsx"
   ],
@@ -11457,6 +11627,9 @@
   ],
   "من الرصيد في الميعاد.": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
+  ],
+  "من السلات اللي تواصلت معاها": [
+   "app/(merchant)/dashboard/abandoned-carts/page.tsx"
   ],
   "من اللوجو": [
    "app/(merchant)/(builder)/builder/_components/panels/ColorsPanel.tsx"
@@ -11485,6 +11658,9 @@
   "من ساعتين": [
    "app/(merchant)/(builder)/builder/_components/panels/SocialProofPanel.tsx"
   ],
+  "من صفحة Shopify الرسمية": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
+  ],
   "من صفحة الطلب": [
    "app/(merchant)/dashboard/orders/[id]/_components/block-phone-button.tsx"
   ],
@@ -11505,8 +11681,7 @@
    "app/(merchant)/dashboard/offers/_components/offer-form-dialog.tsx"
   ],
   "من غير رقم": [
-   "app/(merchant)/dashboard/abandoned-carts/_components/recovery-meta.ts",
-   "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx"
+   "app/(merchant)/dashboard/abandoned-carts/_components/recovery-meta.ts"
   ],
   "من غير رقم تتبع": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
@@ -11757,6 +11932,9 @@
   "نسبة الإلغاء": [
    "app/(merchant)/dashboard/reports/_components/tab-overview.tsx"
   ],
+  "نسبة الاسترجاع": [
+   "app/(merchant)/dashboard/abandoned-carts/page.tsx"
+  ],
   "نسبة الصورة": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
@@ -11930,8 +12108,11 @@
   "نقداً": [
    "app/(merchant)/pos/_components/ReceiptDialog.tsx",
    "app/(merchant)/pos/returns/page.tsx",
-   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx",
-   "app/(merchant)/pos/shifts/[shiftId]/page.tsx"
+   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
+  ],
+  "نقطة البيع": [
+   "app/(merchant)/pos/returns/page.tsx",
+   "app/(merchant)/pos/shifts/page.tsx"
   ],
   "نقطة البيع · {0}{1}": [
    "app/(merchant)/pos/_components/PosTerminal.tsx"
@@ -11967,8 +12148,14 @@
   "نوافذك": [
    "app/(merchant)/(builder)/builder/_components/panels/PopupsPanel.tsx"
   ],
+  "نوع الإرجاع": [
+   "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
+  ],
   "نوع الحركة": [
    "app/(merchant)/dashboard/balance/history/page.tsx"
+  ],
+  "نوع الخدمة": [
+   "app/(merchant)/dashboard/services/page.tsx"
   ],
   "نوع الخصم": [
    "app/(merchant)/dashboard/coupons/page.tsx",
@@ -12084,6 +12271,9 @@
   "هنبعتلك لينك دفع مدى بعد تأكيد الطلب": [
    "app/(merchant)/dashboard/payment-methods/_components/method-meta.ts"
   ],
+  "هنتواصل معاك بخصوص «{0}» في أسرع وقت. تقدر تتابع حالة الطلب من «طلباتك».": [
+   "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
+  ],
   "هنحفظ اختيارك، ولما تشحن الاشتراك هيتفعّل لوحده.": [
    "app/(merchant)/dashboard/change-plan/_components/plan-change-dialog.tsx"
   ],
@@ -12134,10 +12324,14 @@
    "app/(merchant)/pos/_components/ReceiptDialog.tsx",
    "app/(merchant)/dashboard/integrations/whatsapp/page.tsx",
    "app/(merchant)/dashboard/orders/[id]/page.tsx",
-   "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
+   "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx",
+   "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
   ],
   "واتساب بزنس": [
    "app/(merchant)/dashboard/integrations/whatsapp/page.tsx"
+  ],
+  "واختار هتنقل إيه": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
   ],
   "وارجع هنا.": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
@@ -12168,6 +12362,12 @@
   ],
   "وردي ناعم": [
    "app/(merchant)/(builder)/builder/_components/panels/ColorsPanel.tsx"
+  ],
+  "ورديات سابقة": [
+   "app/(merchant)/pos/shifts/page.tsx"
+  ],
+  "ورديات فيها عجز": [
+   "app/(merchant)/pos/shifts/page.tsx"
   ],
   "وردية مفتوحة": [
    "app/(merchant)/pos/_components/ShiftModal.tsx"
@@ -12258,6 +12458,9 @@
   ],
   "وكل بيعة هتتسجل هنا ومن نفس المخزون.": [
    "app/(merchant)/dashboard/_components/overview/ChannelBreakdown.tsx"
+  ],
+  "وكمّل شغلك على متجرك": [
+   "app/(merchant)/dashboard/integrations/shopify/_components/import-ui.tsx"
   ],
   "ولا تجديد": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx"
@@ -13672,9 +13875,6 @@
   "تم التحويل لـ {0} ورجعنالك {1} في رصيدك": [
    "actions/subscription/change-plan.actions.ts"
   ],
-  "تم التواصل": [
-   "lib/notifications/in-app.ts"
-  ],
   "تم تجديد الاشتراك تلقائيًا من الرصيد": [
    "actions/subscription/subscription.actions.ts"
   ],
@@ -13830,9 +14030,6 @@
   ],
   "تنبيه مخزون منخفض — {0}": [
    "actions/pos/pos.actions.ts"
-  ],
-  "جاري التنفيذ": [
-   "lib/notifications/in-app.ts"
   ],
   "حد المستوى التاني لازم يكون أكبر من الأول": [
    "validations/sales.schema.ts"

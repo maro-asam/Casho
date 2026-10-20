@@ -1,15 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ClockIcon } from "lucide-react";
+import { Clock, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { egpNumber } from "./pos-format";
+import { Tile } from "./pos-ui";
 import { OpenShiftAction, CloseShiftAction } from "@/actions/pos/shift.actions";
 import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 
@@ -81,158 +77,153 @@ export default function ShiftModal({ open, onOpenChange, activeShift, cashierNam
 
   const openedAt = activeShift ? new Date(activeShift.openedAt) : null;
   const duration = openedAt ? Math.floor((now - openedAt.getTime()) / 60000) : 0;
-  const expectedCash = activeShift
-    ? activeShift.openingBalance + activeShift.totalSales
-    : 0;
+  const expectedCash = activeShift ? activeShift.openingBalance + activeShift.totalSales : 0;
+  const counted = closingBalance ? parseFloat(closingBalance) * 100 : null;
+  const diff = counted === null ? null : counted - expectedCash;
+
+  const money = (p: number) => tr("{0} ج", egpNumber(p));
+  const amountRow = (id: string, label: string, value: string, set: (v: string) => void, placeholder: string, autoFocus?: boolean) => (
+    <label htmlFor={id} className="flex items-center gap-3 rounded-[14px] bg-card px-4">
+      <span className="shrink-0 text-[15px]">{label}</span>
+      <input
+        id={id}
+        type="number"
+        inputMode="decimal"
+        min="0"
+        step="0.5"
+        autoFocus={autoFocus}
+        value={value}
+        onChange={(e) => set(e.target.value)}
+        placeholder={placeholder}
+        className="h-14 min-w-0 flex-1 bg-transparent text-end text-[22px] font-semibold tabular-nums outline-none placeholder:text-(--label-3)"
+      />
+      <span className="text-[15px] text-muted-foreground">{tr("ج.م")}</span>
+    </label>
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" dir={tdir()}>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ClockIcon className="size-4" />
-            {activeShift ? tr("إدارة الوردية") : tr("فتح وردية جديدة")}
-          </DialogTitle>
+      <DialogContent className="apple-ui max-w-md gap-0 bg-background p-0 text-foreground" dir={tdir()}>
+        <DialogHeader className="items-center gap-1.5 px-6 pt-7 pb-4 text-center sm:text-center">
+          <Tile icon={Clock} tint={activeShift ? "bg-(--sys-green)" : "bg-primary"} size="md" />
+          <DialogTitle className="pt-1">{activeShift ? tr("إدارة الوردية") : tr("فتح وردية جديدة")}</DialogTitle>
+          <DialogDescription className="text-[13px]">
+            {activeShift ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="size-2 rounded-full bg-(--sys-green)" />
+                {tr("وردية مفتوحة")} · {tr("{0} ({1} دقيقة)", openedAt?.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" }), duration)}
+              </span>
+            ) : (
+              <>
+                {tr("الكاشير:")} <span className="font-medium text-foreground">{cashierName}</span>
+              </>
+            )}
+          </DialogDescription>
         </DialogHeader>
 
-        {!activeShift ? (
-          /* Open Shift */
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {tr("الكاشير:")}{" "}<span className="font-medium text-foreground">{cashierName}</span>
-            </p>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">{tr("رصيد الدرج الافتتاحي (ج)")}</label>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={openingBalance}
-                onChange={(e) => setOpeningBalance(e.target.value)}
-                placeholder="0.00"
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-              <p className="text-xs text-muted-foreground">{tr("اتركه فارغاً إذا لم يكن هناك رصيد ابتدائي")}</p>
-            </div>
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            <Button className="w-full" onClick={handleOpen} disabled={isPending}>
-              {isPending ? tr("جاري الفتح...") : tr("فتح الوردية")}
-            </Button>
-          </div>
-        ) : !confirmClose ? (
-          /* Shift Info */
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">
-                <span className="size-1.5 rounded-full bg-emerald-500 inline-block me-1.5" />
-                {tr("وردية مفتوحة")}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {tr("{0} ({1} دقيقة)", openedAt?.toLocaleTimeString(intlLocale()), duration)}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-lg border bg-muted/30 p-3 text-center">
-                <p className="text-xs text-muted-foreground">{tr("رصيد الافتتاح")}</p>
-                <p className="text-sm font-bold">{tr("{0} ج", (activeShift.openingBalance / 100).toFixed(0))}</p>
+        <div className="space-y-4 px-4 pb-5">
+          {!activeShift ? (
+            /* Open shift */
+            <>
+              <div className="space-y-2">
+                {amountRow("opening-balance", tr("رصيد الدرج الافتتاحي (ج)"), openingBalance, setOpeningBalance, "0", true)}
+                <p className="px-4 text-[13px] text-muted-foreground">{tr("اتركه فارغاً إذا لم يكن هناك رصيد ابتدائي")}</p>
               </div>
-              <div className="rounded-lg border bg-muted/30 p-3 text-center">
-                <p className="text-xs text-muted-foreground">{tr("إجمالي المبيعات")}</p>
-                <p className="text-sm font-bold text-primary">{tr("{0} ج", (activeShift.totalSales / 100).toFixed(0))}</p>
-              </div>
-              <div className="rounded-lg border bg-muted/30 p-3 text-center">
-                <p className="text-xs text-muted-foreground">{tr("الفواتير")}</p>
-                <p className="text-sm font-bold">{activeShift.transactionCount}</p>
-              </div>
-            </div>
-
-            <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm">
-              <span className="text-amber-700">{tr("النقدية المتوقعة:")}{" "}</span>
-              <span className="font-bold text-amber-800">{tr("{0} ج", (expectedCash / 100).toFixed(0))}</span>
-            </div>
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => onOpenChange(false)}
+              {error && <p className="px-1 text-[13px] text-(--sys-red)">{error}</p>}
+              <button
+                type="button"
+                onClick={handleOpen}
+                disabled={isPending}
+                className="apple-press flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[17px] font-semibold text-primary-foreground disabled:opacity-60"
               >
-                {tr("إغلاق النافذة")}
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={() => setConfirmClose(true)}
-              >
-                {tr("إغلاق الوردية")}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          /* Close Shift */
-          <div className="space-y-4">
-            <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm space-y-1">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{tr("إجمالي المبيعات:")}</span>
-                <span className="font-bold">{tr("{0} ج", (activeShift.totalSales / 100).toFixed(0))}</span>
+                {isPending && <Loader2 className="size-4 animate-spin" />}
+                {isPending ? tr("جاري الفتح...") : tr("فتح الوردية")}
+              </button>
+            </>
+          ) : !confirmClose ? (
+            /* Shift info */
+            <>
+              <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-[14px] bg-border/60">
+                {[
+                  { label: tr("رصيد الافتتاح"), value: money(activeShift.openingBalance) },
+                  { label: tr("إجمالي المبيعات"), value: money(activeShift.totalSales) },
+                  { label: tr("الفواتير"), value: String(activeShift.transactionCount) },
+                ].map((m) => (
+                  <div key={m.label} className="flex flex-col-reverse bg-card px-3 py-3 text-center">
+                    <dt className="text-[12px] text-muted-foreground">{m.label}</dt>
+                    <dd className="text-[20px] leading-7 font-bold tabular-nums">{m.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="flex items-center justify-between rounded-[14px] bg-card px-4 py-3">
+                <span className="text-[15px]">{tr("النقدية المتوقعة:")}</span>
+                <span className="text-[20px] font-bold tabular-nums">{money(expectedCash)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{tr("النقدية المتوقعة في الدرج:")}</span>
-                <span className="font-bold">{tr("{0} ج", (expectedCash / 100).toFixed(0))}</span>
+              {error && <p className="px-1 text-[13px] text-(--sys-red)">{error}</p>}
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  className="apple-press h-[50px] w-full rounded-full bg-primary text-[17px] font-semibold text-primary-foreground"
+                >
+                  {tr("كمّل البيع")}
+                </button>
+                <button type="button" onClick={() => setConfirmClose(true)} className="h-11 w-full rounded-full text-[15px] text-(--sys-red) hover:bg-(--sys-red)/8">
+                  {tr("إغلاق الوردية")}
+                </button>
               </div>
-            </div>
+            </>
+          ) : (
+            /* Close shift: count the drawer */
+            <>
+              <dl className="apple-rows overflow-hidden rounded-[14px] bg-card text-[15px] [--row-inset:16px]">
+                <div className="flex min-h-11 items-center justify-between px-4">
+                  <dt>{tr("إجمالي المبيعات:")}</dt>
+                  <dd className="tabular-nums">{money(activeShift.totalSales)}</dd>
+                </div>
+                <div className="flex min-h-11 items-center justify-between px-4">
+                  <dt>{tr("النقدية المتوقعة في الدرج:")}</dt>
+                  <dd className="font-semibold tabular-nums">{money(expectedCash)}</dd>
+                </div>
+              </dl>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">{tr("النقدية الفعلية في الدرج (ج)")}</label>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={closingBalance}
-                onChange={(e) => setClosingBalance(e.target.value)}
-                placeholder={`${(expectedCash / 100).toFixed(0)}`}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-              {closingBalance && (
-                <p className={`text-xs font-medium ${
-                  parseFloat(closingBalance) * 100 >= expectedCash ? "text-emerald-600" : "text-destructive"
-                }`}>
-                  {parseFloat(closingBalance) * 100 >= expectedCash
-                    ? tr("زيادة: +{0} ج", ((parseFloat(closingBalance) * 100 - expectedCash) / 100).toFixed(0))
-                    : tr("عجز: −{0} ج", ((expectedCash - parseFloat(closingBalance) * 100) / 100).toFixed(0))
-                  }
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                {amountRow("closing-balance", tr("النقدية الفعلية في الدرج (ج)"), closingBalance, setClosingBalance, egpNumber(expectedCash), true)}
+                {diff !== null && (
+                  <p className={cn("px-4 text-[13px] font-semibold tabular-nums", diff >= 0 ? "text-(--sys-green)" : "text-(--sys-red)")}>
+                    {diff >= 0 ? tr("زيادة: +{0} ج", egpNumber(diff)) : tr("عجز: −{0} ج", egpNumber(-diff))}
+                  </p>
+                )}
+              </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">{tr("ملاحظات (اختياري)")}</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                placeholder={tr("ملاحظات (اختياري)")}
+                aria-label={tr("ملاحظات (اختياري)")}
+                className="w-full resize-none rounded-[14px] bg-card px-4 py-3 text-[15px] outline-none placeholder:text-(--label-3) focus-visible:ring-2 focus-visible:ring-ring"
               />
-            </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+              {error && <p className="px-1 text-[13px] text-(--sys-red)">{error}</p>}
 
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => setConfirmClose(false)}>
-                {tr("رجوع")}
-              </Button>
-              <Button variant="destructive" className="flex-1" onClick={handleClose} disabled={isPending}>
-                {isPending ? tr("جاري الإغلاق...") : tr("تأكيد إغلاق الوردية")}
-              </Button>
-            </div>
-          </div>
-        )}
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  disabled={isPending}
+                  className="apple-press flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-(--sys-red) text-[17px] font-semibold text-white disabled:opacity-60"
+                >
+                  {isPending && <Loader2 className="size-4 animate-spin" />}
+                  {isPending ? tr("جاري الإغلاق...") : tr("تأكيد إغلاق الوردية")}
+                </button>
+                <button type="button" onClick={() => setConfirmClose(false)} className="h-11 w-full rounded-full text-[15px] text-primary hover:bg-primary/8">
+                  {tr("رجوع")}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

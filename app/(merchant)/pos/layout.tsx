@@ -13,9 +13,9 @@ import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 export async function generateMetadata(): Promise<Metadata> {
   await loadDashboardLocale();
   return {
-  title: tr("نقطة البيع | كاشو"),
-  description: tr("نظام نقطة البيع لإدارة المبيعات المباشرة"),
-};
+    title: tr("نقطة البيع | كاشو"),
+    description: tr("نظام نقطة البيع لإدارة المبيعات المباشرة"),
+  };
 }
 
 export default async function PosLayout({ children }: { children: ReactNode }) {
@@ -37,7 +37,7 @@ export default async function PosLayout({ children }: { children: ReactNode }) {
     const { requiredPlan } = await checkLimit(store.id, FEATURE_KEYS.POS);
     return (
       <DashboardI18nProvider locale={locale}>
-      <div dir={tdir()} className="flex h-screen items-center justify-center bg-background p-6 text-foreground">
+      <div dir={tdir()} className="apple-ui apple-auto flex h-screen items-center justify-center bg-background p-6 text-foreground">
         <UpgradeRequiredCard
           title={tr("نقطة البيع (POS)")}
           description={tr("نظام نقطة البيع غير متاح في باقتك الحالية.")}
@@ -51,7 +51,8 @@ export default async function PosLayout({ children }: { children: ReactNode }) {
 
   return (
     <DashboardI18nProvider locale={locale}>
-      <div dir={tdir()} className="h-screen overflow-hidden bg-background text-foreground">
+      {/* Apple tokens + auto-styling, like the dashboard shell (the POS is full-screen, outside it). */}
+      <div dir={tdir()} className="apple-ui apple-auto apple-form h-screen overflow-hidden bg-background text-foreground">
         {children}
       </div>
     </DashboardI18nProvider>

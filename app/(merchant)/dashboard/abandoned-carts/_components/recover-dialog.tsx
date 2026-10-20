@@ -3,20 +3,18 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Check, Copy, ExternalLink, Loader2, Phone } from "lucide-react";
+import { Check, Copy, ExternalLink, Phone } from "lucide-react";
 import { toast } from "sonner";
 
 import { GetRecoveryLinkTokenAction, MarkCartContactedAction } from "@/actions/store/cart-recovery.actions";
 import { WhatsAppIcon } from "@/app/store/[slug]/_components/conversion/WhatsAppButton";
-import { StatusPill } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
+import { StatusText, appleButton } from "@/components/saas-page";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import type { AbandonedCartRow } from "@/lib/cart-recovery/abandoned";
 import { toWhatsAppDigits } from "@/lib/conversion/conversion-config";
 import { recoveryMeta } from "./recovery-meta";
+import { ThumbStack } from "./carts-table";
 import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
 
 const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
@@ -44,7 +42,7 @@ export function RecoverDialog(props: Props) {
 
   return (
     <Dialog open={Boolean(props.cart)} onOpenChange={(o) => !o && close()}>
-      <DialogContent dir={tdir()} className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent dir={tdir()} className="max-h-[92dvh] gap-0 overflow-y-auto p-0 sm:max-w-lg">
         {props.cart && <RecoverPanel key={props.cart.key} {...props} cart={props.cart} />}
       </DialogContent>
     </Dialog>
@@ -123,145 +121,168 @@ function RecoverPanel({ cart, storeName, storeBaseUrl, coupons }: Props & { cart
   const meta = recoveryMeta(cart.status);
 
   return (
-    <div className="min-w-0 space-y-5">
-      <DialogHeader className="text-start sm:text-start">
-        <div className="flex items-center gap-2">
-          <DialogTitle>{cart.fullName || (cart.phone ? tr("عميل") : tr("زائر من غير رقم"))}</DialogTitle>
-          <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
+    <div className="min-w-0">
+      <DialogHeader className="items-center gap-1.5 px-6 pt-8 pb-5 text-center sm:text-center">
+        <div className="mb-2">
+          <ThumbStack cart={cart} size="lg" />
         </div>
-        <DialogDescription>
+        <DialogTitle className="text-[22px] font-bold">{cart.fullName || (cart.phone ? tr("عميل") : tr("زائر من غير رقم"))}</DialogTitle>
+        <DialogDescription className="flex flex-wrap items-center justify-center gap-x-2 text-[15px]">
+          <StatusText tone={meta.tone}>{meta.label}</StatusText>
           {cart.phone ? (
             <span className="font-mono" dir="ltr">
               {cart.phone}
             </span>
           ) : (
-            tr("مسابش رقمه — تقدر تبعتله اللينك لو بيكلمك على إنستجرام أو ماسنجر.")
+            <span>{tr("مسابش رقمه — تقدر تبعتله اللينك لو بيكلمك على إنستجرام أو ماسنجر.")}</span>
           )}
-          {cart.contactCount > 0 && tr(" · اتواصلت {0} مرة", cart.contactCount)}
+          {cart.contactCount > 0 && <span>{tr(" · اتواصلت {0} مرة", cart.contactCount)}</span>}
         </DialogDescription>
       </DialogHeader>
 
-      {recovered ? (
-        <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm">
-          <p className="font-medium">{tr("رجع وطلب بـ {0} بعد ما تواصلت معاه 🎉", money.format(cart.value / 100))}</p>
-          {cart.orderId && (
-            <Button asChild size="sm" variant="outline" className="gap-1.5">
-              <Link href={`/orders/${cart.orderId}`}>
+      <div className="space-y-5 px-5 pb-5">
+        {recovered ? (
+          <div className="flex flex-col items-center gap-3 rounded-[14px] bg-(--sys-green)/10 p-5 text-center">
+            <p className="text-[17px] font-semibold">{tr("رجع وطلب بـ {0} بعد ما تواصلت معاه 🎉", money.format(cart.value / 100))}</p>
+            {cart.orderId && (
+              <Link href={`/orders/${cart.orderId}`} className={cn(appleButton.tinted, "bg-card text-primary")}>
                 <ExternalLink className="size-4" />
                 {tr("افتح الطلب")}
               </Link>
-            </Button>
-          )}
-        </div>
-      ) : (
-        <>
-          <ul className="divide-y divide-border rounded-lg border border-border">
-            {cart.items.map((item) => (
-              <li key={item.productId} className="flex items-center gap-3 p-2.5">
-                <span className="size-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                  {item.image && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.image} alt="" className="size-full object-cover" />
-                  )}
-                </span>
-                <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
-                <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                  {item.quantity} × {money.format(item.price / 100)}
-                </span>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Cart contents */}
+            <ul className="apple-rows overflow-hidden rounded-[14px] bg-(--fill-3) [--row-inset:68px]">
+              {cart.items.map((item) => (
+                <li key={item.productId} className="flex items-center gap-3 px-3 py-2.5">
+                  <span className="size-10 shrink-0 overflow-hidden rounded-[9px] bg-card">
+                    {item.image && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.image} alt="" className="size-full object-cover" />
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-[15px]">{item.name}</span>
+                  <span className="shrink-0 text-[13px] text-muted-foreground tabular-nums">
+                    {item.quantity} × {money.format(item.price / 100)}
+                  </span>
+                </li>
+              ))}
+              <li className="flex items-center justify-between px-4 py-3 text-[15px] font-semibold">
+                <span>{tr("الإجمالي")}</span>
+                <span className="text-[17px] tabular-nums">{money.format(cart.value / 100)}</span>
               </li>
-            ))}
-            <li className="flex items-center justify-between bg-muted/40 px-3 py-2 text-sm">
-              <span className="text-muted-foreground">{tr("الإجمالي")}</span>
-              <span className="font-semibold tabular-nums">{money.format(cart.value / 100)}</span>
-            </li>
-          </ul>
+            </ul>
 
-          {coupons.length > 0 && (
+            {/* Coupon: capsules instead of a dropdown */}
+            {coupons.length > 0 && (
+              <section className="space-y-2">
+                <p className="px-1 text-[13px] font-semibold text-muted-foreground">{tr("تضيف كود خصم؟")}</p>
+                <div role="radiogroup" aria-label={tr("تضيف كود خصم؟")} className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none]">
+                  {[{ code: NO_COUPON, label: tr("من غير خصم") }, ...coupons].map((c) => {
+                    const on = coupon === c.code;
+                    return (
+                      <button
+                        key={c.code}
+                        type="button"
+                        role="radio"
+                        aria-checked={on}
+                        onClick={() => {
+                          setCoupon(c.code);
+                          setEdited(null);
+                        }}
+                        className={cn(
+                          "apple-press shrink-0 rounded-full px-3.5 py-1.5 text-[13px] whitespace-nowrap transition-colors",
+                          on ? "bg-primary text-primary-foreground" : "bg-(--fill-3) text-foreground hover:bg-(--fill-3)/70",
+                        )}
+                      >
+                        {c.code === NO_COUPON ? (
+                          c.label
+                        ) : (
+                          <>
+                            <span className="font-mono font-semibold" dir="ltr">
+                              {c.code}
+                            </span>{" "}
+                            · {c.label}
+                          </>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="px-1 text-[13px] text-muted-foreground">{tr("الكود بيتطبق لوحده لما يفتح اللينك.")}</p>
+              </section>
+            )}
+
+            {/* Message, as the chat bubble the customer will get */}
+            <section className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <label htmlFor="recover-message" className="text-[13px] font-semibold text-muted-foreground">
+                  {tr("الرسالة")}
+                </label>
+                {edited !== null && (
+                  <button type="button" className="text-[13px] text-primary" onClick={() => setEdited(null)}>
+                    {tr("رجّع الرسالة الأصلية")}
+                  </button>
+                )}
+              </div>
+              <div className="rounded-[18px] bg-[#efeae2] p-3 dark:bg-[#0b141a]">
+                {linkError ? (
+                  <p className="rounded-[12px] bg-card p-3 text-[15px] text-muted-foreground">{linkError}</p>
+                ) : !token ? (
+                  <div className="ms-auto h-40 w-4/5 animate-pulse rounded-[14px] bg-[#d9fdd3]/70 dark:bg-[#005c4b]/60" />
+                ) : (
+                  <textarea
+                    id="recover-message"
+                    rows={8}
+                    value={message}
+                    onChange={(e) => setEdited(e.target.value)}
+                    dir="auto"
+                    className="ms-auto block w-[88%] resize-none rounded-[14px] rounded-se-[4px] bg-[#d9fdd3] p-3 text-[15px] leading-6 text-[#111b21] shadow-sm outline-none focus:ring-2 focus:ring-[#25D366]/50 dark:bg-[#005c4b] dark:text-[#e9edef]"
+                  />
+                )}
+              </div>
+            </section>
+
+            {/* Actions */}
             <div className="space-y-2">
-              <Label>{tr("تضيف كود خصم؟")}</Label>
-              <Select
-                value={coupon}
-                onValueChange={(v) => {
-                  setCoupon(v);
-                  setEdited(null);
-                }}
-                dir={tdir()}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NO_COUPON}>{tr("من غير خصم")}</SelectItem>
-                  {coupons.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>
-                      <span className="font-mono" dir="ltr">
-                        {c.code}
-                      </span>{" "}
-                      <span className="text-muted-foreground">· {c.label}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">{tr("الكود بيتطبق لوحده لما يفتح اللينك.")}</p>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="recover-message">{tr("الرسالة")}</Label>
-              {edited !== null && (
-                <button type="button" className="text-xs text-primary hover:underline" onClick={() => setEdited(null)}>
-                  {tr("رجّع الرسالة الأصلية")}
+              {cart.phone && (
+                <button
+                  type="button"
+                  onClick={sendWhatsApp}
+                  disabled={!token || pending}
+                  className="apple-press inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#25D366] text-[17px] font-semibold text-white hover:bg-[#1ebe5b] disabled:opacity-50"
+                >
+                  <WhatsAppIcon className="size-5" />
+                  {tr("ابعت على واتساب")}
                 </button>
               )}
-            </div>
-            {linkError ? (
-              <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">{linkError}</p>
-            ) : !token ? (
-              <div className="grid h-40 place-items-center rounded-lg border border-border">
-                <Loader2 className="size-4 animate-spin text-muted-foreground" />
+              <div className={cn("grid gap-2", cart.phone ? "grid-cols-3" : "grid-cols-2")}>
+                <button type="button" className={cn(appleButton.tinted, "h-11 text-primary")} disabled={!token} onClick={() => copy(message, "msg")}>
+                  {copied === "msg" ? <Check className="size-4" /> : <Copy className="size-4" />}
+                  {tr("انسخ الرسالة")}
+                </button>
+                <button type="button" className={cn(appleButton.tinted, "h-11 text-primary")} disabled={!token} onClick={() => copy(link, "link")}>
+                  {copied === "link" ? <Check className="size-4" /> : <Copy className="size-4" />}
+                  {tr("اللينك بس")}
+                </button>
+                {cart.phone && (
+                  <a href={`tel:${cart.phone}`} onClick={markContacted} className={cn(appleButton.tinted, "h-11 text-primary")}>
+                    <Phone className="size-4" />
+                    {tr("اتصال")}
+                  </a>
+                )}
               </div>
-            ) : (
-              <Textarea
-                id="recover-message"
-                rows={8}
-                value={message}
-                onChange={(e) => setEdited(e.target.value)}
-                className="resize-none text-sm leading-6"
-              />
+            </div>
+            {!cart.phone && token && (
+              <button type="button" className="block w-full text-center text-[13px] text-primary" onClick={markContacted}>
+                {tr("بعتهاله بطريقة تانية؟ علّمها إنك تواصلت")}
+              </button>
             )}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {cart.phone && (
-              <Button onClick={sendWhatsApp} disabled={!token || pending} className="gap-1.5 bg-[#25D366] text-white hover:bg-[#1ebe5b]">
-                <WhatsAppIcon className="size-4" />
-                {tr("ابعت على واتساب")}
-              </Button>
-            )}
-            <Button variant="outline" className="gap-1.5" disabled={!token} onClick={() => copy(message, "msg")}>
-              {copied === "msg" ? <Check className="size-4" /> : <Copy className="size-4" />}
-              {tr("انسخ الرسالة")}
-            </Button>
-            <Button variant="ghost" className="gap-1.5" disabled={!token} onClick={() => copy(link, "link")}>
-              {copied === "link" ? <Check className="size-4" /> : <Copy className="size-4" />}
-              {tr("اللينك بس")}
-            </Button>
-            {cart.phone && (
-              <Button asChild variant="ghost" size="icon" aria-label={tr("اتصال")}>
-                <a href={`tel:${cart.phone}`} onClick={markContacted}>
-                  <Phone className="size-4" />
-                </a>
-              </Button>
-            )}
-          </div>
-          {!cart.phone && token && (
-            <button type="button" className="text-xs text-muted-foreground hover:text-foreground hover:underline" onClick={markContacted}>
-              {tr("بعتهاله بطريقة تانية؟ علّمها إنك تواصلت")}
-            </button>
-          )}
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

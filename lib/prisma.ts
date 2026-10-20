@@ -9,8 +9,6 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set");
 }
 
-const isProd = process.env.NODE_ENV === "production";
-
 // Queries that exceed this threshold are logged as warnings
 const SLOW_QUERY_THRESHOLD_MS = Number(process.env.SLOW_QUERY_THRESHOLD_MS ?? 500);
 
@@ -26,9 +24,12 @@ function createPrismaClient(): PrismaClient {
     // max: tune via env var; min stays at 0 so connections are created on-demand
     // (eager min>0 connections can cause the pool to enter a failed state if the
     // database is briefly unavailable during module init / hot-reload in dev)
-    max: Number(process.env.DB_POOL_MAX ?? (isProd ? 10 : 5)),
+    max: Number(process.env.DB_POOL_MAX ?? 10),
     idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 5_000,
+    // Covers both opening a connection and waiting for a free one in the pool.
+    // A remote/serverless DB (Neon) can take several seconds to wake up, and a
+    // page plus its layout fire many parallel queries — 5s failed in practice.
+    connectionTimeoutMillis: Number(process.env.DB_CONNECT_TIMEOUT_MS ?? 20_000),
   });
 
   // This catches connection-level failures (dropped connections, pool exhaustion)

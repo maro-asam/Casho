@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Check, ExternalLink, FlaskConical, KeyRound, Loader2, ShieldCheck, Unplug, Zap } from "lucide-react";
+import { Check, ExternalLink, FlaskConical, Loader2, ShieldCheck, Unplug } from "lucide-react";
 
 import {
   DisconnectKashierAction,
@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { SegmentedButtons, appleButton } from "@/components/saas-page";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -89,31 +89,20 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
 
   return (
     <>
-      <SheetHeader className="border-b border-border pb-4 text-start">
-        <div className="flex items-center gap-3">
-          <MethodLogo src={PAYMENT_METHODS_BY_KEY.kashier.logo} alt="Kashier" />
-          <div className="min-w-0">
-            <SheetTitle>{connected ? tr("إعدادات Kashier") : tr("اربط Kashier")}</SheetTitle>
-            <SheetDescription>{tr("٣ خطوات وعملاءك يدفعوا بالكارت والمحفظة.")}</SheetDescription>
-          </div>
-        </div>
+      <SheetHeader className="items-center gap-1.5 px-6 pt-10 pb-6 text-center">
+        <MethodLogo src={PAYMENT_METHODS_BY_KEY.kashier.logo} alt="Kashier" size="lg" className="mb-2" />
+        <SheetTitle className="text-[22px] font-bold">{connected ? tr("إعدادات Kashier") : tr("اربط Kashier")}</SheetTitle>
+        <SheetDescription className="text-[15px]">{tr("٣ خطوات وعملاءك يدفعوا بالكارت والمحفظة.")}</SheetDescription>
       </SheetHeader>
 
-      <div className="flex-1 overflow-y-auto px-4">
-        <ol className="relative space-y-8 before:absolute before:inset-y-3 before:start-[13px] before:w-px before:bg-border">
-          {/* 1 — credentials */}
-          <Step n={1} done={credsDone} title={tr("بيانات الربط من حسابك على Kashier")}>
-            {!connected && (
-              <p className="text-xs leading-6 text-muted-foreground">
-                {tr("هتلاقيهم في لوحة Kashier من")}{" "}<span className="font-medium text-foreground">Integrate now</span>{tr(". معندكش حساب؟")}{" "}
-                <a href={KASHIER_SIGNUP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline">
-                  {tr("افتح حساب مجاني")}
-                  <ExternalLink className="size-3" />
-                </a>
-              </p>
-            )}
+      <div className="flex-1 space-y-7 overflow-y-auto px-4 pb-6">
+        {/* 1 — credentials */}
+        <Group n={1} done={credsDone} title={tr("بيانات الربط من حسابك على Kashier")}>
+          <div className="space-y-4 p-4">
             <div className="space-y-1.5">
-              <Label htmlFor="k-mid">Merchant ID</Label>
+              <Label htmlFor="k-mid" className="text-[13px] font-normal text-muted-foreground">
+                Merchant ID
+              </Label>
               <Input
                 id="k-mid"
                 dir="ltr"
@@ -126,11 +115,10 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
                 aria-invalid={!!errors.merchantId}
                 className="font-mono"
               />
-              {errors.merchantId && <p className="text-xs text-destructive">{errors.merchantId}</p>}
+              {errors.merchantId && <p className="text-[13px] text-(--sys-red)">{errors.merchantId}</p>}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="k-key" className="flex items-center gap-1.5">
-                <KeyRound className="size-3.5 text-muted-foreground" />
+              <Label htmlFor="k-key" className="text-[13px] font-normal text-muted-foreground">
                 Payment API Key
               </Label>
               {replacingKey ? (
@@ -149,116 +137,126 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
                   className="font-mono"
                 />
               ) : (
-                <div className="flex h-9 items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3">
-                  <span dir="ltr" className="flex items-center gap-1.5 font-mono text-sm">
-                    <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                <div className="apple-field flex h-11 items-center justify-between gap-2 px-3">
+                  <span dir="ltr" className="flex items-center gap-1.5 font-mono text-[15px]">
+                    <ShieldCheck className="size-4 text-(--sys-green)" />
                     {initial.kashierApiKeyHint}
                   </span>
-                  <button type="button" onClick={() => setReplacingKey(true)} className="text-xs font-medium text-primary hover:underline">
+                  <button type="button" onClick={() => setReplacingKey(true)} className="text-[15px] text-primary">
                     {tr("غيّره")}
                   </button>
                 </div>
               )}
-              <p className={errors.apiKey ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
+              <p className={cn("text-[13px]", errors.apiKey ? "text-(--sys-red)" : "text-muted-foreground")}>
                 {errors.apiKey || tr("بيتحفظ مشفّر — محدش يقدر يشوفه بعد كده.")}
               </p>
             </div>
-          </Step>
+          </div>
+          {!connected && (
+            <p className="border-t-[0.5px] border-border px-4 py-3 text-[13px] leading-5 text-muted-foreground">
+              {tr("هتلاقيهم في لوحة Kashier من")}{" "}<span className="font-medium text-foreground">Integrate now</span>{tr(". معندكش حساب؟")}{" "}
+              <a href={KASHIER_SIGNUP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 font-medium text-primary">
+                {tr("افتح حساب مجاني")}
+                <ExternalLink className="size-3" />
+              </a>
+            </p>
+          )}
+        </Group>
 
-          {/* 2 — methods */}
-          <Step n={2} done={allowed.length > 0} title={tr("العميل يقدر يدفع بـ")}>
-            <div className="grid gap-2">
-              {KASHIER_ALLOWED_METHODS.map((am) => {
-                const active = allowed.includes(am.key);
-                return (
+        {/* 2 — methods (iOS multi-select list) */}
+        <Group
+          n={2}
+          done={allowed.length > 0}
+          title={tr("العميل يقدر يدفع بـ")}
+          footer={errors.allowedMethods || tr("اختار بس اللي متفعّل في حسابك على Kashier.")}
+          footerError={!!errors.allowedMethods}
+        >
+          <ul className="apple-rows [--row-inset:16px]">
+            {KASHIER_ALLOWED_METHODS.map((am) => {
+              const active = allowed.includes(am.key);
+              return (
+                <li key={am.key}>
                   <button
-                    key={am.key}
                     type="button"
                     aria-pressed={active}
                     onClick={() => {
                       setAllowed((list) => (active ? list.filter((x) => x !== am.key) : [...list, am.key]));
                       setErrors((x) => ({ ...x, allowedMethods: "" }));
                     }}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg border p-3 text-start transition-colors",
-                      active ? "border-primary/50 bg-primary/[0.04]" : "border-border hover:bg-muted/40",
-                    )}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-start transition-colors hover:bg-(--fill-3)/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   >
-                    <span
-                      className={cn(
-                        "grid size-4 shrink-0 place-items-center rounded border",
-                        active ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40",
-                      )}
-                    >
-                      {active && <Check className="size-3" />}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[15px]">{am.label}</span>
+                      <span className="block text-[13px] text-muted-foreground">{am.description}</span>
                     </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-medium">{am.label}</span>
-                      <span className="block text-xs text-muted-foreground">{am.description}</span>
-                    </span>
+                    <Check className={cn("size-5 shrink-0 text-primary transition-opacity", active ? "opacity-100" : "opacity-0")} strokeWidth={2.6} />
                   </button>
-                );
-              })}
-            </div>
-            <p className={errors.allowedMethods ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
-              {errors.allowedMethods || tr("اختار بس اللي متفعّل في حسابك على Kashier.")}
-            </p>
-          </Step>
+                </li>
+              );
+            })}
+          </ul>
+        </Group>
 
-          {/* 3 — mode */}
-          <Step n={3} done={mode === "LIVE"} title={tr("جرّب وبعدين شغّل")}>
-            <div className="grid grid-cols-2 gap-2">
-              <ModeCard active={mode === "TEST"} onClick={() => setMode("TEST")} icon={FlaskConical} title={tr("تجربة")} text={tr("مفيش فلوس حقيقية — عشان تتأكد إن كله شغال.")} tone="amber" />
-              <ModeCard active={mode === "LIVE"} onClick={() => setMode("LIVE")} icon={Zap} title={tr("لايف")} text={tr("الدفع حقيقي والفلوس بتوصل حسابك.")} tone="emerald" />
+        {/* 3 — mode */}
+        <Group n={3} done={mode === "LIVE"} title={tr("جرّب وبعدين شغّل")}>
+          <div className="space-y-3 p-4">
+            <SegmentedButtons
+              label={tr("جرّب وبعدين شغّل")}
+              value={mode}
+              onChange={setMode}
+              className="flex w-full [&>button]:flex-1 [&>button]:justify-center"
+              options={[
+                ["TEST", tr("تجربة")],
+                ["LIVE", tr("لايف")],
+              ]}
+            />
+            <p className="text-[13px] leading-5 text-muted-foreground">
+              {mode === "TEST" ? tr("مفيش فلوس حقيقية — عشان تتأكد إن كله شغال.") : tr("الدفع حقيقي والفلوس بتوصل حسابك.")}
+            </p>
+          </div>
+          <div className="flex items-center justify-between gap-3 border-t-[0.5px] border-border px-4 py-3">
+            <div className="min-w-0">
+              <p className="text-[15px]">{tr("جرّب عملية دفع")}</p>
+              <p className="text-[13px] text-muted-foreground">
+                {!connected ? tr("احفظ بيانات الربط الأول.") : dirty ? tr("احفظ تغييراتك الأول.") : tr("بجنيه واحد في وضع التجربة — بنتأكد إن الربط سليم.")}
+              </p>
             </div>
-            <div className="rounded-lg border border-dashed border-border p-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{tr("جرّب عملية دفع")}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {!connected ? tr("احفظ بيانات الربط الأول.") : dirty ? tr("احفظ تغييراتك الأول.") : tr("بجنيه واحد في وضع التجربة — بنتأكد إن الربط سليم.")}
-                  </p>
-                </div>
-                <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={runTest} disabled={!connected || dirty || testing}>
-                  {testing ? <Loader2 className="size-4 animate-spin" /> : <FlaskConical className="size-4" />}
-                  {tr("جرّب")}
-                </Button>
-              </div>
-            </div>
-          </Step>
-        </ol>
+            <button type="button" className={cn(appleButton.tinted, "text-primary")} onClick={runTest} disabled={!connected || dirty || testing}>
+              {testing ? <Loader2 className="size-4 animate-spin" /> : <FlaskConical className="size-4" />}
+              {tr("جرّب")}
+            </button>
+          </div>
+        </Group>
       </div>
 
-      <SheetFooter className="flex-row items-center justify-between gap-2 border-t border-border">
-        <Button onClick={save} disabled={saving || (!dirty && connected)} className="gap-1.5">
+      <SheetFooter className="apple-glass gap-2 px-4 pt-3 pb-4">
+        <button type="button" onClick={save} disabled={saving || (!dirty && connected)} className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}>
           {saving && <Loader2 className="size-4 animate-spin" />}
           {connected ? tr("احفظ") : tr("اربط Kashier")}
-        </Button>
-        <div className="flex items-center">
-          <Button asChild variant="ghost" size="sm" className="gap-1 text-muted-foreground">
-            <a href={KASHIER_DASHBOARD_URL} target="_blank" rel="noreferrer">
-              {tr("لوحة Kashier")}
-              <ExternalLink className="size-3" />
-            </a>
-          </Button>
+        </button>
+        <div className="flex items-center justify-center gap-2">
+          <a href={KASHIER_DASHBOARD_URL} target="_blank" rel="noreferrer" className={cn(appleButton.plain, "mx-0 text-[13px]")}>
+            {tr("لوحة Kashier")}
+            <ExternalLink className="size-3" />
+          </a>
           {connected && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1 text-destructive hover:text-destructive" disabled={disconnecting}>
+                <button type="button" className={cn(appleButton.plain, "mx-0 text-[13px] text-(--sys-red) hover:bg-(--sys-red)/8")} disabled={disconnecting}>
                   <Unplug className="size-3.5" />
                   {tr("افصل")}
-                </Button>
+                </button>
               </AlertDialogTrigger>
-              <AlertDialogContent dir={tdir()}>
-                <AlertDialogHeader className="text-start">
+              <AlertDialogContent dir={tdir()} className="sm:max-w-sm">
+                <AlertDialogHeader className="text-center sm:text-center">
                   <AlertDialogTitle>{tr("تفصل Kashier؟")}</AlertDialogTitle>
                   <AlertDialogDescription>{tr("هنمسح بيانات الربط والدفع الأونلاين هيختفي من متجرك. الطلبات القديمة مش هتتأثر.")}</AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter className="gap-2 sm:justify-start">
-                  <AlertDialogAction onClick={disconnect} className="bg-destructive text-white hover:bg-destructive/90">
+                <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+                  <AlertDialogAction onClick={disconnect} className={cn(appleButton.destructiveFilled, "h-11 w-full text-[15px]")}>
                     {tr("افصل")}
                   </AlertDialogAction>
-                  <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
+                  <AlertDialogCancel className={cn(appleButton.plain, "mx-0 h-11 w-full border-0 bg-transparent shadow-none")}>{tr("رجوع")}</AlertDialogCancel>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -269,58 +267,37 @@ export function KashierSheetBody({ initial, onDone }: { initial: PaymentMethodsS
   );
 }
 
-function Step({ n, done, title, children }: { n: number; done: boolean; title: string; children: React.ReactNode }) {
-  return (
-    <li className="relative ps-10">
-      <span
-        className={cn(
-          "absolute start-0 top-0 grid size-7 place-items-center rounded-full text-xs font-semibold ring-4 ring-popover",
-          done ? "bg-primary text-primary-foreground" : "border border-border bg-popover text-muted-foreground",
-        )}
-      >
-        {done ? <Check className="size-3.5" /> : n.toLocaleString(intlLocale())}
-      </span>
-      <p className="mb-3 pt-1 text-sm font-semibold">{title}</p>
-      <div className="space-y-3">{children}</div>
-    </li>
-  );
-}
-
-function ModeCard({
-  active,
-  onClick,
-  icon: Icon,
+/** Settings-style group: numbered header, white inset card, optional footer note. */
+function Group({
+  n,
+  done,
   title,
-  text,
-  tone,
+  footer,
+  footerError,
+  children,
 }: {
-  active: boolean;
-  onClick: () => void;
-  icon: typeof Zap;
+  n: number;
+  done: boolean;
   title: string;
-  text: string;
-  tone: "amber" | "emerald";
+  footer?: string;
+  footerError?: boolean;
+  children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={active}
-      onClick={onClick}
-      className={cn(
-        "rounded-lg border p-3 text-start transition-colors",
-        active
-          ? tone === "emerald"
-            ? "border-emerald-500/60 bg-emerald-500/[0.06]"
-            : "border-amber-500/60 bg-amber-500/[0.06]"
-          : "border-border hover:bg-muted/40",
-      )}
-    >
-      <span className="flex items-center gap-1.5 text-sm font-medium">
-        <Icon className={cn("size-4", tone === "emerald" ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")} />
+    <section className="space-y-2">
+      <h3 className="flex items-center gap-2 px-4 text-[13px] font-semibold text-muted-foreground">
+        <span
+          className={cn(
+            "grid size-5 place-items-center rounded-full text-[11px] font-bold",
+            done ? "bg-(--sys-green) text-white" : "bg-(--fill-3) text-muted-foreground",
+          )}
+        >
+          {done ? <Check className="size-3" strokeWidth={3.5} /> : n.toLocaleString(intlLocale())}
+        </span>
         {title}
-      </span>
-      <span className="mt-1 block text-xs leading-5 text-muted-foreground">{text}</span>
-    </button>
+      </h3>
+      <div className="overflow-hidden rounded-[14px] bg-card">{children}</div>
+      {footer && <p className={cn("px-4 text-[13px] leading-5", footerError ? "text-(--sys-red)" : "text-muted-foreground")}>{footer}</p>}
+    </section>
   );
 }

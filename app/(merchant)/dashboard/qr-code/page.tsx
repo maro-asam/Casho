@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { EmptyState, PageHeader } from "@/components/saas-page";
+import { LargeTitle, Unavailable } from "@/components/saas-page";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import { couponStatusWhere, formatCouponValue } from "@/lib/coupons/coupon-status";
 import { prisma } from "@/lib/prisma";
@@ -34,12 +34,9 @@ export default async function QrCodeRoute() {
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول وبعدها اعمل QR يوصّل العملاء ليه.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول وبعدها اعمل QR يوصّل العملاء ليه.")} />
+      </div>
     );
   }
 
@@ -74,9 +71,9 @@ export default async function QrCodeRoute() {
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title="QR Code"
-        description={tr("اطبعه على الكياس والكروت والمنيو — العميل يمسحه ويوصل للمتجر أو منتج أو عرض على طول.")}
+        subtitle={tr("اطبعه على الكياس والكروت والمنيو — العميل يمسحه ويوصل للمتجر أو منتج أو عرض على طول.")}
       />
       <QrStudio
         storeName={store.name}

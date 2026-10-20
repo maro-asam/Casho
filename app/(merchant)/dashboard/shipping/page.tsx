@@ -1,8 +1,10 @@
 import { Metadata } from "next";
-import { Truck } from "lucide-react";
+import Link from "next/link";
+import { Plug } from "lucide-react";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
-import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
+import { LargeTitle, appleButton } from "@/components/saas-page";
+import { ShippingTabs } from "./_components/shipping-tabs";
 import ShippingMethodsClient from "./_components/ShippingMethodsClient";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -33,14 +35,17 @@ export default async function ShippingPage() {
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <DashboardSectionHeader
-        icon={Truck}
+      <LargeTitle
         title={tr("طرق الشحن")}
-        badge={methods.length}
-        description={tr("أضف طرق شحن مختلفة يختار منها العميل عند الدفع، وحدد سعر مختلف لكل محافظة")}
-        actionLabel={tr("ربط شركات الشحن")}
-        actionHref="/dashboard/shipping/integrations"
+        subtitle={tr("أضف طرق شحن مختلفة يختار منها العميل عند الدفع، وحدد سعر مختلف لكل محافظة")}
+        actions={
+          <Link href="/shipping/integrations" className={appleButton.gray}>
+            <Plug className="size-4" />
+            {tr("ربط شركات الشحن")}
+          </Link>
+        }
       />
+      <ShippingTabs active="methods" />
       <ShippingMethodsClient
         initialMethods={methods}
         fallbackPrice={store?.settings?.shippingPrice ?? 0}

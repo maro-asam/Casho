@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { PackageCheck } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/saas-page";
+import { LargeTitle, appleButton } from "@/components/saas-page";
+import { ShippingTabs } from "../_components/shipping-tabs";
 import { prisma } from "@/lib/prisma";
 import { getStoreCarriers } from "@/lib/shipping/store-carriers";
 import { ACTIVE_SHIPMENT_STATUSES } from "@/lib/shipping/shipment-status";
@@ -54,18 +54,19 @@ export default async function ShippingIntegrationsPage() {
 
   return (
     <div className="space-y-8" dir={tdir()}>
-      <PageHeader
-        title={tr("شركات الشحن")}
-        description={tr("اربط شركات الشحن اللي بتتعامل معاها، واشحن أي طلب منها بضغطة من صفحة الطلب.")}
-        actions={
-          <Button asChild variant="outline" size="sm" className="gap-1.5">
-            <Link href="/shipping/shipments">
+      <div className="space-y-6">
+        <LargeTitle
+          title={tr("شركات الشحن")}
+          subtitle={tr("اربط شركات الشحن اللي بتتعامل معاها، واشحن أي طلب منها بضغطة من صفحة الطلب.")}
+          actions={
+            <Link href="/shipping/shipments" className={appleButton.gray}>
               <PackageCheck className="size-4" />
               {tr("الشحنات")}
             </Link>
-          </Button>
-        }
-      />
+          }
+        />
+        <ShippingTabs active="integrations" />
+      </div>
       <ShippingIntegrationsClient connected={connected} stats={stats} />
     </div>
   );

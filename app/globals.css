@@ -627,7 +627,7 @@
    Every page under the dashboard <main> (and its dialogs) gets the Apple look
    on the plain shadcn primitives, so pages not hand-built with apple-kit still
    read as one system. Unlayered: wins over the primitives' own utilities. */
-.apple-auto h1 {
+.apple-auto h1:not([class*="text-5xl"]) {
   font-size: clamp(28px, 3.2vw, 34px);
   line-height: 1.2;
   font-weight: 700;

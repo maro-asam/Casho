@@ -46,5 +46,12 @@
   "مفيش مراجعات بالفلاتر دي": "No reviews match these filters",
   "مفيش نتايج لـ \"{0}\". جرّب كلمة تانية.": "No results for \"{0}\". Try another word.",
   "ممتاز": "Excellent",
-  "من طلب حقيقي؟": "From a real order?"
+  "من طلب حقيقي؟": "From a real order?",
+  "اضغط على النجوم": "Tap the stars",
+  "ملخص التقييمات": "Ratings summary",
+  "من ٥": "out of 5",
+  "توزيع التقييمات": "Rating distribution",
+  "{0} نجوم: {1} مراجعة": "{0} stars: {1} reviews",
+  "{0} مراجعة على {1} منتج": "{0} reviews on {1} products",
+  "{0} من مشترين موثقين": "{0} from verified buyers"
 }

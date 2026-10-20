@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { EmptyState, PageHeader } from "@/components/saas-page";
+import { LargeTitle, Unavailable } from "@/components/saas-page";
 import { FEATURE_KEYS, hasFeature } from "@/lib/entitlements";
 import { prisma } from "@/lib/prisma";
 import { decryptSecret, maskSecret } from "@/lib/secrets";
@@ -38,12 +38,9 @@ export default async function PixelsRoute() {
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول وبعدها اربط البيكسل بتاعك.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول وبعدها اربط البيكسل بتاعك.")} />
+      </div>
     );
   }
 
@@ -52,9 +49,9 @@ export default async function PixelsRoute() {
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("البيكسل وتتبع الإعلانات")}
-        description={tr("اربط بيكسل فيسبوك وتيك توك وسناب بتوعك عشان تقيس مبيعات إعلاناتك وتخلّي الإعلانات توصل للي هيشتري.")}
+        subtitle={tr("اربط بيكسل فيسبوك وتيك توك وسناب بتوعك عشان تقيس مبيعات إعلاناتك وتخلّي الإعلانات توصل للي هيشتري.")}
       />
       <PixelsForm
         storeId={store.id}

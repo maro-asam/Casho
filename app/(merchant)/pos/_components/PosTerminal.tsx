@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
+  ChevronRight,
   ClipboardList,
   Keyboard,
   Maximize,
@@ -19,7 +19,6 @@ import { toast } from "sonner";
 
 import { FindProductByBarcodeAction, SearchPosProductsAction } from "@/actions/pos/pos.actions";
 import type { HeldCartData } from "@/actions/pos/pos.actions";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -350,111 +349,115 @@ export default function PosTerminal({
     />
   );
 
+  const iconButton =
+    "apple-press grid size-9 shrink-0 place-items-center rounded-full text-foreground/80 hover:bg-(--fill-3) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex h-screen flex-col overflow-hidden bg-background">
-        {/* ── Top bar ── */}
-        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card px-3 sm:px-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button asChild variant="ghost" size="icon" className="size-9">
-                <Link href="/" aria-label={tr("رجوع للوحة التحكم")}>
-                  <ArrowRight className="size-5 ltr:-scale-x-100" />
+        {/* ── Floating glass toolbar ── */}
+        <header className="shrink-0 px-3 pt-3">
+          <div className="apple-glass flex h-14 items-center gap-2 rounded-full ps-2 pe-2 sm:gap-3">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/" aria-label={tr("رجوع للوحة التحكم")} className={iconButton}>
+                  <ChevronRight className="size-5 ltr:-scale-x-100" />
                 </Link>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{tr("لوحة التحكم")}</TooltipContent>
-          </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent>{tr("لوحة التحكم")}</TooltipContent>
+            </Tooltip>
 
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold leading-tight">{store.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {tr("نقطة البيع · {0}{1}", branches.length > 1 ? `${branch.name} · ` : "", cashier.name ?? cashier.email)}
-            </p>
-          </div>
+            <div className="min-w-0">
+              <p className="truncate text-[15px] leading-tight font-semibold">{store.name}</p>
+              <p className="truncate text-[12px] text-muted-foreground">
+                {tr("نقطة البيع · {0}{1}", branches.length > 1 ? `${branch.name} · ` : "", cashier.name ?? cashier.email)}
+              </p>
+            </div>
 
-          <StoreSwitcher stores={stores} value={store.id} className="hidden md:flex" />
-          <BranchSwitcher
-            surface="pos"
-            branches={branches}
-            value={branch.id}
-            lockedReason={branchLocked || activeShift ? tr("الفرع مربوط بالوردية المفتوحة — اقفلها عشان تغيّر الفرع") : undefined}
-            className="hidden sm:flex"
-          />
+            <StoreSwitcher stores={stores} value={store.id} className="hidden rounded-full border-0 bg-(--fill-3) md:flex" />
+            <BranchSwitcher
+              surface="pos"
+              branches={branches}
+              value={branch.id}
+              lockedReason={branchLocked || activeShift ? tr("الفرع مربوط بالوردية المفتوحة — اقفلها عشان تغيّر الفرع") : undefined}
+              className="hidden rounded-full border-0 bg-(--fill-3) sm:flex"
+            />
 
-          <button
-            type="button"
-            onClick={() => setShowShiftModal(true)}
-            className={cn(
-              "ms-2 hidden items-center gap-2 rounded-lg border px-3 py-1.5 text-xs transition-colors hover:bg-muted md:flex",
-              activeShift ? "border-border" : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
-            )}
-          >
-            <span className={cn("size-2 rounded-full", activeShift ? "bg-emerald-500" : "bg-amber-500")} />
-            {activeShift ? (
-              <>
-                <span className="font-medium">{tr("الوردية مفتوحة")}</span>
-                <span className="text-muted-foreground tabular-nums">
-                  {tr("{0} فاتورة · {1}", activeShift.transactionCount, egp(activeShift.totalSales))}
-                </span>
-              </>
-            ) : (
-              <span className="font-medium">{tr("مفيش وردية مفتوحة — افتح وردية")}</span>
-            )}
-          </button>
-
-          <div className="ms-auto flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="h-9 gap-1.5" onClick={() => setShowHeldOrders(true)}>
-              <Pause className="size-4" />
-              <span className="hidden sm:inline">{tr("معلّق")}</span>
-              {heldCount > 0 && (
-                <span className="grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
-                  {heldCount}
-                </span>
+            {/* Shift capsule: the cashier's state at a glance. */}
+            <button
+              type="button"
+              onClick={() => setShowShiftModal(true)}
+              className={cn(
+                "apple-press ms-1 hidden h-9 items-center gap-2 rounded-full px-3.5 text-[13px] md:flex",
+                activeShift ? "bg-(--sys-green)/12" : "bg-(--sys-orange)/14",
               )}
-            </Button>
-            <Button asChild variant="ghost" size="sm" className="hidden h-9 gap-1.5 sm:inline-flex">
-              <Link href="/pos/returns">
+            >
+              <span className={cn("size-2 rounded-full", activeShift ? "bg-(--sys-green)" : "bg-(--sys-orange)")} />
+              {activeShift ? (
+                <>
+                  <span className="font-semibold">{tr("الوردية مفتوحة")}</span>
+                  <span className="text-foreground/60 tabular-nums">
+                    {tr("{0} فاتورة · {1}", activeShift.transactionCount, egp(activeShift.totalSales))}
+                  </span>
+                </>
+              ) : (
+                <span className="font-semibold">{tr("مفيش وردية مفتوحة — افتح وردية")}</span>
+              )}
+            </button>
+
+            <div className="ms-auto flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setShowHeldOrders(true)}
+                className="apple-press inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[15px] hover:bg-(--fill-3)"
+              >
+                <Pause className="size-4" />
+                <span className="hidden sm:inline">{tr("معلّق")}</span>
+                {heldCount > 0 && (
+                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-(--sys-orange) px-1.5 text-[11px] font-bold text-white tabular-nums">
+                    {heldCount}
+                  </span>
+                )}
+              </button>
+              <Link href="/pos/returns" className="apple-press hidden h-9 items-center gap-1.5 rounded-full px-3 text-[15px] hover:bg-(--fill-3) sm:inline-flex">
                 <RotateCcw className="size-4" />
                 {tr("مرتجعات")}
               </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm" className="hidden h-9 gap-1.5 sm:inline-flex">
-              <Link href="/pos/shifts">
+              <Link href="/pos/shifts" className="apple-press hidden h-9 items-center gap-1.5 rounded-full px-3 text-[15px] hover:bg-(--fill-3) sm:inline-flex">
                 <ClipboardList className="size-4" />
                 {tr("الورديات")}
               </Link>
-            </Button>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden size-9 lg:inline-flex" aria-label={tr("اختصارات الكيبورد")}>
-                  <Keyboard className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="text-start leading-6">
-                {tr("F1 بحث · F2 المعلّق · F9 الدفع")}
-                <br />
-                {tr("امسح الباركود في أي وقت")}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-9" onClick={toggleFullscreen} aria-label={tr("ملء الشاشة")}>
-                  {isFullscreen ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{isFullscreen ? tr("خروج من ملء الشاشة") : tr("ملء الشاشة")}</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className={cn(iconButton, "hidden lg:grid")} aria-label={tr("اختصارات الكيبورد")}>
+                    <Keyboard className="size-[18px]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="text-start leading-6">
+                  {tr("F1 بحث · F2 المعلّق · F9 الدفع")}
+                  <br />
+                  {tr("امسح الباركود في أي وقت")}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className={iconButton} onClick={toggleFullscreen} aria-label={tr("ملء الشاشة")}>
+                    {isFullscreen ? <Minimize className="size-[18px]" /> : <Maximize className="size-[18px]" />}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{isFullscreen ? tr("خروج من ملء الشاشة") : tr("ملء الشاشة")}</TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </header>
 
         {/* ── Body ── */}
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 gap-3 p-3">
           {/* Products */}
           <section aria-label={tr("المنتجات")} className="flex min-w-0 flex-1 flex-col">
-            <div className="space-y-3 border-b border-border p-4 pb-3">
+            <div className="space-y-3 px-1 pt-1 pb-3">
               <div className="relative">
-                <Search className="pointer-events-none absolute inset-s-3.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+                <Search className="pointer-events-none absolute inset-s-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
                 <input
                   ref={searchRef}
                   type="search"
@@ -469,20 +472,20 @@ export default function PosTerminal({
                   }}
                   placeholder={tr("ابحث باسم المنتج أو امسح الباركود")}
                   aria-label={tr("بحث عن منتج")}
-                  className="h-11 w-full rounded-xl border border-input bg-background ps-11 pe-20 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 [&::-webkit-search-cancel-button]:hidden"
+                  className="h-12 w-full rounded-[14px] bg-card ps-12 pe-24 text-[17px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden"
                 />
-                <div className="absolute inset-e-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+                <div className="absolute inset-e-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
                   {search ? (
                     <button
                       type="button"
                       onClick={() => setSearch("")}
                       aria-label={tr("مسح البحث")}
-                      className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className="grid size-5 place-items-center rounded-full bg-(--sys-gray)/60 text-white hover:bg-(--sys-gray)"
                     >
-                      <X className="size-4" />
+                      <X className="size-3" strokeWidth={3} />
                     </button>
                   ) : (
-                    <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-sans text-[11px] text-muted-foreground">F1</kbd>
+                    <kbd className="rounded-md bg-(--fill-3) px-1.5 py-0.5 font-sans text-[11px] text-muted-foreground">F1</kbd>
                   )}
                   <ScanBarcode className="size-5 text-muted-foreground" aria-hidden />
                 </div>
@@ -499,8 +502,8 @@ export default function PosTerminal({
                       aria-selected={active}
                       onClick={() => setActiveCategoryId(cat.id)}
                       className={cn(
-                        "h-8 shrink-0 rounded-lg px-3 text-sm transition-colors",
-                        active ? "bg-foreground font-medium text-background" : "bg-muted text-muted-foreground hover:text-foreground",
+                        "apple-press h-9 shrink-0 rounded-full px-4 text-[15px] transition-colors",
+                        active ? "bg-foreground font-semibold text-background" : "bg-card text-foreground/80 hover:text-foreground",
                       )}
                     >
                       {cat.name}
@@ -514,23 +517,25 @@ export default function PosTerminal({
 
             {/* Compact screens: the invoice lives in a sheet */}
             {!isDesktop && (
-              <div className="shrink-0 border-t border-border bg-card p-3">
-                <Button size="lg" className="h-12 w-full justify-between px-4" onClick={() => setCartSheetOpen(true)}>
+              <div className="shrink-0 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setCartSheetOpen(true)}
+                  className="apple-press flex h-14 w-full items-center justify-between rounded-[16px] bg-primary px-5 text-[17px] font-semibold text-primary-foreground"
+                >
                   <span className="flex items-center gap-2">
                     <ShoppingCart className="size-5" />
                     {tr("الفاتورة")}
-                    {itemCount > 0 && (
-                      <span className="rounded-full bg-primary-foreground/20 px-2 text-xs tabular-nums">{itemCount}</span>
-                    )}
+                    {itemCount > 0 && <span className="rounded-full bg-primary-foreground/20 px-2 text-[13px] tabular-nums">{itemCount}</span>}
                   </span>
                   <span className="tabular-nums">{egp(total)}</span>
-                </Button>
+                </button>
               </div>
             )}
           </section>
 
           {isDesktop && (
-            <aside aria-label={tr("الفاتورة")} className="flex w-100 shrink-0 flex-col border-s border-border xl:w-110">
+            <aside aria-label={tr("الفاتورة")} className="apple-card flex w-100 shrink-0 flex-col overflow-hidden xl:w-110">
               {cartPanel}
             </aside>
           )}
@@ -538,7 +543,7 @@ export default function PosTerminal({
 
         {!isDesktop && (
           <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
-            <SheetContent side={isRtl() ? "left" : "right"} className="w-full p-0 sm:max-w-md [&>button]:hidden">
+            <SheetContent side={isRtl() ? "left" : "right"} className="apple-ui apple-form w-full bg-card p-0 text-foreground sm:max-w-md [&>button]:hidden">
               <SheetTitle className="sr-only">{tr("الفاتورة")}</SheetTitle>
               {cartPanel}
             </SheetContent>

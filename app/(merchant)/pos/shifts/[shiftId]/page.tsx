@@ -2,9 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetShiftByIdAction } from "@/actions/pos/shift.actions";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { StatusText } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
+import { GroupTitle, PAYMENT_META, PosSubpage, Tile, paymentLabel } from "../../_components/pos-ui";
 import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -12,10 +13,6 @@ function egp(p: number) {
   return (p / 100).toLocaleString(intlLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
-const paymentLabels: Record<string, string> = {
-  get cash() { return tr("نقداً"); }, get card() { return tr("بطاقة"); }, get vodafone_cash() { return tr("فودافون كاش"); },
-  get instapay() { return tr("انستاباي"); }, get bank_transfer() { return tr("تحويل بنكي"); },
-};
 
 export default async function ShiftDetailPage({ params }: { params: Promise<{ shiftId: string }> }) {
   await loadDashboardLocale();
@@ -41,162 +38,170 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ sh
     return acc;
   }, {});
 
-  return (
-    <div className="min-h-screen bg-background p-6" dir={tdir()}>
-      <div className="mx-auto max-w-3xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="icon">
-            <Link href="/pos/shifts"><ArrowRight className="size-4 ltr:-scale-x-100" /></Link>
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold flex items-center gap-2">
-              {tr("تقرير الوردية")}
-              <Badge className={isOpen ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"}>
-                {isOpen ? tr("مفتوحة") : tr("مغلقة")}
-              </Badge>
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {shift.cashier?.name ?? shift.cashier?.email} ·{" "}
-              {shift.branch && `${shift.branch.name} · `}
-              {new Date(shift.openedAt).toLocaleString(intlLocale())}
-              {shift.closedAt && ` → ${new Date(shift.closedAt).toLocaleTimeString(intlLocale())}`}
-            </p>
-          </div>
-        </div>
+  const totalPaid = Object.values(ordersByPayment).reduce((a, b) => a + b, 0);
+  const diff = shift.cashDifference ?? 0;
+  const metrics = [
+    { label: tr("إجمالي المبيعات"), value: tr("{0} ج", egp(shift.totalSales)), tone: "" },
+    { label: tr("الربح الإجمالي"), value: tr("{0} ج", egp(profitTotal)), tone: profitTotal >= 0 ? "text-(--sys-green)" : "text-(--sys-red)" },
+    { label: tr("عدد الفواتير"), value: shift.transactionCount.toString(), tone: "" },
+    { label: tr("الخصومات"), value: tr("{0} ج", egp(shift.totalDiscount)), tone: shift.totalDiscount > 0 ? "text-(--sys-orange)" : "" },
+  ];
+  const entryLabel = (type: string) =>
+    type === "OPENING_FLOAT"
+      ? tr("رصيد الافتتاح")
+      : type === "CLOSING_COUNT"
+        ? tr("رصيد الإغلاق")
+        : type === "CASH_IN"
+          ? tr("إيداع نقدي")
+          : type === "CASH_OUT"
+            ? tr("سحب نقدي")
+            : type;
 
+  return (
+    <div className="h-full" dir={tdir()}>
+      <PosSubpage
+        back="/pos/shifts"
+        backLabel={tr("الورديات")}
+        title={tr("تقرير الوردية")}
+        subtitle={
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <StatusText tone={isOpen ? "success" : "neutral"}>{isOpen ? tr("مفتوحة") : tr("مغلقة")}</StatusText>
+            <span>
+              {shift.cashier?.name ?? shift.cashier?.email} · {shift.branch && `${shift.branch.name} · `}
+              {new Date(shift.openedAt).toLocaleString(intlLocale(), { dateStyle: "medium", timeStyle: "short" })}
+              {shift.closedAt && ` → ${new Date(shift.closedAt).toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" })}`}
+            </span>
+          </span>
+        }
+      >
         {/* Key metrics */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {[
-            { label: tr("إجمالي المبيعات"), value: tr("{0} ج", egp(shift.totalSales)), color: "text-primary" },
-            { label: tr("الربح الإجمالي"), value: tr("{0} ج", egp(profitTotal)), color: profitTotal >= 0 ? "text-emerald-600" : "text-destructive" },
-            { label: tr("عدد الفواتير"), value: shift.transactionCount.toString(), color: "text-foreground" },
-            { label: tr("الخصومات"), value: tr("{0} ج", egp(shift.totalDiscount)), color: "text-amber-600" },
-          ].map((m) => (
-            <div key={m.label} className="rounded-xl border bg-card p-4 text-center">
-              <p className="text-xs text-muted-foreground mb-1">{m.label}</p>
-              <p className={`text-lg font-bold ${m.color}`}>{m.value}</p>
+        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-[22px] bg-border/60 sm:grid-cols-4">
+          {metrics.map((m) => (
+            <div key={m.label} className="flex flex-col-reverse bg-card px-5 py-4">
+              <dt className="text-[13px] text-muted-foreground">{m.label}</dt>
+              <dd className={cn("text-[24px] leading-8 font-bold tabular-nums", m.tone)}>{m.value}</dd>
             </div>
           ))}
+        </dl>
+
+        <div className="grid items-start gap-8 lg:grid-cols-2">
+          {/* Cash reconciliation */}
+          {!isOpen && (
+            <section className="space-y-2">
+              <GroupTitle>{tr("تسوية الدرج النقدي")}</GroupTitle>
+              <div className="apple-card overflow-hidden rounded-[14px]">
+                <dl className="apple-rows text-[15px] [--row-inset:16px]">
+                  {[
+                    [tr("رصيد الافتتاح"), egp(shift.openingBalance)],
+                    [tr("+ المبيعات النقدية"), egp(cashSales)],
+                    [tr("± إيداع / سحب نقدي"), egp(cashMoves)],
+                    [tr("− مرتجعات نقدية"), egp(cashRefunds)],
+                    [tr("= النقدية المتوقعة"), egp(shift.expectedCash ?? 0)],
+                    [tr("النقدية الفعلية"), egp(shift.closingBalance ?? 0)],
+                  ].map(([label, val]) => (
+                    <div key={label} className="flex min-h-11 items-center justify-between px-4">
+                      <dt className="text-muted-foreground">{label}</dt>
+                      <dd className="tabular-nums">{tr("{0} ج", val)}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className={cn("flex items-center justify-between px-4 py-3", diff < 0 ? "bg-(--sys-red)/10" : diff > 0 ? "bg-(--sys-green)/10" : "bg-(--fill-3)/50")}>
+                  <span className="text-[15px] font-semibold">{tr("الفرق")}</span>
+                  <span className={cn("text-[22px] font-bold tabular-nums", diff < 0 ? "text-(--sys-red)" : diff > 0 ? "text-(--sys-green)" : "")}>
+                    {tr("{0}{1} ج", diff >= 0 ? "+" : "", egp(diff))}
+                  </span>
+                </div>
+              </div>
+              {shift.notes && <p className="px-4 text-[13px] text-muted-foreground">{shift.notes}</p>}
+            </section>
+          )}
+
+          {/* Payment breakdown */}
+          {Object.keys(ordersByPayment).length > 0 && (
+            <section className="space-y-2">
+              <GroupTitle>{tr("توزيع المدفوعات")}</GroupTitle>
+              <ul className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:58px]">
+                {Object.entries(ordersByPayment).map(([method, total]) => {
+                  const meta = PAYMENT_META[method];
+                  const share = totalPaid ? Math.round((total / totalPaid) * 100) : 0;
+                  return (
+                    <li key={method} className="flex items-center gap-3.5 px-4 py-3">
+                      {meta ? <Tile icon={meta.icon} tint={meta.tint} /> : <span className="size-[29px] shrink-0 rounded-[7px] bg-(--sys-gray)" />}
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex items-baseline justify-between gap-2 text-[15px]">
+                          <span>{paymentLabel(method)}</span>
+                          <span className="font-semibold tabular-nums">{tr("{0} ج", egp(total))}</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-(--fill-3)" role="presentation">
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${share}%` }} />
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
         </div>
 
-        {/* Cash reconciliation */}
-        {!isOpen && (
-          <div className="rounded-xl border bg-card p-4 space-y-3">
-            <h2 className="font-semibold text-sm">{tr("تسوية الدرج النقدي")}</h2>
-            <div className="space-y-1.5 text-sm">
-              {[
-                [tr("رصيد الافتتاح"), egp(shift.openingBalance)],
-                [tr("+ المبيعات النقدية"), egp(cashSales)],
-                [tr("± إيداع / سحب نقدي"), egp(cashMoves)],
-                [tr("− مرتجعات نقدية"), egp(cashRefunds)],
-                [tr("= النقدية المتوقعة"), egp(shift.expectedCash ?? 0)],
-                [tr("النقدية الفعلية"), egp(shift.closingBalance ?? 0)],
-              ].map(([label, val]) => (
-                <div key={label} className="flex justify-between">
-                  <span className="text-muted-foreground">{label}</span>
-                  <span className="font-medium">{tr("{0} ج", val)}</span>
-                </div>
-              ))}
-              <div className="pt-1.5 border-t flex justify-between font-bold">
-                <span>{tr("الفرق")}</span>
-                <span className={shift.cashDifference! >= 0 ? "text-emerald-600" : "text-destructive"}>
-                  {tr("{0}{1} ج", shift.cashDifference! >= 0 ? "+" : "", egp(shift.cashDifference ?? 0))}
-                </span>
-              </div>
-            </div>
-            {shift.notes && (
-              <p className="text-xs text-muted-foreground border-t pt-2">{shift.notes}</p>
-            )}
-          </div>
-        )}
-
-        {/* Payment breakdown */}
-        {Object.keys(ordersByPayment).length > 0 && (
-          <div className="rounded-xl border bg-card p-4 space-y-3">
-            <h2 className="font-semibold text-sm">{tr("توزيع المدفوعات")}</h2>
-            <div className="space-y-1.5">
-              {Object.entries(ordersByPayment).map(([method, total]) => (
-                <div key={method} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-primary" />
-                    <span>{paymentLabels[method] ?? method}</span>
-                  </div>
-                  <span className="font-medium">{tr("{0} ج", egp(total))}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Orders */}
-        <div className="rounded-xl border bg-card overflow-hidden">
-          <div className="border-b px-4 py-3 flex items-center justify-between">
-            <h2 className="font-semibold text-sm">{tr("الفواتير ({0})", shift.orders.length)}</h2>
-          </div>
+        <section className="space-y-2">
+          <GroupTitle>{tr("الفواتير ({0})", shift.orders.length)}</GroupTitle>
           {shift.orders.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">
-              {tr("لا توجد فواتير في هذه الوردية")}
-            </div>
+            <div className="apple-card rounded-[14px] px-6 py-10 text-center text-[15px] text-muted-foreground">{tr("لا توجد فواتير في هذه الوردية")}</div>
           ) : (
-            <div className="divide-y divide-border">
+            <ul className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:16px]">
               {shift.orders.map((order) => (
-                <Link key={order.id} href={`/dashboard/orders/${order.id}`}>
-                  <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors">
-                    <div>
-                      <p className="text-sm font-medium">{order.fullName}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(order.createdAt).toLocaleTimeString(intlLocale())} ·{" "}
-                        {paymentLabels[order.paymentMethod] ?? order.paymentMethod}
+                <li key={order.id}>
+                  <Link href={`/dashboard/orders/${order.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-(--fill-3)/50">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[15px] font-medium">{order.fullName}</p>
+                      <p className="text-[13px] text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" })} ·{" "}
+                        {order.splitPayments.length > 0 ? paymentLabel("split") : paymentLabel(order.paymentMethod)}
                       </p>
                     </div>
                     <div className="text-end">
-                      <p className="text-sm font-bold text-primary">{tr("{0} ج", egp(order.total))}</p>
-                      {order.profitTotal !== null && order.profitTotal !== undefined && (
-                        <p className={`text-xs ${order.profitTotal >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                      <p className="text-[15px] font-semibold tabular-nums">{tr("{0} ج", egp(order.total))}</p>
+                      {order.profitTotal != null && (
+                        <p className={cn("text-[12px] tabular-nums", order.profitTotal >= 0 ? "text-(--sys-green)" : "text-(--sys-red)")}>
                           {tr("ربح: {0} ج", egp(order.profitTotal))}
                         </p>
                       )}
                     </div>
-                  </div>
-                </Link>
+                    <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" />
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
-        </div>
+        </section>
 
         {/* Cash entries log */}
         {shift.entries.length > 0 && (
-          <div className="rounded-xl border bg-card overflow-hidden">
-            <div className="border-b px-4 py-3">
-              <h2 className="font-semibold text-sm">{tr("سجل الدرج النقدي")}</h2>
-            </div>
-            <div className="divide-y divide-border">
+          <section className="space-y-2">
+            <GroupTitle>{tr("سجل الدرج النقدي")}</GroupTitle>
+            <ul className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:16px]">
               {shift.entries.map((entry) => (
-                <div key={entry.id} className="flex items-center justify-between px-4 py-2">
-                  <div>
-                    <p className="text-xs font-medium">
-                      {entry.type === "OPENING_FLOAT" ? tr("رصيد الافتتاح") :
-                       entry.type === "CLOSING_COUNT" ? tr("رصيد الإغلاق") :
-                       entry.type === "CASH_IN" ? tr("إيداع نقدي") :
-                       entry.type === "CASH_OUT" ? tr("سحب نقدي") : entry.type}
-                    </p>
-                    {entry.note && <p className="text-xs text-muted-foreground">{entry.note}</p>}
+                <li key={entry.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
+                  <div className="min-w-0">
+                    <p className="text-[15px]">{entryLabel(entry.type)}</p>
+                    {entry.note && <p className="truncate text-[13px] text-muted-foreground">{entry.note}</p>}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-bold ${entry.amount >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                  <div className="text-end">
+                    <p className={cn("text-[15px] font-semibold tabular-nums", entry.amount >= 0 ? "text-(--sys-green)" : "text-(--sys-red)")}>
                       {tr("{0}{1} ج", entry.amount >= 0 ? "+" : "", egp(entry.amount))}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(entry.createdAt).toLocaleTimeString(intlLocale())}
-                    </span>
+                    </p>
+                    <p className="text-[12px] text-muted-foreground">
+                      {new Date(entry.createdAt).toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" })}
+                    </p>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
-          </div>
+            </ul>
+          </section>
         )}
-      </div>
+      </PosSubpage>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { AlertTriangle, ArrowDown, ArrowUp, BadgeCheck, CheckCircle2, CreditCard, Info, Landmark, Settings2, Wallet, Zap } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Check, ChevronDown, ChevronLeft, ChevronUp, CreditCard, Info, Lock, Wallet, Zap } from "lucide-react";
 
 import {
   ReorderPaymentMethodsAction,
@@ -11,15 +11,14 @@ import {
   type PaymentMethodsSettingsData,
 } from "@/actions/payment-methods/payment-methods.actions";
 import { PAYMENT_METHODS, PAYMENT_METHODS_BY_KEY, type PaymentMethodKey, type PaymentRegion } from "@/constants/welcome/payment-methods";
-import { StatusPill } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
+import { Card, SegmentedButtons, StatusText, appleButton } from "@/components/saas-page";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { KashierSheetBody } from "./kashier-sheet";
 import { ManualSheetBody } from "./manual-sheet";
 import { REGIONS } from "./method-meta";
-import { MethodLogo, OnDot } from "./shared";
+import { MethodLogo } from "./shared";
 import { isRtl, lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 const nf = lazyIntl.number();
@@ -112,217 +111,226 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
         ? { label: tr("شغال لايف"), tone: "success" as const }
         : { label: tr("وضع تجربة"), tone: "warning" as const };
 
+  const ready = (key: PaymentMethodKey) => isSetUp(key);
+
   return (
-    <div className="space-y-10">
-      {/* ═══ Overview: what the customer can do right now ═══ */}
-      <section className="overflow-hidden rounded-2xl border border-border bg-card">
-        <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
-          <div className="space-y-5 p-6">
-            <div>
-              <p className="text-sm text-muted-foreground">{tr("عملاءك دلوقتي يقدروا يدفعوا بـ")}</p>
-              <p className="mt-1 text-3xl font-bold tracking-tight">
-                {nf.format(enabled.length)} {enabled.length === 1 ? tr("طريقة") : tr("طرق")}
-              </p>
-              <div className="mt-3 flex [&>*+*]:-ms-2">
-                {enabled.slice(0, 7).map((k) => (
-                  <MethodLogo key={k} src={PAYMENT_METHODS_BY_KEY[k].logo} alt={PAYMENT_METHODS_BY_KEY[k].label} size="sm" className="ring-2 ring-card" />
-                ))}
-                {enabled.length > 7 && (
-                  <span className="grid size-8 place-items-center rounded-lg bg-muted text-xs font-medium ring-2 ring-card">+{nf.format(enabled.length - 7)}</span>
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_23rem]">
+      {/* ═══ Settings column ═══ */}
+      <div className="min-w-0 space-y-6">
+        {/* ── Online: Kashier ─────────────────────────────────── */}
+        <Card title={tr("الدفع الأونلاين")} subtitle={tr("العميل يدفع وهو بيطلب، والفلوس توصل حسابك.")}>
+          {kashierConnected ? (
+            <div className="apple-rows pb-2 [--row-inset:76px]">
+              <label className="flex cursor-pointer items-center gap-4 px-5 py-3">
+                <MethodLogo src={kashierMethod.logo} alt="Kashier" />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[17px] font-semibold">Kashier</span>
+                  <StatusText tone={kashierStatus.tone}>{kashierStatus.label}</StatusText>
+                </span>
+                <Switch
+                  className="apple-switch"
+                  checked={kashierOn}
+                  disabled={busyKey === "kashier"}
+                  onCheckedChange={(v) => toggle("kashier", v)}
+                  aria-label={tr("إظهار Kashier للعملاء")}
+                />
+              </label>
+              <NavRow label={tr("الإعدادات")} value={initial.kashierMode === "LIVE" ? tr("لايف") : tr("تجربة")} onClick={() => openSetup("kashier")} />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-5 px-5 pb-5 sm:flex-row sm:items-center">
+              <MethodLogo src={kashierMethod.logo} alt="Kashier" size="lg" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <p className="flex items-center gap-2 text-[17px] font-semibold">
+                  Kashier
+                  <span className="text-[13px] font-semibold text-(--sys-orange)">{tr("موصى بيه")}</span>
+                </p>
+                <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
+                  <Benefit icon={CreditCard} text={tr("كروت ميزة وفيزا وماستركارد")} />
+                  <Benefit icon={Wallet} text={tr("محافظ إلكترونية وتقسيط")} />
+                  <Benefit icon={BadgeCheck} text={tr("الطلب يتعلّم مدفوع لوحده")} />
+                </ul>
+              </div>
+              <button type="button" onClick={() => openSetup("kashier")} className={appleButton.filled}>
+                <Zap className="size-4" />
+                {tr("اربط Kashier")}
+              </button>
+            </div>
+          )}
+          {kashierTest && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t-[0.5px] border-border bg-(--sys-orange)/8 px-5 py-3.5">
+              <span className="flex items-start gap-2.5 text-[15px]">
+                <AlertTriangle className="mt-0.5 size-[18px] shrink-0 text-(--sys-orange)" />
+                {tr("وضع التجربة شغال — العملاء بيشوفوا Kashier بس الدفع مش حقيقي.")}
+              </span>
+              <button type="button" className={cn(appleButton.filled, "h-9 px-4")} onClick={() => openSetup("kashier")}>
+                {tr("شغّله لايف")}
+              </button>
+            </div>
+          )}
+        </Card>
+
+        {/* ── Cash on delivery ────────────────────────────────── */}
+        <Card title={tr("الدفع عند الاستلام")} subtitle={tr("العميل يدفع كاش للمندوب.")}>
+          <div className="pb-2">
+            <MethodRow methodKey="cash_on_delivery" on={isOn("cash_on_delivery")} busy={busyKey === "cash_on_delivery"} onToggle={(v) => toggle("cash_on_delivery", v)} />
+          </div>
+        </Card>
+
+        {/* ── Manual transfers ────────────────────────────────── */}
+        <Card
+          title={tr("تحويلات ومحافظ")}
+          subtitle={tr("العميل يطلب، يحوّل على بياناتك، وإنت تأكد الدفع من صفحة الطلب.")}
+        >
+          <div className="px-5 pb-3">
+            <SegmentedButtons
+              label={tr("السوق")}
+              role="tablist"
+              value={region}
+              onChange={setRegion}
+              options={REGIONS.map((r) => [
+                r.value,
+                <>
+                  {r.label}
+                  {regionOnCount(r.value) > 0 && <span className="text-muted-foreground tabular-nums">{nf.format(regionOnCount(r.value))}</span>}
+                </>,
+              ] as const)}
+            />
+          </div>
+          <ul className="apple-rows border-t-[0.5px] border-border pb-2 [--row-inset:72px]">
+            {regionMethods.map((m) => {
+              const on = isOn(m.key);
+              const isReady = ready(m.key);
+              return (
+                <li key={m.key} className="flex items-center gap-3 px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => openSetup(m.key)}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <MethodLogo src={m.logo} alt="" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-medium">{m.label}</span>
+                      <span className="block truncate text-[13px] text-muted-foreground">
+                        {isReady ? details[m.key]?.split("\n")[0] : m.description}
+                      </span>
+                    </span>
+                  </button>
+                  {isReady ? (
+                    <Switch
+                      className="apple-switch"
+                      checked={on}
+                      disabled={busyKey === m.key}
+                      onCheckedChange={(v) => toggle(m.key, v)}
+                      aria-label={tr("إظهار {0} للعملاء", m.label)}
+                    />
+                  ) : (
+                    <button type="button" onClick={() => openSetup(m.key)} className={cn(appleButton.tinted, "h-8 px-3 text-[13px] font-semibold text-primary")}>
+                      {tr("إعداد")}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+      </div>
+
+      {/* ═══ Live checkout preview (what the customer sees) ═══ */}
+      <aside className="space-y-6 xl:sticky xl:top-20 xl:self-start">
+        <section aria-labelledby="checkout-preview" className="space-y-3">
+          <p id="checkout-preview" className="px-1 text-[13px] font-semibold text-muted-foreground">
+            {tr("كده صفحة الدفع عند عميلك")}
+          </p>
+          <div className="rounded-[36px] bg-[#1d1d1f] p-2 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.35)] dark:bg-[#3a3a3c]">
+            <div className="overflow-hidden rounded-[29px] bg-background">
+              <div className="flex justify-center pt-2.5 pb-1">
+                <span className="h-[18px] w-20 rounded-full bg-[#1d1d1f] dark:bg-[#3a3a3c]" aria-hidden />
+              </div>
+              <div className="space-y-3 px-3.5 pt-2 pb-5">
+                <p className="flex items-center gap-1.5 px-1 text-[15px] font-semibold">
+                  <Lock className="size-3.5 text-(--sys-green)" />
+                  {tr("طريقة الدفع")}
+                </p>
+                {enabled.length === 0 ? (
+                  <p className="rounded-[14px] bg-card px-4 py-6 text-center text-[13px] text-muted-foreground">{tr("فعّل طريقة دفع واحدة على الأقل.")}</p>
+                ) : (
+                  <ol className="apple-rows overflow-hidden rounded-[14px] bg-card [--row-inset:44px]">
+                    {enabled.map((key, i) => {
+                      const m = PAYMENT_METHODS_BY_KEY[key];
+                      return (
+                        <li key={key} className="group flex items-center gap-2.5 px-3 py-2.5">
+                          <span
+                            aria-hidden
+                            className={cn(
+                              "grid size-5 shrink-0 place-items-center rounded-full",
+                              i === 0 ? "bg-primary text-primary-foreground" : "ring-[1.5px] ring-(--label-3) ring-inset",
+                            )}
+                          >
+                            {i === 0 && <Check className="size-3" strokeWidth={3.5} />}
+                          </span>
+                          <MethodLogo src={m.logo} alt="" size="xs" />
+                          <span className="min-w-0 flex-1 truncate text-[13px] font-medium">{m.label}</span>
+                          <span className="flex gap-0.5 opacity-100 transition-opacity xl:opacity-0 xl:group-focus-within:opacity-100 xl:group-hover:opacity-100">
+                            <MoveBtn label={tr("طلّع {0} لفوق", m.label)} disabled={i === 0} onClick={() => move(key, -1)}>
+                              <ChevronUp className="size-3.5" strokeWidth={2.6} />
+                            </MoveBtn>
+                            <MoveBtn label={tr("نزّل {0} لتحت", m.label)} disabled={i === enabled.length - 1} onClick={() => move(key, 1)}>
+                              <ChevronDown className="size-3.5" strokeWidth={2.6} />
+                            </MoveBtn>
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
                 )}
+                <div className="grid h-11 place-items-center rounded-full bg-primary text-[15px] font-semibold text-primary-foreground" aria-hidden>
+                  {tr("تأكيد الطلب")}
+                </div>
               </div>
             </div>
+          </div>
+          <p className="px-1 text-[13px] text-muted-foreground">{tr("الأولى بتبقى مختارة تلقائي — رتّبهم بالأسهم.")}</p>
+        </section>
 
-            <ul className="space-y-2.5">
-              {checks.map((c) => {
-                const Icon = c.tone === "ok" ? CheckCircle2 : c.tone === "tip" ? Info : AlertTriangle;
-                return (
-                  <li key={c.text} className="flex flex-wrap items-start gap-2 text-sm leading-6">
-                    <Icon
-                      className={cn(
-                        "mt-1 size-4 shrink-0",
-                        c.tone === "ok" && "text-emerald-600 dark:text-emerald-400",
-                        c.tone === "tip" && "text-muted-foreground",
-                        (c.tone === "warn" || c.tone === "danger") && "text-rose-600 dark:text-rose-400",
-                      )}
-                    />
-                    <span className={cn("min-w-0 flex-1", c.tone === "danger" && "font-medium text-rose-800 dark:text-rose-300")}>{c.text}</span>
+        <Card title={tr("{0} {1}", nf.format(enabled.length), enabled.length === 1 ? tr("طريقة") : tr("طرق"))} subtitle={tr("عملاءك دلوقتي يقدروا يدفعوا بـ")}>
+          <ul className="apple-rows pb-2 [--row-inset:52px]">
+            {checks.map((c) => {
+              const Icon = c.tone === "ok" ? Check : c.tone === "tip" ? Info : AlertTriangle;
+              return (
+                <li key={c.text} className="flex items-start gap-3 px-5 py-3">
+                  <span
+                    className={cn(
+                      "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-white",
+                      c.tone === "ok" && "bg-(--sys-green)",
+                      c.tone === "tip" && "bg-primary",
+                      (c.tone === "warn" || c.tone === "danger") && "bg-(--sys-red)",
+                    )}
+                  >
+                    <Icon className="size-3.5" strokeWidth={3} />
+                  </span>
+                  <span className="min-w-0 flex-1 text-[15px] leading-[21px]">
+                    {c.text}
                     {c.action && (
-                      <button type="button" onClick={() => openSetup(c.action!.key)} className="text-sm font-medium text-primary hover:underline">
+                      <button type="button" onClick={() => openSetup(c.action!.key)} className="ms-1.5 font-semibold text-primary hover:underline">
                         {c.action.label}
                       </button>
                     )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Checkout mock */}
-          <div className="border-t border-border bg-muted/30 p-6 lg:border-s lg:border-t-0">
-            <p className="mb-3 text-xs font-medium text-muted-foreground">{tr("كده صفحة الدفع عند عميلك")}</p>
-            <div className="rounded-xl border border-border bg-background p-3 shadow-sm">
-              <p className="mb-2.5 flex items-center gap-1.5 px-1 text-sm font-semibold">
-                <Wallet className="size-4 text-primary" />
-                {tr("طريقة الدفع")}
-              </p>
-              <ol className="space-y-1.5">
-                {enabled.map((key, i) => {
-                  const m = PAYMENT_METHODS_BY_KEY[key];
-                  return (
-                    <li
-                      key={key}
-                      className={cn(
-                        "group flex items-center gap-2.5 rounded-lg border px-2.5 py-2",
-                        i === 0 ? "border-primary bg-primary/[0.05]" : "border-border",
-                      )}
-                    >
-                      <span
-                        aria-hidden
-                        className={cn("grid size-4 shrink-0 place-items-center rounded-full border", i === 0 ? "border-primary bg-primary" : "border-muted-foreground/40")}
-                      >
-                        {i === 0 && <span className="size-1.5 rounded-full bg-primary-foreground" />}
-                      </span>
-                      <MethodLogo src={m.logo} alt="" size="xs" />
-                      <span className="min-w-0 flex-1 truncate text-sm">{m.label}</span>
-                      <span className="flex opacity-100 transition-opacity lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100">
-                        <MoveBtn label={tr("طلّع {0} لفوق", m.label)} disabled={i === 0} onClick={() => move(key, -1)}>
-                          <ArrowUp className="size-3.5" />
-                        </MoveBtn>
-                        <MoveBtn label={tr("نزّل {0} لتحت", m.label)} disabled={i === enabled.length - 1} onClick={() => move(key, 1)}>
-                          <ArrowDown className="size-3.5" />
-                        </MoveBtn>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-            <p className="mt-2.5 text-xs text-muted-foreground">{tr("الأولى بتبقى مختارة تلقائي — رتّبهم بالأسهم.")}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ Online ═══ */}
-      <Section icon={CreditCard} title={tr("الدفع الأونلاين")} description={tr("العميل يدفع وهو بيطلب، والفلوس توصل حسابك.")}>
-        <div
-          className={cn(
-            "relative overflow-hidden rounded-2xl border bg-card p-5 sm:p-6",
-            kashierOn && initial.kashierMode === "LIVE" ? "border-emerald-500/40" : kashierTest ? "border-amber-500/50" : "border-border",
-          )}
-        >
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-            <MethodLogo src={kashierMethod.logo} alt="Kashier" size="lg" />
-            <div className="min-w-0 flex-1 space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-lg font-semibold">Kashier</h3>
-                <StatusPill tone={kashierStatus.tone}>{kashierStatus.label}</StatusPill>
-                {!kashierConnected && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">{tr("موصى بيه")}</span>
-                )}
-              </div>
-              <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
-                <Benefit icon={CreditCard} text={tr("كروت ميزة وفيزا وماستركارد")} />
-                <Benefit icon={Wallet} text={tr("محافظ إلكترونية وتقسيط")} />
-                <Benefit icon={BadgeCheck} text={tr("الطلب يتعلّم مدفوع لوحده")} />
-              </ul>
-            </div>
-            <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-end">
-              {kashierConnected ? (
-                <>
-                  <Switch checked={kashierOn} disabled={busyKey === "kashier"} onCheckedChange={(v) => toggle("kashier", v)} aria-label={tr("إظهار Kashier للعملاء")} />
-                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openSetup("kashier")}>
-                    <Settings2 className="size-4" />
-                    {tr("الإعدادات")}
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={() => openSetup("kashier")} className="gap-1.5">
-                  <Zap className="size-4" />
-                  {tr("اربط Kashier")}
-                </Button>
-              )}
-            </div>
-          </div>
-          {kashierTest && (
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-              <span className="flex items-center gap-2">
-                <AlertTriangle className="size-4 shrink-0" />
-                {tr("وضع التجربة شغال — العملاء بيشوفوا Kashier بس الدفع مش حقيقي.")}
-              </span>
-              <Button size="sm" variant="outline" className="border-amber-600/30 bg-transparent" onClick={() => openSetup("kashier")}>
-                {tr("شغّله لايف")}
-              </Button>
-            </div>
-          )}
-        </div>
-      </Section>
-
-      {/* ═══ COD ═══ */}
-      <Section icon={Wallet} title={tr("الدفع عند الاستلام")} description={tr("العميل يدفع كاش للمندوب.")}>
-        <MethodRow methodKey="cash_on_delivery" on={isOn("cash_on_delivery")} busy={busyKey === "cash_on_delivery"} onToggle={(v) => toggle("cash_on_delivery", v)} />
-      </Section>
-
-      {/* ═══ Manual ═══ */}
-      <Section
-        icon={Landmark}
-        title={tr("تحويلات ومحافظ")}
-        description={tr("العميل يطلب، يحوّل على بياناتك، وإنت تأكد الدفع من صفحة الطلب.")}
-        aside={
-          <div role="tablist" aria-label={tr("السوق")} className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5">
-            {REGIONS.map((r) => (
-              <button
-                key={r.value}
-                role="tab"
-                type="button"
-                aria-selected={region === r.value}
-                onClick={() => setRegion(r.value)}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1 text-sm transition-colors",
-                  region === r.value ? "bg-background font-medium shadow-sm" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {r.label}
-                {regionOnCount(r.value) > 0 && (
-                  <span className="rounded bg-primary/10 px-1 text-[11px] font-medium tabular-nums text-primary">{nf.format(regionOnCount(r.value))}</span>
-                )}
-              </button>
-            ))}
-          </div>
-        }
-      >
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {regionMethods.map((m) => {
-            const on = isOn(m.key);
-            const ready = isSetUp(m.key);
-            return (
-              <article
-                key={m.key}
-                className={cn("flex flex-col rounded-xl border bg-card p-4 transition-colors", on ? "border-primary/40" : "border-border")}
-              >
-                <div className="flex items-start gap-3">
-                  <MethodLogo src={m.logo} alt={m.label} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{m.label}</p>
-                    <OnDot on={on} label={on ? tr("ظاهر للعملاء") : ready ? tr("متوقف") : tr("محتاج إعداد")} />
-                  </div>
-                  {ready && <Switch checked={on} disabled={busyKey === m.key} onCheckedChange={(v) => toggle(m.key, v)} aria-label={tr("إظهار {0} للعملاء", m.label)} />}
-                </div>
-                <p className="mt-3 line-clamp-2 flex-1 text-sm leading-6 text-muted-foreground">
-                  {ready ? details[m.key] : m.description}
-                </p>
-                <Button variant={ready ? "ghost" : "outline"} size="sm" className="mt-3 self-start" onClick={() => openSetup(m.key)}>
-                  {ready ? tr("عدّل البيانات") : tr("إعداد")}
-                </Button>
-              </article>
-            );
-          })}
-        </div>
-      </Section>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+      </aside>
 
       {/* ═══ Setup sheet (URL-driven: ?setup=<key>) ═══ */}
       <Sheet open={!!setupKey} onOpenChange={(open) => !open && openSetup(null)}>
-        <SheetContent side={isRtl() ? "left" : "right"} dir={tdir()} className="gap-0 data-[side=left]:w-full data-[side=left]:sm:max-w-lg data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
+        <SheetContent
+          side={isRtl() ? "left" : "right"}
+          dir={tdir()}
+          className="apple-ui apple-form gap-0 border-0 bg-background text-foreground data-[side=left]:w-full data-[side=left]:sm:max-w-md data-[side=right]:w-full data-[side=right]:sm:max-w-md"
+        >
           {setupKey === "kashier" ? (
             <KashierSheetBody
               key="kashier"
@@ -353,56 +361,40 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
   );
 }
 
-function Section({
-  icon: Icon,
-  title,
-  description,
-  aside,
-  children,
-}: {
-  icon: typeof Wallet;
-  title: string;
-  description: string;
-  aside?: React.ReactNode;
-  children: React.ReactNode;
-}) {
+function NavRow({ label, value, onClick }: { label: string; value?: string; onClick: () => void }) {
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-            <Icon className="size-4" />
-          </span>
-          <div className="min-w-0">
-            <h2 className="text-base font-semibold">{title}</h2>
-            <p className="text-sm text-muted-foreground">{description}</p>
-          </div>
-        </div>
-        {aside}
-      </div>
-      {children}
-    </section>
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex min-h-11 w-full items-center justify-between gap-3 py-3 ps-[76px] pe-5 text-start text-[15px] transition-colors hover:bg-(--fill-3)/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {label}
+      <span className="flex items-center gap-1 text-muted-foreground">
+        {value}
+        <ChevronLeft className="size-[18px] text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
+      </span>
+    </button>
   );
 }
 
 function MethodRow({ methodKey, on, busy, onToggle }: { methodKey: PaymentMethodKey; on: boolean; busy: boolean; onToggle: (v: boolean) => void }) {
   const m = PAYMENT_METHODS_BY_KEY[methodKey];
   return (
-    <label className={cn("flex cursor-pointer items-center gap-4 rounded-xl border bg-card p-4", on ? "border-primary/40" : "border-border")}>
+    <label className="flex cursor-pointer items-center gap-4 px-5 py-3">
       <MethodLogo src={m.logo} alt={m.label} />
       <span className="min-w-0 flex-1">
-        <span className="block font-medium">{m.label}</span>
-        <OnDot on={on} />
+        <span className="block text-[15px] font-medium">{m.label}</span>
+        <StatusText tone={on ? "success" : "neutral"}>{on ? tr("ظاهر للعملاء") : tr("مش مفعّل")}</StatusText>
       </span>
-      <Switch checked={on} disabled={busy} onCheckedChange={onToggle} aria-label={tr("إظهار {0} للعملاء", m.label)} />
+      <Switch className="apple-switch" checked={on} disabled={busy} onCheckedChange={onToggle} aria-label={tr("إظهار {0} للعملاء", m.label)} />
     </label>
   );
 }
 
 function Benefit({ icon: Icon, text }: { icon: typeof Wallet; text: string }) {
   return (
-    <li className="flex items-center gap-2">
-      <Icon className="size-4 shrink-0 text-primary" />
+    <li className="flex items-center gap-1.5">
+      <Icon className="size-3.5 shrink-0 text-primary" />
       {text}
     </li>
   );
@@ -415,7 +407,7 @@ function MoveBtn({ label, disabled, onClick, children }: { label: string; disabl
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-25"
+      className="apple-press grid size-7 place-items-center rounded-full bg-(--fill-3) text-primary disabled:pointer-events-none disabled:opacity-30"
     >
       {children}
     </button>

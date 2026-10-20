@@ -1,10 +1,9 @@
-import Link from "next/link";
+import { RotateCcw } from "lucide-react";
 import { requirePosContext } from "@/lib/pos/pos-context";
 import { GetReturnsAction } from "@/actions/pos/returns.actions";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { Tag } from "@/components/saas-page";
 import ReturnsClient from "./_components/ReturnsClient";
+import { PosSubpage } from "../_components/pos-ui";
 import { intlLocale, tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -14,82 +13,71 @@ export default async function ReturnsPage() {
   const store = { id: ctx.storeId };
 
   const returns = await GetReturnsAction(100);
+  const refunded = returns.reduce((s, r) => s + (r.refundAmount ?? 0), 0);
+  const money = (p: number) => tr("{0} ج", (p / 100).toFixed(0));
+  const typeLabel = (t: string) => (t === "FULL_RETURN" ? tr("إرجاع كامل") : t === "PARTIAL_RETURN" ? tr("إرجاع جزئي") : tr("استبدال"));
+  const refundLabel = (m: string | null) => (m === "cash" ? tr("نقداً") : m === "card" ? tr("بطاقة") : m === "store_credit" ? tr("رصيد بالمتجر") : (m ?? "—"));
 
   return (
-    <div className="min-h-screen bg-background p-6" dir={tdir()}>
-      <div className="mx-auto max-w-4xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button asChild variant="ghost" size="icon">
-              <Link href="/pos"><ArrowRight className="size-4 ltr:-scale-x-100" /></Link>
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold flex items-center gap-2">
-                <RotateCcw className="size-5" />
-                {tr("المرتجعات والاستبدالات")}
-              </h1>
-              <p className="text-sm text-muted-foreground">{tr("{0} عملية إرجاع", returns.length)}</p>
-            </div>
-          </div>
-          <ReturnsClient storeId={store.id} />
-        </div>
-
-        {/* Returns list */}
-        <div className="space-y-3">
-          {returns.length === 0 ? (
-            <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">
-              <RotateCcw className="size-10 mx-auto mb-2 opacity-30" />
-              <p>{tr("لا توجد مرتجعات بعد")}</p>
-            </div>
+    <div className="h-full" dir={tdir()}>
+      <PosSubpage
+        back="/pos"
+        backLabel={tr("نقطة البيع")}
+        title={tr("المرتجعات والاستبدالات")}
+        subtitle={
+          returns.length > 0 ? (
+            <>
+              {tr("{0} عملية إرجاع", returns.length)} · <span className="tabular-nums">{tr("اترد {0}", money(refunded))}</span>
+            </>
           ) : (
-            returns.map((ret) => (
-              <div key={ret.id} className="rounded-xl border bg-card p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">
-                        {ret.type === "FULL_RETURN" ? tr("إرجاع كامل") :
-                         ret.type === "PARTIAL_RETURN" ? tr("إرجاع جزئي") : tr("استبدال")}
-                      </Badge>
-                      <span className="text-sm font-medium">
-                        {tr("طلب #{0}", ret.originalOrder.id.slice(-6).toUpperCase())}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {tr("{0} · {1} · الكاشير: {2}", ret.originalOrder.fullName, new Date(ret.createdAt).toLocaleString(intlLocale()), ret.cashier?.name ?? "—")}
+            tr("{0} عملية إرجاع", returns.length)
+          )
+        }
+        actions={<ReturnsClient storeId={store.id} />}
+      >
+        {returns.length === 0 ? (
+          <div className="apple-card flex flex-col items-center gap-2 px-6 py-16 text-center">
+            <RotateCcw className="mb-2 size-11 text-(--label-3)" strokeWidth={1.5} />
+            <p className="text-[20px] font-semibold">{tr("لا توجد مرتجعات بعد")}</p>
+            <p className="max-w-sm text-[15px] text-muted-foreground">{tr("لما عميل يرجّع حاجة، دوس «إرجاع جديد» واكتب رقم الطلب — المخزون بيرجع لوحده.")}</p>
+          </div>
+        ) : (
+          <ul className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:68px]">
+            {returns.map((ret) => (
+              <li key={ret.id} className="flex items-start gap-3 px-4 py-3.5">
+                <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-full bg-(--sys-orange)/14 text-(--sys-orange)">
+                  <RotateCcw className="size-[18px]" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="truncate text-[15px] font-semibold">
+                      {tr("طلب #{0}", ret.originalOrder.id.slice(-6).toUpperCase())} · {ret.originalOrder.fullName}
+                    </p>
+                    <p className="shrink-0 text-[15px] font-semibold text-(--sys-red) tabular-nums">−{money(ret.refundAmount ?? 0)}</p>
+                  </div>
+                  <div className="mt-0.5 flex items-center justify-between gap-3 text-[13px] text-muted-foreground">
+                    <p className="min-w-0 truncate">
+                      {new Date(ret.createdAt).toLocaleString(intlLocale(), { dateStyle: "medium", timeStyle: "short" })} · {tr("الكاشير: {0}", ret.cashier?.name ?? "—")}
                       {ctx.branches.length > 1 && ret.branch && ` · ${ret.branch.name}`}
                     </p>
-                    {ret.reason && (
-                      <p className="mt-1 text-xs text-muted-foreground">{tr("السبب: {0}", ret.reason)}</p>
-                    )}
+                    <span className="shrink-0">{refundLabel(ret.refundMethod)}</span>
                   </div>
-                  <div className="text-end">
-                    <p className="text-sm font-bold text-destructive">
-                      {tr("−{0} ج", ((ret.refundAmount ?? 0) / 100).toFixed(0))}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {ret.refundMethod === "cash" ? tr("نقداً") : ret.refundMethod}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Returned items */}
-                {ret.items.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  {ret.reason && <p className="mt-1 text-[13px]">{tr("السبب: {0}", ret.reason)}</p>}
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <Tag tone={ret.type === "FULL_RETURN" ? "danger" : ret.type === "PARTIAL_RETURN" ? "warning" : "info"}>{typeLabel(ret.type)}</Tag>
                     {ret.items.map((item) => (
-                      <div key={item.id} className="flex items-center gap-1.5 rounded-full bg-muted/60 px-2 py-0.5 text-xs">
-                        <span>{item.product.name}</span>
-                        <span className="text-muted-foreground">×{item.quantity}</span>
-                      </div>
+                      <span key={item.id} className="inline-flex h-6 items-center gap-1 rounded-full bg-(--fill-3) px-2.5 text-[12px]">
+                        {item.product.name}
+                        <span className="text-muted-foreground tabular-nums">×{item.quantity}</span>
+                      </span>
                     ))}
                   </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </PosSubpage>
     </div>
   );
 }

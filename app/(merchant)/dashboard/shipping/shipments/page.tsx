@@ -1,16 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { PackageCheck, SearchX, Store, Truck } from "lucide-react";
+import { Banknote, PackageCheck, Plug, SearchX, Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
   SearchInput,
+  Segmented,
+  Unavailable,
+  appleButton,
   SelectFilter,
   readPage,
   type SearchParamsRecord,
@@ -22,6 +21,7 @@ import { CollectAllButton } from "./_components/cod-buttons";
 import { SHIPMENT_TABS, buildShipmentWhere, parseShipmentFilters } from "./_components/shipment-filters";
 import { ShipmentsTable, type ShipmentRow } from "./_components/shipments-table";
 import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
+import { ShippingTabs } from "../_components/shipping-tabs";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,12 +44,9 @@ export default async function ShipmentsPage({ searchParams }: { searchParams?: P
   const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول عشان تشحن طلباتك وتتابعها من هنا.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card">
+        <Unavailable icon={Store} title={tr("لسه معندكش متجر")} description={tr("أنشئ متجرك الأول عشان تشحن طلباتك وتتابعها من هنا.")} />
+      </div>
     );
   }
 
@@ -118,38 +115,45 @@ export default async function ShipmentsPage({ searchParams }: { searchParams?: P
   const codDueAmount = codDue._sum.codAmount ?? 0;
   const dueIdsOnPage = filters.cod === "due" ? rows.map((r) => r.id) : [];
 
+  const filterClass = "h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-40";
+
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("الشحنات")}
-        description={
-          codDueAmount > 0 ? (
-            <>
-              {tr("عند شركات الشحن دلوقتي")}{" "}
-              <Link href={`${BASE_PATH}?cod=due`} className="font-semibold text-amber-700 underline-offset-4 hover:underline dark:text-amber-400">
-                {tr("{0} من {1} شحنة", money.format(codDueAmount / 100), nf.format(codDue._count._all))}
-              </Link>{" "}{tr("اتسلّمت ولسه فلوسها ماوصلتكش.")}
-            </>
-          ) : (
-            tr("كل شحنات متجرك مع كل الشركات، وحالتها وتحصيلها، في مكان واحد.")
-          )
-        }
+        subtitle={tr("كل شحنات متجرك مع كل الشركات، وحالتها وتحصيلها، في مكان واحد.")}
         actions={
           <>
             {dueIdsOnPage.length > 0 && <CollectAllButton ids={dueIdsOnPage} label={tr("استلمت فلوس الـ {0}", nf.format(dueIdsOnPage.length))} />}
-            <Button asChild variant="outline" size="sm" className="h-9 gap-1.5">
-              <Link href="/shipping/integrations">
-                <Truck className="size-4" />
-                {tr("شركات الشحن")}
-              </Link>
-            </Button>
+            <Link href="/shipping/integrations" className={appleButton.gray}>
+              <Plug className="size-4" />
+              {tr("شركات الشحن")}
+            </Link>
           </>
         }
       />
+      <ShippingTabs active="shipments" />
+
+      {/* Cash the carriers still hold — the one number merchants chase. */}
+      {codDueAmount > 0 && filters.cod !== "due" && (
+        <Link href={`${BASE_PATH}?cod=due`} className="apple-card apple-press flex items-center gap-4 p-5">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-(--sys-orange) text-white">
+            <Banknote className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-muted-foreground">{tr("عند شركات الشحن دلوقتي")}</span>
+            <span className="block text-[24px] leading-tight font-bold tabular-nums">{money.format(codDueAmount / 100)}</span>
+            <span className="block text-[13px] text-muted-foreground">
+              {tr("{0} من {1} شحنة", money.format(codDueAmount / 100), nf.format(codDue._count._all))} · {tr("اتسلّمت ولسه فلوسها ماوصلتكش.")}
+            </span>
+          </span>
+          <span className="hidden text-[15px] text-primary sm:block">{tr("فلوس عند الشركة")}</span>
+        </Link>
+      )}
 
       {!storeHasShipments ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={PackageCheck}
             title={tr("لسه مفيش شحنات")}
             description={
@@ -158,67 +162,72 @@ export default async function ShipmentsPage({ searchParams }: { searchParams?: P
                 : tr("اربط شركة الشحن اللي بتتعامل معاها، وبعدين اشحن أي طلب من صفحته.")
             }
             action={
-              <Button asChild variant="outline" size="sm">
-                <Link href={connectedKeys.size > 0 ? "/orders" : "/shipping/integrations"}>
-                  {connectedKeys.size > 0 ? tr("روح للطلبات") : tr("اربط شركة شحن")}
-                </Link>
-              </Button>
+              <Link href={connectedKeys.size > 0 ? "/orders" : "/shipping/integrations"} className={appleButton.filled}>
+                {connectedKeys.size > 0 ? tr("روح للطلبات") : tr("اربط شركة شحن")}
+              </Link>
             }
           />
         </div>
       ) : (
         <div className="space-y-4">
-          <FilterTabs
+          <Segmented
             label={tr("حالة الشحنة")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
-            tabs={[
+            segments={[
               { label: tr("الكل"), count: allCount },
               ...SHIPMENT_TABS.map((t) => ({ label: t.label, value: t.value, count: countFor(t.statuses) })),
             ]}
           />
-          <DataCard
-            toolbar={
-              <>
-                <SearchInput placeholder={tr("رقم التتبع، اسم العميل أو موبايله")} />
+          <section className="apple-card overflow-hidden">
+            <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:px-5">
+              <SearchInput
+                placeholder={tr("رقم التتبع، اسم العميل أو موبايله")}
+                className="sm:max-w-sm sm:flex-1"
+                inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
+              />
+              <div className="flex gap-2 sm:ms-auto">
                 {carrierOptions.length > 1 && (
-                  <SelectFilter param="carrier" allLabel={tr("كل الشركات")} label={tr("شركة الشحن")} options={carrierOptions} />
+                  <SelectFilter param="carrier" allLabel={tr("كل الشركات")} label={tr("شركة الشحن")} options={carrierOptions} className={filterClass} />
                 )}
                 <SelectFilter
                   param="cod"
                   allLabel={tr("كل التحصيل")}
                   label={tr("التحصيل")}
+                  className={filterClass}
                   options={[
                     { value: "due", label: tr("فلوس عند الشركة") },
                     { value: "collected", label: tr("وصلتني") },
                   ]}
                 />
-              </>
-            }
-            footer={
-              total > 0 && (
-                <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("شحنة")} />
-              )
-            }
-          >
+              </div>
+            </div>
+
             {rows.length > 0 ? (
               <ShipmentsTable rows={rows} />
             ) : (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title={tr("مفيش شحنات بالفلاتر دي")}
                 description={tr("جرّب كلمة بحث تانية أو امسح الفلاتر.")}
+                className="border-t-[0.5px] border-border"
                 action={
                   hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
+                    <Link href={BASE_PATH} className={appleButton.tinted}>
+                      {tr("مسح الفلاتر")}
+                    </Link>
                   )
                 }
               />
             )}
-          </DataCard>
+
+            {total > 0 && (
+              <div className="border-t-[0.5px] border-border">
+                <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("شحنة")} />
+              </div>
+            )}
+          </section>
         </div>
       )}
     </div>

@@ -2,11 +2,10 @@
 
 import { useState, useTransition, type Dispatch } from "react";
 import Image from "next/image";
-import { Eye, EyeOff, Loader2, MessageSquare, Minus, Pause, Plus, ScanBarcode, Tag, Trash2, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, MessageSquare, Pause, ScanBarcode, Tag, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { CompletePOSSaleAction, HoldOrderAction } from "@/actions/pos/pos.actions";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CustomerPicker from "./CustomerPicker";
 import DiscountDialog from "./DiscountDialog";
@@ -14,6 +13,7 @@ import PaymentDialog, { type PaymentEntry } from "./PaymentDialog";
 import ReceiptDialog from "./ReceiptDialog";
 import type { CartAction, CartItem, CartState } from "./PosTerminal";
 import { egp } from "./pos-format";
+import { Stepper } from "./pos-ui";
 import { tr } from "@/lib/i18n/dashboard";
 
 type Shift = { id: string; openingBalance: number; totalSales: number; transactionCount: number; openedAt: string };
@@ -139,43 +139,42 @@ export default function CartPanel({
     });
   };
 
+  const actionButton =
+    "apple-press flex h-11 flex-col items-center justify-center gap-0.5 rounded-[12px] bg-(--fill-3) text-[12px] font-medium text-foreground/85 hover:bg-(--fill-3)/70 disabled:opacity-40";
+
   return (
     <div className="flex h-full flex-col bg-card">
       {/* Header */}
-      <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
+      <div className="flex shrink-0 items-end justify-between gap-2 px-5 pt-5 pb-3">
         <div>
-          <h2 className="text-sm font-semibold">{tr("الفاتورة الحالية")}</h2>
-          <p className="text-xs text-muted-foreground">{empty ? tr("فاضية") : tr("{0} قطعة", itemCount)}</p>
+          <h2 className="text-[22px] leading-7 font-bold">{tr("الفاتورة الحالية")}</h2>
+          <p className="text-[13px] text-muted-foreground tabular-nums">{empty ? tr("فاضية") : tr("{0} قطعة", itemCount)}</p>
         </div>
         {!empty && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1.5 text-muted-foreground hover:text-destructive"
+          <button
+            type="button"
             onClick={() => dispatch({ type: "CLEAR" })}
+            className="apple-press h-8 rounded-full px-3 text-[15px] text-(--sys-red) hover:bg-(--sys-red)/8"
           >
-            <Trash2 className="size-4" />
             {tr("مسح")}
-          </Button>
+          </button>
         )}
       </div>
 
-      <div className="shrink-0 border-b border-border p-3">
+      <div className="shrink-0 px-3 pb-2">
         <CustomerPicker customer={cart.customer} onChange={(customer) => dispatch({ type: "SET_CUSTOMER", customer })} />
       </div>
 
       {/* Items */}
       <div className="min-h-0 flex-1 overflow-y-auto">
         {empty ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
-            <span className="grid size-12 place-items-center rounded-xl bg-muted text-muted-foreground">
-              <ScanBarcode className="size-6" />
-            </span>
-            <p className="text-sm font-medium">{tr("امسح باركود أو اختار منتج")}</p>
-            <p className="text-xs text-muted-foreground">{tr("المنتجات اللي تختارها هتظهر هنا.")}</p>
+          <div className="flex h-full flex-col items-center justify-center gap-1.5 p-6 text-center">
+            <ScanBarcode className="mb-2 size-11 text-(--label-3)" strokeWidth={1.5} />
+            <p className="text-[17px] font-semibold">{tr("امسح باركود أو اختار منتج")}</p>
+            <p className="text-[13px] text-muted-foreground">{tr("المنتجات اللي تختارها هتظهر هنا.")}</p>
           </div>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="apple-rows [--row-inset:76px]">
             {cart.items.map((item) => (
               <CartItemRow
                 key={item.productId}
@@ -192,7 +191,7 @@ export default function CartPanel({
 
       {/* Note */}
       {(editingNote || cart.note) && (
-        <div className="shrink-0 border-t border-border px-3 py-2">
+        <div className="shrink-0 px-3 pt-2">
           {editingNote ? (
             <input
               autoFocus
@@ -202,15 +201,15 @@ export default function CartPanel({
               onKeyDown={(e) => e.key === "Enter" && setEditingNote(false)}
               placeholder={tr("ملاحظة على الفاتورة...")}
               aria-label={tr("ملاحظة على الفاتورة")}
-              className="h-8 w-full rounded-md border border-input bg-background px-2.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 w-full rounded-[10px] bg-(--fill-3) px-3 text-[15px] outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
             />
           ) : (
             <button
               type="button"
               onClick={() => setEditingNote(true)}
-              className="flex w-full items-center gap-1.5 text-start text-xs text-muted-foreground hover:text-foreground"
+              className="flex w-full items-center gap-2 rounded-[10px] bg-(--sys-orange)/10 px-3 py-2 text-start text-[13px] hover:bg-(--sys-orange)/15"
             >
-              <MessageSquare className="size-3.5 shrink-0" />
+              <MessageSquare className="size-4 shrink-0 text-(--sys-orange)" />
               <span className="truncate">{cart.note}</span>
             </button>
           )}
@@ -218,37 +217,37 @@ export default function CartPanel({
       )}
 
       {/* Totals + actions */}
-      <div className="shrink-0 space-y-3 border-t border-border p-3">
+      <div className="shrink-0 space-y-3 p-3">
         {!empty && (
-          <dl className="space-y-1.5 text-sm">
+          <dl className="space-y-1 rounded-[16px] bg-(--fill-3)/60 px-4 py-3 text-[15px]">
             <div className="flex justify-between text-muted-foreground">
               <dt>{tr("الإجمالي الفرعي")}</dt>
               <dd className="tabular-nums">{egp(subtotal)}</dd>
             </div>
             {totalDiscount > 0 && (
-              <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
-                <dt className="flex items-center gap-1.5">
+              <div className="flex justify-between">
+                <dt className="flex items-center gap-1.5 text-(--sys-green)">
                   {tr("الخصم")}
                   {cart.invoiceDiscount && (
                     <button
                       type="button"
                       onClick={() => dispatch({ type: "SET_INVOICE_DISCOUNT", discount: null })}
-                      className="rounded text-muted-foreground hover:text-destructive"
+                      className="grid size-4 place-items-center rounded-full bg-(--sys-gray)/50 text-white hover:bg-(--sys-red)"
                       aria-label={tr("شيل خصم الفاتورة")}
                     >
-                      <X className="size-3.5" />
+                      <X className="size-2.5" strokeWidth={3} />
                     </button>
                   )}
                 </dt>
-                <dd className="tabular-nums">−{egp(totalDiscount)}</dd>
+                <dd className="text-(--sys-green) tabular-nums">−{egp(totalDiscount)}</dd>
               </div>
             )}
-            <div className="flex items-baseline justify-between border-t border-border pt-2">
-              <dt className="font-semibold">{tr("الإجمالي")}</dt>
-              <dd className="text-2xl font-bold tracking-tight tabular-nums">{egp(total)}</dd>
+            <div className="flex items-baseline justify-between pt-1">
+              <dt className="text-[17px] font-semibold">{tr("الإجمالي")}</dt>
+              <dd className="text-[30px] leading-9 font-bold tabular-nums ltr:tracking-[-0.02em]">{egp(total)}</dd>
             </div>
             {costTotal > 0 && (
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-[12px]">
                 <button
                   type="button"
                   onClick={() => setShowProfit((v) => !v)}
@@ -259,11 +258,7 @@ export default function CartPanel({
                   {tr("الربح")}
                 </button>
                 <span
-                  className={cn(
-                    "tabular-nums",
-                    !showProfit && "select-none blur-sm",
-                    profitTotal < 0 ? "text-destructive" : "text-muted-foreground",
-                  )}
+                  className={cn("tabular-nums", !showProfit && "blur-sm select-none", profitTotal < 0 ? "text-(--sys-red)" : "text-muted-foreground")}
                   aria-hidden={!showProfit}
                 >
                   {tr("{0} · {1}٪", egp(profitTotal), profitMargin.toFixed(0))}
@@ -274,38 +269,43 @@ export default function CartPanel({
         )}
 
         <div className="grid grid-cols-3 gap-2">
-          <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={() => setShowDiscount(true)} disabled={empty}>
+          <button type="button" className={actionButton} onClick={() => setShowDiscount(true)} disabled={empty}>
             <Tag className="size-4" />
             {tr("خصم")}
-          </Button>
-          <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={() => setEditingNote(true)} disabled={empty}>
+          </button>
+          <button type="button" className={actionButton} onClick={() => setEditingNote(true)} disabled={empty}>
             <MessageSquare className="size-4" />
             {tr("ملاحظة")}
-          </Button>
-          <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={handleHold} disabled={empty || isPending}>
+          </button>
+          <button type="button" className={actionButton} onClick={handleHold} disabled={empty || isPending}>
             <Pause className="size-4" />
             {tr("تعليق")}
-          </Button>
+          </button>
         </div>
 
         {activeShift ? (
-          <Button
-            size="lg"
-            className="h-14 w-full justify-between px-5 text-base font-semibold"
+          <button
+            type="button"
             onClick={() => onPaymentOpenChange(true)}
             disabled={empty || isPending}
+            className="apple-press flex h-14 w-full items-center justify-between rounded-[16px] bg-primary px-5 text-[17px] font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
           >
             <span className="flex items-center gap-2">
               {isPending && <Loader2 className="size-5 animate-spin" />}
               {tr("الدفع")}
-              <kbd className="rounded bg-primary-foreground/15 px-1.5 py-0.5 font-sans text-[11px] font-medium">F9</kbd>
+              <kbd className="rounded-md bg-primary-foreground/18 px-1.5 py-0.5 font-sans text-[11px] font-medium">F9</kbd>
             </span>
             <span className="tabular-nums">{egp(total)}</span>
-          </Button>
+          </button>
         ) : (
-          <Button size="lg" variant="secondary" className="h-14 w-full text-base font-semibold" onClick={onOpenShift}>
+          <button
+            type="button"
+            onClick={onOpenShift}
+            className="apple-press flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-(--sys-orange)/14 text-[17px] font-semibold"
+          >
+            <span className="size-2 rounded-full bg-(--sys-orange)" />
             {tr("افتح وردية عشان تبدأ تبيع")}
-          </Button>
+          </button>
         )}
       </div>
 
@@ -356,91 +356,72 @@ function CartItemRow({
   const atMax = item.quantity >= item.stock;
 
   return (
-    <li className="px-3 py-3">
-      <div className="flex items-start gap-3">
-        <Image
-          src={item.image || "/images/product-placeholder.png"}
-          alt=""
-          width={44}
-          height={44}
-          className="size-11 shrink-0 rounded-lg border border-border object-cover"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <p className="line-clamp-2 text-sm font-medium leading-snug">{item.name}</p>
+    <li className="group flex items-start gap-3 px-4 py-3">
+      <Image
+        src={item.image || "/images/product-placeholder.png"}
+        alt=""
+        width={48}
+        height={48}
+        className="size-12 shrink-0 rounded-[10px] bg-(--fill-3) object-cover"
+      />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <p className="line-clamp-2 text-[15px] leading-5 font-medium">{item.name}</p>
+          <p className="shrink-0 text-[15px] font-semibold tabular-nums">{egp(lineTotal)}</p>
+        </div>
+        <p className="text-[12px] text-muted-foreground tabular-nums">
+          {item.quantity} × {egp(item.price)}
+          {item.discountAmount > 0 && <span className="text-(--sys-green)"> · −{egp(item.discountAmount)}</span>}
+        </p>
+
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <Stepper
+            value={item.quantity}
+            onDecrement={onDecrement}
+            onIncrement={onIncrement}
+            canIncrement={!atMax}
+            decLabel={tr("قلّل الكمية")}
+            incLabel={atMax ? tr("مفيش كمية أكتر في المخزون") : tr("زوّد الكمية")}
+          />
+          <div className="flex items-center gap-1">
+            {showDiscount ? (
+              <label className="flex h-8 items-center gap-1 rounded-full bg-(--fill-3) ps-2.5 pe-2" htmlFor={`disc-${item.productId}`}>
+                <Tag className="size-3.5 text-muted-foreground" />
+                <span className="sr-only">{tr("خصم على الصنف")}</span>
+                <input
+                  id={`disc-${item.productId}`}
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  max={(item.price * item.quantity) / 100}
+                  step="0.5"
+                  defaultValue={item.discountAmount ? item.discountAmount / 100 : ""}
+                  onChange={(e) => onDiscountChange(Math.min(item.price * item.quantity, Math.round(parseFloat(e.target.value || "0") * 100)))}
+                  placeholder="0"
+                  className="w-12 bg-transparent text-[13px] tabular-nums outline-none"
+                />
+                <span className="text-[12px] text-muted-foreground">{tr("ج.م")}</span>
+              </label>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowDiscount(true)}
+                aria-label={tr("خصم على الصنف")}
+                title={tr("خصم على الصنف")}
+                className="apple-press grid size-8 place-items-center rounded-full text-muted-foreground hover:bg-(--fill-3) hover:text-foreground"
+              >
+                <Tag className="size-4" />
+              </button>
+            )}
             <button
               type="button"
               onClick={onRemove}
               aria-label={tr("شيل {0}", item.name)}
-              className="shrink-0 rounded p-0.5 text-muted-foreground/60 hover:text-destructive"
+              className="apple-press grid size-8 place-items-center rounded-full text-muted-foreground hover:bg-(--sys-red)/10 hover:text-(--sys-red)"
             >
-              <X className="size-4" />
+              <Trash2 className="size-4" />
             </button>
           </div>
-
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <div className="flex items-center rounded-lg border border-border">
-              <button
-                type="button"
-                onClick={onDecrement}
-                aria-label={tr("قلّل الكمية")}
-                className="grid size-8 place-items-center text-muted-foreground hover:text-foreground"
-              >
-                <Minus className="size-3.5" />
-              </button>
-              <span className="min-w-7 text-center text-sm font-semibold tabular-nums" aria-live="polite">
-                {item.quantity}
-              </span>
-              <button
-                type="button"
-                onClick={onIncrement}
-                disabled={atMax}
-                aria-label={tr("زوّد الكمية")}
-                title={atMax ? tr("مفيش كمية أكتر في المخزون") : undefined}
-                className="grid size-8 place-items-center text-muted-foreground hover:text-foreground disabled:opacity-30"
-              >
-                <Plus className="size-3.5" />
-              </button>
-            </div>
-            <div className="text-end">
-              <p className="text-sm font-semibold tabular-nums">{egp(lineTotal)}</p>
-              <p className="text-[11px] text-muted-foreground tabular-nums">
-                {item.quantity} × {egp(item.price)}
-              </p>
-            </div>
-          </div>
-
-          {showDiscount ? (
-            <div className="mt-2 flex items-center gap-2">
-              <label className="text-xs text-muted-foreground" htmlFor={`disc-${item.productId}`}>
-                {tr("خصم على الصنف")}
-              </label>
-              <input
-                id={`disc-${item.productId}`}
-                type="number"
-                inputMode="decimal"
-                min="0"
-                max={(item.price * item.quantity) / 100}
-                step="0.5"
-                defaultValue={item.discountAmount ? item.discountAmount / 100 : ""}
-                onChange={(e) =>
-                  onDiscountChange(Math.min(item.price * item.quantity, Math.round(parseFloat(e.target.value || "0") * 100)))
-                }
-                placeholder="0"
-                className="h-7 w-20 rounded-md border border-input bg-background px-2 text-xs tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
-              <span className="text-xs text-muted-foreground">{tr("ج.م")}</span>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowDiscount(true)}
-              className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
-            >
-              <Tag className="size-3" />
-              {tr("خصم على الصنف")}
-            </button>
-          )}
         </div>
       </div>
     </li>

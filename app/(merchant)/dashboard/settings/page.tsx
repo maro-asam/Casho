@@ -1,21 +1,12 @@
 import { Metadata } from "next";
-import {
-  Settings2,
-  Store,
-  Phone,
-  Truck,
-} from "lucide-react";
+import Link from "next/link";
+import { AtSign, ExternalLink, Languages, ShieldCheck, Store, Truck, Users } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import DashboardSectionHeader from "../../_components/main/DashboardSectionHeader";
+import { LargeTitle, Unavailable, appleButton } from "@/components/saas-page";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { IconTile } from "./_components/settings-ui";
 import StoreSettingsForm from "./_components/StoreSettingsForm";
 import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
@@ -72,69 +63,80 @@ export default async function SettingsRoute() {
 
   if (!store) {
     return (
-      <div dir={tdir()} >
-        <Card className="rounded-xl border-dashed">
-          <CardContent className="flex min-h-55 flex-col items-center justify-center gap-3 text-center">
-            <Store className="size-12 text-muted-foreground" />
-            <div>
-              <h2 className="text-xl font-semibold">{tr("لا يوجد متجر")}</h2>
-              <p className="text-sm text-muted-foreground">
-                {tr("يجب إنشاء متجر أولًا قبل تعديل الإعدادات.")}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div dir={tdir()} className="apple-card">
+        <Unavailable icon={Store} title={tr("لا يوجد متجر")} description={tr("يجب إنشاء متجر أولًا قبل تعديل الإعدادات.")} />
       </div>
     );
   }
 
+  const storeUrl = buildStoreUrl(store.slug);
+  const nav = [
+    { id: "store", label: tr("بيانات المتجر"), icon: Store, tint: "bg-primary" },
+    { id: "shipping", label: tr("الشحن"), icon: Truck, tint: "bg-(--sys-orange)" },
+    { id: "contact", label: tr("روابط التواصل"), icon: AtSign, tint: "bg-(--sys-green)" },
+    { id: "language", label: tr("لغة لوحة التحكم"), icon: Languages, tint: "bg-(--sys-indigo)" },
+    { id: "team", label: tr("أعضاء المتجر"), icon: Users, tint: "bg-(--sys-teal)" },
+    { id: "security", label: tr("الجلسات النشطة"), icon: ShieldCheck, tint: "bg-(--sys-gray)" },
+  ];
+
   return (
     <div dir={tdir()} className="space-y-6">
-      <DashboardSectionHeader
-        icon={Settings2}
-        title={tr("إعدادات المتجر")}
-        description={
-          <>
-            {tr("خصص مظهر وروابط متجر")}{" "}
-            <span className="font-semibold text-foreground">{store.name}</span>
-          </>
-        }
-      />
+      <LargeTitle title={tr("إعدادات المتجر")} subtitle={tr("تخصيص إعدادات المتجر والهوية البصرية وروابط التواصل")} />
 
-      <div className="">
-        <Card className="rounded-xl shadow-sm lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-xl text-primary font-semibold">
-              {tr("إعدادات المتجر")}
-            </CardTitle>
-            <CardDescription>
-              {tr("حدّث اسم المتجر وسعر الشحن وروابط التواصل الاجتماعي.")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StoreSettingsForm store={store} />
-          </CardContent>
-        </Card>
+      <div className="grid gap-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
+        {/* ── Sidebar: profile + section index (System Settings) ── */}
+        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+          <div className="apple-card flex items-center gap-3 rounded-[14px] p-4">
+            <span
+              aria-hidden
+              className="grid size-14 shrink-0 place-items-center rounded-full bg-linear-to-b from-primary/70 to-primary text-[24px] font-semibold text-primary-foreground uppercase"
+            >
+              {store.name.trim().charAt(0)}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[17px] font-semibold">{store.name}</p>
+              <a href={storeUrl} target="_blank" rel="noreferrer" dir="ltr" className="flex items-center gap-1 truncate text-[13px] text-primary rtl:justify-end">
+                <span className="truncate">{storeUrl.replace(/^https?:\/\//, "")}</span>
+                <ExternalLink className="size-3 shrink-0" />
+              </a>
+            </div>
+          </div>
 
+          <nav aria-label={tr("أقسام الإعدادات")} className="hidden lg:block">
+            <ul className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:52px]">
+              {nav.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={`#${item.id}`}
+                    className="flex min-h-11 items-center gap-3 px-3 py-2 text-[15px] transition-colors hover:bg-(--fill-3)/60"
+                  >
+                    <IconTile icon={item.icon} tint={item.tint} />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-      </div>
+          <Link href="/builder" className={`${appleButton.tinted} hidden w-full lg:flex`}>
+            {tr("تخصيص شكل المتجر")}
+          </Link>
+        </aside>
 
-      {/* ── Dashboard language (per user) ── */}
-      <LanguageSettings />
-
-      {/* ── Store Members ── */}
-      <div className="">
-        <StoreMembers
-          members={members}
-          pendingInvitations={pendingInvitations}
-          branches={branchAccess?.branches}
-          branchAccess={branchAccess?.members}
-        />
-      </div>
-
-      {/* ── Active Sessions ── */}
-      <div className="">
-        <ActiveSessions sessions={sessions} />
+        {/* ── Content ─────────────────────────────────────────── */}
+        <div className="min-w-0 max-w-3xl space-y-8">
+          <StoreSettingsForm store={store} />
+          <LanguageSettings />
+          <div>
+            <StoreMembers
+              members={members}
+              pendingInvitations={pendingInvitations}
+              branches={branchAccess?.branches}
+              branchAccess={branchAccess?.members}
+            />
+          </div>
+          <ActiveSessions sessions={sessions} />
+        </div>
       </div>
     </div>
   );

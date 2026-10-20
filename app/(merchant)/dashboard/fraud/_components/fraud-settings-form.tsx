@@ -3,28 +3,29 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { OrderOtpMode } from "@prisma/client";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { SaveFraudSettingsAction } from "@/actions/store/fraud.actions";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { appleButton } from "@/components/saas-page";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { tr, trv } from "@/lib/i18n/dashboard";
+import { Group, IconTile } from "../../settings/_components/settings-ui";
 
 type Settings = { orderOtpMode: OrderOtpMode; blockHighRiskOrders: boolean };
 
-const OTP_OPTIONS: { value: OrderOtpMode; title: string; body: string }[] = [
-  { value: "OFF", get title() { return tr("من غير كود"); }, get body() { return tr("الطلب بيوصلك على طول. هتشوف سمعة الرقم جنب كل طلب."); } },
-  {
-    value: "RISKY",
-    get title() { return tr("للأرقام المشبوهة بس (ننصح بيها)"); },
-    get body() { return tr("الرقم اللي رفض استلام قبل كده لازم يأكد بكود على واتساب أو SMS. العملاء العاديين مش هيحسوا بحاجة."); },
-  },
-  { value: "ALL", get title() { return tr("لكل طلبات الدفع عند الاستلام"); }, get body() { return tr("أقوى حماية — كل طلب كاش لازم يتأكد بكود قبل ما يوصلك."); } },
-];
+function otpOptions(): { value: OrderOtpMode; title: string; body: string }[] {
+  return [
+    { value: "OFF", title: tr("من غير كود"), body: tr("الطلب بيوصلك على طول. هتشوف سمعة الرقم جنب كل طلب.") },
+    {
+      value: "RISKY",
+      title: tr("للأرقام المشبوهة بس (ننصح بيها)"),
+      body: tr("الرقم اللي رفض استلام قبل كده لازم يأكد بكود على واتساب أو SMS. العملاء العاديين مش هيحسوا بحاجة."),
+    },
+    { value: "ALL", title: tr("لكل طلبات الدفع عند الاستلام"), body: tr("أقوى حماية — كل طلب كاش لازم يتأكد بكود قبل ما يوصلك.") },
+  ];
+}
 
 export function FraudSettingsForm({ storeId, otpAvailable, initial }: { storeId: string; otpAvailable: boolean; initial: Settings }) {
   const router = useRouter();
@@ -45,68 +46,73 @@ export function FraudSettingsForm({ storeId, otpAvailable, initial }: { storeId:
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card">
-      <div className="border-b border-border p-4">
-        <h2 className="font-semibold">{tr("تأكيد الطلب بكود")}</h2>
-        <p className="text-sm text-muted-foreground">
-          {tr("العميل بيوصله كود على موبايله ولازم يكتبه عشان الطلب يتأكد. الطلب اللي ماتأكدش بيتلغى لوحده بعد ٦ ساعات والمخزون يرجع. الدفع أونلاين مش محتاج كود — البنك بيأكده.")}
-        </p>
-      </div>
-      <div className="space-y-5 p-4">
+    <div className="space-y-8">
+      <Group
+        id="otp"
+        title={tr("تأكيد الطلب بكود")}
+        footer={tr("العميل بيوصله كود على موبايله ولازم يكتبه عشان الطلب يتأكد. الطلب اللي ماتأكدش بيتلغى لوحده بعد ٦ ساعات والمخزون يرجع. الدفع أونلاين مش محتاج كود — البنك بيأكده.")}
+      >
         {!otpAvailable && (
-          <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+          <p className="bg-(--sys-orange)/10 px-4 py-3 text-[13px] leading-[19px]">
             {tr("تأكيد الطلب بالكود مش متاح حاليًا على كاشو. سمعة الأرقام والحظر شغالين عادي.")}
           </p>
         )}
-        <RadioGroup
-          dir={tdir()}
-          value={values.orderOtpMode}
-          onValueChange={(v) => setValues((s) => ({ ...s, orderOtpMode: v as OrderOtpMode }))}
-          disabled={!otpAvailable}
-          className="gap-2"
-        >
-          {OTP_OPTIONS.map((option) => (
-            <Label
-              key={option.value}
-              htmlFor={`otp-${option.value}`}
-              className={cn(
-                "flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 font-normal transition-colors",
-                values.orderOtpMode === option.value && "border-primary bg-primary/5",
-                !otpAvailable && "cursor-not-allowed opacity-60",
-              )}
-            >
-              <RadioGroupItem id={`otp-${option.value}`} value={option.value} className="mt-0.5" />
-              <span className="space-y-0.5">
-                <span className="block text-sm font-medium">{option.title}</span>
-                <span className="block text-xs leading-5 text-muted-foreground">{option.body}</span>
-              </span>
-            </Label>
-          ))}
-        </RadioGroup>
+        <div role="radiogroup" aria-label={tr("تأكيد الطلب بكود")}>
+          {otpOptions().map((option) => {
+            const active = values.orderOtpMode === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                disabled={!otpAvailable}
+                onClick={() => setValues((s) => ({ ...s, orderOtpMode: option.value }))}
+                className="flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-(--fill-3)/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] leading-5">{option.title}</span>
+                  <span className="mt-0.5 block text-[13px] leading-[18px] text-muted-foreground">{option.body}</span>
+                </span>
+                <Check className={cn("size-5 shrink-0 text-primary", !active && "invisible")} strokeWidth={2.6} />
+              </button>
+            );
+          })}
+        </div>
+      </Group>
 
-        <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-3">
-          <div className="space-y-0.5">
-            <Label htmlFor="block-high-risk" className="text-sm font-medium">
-              {tr("ارفض الدفع عند الاستلام للأرقام عالية الخطورة")}
-            </Label>
-            <p className="text-xs leading-5 text-muted-foreground">
-              {tr("الرقم اللي رفض الاستلام أكتر من مرة مش هيقدر يطلب كاش من متجرك — لازم يدفع أونلاين (لو مفعّل عندك).")}
-            </p>
-          </div>
+      <Group
+        title={tr("الدفع عند الاستلام")}
+        inset={58}
+        footer={tr("الرقم اللي رفض الاستلام أكتر من مرة مش هيقدر يطلب كاش من متجرك — لازم يدفع أونلاين (لو مفعّل عندك).")}
+      >
+        <label htmlFor="block-high-risk" className="flex cursor-pointer items-center gap-3.5 px-4 py-3">
+          <IconTile icon={ShieldAlert} tint="bg-(--sys-red)" />
+          <span className="min-w-0 flex-1 text-[15px] leading-5">{tr("ارفض الدفع عند الاستلام للأرقام عالية الخطورة")}</span>
           <Switch
             id="block-high-risk"
+            className="apple-switch"
             checked={values.blockHighRiskOrders}
             onCheckedChange={(checked) => setValues((s) => ({ ...s, blockHighRiskOrders: checked }))}
           />
-        </div>
+        </label>
+      </Group>
 
-        <div className="flex justify-end">
-          <Button type="button" onClick={save} disabled={!dirty || saving}>
-            {saving && <Loader2 className="size-4 animate-spin" />}
-            {tr("حفظ")}
-          </Button>
+      {/* Floating save bar — only while there are unsaved changes. */}
+      {dirty && (
+        <div className="sticky bottom-4 z-20 flex justify-center">
+          <div className="apple-glass flex items-center gap-2 rounded-full p-1.5 ps-5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+            <span className="text-[13px] text-muted-foreground">{tr("عندك تغييرات مش محفوظة")}</span>
+            <button type="button" onClick={() => setValues(initial)} disabled={saving} className={cn(appleButton.plain, "mx-0 h-10 px-3")}>
+              {tr("تجاهل")}
+            </button>
+            <button type="button" onClick={save} disabled={saving} className={cn(appleButton.filled, "h-10")}>
+              {saving && <Loader2 className="size-4 animate-spin" />}
+              {tr("حفظ")}
+            </button>
+          </div>
         </div>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }

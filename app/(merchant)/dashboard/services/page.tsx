@@ -1,28 +1,27 @@
+import Link from "next/link";
 import {
-  BadgeCheck,
   BrushCleaning,
-  Clock3,
   FileText,
   Image as ImageIcon,
+  Inbox,
   LayoutTemplate,
   MessageCircleMore,
   PackagePlus,
   Palette,
   PenSquare,
-  ShoppingBag,
-  Store,
-  ArrowUpLeft,
   Sparkles,
+  Store,
 } from "lucide-react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import type { ServiceRequestStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, LargeTitle, Segmented, StatusText, readParam, type PillTone, type SearchParamsRecord } from "@/components/saas-page";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import RequestServiceDialog from "./_components/RequestServiceDialog";
-import { lazyList, tdir, tr } from "@/lib/i18n/dashboard";
+import { lazyIntl, lazyList, tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,6 +42,39 @@ type ServiceItem = {
   features: string[];
   popular?: boolean;
 };
+
+type Category = "branding" | "content" | "operations";
+
+const CATEGORIES: { value: Category; label: string; description: string; tint: string }[] = [
+  {
+    value: "branding",
+    get label() { return tr("خدمات الهوية والتأسيس"); },
+    get description() { return tr("خدمات تساعدك تخلي متجرك شكله احترافي من البداية وتجهز البراند بشكل يدي ثقة أكبر للعميل."); },
+    tint: "from-[#ff6b8b] to-[#d6336c]",
+  },
+  {
+    value: "content",
+    get label() { return tr("خدمات المحتوى"); },
+    get description() { return tr("مناسبة للتاجر اللي محتاج يعرض منتجاته بشكل أحسن ويكون عنده محتوى جاهز يساعده في البيع والتسويق."); },
+    tint: "from-[#ffb340] to-[#ff7a00]",
+  },
+  {
+    value: "operations",
+    get label() { return tr("خدمات التشغيل والمبيعات"); },
+    get description() { return tr("الخدمات دي تساعدك تشغل المتجر بشكل أسهل، تتابع العملاء، وتوفر وقتك في الحاجات اليومية المتكررة."); },
+    tint: "from-[#40c8e0] to-[#007aff]",
+  },
+];
+
+const REQUEST_STATUS: Record<ServiceRequestStatus, { label: string; tone: PillTone }> = {
+  PENDING: { get label() { return tr("قيد المراجعة"); }, tone: "warning" },
+  CONTACTED: { get label() { return tr("تم التواصل"); }, tone: "info" },
+  IN_PROGRESS: { get label() { return tr("جاري التنفيذ"); }, tone: "accent" },
+  COMPLETED: { get label() { return tr("اتنفذت"); }, tone: "success" },
+  CANCELED: { get label() { return tr("ملغي"); }, tone: "neutral" },
+};
+
+const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "short", year: "numeric" });
 
 const brandingServices: ServiceItem[] = [
   {
@@ -137,192 +169,176 @@ const operationServices: ServiceItem[] = [
   },
 ];
 
-function ServiceCard({ service, storeId }: { service: ServiceItem; storeId?: string }) {
-  const Icon = service.icon;
+const servicesFor = (cat: Category): ServiceItem[] =>
+  cat === "branding" ? brandingServices : cat === "content" ? contentServices : operationServices;
 
+/** App-icon tile: white glyph on the category gradient. */
+function Glyph({ icon: Icon, tint, size = "md" }: { icon: React.ElementType; tint: string; size?: "md" | "lg" }) {
   return (
-    <Card
-      dir={tdir()}
+    <span
+      aria-hidden
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-200",
-        "hover:-translate-y-1 hover:shadow-lg p-0",
-        service.popular
-          ? "border-primary/30 shadow-sm shadow-primary/5"
-          : "border-border/60",
+        "grid shrink-0 place-items-center bg-linear-to-br text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]",
+        tint,
+        size === "md" ? "size-14 rounded-[14px]" : "size-16 rounded-[18px]",
       )}
     >
-      {service.popular && (
-        <div className="bg-primary px-4 py-1.5 text-center text-xs font-semibold text-primary-foreground">
-          {tr("⭐ الأكثر طلبًا")}
-        </div>
-      )}
+      <Icon className={size === "md" ? "size-7" : "size-8"} strokeWidth={1.8} />
+    </span>
+  );
+}
 
-      <CardContent className="flex flex-1 flex-col gap-5 p-5">
-        <div className="flex items-start gap-3">
-          <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-            <Icon className="size-5" />
-          </div>
-          <div className="min-w-0 flex-1 pt-0.5">
-            <h3 className="font-bold leading-snug">{service.title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {service.description}
-            </p>
-          </div>
-        </div>
+type Defaults = { fullName?: string; phone?: string; storeLink?: string };
 
-        <div className="flex flex-wrap gap-2">
-          <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
-            {service.price}
-          </span>
-          <span className="flex items-center gap-1.5 rounded-lg bg-muted/60 px-3 py-1.5 text-sm text-muted-foreground">
-            <Clock3 className="size-3.5 shrink-0" />
-            {service.duration}
-          </span>
-        </div>
+/** App Store style row: icon, name + tagline, price, GET-style capsule. */
+function ServiceRow({ service, tint, storeId, defaults }: { service: ServiceItem; tint: string; storeId?: string; defaults: Defaults }) {
+  return (
+    <li className="flex items-center gap-4 px-5 py-4">
+      <Glyph icon={service.icon} tint={tint} />
+      <div className="min-w-0 flex-1">
+        <p className="flex flex-wrap items-center gap-x-2 text-[17px] leading-[22px] font-semibold">
+          {service.title}
+          {service.popular && <span className="text-[12px] font-semibold text-(--sys-orange)">{tr("الأكثر طلبًا")}</span>}
+        </p>
+        <p className="mt-0.5 line-clamp-2 text-[13px] leading-[18px] text-muted-foreground">{service.description}</p>
+        <p className="mt-1 text-[12px] text-muted-foreground">
+          <span className="font-semibold text-foreground/80">{service.price}</span> · {service.duration}
+        </p>
+      </div>
+      <RequestServiceDialog
+        service={{ id: service.id, title: service.title, description: service.description, price: service.price, duration: service.duration, features: service.features }}
+        glyph={<Glyph icon={service.icon} tint={tint} size="lg" />}
+        storeId={storeId}
+        defaults={defaults}
+      />
+    </li>
+  );
+}
 
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {tr("الخدمة تشمل")}
+export default async function ServicesRoute({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await loadDashboardLocale();
+  const userId = await requireUserId();
+  const params = await searchParams;
+  const [store, user] = await Promise.all([
+    prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true, phone_number: true } }),
+  ]);
+  const requests = store
+    ? await prisma.serviceRequest
+        .findMany({
+          where: { storeId: store.id },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: { id: true, serviceTitle: true, status: true, createdAt: true },
+        })
+        .catch(() => [])
+    : [];
+
+  const defaults: Defaults = {
+    fullName: user?.name ?? undefined,
+    phone: user?.phone_number ?? undefined,
+    storeLink: store ? buildStoreUrl(store.slug) : undefined,
+  };
+  const catParam = readParam(params, "cat");
+  const active = CATEGORIES.find((c) => c.value === catParam)?.value;
+  const shown = active ? CATEGORIES.filter((c) => c.value === active) : CATEGORIES;
+  const featured = brandingServices[0];
+
+  return (
+    <div className="space-y-8" dir={tdir()}>
+      <LargeTitle
+        title={tr("خدمات اضافية")}
+        subtitle={tr("خدمات إضافية تساعدك تبيع أكتر وتدير متجرك بشكل أسهل")}
+        actions={<RequestServiceDialog trigger="custom" service={{ id: "custom", title: tr("خدمة مخصصة") }} storeId={store?.id} defaults={defaults} />}
+      />
+
+      {/* ── Today-style feature card ───────────────────────────── */}
+      <section className="relative overflow-hidden rounded-[28px] bg-linear-to-br from-[#5e5ce6] via-[#007aff] to-[#40c8e0] p-7 text-white sm:p-10">
+        <div aria-hidden className="pointer-events-none absolute -end-6 -bottom-10 hidden grid-cols-3 gap-3 opacity-90 md:grid">
+          {[Palette, PenSquare, MessageCircleMore, PackagePlus, ImageIcon, FileText].map((Icon, i) => (
+            <span key={i} className="grid size-20 rotate-[-8deg] place-items-center rounded-[22px] bg-white/15 backdrop-blur-sm">
+              <Icon className="size-9" strokeWidth={1.6} />
+            </span>
+          ))}
+        </div>
+        <div className="relative max-w-xl space-y-3">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-white/80">
+            <Sparkles className="size-4" />
+            {tr("خدمات إضافية تساعدك تبيع أكتر")}
           </p>
-          <ul className="space-y-1.5">
-            {service.features.map((feature) => (
-              <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <BadgeCheck className="size-4 shrink-0 text-primary" />
-                <span>{feature}</span>
+          <h2 className="text-[32px] leading-[38px] font-bold sm:text-[44px] sm:leading-[50px] ltr:tracking-[-0.02em]">
+            {tr("كل اللي متجرك محتاجه")} {tr("في مكان واحد")}
+          </h2>
+          <p className="text-[17px] leading-[25px] text-white/85">
+            {tr("لو محتاج تجهز شكل متجرك، تعمل محتوى، ترفع منتجات، أو تتابع الرسائل والمبيعات، تقدر تطلب الخدمة المناسبة بسهولة ومن غير لخبطة.")}
+          </p>
+          <div className="flex items-center gap-3 pt-3">
+            <span className="text-[13px] text-white/80">
+              {tr("الأكثر طلبًا")}: <span className="font-semibold text-white">{featured.title}</span> · {featured.price}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Your requests ──────────────────────────────────────── */}
+      {requests.length > 0 && (
+        <Card title={tr("طلباتك")} subtitle={tr("بنحدّث حالة كل طلب أول بأول.")} icon={Inbox}>
+          <ul className="apple-rows pb-2 [--row-inset:20px]">
+            {requests.map((r) => (
+              <li key={r.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-[15px] font-medium">{r.serviceTitle}</p>
+                  <p className="text-[13px] text-muted-foreground">{df.format(r.createdAt)}</p>
+                </div>
+                <StatusText tone={REQUEST_STATUS[r.status].tone}>{REQUEST_STATUS[r.status].label}</StatusText>
               </li>
             ))}
           </ul>
-        </div>
+        </Card>
+      )}
 
-        <div className="mt-auto pt-1">
-          <RequestServiceDialog
-            service={{ id: service.id, title: service.title }}
-            storeId={storeId}
-          />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+      {/* ── Catalog ────────────────────────────────────────────── */}
+      <div className="space-y-6">
+        <Segmented
+          label={tr("نوع الخدمة")}
+          param="cat"
+          basePath="/services"
+          searchParams={params}
+          segments={[{ label: tr("الكل") }, ...CATEGORIES.map((c) => ({ label: c.label, value: c.value }))]}
+        />
 
-function SectionHeader({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div dir={tdir()} className="mb-5 flex items-center gap-3">
-      <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-        <Icon className="size-4" />
+        {shown.map((cat) => (
+          <section key={cat.value} aria-labelledby={`cat-${cat.value}`} className="space-y-3">
+            <div className="px-1">
+              <h2 id={`cat-${cat.value}`} className="text-[22px] leading-[28px] font-bold ltr:tracking-[-0.01em]">
+                {cat.label}
+              </h2>
+              <p className="mt-0.5 max-w-3xl text-[15px] text-muted-foreground">{cat.description}</p>
+            </div>
+            <ul className="apple-card apple-rows overflow-hidden [--row-inset:92px]">
+              {servicesFor(cat.value).map((service) => (
+                <ServiceRow key={service.id} service={service} tint={cat.tint} storeId={store?.id} defaults={defaults} />
+              ))}
+            </ul>
+          </section>
+        ))}
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-3">
-          <h2 className="whitespace-nowrap text-base font-bold">{title}</h2>
-          <div className="h-px flex-1 bg-border/60" />
-        </div>
-        <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  );
-}
 
-export default async function ServicesRoute() {
-  await loadDashboardLocale();
-  const userId = await requireUserId();
-  const store = await prisma.store.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-
-  return (
-    <div className="space-y-10" dir={tdir()}>
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden rounded-2xl border border-border/60 px-8 py-10 text-center shadow-sm">
-        <div className="pointer-events-none absolute -start-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -end-20 bottom-0 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />
-
-        <div className="relative">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-            <Sparkles className="size-3.5" />
-            {tr("خدمات إضافية تساعدك تبيع أكتر")}
-          </div>
-
-          <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
-            {tr("كل اللي متجرك محتاجه")}
-            <span className="mt-2 block bg-linear-to-l from-primary to-sky-500 bg-clip-text text-transparent">
-              {tr("في مكان واحد")}
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-            {tr("لو محتاج تجهز شكل متجرك، تعمل محتوى، ترفع منتجات، أو تتابع الرسائل والمبيعات، تقدر تطلب الخدمة المناسبة بسهولة ومن غير لخبطة.")}
+      {/* ── Custom request ─────────────────────────────────────── */}
+      <section className="apple-card flex flex-col items-center gap-4 px-6 py-10 text-center">
+        <span className="grid size-14 place-items-center rounded-full bg-(--fill-3) text-primary">
+          <Store className="size-7" strokeWidth={1.8} />
+        </span>
+        <div className="space-y-1.5">
+          <h2 className="text-[22px] font-bold">{tr("عايز خدمة مخصصة؟")}</h2>
+          <p className="mx-auto max-w-xl text-[15px] leading-6 text-muted-foreground">
+            {tr("لو محتاج خدمة مش موجودة فوق، زي إدارة إعلانات، تجهيز كامل للمتجر، أو باكدج مخصوص ليك، ابعت طلبك وهنراجع أنسب حل ليك.")}
           </p>
         </div>
-      </section>
-
-      {/* ── Branding ── */}
-      <section>
-        <SectionHeader
-          icon={Palette}
-          title={tr("خدمات الهوية والتأسيس")}
-          description={tr("خدمات تساعدك تخلي متجرك شكله احترافي من البداية وتجهز البراند بشكل يدي ثقة أكبر للعميل.")}
-        />
-        <div className="grid gap-5 lg:grid-cols-3">
-          {brandingServices.map((service) => (
-            <ServiceCard key={service.id} service={service} storeId={store?.id} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── Content ── */}
-      <section>
-        <SectionHeader
-          icon={PenSquare}
-          title={tr("خدمات المحتوى")}
-          description={tr("مناسبة للتاجر اللي محتاج يعرض منتجاته بشكل أحسن ويكون عنده محتوى جاهز يساعده في البيع والتسويق.")}
-        />
-        <div className="grid gap-5 lg:grid-cols-3">
-          {contentServices.map((service) => (
-            <ServiceCard key={service.id} service={service} storeId={store?.id} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── Operations ── */}
-      <section>
-        <SectionHeader
-          icon={ShoppingBag}
-          title={tr("خدمات التشغيل والمبيعات")}
-          description={tr("الخدمات دي تساعدك تشغل المتجر بشكل أسهل، تتابع العملاء، وتوفر وقتك في الحاجات اليومية المتكررة.")}
-        />
-        <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
-          {operationServices.map((service) => (
-            <ServiceCard key={service.id} service={service} storeId={store?.id} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── Custom CTA ── */}
-      <section className="pb-4">
-        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-linear-to-l from-primary/8 via-background to-sky-500/5 p-8">
-          <div className="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-sky-500/8 blur-3xl" />
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h3 className="text-xl font-bold">{tr("عايز خدمة مخصصة؟")}</h3>
-              <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
-                {tr("لو محتاج خدمة مش موجودة فوق، زي إدارة إعلانات، تجهيز كامل للمتجر، أو باكدج مخصوص ليك، ابعت طلبك وهنراجع أنسب حل ليك.")}
-              </p>
-            </div>
-            <Button size="lg" className="h-11 shrink-0 rounded-xl px-6">
-              {tr("اطلب خدمة مخصصة")}
-              <ArrowUpLeft className="ms-2 size-4" />
-            </Button>
-          </div>
-        </div>
+        <RequestServiceDialog trigger="custom" service={{ id: "custom", title: tr("خدمة مخصصة") }} storeId={store?.id} defaults={defaults} />
+        <Link href="/support" className="text-[13px] text-primary">
+          {tr("أو كلّم الدعم")}
+        </Link>
       </section>
     </div>
   );

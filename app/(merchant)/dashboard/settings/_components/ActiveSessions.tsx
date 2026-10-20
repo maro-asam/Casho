@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Monitor, Smartphone, Globe, Trash2, LogOut, ShieldCheck } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Monitor, Smartphone, Globe, LogOut, Tablet } from "lucide-react";
+import { appleButton } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
+import { Group, IconTile } from "./settings-ui";
 import { RevokeSessionAction, RevokeAllOtherSessionsAction, type SessionDTO } from "@/actions/auth/sessions.actions";
 import { tr, trv } from "@/lib/i18n/dashboard";
 
@@ -15,7 +15,7 @@ function parseDevice(userAgent: string | null): { label: string; icon: typeof Mo
   if (ua.includes("mobile") || ua.includes("android") || ua.includes("iphone"))
     return { label: tr("موبايل"), icon: Smartphone };
   if (ua.includes("ipad") || ua.includes("tablet"))
-    return { label: tr("تابلت"), icon: Monitor };
+    return { label: tr("تابلت"), icon: Tablet };
   return { label: tr("كمبيوتر"), icon: Monitor };
 }
 
@@ -73,88 +73,62 @@ export default function ActiveSessions({ sessions: initial }: Props) {
   const otherSessions = sessions.filter((s) => !s.isCurrent);
 
   return (
-    <Card className="rounded-xl shadow-sm">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <ShieldCheck className="size-4" />
-            </div>
-            <div>
-              <CardTitle className="text-base">{tr("الجلسات النشطة")}</CardTitle>
-              <CardDescription className="mt-0.5 text-xs">
-                {tr("أجهزة سجّلت دخولها على حسابك")}
-              </CardDescription>
-            </div>
-          </div>
-          {otherSessions.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="shrink-0 gap-1.5 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-xs"
-              onClick={handleRevokeAll}
-              disabled={isPending}
-            >
-              <LogOut className="size-3.5" />
-              {tr("تسجيل خروج من الكل")}
-            </Button>
-          )}
-        </div>
-      </CardHeader>
+    <Group
+      id="security"
+      inset={57}
+      title={tr("الجلسات النشطة")}
+      footer={tr("أجهزة سجّلت دخولها على حسابك")}
+      action={
+        otherSessions.length > 0 && (
+          <button type="button" onClick={handleRevokeAll} disabled={isPending} className={cn(appleButton.plain, "mx-0 h-8 text-[13px] text-(--sys-red) hover:bg-(--sys-red)/8")}>
+            <LogOut className="size-3.5" />
+            {tr("تسجيل خروج من الكل")}
+          </button>
+        )
+      }
+    >
+      {sessions.length === 0 && <p className="px-4 py-6 text-center text-[15px] text-muted-foreground">{tr("لا توجد جلسات نشطة")}</p>}
 
-      <CardContent className="space-y-2 pt-0">
-        {sessions.length === 0 && (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            {tr("لا توجد جلسات نشطة")}
-          </p>
-        )}
+      {sessions.map((session) => {
+        const { label, icon } = parseDevice(session.userAgent);
+        const browser = parseBrowser(session.userAgent);
 
-        {sessions.map((session) => {
-          const { label, icon: Icon } = parseDevice(session.userAgent);
-          const browser = parseBrowser(session.userAgent);
-
-          return (
-            <div
-              key={session.id}
-              className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/20 p-3"
-            >
-              <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-background border border-border/60 text-muted-foreground">
-                <Icon className="size-4" />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-medium">
-                    {label}{browser ? ` · ${browser}` : ""}
+        return (
+          <div key={session.id} className="flex min-h-14 items-center gap-3 px-4 py-2.5">
+            <IconTile icon={icon} tint={session.isCurrent ? "bg-(--sys-green)" : "bg-(--sys-gray)"} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px]">
+                {label}
+                {browser ? ` · ${browser}` : ""}
+              </p>
+              <p className="truncate text-[13px] text-muted-foreground">
+                {session.isCurrent ? (
+                  <span className="font-semibold text-(--sys-green)">{tr("الجهاز الحالي")}</span>
+                ) : (
+                  formatDate(session.lastUsedAt)
+                )}
+                {session.ipAddress && (
+                  <span className="font-mono" dir="ltr">
+                    {" · "}
+                    {session.ipAddress}
                   </span>
-                  {session.isCurrent && (
-                    <Badge className="rounded-full bg-emerald-500/15 text-emerald-600 border-emerald-200 text-[10px] px-1.5 py-0 hover:bg-emerald-500/15">
-                      {tr("الجهاز الحالي")}
-                    </Badge>
-                  )}
-                </div>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {session.ipAddress && <span className="font-mono">{session.ipAddress} · </span>}
-                  {formatDate(session.lastUsedAt)}
-                </p>
-              </div>
-
-              {!session.isCurrent && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 shrink-0 text-muted-foreground hover:text-rose-600 hover:bg-rose-50"
-                  onClick={() => handleRevoke(session.id)}
-                  disabled={isPending}
-                  title={tr("إنهاء هذه الجلسة")}
-                >
-                  <Trash2 className="size-3.5" />
-                </Button>
-              )}
+                )}
+              </p>
             </div>
-          );
-        })}
-      </CardContent>
-    </Card>
+
+            {!session.isCurrent && (
+              <button
+                type="button"
+                onClick={() => handleRevoke(session.id)}
+                disabled={isPending}
+                className={cn(appleButton.plain, "mx-0 h-8 text-[15px] text-(--sys-red) hover:bg-(--sys-red)/8")}
+              >
+                {tr("إنهاء")}
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </Group>
   );
 }

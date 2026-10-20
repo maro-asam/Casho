@@ -1,4 +1,5 @@
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Lightbulb } from "lucide-react";
+import { Card, Unavailable } from "@/components/saas-page";
 import { PAYMENT_METHODS_BY_KEY, type PaymentMethodKey } from "@/constants/welcome/payment-methods";
 import { formatMoney } from "@/lib/balance-ui/meta";
 import { cn } from "@/lib/utils";
@@ -28,56 +29,48 @@ export function MethodPerformance({ stats, periodDays }: { stats: MethodStat[]; 
   }
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-          <BarChart3 className="size-4" />
-        </span>
-        <div>
-          <h2 className="text-base font-semibold">{tr("العملاء بيدفعوا إزاي؟")}</h2>
-          <p className="text-sm text-muted-foreground">
-            {tr("آخر {0} يوم", nf.format(periodDays))}{total > 0 && tr(" · {0} طلب", nf.format(total))}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-card">
-        {total === 0 ? (
-          <p className="px-5 py-10 text-center text-sm text-muted-foreground">{tr("أول ما توصلك طلبات، هتشوف هنا كل طريقة دفع جابت كام وكام اتلغى منها.")}</p>
-        ) : (
-          <>
-            {insight && <p className="border-b border-border bg-primary/[0.03] px-5 py-3 text-sm leading-6">{insight}</p>}
-            <ul className="divide-y divide-border">
-              {rows.map((r) => {
-                const m = PAYMENT_METHODS_BY_KEY[r.key as PaymentMethodKey];
-                const share = (r.orders / total) * 100;
-                const cancel = r.orders ? (r.canceled / r.orders) * 100 : 0;
-                return (
-                  <li key={r.key} className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 px-5 py-3.5 sm:grid-cols-[auto_minmax(0,12rem)_minmax(0,1fr)_auto]">
-                    {m ? <MethodLogo src={m.logo} alt="" size="sm" /> : <span className="size-8" />}
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{m?.label ?? r.key}</p>
-                      <p className="text-xs text-muted-foreground tabular-nums">{tr("{0} طلب", nf.format(r.orders))}</p>
+    <Card title={tr("العملاء بيدفعوا إزاي؟")} subtitle={<>{tr("آخر {0} يوم", nf.format(periodDays))}{total > 0 && tr(" · {0} طلب", nf.format(total))}</>}>
+      {total === 0 ? (
+        <Unavailable icon={BarChart3} title={tr("لسه مفيش طلبات")} description={tr("أول ما توصلك طلبات، هتشوف هنا كل طريقة دفع جابت كام وكام اتلغى منها.")} className="py-10" />
+      ) : (
+        <>
+          {insight && (
+            <p className="mx-5 mb-3 flex items-start gap-2.5 rounded-[12px] bg-(--sys-orange)/10 px-4 py-3 text-[15px] leading-[21px]">
+              <Lightbulb className="mt-0.5 size-[18px] shrink-0 text-(--sys-orange)" />
+              {insight}
+            </p>
+          )}
+          <ul className="apple-rows pb-2 [--row-inset:64px]">
+            {rows.map((r) => {
+              const m = PAYMENT_METHODS_BY_KEY[r.key as PaymentMethodKey];
+              const share = (r.orders / total) * 100;
+              const cancel = r.orders ? (r.canceled / r.orders) * 100 : 0;
+              return (
+                <li key={r.key} className="flex items-center gap-3 px-5 py-3">
+                  {m ? <MethodLogo src={m.logo} alt="" size="sm" /> : <span className="size-8 shrink-0" />}
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="truncate text-[15px] font-medium">{m?.label ?? r.key}</p>
+                      <p className="shrink-0 text-[15px] font-semibold tabular-nums">{formatMoney(r.revenue)}</p>
                     </div>
-                    <div className="col-span-2 flex items-center gap-3 sm:col-span-1">
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                        <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(2, share)}%` }} />
-                      </div>
-                      <span className="w-10 shrink-0 text-end text-sm tabular-nums">{pct(share)}</span>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-(--fill-3)">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(2, share)}%` }} />
                     </div>
-                    <div className="col-span-2 flex justify-between gap-4 text-xs sm:col-span-1 sm:block sm:text-end">
-                      <p className="font-medium tabular-nums">{formatMoney(r.revenue)}</p>
-                      <p className={cn("tabular-nums text-muted-foreground", cancel >= 20 && "text-rose-700 dark:text-rose-400")}>
+                    <div className="flex justify-between gap-3 text-[12px] text-muted-foreground tabular-nums">
+                      <span>
+                        {tr("{0} طلب", nf.format(r.orders))} · {pct(share)}
+                      </span>
+                      <span className={cn(cancel >= 20 && "font-semibold text-(--sys-red)")}>
                         {r.canceled > 0 ? tr("{0} اتلغى", pct(cancel)) : tr("مفيش إلغاء")}
-                      </p>
+                      </span>
                     </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-      </div>
-    </section>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </Card>
   );
 }

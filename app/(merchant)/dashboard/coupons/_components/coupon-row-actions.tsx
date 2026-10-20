@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { appleButton, appleMenu } from "@/components/saas-page";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 /** Inline on/off — optimistic, rolls back on failure. */
@@ -38,7 +39,7 @@ export function CouponActiveSwitch({ couponId, code, isActive }: { couponId: str
       checked={checked}
       disabled={pending}
       aria-label={tr("تشغيل {0}", code)}
-      className="relative z-10"
+      className="apple-switch relative z-10"
       onCheckedChange={(next) => {
         setChecked(next);
         startTransition(async () => {
@@ -101,17 +102,11 @@ export function CouponRowActions({ coupon, editHref, shareUrl }: Props) {
     <>
       <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={pending}
-            aria-label={tr("إجراءات {0}", coupon.code)}
-            className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
-          >
+          <button type="button" disabled={pending} aria-label={tr("إجراءات {0}", coupon.code)} className={cn(appleButton.more, "size-8 bg-card")}>
             {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
-          </Button>
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuContent align="end" className={appleMenu}>
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
@@ -148,23 +143,32 @@ export function CouponRowActions({ coupon, editHref, shareUrl }: Props) {
       </DropdownMenu>
 
       <AlertDialog open={confirm} onOpenChange={(open) => !pending && setConfirm(open)}>
-        <AlertDialogContent dir={tdir()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{used ? tr("توقف {0}؟", coupon.code) : tr("تمسح {0}؟", coupon.code)}</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent dir={tdir()} className="max-w-[20rem] gap-0 p-0 text-center">
+          <AlertDialogHeader className="items-center gap-1 px-5 pt-6 pb-5 text-center sm:text-center">
+            <AlertDialogTitle className="text-[17px] font-semibold">{used ? tr("توقف {0}؟", coupon.code) : tr("تمسح {0}؟", coupon.code)}</AlertDialogTitle>
+            <AlertDialogDescription className="text-[13px] leading-[18px]">
               {used
                 ? tr("الكود اتستخدم في طلبات، فهنحتفظ بيه عشان التقارير — بس محدش هيقدر يستخدمه تاني لحد ما تشغّله.")
                 : tr("الكود هيتمسح نهائي، ولو حد حاططه في السلة هيتشال.")}
-              {coupon.popupNames.length > 0 &&
-                tr(" النافذة المنبثقة \"{0}\" بتستخدمه وهتقف عن الظهور.", coupon.popupNames.join(tr("، ")))}
+              {coupon.popupNames.length > 0 && tr(" النافذة المنبثقة \"{0}\" بتستخدمه وهتقف عن الظهور.", coupon.popupNames.join(tr("، ")))}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
-            <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
+          <AlertDialogFooter className="grid grid-cols-2 gap-0 border-t border-border/60 sm:space-x-0">
+            <AlertDialogCancel
+              disabled={pending}
+              className="m-0 h-11 rounded-none border-0 bg-transparent text-[17px] text-primary shadow-none hover:bg-(--fill-3)/60"
+            >
+              {tr("رجوع")}
+            </AlertDialogCancel>
+            <button
+              type="button"
+              onClick={remove}
+              disabled={pending}
+              className="inline-flex h-11 items-center justify-center gap-1.5 border-s border-border/60 text-[17px] font-semibold text-(--sys-red) hover:bg-(--fill-3)/60 disabled:opacity-50"
+            >
               {pending && <Loader2 className="size-4 animate-spin" />}
               {used ? tr("إيقاف") : tr("حذف نهائي")}
-            </Button>
+            </button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

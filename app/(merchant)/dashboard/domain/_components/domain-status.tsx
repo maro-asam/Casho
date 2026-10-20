@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Check, Copy, ExternalLink, Loader2, Lock, RefreshCw, Send, Unplug } from "lucide-react";
+import { AlertTriangle, Check, Copy, ExternalLink, Loader2, RefreshCw, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { disconnectCustomDomainAction, verifyCustomDomainAction } from "@/actions/store/custom-domain.actions";
-import { StatusPill } from "@/components/saas-page";
+import { SegmentedButtons, StatusText, appleButton } from "@/components/saas-page";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,12 +17,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requiredRecords } from "@/lib/custom-domain/shared";
 import type { DomainCheckReport } from "@/lib/custom-domain/verify";
 import { cn } from "@/lib/utils";
 import { lazyIntl, lazyList, tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { BrowserBar } from "./browser-bar";
 
 type Status = "PENDING" | "ACTIVE" | "FAILED";
 
@@ -100,20 +100,31 @@ function useNow(interval = 10_000) {
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [done, setDone] = useState(false);
   return (
-    <Button
+    <button
       type="button"
-      variant="ghost"
-      size="icon"
-      className="size-7 shrink-0 text-muted-foreground"
       aria-label={tr("نسخ {0}", label)}
       onClick={() => {
         navigator.clipboard?.writeText(value).catch(() => {});
         setDone(true);
         setTimeout(() => setDone(false), 1500);
       }}
+      className="apple-press grid size-8 shrink-0 place-items-center rounded-full text-primary hover:bg-primary/8"
     >
-      {done ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
-    </Button>
+      {done ? <Check className="size-4 text-(--sys-green)" strokeWidth={2.6} /> : <Copy className="size-4" />}
+    </button>
+  );
+}
+
+/** One value line inside a record: label leading, monospace value + copy trailing. */
+function ValueLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex min-h-11 items-center gap-3 ps-4 pe-2">
+      <span className="w-16 shrink-0 text-[13px] text-muted-foreground">{label}</span>
+      <span className="min-w-0 flex-1 truncate font-mono text-[14px] rtl:text-right" dir="ltr" title={value}>
+        {value}
+      </span>
+      <CopyButton value={value} label={label} />
+    </div>
   );
 }
 
@@ -123,6 +134,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
   const [report, setReport] = useState<DomainCheckReport | null>(null);
   const [checking, setChecking] = useState(false);
   const [confirm, setConfirm] = useState(false);
+  const [provider, setProvider] = useState(PROVIDERS[0].id);
   const [disconnecting, startDisconnect] = useTransition();
   const now = useNow();
   const records = requiredRecords(domain, targets, verifyToken);
@@ -200,240 +212,235 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
         : null;
   const hostingWaiting = report && report.dns.ok && !live;
   const checkedAgo = report ? rtf.format(Math.round((new Date(report.checkedAt).getTime() - now) / 60000), "minute") : null;
+  const failed = status === "FAILED";
 
   const steps = [
     { label: tr("ربطت الدومين بمتجرك"), done: true },
     { label: tr("سجلات الـ DNS متظبطة"), done: dnsOk },
     { label: tr("شغّال بشهادة أمان SSL"), done: sslOk },
   ];
+  const activeProvider = PROVIDERS.find((p) => p.id === provider) ?? PROVIDERS[0];
 
   return (
-    <div className="space-y-4">
-      {/* ── Header card ─────────────────────────────────────────── */}
-      <section className="rounded-xl border border-border bg-card">
-        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0 space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              {live && <Lock className="size-4 text-emerald-600" aria-label={tr("آمن")} />}
-              <p className="truncate font-mono text-lg font-semibold" dir="ltr">
-                {domain}
-              </p>
-              <StatusPill tone={STATUS_META[status].tone}>{STATUS_META[status].label}</StatusPill>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {live && connectedAt
-                ? tr("شغّال من {0}", df.format(new Date(connectedAt)))
-                : checking
-                  ? tr("بنفحص دلوقتي…")
-                  : checkedAgo
-                    ? tr("آخر فحص {0} · بنعيد الفحص تلقائي كل ٣٠ ثانية", checkedAgo)
-                    : tr("بنفحص تلقائي…")}
-            </p>
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="min-w-0 space-y-6">
+        {/* ── Hero: the address as customers will see it ───────────── */}
+        <section className="apple-card flex flex-col items-center px-6 pt-10 pb-8 text-center" aria-live="polite">
+          <BrowserBar host={domain} secure={live} />
+          <div className="mt-6">
+            <StatusText tone={STATUS_META[status].tone}>{STATUS_META[status].label}</StatusText>
           </div>
-          <div className="flex shrink-0 flex-wrap gap-2">
+          <h2 className="mt-1.5 max-w-full truncate text-[28px] leading-[34px] font-bold ltr:tracking-[-0.015em]" dir="ltr">
+            {domain}
+          </h2>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
+            {live && connectedAt
+              ? tr("شغّال من {0}", df.format(new Date(connectedAt)))
+              : checking
+                ? tr("بنفحص دلوقتي…")
+                : checkedAgo
+                  ? tr("آخر فحص {0} · بنعيد الفحص تلقائي كل ٣٠ ثانية", checkedAgo)
+                  : tr("بنفحص تلقائي…")}
+          </p>
+          <div className="mt-6 flex w-full max-w-sm flex-col gap-2">
             {live ? (
-              <Button asChild size="sm" className="gap-1.5">
-                <a href={`https://${domain}`} target="_blank" rel="noreferrer">
-                  <ExternalLink className="size-4" />
-                  {tr("افتح المتجر")}
-                </a>
-              </Button>
+              <a href={`https://${domain}`} target="_blank" rel="noreferrer" className={cn(appleButton.filled, "h-[50px] text-[17px]")}>
+                <ExternalLink className="size-4" />
+                {tr("افتح المتجر")}
+              </a>
             ) : (
-              <Button size="sm" className="gap-1.5" onClick={() => verify(true)} disabled={checking}>
+              <button type="button" onClick={() => verify(true)} disabled={checking} className={cn(appleButton.filled, "h-[50px] text-[17px]")}>
                 <RefreshCw className={cn("size-4", checking && "animate-spin")} />
                 {tr("افحص دلوقتي")}
-              </Button>
+              </button>
             )}
-            <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => setConfirm(true)}>
-              <Unplug className="size-4" />
-              {tr("افصل")}
-            </Button>
+            <button type="button" onClick={() => setConfirm(true)} className={cn(appleButton.plain, "mx-0 h-11 text-(--sys-red) hover:bg-(--sys-red)/8")}>
+              {tr("افصل الدومين")}
+            </button>
           </div>
-        </div>
+        </section>
 
-        {/* Stepper */}
-        <ol className="grid border-t border-border sm:grid-cols-3">
+        {/* ── Diagnosis ───────────────────────────────────────────── */}
+        {!live && (problem || hostingWaiting || failed) && (
+          <section className={cn("flex gap-3 rounded-[14px] px-4 py-3.5", failed ? "bg-(--sys-red)/10" : "bg-(--sys-orange)/12")}>
+            <AlertTriangle className={cn("mt-0.5 size-[18px] shrink-0", failed ? "text-(--sys-red)" : "text-(--sys-orange)")} />
+            <div className="min-w-0 space-y-1">
+              <p className="text-[15px] font-semibold">
+                {problem?.title ?? (hostingWaiting ? tr("الـ DNS تمام — بنجهّز شهادة الأمان") : tr("الدومين وقف يشاور على متجرك"))}
+              </p>
+              <p className="text-[13px] leading-[19px] text-foreground/75">
+                {problem?.body ??
+                  (hostingWaiting
+                    ? tr("خلاص فاضل دقايق. هنفعّل الدومين لوحده أول ما الشهادة تجهز — مش محتاج تعمل حاجة.")
+                    : tr("حد غيّر إعدادات الـ DNS. رجّع السجلات اللي تحت."))}
+              </p>
+              {report && (report.dns.found.a.length > 0 || report.dns.found.cname.length > 0) && (
+                <p className="text-[12px] text-muted-foreground">
+                  {tr("لقينا دلوقتي:")}{" "}
+                  <span className="font-mono" dir="ltr">
+                    {[...report.dns.found.cname.map((c) => `CNAME ${c}`), ...report.dns.found.a.map((ip) => `A ${ip}`)].join(" · ")}
+                  </span>
+                </p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ── DNS records: one grouped card per record ─────────────── */}
+        {!live && (
+          <section className="space-y-2" aria-labelledby="records-title">
+            <div className="flex items-end justify-between gap-3 px-4">
+              <div>
+                <h2 id="records-title" className="text-[13px] font-semibold text-muted-foreground">
+                  {tr("السجلات المطلوبة")}
+                </h2>
+              </div>
+              <button type="button" onClick={shareInstructions} className={cn(appleButton.plain, "h-7 text-[13px] font-semibold")}>
+                <Send className="size-3.5 rtl:-scale-x-100" />
+                {tr("ابعتها للي بيظبطلك الدومين")}
+              </button>
+            </div>
+            <ul className="space-y-3">
+              {records.map((r) => (
+                <li key={`${r.type}-${r.host}`} className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:16px]">
+                  <div className="flex items-center gap-3 px-4 py-2.5">
+                    <span className="inline-flex h-6 min-w-12 items-center justify-center rounded-[6px] bg-primary/10 px-2 font-mono text-[12px] font-semibold text-primary">
+                      {r.type}
+                    </span>
+                    <span className="min-w-0 truncate text-[13px] text-muted-foreground">{r.note}</span>
+                  </div>
+                  <ValueLine label={tr("الاسم")} value={r.host} />
+                  <ValueLine label={tr("القيمة")} value={r.value} />
+                </li>
+              ))}
+            </ul>
+            <p className="px-4 text-[13px] leading-[18px] text-muted-foreground">
+              {tr("ضيفها في لوحة تحكم الشركة اللي اشتريت منها الدومين.")}{" "}
+              {tr("TTL سيبه على الافتراضي (Auto). امسح أي سجل A أو CNAME قديم بنفس الاسم — وإلا الدومين هيفضل يروح للمكان القديم.")}
+            </p>
+          </section>
+        )}
+
+        {/* ── Provider guides ─────────────────────────────────────── */}
+        {!live && (
+          <section className="apple-card space-y-4 p-5" aria-labelledby="providers-title">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 id="providers-title" className="text-[17px] font-semibold">
+                {tr("خطوات حسب شركة الدومين")}
+              </h2>
+              <SegmentedButtons
+                label={tr("خطوات حسب شركة الدومين")}
+                role="tablist"
+                value={provider}
+                onChange={setProvider}
+                options={PROVIDERS.map((p) => [p.id, p.name] as const)}
+                className="max-w-full overflow-x-auto"
+              />
+            </div>
+            <ol className="space-y-3" role="tabpanel">
+              {activeProvider.steps.map((s, i) => (
+                <li key={i} className="flex gap-3 text-[15px]">
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground tabular-nums">
+                    {i + 1}
+                  </span>
+                  <span className="leading-6">{s}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+      </div>
+
+      <aside className="space-y-6 xl:sticky xl:top-6">
+        {/* Progress */}
+        <ol className="apple-card px-5 py-4" aria-label={tr("خطوات الربط")}>
           {steps.map((step, i) => {
             const current = !step.done && steps.slice(0, i).every((s) => s.done);
             return (
-              <li key={step.label} className={cn("flex items-center gap-2.5 px-5 py-3 text-sm", i > 0 && "border-t border-border sm:border-s sm:border-t-0")}>
+              <li key={step.label} className="relative flex items-center gap-3 pb-4 last:pb-0" aria-current={current ? "step" : undefined}>
+                {i < steps.length - 1 && (
+                  <span aria-hidden className={cn("absolute start-[13px] top-8 bottom-1 w-0.5 rounded-full", step.done ? "bg-(--sys-green)" : "bg-(--fill-3)")} />
+                )}
                 <span
                   className={cn(
-                    "grid size-6 shrink-0 place-items-center rounded-full border text-[11px] font-medium tabular-nums",
-                    step.done
-                      ? "border-emerald-500 bg-emerald-500 text-white"
-                      : current
-                        ? "border-primary text-primary"
-                        : "border-border text-muted-foreground",
+                    "grid size-7 shrink-0 place-items-center rounded-full text-[13px] font-semibold tabular-nums",
+                    step.done ? "bg-(--sys-green) text-white" : current ? "bg-primary text-primary-foreground" : "bg-(--fill-3) text-muted-foreground",
                   )}
                 >
-                  {step.done ? <Check className="size-3.5" /> : current && checking ? <Loader2 className="size-3.5 animate-spin" /> : i + 1}
+                  {step.done ? (
+                    <Check className="size-4" strokeWidth={3} />
+                  ) : current && checking ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    i + 1
+                  )}
                 </span>
-                <span className={cn(step.done ? "text-foreground" : current ? "font-medium" : "text-muted-foreground")}>{step.label}</span>
+                <span className={cn("text-[15px]", step.done ? "" : current ? "font-semibold" : "text-muted-foreground")}>{step.label}</span>
               </li>
             );
           })}
         </ol>
-      </section>
 
-      {/* ── Live: done ──────────────────────────────────────────── */}
-      {live && (
-        <section className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">{tr("رابط متجرك الأساسي")}</p>
-            <div className="mt-1 flex items-center justify-between gap-2">
-              <p className="truncate font-mono text-sm" dir="ltr">
-                https://{domain}
-              </p>
-              <CopyButton value={`https://${domain}`} label={tr("الرابط")} />
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">{tr("ده اللي جوجل والمشاركات هيستخدموه.")}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">{tr("رابط كاشو")}</p>
-            <div className="mt-1 flex items-center justify-between gap-2">
-              <p className="truncate font-mono text-sm text-muted-foreground" dir="ltr">
+        {/* Links */}
+        <section className="space-y-2" aria-labelledby="links-title">
+          <h2 id="links-title" className="px-4 text-[13px] font-semibold text-muted-foreground">
+            {tr("روابط متجرك")}
+          </h2>
+          <div className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:16px]">
+            {live && (
+              <div className="space-y-0.5 py-2.5 ps-4 pe-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[13px] text-muted-foreground">{tr("رابط متجرك الأساسي")}</span>
+                  <CopyButton value={`https://${domain}`} label={tr("الرابط")} />
+                </div>
+                <p className="truncate text-[15px] font-medium rtl:text-right" dir="ltr">
+                  https://{domain}
+                </p>
+                <p className="pe-2 text-[12px] text-muted-foreground">{tr("ده اللي جوجل والمشاركات هيستخدموه.")}</p>
+              </div>
+            )}
+            <div className="space-y-0.5 py-2.5 ps-4 pe-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[13px] text-muted-foreground">{tr("رابط كاشو")}</span>
+                <CopyButton value={storeUrl} label={tr("رابط كاشو")} />
+              </div>
+              <p className="truncate text-[15px] text-muted-foreground rtl:text-right" dir="ltr">
                 {storeUrl.replace(/^https?:\/\//, "")}
               </p>
-              <CopyButton value={storeUrl} label={tr("رابط كاشو")} />
+              <p className="pe-2 text-[12px] text-muted-foreground">{tr("لسه شغّال — أي لينك قديم مش هيبوظ.")}</p>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">{tr("لسه شغّال — أي لينك قديم مش هيبوظ.")}</p>
           </div>
         </section>
-      )}
-
-      {/* ── Diagnosis ───────────────────────────────────────────── */}
-      {!live && (problem || hostingWaiting || status === "FAILED") && (
-        <section
-          className={cn(
-            "flex gap-3 rounded-xl border p-4",
-            status === "FAILED" ? "border-rose-500/30 bg-rose-500/5" : "border-amber-500/30 bg-amber-500/5",
-          )}
-        >
-          <AlertTriangle className={cn("mt-0.5 size-4 shrink-0", status === "FAILED" ? "text-rose-600" : "text-amber-600")} />
-          <div className="min-w-0 space-y-1.5 text-sm">
-            <p className="font-medium">
-              {problem?.title ?? (hostingWaiting ? tr("الـ DNS تمام — بنجهّز شهادة الأمان") : tr("الدومين وقف يشاور على متجرك"))}
-            </p>
-            <p className="leading-6 text-muted-foreground">
-              {problem?.body ??
-                (hostingWaiting
-                  ? tr("خلاص فاضل دقايق. هنفعّل الدومين لوحده أول ما الشهادة تجهز — مش محتاج تعمل حاجة.")
-                  : tr("حد غيّر إعدادات الـ DNS. رجّع السجلات اللي تحت."))}
-            </p>
-            {report && (report.dns.found.a.length > 0 || report.dns.found.cname.length > 0) && (
-              <p className="text-xs text-muted-foreground">
-                {tr("لقينا دلوقتي:")}{" "}
-                <span className="font-mono" dir="ltr">
-                  {[...report.dns.found.cname.map((c) => `CNAME ${c}`), ...report.dns.found.a.map((ip) => `A ${ip}`)].join(" · ")}
-                </span>
-              </p>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* ── DNS records ─────────────────────────────────────────── */}
-      {!live && (
-        <section className="overflow-hidden rounded-xl border border-border bg-card">
-          <div className="flex flex-col gap-2 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-sm font-semibold">{tr("السجلات المطلوبة")}</h3>
-              <p className="text-xs text-muted-foreground">{tr("ضيفها في لوحة تحكم الشركة اللي اشتريت منها الدومين.")}</p>
-            </div>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={shareInstructions}>
-              <Send className="size-3.5" />
-              {tr("ابعتها للي بيظبطلك الدومين")}
-            </Button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/40 text-xs text-muted-foreground">
-                  <th className="h-10 ps-4 text-start font-medium">{tr("النوع")}</th>
-                  <th className="h-10 text-start font-medium">{tr("الاسم (Host)")}</th>
-                  <th className="h-10 text-start font-medium">{tr("القيمة (Value)")}</th>
-                  <th className="hidden h-10 pe-4 text-start font-medium sm:table-cell">{tr("ليه")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {records.map((r) => (
-                  <tr key={`${r.type}-${r.host}`}>
-                    <td className="py-3 ps-4">
-                      <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{r.type}</span>
-                    </td>
-                    <td className="py-3">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="font-mono" dir="ltr">
-                          {r.host}
-                        </span>
-                        <CopyButton value={r.host} label={tr("الاسم")} />
-                      </span>
-                    </td>
-                    <td className="py-3">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="font-mono" dir="ltr">
-                          {r.value}
-                        </span>
-                        <CopyButton value={r.value} label={tr("القيمة")} />
-                      </span>
-                    </td>
-                    <td className="hidden py-3 pe-4 text-xs text-muted-foreground sm:table-cell">{r.note}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
-            {tr("TTL سيبه على الافتراضي (Auto). امسح أي سجل A أو CNAME قديم بنفس الاسم — وإلا الدومين هيفضل يروح للمكان القديم.")}
-          </p>
-        </section>
-      )}
-
-      {/* ── Provider guides ─────────────────────────────────────── */}
-      {!live && (
-        <section className="rounded-xl border border-border bg-card p-4">
-          <h3 className="mb-3 text-sm font-semibold">{tr("خطوات حسب شركة الدومين")}</h3>
-          <Tabs defaultValue="cloudflare" dir={tdir()}>
-            <TabsList className="h-auto flex-wrap">
-              {PROVIDERS.map((p) => (
-                <TabsTrigger key={p.id} value={p.id} className="text-xs">
-                  {p.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {PROVIDERS.map((p) => (
-              <TabsContent key={p.id} value={p.id}>
-                <ol className="mt-2 space-y-2">
-                  {p.steps.map((s, i) => (
-                    <li key={i} className="flex gap-2.5 text-sm">
-                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-muted text-[11px] tabular-nums">{i + 1}</span>
-                      <span className="leading-6 text-muted-foreground">{s}</span>
-                    </li>
-                  ))}
-                </ol>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </section>
-      )}
+      </aside>
 
       <AlertDialog open={confirm} onOpenChange={(open) => !disconnecting && setConfirm(open)}>
-        <AlertDialogContent dir={tdir()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{tr("تفصل {0}؟", domain)}</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent dir={tdir()} className="max-w-[20rem] gap-0 p-0 text-center">
+          <AlertDialogHeader className="items-center gap-1 px-5 pt-6 pb-5 text-center sm:text-center">
+            <AlertDialogTitle className="text-[17px] font-semibold">{tr("تفصل {0}؟", domain)}</AlertDialogTitle>
+            <AlertDialogDescription className="text-[13px] leading-[18px]">
               {live
                 ? tr("اللي هيفتح الدومين ده مش هيلاقي متجرك. متجرك هيفضل شغّال على رابط كاشو.")
                 : tr("هتقدر تربط نفس الدومين أو دومين تاني بعدين.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={disconnecting}>{tr("رجوع")}</AlertDialogCancel>
-            <Button variant="destructive" onClick={disconnect} disabled={disconnecting} className="gap-1.5">
+          <AlertDialogFooter className="grid grid-cols-2 gap-0 border-t border-border/60 sm:space-x-0">
+            <AlertDialogCancel
+              disabled={disconnecting}
+              className="m-0 h-11 rounded-none border-0 bg-transparent text-[17px] font-semibold text-primary shadow-none hover:bg-(--fill-3)/60"
+            >
+              {tr("رجوع")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                disconnect();
+              }}
+              disabled={disconnecting}
+              className="m-0 h-11 gap-1.5 rounded-none border-0 border-s border-border/60 bg-transparent text-[17px] text-(--sys-red) shadow-none hover:bg-(--fill-3)/60"
+            >
               {disconnecting && <Loader2 className="size-4 animate-spin" />}
               {tr("افصل الدومين")}
-            </Button>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

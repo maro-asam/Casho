@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Tag, X } from "lucide-react";
+import { Tag } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SegmentedButtons } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import type { InvoiceDiscount } from "./PosTerminal";
+import { egp } from "./pos-format";
+import { Tile } from "./pos-ui";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
@@ -16,75 +18,76 @@ type Props = {
   onApply: (discount: InvoiceDiscount) => void;
 };
 
+const QUICK = [5, 10, 15, 20, 25, 30, 50];
+
 export default function DiscountDialog({ open, onOpenChange, currentDiscount, subtotal, onApply }: Props) {
   const [type, setType] = useState<"percentage" | "fixed">(currentDiscount?.type ?? "percentage");
   const [value, setValue] = useState(currentDiscount?.value?.toString() ?? "");
 
   const numVal = parseFloat(value || "0");
-
-  const discountAmount =
-    type === "percentage"
-      ? Math.round(subtotal * (numVal / 100))
-      : Math.min(Math.round(numVal * 100), subtotal);
-
+  const discountAmount = type === "percentage" ? Math.round(subtotal * (numVal / 100)) : Math.min(Math.round(numVal * 100), subtotal);
   const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const invalid = type === "percentage" && numVal > 100;
 
   const handleApply = () => {
     if (numVal <= 0) {
       onApply(null);
       return;
     }
-    if (type === "percentage" && numVal > 100) return;
+    if (invalid) return;
     onApply({ type, value: numVal });
   };
 
-  const quickPercentages = [5, 10, 15, 20, 25, 30, 50];
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm" dir={tdir()}>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Tag className="size-4" />
-            {tr("خصم الفاتورة")}
-          </DialogTitle>
+      <DialogContent className="apple-ui max-w-sm gap-0 bg-background p-0 text-foreground" dir={tdir()}>
+        <DialogHeader className="items-center gap-1.5 px-6 pt-7 pb-4 text-center sm:text-center">
+          <Tile icon={Tag} tint="bg-(--sys-green)" size="md" />
+          <DialogTitle className="pt-1">{tr("خصم الفاتورة")}</DialogTitle>
+          <DialogDescription className="text-[13px]">{tr("قبل الخصم:")} {egp(subtotal)}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Type toggle */}
-          <div className="flex rounded-lg border border-border overflow-hidden">
-            <button
-              onClick={() => setType("percentage")}
-              className={cn(
-                "flex-1 py-2 text-sm font-medium transition-colors",
-                type === "percentage" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
-              )}
-            >
-              {tr("نسبة مئوية %")}
-            </button>
-            <button
-              onClick={() => setType("fixed")}
-              className={cn(
-                "flex-1 py-2 text-sm font-medium transition-colors",
-                type === "fixed" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
-              )}
-            >
-              {tr("مبلغ ثابت ج")}
-            </button>
+        <div className="space-y-4 px-5 pb-5">
+          <SegmentedButtons
+            label={tr("خصم الفاتورة")}
+            value={type}
+            onChange={setType}
+            options={[
+              ["percentage", tr("نسبة مئوية %")],
+              ["fixed", tr("مبلغ ثابت ج")],
+            ]}
+            className="flex w-full [&>button]:flex-1 [&>button]:justify-center"
+          />
+
+          <div className="relative rounded-[16px] bg-card">
+            <input
+              type="number"
+              min="0"
+              max={type === "percentage" ? 100 : subtotal / 100}
+              step={type === "percentage" ? "1" : "0.5"}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="0"
+              aria-label={tr("خصم الفاتورة")}
+              aria-invalid={invalid || undefined}
+              className="h-20 w-full bg-transparent px-14 text-center text-[40px] font-bold tabular-nums outline-none placeholder:text-(--label-3)"
+              autoFocus
+            />
+            <span className="pointer-events-none absolute inset-e-5 top-1/2 -translate-y-1/2 text-[20px] text-muted-foreground">
+              {type === "percentage" ? "%" : tr("ج")}
+            </span>
           </div>
 
-          {/* Quick percentages */}
           {type === "percentage" && (
-            <div className="flex flex-wrap gap-1.5">
-              {quickPercentages.map((p) => (
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {QUICK.map((p) => (
                 <button
                   key={p}
+                  type="button"
                   onClick={() => setValue(p.toString())}
                   className={cn(
-                    "rounded-full px-3 py-1 text-xs font-medium border transition-colors",
-                    value === p.toString()
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border hover:border-primary hover:text-primary",
+                    "apple-press h-8 rounded-full px-3.5 text-[13px] font-semibold tabular-nums",
+                    value === p.toString() ? "bg-primary text-primary-foreground" : "bg-card text-foreground/80 hover:text-foreground",
                   )}
                 >
                   {p}%
@@ -93,52 +96,33 @@ export default function DiscountDialog({ open, onOpenChange, currentDiscount, su
             </div>
           )}
 
-          {/* Value input */}
-          <div className="relative">
-            <input
-              type="number"
-              min="0"
-              max={type === "percentage" ? 100 : subtotal / 100}
-              step={type === "percentage" ? "1" : "0.5"}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={type === "percentage" ? "0" : "0.00"}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-center text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-primary/50"
-              autoFocus
-            />
-            <span className="absolute end-3 top-1/2 -translate-y-1/2 text-lg text-muted-foreground">
-              {type === "percentage" ? "%" : tr("ج")}
-            </span>
-          </div>
-
-          {/* Preview */}
-          {numVal > 0 && (
-            <div className="rounded-md bg-muted/50 px-3 py-2 space-y-1 text-sm">
-              <div className="flex justify-between text-muted-foreground">
-                <span>{tr("قبل الخصم:")}</span>
-                <span>{tr("{0} ج", (subtotal / 100).toFixed(0))}</span>
+          {numVal > 0 && !invalid && (
+            <dl className="apple-rows overflow-hidden rounded-[14px] bg-card text-[15px] [--row-inset:16px]">
+              <div className="flex min-h-11 items-center justify-between px-4">
+                <dt>{tr("الخصم:")}</dt>
+                <dd className="text-(--sys-green) tabular-nums">−{egp(discountAmount)}</dd>
               </div>
-              <div className="flex justify-between text-emerald-600">
-                <span>{tr("الخصم:")}</span>
-                <span>{tr("−{0} ج", (discountAmount / 100).toFixed(0))}</span>
+              <div className="flex min-h-11 items-center justify-between px-4">
+                <dt className="font-semibold">{tr("بعد الخصم:")}</dt>
+                <dd className="font-bold tabular-nums">{egp(afterDiscount)}</dd>
               </div>
-              <div className="flex justify-between font-bold">
-                <span>{tr("بعد الخصم:")}</span>
-                <span className="text-primary">{tr("{0} ج", (afterDiscount / 100).toFixed(0))}</span>
-              </div>
-            </div>
+            </dl>
           )}
 
-          <div className="flex gap-2">
-            {currentDiscount && (
-              <Button variant="outline" className="gap-1.5" onClick={() => onApply(null)}>
-                <X className="size-3.5" />
-                {tr("إزالة الخصم")}
-              </Button>
-            )}
-            <Button className="flex-1" onClick={handleApply}>
+          <div className="space-y-1 pt-1">
+            <button
+              type="button"
+              onClick={handleApply}
+              disabled={invalid}
+              className="apple-press h-[50px] w-full rounded-full bg-primary text-[17px] font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
+            >
               {tr("تطبيق الخصم")}
-            </Button>
+            </button>
+            {currentDiscount && (
+              <button type="button" onClick={() => onApply(null)} className="h-11 w-full rounded-full text-[15px] text-(--sys-red) hover:bg-(--sys-red)/8">
+                {tr("إزالة الخصم")}
+              </button>
+            )}
           </div>
         </div>
       </DialogContent>
