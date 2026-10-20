@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Link2, Loader2, Upload, X } from "lucide-react";
+import { ImagePlus, Link2, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { CreateCategoryAction, UpdateCategoryAction } from "@/actions/admin/categories.actions";
-import { Button } from "@/components/ui/button";
+import { SegmentedButtons, appleButton } from "@/components/saas-page";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { imageSource, uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import { cn } from "@/lib/utils";
 import { tdir, tr } from "@/lib/i18n/dashboard";
@@ -39,7 +38,7 @@ type CategoryFormDialogProps = {
 export function CategoryFormDialog({ open, onOpenChange, ...props }: CategoryFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir={tdir()} className="sm:max-w-md">
+      <DialogContent dir={tdir()} className="gap-0 rounded-[22px] p-5 sm:max-w-md">
         {/* Content unmounts on close, so each open starts from the record's current values. */}
         <CategoryForm key={props.category?.id ?? "new"} {...props} onDone={() => onOpenChange(false)} />
       </DialogContent>
@@ -99,18 +98,20 @@ function CategoryForm({
   }
 
   return (
-        <form onSubmit={submit} className="min-w-0 space-y-5">
-          <DialogHeader className="text-start sm:text-start">
-            <DialogTitle>{isEdit ? tr("تعديل التصنيف") : tr("تصنيف جديد")}</DialogTitle>
-            <DialogDescription>
+        <form onSubmit={submit} className="apple-form min-w-0 space-y-5">
+          <DialogHeader className="space-y-1 text-start sm:text-start">
+            <DialogTitle className="text-[20px] leading-[25px] font-semibold">{isEdit ? tr("تعديل التصنيف") : tr("تصنيف جديد")}</DialogTitle>
+            <DialogDescription className="text-[15px] leading-[21px]">
               {isEdit ? tr("الرابط في المتجر بيتغيّر لو غيّرت الاسم بس.") : tr("التصنيفات بتنظّم منتجاتك وبتسهّل على العميل يلاقي اللي عايزه.")}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="category-name">{tr("الاسم")}</Label>
-              <span className="text-xs text-muted-foreground tabular-nums">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between px-1">
+              <label htmlFor="category-name" className="text-[13px] font-medium text-foreground/80">
+                {tr("الاسم")}
+              </label>
+              <span className="text-[12px] text-muted-foreground tabular-nums">
                 {name.trim().length}/{NAME_MAX}
               </span>
             </div>
@@ -126,15 +127,14 @@ function CategoryForm({
               placeholder={tr("مثال: ملابس رجالي")}
               aria-invalid={!!error || undefined}
               aria-describedby={error ? "category-error" : undefined}
-              className="h-10"
             />
             {error && (
-              <p id="category-error" className="text-xs text-destructive">
+              <p id="category-error" role="alert" className="px-1 text-[12px] font-medium text-(--sys-red)">
                 {error}
               </p>
             )}
             {isEdit && category && (
-              <p className="text-xs text-muted-foreground">
+              <p className="px-1 text-[12px] text-muted-foreground">
                 {tr("الرابط الحالي:")}{" "}
                 <span className="font-mono" dir="ltr">
                   /categories/{category.slug}
@@ -143,78 +143,64 @@ function CategoryForm({
             )}
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>
-                {tr("الصورة")}{" "}<span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>
-              </Label>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-3 px-1">
+              <span className="text-[13px] font-medium text-foreground/80">
+                {tr("الصورة")}{" "}<span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>
+              </span>
               {!image && (
-                <div className="flex rounded-lg bg-muted p-0.5 text-xs" role="tablist" aria-label={tr("طريقة إضافة الصورة")}>
-                  {(
-                    [
-                      ["upload", tr("رفع")],
-                      ["link", tr("رابط")],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      role="tab"
-                      aria-selected={mode === value}
-                      onClick={() => setMode(value)}
-                      className={cn(
-                        "rounded-md px-2.5 py-1 font-medium transition-colors",
-                        mode === value ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                <SegmentedButtons
+                  role="tablist"
+                  label={tr("طريقة إضافة الصورة")}
+                  value={mode}
+                  onChange={setMode}
+                  options={[
+                    ["upload", tr("رفع")],
+                    ["link", tr("رابط")],
+                  ]}
+                />
               )}
             </div>
 
             {image ? (
-              <div className="flex items-center gap-3 rounded-lg border border-border p-2">
-                <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
+              <div className="flex items-center gap-3 rounded-2xl bg-(--fill-3) p-2.5">
+                <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
                   <Image src={image} alt="" fill sizes="56px" className="object-cover" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{tr("صورة التصنيف")}</p>
-                  <p className="truncate text-right text-xs text-muted-foreground" dir="ltr">
+                  <p className="text-[15px]">{tr("صورة التصنيف")}</p>
+                  <p className="truncate text-right text-[12px] text-muted-foreground" dir="ltr">
                     {imageSource(image)}
                   </p>
                 </div>
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+                  className="apple-press grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-(--sys-red)/10 hover:text-(--sys-red) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
                   onClick={() => setImage("")}
                   aria-label={tr("شيل الصورة")}
                   disabled={busy}
                 >
                   <X className="size-4" />
-                </Button>
+                </button>
               </div>
             ) : mode === "upload" ? (
               <label
                 htmlFor="category-image-upload"
                 className={cn(
-                  "flex h-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border bg-muted/30 text-center transition-colors hover:bg-muted/60",
+                  "flex h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-(--label-3)/60 bg-(--fill-3)/50 text-center transition-colors duration-200 ease-(--ease-apple) hover:bg-muted/60 focus-within:ring-2 focus-within:ring-primary/40",
                   uploading && "pointer-events-none",
                 )}
               >
                 {uploading ? (
                   <>
-                    <Loader2 className="size-5 animate-spin text-primary" />
-                    <span className="text-sm font-medium">{tr("بنرفع الصورة…")}</span>
+                    <Loader2 className="size-7 animate-spin text-primary" strokeWidth={1.6} />
+                    <span className="text-[15px]">{tr("بنرفع الصورة…")}</span>
                   </>
                 ) : (
                   <>
-                    <Upload className="size-5 text-muted-foreground" />
-                    <span className="text-sm font-medium">{tr("اضغط لرفع صورة")}</span>
-                    <span className="text-xs text-muted-foreground">{tr("PNG أو JPG أو WEBP — لحد ٥ ميجا")}</span>
+                    <ImagePlus className="size-7 text-primary" strokeWidth={1.6} />
+                    <span className="text-[15px] text-primary">{tr("اضغط لرفع صورة")}</span>
+                    <span className="text-[12px] text-muted-foreground">{tr("PNG أو JPG أو WEBP — لحد ٥ ميجا")}</span>
                   </>
                 )}
                 <input
@@ -231,14 +217,15 @@ function CategoryForm({
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:justify-start">
-            <Button type="submit" disabled={busy} className="gap-1.5">
+          {/* Cancel leading, the confirming action trailing (HIG). */}
+          <DialogFooter className="flex-row items-center justify-between gap-2 pt-1 sm:justify-between">
+            <button type="button" className={cn(appleButton.plain, "mx-0 h-11 px-3")} onClick={onDone} disabled={busy}>
+              {tr("إلغاء")}
+            </button>
+            <button type="submit" disabled={busy} className={appleButton.filled}>
               {pending && <Loader2 className="size-4 animate-spin" />}
               {isEdit ? tr("حفظ التعديلات") : tr("إضافة التصنيف")}
-            </Button>
-            <Button type="button" variant="outline" onClick={onDone} disabled={busy}>
-              {tr("إلغاء")}
-            </Button>
+            </button>
           </DialogFooter>
         </form>
   );
@@ -251,7 +238,7 @@ function LinkInput({ onSubmit }: { onSubmit: (url: string) => void }) {
   return (
     <div className="flex gap-2">
       <div className="relative flex-1">
-        <Link2 className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" />
+        <Link2 className="pointer-events-none absolute inset-y-0 start-3.5 my-auto size-4 text-muted-foreground" />
         <Input
           type="url"
           dir="ltr"
@@ -264,12 +251,12 @@ function LinkInput({ onSubmit }: { onSubmit: (url: string) => void }) {
             }
           }}
           placeholder="https://…"
-          className="h-10 ps-9"
+          className="ps-10"
         />
       </div>
-      <Button type="button" variant="outline" disabled={!valid} onClick={() => onSubmit(value.trim())}>
+      <button type="button" className={cn(appleButton.tinted, "h-11 text-primary")} disabled={!valid} onClick={() => onSubmit(value.trim())}>
         {tr("استخدام")}
-      </Button>
+      </button>
     </div>
   );
 }

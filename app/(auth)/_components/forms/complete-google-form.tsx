@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormField } from "./form-field";
+import { cn } from "@/lib/utils";
+import { FIELD_CLASS, FormField, PRIMARY_BUTTON_CLASS } from "./form-field";
 
 const COUNTRIES = [
   "مصر",
@@ -84,10 +85,10 @@ export function CompleteGoogleForm({ email, name }: Props) {
     <form action={formAction} className="space-y-5">
       {refCode && <input type="hidden" name="refCode" value={refCode} />}
       {/* Read-only Google info */}
-      <div className="rounded-xl border bg-muted/40 px-4 py-3 text-sm">
+      <div className="rounded-[14px] bg-card px-4 py-3 text-[15px]">
         <p className="text-muted-foreground">سجّلت بواسطة Google</p>
         <p className="mt-0.5 font-medium text-foreground">{name || email}</p>
-        <p className="text-xs text-muted-foreground">{email}</p>
+        <p className="text-[13px] text-muted-foreground">{email}</p>
       </div>
 
       <FormField
@@ -99,7 +100,7 @@ export function CompleteGoogleForm({ email, name }: Props) {
           id="storeName"
           name="storeName"
           placeholder="مثال: Maro Store"
-          className="h-11"
+          className={FIELD_CLASS}
           required
         />
       </FormField>
@@ -115,7 +116,7 @@ export function CompleteGoogleForm({ email, name }: Props) {
           onValueChange={setCountry}
           required
         >
-          <SelectTrigger className="h-11 w-full">
+          <SelectTrigger className={cn(FIELD_CLASS, "w-full data-[size=default]:h-12")}>
             <SelectValue placeholder="اختر البلد" />
           </SelectTrigger>
           <SelectContent>
@@ -140,7 +141,7 @@ export function CompleteGoogleForm({ email, name }: Props) {
           onValueChange={setBusinessType}
           required
         >
-          <SelectTrigger className="h-11 w-full">
+          <SelectTrigger className={cn(FIELD_CLASS, "w-full data-[size=default]:h-12")}>
             <SelectValue placeholder="اختر نوع نشاطك" />
           </SelectTrigger>
           <SelectContent>
@@ -157,7 +158,7 @@ export function CompleteGoogleForm({ email, name }: Props) {
       <Button
         type="submit"
         disabled={isPending || !country || !businessType}
-        className="h-11 w-full font-medium"
+        className={cn(PRIMARY_BUTTON_CLASS, "w-full")}
       >
         {isPending ? (
           <>

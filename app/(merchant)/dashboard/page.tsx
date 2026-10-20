@@ -71,12 +71,10 @@ const MerchantDashboardRoute = async () => {
 
   if (!store) {
     return (
-      <div dir={tdir()} className="flex min-h-96 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border p-8 text-center">
-        <span className="grid size-10 place-items-center rounded-lg bg-muted text-foreground">
-          <Store className="size-5" />
-        </span>
-        <h1 className="text-lg font-semibold">{tr("لسه معندكش متجر")}</h1>
-        <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+      <div dir={tdir()} className="apple-card flex min-h-96 flex-col items-center justify-center gap-3 p-8 text-center">
+        <Store className="size-10 text-(--label-3)" strokeWidth={1.4} />
+        <h1 className="text-[22px] font-bold">{tr("لسه معندكش متجر")}</h1>
+        <p className="max-w-sm text-[15px] leading-6 text-muted-foreground">
           {tr("أنشئ متجرك الأول عشان تضيف منتجاتك وتبدأ تستقبل طلبات أونلاين وفي محلك.")}
         </p>
       </div>
@@ -208,7 +206,7 @@ const MerchantDashboardRoute = async () => {
   });
 
   return (
-    <div className="space-y-6" dir={tdir()}>
+    <div className="space-y-4 sm:space-y-5" dir={tdir()}>
       <OverviewHeader
         storeUrl={buildStoreUrl(store.slug)}
         today={todayFormat.format(now)}
@@ -219,6 +217,7 @@ const MerchantDashboardRoute = async () => {
         storeName={store.name}
         quote={getDailyQuote(now)}
         today={data.today}
+        yesterday={data.yesterday}
         onboarding={onboarding}
       />
 
@@ -226,17 +225,17 @@ const MerchantDashboardRoute = async () => {
 
       <KpiGrid kpis={data.kpis} />
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <PerformanceChart data={data.daily} previousTotals={data.previousTotals} />
         </div>
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-5">
           <AttentionPanel items={attentionItems} />
           <ChannelBreakdown channels={data.channels} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <RecentOrdersTable orders={store.orders} />
         </div>

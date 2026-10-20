@@ -4,15 +4,14 @@ import type { OrderStatus } from "@prisma/client";
 import { SearchX, ShoppingCart, Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
+  Segmented,
   SearchInput,
   SelectFilter,
+  Unavailable,
+  appleButton,
   readPage,
   type SearchParamsRecord,
 } from "@/components/saas-page";
@@ -50,12 +49,13 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول عشان تستقبل الطلبات وتتابعها من هنا.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card" dir={tdir()}>
+        <Unavailable
+          icon={Store}
+          title={tr("لسه معندكش متجر")}
+          description={tr("أنشئ متجرك الأول عشان تستقبل الطلبات وتتابعها من هنا.")}
+        />
+      </div>
     );
   }
 
@@ -123,53 +123,75 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("الطلبات")}
-        description={tr("تابع طلبات المتجر الأونلاين والكاشير وغيّر حالتها من مكان واحد.")}
+        subtitle={tr("تابع طلبات المتجر الأونلاين والكاشير وغيّر حالتها من مكان واحد.")}
         actions={<ExportOrdersButton />}
       />
 
       {!storeHasOrders ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={ShoppingCart}
             title={tr("لسه مفيش طلبات")}
             description={tr("أول ما عميل يطلب من متجرك أو تبيع من الكاشير، الطلب هيظهر هنا وتقدر تتابعه لحد ما يتسلّم.")}
             action={
-              <Button asChild variant="outline" size="sm">
-                <Link href="/pos">{tr("افتح الكاشير")}</Link>
-              </Button>
+              <Link href="/pos" className={appleButton.tinted}>
+                {tr("افتح الكاشير")}
+              </Link>
             }
           />
         </div>
       ) : (
         <div className="space-y-4">
-          <FilterTabs
+          <Segmented
             label={tr("حالة الطلب")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
-            tabs={[
+            segments={[
               { label: tr("الكل"), count: allCount },
               ...ORDER_STATUSES.map((s) => ({ label: s.label, value: s.value, count: countFor(s.value) })),
             ]}
           />
 
-          <DataCard
-            toolbar={
-              <>
-                <SearchInput placeholder={tr("ابحث بالاسم أو الموبايل أو رقم الطلب")} />
-                <SelectFilter
-                  label={tr("القناة")}
-                  param="source"
-                  allLabel={tr("كل القنوات")}
-                  options={Object.entries(ORDER_CHANNELS).map(([value, { label }]) => ({ value, label }))}
-                />
-              </>
-            }
-            footer={
-              total > 0 ? (
-                <Pagination
+          <section className="apple-card overflow-hidden">
+            <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <SearchInput
+                placeholder={tr("ابحث بالاسم أو الموبايل أو رقم الطلب")}
+                className="sm:max-w-sm"
+                inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
+              />
+              <SelectFilter
+                label={tr("القناة")}
+                param="source"
+                allLabel={tr("كل القنوات")}
+                className="h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-40"
+                options={Object.entries(ORDER_CHANNELS).map(([value, { label }]) => ({ value, label }))}
+              />
+            </div>
+
+            {rows.length > 0 ? (
+              <OrdersTable orders={rows} storeId={store.id} />
+            ) : (
+              <Unavailable
+                icon={SearchX}
+                title={tr("مفيش طلبات بالفلاتر دي")}
+                description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب اسم أو رقم تاني.", q) : tr("جرّب حالة أو قناة تانية.")}
+                className="border-t-[0.5px] border-border"
+                action={
+                  hasFilters && (
+                    <Link href={BASE_PATH} className={appleButton.tinted}>
+                      {tr("مسح الفلاتر")}
+                    </Link>
+                  )
+                }
+              />
+            )}
+
+            {total > 0 && (
+              <div className="border-t-[0.5px] border-border">
+                <Pager
                   page={page}
                   pageSize={PAGE_SIZE}
                   total={total}
@@ -177,26 +199,9 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
                   searchParams={params}
                   noun={tr("طلب")}
                 />
-              ) : undefined
-            }
-          >
-            {rows.length > 0 ? (
-              <OrdersTable orders={rows} storeId={store.id} />
-            ) : (
-              <EmptyState
-                icon={SearchX}
-                title={tr("مفيش طلبات بالفلاتر دي")}
-                description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب اسم أو رقم تاني.", q) : tr("جرّب حالة أو قناة تانية.")}
-                action={
-                  hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
-                  )
-                }
-              />
+              </div>
             )}
-          </DataCard>
+          </section>
         </div>
       )}
     </div>

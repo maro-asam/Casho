@@ -1,10 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { isAppearanceTarget, mutateAppearance } from "@/lib/studio/mutate";
 
 const identitySchema = z.object({
   storeId: z.string().min(1, "معرف المتجر مطلوب"),
@@ -82,9 +82,12 @@ export async function UpdateStoreIdentityAction(
       };
     }
 
-    await prisma.storeSettings.upsert({
-      where: { storeId: store.id },
-      update: {
+    // `target=draft` comes from the Studio (published later); anything else is live.
+    const target = formData.get("target");
+    await mutateAppearance(
+      store.id,
+      (a) => ({
+        ...a,
         logo: emptyToNull(logo),
         logoRadius: logoRadius ?? 8,
         logoSize: logoSize ?? 80,
@@ -92,21 +95,9 @@ export async function UpdateStoreIdentityAction(
         description: emptyToNull(description),
         announcementText: emptyToNull(announcementText),
         showStoreName: showStoreName ?? true,
-      },
-      create: {
-        storeId: store.id,
-        logo: emptyToNull(logo),
-        logoRadius: logoRadius ?? 8,
-        logoSize: logoSize ?? 80,
-        coverImage: emptyToNull(coverImage),
-        description: emptyToNull(description),
-        announcementText: emptyToNull(announcementText),
-        showStoreName: showStoreName ?? true,
-      },
-    });
-
-    revalidatePath("/dashboard/customization");
-    revalidatePath(`/store/${store.slug}`);
+      }),
+      isAppearanceTarget(target) ? target : "live",
+    );
 
     return { success: true, message: "تم حفظ الهوية بنجاح" };
   } catch (error) {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TicketPercent } from "lucide-react";
 
-import { StatusPill, type PillTone } from "@/components/saas-page";
+import { StatusText, appleButton, type PillTone } from "@/components/saas-page";
 import { formatMoney, formatNumber, formatPercent } from "../../_components/overview/format";
 import type { ReportsData } from "../_lib/types";
 import { EmptyNote, Panel, ReportTable, Stat } from "./report-ui";
@@ -25,7 +25,7 @@ export function TabCoupons({ data }: { data: ReportsData }) {
       <Panel title={tr("الكوبونات")}>
         <EmptyNote icon={TicketPercent} title={tr("لسه معملتش كوبونات")} description={tr("الكوبونات بتساعدك تجيب عملاء جداد وترجّع القدام.")} />
         <div className="mt-4 text-center">
-          <Link href="/coupons" className="text-sm font-medium text-primary hover:underline">
+          <Link href="/coupons" className={`${appleButton.filled} h-9 px-4`}>
             {tr("اعمل كوبون")}
           </Link>
         </div>
@@ -34,7 +34,7 @@ export function TabCoupons({ data }: { data: ReportsData }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label={tr("طلبات بكوبون")} value={formatNumber(totalUses)} />
         <Stat
@@ -67,15 +67,15 @@ export function TabCoupons({ data }: { data: ReportsData }) {
           {data.coupons.map((c) => (
             <tr key={c.code}>
               <td>
-                <span className="font-mono text-sm font-medium" dir="ltr">
+                <span className="font-mono text-[15px]" dir="ltr">
                   {c.code}
                 </span>
-                <span className="ms-2 text-xs text-muted-foreground">
+                <span className="ms-2 text-[13px] text-muted-foreground">
                   {c.type === "PERCENTAGE" ? tr("{0}٪", formatNumber(c.value)) : formatMoney(c.value * 100)}
                 </span>
               </td>
               <td>
-                <StatusPill tone={STATUS[c.status].tone}>{STATUS[c.status].label}</StatusPill>
+                <StatusText tone={STATUS[c.status].tone}>{STATUS[c.status].label}</StatusText>
               </td>
               <td className="text-end tabular-nums">{formatNumber(c.uses)}</td>
               <td className="hidden text-end tabular-nums md:table-cell">{formatNumber(c.customers)}</td>

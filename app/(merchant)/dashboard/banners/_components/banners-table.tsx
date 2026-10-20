@@ -4,8 +4,7 @@ import type { BannerLinkType } from "@prisma/client";
 import { AlertTriangle, MousePointerClick } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { StatusPill, type PillTone } from "@/components/saas-page";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { StatusText, type PillTone } from "@/components/saas-page";
 import type { BannerStatus } from "@/lib/banners/banner-link";
 import { BannerActiveSwitch } from "./banner-active-switch";
 import { BannerMoveButtons } from "./banner-move-buttons";
@@ -61,7 +60,7 @@ type Props = {
   banners: BannerRow[];
   storeId: string;
   storefrontUrl: string;
-  /** Builds the `?edit=<id>` link while keeping the current filters. */
+  /** Link to the banner's edit page. */
   editHref: (id: string) => string;
   /** Reorder only makes sense on the unfiltered list (it is the slider order). */
   reorderable: boolean;
@@ -71,7 +70,7 @@ type Props = {
 
 function Thumb({ banner, className }: { banner: BannerRow; className?: string }) {
   return (
-    <div className={cn("relative aspect-3/1 shrink-0 overflow-hidden rounded-md border border-border bg-muted", className)}>
+    <div className={cn("relative aspect-3/1 shrink-0 overflow-hidden rounded-[10px] bg-muted", className)}>
       <Image src={banner.image} alt="" fill sizes="144px" className="object-cover" />
     </div>
   );
@@ -80,14 +79,14 @@ function Thumb({ banner, className }: { banner: BannerRow; className?: string })
 function Destination({ banner }: { banner: BannerRow }) {
   const { label, detail, warning } = banner.destination;
   return (
-    <div className="min-w-0 text-sm">
+    <div className="min-w-0 text-[15px]">
       <p className="truncate">
         <span className="text-muted-foreground">{label}</span>
-        {detail && <span className="font-medium"> · {detail}</span>}
+        {detail && <span> · {detail}</span>}
       </p>
       {warning && (
-        <p className="mt-0.5 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-          <AlertTriangle className="size-3 shrink-0" />
+        <p className="mt-0.5 flex items-center gap-1 text-[12px] text-foreground/80">
+          <AlertTriangle className="size-3.5 shrink-0 text-(--sys-orange)" />
           <span className="truncate">{warning}</span>
         </p>
       )}
@@ -95,7 +94,10 @@ function Destination({ banner }: { banner: BannerRow }) {
   );
 }
 
-/** Desktop: table. Mobile: stacked rows — same data, same row link. */
+const th = "h-9 px-3 pb-2 text-start align-bottom text-[12px] font-medium whitespace-nowrap text-muted-foreground";
+const td = "relative px-3 py-3 align-middle";
+
+/** Desktop: list-view table. Mobile: grouped rows — same data, same row link. */
 export function BannersTable({ banners, storeId, storefrontUrl, editHref, reorderable, firstId, lastId }: Props) {
   const actionsFor = (banner: BannerRow) => (
     <BannerRowActions
@@ -115,109 +117,107 @@ export function BannersTable({ banners, storeId, storefrontUrl, editHref, reorde
         canMoveDown={banner.id !== lastId}
       />
     );
+  const switchFor = (banner: BannerRow) => (
+    <BannerActiveSwitch
+      key={String(banner.isActive)}
+      bannerId={banner.id}
+      storeId={storeId}
+      title={banner.title}
+      isActive={banner.isActive}
+    />
+  );
 
   return (
     <>
       <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("البانر")}</TableHead>
-              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("بيودّي على")}</TableHead>
-              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("الحالة")}</TableHead>
-              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("النقرات")}</TableHead>
-              <TableHead className="h-10 w-28 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("ظاهر")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <table className="w-full border-separate border-spacing-0">
+          <thead>
+            <tr>
+              <th className={`${th} ps-5`}>{tr("البانر")}</th>
+              <th className={th}>{tr("بيودّي على")}</th>
+              <th className={th}>{tr("الحالة")}</th>
+              <th className={`${th} hidden lg:table-cell`}>{tr("النقرات")}</th>
+              <th className={`${th} w-32 pe-4 text-end`}>{tr("ظاهر")}</th>
+            </tr>
+          </thead>
+          <tbody>
             {banners.map((banner) => {
               const note = scheduleNote(banner);
               return (
                 // The edit link stretches over the row; switch, arrows + menu sit above it (z-10).
-                <TableRow key={banner.id} className="relative">
-                  <TableCell className="py-3 ps-4">
+                <tr
+                  key={banner.id}
+                  className="relative transition-colors hover:bg-muted/50 has-focus-visible:bg-muted/50 [&>td]:border-t-[0.5px] [&>td]:border-border"
+                >
+                  <td className={`${td} ps-5`}>
                     <div className="flex items-center gap-3">
                       {moveFor(banner)}
                       <Thumb banner={banner} className="w-32" />
                       <div className="min-w-0">
                         <Link
                           href={editHref(banner.id)}
-                          scroll={false}
-                          className="block max-w-60 truncate text-sm font-medium after:absolute after:inset-0 hover:underline focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
+                          className="block max-w-60 truncate text-[15px] leading-5 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
                         >
                           {banner.title}
                         </Link>
-                        <p className="text-xs text-muted-foreground">{tr("اتضاف {0}", dateFormat.format(banner.createdAt))}</p>
+                        <p className="text-[13px] text-muted-foreground">{tr("اتضاف {0}", dateFormat.format(banner.createdAt))}</p>
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell className="max-w-56 py-3">
+                  </td>
+                  <td className={`${td} max-w-56`}>
                     <Destination banner={banner} />
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <StatusPill tone={STATUS[banner.status].tone}>{STATUS[banner.status].label}</StatusPill>
-                    {note && <p className="mt-1 text-xs text-muted-foreground">{note}</p>}
-                  </TableCell>
-                  <TableCell className="hidden py-3 text-sm tabular-nums lg:table-cell">
+                  </td>
+                  <td className={td}>
+                    <StatusText tone={STATUS[banner.status].tone}>{STATUS[banner.status].label}</StatusText>
+                    {note && <p className="mt-0.5 text-[12px] text-muted-foreground">{note}</p>}
+                  </td>
+                  <td className={`${td} hidden text-[15px] tabular-nums lg:table-cell`}>
                     {banner.linkType === "NONE" ? (
                       <span className="text-muted-foreground">—</span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5">
-                        <MousePointerClick className="size-3.5 text-muted-foreground" />
+                        <MousePointerClick className="size-4 text-muted-foreground" strokeWidth={1.8} />
                         {numberFormat.format(banner.clicks)}
                       </span>
                     )}
-                  </TableCell>
-                  <TableCell className="py-3 pe-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <BannerActiveSwitch
-                        key={String(banner.isActive)}
-                        bannerId={banner.id}
-                        storeId={storeId}
-                        title={banner.title}
-                        isActive={banner.isActive}
-                      />
+                  </td>
+                  <td className={`${td} pe-4`}>
+                    <div className="flex items-center justify-end gap-2.5">
+                      {switchFor(banner)}
                       {actionsFor(banner)}
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               );
             })}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
 
-      <ul className="divide-y divide-border md:hidden">
+      <ul className="apple-rows [--row-inset:16px] md:hidden">
         {banners.map((banner) => {
           const note = scheduleNote(banner);
           return (
-            <li key={banner.id} className="relative space-y-3 p-4">
-              <Thumb banner={banner} className="w-full" />
+            <li key={banner.id} className="relative space-y-3 px-4 py-4">
+              <Thumb banner={banner} className="w-full rounded-xl" />
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 space-y-1">
                   <Link
                     href={editHref(banner.id)}
-                    scroll={false}
-                    className="block truncate text-sm font-medium after:absolute after:inset-0 focus-visible:outline-none"
+                    className="block truncate text-[15px] leading-5 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
                   >
                     {banner.title}
                   </Link>
                   <Destination banner={banner} />
-                  <p className="text-xs text-muted-foreground">
-                    {STATUS[banner.status].label}
-                    {note && ` · ${note}`}
-                    {banner.linkType !== "NONE" && tr(" · {0} نقرة", numberFormat.format(banner.clicks))}
+                  <p className="flex flex-wrap items-center gap-x-1 text-[13px] text-muted-foreground">
+                    <StatusText tone={STATUS[banner.status].tone}>{STATUS[banner.status].label}</StatusText>
+                    {note && <span>· {note}</span>}
+                    {banner.linkType !== "NONE" && <span>{tr(" · {0} نقرة", numberFormat.format(banner.clicks))}</span>}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {moveFor(banner)}
-                  <BannerActiveSwitch
-                    key={String(banner.isActive)}
-                    bannerId={banner.id}
-                    storeId={storeId}
-                    title={banner.title}
-                    isActive={banner.isActive}
-                  />
+                  {switchFor(banner)}
                   {actionsFor(banner)}
                 </div>
               </div>

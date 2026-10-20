@@ -26,11 +26,11 @@ export function CopyButton({ value, label, className }: { value: string; label: 
       onClick={copy}
       aria-label={tr("نسخ {0}", label)}
       className={cn(
-        "grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "apple-press grid size-8 shrink-0 place-items-center rounded-full text-primary hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >
-      {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
+      {copied ? <Check className="size-4 text-(--sys-green)" strokeWidth={2.4} /> : <Copy className="size-4" />}
     </button>
   );
 }

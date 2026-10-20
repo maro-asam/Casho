@@ -17,17 +17,15 @@ import {
   Copy,
   Check,
   Sparkles,
-  Loader2,
   Hash,
   Zap,
   FileText,
   Lightbulb,
   Target,
   ChevronRight,
-  ArrowRight,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { appleButton } from "@/components/saas-page";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +34,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 import { generateMarketingFromDataAction } from "@/actions/ai/generate-marketing.actions";
@@ -85,13 +82,15 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition group-hover:opacity-100 hover:bg-muted hover:text-foreground"
+      type="button"
+      aria-label={tr("نسخ")}
+      className="apple-press grid size-8 shrink-0 place-items-center rounded-full text-primary opacity-60 transition group-hover:opacity-100 hover:bg-primary/8 focus-visible:opacity-100"
       title={tr("نسخ")}
     >
       {copied ? (
-        <Check className="size-3.5 text-green-500" />
+        <Check className="size-4 text-(--sys-green)" strokeWidth={2.4} />
       ) : (
-        <Copy className="size-3.5" />
+        <Copy className="size-4" />
       )}
     </button>
   );
@@ -101,11 +100,11 @@ function CopyButton({ text }: { text: string }) {
 
 function ContentCard({ text, index }: { text: string; index: number }) {
   return (
-    <div className="group flex items-start gap-3 rounded-xl border bg-card p-3.5 transition hover:border-primary/30 hover:bg-primary/5">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+    <div className="group flex items-start gap-3 rounded-2xl bg-(--fill-3) p-3.5">
+      <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-card text-[12px] font-semibold text-muted-foreground tabular-nums">
         {index + 1}
       </span>
-      <p className="flex-1 text-sm leading-relaxed text-foreground">{text}</p>
+      <p className="flex-1 text-[15px] leading-6 text-foreground">{text}</p>
       <CopyButton text={text} />
     </div>
   );
@@ -124,15 +123,14 @@ function HashtagPill({ tag }: { tag: string }) {
 
   return (
     <button
+      type="button"
       onClick={handleCopy}
       className={cn(
-        "rounded-full border px-3 py-1 text-sm transition",
-        copied
-          ? "border-green-500/40 bg-green-500/10 text-green-600"
-          : "border-border bg-muted/40 text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+        "apple-press inline-flex h-8 items-center rounded-full px-3.5 text-[13px]",
+        copied ? "bg-(--sys-green)/14 text-foreground" : "bg-(--fill-3) text-primary hover:bg-(--fill-3)/70",
       )}
     >
-      {copied ? <Check className="inline-block size-3 me-1" /> : null}
+      {copied ? <Check className="me-1 inline-block size-3.5 text-(--sys-green)" strokeWidth={2.4} /> : null}
       {tag}
     </button>
   );
@@ -146,13 +144,13 @@ function SkeletonContent() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="flex gap-3 rounded-xl border p-3.5"
+          className="flex gap-3 rounded-2xl bg-(--fill-3) p-3.5"
           style={{ opacity: 1 - i * 0.18 }}
         >
-          <div className="h-6 w-6 shrink-0 animate-pulse rounded-full bg-muted" />
+          <div className="h-6 w-6 shrink-0 animate-pulse rounded-full bg-card" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
-            <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-3/4 animate-pulse rounded bg-card" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-card" />
           </div>
         </div>
       ))}
@@ -196,50 +194,43 @@ export default function MarketingAssistantModal({
     return (
       <Dialog open={open} onOpenChange={(o) => { if (!o) onDone(); }}>
         <DialogContent
-          className="max-w-md rounded-2xl"
+          className="max-w-md rounded-[22px]"
           dir={tdir()}
           aria-describedby="marketing-gate-desc"
         >
           <DialogHeader className="text-center">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg">
-              <Sparkles className="size-7 text-white" />
+            <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-2xl bg-primary/10">
+              <Sparkles className="size-7 text-primary" strokeWidth={1.8} />
             </div>
-            <DialogTitle className="text-lg">
+            <DialogTitle className="text-[20px] leading-[25px] font-semibold">
               {tr("عزّز مبيعاتك بالذكاء الاصطناعي ✨")}
             </DialogTitle>
-            <DialogDescription id="marketing-gate-desc" className="leading-6">
+            <DialogDescription id="marketing-gate-desc" className="text-[15px] leading-[21px]">
               {tr("احصل على")}{" "}
               <span className="font-semibold text-foreground">{tr("هوكس فايرل")}</span>{tr("، كابشن سوشيال ميديا، هاشتاجات، أفكار فيديو، وزوايا إعلانية — كلها مولّدة بالـ AI وجاهزة للنشر الآن.")}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-1 rounded-xl border border-border/60 bg-muted/30 p-3.5 text-sm">
-            <p className="font-medium text-foreground">{productData.name}</p>
-            <p className="mt-0.5 text-muted-foreground">{productData.categoryName}</p>
+          <div className="mt-1 rounded-2xl bg-(--fill-3) p-3.5 text-[15px]">
+            <p className="text-foreground">{productData.name}</p>
+            <p className="mt-0.5 text-[13px] text-muted-foreground">{productData.categoryName}</p>
           </div>
 
           {error && (
-            <p className="rounded-xl bg-destructive/10 p-3 text-center text-sm text-destructive">
+            <p className="rounded-xl bg-(--sys-red)/10 p-3 text-center text-[13px] text-foreground">
               {error}
             </p>
           )}
 
           <div className="grid gap-2">
-            <Button
-              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
-              onClick={handleGenerate}
-            >
-              <Sparkles className="me-2 size-4" />
+            <button type="button" className={cn(appleButton.filled, "w-full")} onClick={handleGenerate}>
+              <Sparkles className="size-4" />
               {tr("ولّد المحتوى التسويقي")}
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full rounded-xl text-muted-foreground"
-              onClick={onDone}
-            >
+            </button>
+            <button type="button" className={cn(appleButton.plain, "mx-0 h-11 w-full")} onClick={onDone}>
               {tr("الآن لا، أكمل")}
-              <ChevronRight className="ms-1.5 size-4 ltr:-scale-x-100" />
-            </Button>
+              <ChevronRight className="size-4 ltr:-scale-x-100" />
+            </button>
           </div>
         </DialogContent>
       </Dialog>
@@ -251,20 +242,20 @@ export default function MarketingAssistantModal({
     return (
       <Dialog open={open}>
         <DialogContent
-          className="max-w-md rounded-2xl"
+          className="max-w-md rounded-[22px]"
           dir={tdir()}
           aria-describedby="marketing-loading-desc"
         >
           <div className="flex flex-col items-center gap-5 py-8 text-center">
             <div className="relative">
-              <div className="h-16 w-16 animate-spin rounded-full border-4 border-purple-500/20 border-t-purple-500" />
-              <Sparkles className="absolute inset-0 m-auto size-7 text-purple-500" />
+              <div className="size-16 animate-spin rounded-full border-4 border-primary/15 border-t-primary motion-reduce:animate-none" />
+              <Sparkles className="absolute inset-0 m-auto size-7 text-primary" strokeWidth={1.8} />
             </div>
             <div>
-              <p className="text-base font-semibold" id="marketing-loading-desc">
+              <p className="text-[17px] font-semibold" id="marketing-loading-desc">
                 {tr("جاري توليد المحتوى…")}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-[15px] text-muted-foreground">
                 {tr("الذكاء الاصطناعي يحلل منتجك ويكتب لك محتوى viral ✨")}
               </p>
             </div>
@@ -293,47 +284,44 @@ export default function MarketingAssistantModal({
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onDone(); }}>
       <DialogContent
-        className="flex max-h-[90dvh] max-w-2xl flex-col gap-0 rounded-2xl p-0"
+        className="flex max-h-[90dvh] max-w-2xl flex-col gap-0 overflow-hidden rounded-[22px] p-0"
         dir={tdir()}
         aria-describedby="marketing-results-desc"
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b px-5 py-4">
+        <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500">
-              <Sparkles className="size-4.5 text-white" />
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+              <Sparkles className="size-5 text-primary" strokeWidth={1.8} />
             </div>
             <div>
-              <h2 className="text-sm font-semibold leading-none">
+              <h2 className="text-[17px] leading-[22px] font-semibold">
                 {tr("محتوى تسويقي لـ «{0}»", productData.name)}
               </h2>
-              <p className="mt-1 text-xs text-muted-foreground" id="marketing-results-desc">
+              <p className="text-[13px] text-muted-foreground" id="marketing-results-desc">
                 {productData.categoryName}
               </p>
             </div>
           </div>
-          <Badge
-            variant="outline"
-            className="shrink-0 border-purple-500/30 bg-purple-500/5 text-purple-600"
-          >
-            <Sparkles className="me-1 size-3" /> AI Generated
-          </Badge>
+          <span className="inline-flex h-6 shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 text-[12px] text-muted-foreground">
+            <Sparkles className="size-3" /> AI
+          </span>
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="hooks" className="flex min-h-0 flex-1 flex-col">
-          <div className="border-b px-5 pt-3">
-            <TabsList className="h-auto gap-1 bg-transparent p-0">
+          <div className="overflow-x-auto px-5 pb-1 [scrollbar-width:none]">
+            <TabsList className="h-auto gap-0.5 rounded-full bg-(--sys-gray)/14 p-[3px]">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <TabsTrigger
                   key={id}
                   value={id}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="flex h-8 items-center gap-1.5 rounded-full border-0 px-3 text-[13px] text-foreground/70 shadow-none data-[state=active]:bg-card data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-[0_3px_8px_rgba(0,0,0,0.12),0_1px_1px_rgba(0,0,0,0.04)]"
                 >
                   <Icon className="size-3" />
                   {label}
                   {tabData[id].length > 0 && (
-                    <span className="ms-0.5 rounded-full bg-current/15 px-1 text-[10px] font-bold">
+                    <span className="text-muted-foreground tabular-nums">
                       {tabData[id].length}
                     </span>
                   )}
@@ -366,38 +354,20 @@ export default function MarketingAssistantModal({
         </Tabs>
 
         {/* Footer actions */}
-        <div className="flex items-center justify-between border-t px-5 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t-[0.5px] border-border px-5 py-3">
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-lg text-xs"
-              onClick={handleGenerate}
-              disabled={isPending}
-            >
-              <Sparkles className="me-1.5 size-3" />
+            <button type="button" className={cn(appleButton.tinted, "text-primary")} onClick={handleGenerate} disabled={isPending}>
+              <Sparkles className="size-4" />
               {tr("أعد التوليد")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-lg text-xs text-muted-foreground"
-              onClick={() => copyAll(
-                Object.values(tabData).flat(),
-              )}
-            >
-              <Copy className="me-1.5 size-3" />
+            </button>
+            <button type="button" className={cn(appleButton.plain, "mx-0")} onClick={() => copyAll(Object.values(tabData).flat())}>
+              <Copy className="size-4" />
               {tr("نسخ الكل")}
-            </Button>
+            </button>
           </div>
-          <Button
-            size="sm"
-            className="rounded-lg text-xs"
-            onClick={onDone}
-          >
+          <button type="button" className={cn(appleButton.filled, "h-9 px-4")} onClick={onDone}>
             {tr("انتهيت")}
-            <ArrowRight className="ms-1.5 size-3 ltr:-scale-x-100" />
-          </Button>
+          </button>
         </div>
       </DialogContent>
     </Dialog>

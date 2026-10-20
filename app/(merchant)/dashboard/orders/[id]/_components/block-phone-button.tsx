@@ -6,7 +6,8 @@ import { Ban, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { BlockPhoneAction, UnblockPhoneAction } from "@/actions/store/fraud.actions";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { appleButton } from "@/components/saas-page";
 import { tr, trv } from "@/lib/i18n/dashboard";
 
 /** Block / unblock the order's number for this store. */
@@ -32,27 +33,32 @@ export function BlockPhoneButton({ storeId, phone, blockedId }: { storeId: strin
 
   if (blockedId) {
     return (
-      <Button type="button" variant="outline" size="sm" className="h-9 w-full gap-1.5" onClick={run} disabled={pending}>
+      <button type="button" className={cn(appleButton.tinted, "w-full text-primary")} onClick={run} disabled={pending}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
         {tr("شيل الحظر عن الرقم")}
-      </Button>
+      </button>
     );
   }
 
   return confirming ? (
     <div className="grid grid-cols-2 gap-2">
-      <Button type="button" variant="destructive" size="sm" className="h-9 gap-1.5" onClick={run} disabled={pending}>
+      <button type="button" className={cn(appleButton.tinted, "text-primary")} onClick={() => setConfirming(false)} disabled={pending}>
+        {tr("رجوع")}
+      </button>
+      <button
+        type="button"
+        className={cn(appleButton.destructive, "bg-(--sys-red) font-semibold text-white hover:bg-(--sys-red)/90")}
+        onClick={run}
+        disabled={pending}
+      >
         {pending ? <Loader2 className="size-4 animate-spin" /> : <Ban className="size-4" />}
         {tr("أيوه احظره")}
-      </Button>
-      <Button type="button" variant="outline" size="sm" className="h-9" onClick={() => setConfirming(false)} disabled={pending}>
-        {tr("رجوع")}
-      </Button>
+      </button>
     </div>
   ) : (
-    <Button type="button" variant="outline" size="sm" className="h-9 w-full gap-1.5 text-destructive" onClick={() => setConfirming(true)}>
+    <button type="button" className={cn(appleButton.destructive, "w-full")} onClick={() => setConfirming(true)}>
       <Ban className="size-4" />
       {tr("احظر الرقم ده من متجرك")}
-    </Button>
+    </button>
   );
 }

@@ -8,35 +8,42 @@ type FormSectionProps = {
   description?: string;
   /** Collapsed by default — for advanced, rarely used settings. Fields stay in the form either way. */
   collapsible?: boolean;
+  /** Start a collapsible section expanded (e.g. it already has data). */
+  defaultOpen?: boolean;
   aside?: ReactNode;
   children: ReactNode;
   className?: string;
 };
 
-export function FormSection({ title, description, collapsible, aside, children, className }: FormSectionProps) {
-  const heading = (
-    <div className="min-w-0 flex-1">
-      <h2 className="text-sm font-semibold">{title}</h2>
-      {description && <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{description}</p>}
+function Heading({ title, description }: { title: string; description?: string }) {
+  return (
+    <div className="min-w-0 flex-1 space-y-0.5">
+      <h2 className="text-[17px] leading-[22px] font-semibold ltr:tracking-[-0.01em]">{title}</h2>
+      {description && <p className="text-[13px] leading-[18px] text-muted-foreground">{description}</p>}
     </div>
   );
+}
 
+/** One opaque card per group of fields (HIG grouped form). */
+export function FormSection({ title, description, collapsible, defaultOpen, aside, children, className }: FormSectionProps) {
   if (collapsible) {
     return (
-      <details className={cn("group rounded-xl border border-border bg-card", className)}>
-        <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
-          {heading}
-          <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+      <details open={defaultOpen} className={cn("group apple-card overflow-hidden", className)}>
+        <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+          <Heading title={title} description={description} />
+          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+            <ChevronDown className="size-4 transition-transform duration-300 ease-(--ease-apple) group-open:rotate-180" strokeWidth={2.2} />
+          </span>
         </summary>
-        <div className="border-t border-border px-5 py-5">{children}</div>
+        <div className="px-5 pt-1 pb-5">{children}</div>
       </details>
     );
   }
 
   return (
-    <section className={cn("rounded-xl border border-border bg-card", className)}>
-      <div className="flex items-start gap-3 px-5 pt-4 pb-3">
-        {heading}
+    <section className={cn("apple-card", className)}>
+      <div className="flex items-start gap-3 px-5 pt-5 pb-4">
+        <Heading title={title} description={description} />
         {aside}
       </div>
       <div className="px-5 pb-5">{children}</div>
@@ -64,18 +71,31 @@ export function Field({
 }) {
   return (
     <div className={cn("space-y-1.5", className)}>
-      <label htmlFor={htmlFor} className="flex items-center gap-1.5 text-sm font-medium">
+      <label htmlFor={htmlFor} className="flex items-center gap-1.5 px-1 text-[13px] font-medium text-foreground/80">
         {label}
-        {optional && <span className="text-xs font-normal text-muted-foreground">{tr("(اختياري)")}</span>}
+        {optional && <span className="font-normal text-muted-foreground">{tr("(اختياري)")}</span>}
       </label>
       {children}
       {error ? (
-        <p role="alert" className="text-xs font-medium text-destructive">
+        <p role="alert" className="px-1 text-[12px] font-medium text-(--sys-red)">
           {error}
         </p>
       ) : (
-        hint && <p className="text-xs leading-5 text-muted-foreground">{hint}</p>
+        hint && <p className="px-1 text-[12px] leading-[17px] text-muted-foreground">{hint}</p>
       )}
     </div>
+  );
+}
+
+/** Settings-style switch row: title + footnote on the leading side, switch trailing. */
+export function ToggleRow({ label, description, control }: { label: string; description?: string; control: ReactNode }) {
+  return (
+    <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 py-3">
+      <span className="min-w-0">
+        <span className="block text-[15px] leading-5">{label}</span>
+        {description && <span className="block text-[13px] leading-[18px] text-muted-foreground">{description}</span>}
+      </span>
+      {control}
+    </label>
   );
 }

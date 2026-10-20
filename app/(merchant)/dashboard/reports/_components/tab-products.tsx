@@ -35,7 +35,7 @@ function SortHead({
       <Link
         href={hrefWith("/reports", params, { sort: sort === "sales" ? undefined : sort })}
         scroll={false}
-        className={cn("inline-flex items-center gap-1 hover:text-foreground", active && "text-foreground")}
+        className={cn("inline-flex items-center gap-1 rounded-full hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", active && "font-semibold text-primary")}
       >
         {label}
         {active && <ArrowDown className="size-3" />}
@@ -48,7 +48,7 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
   const rows = [...data.products].sort(SORTERS[sort]).slice(0, 20);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Panel
         title={tr("أداء المنتجات")}
         description={
@@ -77,7 +77,7 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
           >
             {rows.map((p, i) => (
               <tr key={p.id} className="relative hover:bg-muted/40">
-                <td className="text-xs text-muted-foreground tabular-nums">{formatNumber(i + 1)}</td>
+                <td className="text-[13px] text-muted-foreground tabular-nums">{formatNumber(i + 1)}</td>
                 <td>
                   <Link
                     href={`/products/${p.id}/edit`}
@@ -85,8 +85,8 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
                   >
                     <Thumb src={p.image} />
                     <span className="min-w-0">
-                      <span className="block truncate font-medium">{p.name}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{p.category}</span>
+                      <span className="block truncate">{p.name}</span>
+                      <span className="block truncate text-[13px] text-muted-foreground">{p.category}</span>
                     </span>
                   </Link>
                 </td>
@@ -95,14 +95,14 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
                 <td className="hidden w-32 md:table-cell">
                   <div className="flex items-center gap-2">
                     <ShareBar value={p.share} className="flex-1" />
-                    <span className="w-10 text-xs text-muted-foreground tabular-nums">{formatPercent(p.share * 100)}</span>
+                    <span className="w-10 text-[13px] text-muted-foreground tabular-nums">{formatPercent(p.share * 100)}</span>
                   </div>
                 </td>
-                <td className={cn("text-end tabular-nums", p.profit !== null && p.profit < 0 && "text-rose-600 dark:text-rose-400")}>
-                  {p.profit === null ? <span className="text-xs text-muted-foreground">{tr("بدون تكلفة")}</span> : formatMoney(p.profit)}
+                <td className={cn("text-end tabular-nums", p.profit !== null && p.profit < 0 && "text-[#d70015] dark:text-(--sys-red)")}>
+                  {p.profit === null ? <span className="text-[13px] text-muted-foreground">{tr("بدون تكلفة")}</span> : formatMoney(p.profit)}
                 </td>
                 <td className="text-end tabular-nums">{p.margin === null ? "—" : formatPercent(p.margin)}</td>
-                <td className={cn("hidden text-end tabular-nums lg:table-cell", p.stock <= 0 && "text-rose-600 dark:text-rose-400")}>
+                <td className={cn("hidden text-end tabular-nums lg:table-cell", p.stock <= 0 && "text-[#d70015] dark:text-(--sys-red)")}>
                   {p.stock <= 0 ? tr("نفد") : formatNumber(p.stock)}
                 </td>
               </tr>
@@ -113,18 +113,18 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
         )}
       </Panel>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2">
         <Panel title={tr("التصنيفات")} description={tr("نصيب كل تصنيف من صافي المبيعات")}>
           {data.categories.length ? (
             <ul className="space-y-4">
               {data.categories.slice(0, 10).map((c) => (
                 <li key={c.name} className="space-y-1.5">
-                  <div className="flex items-center justify-between gap-2 text-sm">
-                    <span className="truncate font-medium">{c.name}</span>
+                  <div className="flex items-center justify-between gap-2 text-[15px]">
+                    <span className="truncate">{c.name}</span>
                     <span className="font-semibold tabular-nums">{formatMoney(c.netSales)}</span>
                   </div>
                   <ShareBar value={c.share} />
-                  <p className="text-xs text-muted-foreground tabular-nums">
+                  <p className="text-[13px] text-muted-foreground tabular-nums">
                     {tr("{0} · {1} قطعة", formatPercent(c.share * 100), formatNumber(c.units))}
                     {c.profit !== null && tr(" · ربح {0}", formatMoney(c.profit))}
                   </p>
@@ -132,7 +132,7 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">{tr("مفيش مبيعات في الفترة دي.")}</p>
+            <p className="text-[15px] text-muted-foreground">{tr("مفيش مبيعات في الفترة دي.")}</p>
           )}
         </Panel>
 
@@ -146,17 +146,17 @@ export function TabProducts({ data, sort, params }: { data: ReportsData; sort: P
           contentClassName={data.unsold.length ? "p-0" : undefined}
         >
           {data.unsold.length ? (
-            <ul className="divide-y divide-border">
+            <ul className="apple-rows [--row-inset:72px]">
               {data.unsold.map((p) => (
-                <li key={p.id} className="relative flex items-center gap-3 px-5 py-2.5 hover:bg-muted/40">
+                <li key={p.id} className="relative flex items-center gap-3 px-5 py-3 hover:bg-muted/40">
                   <Thumb src={p.image} />
-                  <Link href={`/products/${p.id}/edit`} className="min-w-0 flex-1 after:absolute after:inset-0">
-                    <span className="block truncate text-sm font-medium">{p.name}</span>
-                    <span className="block text-xs text-muted-foreground">
+                  <Link href={`/products/${p.id}/edit`} className="min-w-0 flex-1 after:absolute after:inset-0 after:content-['']">
+                    <span className="block truncate text-[15px]">{p.name}</span>
+                    <span className="block text-[13px] text-muted-foreground">
                       {tr("{0} · {1} في المخزون", p.category, formatNumber(p.stock))}
                     </span>
                   </Link>
-                  <span className="text-xs text-muted-foreground tabular-nums">{formatMoney(p.valueRetail)}</span>
+                  <span className="text-[13px] text-muted-foreground tabular-nums">{formatMoney(p.valueRetail)}</span>
                 </li>
               ))}
             </ul>

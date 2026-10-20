@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowRight, Plus, Tags } from "lucide-react";
+import { ChevronRight, Plus, Tags } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/saas-page";
+import { Unavailable, appleButton } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
 import CreateProductForm from "../_components/CreateProductForm";
 import { tdir, tr } from "@/lib/i18n/dashboard";
@@ -43,26 +42,24 @@ export default async function CreateNewProductPage() {
 
   if (categories.length === 0) {
     return (
-      <div className="space-y-6" dir={tdir()}>
+      <div className="space-y-4 pt-2" dir={tdir()}>
         <Link
           href="/products"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="apple-press -ms-1.5 inline-flex h-8 items-center gap-0.5 rounded-full pe-2.5 ps-1 text-[15px] text-primary hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ArrowRight className="size-4 ltr:-scale-x-100" />
+          <ChevronRight className="size-5 ltr:-scale-x-100" strokeWidth={2.2} />
           {tr("المنتجات")}
         </Link>
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={Tags}
             title={tr("محتاج تصنيف الأول")}
             description={tr("كل منتج لازم يبقى تحت تصنيف (زي: تيشيرتات، شنط، إكسسوارات) عشان العملاء يلاقوه بسهولة. ضيف تصنيف وارجع هنا.")}
             action={
-              <Button asChild size="sm" className="gap-1.5">
-                <Link href="/categories/new">
-                  <Plus className="size-4" />
-                  {tr("إضافة تصنيف")}
-                </Link>
-              </Button>
+              <Link href="/categories/new" className={`${appleButton.filled} h-9 px-4`}>
+                <Plus className="size-4" strokeWidth={2.4} />
+                {tr("إضافة تصنيف")}
+              </Link>
             }
           />
         </div>

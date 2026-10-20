@@ -7,7 +7,7 @@ import type { ShipmentStatus } from "@prisma/client";
 import {
   Banknote,
   Check,
-  ChevronDown,
+  ChevronsUpDown,
   ExternalLink,
   Loader2,
   PenLine,
@@ -36,7 +36,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,11 +45,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusPill, toneDot } from "@/components/saas-page";
 import { CarrierMark } from "@/components/shipping/carrier-mark";
 import { SHIPMENT_STATUS_META, SHIPMENT_TRACK, type ShipmentEvent } from "@/lib/shipping/shipment-status";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
+import { Card, Dot, Tag, appleButton, toneDotClass } from "@/components/saas-page";
 import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 export type ShipCarrierOption = {
@@ -96,18 +95,15 @@ const MANUAL_STATUSES: ShipmentStatus[] = [
   "RETURNED",
 ];
 
+/** Filled, borderless text field (HIG). */
+const field = "h-11 rounded-xl border-0 bg-background text-[15px] shadow-none focus-visible:ring-2 focus-visible:ring-primary/35";
+const small = cn(appleButton.tinted, "h-8 px-3 text-[13px]");
+
 function Shell({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <section aria-labelledby="shipment-title" className="rounded-xl border border-border bg-card">
-      <div className="flex items-center justify-between gap-2 px-5 pt-4 pb-3">
-        <h2 id="shipment-title" className="inline-flex items-center gap-2 text-sm font-semibold">
-          <Truck className="size-4 text-muted-foreground" />
-          {tr("الشحن")}
-        </h2>
-        {action}
-      </div>
+    <Card id="shipment" title={tr("الشحن")} icon={Truck} action={action}>
       {children}
-    </section>
+    </Card>
   );
 }
 
@@ -116,13 +112,13 @@ function Shell({ children, action }: { children: React.ReactNode; action?: React
 function NoCarriers() {
   return (
     <Shell>
-      <div className="mx-5 mb-5 flex flex-col items-start gap-3 rounded-lg border border-dashed border-border p-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm leading-6 text-muted-foreground">
+      <div className="mx-5 mb-5 flex flex-col items-start gap-3 rounded-2xl bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[15px] leading-6 text-muted-foreground">
           {tr("اربط شركة شحن — أو مندوبك — عشان تشحن الطلب من هنا وتتابع حالته وتحصيله.")}
         </p>
-        <Button asChild size="sm" variant="outline" className="shrink-0">
-          <Link href="/shipping/integrations">{tr("اربط شركة شحن")}</Link>
-        </Button>
+        <Link href="/shipping/integrations" className={cn(appleButton.tinted, "bg-card text-primary")}>
+          {tr("اربط شركة شحن")}
+        </Link>
       </div>
     </Shell>
   );
@@ -164,10 +160,10 @@ function ShipForm({
     <Shell>
       <form action={submit} className="space-y-5 px-5 pb-5">
         <fieldset>
-          <legend className="mb-2 text-xs font-medium text-muted-foreground">
+          <legend className="mb-2 px-1 text-[13px] text-muted-foreground">
             {tr("اشحن مع")}{destination ? tr(" · رايح {0}", destination) : ""}
           </legend>
-          <div role="radiogroup" className="grid gap-2 sm:grid-cols-2">
+          <div role="radiogroup" className="apple-rows overflow-hidden rounded-2xl bg-background [--row-inset:60px]">
             {carriers.map((c) => {
               const active = c.key === selected;
               return (
@@ -177,28 +173,17 @@ function ShipForm({
                   role="radio"
                   aria-checked={active}
                   onClick={() => setSelected(c.key)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg border p-2.5 text-start transition-colors",
-                    active ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-border hover:bg-muted/50",
-                  )}
+                  className="flex min-h-14 w-full items-center gap-3 px-3 py-2 text-start transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none active:bg-muted"
                 >
                   <CarrierMark carrier={c.key} size="sm" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{c.name}</span>
-                    <span className="inline-flex items-center gap-1 text-[0.6875rem] text-muted-foreground">
+                    <span className="block truncate text-[15px] leading-5">{c.name}</span>
+                    <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
                       {c.isApi ? <Zap className="size-3" /> : <PenLine className="size-3" />}
                       {c.isApi ? tr("بوليصة تلقائية") : tr("تسجيل يدوي")}
                     </span>
                   </span>
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "grid size-4 shrink-0 place-items-center rounded-full border",
-                      active ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/30",
-                    )}
-                  >
-                    {active && <Check className="size-3" />}
-                  </span>
+                  <Check aria-hidden className={cn("size-5 shrink-0 text-primary", !active && "invisible")} strokeWidth={2.4} />
                 </button>
               );
             })}
@@ -208,7 +193,7 @@ function ShipForm({
         <div className="grid gap-4 sm:grid-cols-2">
           {!carrier.isApi && (
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="trackingNumber">
+              <Label className="px-1 text-[13px] font-normal text-muted-foreground" htmlFor="trackingNumber">
                 {needsTracking ? tr("رقم البوليصة") : tr("رقم داخلي (اختياري)")}
                 {needsTracking && <span className="text-destructive"> *</span>}
               </Label>
@@ -219,13 +204,13 @@ function ShipForm({
                 required={needsTracking}
                 maxLength={64}
                 placeholder={needsTracking ? tr("الرقم اللي {0} اديتهولك", carrier.name) : tr("مثال: 0425")}
-                className="font-mono placeholder:font-sans"
+                className={cn(field, "font-mono placeholder:font-sans")}
               />
             </div>
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="codAmount">{tr("التحصيل من العميل (ج.م)")}</Label>
+            <Label className="px-1 text-[13px] font-normal text-muted-foreground" htmlFor="codAmount">{tr("التحصيل من العميل (ج.م)")}</Label>
             <Input
               id="codAmount"
               name="codAmount"
@@ -236,15 +221,15 @@ function ShipForm({
               key={`${carrier.key}-cod`}
               defaultValue={carrier.cod ? (defaultCod / 100).toString() : "0"}
               disabled={!carrier.cod}
-              className="tabular-nums"
+              className={cn(field, "tabular-nums")}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="px-1 text-[12px] text-muted-foreground">
               {!carrier.cod ? tr("{0} مابتحصّلش عند الاستلام", carrier.name) : defaultCod > 0 ? tr("إجمالي الطلب — الدفع عند الاستلام") : tr("الطلب مدفوع، مفيش تحصيل")}
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="weightKg">{tr("الوزن (كجم)")}</Label>
+            <Label className="px-1 text-[13px] font-normal text-muted-foreground" htmlFor="weightKg">{tr("الوزن (كجم)")}</Label>
             <Input
               id="weightKg"
               name="weightKg"
@@ -255,28 +240,28 @@ function ShipForm({
               inputMode="decimal"
               key={`${carrier.key}-weight`}
               defaultValue={carrier.defaultWeightKg ?? 1}
-              className="tabular-nums"
+              className={cn(field, "tabular-nums")}
             />
           </div>
 
           {!carrier.isApi && (
             <div className="space-y-1.5">
-              <Label htmlFor="cost">{tr("تكلفة الشحن عليك (ج.م)")}</Label>
-              <Input id="cost" name="cost" type="number" min="0" step="0.5" inputMode="decimal" placeholder={tr("اختياري")} className="tabular-nums" />
+              <Label className="px-1 text-[13px] font-normal text-muted-foreground" htmlFor="cost">{tr("تكلفة الشحن عليك (ج.م)")}</Label>
+              <Input id="cost" name="cost" type="number" min="0" step="0.5" inputMode="decimal" placeholder={tr("اختياري")} className={cn(field, "tabular-nums")} />
             </div>
           )}
 
           <div className={cn("space-y-1.5", carrier.isApi && "sm:col-span-2")}>
-            <Label htmlFor="notes">{tr("ملاحظة للمندوب")}</Label>
-            <Input id="notes" name="notes" maxLength={500} placeholder={tr("مثال: اتصل قبلها بساعة")} />
+            <Label className="px-1 text-[13px] font-normal text-muted-foreground" htmlFor="notes">{tr("ملاحظة للمندوب")}</Label>
+            <Input id="notes" name="notes" maxLength={500} placeholder={tr("مثال: اتصل قبلها بساعة")} className={field} />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
-          <Button type="submit" disabled={isPending} className="gap-1.5">
+        <div className="flex items-center justify-end gap-3 pt-1">
+          <button type="submit" disabled={isPending} className={appleButton.filled}>
             {isPending ? <Loader2 className="size-4 animate-spin" /> : carrier.isApi ? <Zap className="size-4" /> : <Truck className="size-4" />}
             {carrier.isApi ? tr("اعمل البوليصة على {0}", carrier.name) : tr("سجّل الشحنة")}
-          </Button>
+          </button>
         </div>
       </form>
     </Shell>
@@ -296,13 +281,13 @@ function Track({ status }: { status: ShipmentStatus }) {
           <li key={step} className="space-y-1.5">
             <span
               className={cn(
-                "block h-1.5 rounded-full",
-                done ? (status === "DELIVERED" ? "bg-emerald-500" : "bg-primary") : "bg-muted",
+                "block h-1 rounded-full transition-colors duration-300 ease-(--ease-apple)",
+                done ? (status === "DELIVERED" ? "bg-(--sys-green)" : "bg-primary") : "bg-muted",
               )}
             />
             <span
               className={cn(
-                "block truncate text-[0.6875rem]",
+                "block truncate text-[12px]",
                 i === current ? "font-semibold text-foreground" : "text-muted-foreground",
               )}
             >
@@ -343,29 +328,29 @@ function ShipmentDetails({ shipment }: { shipment: ShipmentView }) {
       action={
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5" disabled={isPending}>
-              <span aria-hidden className={cn("size-1.5 rounded-full", toneDot(meta.tone))} />
+            <button type="button" className={small} disabled={isPending}>
+              <Dot tone={meta.tone} />
               {tr("غيّر الحالة")}
-              <ChevronDown className="size-3.5 text-muted-foreground" />
-            </Button>
+              <ChevronsUpDown className="size-3.5 text-muted-foreground" />
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">{tr("حالة الشحنة")}</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5">
+            <DropdownMenuLabel className="text-[12px] font-normal text-muted-foreground">{tr("حالة الشحنة")}</DropdownMenuLabel>
             {MANUAL_STATUSES.map((s) => (
               <DropdownMenuItem
                 key={s}
                 disabled={s === shipment.status}
                 onSelect={() => run(() => UpdateShipmentStatusAction(shipment.id, s))}
-                className="gap-2"
+                className="h-9 gap-2.5 rounded-lg text-[15px]"
               >
-                <span aria-hidden className={cn("size-1.5 rounded-full", toneDot(SHIPMENT_STATUS_META[s].tone))} />
-                {SHIPMENT_STATUS_META[s].label}
-                {s === shipment.status && <Check className="ms-auto size-3.5" />}
+                <Check className={cn("size-4 text-primary", s !== shipment.status && "invisible")} strokeWidth={2.4} />
+                <span className="flex-1">{SHIPMENT_STATUS_META[s].label}</span>
+                <Dot tone={SHIPMENT_STATUS_META[s].tone} />
               </DropdownMenuItem>
             ))}
             {!closed && (
-              <DropdownMenuItem onSelect={() => setConfirmCancel("carrier")} className="gap-2 text-destructive focus:text-destructive">
-                <XCircle className="size-3.5" />
+              <DropdownMenuItem variant="destructive" onSelect={() => setConfirmCancel("carrier")} className="h-9 gap-2.5 rounded-lg text-[15px]">
+                <XCircle className="size-4" />
                 {tr("إلغاء الشحنة")}
               </DropdownMenuItem>
             )}
@@ -379,48 +364,43 @@ function ShipmentDetails({ shipment }: { shipment: ShipmentView }) {
           <CarrierMark carrier={shipment.provider} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-semibold">{shipment.courierName}</p>
-              <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
+              <p className="text-[17px] leading-[22px] font-semibold">{shipment.courierName}</p>
+              <Tag tone={meta.tone}>{meta.label}</Tag>
             </div>
             {shipment.trackingNumber ? (
-              <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+              <p className="inline-flex items-center gap-0.5 text-[13px] text-muted-foreground">
                 <span className="font-mono" dir="ltr">
                   {shipment.trackingNumber}
                 </span>
-                <CopyButton value={shipment.trackingNumber} label={tr("رقم التتبع")} className="size-6" />
+                <CopyButton value={shipment.trackingNumber} label={tr("رقم التتبع")} className="size-7" />
               </p>
             ) : (
-              <p className="text-xs text-muted-foreground">{tr("من غير رقم تتبع")}</p>
+              <p className="text-[13px] text-muted-foreground">{tr("من غير رقم تتبع")}</p>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
             {shipment.labelUrl && (
-              <Button asChild variant="outline" size="sm" className="h-8 gap-1.5">
-                <a href={shipment.labelUrl} target="_blank" rel="noreferrer">
-                  <Printer className="size-3.5" />
-                  {tr("البوليصة")}
-                </a>
-              </Button>
+              <a href={shipment.labelUrl} target="_blank" rel="noreferrer" className={small}>
+                <Printer className="size-3.5" />
+                {tr("البوليصة")}
+              </a>
             )}
             {shipment.trackingUrl && (
-              <Button asChild variant="outline" size="sm" className="h-8 gap-1.5">
-                <a href={shipment.trackingUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="size-3.5" />
-                  {tr("تتبّع")}
-                </a>
-              </Button>
+              <a href={shipment.trackingUrl} target="_blank" rel="noreferrer" className={small}>
+                <ExternalLink className="size-3.5" />
+                {tr("تتبّع")}
+              </a>
             )}
             {shipment.isApi && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1.5"
+              <button
+                type="button"
+                className={small}
                 disabled={isPending}
                 onClick={() => run(() => SyncShipmentAction(shipment.id))}
               >
                 <RefreshCw className={cn("size-3.5", isPending && "animate-spin")} />
                 {tr("تحديث")}
-              </Button>
+              </button>
             )}
           </div>
         </div>
@@ -431,8 +411,8 @@ function ShipmentDetails({ shipment }: { shipment: ShipmentView }) {
         ) : (
           <p
             className={cn(
-              "rounded-lg px-3 py-2 text-sm",
-              shipment.status === "RETURNED" ? "bg-rose-500/10 text-rose-700 dark:text-rose-400" : "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+              "rounded-xl px-3.5 py-2.5 text-[13px] leading-5",
+              shipment.status === "RETURNED" ? "bg-(--sys-red)/12" : "bg-(--sys-orange)/12",
             )}
           >
             {shipment.status === "RETURNED"
@@ -442,41 +422,40 @@ function ShipmentDetails({ shipment }: { shipment: ShipmentView }) {
         )}
 
         {/* Money */}
-        <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border text-sm sm:grid-cols-3">
-          <div className="bg-card px-3 py-2.5">
-            <dt className="text-xs text-muted-foreground">{tr("التحصيل")}</dt>
-            <dd className="font-semibold tabular-nums">{codDue ? money.format(shipment.codAmount / 100) : tr("مدفوع مسبقًا")}</dd>
+        <dl className="grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl bg-background px-3.5 py-2.5">
+            <dt className="text-[12px] text-muted-foreground">{tr("التحصيل")}</dt>
+            <dd className="text-[17px] leading-6 font-semibold tabular-nums">{codDue ? money.format(shipment.codAmount / 100) : tr("مدفوع مسبقًا")}</dd>
           </div>
-          <div className="bg-card px-3 py-2.5">
-            <dt className="text-xs text-muted-foreground">{tr("تكلفة الشحن")}</dt>
-            <dd className="font-semibold tabular-nums">{shipment.cost !== null ? money.format(shipment.cost / 100) : "—"}</dd>
+          <div className="rounded-xl bg-background px-3.5 py-2.5">
+            <dt className="text-[12px] text-muted-foreground">{tr("تكلفة الشحن")}</dt>
+            <dd className="text-[17px] leading-6 font-semibold tabular-nums">{shipment.cost !== null ? money.format(shipment.cost / 100) : "—"}</dd>
           </div>
-          <div className="flex items-center justify-between gap-2 bg-card px-3 py-2.5">
+          <div className="flex items-center justify-between gap-2 rounded-xl bg-background px-3.5 py-2.5">
             <div>
-              <dt className="text-xs text-muted-foreground">{tr("فلوس التحصيل")}</dt>
-              <dd className="font-medium">
+              <dt className="text-[12px] text-muted-foreground">{tr("فلوس التحصيل")}</dt>
+              <dd className="text-[17px] leading-6 font-semibold">
                 {!codDue ? (
                   "—"
                 ) : shipment.codCollectedAt ? (
-                  <span className="text-emerald-700 dark:text-emerald-400">{tr("وصلتك")}</span>
+                  <span className="inline-flex items-center gap-1.5"><Dot tone="success" />{tr("وصلتك")}</span>
                 ) : shipment.status === "DELIVERED" ? (
-                  <span className="text-amber-700 dark:text-amber-400">{tr("عند الشركة")}</span>
+                  <span className="inline-flex items-center gap-1.5"><Dot tone="warning" />{tr("عند الشركة")}</span>
                 ) : (
                   <span className="text-muted-foreground">{tr("لسه")}</span>
                 )}
               </dd>
             </div>
             {codDue && shipment.status === "DELIVERED" && (
-              <Button
-                variant={shipment.codCollectedAt ? "ghost" : "outline"}
-                size="sm"
-                className="h-7 gap-1 px-2 text-xs"
+              <button
+                type="button"
+                className={cn(small, "bg-card", shipment.codCollectedAt ? "text-muted-foreground" : "text-primary")}
                 disabled={isPending}
                 onClick={() => run(() => MarkCodCollectedAction([shipment.id], !shipment.codCollectedAt))}
               >
                 <Banknote className="size-3.5" />
                 {shipment.codCollectedAt ? tr("تراجع") : tr("استلمتها")}
-              </Button>
+              </button>
             )}
           </div>
         </dl>
@@ -484,25 +463,25 @@ function ShipmentDetails({ shipment }: { shipment: ShipmentView }) {
         {/* Timeline */}
         {events.length > 0 && (
           <div>
-            <p className="mb-2 flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <p className="mb-3 flex items-center justify-between px-1 text-[13px] text-muted-foreground">
               <span>{tr("سجل الشحنة")}</span>
               {shipment.lastSyncedAt && <span>{tr("آخر تحديث {0}", when.format(new Date(shipment.lastSyncedAt)))}</span>}
             </p>
-            <ol className="relative space-y-3 border-s border-border ps-4">
+            <ol className="relative ms-1 space-y-3.5 border-s-2 border-muted ps-4">
               {events.slice(0, 8).map((e, i) => (
                 <li key={`${e.at}-${i}`} className="relative">
                   <span
                     aria-hidden
                     className={cn(
-                      "absolute -start-[1.3rem] top-1.5 size-2 rounded-full ring-4 ring-card",
-                      i === 0 ? toneDot(SHIPMENT_STATUS_META[e.status]?.tone ?? "neutral") : "bg-muted-foreground/40",
+                      "absolute -start-[1.4rem] top-1.5 size-2.5 rounded-full ring-4 ring-card",
+                      i === 0 ? toneDotClass(SHIPMENT_STATUS_META[e.status]?.tone ?? "neutral") : "bg-(--label-3)",
                     )}
                   />
-                  <p className="text-sm">
-                    <span className="font-medium">{SHIPMENT_STATUS_META[e.status]?.label ?? e.status}</span>
+                  <p className="text-[15px] leading-5">
+                    <span className="font-semibold">{SHIPMENT_STATUS_META[e.status]?.label ?? e.status}</span>
                     {e.note && <span className="text-muted-foreground"> — {e.note}</span>}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[12px] text-muted-foreground">
                     {when.format(new Date(e.at))}
                     {e.location && ` · ${e.location}`}
                     {e.source === "carrier" && tr(" · من الشركة")}
@@ -515,7 +494,7 @@ function ShipmentDetails({ shipment }: { shipment: ShipmentView }) {
       </div>
 
       <AlertDialog open={confirmCancel !== null} onOpenChange={(open) => !open && setConfirmCancel(null)}>
-        <AlertDialogContent dir={tdir()}>
+        <AlertDialogContent dir={tdir()} className="rounded-[22px]">
           <AlertDialogHeader>
             <AlertDialogTitle>{confirmCancel === "local" ? tr("تلغيها في كاشو بس؟") : tr("تلغي الشحنة؟")}</AlertDialogTitle>
             <AlertDialogDescription>
@@ -527,9 +506,9 @@ function ShipmentDetails({ shipment }: { shipment: ShipmentView }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-full">{tr("رجوع")}</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="rounded-full bg-(--sys-red) text-white hover:bg-(--sys-red)/90"
               onClick={() => {
                 const localOnly = confirmCancel === "local";
                 setConfirmCancel(null);

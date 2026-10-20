@@ -3,15 +3,14 @@ import type { Metadata } from "next";
 import { Package, Plus, SearchX, Store, Upload } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
+  Segmented,
   SearchInput,
   SelectFilter,
+  Unavailable,
+  appleButton,
   readPage,
   type SearchParamsRecord,
 } from "@/components/saas-page";
@@ -48,12 +47,13 @@ export default async function ProductsRoute({ searchParams }: ProductsRouteProps
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول عشان تضيف منتجاتك وتبدأ تبيع.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card" dir={tdir()}>
+        <Unavailable
+          icon={Store}
+          title={tr("لسه معندكش متجر")}
+          description={tr("أنشئ متجرك الأول عشان تضيف منتجاتك وتبدأ تبيع.")}
+        />
+      </div>
     );
   }
 
@@ -133,59 +133,52 @@ export default async function ProductsRoute({ searchParams }: ProductsRouteProps
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("المنتجات")}
-        description={tr("كل منتجاتك في مكان واحد: الأسعار، المخزون، وإيه اللي ظاهر في المتجر.")}
+        subtitle={tr("كل منتجاتك في مكان واحد: الأسعار، المخزون، وإيه اللي ظاهر في المتجر.")}
         actions={
           <>
-            <Button asChild variant="outline" className="h-9 gap-1.5">
-              <Link href="/products/import">
-                <Upload className="size-4" />
-                {tr("استيراد")}
-              </Link>
-            </Button>
-            <Button asChild className="h-9 gap-1.5">
-              <Link href="/products/new">
-                <Plus className="size-4" />
-                {tr("إضافة منتج")}
-              </Link>
-            </Button>
+            <Link href="/products/import" className={appleButton.gray}>
+              <Upload className="size-4 text-muted-foreground" />
+              {tr("استيراد")}
+            </Link>
+            {/* The one prominent action on the page. */}
+            <Link href="/products/new" className={appleButton.filled}>
+              <Plus className="size-4" strokeWidth={2.4} />
+              {tr("إضافة منتج")}
+            </Link>
           </>
         }
       />
 
       {storeProductCount === 0 ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={Package}
             title={tr("لسه مضفتش منتجات")}
             description={tr("ضيف أول منتج بالصور والسعر والكمية، أو استورد منتجاتك مرة واحدة من ملف Excel أو CSV.")}
             action={
               <div className="flex flex-wrap justify-center gap-2">
-                <Button asChild variant="outline" size="sm" className="gap-1.5">
-                  <Link href="/products/import">
-                    <Upload className="size-4" />
-                    {tr("استيراد من ملف")}
-                  </Link>
-                </Button>
-                <Button asChild size="sm" className="gap-1.5">
-                  <Link href="/products/new">
-                    <Plus className="size-4" />
-                    {tr("إضافة أول منتج")}
-                  </Link>
-                </Button>
+                <Link href="/products/import" className={`${appleButton.tinted} text-primary`}>
+                  <Upload className="size-4" />
+                  {tr("استيراد من ملف")}
+                </Link>
+                <Link href="/products/new" className={`${appleButton.filled} h-9 px-4`}>
+                  <Plus className="size-4" strokeWidth={2.4} />
+                  {tr("إضافة أول منتج")}
+                </Link>
               </div>
             }
           />
         </div>
       ) : (
         <div className="space-y-4">
-          <FilterTabs
+          <Segmented
             label={tr("عرض المنتجات")}
             param="view"
             basePath={BASE_PATH}
             searchParams={params}
-            tabs={[
+            segments={[
               { label: tr("الكل"), count: allCount },
               { label: tr("ظاهر في المتجر"), value: "active", count: activeCount },
               { label: tr("مخفي"), value: "hidden", count: hiddenCount },
@@ -194,23 +187,47 @@ export default async function ProductsRoute({ searchParams }: ProductsRouteProps
             ]}
           />
 
-          <DataCard
-            toolbar={
-              <>
-                <SearchInput placeholder={tr("ابحث بالاسم أو SKU أو الباركود")} />
-                {categories.length > 0 && (
-                  <SelectFilter
-                    label={tr("التصنيف")}
-                    param="category"
-                    allLabel={tr("كل التصنيفات")}
-                    options={categories.map((c) => ({ value: c.id, label: c.name }))}
-                  />
-                )}
-              </>
-            }
-            footer={
-              listTotal > 0 ? (
-                <Pagination
+          <section className="apple-card overflow-hidden">
+            <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <SearchInput
+                placeholder={tr("ابحث بالاسم أو SKU أو الباركود")}
+                className="sm:max-w-sm"
+                inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
+              />
+              {categories.length > 0 && (
+                <SelectFilter
+                  label={tr("التصنيف")}
+                  param="category"
+                  allLabel={tr("كل التصنيفات")}
+                  className="h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-44"
+                  options={categories.map((c) => ({ value: c.id, label: c.name }))}
+                />
+              )}
+            </div>
+
+            {rows.length > 0 ? (
+              <ProductsTable products={rows} storeSlug={store.slug} />
+            ) : (
+              <Unavailable
+                icon={SearchX}
+                title={tr("مفيش منتجات بالفلاتر دي")}
+                description={
+                  filters.q ? tr("مفيش نتايج لـ \"{0}\". جرّب اسم أو SKU تاني.", filters.q) : tr("جرّب تبويب أو تصنيف تاني.")
+                }
+                className="border-t-[0.5px] border-border"
+                action={
+                  hasFilters && (
+                    <Link href={BASE_PATH} className={appleButton.tinted}>
+                      {tr("مسح الفلاتر")}
+                    </Link>
+                  )
+                }
+              />
+            )}
+
+            {listTotal > 0 && (
+              <div className="border-t-[0.5px] border-border">
+                <Pager
                   page={page}
                   pageSize={PAGE_SIZE}
                   total={listTotal}
@@ -218,28 +235,9 @@ export default async function ProductsRoute({ searchParams }: ProductsRouteProps
                   searchParams={params}
                   noun={tr("منتج")}
                 />
-              ) : undefined
-            }
-          >
-            {rows.length > 0 ? (
-              <ProductsTable products={rows} storeSlug={store.slug} />
-            ) : (
-              <EmptyState
-                icon={SearchX}
-                title={tr("مفيش منتجات بالفلاتر دي")}
-                description={
-                  filters.q ? tr("مفيش نتايج لـ \"{0}\". جرّب اسم أو SKU تاني.", filters.q) : tr("جرّب تبويب أو تصنيف تاني.")
-                }
-                action={
-                  hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
-                  )
-                }
-              />
+              </div>
             )}
-          </DataCard>
+          </section>
         </div>
       )}
     </div>

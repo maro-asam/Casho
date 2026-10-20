@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { ShoppingBag } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { DEFAULT_SECTION_ORDER, type SectionKey } from "@/types/store-theme.types";
 import SectionRenderer from "../../../_components/sections/SectionRenderer";
+import { StudioAnchor } from "../../shared/studio-anchor";
 import type { HomeViewProps, ProductCardData } from "../../types";
 import { ProductGrid } from "../product/ProductCard";
 import ProductRail from "../product/ProductRail";
@@ -166,34 +167,45 @@ export default function ClassicHome({
     ) : null,
   };
 
+  // One home section; null when it is off or has nothing to show.
+  const renderSection = (key: SectionKey) => {
+    if (key in core) {
+      const node = core[key];
+      return node ? <Container key={key}>{node}</Container> : null;
+    }
+
+    if (!sections[key as keyof typeof sections]) return null;
+
+    // Merchant-configured content sections (offer strip is full-bleed)
+    const content = (
+      <SectionRenderer
+        sectionKey={key}
+        store={store}
+        sectionContent={sectionContent}
+        categories={categories}
+      />
+    );
+    return key === "showOfferStrip" ? (
+      <div key={key} className="my-[calc(var(--c-section-y)/2)]">
+        {content}
+      </div>
+    ) : (
+      <Container key={key} className="c-section">
+        {content}
+      </Container>
+    );
+  };
+
   return (
     <div className="pb-4">
       {order.map((key) => {
-        if (key in core) {
-          const node = core[key];
-          return node ? <Container key={key}>{node}</Container> : null;
-        }
-
-        if (!sections[key as keyof typeof sections]) return null;
-
-        // Merchant-configured content sections (offer strip is full-bleed)
-        const content = (
-          <SectionRenderer
-            sectionKey={key}
-            store={store}
-            sectionContent={sectionContent}
-            categories={categories}
-          />
-        );
-        return key === "showOfferStrip" ? (
-          <div key={key} className="my-[calc(var(--c-section-y)/2)]">
-            {content}
-          </div>
-        ) : (
-          <Container key={key} className="c-section">
-            {content}
-          </Container>
-        );
+        const node = renderSection(key);
+        return node ? (
+          <Fragment key={key}>
+            <StudioAnchor id={key} />
+            {node}
+          </Fragment>
+        ) : null;
       })}
     </div>
   );

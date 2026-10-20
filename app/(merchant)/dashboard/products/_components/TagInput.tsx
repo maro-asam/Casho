@@ -44,13 +44,13 @@ export default function TagInput({
   return (
     <div className="space-y-1.5">
       <div
-        className="flex min-h-10 cursor-text flex-wrap items-center gap-1.5 rounded-xl border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring"
+        className="apple-field flex min-h-11 cursor-text flex-wrap items-center gap-1.5 px-2 py-1.5"
         onClick={() => inputRef.current?.focus()}
       >
         {tags.map((tag) => (
           <span
             key={tag}
-            className="flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-0.5 text-sm text-primary"
+            className="flex h-7 items-center gap-1 rounded-full bg-card ps-3 pe-1 text-[13px] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
           >
             {tag}
             <button
@@ -59,16 +59,17 @@ export default function TagInput({
                 e.stopPropagation();
                 removeTag(tag);
               }}
-              className="text-primary/50 hover:text-primary"
+              aria-label={tr("شيل {0}", tag)}
+              className="grid size-5 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              <X className="size-3" />
+              <X className="size-3" strokeWidth={2.4} />
             </button>
           </span>
         ))}
         <input
           ref={inputRef}
           type="text"
-          className="min-w-20 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          className="min-w-20 flex-1 bg-transparent px-1.5 text-[15px] outline-none placeholder:text-muted-foreground"
           placeholder={tags.length === 0 ? placeholder : tr("أضف المزيد...")}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -82,7 +83,7 @@ export default function TagInput({
         />
         <input type="hidden" name={name} value={tags.join(", ")} />
       </div>
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      {hint && <p className="px-1 text-[12px] text-muted-foreground">{hint}</p>}
     </div>
   );
 }

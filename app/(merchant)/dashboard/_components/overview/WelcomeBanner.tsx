@@ -1,70 +1,88 @@
 import Link from "next/link";
-import { ArrowLeft, Quote, Video } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { formatMoney, formatNumber } from "./format";
+import { ChevronLeft, Video } from "lucide-react";
+import DeltaBadge from "./DeltaBadge";
+import { formatMoney, formatNumber, percentChange } from "./format";
 import { tr } from "@/lib/i18n/dashboard";
+
+type DayTotals = { revenue: number; orders: number; visits: number };
 
 type Props = {
   greeting: string;
   storeName: string;
   quote: string;
-  today: { revenue: number; orders: number; visits: number };
+  today: DayTotals;
+  yesterday: DayTotals;
   /** Set for merchants in their first days — swaps today's numbers for an onboarding call offer. */
   onboarding: { href: string; external: boolean } | null;
 };
 
-export default function WelcomeBanner({ greeting, storeName, quote, today, onboarding }: Props) {
+/** Change vs yesterday; two empty days read as "flat" rather than "new". */
+function dayDelta(today: number, yesterday: number) {
+  if (today === 0 && yesterday === 0) return 0;
+  return percentChange(today, yesterday);
+}
+
+export default function WelcomeBanner({ greeting, storeName, quote, today, yesterday, onboarding }: Props) {
+  const stats = [
+    { label: tr("إيرادات النهارده"), value: formatMoney(today.revenue), delta: dayDelta(today.revenue, yesterday.revenue) },
+    { label: tr("طلبات النهارده"), value: formatNumber(today.orders), delta: dayDelta(today.orders, yesterday.orders) },
+    { label: tr("زيارات النهارده"), value: formatNumber(today.visits), delta: dayDelta(today.visits, yesterday.visits) },
+  ];
+
   return (
     <section
       aria-label={tr("رسالة ترحيب")}
-      className="grid gap-6 rounded-xl bg-primary p-6 text-primary-foreground sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center"
+      className="apple-card relative isolate flex flex-col gap-5 overflow-hidden px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8"
     >
-      <div className="min-w-0 space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          {tr("{0}،", greeting)}{" "}<span className="font-bold">{storeName}</span>
-        </h2>
+      {/* Ambient brand glow behind the greeting — depth from light, not borders. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -start-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl dark:bg-primary/15"
+      />
 
-        <figure className="flex max-w-2xl items-start gap-3">
-          <Quote className="mt-1 size-5 shrink-0 -scale-x-100 text-primary-foreground/60" aria-hidden />
-          <div>
-            <figcaption className="text-xs font-medium text-primary-foreground/70">{tr("جملة النهارده")}</figcaption>
-            <blockquote className="mt-1 text-base font-medium leading-8 sm:text-lg">{quote}</blockquote>
-          </div>
-        </figure>
+      <div className="min-w-0">
+        <h2 className="flex flex-wrap items-baseline gap-x-2">
+          <span className="text-[15px] font-semibold text-muted-foreground">{tr("{0}،", greeting)}</span>
+          <span
+            // pb + generous leading keep Arabic descenders inside the clipped gradient.
+            className="apple-gradient-text min-w-0 truncate pb-1 text-[26px] leading-[1.3] font-bold ltr:tracking-[-0.02em]"
+          >
+            {storeName}
+          </span>
+        </h2>
+        <p className="mt-0.5 line-clamp-2 max-w-xl text-[14px] leading-6 text-muted-foreground lg:line-clamp-1">
+          <span className="sr-only">{tr("جملة النهارده")}: </span>
+          {quote}
+        </p>
       </div>
 
       {onboarding ? (
-        <div className="rounded-lg bg-primary-foreground/10 p-5 lg:w-80">
-          <div className="flex items-center gap-2 text-sm font-semibold">
+        <div className="flex shrink-0 items-center gap-3 rounded-2xl bg-background p-2 ps-3">
+          <span className="grid size-[29px] shrink-0 place-items-center rounded-[7px] bg-(--sys-indigo) text-white">
             <Video className="size-4" />
-            {tr("أول مرة معانا؟")}
+          </span>
+          <div className="min-w-0">
+            <p className="text-[14px] font-semibold">{tr("أول مرة معانا؟")}</p>
+            <p className="text-[12px] text-muted-foreground">{tr("احجز مكالمة زووم مجانية مع فريق كاشو")}</p>
           </div>
-          <p className="mt-2 text-sm leading-6 text-primary-foreground/85">
-            {tr("احجز مكالمة زووم مجانية مع فريق كاشو — هنشرحلك المنصة خطوة بخطوة ونجهّز متجرك سوا.")}
-          </p>
-          <Button
-            asChild
-            className="mt-4 h-10 w-full gap-1.5 bg-primary-foreground font-semibold text-primary hover:bg-primary-foreground/90"
+          <Link
+            href={onboarding.href}
+            {...(onboarding.external ? { target: "_blank", rel: "noreferrer" } : {})}
+            className="apple-press flex h-9 shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-4 text-[14px] font-semibold text-primary hover:bg-primary/15"
           >
-            <Link
-              href={onboarding.href}
-              {...(onboarding.external ? { target: "_blank", rel: "noreferrer" } : {})}
-            >
-              {tr("احجز ميعادك")}
-              <ArrowLeft className="size-4 ltr:-scale-x-100" />
-            </Link>
-          </Button>
+            {tr("احجز ميعادك")}
+            <ChevronLeft className="size-4 ltr:-scale-x-100" />
+          </Link>
         </div>
       ) : (
-        <dl className="grid grid-cols-3 divide-x divide-primary-foreground/15 rounded-lg bg-primary-foreground/10 py-4 rtl:divide-x-reverse lg:w-96">
-          {[
-            { label: tr("إيرادات النهارده"), value: formatMoney(today.revenue) },
-            { label: tr("طلبات النهارده"), value: formatNumber(today.orders) },
-            { label: tr("زيارات النهارده"), value: formatNumber(today.visits) },
-          ].map((stat) => (
-            <div key={stat.label} className="px-4 text-center">
-              <dt className="text-xs text-primary-foreground/70">{stat.label}</dt>
-              <dd className="mt-1 text-lg font-bold tabular-nums">{stat.value}</dd>
+        <dl className="grid shrink-0 grid-cols-3 rounded-2xl bg-background py-3 lg:min-w-[27rem]">
+          {stats.map((stat, i) => (
+            <div key={stat.label} className={i > 0 ? "min-w-0 border-s border-border px-4" : "min-w-0 px-4"}>
+              <dt className="truncate text-[12px] text-muted-foreground">{stat.label}</dt>
+              <dd className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                <span className="truncate text-[19px] leading-6 font-bold tabular-nums">{stat.value}</span>
+                <DeltaBadge value={stat.delta} className="px-1.5 text-[11px]" />
+              </dd>
             </div>
           ))}
         </dl>

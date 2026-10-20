@@ -5,8 +5,8 @@ import Image from "next/image";
 import { ImagePlus, Link2, Loader2, Star, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { appleButton } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import { tr } from "@/lib/i18n/dashboard";
@@ -99,13 +99,13 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
           <div
             key={`${src}-${i}`}
             className={cn(
-              "group relative overflow-hidden rounded-lg border border-border bg-muted",
+              "group relative overflow-hidden rounded-xl bg-muted",
               i === 0 ? "col-span-2 row-span-2 aspect-square" : "aspect-square",
             )}
           >
             <Image src={src} alt={i === 0 ? tr("الصورة الأساسية") : tr("صورة {0}", i + 1)} fill sizes="200px" className="object-cover" unoptimized />
             {i === 0 && (
-              <span className="absolute inset-s-2 top-2 rounded-md bg-background/90 px-1.5 py-0.5 text-[11px] font-medium shadow-sm">
+              <span className="absolute inset-s-2 top-2 rounded-full bg-black/45 px-2 py-0.5 text-[12px] font-medium text-white backdrop-blur-md">
                 {tr("الأساسية")}
               </span>
             )}
@@ -116,7 +116,7 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
                   onClick={() => makeMain(i)}
                   aria-label={tr("خليها الصورة الأساسية")}
                   title={tr("خليها الأساسية")}
-                  className="grid size-7 place-items-center rounded-md bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background"
+                  className="apple-press grid size-8 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md hover:bg-black/60"
                 >
                   <Star className="size-3.5" />
                 </button>
@@ -125,7 +125,7 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
                 type="button"
                 onClick={() => remove(i)}
                 aria-label={tr("شيل الصورة")}
-                className="grid size-7 place-items-center rounded-md bg-background/90 text-foreground shadow-sm transition-colors hover:bg-destructive hover:text-white"
+                className="apple-press grid size-8 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md hover:bg-(--sys-red)"
               >
                 <X className="size-3.5" />
               </button>
@@ -136,7 +136,7 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
         {Array.from({ length: uploadingCount }).map((_, i) => (
           <div
             key={`uploading-${i}`}
-            className="grid aspect-square place-items-center rounded-lg border border-dashed border-border bg-muted/40"
+            className="grid aspect-square place-items-center rounded-xl bg-background"
           >
             <Loader2 className="size-5 animate-spin text-muted-foreground" />
           </div>
@@ -144,17 +144,17 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
 
         <label
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed text-center transition-colors",
-            images.length === 0 && uploadingCount === 0 ? "min-h-40 px-6 py-8" : "aspect-square",
-            dragging ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50",
+            "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed text-center transition-colors duration-200 ease-(--ease-apple) focus-within:ring-2 focus-within:ring-primary/40",
+            images.length === 0 && uploadingCount === 0 ? "min-h-44 px-6 py-8" : "aspect-square",
+            dragging ? "border-primary bg-primary/8" : "border-(--label-3)/60 bg-background hover:bg-muted/60",
           )}
         >
-          <ImagePlus className="size-5 text-muted-foreground" />
-          <span className="text-sm font-medium">
+          <ImagePlus className="size-7 text-primary" strokeWidth={1.6} />
+          <span className="text-[15px] text-primary">
             {images.length === 0 ? tr("اسحب الصور هنا أو دوس للاختيار") : tr("ضيف صور")}
           </span>
           {images.length === 0 && (
-            <span className="text-xs text-muted-foreground">{tr("PNG أو JPG أو WEBP · أول صورة هتبقى الأساسية")}</span>
+            <span className="text-[12px] text-muted-foreground">{tr("PNG أو JPG أو WEBP · أول صورة هتبقى الأساسية")}</span>
           )}
           <input
             type="file"
@@ -184,20 +184,19 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
               }
             }}
             placeholder="https://example.com/image.jpg"
-            className="h-9"
           />
-          <Button type="button" variant="outline" className="h-9" onClick={addUrl}>
+          <button type="button" className={cn(appleButton.tinted, "h-11 text-primary")} onClick={addUrl}>
             {tr("إضافة")}
-          </Button>
-          <Button type="button" variant="ghost" className="h-9" onClick={() => setUrlOpen(false)}>
+          </button>
+          <button type="button" className={cn(appleButton.plain, "mx-0 h-11")} onClick={() => setUrlOpen(false)}>
             {tr("إلغاء")}
-          </Button>
+          </button>
         </div>
       ) : (
         <button
           type="button"
           onClick={() => setUrlOpen(true)}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className={cn(appleButton.plain, "mx-0 -ms-2 h-8 text-[13px]")}
         >
           <Link2 className="size-4" />
           {tr("أو ضيف صورة من لينك")}

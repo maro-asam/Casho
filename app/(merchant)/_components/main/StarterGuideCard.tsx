@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, CreditCard, ImageIcon, Package, Rocket, Tag, Truck, Wallet, X } from "lucide-react";
+import { Check, ChevronLeft, CreditCard, ImageIcon, Package, Rocket, Tag, Truck, Wallet, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -70,15 +70,15 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
   }
 
   return (
-    <section aria-labelledby="setup-guide-title" className="rounded-xl border border-border bg-card">
-      <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
+    <section aria-labelledby="setup-guide-title" className="apple-card overflow-hidden">
+      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 id="setup-guide-title" className="text-base font-semibold">
+              <h2 id="setup-guide-title" className="text-[17px] leading-[22px] font-semibold">
                 {tr("جهّز متجرك للبيع")}
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[13px] text-muted-foreground">
                 {tr("خلصت {0} من {1} خطوات", completedCount, steps.length)}
               </p>
             </div>
@@ -86,7 +86,7 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
               type="button"
               variant="ghost"
               size="icon"
-              className="size-8 shrink-0 text-muted-foreground sm:hidden"
+              className="size-8 shrink-0 rounded-full bg-muted text-muted-foreground sm:hidden"
               onClick={hide}
               aria-label={tr("إخفاء دليل الإعداد")}
             >
@@ -101,22 +101,23 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
             aria-valuemax={100}
             aria-label={tr("نسبة جاهزية المتجر")}
           >
-            <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${progress}%` }} />
+            <div className="h-full rounded-full bg-(--sys-green) transition-[width] duration-500" style={{ width: `${progress}%` }} />
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button asChild size="sm" className="gap-1.5">
-            <Link href={nextStep.href}>
-              {tr("التالي: {0}", nextStep.title)}
-              <ArrowLeft className="size-3.5 ltr:-scale-x-100" />
-            </Link>
-          </Button>
+          <Link
+            href={nextStep.href}
+            className="apple-press flex h-9 items-center gap-1 rounded-full bg-primary/10 px-4 text-[15px] font-semibold text-primary hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {tr("التالي: {0}", nextStep.title)}
+            <ChevronLeft className="size-4 ltr:-scale-x-100" />
+          </Link>
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="hidden size-8 text-muted-foreground sm:inline-flex"
+            className="hidden size-8 rounded-full bg-muted text-muted-foreground sm:inline-flex"
             onClick={hide}
             aria-label={tr("إخفاء دليل الإعداد")}
           >
@@ -125,9 +126,9 @@ export default function StarterGuideBar({ steps }: { steps: StarterGuideStep[] }
         </div>
       </div>
 
-      <ol className="grid gap-px bg-border sm:grid-cols-2 xl:grid-cols-4 [&>li:last-child]:rounded-b-xl">
+      <ol className="grid gap-2 px-3 pb-3 sm:grid-cols-2 xl:grid-cols-4">
         {steps.map((step) => (
-          <li key={step.id} className="bg-card">
+          <li key={step.id}>
             <GuideStep step={step} isNext={step.id === nextStep.id} />
           </li>
         ))}
@@ -142,14 +143,14 @@ function GuideStep({ step, isNext }: { step: StarterGuideStep; isNext: boolean }
   return (
     <Link
       href={step.href}
-      className="group flex h-full items-start gap-3 p-4 transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
+      className="apple-press group flex h-full items-start gap-3 rounded-[16px] bg-background p-3.5 hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
     >
       <span
         className={cn(
-          "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border",
-          step.completed && "border-emerald-500 bg-emerald-500 text-white",
-          !step.completed && isNext && "border-primary text-primary",
-          !step.completed && !isNext && "border-border text-muted-foreground",
+          "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full",
+          step.completed && "bg-(--sys-green) text-white",
+          !step.completed && isNext && "bg-primary text-primary-foreground",
+          !step.completed && !isNext && "bg-muted text-muted-foreground",
         )}
       >
         {step.completed ? <Check className="size-3.5" strokeWidth={3} /> : <Icon className="size-3" />}
@@ -157,13 +158,13 @@ function GuideStep({ step, isNext }: { step: StarterGuideStep; isNext: boolean }
       <span className="min-w-0">
         <span
           className={cn(
-            "block text-sm font-medium",
+            "block text-[15px] leading-5",
             step.completed && "text-muted-foreground line-through decoration-muted-foreground/40",
           )}
         >
           {step.title}
         </span>
-        <span className="mt-0.5 line-clamp-2 block text-xs leading-5 text-muted-foreground">{step.description}</span>
+        <span className="mt-0.5 line-clamp-2 block text-[13px] leading-[18px] text-muted-foreground">{step.description}</span>
       </span>
     </Link>
   );

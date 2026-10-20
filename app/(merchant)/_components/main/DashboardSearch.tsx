@@ -81,12 +81,12 @@ export default function DashboardSearch() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={tr("بحث سريع")}
-        className="grid size-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:flex md:h-9 md:w-56 md:items-center md:gap-2 md:border md:border-input md:bg-muted/40 md:px-3 lg:w-64"
+        className="apple-press grid size-10 place-items-center rounded-full text-foreground/80 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:flex md:h-9 md:w-56 md:items-center md:gap-2 md:bg-muted md:px-3.5 md:text-muted-foreground lg:w-64"
       >
         <Search className="size-4 shrink-0" />
         <span className="hidden flex-1 text-start text-sm md:block">{tr("ابحث عن صفحة...")}</span>
         <kbd
-          className="hidden rounded border border-border bg-background px-1.5 py-0.5 font-sans text-[10px] font-medium md:block"
+          className="hidden rounded-md bg-background/70 px-1.5 py-0.5 font-sans text-[10px] font-medium md:block"
           dir="ltr"
           suppressHydrationWarning
         >

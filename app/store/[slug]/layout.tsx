@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import { buildThemeCSSString } from "@/lib/theme/build-css-vars";
 import { StoreThemeProvider } from "./_context/StoreThemeContext";
@@ -18,6 +19,7 @@ import { StoreConversionLayer } from "./_components/conversion/StoreConversionLa
 import { StorePixels } from "./_components/pixels/StorePixels";
 import { hasAnyPixel, isValidPixelId, type StorePixelConfig } from "@/lib/pixels/shared";
 import { getStorefrontTheme } from "./_themes";
+import { StudioAnchor } from "./_themes/shared/studio-anchor";
 import type { StoreShell } from "./_themes/types";
 import { getStoreCategoryLinks, liveBannersQuery, toBannerData } from "./_lib/storefront";
 
@@ -174,6 +176,8 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   });
 
   if (!store) return notFound();
+  // The owner previewing in the Studio sees their unpublished draft.
+  store.settings = await withStudioDraft(store.id, store.settings);
 
   // ── Resolve theme ──────────────────────────────────────────────────────
   // Priority (highest → lowest):
@@ -273,13 +277,17 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           >
             انتقل للمحتوى
           </a>
+          <StudioAnchor id="header" />
           <theme.Header shell={shell} />
+          <StudioAnchor id="__end" />
 
           <main id="store-main" className="flex-1">
             {children}
           </main>
 
+          <StudioAnchor id="footer" />
           <theme.Footer shell={shell} />
+          <StudioAnchor id="__end" />
 
           <StoreConversionLayer
             storeId={store.id}

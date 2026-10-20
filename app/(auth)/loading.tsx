@@ -1,85 +1,42 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Mirrors AuthSplit: form on the grouped background, dark showcase panel on desktop.
 export default function AuthLoading() {
   return (
-    <div dir="rtl" className="flex min-h-screen">
-      {/* Form panel (right in RTL) */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 md:px-10">
-        <div className="w-full max-w-104 space-y-7">
-          {/* Mobile logo */}
-          <div className="flex justify-center lg:hidden">
-            <Skeleton className="size-11 rounded-xl" />
+    <div dir="rtl" className="apple-ui grid min-h-svh bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]" aria-busy="true">
+      <div className="flex min-h-svh flex-col px-5 py-5 sm:px-10 sm:py-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Skeleton className="size-8 rounded-[9px]" />
+            <Skeleton className="h-5 w-12 rounded-full" />
           </div>
+          <Skeleton className="h-9 w-24 rounded-full bg-card" />
+        </div>
 
-          {/* Heading */}
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-44 rounded-xl" />
-            <Skeleton className="h-5 w-72 rounded-full" />
-          </div>
-
-          {/* Form fields */}
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24 rounded-full" />
-              <Skeleton className="h-11 w-full rounded-xl" />
+        <div className="flex flex-1 items-center justify-center py-10">
+          <div className="w-full max-w-[400px] space-y-7">
+            <div className="flex flex-col items-center gap-3">
+              <Skeleton className="h-10 w-52 rounded-xl" />
+              <Skeleton className="h-5 w-64 rounded-full" />
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Skeleton className="h-4 w-24 rounded-full" />
-                <Skeleton className="h-4 w-28 rounded-full" />
-              </div>
-              <Skeleton className="h-11 w-full rounded-xl" />
+            <Skeleton className="h-12 w-full rounded-full bg-card" />
+            <Skeleton className="mx-auto h-3 w-24 rounded-full" />
+            <div className="space-y-5">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-3.5 w-24 rounded-full" />
+                  <Skeleton className="h-12 w-full rounded-[12px] bg-card" />
+                </div>
+              ))}
             </div>
+            <Skeleton className="h-12 w-full rounded-full" />
           </div>
-
-          {/* Submit */}
-          <Skeleton className="h-11 w-full rounded-xl" />
-
-          {/* Footer link */}
-          <Skeleton className="mx-auto h-4 w-52 rounded-full" />
         </div>
       </div>
 
-      {/* Brand panel (left in RTL) — hidden on mobile */}
-      <div className="relative hidden w-130 flex-col justify-between overflow-hidden bg-slate-900 p-10 lg:flex">
-        <div className="pointer-events-none absolute -left-24 -top-24 size-80 rounded-full bg-primary/25 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 -right-16 size-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="pointer-events-none absolute left-1/2 top-1/2 size-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-2xl" />
-
-        {/* Logo */}
-        <div className="relative flex items-center gap-3">
-          <Skeleton className="size-9 rounded-lg opacity-25" />
-          <Skeleton className="h-5 w-16 rounded-full opacity-20" />
-        </div>
-
-        {/* Features */}
-        <div className="relative space-y-8">
-          <div className="space-y-3">
-            <Skeleton className="h-9 w-56 rounded-xl opacity-20" />
-            <Skeleton className="h-9 w-40 rounded-xl opacity-20" />
-            <Skeleton className="mt-1 h-4 w-72 rounded-full opacity-15" />
-            <Skeleton className="h-4 w-60 rounded-full opacity-15" />
-          </div>
-          <div className="space-y-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Skeleton className="size-9 shrink-0 rounded-xl opacity-20" />
-                <Skeleton className="h-4 w-52 rounded-full opacity-15" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats widget */}
-        <div className="relative rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-          <div className="flex items-center justify-around gap-6 px-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-1.5">
-                <Skeleton className="h-7 w-16 rounded-lg opacity-20" />
-                <Skeleton className="h-3 w-14 rounded-full opacity-15" />
-              </div>
-            ))}
-          </div>
+      <div className="hidden p-3 lg:block">
+        <div className="relative h-full overflow-hidden rounded-[28px] bg-black">
+          <div className="pointer-events-none absolute -top-1/4 left-1/2 size-[640px] -translate-x-1/2 rounded-full bg-primary/35 blur-[120px]" />
         </div>
       </div>
     </div>

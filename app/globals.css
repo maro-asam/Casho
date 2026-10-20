@@ -468,6 +468,36 @@
 }
 
 
+/* Apple system colors + materials. Global (not scoped to .apple-ui) because menus,
+   dialogs and popovers render in portals outside the dashboard shell. */
+:root {
+  --sys-green: #34c759;
+  --sys-orange: #ff8d28;
+  --sys-red: #ff383c;
+  --sys-indigo: #6155f5;
+  --sys-teal: #00c3d0;
+  --sys-gray: #8e8e93;
+  --label-3: rgba(60, 60, 67, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-rim: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
+  /* tertiarySystemFill: field / inset-box fill that reads on any surface (cards, sheets, popovers). */
+  --fill-3: rgba(118, 118, 128, 0.12);
+}
+.dark {
+  --fill-3: rgba(118, 118, 128, 0.24);
+  --sys-green: #30d158;
+  --sys-orange: #ff9230;
+  --sys-red: #ff4245;
+  --sys-indigo: #6d7cff;
+  --sys-teal: #00d2e0;
+  --label-3: rgba(235, 235, 245, 0.3);
+  --glass-bg: rgba(30, 30, 32, 0.6);
+  --glass-rim: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
 /* ── Merchant dashboard: Apple HIG / Liquid Glass surface ──────────────────
    Scoped to the dashboard shell. Content sits on the grouped background
    (#f2f2f7 / #000) in opaque cards; chrome (sidebar, topbar) floats on glass.
@@ -488,18 +518,6 @@
   --sidebar-accent-foreground: #1d1d1f;
   --sidebar-border: rgba(60, 60, 67, 0.12);
 
-  --sys-green: #34c759;
-  --sys-orange: #ff8d28;
-  --sys-red: #ff383c;
-  --sys-indigo: #6155f5;
-  --sys-teal: #00c3d0;
-  --sys-gray: #8e8e93;
-  --label-3: rgba(60, 60, 67, 0.3);
-  --glass-bg: rgba(255, 255, 255, 0.62);
-  --glass-rim: rgba(255, 255, 255, 0.6);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
-
   -webkit-font-smoothing: antialiased;
 }
 .dark .apple-ui {
@@ -519,15 +537,6 @@
   --sidebar-accent-foreground: #f5f5f7;
   --sidebar-border: rgba(84, 84, 88, 0.45);
 
-  --sys-green: #30d158;
-  --sys-orange: #ff9230;
-  --sys-red: #ff4245;
-  --sys-indigo: #6d7cff;
-  --sys-teal: #00d2e0;
-  --label-3: rgba(235, 235, 245, 0.3);
-  --glass-bg: rgba(30, 30, 32, 0.6);
-  --glass-rim: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
 /* Liquid Glass — functional layer only (bars, sidebar), never content cards. */
@@ -542,10 +551,13 @@
 }
 
 /* Content-layer card: opaque, borderless, large continuous radius. */
-.apple-card {
-  background: var(--card);
-  color: var(--card-foreground);
-  border-radius: 22px;
+@layer components {
+  /* Layered so utilities (e.g. a primary-filled card) can override it. */
+  .apple-card {
+    background-color: var(--card);
+    color: var(--card-foreground);
+    border-radius: 22px;
+  }
 }
 
 /* Press feedback: dim + slight scale, never a ripple. */
@@ -564,6 +576,205 @@
   border-top: 0.5px solid var(--border);
 }
 
+/* Forms: filled, borderless fields (HIG text fields) on a white card, and the
+   green iOS switch. Opt-in with `.apple-form` (or `.apple-switch` on a lone switch); unlayered so it wins over the
+   per-field size utilities, but padding is left alone (suffixes rely on it). */
+.apple-form [data-slot="input"],
+.apple-form [data-slot="textarea"],
+.apple-form [data-slot="select-trigger"],
+.apple-form .apple-field {
+  background-color: var(--fill-3);
+  border-color: transparent;
+  border-radius: 12px;
+  box-shadow: none;
+  font-size: 15px;
+  transition: box-shadow 0.2s var(--ease-apple), background-color 0.2s var(--ease-apple);
+}
+.apple-form [data-slot="input"],
+.apple-form [data-slot="select-trigger"] { height: 44px; }
+.apple-form [data-slot="select-trigger"] { width: 100%; }
+.apple-form [data-slot="input"]:focus-visible,
+.apple-form [data-slot="textarea"]:focus-visible,
+.apple-form [data-slot="select-trigger"]:focus-visible,
+.apple-form .apple-field:focus-within {
+  border-color: transparent;
+  box-shadow: 0 0 0 3.5px color-mix(in oklch, var(--primary), transparent 70%);
+}
+.apple-form [data-slot="input"][aria-invalid="true"],
+.apple-form [data-slot="select-trigger"][aria-invalid="true"] {
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--sys-red), transparent 40%);
+}
+.apple-form [data-slot="input"]:disabled { opacity: 0.55; }
+.apple-form [data-slot="switch"][data-size="default"],
+[data-slot="switch"][data-size="default"].apple-switch {
+  width: 44px;
+  height: 26px;
+  box-shadow: none;
+}
+.apple-form [data-slot="switch"]:is([data-state="unchecked"], [data-unchecked]),
+[data-slot="switch"].apple-switch:is([data-state="unchecked"], [data-unchecked]) { background-color: color-mix(in oklch, var(--sys-gray), transparent 70%); }
+.apple-form [data-slot="switch"]:is([data-state="checked"], [data-checked]),
+[data-slot="switch"].apple-switch:is([data-state="checked"], [data-checked]) { background-color: var(--sys-green); }
+.apple-form [data-slot="switch"][data-size="default"] [data-slot="switch-thumb"],
+[data-slot="switch"][data-size="default"].apple-switch [data-slot="switch-thumb"] {
+  width: 22px;
+  height: 22px;
+  background-color: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Dashboard auto-styling ────────────────────────────────────────────────
+   Every page under the dashboard <main> (and its dialogs) gets the Apple look
+   on the plain shadcn primitives, so pages not hand-built with apple-kit still
+   read as one system. Unlayered: wins over the primitives' own utilities. */
+.apple-auto h1 {
+  font-size: clamp(28px, 3.2vw, 34px);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.apple-auto:where(:not([dir="rtl"] *)) h1 { letter-spacing: -0.02em; }
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="card"] {
+  border: 0;
+  border-radius: 22px;
+  box-shadow: none;
+  background-color: var(--card);
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="card-title"] {
+  font-size: 17px;
+  font-weight: 600;
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="card-description"] {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="button"] {
+  border-radius: 999px;
+  box-shadow: none;
+  transition: opacity 0.2s var(--ease-apple), transform 0.2s var(--ease-apple), background-color 0.2s var(--ease-apple);
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="button"]:active:not(:disabled) {
+  transform: scale(0.97);
+  opacity: 0.8;
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="button"][data-variant="outline"] {
+  border-color: transparent;
+  background-color: var(--fill-3);
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="button"][data-variant="outline"]:hover {
+  background-color: color-mix(in oklch, var(--fill-3), var(--foreground) 6%);
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="button"][data-variant="destructive"] {
+  background-color: color-mix(in oklch, var(--sys-red), transparent 88%);
+  color: var(--sys-red);
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="badge"] {
+  border-radius: 999px;
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="badge"][data-variant="outline"] {
+  border-color: transparent;
+  background-color: var(--fill-3);
+}
+/* Segmented control. */
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="tabs-list"] {
+  border: 0;
+  border-radius: 10px;
+  padding: 2px;
+  background-color: var(--fill-3);
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="tabs-trigger"] {
+  border: 0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+:is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="tabs-trigger"]:is([data-state="active"], [data-active]) {
+  background-color: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+}
+.dark :is(.apple-auto, body:has(.apple-auto) [data-slot$="-content"]) [data-slot="tabs-trigger"]:is([data-state="active"], [data-active]) {
+  background-color: #636366;
+}
+/* Tables read as grouped lists: quiet header, inset hairlines, no stripes. */
+.apple-auto [data-slot="table-head"] {
+  height: 36px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+.apple-auto [data-slot="table-header"] [data-slot="table-row"] { border-bottom: 0.5px solid var(--border); }
+.apple-auto [data-slot="table-row"] { border-color: var(--border); border-bottom-width: 0.5px; }
+.apple-auto [data-slot="table-body"] [data-slot="table-row"]:last-child { border-bottom: 0; }
+.apple-auto [data-slot="table-body"] [data-slot="table-row"]:hover { background-color: color-mix(in oklch, var(--fill-3), transparent 40%); }
+.apple-auto [data-slot="table-cell"] { font-size: 15px; padding-block: 12px; }
+.apple-auto > [data-slot="table-container"],
+.apple-auto :not([data-slot="card"], [data-slot="card-content"]) > [data-slot="table-container"] {
+  border-radius: 22px;
+  background-color: var(--card);
+}
+/* Sheets & dialogs opened from the dashboard. */
+body:has(.apple-auto) :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"]) {
+  border: 0;
+  border-radius: 28px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+}
+body:has(.apple-auto) :is([data-slot="dialog-title"], [data-slot="alert-dialog-title"], [data-slot="sheet-title"]) {
+  font-size: 20px;
+  font-weight: 600;
+}
+body:has(.apple-auto) :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"], [data-slot="sheet-content"], [data-slot="popover-content"]) :is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]) {
+  background-color: var(--fill-3);
+  border-color: transparent;
+  border-radius: 12px;
+  box-shadow: none;
+}
+body:has(.apple-auto) :is([data-slot="select-content"], [data-slot="dropdown-menu-content"], [data-slot="popover-content"]) {
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.14), 0 0 0 0.5px var(--border);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .apple-press, .apple-press:active { transition: none; transform: none; }
+}
+
+/* HIG avoids Light weights: inside the dashboard, text is Regular by default and
+   nested elements inherit their parent's weight instead of the global light reset. */
+@layer base {
+  .apple-ui { font-weight: 400; }
+  .apple-ui * { font-weight: inherit; }
+}
+
+/* Store name in the welcome card: primary-hued gradient drifting slowly through the text. */
+.apple-gradient-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--primary) 0%,
+    color-mix(in oklch, var(--primary), white 45%) 25%,
+    var(--primary) 50%,
+    color-mix(in oklch, var(--primary), black 25%) 75%,
+    var(--primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: apple-gradient-drift 6s linear infinite;
+}
+.dark .apple-gradient-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--primary) 0%,
+    color-mix(in oklch, var(--primary), white 55%) 25%,
+    var(--primary) 50%,
+    color-mix(in oklch, var(--primary), white 25%) 75%,
+    var(--primary) 100%
+  );
+}
+@keyframes apple-gradient-drift {
+  to { background-position: -200% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .apple-gradient-text { animation: none; }
 }

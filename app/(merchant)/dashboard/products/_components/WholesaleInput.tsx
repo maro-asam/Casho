@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { appleButton } from "@/components/saas-page";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { tr } from "@/lib/i18n/dashboard";
 
 export type WholesaleTier = {
@@ -52,29 +53,14 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
 
   return (
     <div className="space-y-4">
-      <label className="flex cursor-pointer items-center gap-3">
-        <div
-          role="checkbox"
-          aria-checked={enabled}
-          tabIndex={0}
-          onClick={() => setEnabled((v) => !v)}
-          onKeyDown={(e) => e.key === " " && setEnabled((v) => !v)}
-          className={`relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-            enabled ? "bg-primary" : "bg-muted-foreground/30"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-              enabled ? "translate-x-4 rtl:-translate-x-4" : "translate-x-0.5 rtl:-translate-x-0.5"
-            }`}
-          />
-        </div>
-        <span className="text-sm font-medium">{tr("تفعيل أسعار الجملة")}</span>
+      <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl bg-background px-4 py-2">
+        <span className="text-[15px]">{tr("تفعيل أسعار الجملة")}</span>
+        <Switch checked={enabled} onCheckedChange={setEnabled} />
       </label>
 
       {enabled && (
         <div className="space-y-3">
-          <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-[1fr_1fr_1fr_2.25rem] gap-2 px-1 text-[12px] text-muted-foreground">
             <span>{tr("الحد الأدنى للكمية")}</span>
             <span>{tr("الحد الأقصى (اختياري)")}</span>
             <span>{tr("السعر للقطعة (ج.م)")}</span>
@@ -82,7 +68,7 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
           </div>
 
           {tiers.map((tier, i) => (
-            <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2">
+            <div key={i} className="grid grid-cols-[1fr_1fr_1fr_2.25rem] items-center gap-2">
               <div className="relative">
                 <Input
                   type="number"
@@ -91,9 +77,9 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
                   value={tier.minQty}
                   onChange={(e) => updateTier(i, "minQty", e.target.value)}
                   placeholder="10"
-                  className="rounded-xl pe-8 text-sm"
+                  className="pe-12 tabular-nums"
                 />
-                <span className="pointer-events-none absolute inset-e-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-[13px] text-muted-foreground">
                   {tr("قطعة")}
                 </span>
               </div>
@@ -106,9 +92,9 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
                   value={tier.maxQty ?? ""}
                   onChange={(e) => updateTier(i, "maxQty", e.target.value)}
                   placeholder="∞"
-                  className="rounded-xl pe-8 text-sm"
+                  className="pe-12 tabular-nums"
                 />
-                <span className="pointer-events-none absolute inset-e-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-[13px] text-muted-foreground">
                   {tr("قطعة")}
                 </span>
               </div>
@@ -121,38 +107,31 @@ export default function WholesaleInput({ initialTiers = [] }: Props) {
                   value={tier.price || ""}
                   onChange={(e) => updateTier(i, "price", e.target.value)}
                   placeholder="0.00"
-                  className="rounded-xl pe-10 text-sm"
+                  className="pe-12 tabular-nums"
                   required={enabled}
                 />
-                <span className="pointer-events-none absolute inset-e-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-[13px] text-muted-foreground">
                   {tr("ج.م")}
                 </span>
               </div>
 
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="icon"
-                className="size-9 shrink-0 rounded-xl text-muted-foreground hover:text-destructive"
+                aria-label={tr("حذف")}
+                className="apple-press grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-(--sys-red)/10 hover:text-(--sys-red)"
                 onClick={() => removeTier(i)}
               >
                 <Trash2 className="size-4" />
-              </Button>
+              </button>
             </div>
           ))}
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addTier}
-            className="w-full rounded-xl gap-1.5"
-          >
-            <Plus className="size-3.5" />
+          <button type="button" onClick={addTier} className={cn(appleButton.plain, "mx-0 -ms-2")}>
+            <Plus className="size-4" strokeWidth={2.4} />
             {tr("إضافة شريحة سعرية")}
-          </Button>
+          </button>
 
-          <p className="text-xs text-muted-foreground">
+          <p className="px-1 text-[12px] text-muted-foreground">
             {tr("مثال: 10-49 قطعة بسعر 45 ج.م، و50+ قطعة بسعر 38 ج.م")}
           </p>
         </div>

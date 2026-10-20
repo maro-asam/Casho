@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ExternalLink, Loader2, MoreHorizontal, Pencil, Star, StarOff, Trash2 } from "lucide-react";
+import { Ellipsis, Eye, EyeOff, ExternalLink, Loader2, Pencil, Star, StarOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { DeleteProductAction, SetProductFlagsAction } from "@/actions/products/products.actions";
@@ -17,7 +17,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { appleButton, appleMenu } from "@/components/saas-page";
 import { tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 type Props = {
@@ -69,17 +69,16 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
     <>
       <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
             disabled={pending}
             aria-label={tr("إجراءات {0}", product.name)}
-            className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
+            className={appleButton.more}
           >
-            {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
-          </Button>
+            {pending ? <Loader2 className="size-4 animate-spin" /> : <Ellipsis className="size-[18px]" strokeWidth={2.2} />}
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className={appleMenu}>
           <DropdownMenuItem asChild>
             <Link href={`/products/${product.id}/edit`}>
               <Pencil />
@@ -124,7 +123,7 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
       </DropdownMenu>
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent dir={tdir()}>
+        <AlertDialogContent dir={tdir()} className="rounded-[22px]">
           {blockedByOrders ? (
             <>
               <AlertDialogHeader>
@@ -134,9 +133,10 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
+                <AlertDialogCancel className="rounded-full">{tr("رجوع")}</AlertDialogCancel>
                 {product.isActive && (
                   <AlertDialogAction
+                    className="rounded-full"
                     onClick={() => setFlags({ isActive: false }, tr("المنتج اتخفى من المتجر"))}
                     disabled={pending}
                   >
@@ -154,11 +154,16 @@ export function ProductRowActions({ product, storefrontUrl }: Props) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
-                <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
+                <AlertDialogCancel disabled={pending} className="rounded-full">{tr("رجوع")}</AlertDialogCancel>
+                <button
+                  type="button"
+                  onClick={remove}
+                  disabled={pending}
+                  className={appleButton.destructiveFilled}
+                >
                   {pending && <Loader2 className="size-4 animate-spin" />}
                   {tr("حذف نهائي")}
-                </Button>
+                </button>
               </AlertDialogFooter>
             </>
           )}

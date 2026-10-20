@@ -222,14 +222,14 @@ export default function NotificationsBell({
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="relative h-10 w-10 "
+          className="relative size-10 rounded-full text-foreground/80 hover:bg-muted hover:text-foreground"
           aria-label={tr("الإشعارات")}
         >
           <Bell className="h-4 w-4" />
           {hasUnread && (
-            <span className="absolute -end-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+            <span className="absolute end-0.5 top-0.5 flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-(--sys-red) px-1 text-[10px] font-semibold leading-none text-white">
               {unreadLabel}
             </span>
           )}
@@ -239,7 +239,7 @@ export default function NotificationsBell({
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="z-50 w-[420px] max-w-[calc(100vw-2rem)] overflow-hidden p-0"
+        className="z-50 w-[420px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl p-0"
       >
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div>

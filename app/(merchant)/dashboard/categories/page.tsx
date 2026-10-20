@@ -4,15 +4,14 @@ import type { Prisma } from "@prisma/client";
 import { Plus, SearchX, Store, Tags } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
+  Segmented,
   SearchInput,
   SelectFilter,
+  Unavailable,
+  appleButton,
   hrefWith,
   readPage,
   readParam,
@@ -66,12 +65,13 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول عشان تقدر ترتّب منتجاتك في تصنيفات.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card" dir={tdir()}>
+        <Unavailable
+          icon={Store}
+          title={tr("لسه معندكش متجر")}
+          description={tr("أنشئ متجرك الأول عشان تقدر ترتّب منتجاتك في تصنيفات.")}
+        />
+      </div>
     );
   }
 
@@ -157,76 +157,64 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("التصنيفات")}
-        description={tr("رتّب منتجاتك في مجموعات عشان العميل يلاقي اللي عايزه بسرعة.")}
+        subtitle={tr("رتّب منتجاتك في مجموعات عشان العميل يلاقي اللي عايزه بسرعة.")}
         actions={
           storeHasCategories && (
-            <Button asChild size="sm" className="gap-1.5">
-              <Link href={newHref} scroll={false}>
-                <Plus className="size-4" />
-                {tr("تصنيف جديد")}
-              </Link>
-            </Button>
+            // The one prominent action on the page.
+            <Link href={newHref} scroll={false} className={appleButton.filled}>
+              <Plus className="size-4" strokeWidth={2.4} />
+              {tr("تصنيف جديد")}
+            </Link>
           )
         }
       />
 
       {!storeHasCategories ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={Tags}
             title={tr("لسه مفيش تصنيفات")}
             description={tr("ابدأ بأول تصنيف (زي: ملابس، إكسسوارات) وبعدها ضيف منتجاتك جوّاه.")}
             action={
-              <Button asChild size="sm" className="gap-1.5">
-                <Link href={newHref} scroll={false}>
-                  <Plus className="size-4" />
-                  {tr("ضيف أول تصنيف")}
-                </Link>
-              </Button>
+              <Link href={newHref} scroll={false} className={`${appleButton.filled} h-9 px-4`}>
+                <Plus className="size-4" strokeWidth={2.4} />
+                {tr("ضيف أول تصنيف")}
+              </Link>
             }
           />
         </div>
       ) : (
         <div className="space-y-4">
-          <FilterTabs
+          <Segmented
             label={tr("عرض التصنيفات")}
             param="view"
             basePath={BASE_PATH}
             searchParams={params}
-            tabs={[
+            segments={[
               { label: tr("الكل"), count: allCount },
               { label: VIEWS.with.label, value: "with", count: withCount },
               { label: VIEWS.empty.label, value: "empty", count: emptyCount },
             ]}
           />
 
-          <DataCard
-            toolbar={
-              <>
-                <SearchInput placeholder={tr("ابحث باسم التصنيف أو الرابط")} />
-                <SelectFilter
-                  label={tr("الترتيب")}
-                  param="sort"
-                  allLabel={tr("الأحدث الأول")}
-                  options={Object.entries(SORTS).map(([value, { label }]) => ({ value, label }))}
-                />
-              </>
-            }
-            footer={
-              total > 0 ? (
-                <Pagination
-                  page={page}
-                  pageSize={PAGE_SIZE}
-                  total={total}
-                  basePath={BASE_PATH}
-                  searchParams={params}
-                  noun={tr("تصنيف")}
-                />
-              ) : undefined
-            }
-          >
+          <section className="apple-card overflow-hidden">
+            <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <SearchInput
+                placeholder={tr("ابحث باسم التصنيف أو الرابط")}
+                className="sm:max-w-sm"
+                inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
+              />
+              <SelectFilter
+                label={tr("الترتيب")}
+                param="sort"
+                allLabel={tr("الأحدث الأول")}
+                className="h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-44"
+                options={Object.entries(SORTS).map(([value, { label }]) => ({ value, label }))}
+              />
+            </div>
+
             {rows.length > 0 ? (
               <CategoriesTable
                 categories={rows}
@@ -236,20 +224,27 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
                 editHref={editHref}
               />
             ) : (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title={tr("مفيش تصنيفات بالفلاتر دي")}
                 description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب اسم تاني.", q) : tr("جرّب تبويب تاني.")}
+                className="border-t-[0.5px] border-border"
                 action={
                   hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
+                    <Link href={BASE_PATH} className={appleButton.tinted}>
+                      {tr("مسح الفلاتر")}
+                    </Link>
                   )
                 }
               />
             )}
-          </DataCard>
+
+            {total > 0 && (
+              <div className="border-t-[0.5px] border-border">
+                <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("تصنيف")} />
+              </div>
+            )}
+          </section>
         </div>
       )}
 

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { appleButton } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { tr } from "@/lib/i18n/dashboard";
 
@@ -51,18 +52,18 @@ export default function AttributesInput({
   return (
     <div className="space-y-2">
       {attributes.length === 0 ? (
-        <div className="flex items-center justify-center rounded-xl border border-dashed py-5 text-sm text-muted-foreground">
+        <div className="flex items-center justify-center rounded-xl bg-background px-4 py-5 text-center text-[13px] text-muted-foreground">
           {tr("لا توجد خصائص مضافة — اضغط \"إضافة خاصية\" للبدء")}
         </div>
       ) : (
         <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-2 px-1 text-xs text-muted-foreground">
+          <div className="grid grid-cols-2 gap-2 ps-9 pe-11 text-[12px] text-muted-foreground">
             <span>{tr("اسم الخاصية")}</span>
             <span>{tr("القيمة")}</span>
           </div>
           {attributes.map((attr, index) => (
             <div key={attr.id} className="flex items-center gap-2">
-              <span className="flex h-7 w-6 shrink-0 items-center justify-center text-xs text-muted-foreground">
+              <span className="flex w-7 shrink-0 items-center justify-center text-[13px] text-(--label-3) tabular-nums">
                 {index + 1}
               </span>
               <Input
@@ -71,7 +72,6 @@ export default function AttributesInput({
                 onChange={(e) =>
                   updateAttribute(attr.id, "key", e.target.value)
                 }
-                className="rounded-xl"
               />
               <Input
                 placeholder={tr("مثال: قطن 100%")}
@@ -79,32 +79,24 @@ export default function AttributesInput({
                 onChange={(e) =>
                   updateAttribute(attr.id, "value", e.target.value)
                 }
-                className="rounded-xl"
               />
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 shrink-0 rounded-xl text-muted-foreground hover:text-destructive"
+                aria-label={tr("حذف")}
+                className="apple-press grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-(--sys-red)/10 hover:text-(--sys-red)"
                 onClick={() => removeAttribute(attr.id)}
               >
                 <X className="size-4" />
-              </Button>
+              </button>
             </div>
           ))}
         </div>
       )}
 
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={addAttribute}
-        className="gap-1.5 rounded-xl"
-      >
-        <Plus className="size-3.5" />
+      <button type="button" onClick={addAttribute} className={cn(appleButton.plain, "mx-0 -ms-2")}>
+        <Plus className="size-4" strokeWidth={2.4} />
         {tr("إضافة خاصية")}
-      </Button>
+      </button>
 
       <input
         type="hidden"

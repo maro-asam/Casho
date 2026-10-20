@@ -14,7 +14,7 @@ function Swatch({ label, className }: { label: string; className?: string }) {
     return (
       <span
         aria-hidden
-        className={cn("grid shrink-0 place-items-center rounded-full border border-dashed border-amber-500 text-[9px] font-bold text-amber-600", className)}
+        className={cn("grid shrink-0 place-items-center rounded-full border border-dashed border-(--sys-orange) text-[9px] font-bold text-(--sys-orange)", className)}
       >
         ?
       </span>
@@ -62,7 +62,7 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
   return (
     <div className="space-y-2.5">
       <div
-        className="flex min-h-10 cursor-text flex-wrap items-center gap-1.5 rounded-xl border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring"
+        className="apple-field flex min-h-11 cursor-text flex-wrap items-center gap-1.5 px-2 py-1.5"
         onClick={() => inputRef.current?.focus()}
       >
         {colors.map((c) => (
@@ -70,8 +70,8 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
             key={c}
             title={swatchColor(c) ? undefined : tr("مش متعرف كلون — هيظهر للعميل كنص")}
             className={cn(
-              "flex items-center gap-1.5 rounded-lg py-0.5 pe-1.5 ps-1 text-sm",
-              swatchColor(c) ? "bg-muted" : "bg-amber-500/10 text-amber-800 dark:text-amber-300",
+              "flex h-7 items-center gap-1.5 rounded-full pe-1 ps-1 text-[13px]",
+              swatchColor(c) ? "bg-card shadow-[0_1px_2px_rgba(0,0,0,0.06)]" : "bg-(--sys-orange)/14",
             )}
           >
             <Swatch label={c} className="size-4" />
@@ -83,9 +83,9 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
                 remove(c);
               }}
               aria-label={tr("شيل {0}", c)}
-              className="text-muted-foreground hover:text-foreground"
+              className="grid size-5 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              <X className="size-3" />
+              <X className="size-3" strokeWidth={2.4} />
             </button>
           </span>
         ))}
@@ -94,7 +94,7 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
           <input
             ref={inputRef}
             type="text"
-            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="w-full bg-transparent px-1.5 text-[15px] outline-none placeholder:text-muted-foreground"
             placeholder={colors.length === 0 ? tr("اختار من تحت أو اكتب لون…") : tr("لون تاني…")}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -124,12 +124,12 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
               title={tr(label)}
               onClick={() => toggle(label)}
               className={cn(
-                "grid size-8 place-items-center rounded-full border-2 transition-all",
-                on ? "border-foreground" : "border-transparent hover:scale-110",
+                "grid size-9 place-items-center rounded-full border-2 transition-[transform,border-color] duration-200 ease-(--ease-apple) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                on ? "border-primary" : "border-transparent hover:scale-110",
               )}
             >
               <span
-                className={cn("grid size-6 place-items-center rounded-full", isLightSwatch(hex) ? "ring-1 ring-black/20" : "ring-1 ring-black/5")}
+                className={cn("grid size-7 place-items-center rounded-full", isLightSwatch(hex) ? "ring-1 ring-black/20" : "ring-1 ring-black/5")}
                 style={{ background: hex }}
               >
                 {on && <Check className={cn("size-3.5", isLightSwatch(hex) ? "text-neutral-900" : "text-white")} strokeWidth={3} />}
@@ -140,14 +140,14 @@ export default function ColorInput({ name, defaultValues = [] }: { name: string;
       </div>
 
       {unknown.length > 0 ? (
-        <p className="flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-400">
-          <AlertTriangle className="mt-px size-3.5 shrink-0" />
+        <p className="flex items-start gap-1.5 px-1 text-[12px] leading-[17px] text-foreground/80">
+          <AlertTriangle className="mt-px size-3.5 shrink-0 text-(--sys-orange)" />
           <span>
             {unknown.map((c) => `"${c}"`).join(tr("، "))}{" "}{tr("مش متعرف كلون، فهيظهر للعميل كنص. جرّب اسم قريب من الألوان اللي فوق، أو زوّد \"فاتح\" / \"غامق\".")}
           </span>
         </p>
       ) : (
-        <p className="text-xs text-muted-foreground">
+        <p className="px-1 text-[12px] leading-[17px] text-muted-foreground">
           {tr("دوس على لون عشان تضيفه، أو اكتب أي اسم — زي \"كحلي غامق\" أو \"أسود × أبيض\" — والعميل هيشوفه كلون.")}
         </p>
       )}

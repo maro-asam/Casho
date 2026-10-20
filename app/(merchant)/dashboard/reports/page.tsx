@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { BarChart3, Download } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { EmptyState, FilterTabs, PageHeader, readParam, type SearchParamsRecord } from "@/components/saas-page";
-import { Button } from "@/components/ui/button";
+import { LargeTitle, Segmented, Unavailable, appleButton, readParam, type SearchParamsRecord } from "@/components/saas-page";
 import { BranchSwitcher } from "@/components/branch/BranchSwitcher";
 import { requireBranchScope } from "@/lib/store/branch-context";
 import { prisma } from "@/lib/prisma";
@@ -65,56 +64,63 @@ export default async function ReportsPage({ searchParams }: { searchParams?: Pro
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("التقارير")}
-        description={
+        subtitle={
           <>
-            {multiBranch && <span className="font-medium text-foreground">{scope.branch ? scope.branch.name : tr("كل الفروع")} · </span>}
+            {multiBranch && <span className="text-foreground">{scope.branch ? scope.branch.name : tr("كل الفروع")} · </span>}
             {data.range.label}
-            <span className="text-muted-foreground/70">{" "}{tr("· مقارنة بـ {0}", data.range.previousLabel)}</span>
-            {scope.branch && multiBranch && (
-              <span className="block text-xs text-muted-foreground/70">{tr("مبيعات الكاشير في الفرع ده بس — طلبات المتجر الأونلاين بتظهر في «كل الفروع».")}</span>
-            )}
+            <span className="text-(--label-3)">{" "}{tr("· مقارنة بـ {0}", data.range.previousLabel)}</span>
           </>
         }
         actions={
           <>
-            <BranchSwitcher branches={branches} value={scope.branch?.id ?? "all"} allowAll />
-            <RangePicker preset={range.preset} fromKey={range.fromKey} toKey={range.toKey} todayKey={cairoDayKey(new Date())} />
+            <BranchSwitcher
+              branches={branches}
+              value={scope.branch?.id ?? "all"}
+              allowAll
+              className="h-11 rounded-full border-0 bg-card px-4 text-[15px] font-normal shadow-none"
+            />
             {data.hasEverSold && (
-              <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
-                <a href={`/api/export/reports?${exportQuery}`} download>
-                  <Download className="size-3.5" />
-                  Excel
-                </a>
-              </Button>
+              <a href={`/api/export/reports?${exportQuery}`} download className={appleButton.gray}>
+                <Download className="size-4 text-muted-foreground" />
+                Excel
+              </a>
             )}
           </>
         }
-      />
+      >
+        {scope.branch && multiBranch && (
+          <p className="text-[13px] text-muted-foreground">{tr("مبيعات الكاشير في الفرع ده بس — طلبات المتجر الأونلاين بتظهر في «كل الفروع».")}</p>
+        )}
+      </LargeTitle>
 
       {!data.hasEverSold ? (
-        <div className="rounded-xl border border-border bg-card">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={BarChart3}
             title={tr("التقارير هتظهر مع أول طلب")}
             description={tr("أول ما يوصلك طلب من المتجر أو تبيع من الكاشير، هتلاقي هنا المبيعات والأرباح والعملاء والمخزون بالتفصيل.")}
             action={
-              <Button asChild size="sm">
-                <Link href="/pos">{tr("افتح الكاشير")}</Link>
-              </Button>
+              <Link href="/pos" className={`${appleButton.filled} h-9 px-4`}>
+                {tr("افتح الكاشير")}
+              </Link>
             }
           />
         </div>
       ) : (
         <>
-          <FilterTabs
-            label={tr("أقسام التقارير")}
-            param="tab"
-            basePath={BASE_PATH}
-            searchParams={params}
-            tabs={tabs.map((t) => ({ label: t.label, value: t.value === "overview" ? undefined : t.value }))}
-          />
+          {/* Filters in one row above the content: section on one side, period on the other. */}
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <Segmented
+              label={tr("أقسام التقارير")}
+              param="tab"
+              basePath={BASE_PATH}
+              searchParams={params}
+              segments={tabs.map((t) => ({ label: t.label, value: t.value === "overview" ? undefined : t.value }))}
+            />
+            <RangePicker preset={range.preset} fromKey={range.fromKey} toKey={range.toKey} todayKey={cairoDayKey(new Date())} />
+          </div>
 
           {tab === "overview" && <TabOverview data={data} />}
           {tab === "sales" && <TabSales data={data} />}

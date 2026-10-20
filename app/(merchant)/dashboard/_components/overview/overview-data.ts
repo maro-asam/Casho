@@ -137,10 +137,16 @@ export async function getOverviewData(storeId: string) {
   ).length;
 
   const today = current[current.length - 1];
+  const yesterday = current[current.length - 2];
 
   return {
     kpis,
     today: { revenue: today.revenue, orders: today.orders, visits: today.visits },
+    yesterday: {
+      revenue: yesterday?.revenue ?? 0,
+      orders: yesterday?.orders ?? 0,
+      visits: yesterday?.visits ?? 0,
+    },
     daily: current.map(({ label, revenue, orders, visits }) => ({ label, revenue, orders, visits })),
     previousTotals: {
       revenue: kpis.revenue.previous,

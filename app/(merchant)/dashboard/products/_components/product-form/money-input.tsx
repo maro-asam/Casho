@@ -15,10 +15,10 @@ export function MoneyInput({ className, ...props }: Omit<ComponentProps<typeof I
         step="0.01"
         min="0"
         placeholder="0.00"
-        className={cn("h-9 pe-12 tabular-nums", className)}
+        className={cn("pe-12 tabular-nums", className)}
         {...props}
       />
-      <span className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+      <span className="pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground">
         {tr("ج.م")}
       </span>
     </div>

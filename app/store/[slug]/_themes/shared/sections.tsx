@@ -4,6 +4,7 @@
 import { Fragment, type ReactNode } from "react";
 
 import { DEFAULT_SECTION_ORDER, type HomePageSections, type SectionKey } from "@/types/store-theme.types";
+import { StudioAnchor } from "./studio-anchor";
 
 /** Saved order first, then any enabled section that isn't in it yet. */
 export function resolveSectionOrder(sections: HomePageSections): SectionKey[] {
@@ -30,6 +31,11 @@ export function renderSections<Ctx>({
     if (!sections[key as keyof HomePageSections]) return null;
     const render = registry[key];
     const node = render ? render(ctx) : fallback?.(key);
-    return node ? <Fragment key={key}>{node}</Fragment> : null;
+    return node ? (
+      <Fragment key={key}>
+        <StudioAnchor id={key} />
+        {node}
+      </Fragment>
+    ) : null;
   });
 }

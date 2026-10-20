@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { LoginAction } from "@/actions/auth/login.actions";
 import type { LoginState } from "@/actions/auth/auth.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoogleButton, OrDivider, PasswordInput } from "../auth-controls";
-import { FormField } from "./form-field";
+import { cn } from "@/lib/utils";
+import { FIELD_CLASS, FormAlert, FormField, PRIMARY_BUTTON_CLASS } from "./form-field";
 
 export function LoginForm({ notice }: { notice?: string }) {
   const router = useRouter();
@@ -30,23 +31,18 @@ export function LoginForm({ notice }: { notice?: string }) {
   const formError = state?.error && !state.fieldErrors ? state.error : notice;
 
   return (
-    <div className="space-y-6 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500">
-      <div className="space-y-1.5">
-        <h1 className="text-2xl font-bold tracking-tight">تسجيل الدخول</h1>
-        <p className="text-sm text-muted-foreground">ادخل على لوحة تحكم متجرك.</p>
+    <div className="space-y-7 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500">
+      <div className="space-y-2 text-center">
+        <h1 className="text-[34px] leading-[41px] font-bold">تسجيل الدخول</h1>
+        <p className="text-[17px] text-muted-foreground">ادخل على لوحة تحكم متجرك.</p>
       </div>
 
-      {formError && (
-        <div role="alert" className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
-          <AlertCircle className="mt-0.5 size-4 shrink-0" />
-          {formError}
-        </div>
-      )}
+      {formError && <FormAlert>{formError}</FormAlert>}
 
       <GoogleButton label="الدخول بحساب Google" />
       <OrDivider label="أو بالإيميل" />
 
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-5">
         <FormField htmlFor="email" label="البريد الإلكتروني" error={state?.fieldErrors?.email}>
           <Input
             id="email"
@@ -59,7 +55,7 @@ export function LoginForm({ notice }: { notice?: string }) {
             required
             autoFocus
             aria-invalid={!!state?.fieldErrors?.email}
-            className="h-11"
+            className={FIELD_CLASS}
           />
         </FormField>
 
@@ -68,7 +64,7 @@ export function LoginForm({ notice }: { notice?: string }) {
           label="كلمة المرور"
           error={state?.fieldErrors?.password}
           action={
-            <Link href="/forgot-password" className="text-xs font-medium text-muted-foreground hover:text-primary">
+            <Link href="/forgot-password" className="text-[13px] text-primary hover:underline">
               نسيت كلمة المرور؟
             </Link>
           }
@@ -82,13 +78,13 @@ export function LoginForm({ notice }: { notice?: string }) {
           />
         </FormField>
 
-        <Button type="submit" disabled={isPending} className="h-11 w-full gap-2 font-semibold">
+        <Button type="submit" disabled={isPending} className={cn(PRIMARY_BUTTON_CLASS, "mt-2 w-full gap-2")}>
           {isPending && <Loader2 className="size-4 animate-spin" />}
           {isPending ? "جاري الدخول..." : "دخول"}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-[15px] text-muted-foreground">
         لسه معندكش متجر؟{" "}
         <Link href="/register" className="font-semibold text-primary hover:underline">
           ابدأ مجانًا

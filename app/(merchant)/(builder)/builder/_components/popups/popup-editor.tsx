@@ -34,7 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import type { PopupConfig, PopupType } from "@/lib/popups/popup-config";
 import { cn } from "@/lib/utils";
-import { Segmented } from "../growth/controls";
+import { Segmented } from "@/components/common/settings-controls";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 
 export type EditorCoupon = { code: string; label: string; isActive: boolean; expiresAt: string | null };
@@ -88,8 +88,7 @@ export function PopupEditorDialog(props: Props) {
 
   function close() {
     const next = new URLSearchParams(searchParams.toString());
-    next.delete("popup");
-    next.delete("template");
+    for (const key of ["popup", "template", "name", "starts", "ends"]) next.delete(key);
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
 

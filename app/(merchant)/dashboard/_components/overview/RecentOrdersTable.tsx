@@ -1,11 +1,9 @@
 import Link from "next/link";
 import type { OrderSource, OrderStatus } from "@prisma/client";
-import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { ChevronLeft, ShoppingCart } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import CardHeading from "./CardHeading";
 import { CHANNELS, formatMoney } from "./format";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
@@ -18,13 +16,18 @@ export type RecentOrder = {
   createdAt: Date;
 };
 
-const STATUS: Record<OrderStatus, { label: string; className: string }> = {
-  PENDING: { get label() { return tr("قيد المراجعة"); }, className: "bg-amber-500/10 text-amber-700 dark:text-amber-400" },
-  PAID: { get label() { return tr("مدفوع"); }, className: "bg-sky-500/10 text-sky-700 dark:text-sky-400" },
-  SHIPPED: { get label() { return tr("تم الشحن"); }, className: "bg-violet-500/10 text-violet-700 dark:text-violet-400" },
-  DELIVERED: { get label() { return tr("تم التسليم"); }, className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" },
-  CANCELED: { get label() { return tr("ملغي"); }, className: "bg-muted text-muted-foreground" },
+// Dot color + label: status never relies on color alone.
+const STATUS: Record<OrderStatus, { label: string; dot: string }> = {
+  PENDING: { get label() { return tr("قيد المراجعة"); }, dot: "bg-(--sys-orange)" },
+  PAID: { get label() { return tr("مدفوع"); }, dot: "bg-primary" },
+  SHIPPED: { get label() { return tr("تم الشحن"); }, dot: "bg-(--sys-indigo)" },
+  DELIVERED: { get label() { return tr("تم التسليم"); }, dot: "bg-(--sys-green)" },
+  CANCELED: { get label() { return tr("ملغي"); }, dot: "bg-(--sys-gray)" },
 };
+
+function initialOf(name: string) {
+  return name.trim().slice(0, 1).toUpperCase() || "#";
+}
 
 const dateFormat = lazyIntl.date({
   timeZone: "Africa/Cairo",
@@ -36,81 +39,72 @@ const dateFormat = lazyIntl.date({
 
 export default function RecentOrdersTable({ orders }: { orders: RecentOrder[] }) {
   return (
-    <Card className="gap-0 rounded-xl py-0 shadow-none">
-      <CardHeader className="flex flex-row items-center justify-between gap-4 p-5 pb-3">
-        <div className="space-y-1">
-          <CardTitle className="text-base font-semibold">{tr("آخر الطلبات")}</CardTitle>
-          <p className="text-xs text-muted-foreground">{tr("أحدث طلبات المتجر والكاشير")}</p>
-        </div>
-        <Button asChild variant="ghost" size="sm" className="gap-1 text-xs">
-          <Link href="/orders">
-            {tr("عرض الكل")}
-            <ArrowLeft className="size-3.5 ltr:-scale-x-100" />
-          </Link>
-        </Button>
-      </CardHeader>
+    <section className="apple-card h-full overflow-hidden">
+      <CardHeading
+        title={tr("آخر الطلبات")}
+        subtitle={tr("أحدث طلبات المتجر والكاشير")}
+        action={{ label: tr("عرض الكل"), href: "/orders" }}
+      />
 
-      <CardContent className="p-0">
-        {orders.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="ps-5 text-start text-xs">{tr("الطلب")}</TableHead>
-                <TableHead className="hidden text-start text-xs md:table-cell">{tr("القناة")}</TableHead>
-                <TableHead className="text-start text-xs">{tr("الحالة")}</TableHead>
-                <TableHead className="hidden text-start text-xs lg:table-cell">{tr("التاريخ")}</TableHead>
-                <TableHead className="pe-5 text-end text-xs">{tr("المبلغ")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => {
-                const status = STATUS[order.status];
-                const channel = CHANNELS[order.source];
-                const ChannelIcon = channel.icon;
+      {orders.length > 0 ? (
+        <ul className="apple-rows pb-2 [--row-inset:68px]">
+          {orders.map((order) => {
+            const status = STATUS[order.status];
+            const channel = CHANNELS[order.source];
+            const ChannelIcon = channel.icon;
 
-                return (
-                  <TableRow key={order.id} className="relative">
-                    <TableCell className="ps-5">
-                      <Link
-                        href={`/orders/${order.id}`}
-                        className="text-sm font-medium after:absolute after:inset-0 hover:underline focus-visible:outline-none"
-                      >
-                        {order.fullName}
-                      </Link>
-                      <p className="font-mono text-xs text-muted-foreground" dir="ltr">
+            return (
+              <li key={order.id}>
+                <Link
+                  href={`/orders/${order.id}`}
+                  className="flex min-h-16 items-center gap-3.5 px-4 py-2.5 transition-colors hover:bg-muted/60 active:bg-muted focus-visible:bg-muted/60 focus-visible:outline-none sm:px-5"
+                >
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-muted text-[15px] font-semibold text-foreground/70">
+                    {initialOf(order.fullName)}
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[15px] leading-5">{order.fullName}</span>
+                    <span className="mt-0.5 flex items-center gap-1.5 text-[13px] leading-[18px] text-muted-foreground">
+                      <span className="font-mono text-[12px]" dir="ltr">
                         #{order.id.slice(0, 8)}
-                      </p>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <ChannelIcon className="size-3.5" />
+                      </span>
+                      <span aria-hidden>·</span>
+                      <span className="hidden items-center gap-1 sm:inline-flex">
+                        <ChannelIcon className="size-3.5" strokeWidth={1.8} />
                         {channel.label}
                       </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className={cn("inline-flex rounded-md px-2 py-0.5 text-xs font-medium", status.className)}>
-                        {status.label}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden text-xs text-muted-foreground lg:table-cell">
-                      {dateFormat.format(order.createdAt)}
-                    </TableCell>
-                    <TableCell className="pe-5 text-end text-sm font-semibold tabular-nums">
-                      {formatMoney(order.total)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        ) : (
-          <div className="mx-5 mb-5 flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border py-12 text-center">
-            <ShoppingCart className="size-5 text-muted-foreground" />
-            <p className="text-sm font-medium">{tr("لسه مفيش طلبات")}</p>
-            <p className="text-xs text-muted-foreground">{tr("شارك لينك متجرك وأول طلب هيظهر هنا.")}</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                      <span aria-hidden className="hidden sm:inline">·</span>
+                      <span className="truncate">{dateFormat.format(order.createdAt)}</span>
+                    </span>
+                  </span>
+
+                  <span className="hidden shrink-0 items-center gap-1.5 text-[13px] text-foreground/80 md:inline-flex">
+                    <span aria-hidden className={cn("size-2 rounded-full", status.dot)} />
+                    {status.label}
+                  </span>
+
+                  <span className="w-24 shrink-0 text-end">
+                    <span className="block text-[15px] font-semibold tabular-nums">{formatMoney(order.total)}</span>
+                    <span className="flex items-center justify-end gap-1 text-[12px] text-muted-foreground md:hidden">
+                      <span aria-hidden className={cn("size-1.5 rounded-full", status.dot)} />
+                      {status.label}
+                    </span>
+                  </span>
+
+                  <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <div className="mx-5 mb-5 flex flex-col items-center justify-center gap-2 rounded-2xl bg-background py-12 text-center">
+          <ShoppingCart className="size-7 text-(--label-3)" strokeWidth={1.6} />
+          <p className="text-[17px] font-semibold">{tr("لسه مفيش طلبات")}</p>
+          <p className="text-[13px] text-muted-foreground">{tr("شارك لينك متجرك وأول طلب هيظهر هنا.")}</p>
+        </div>
+      )}
+    </section>
   );
 }

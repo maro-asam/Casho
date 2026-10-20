@@ -1,12 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
 import {
-  getStoreTheme,
+  getThemePreset,
   isStoreThemeId,
   isThemePresetId,
   type StoreThemeId,
@@ -15,6 +13,8 @@ import {
 import { ARABIC_FONTS } from "@/constants/arabic-fonts";
 import { ENGLISH_FONTS } from "@/constants/english-fonts";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
+import type { Appearance } from "@/lib/studio/appearance";
+import { mutateAppearance, publishDraft, type AppearanceTarget } from "@/lib/studio/mutate";
 import type {
   ThemeCustomization,
   ThemeTokens,
@@ -27,62 +27,42 @@ import { DEFAULT_SECTION_ORDER } from "@/types/store-theme.types";
 
 type ActionResult = { success: boolean; message: string };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+/**
+ * Every action takes an optional `target`: "live" (default — dashboard
+ * shortcuts keep working as before) or "draft" (the Studio, published later).
+ */
+type Target = { target?: AppearanceTarget };
 
-async function getThemeConfig(storeId: string) {
-  const existing = await prisma.storeSettings.findUnique({
-    where: { storeId },
-    select: { themeConfig: true, themeId: true },
-  });
-  return (existing?.themeConfig as ThemeCustomization | null) ?? {
-    presetId: (existing?.themeId as ThemePresetId) || "default",
-  };
+async function guard(storeId: string) {
+  const userId = await requireUserId();
+  return MustOwnStore(storeId, userId);
 }
 
-async function upsertThemeConfig(storeId: string, config: ThemeCustomization, extras?: Record<string, unknown>) {
-  await prisma.storeSettings.upsert({
-    where: { storeId },
-    update: { themeConfig: config, ...extras },
-    create: { storeId, themeConfig: config, ...extras },
-  });
-  // Edits are live — make sure the storefront (ISR) picks them up right away.
-  const store = await prisma.store.findUnique({ where: { id: storeId }, select: { slug: true } });
-  if (store) revalidatePath(`/store/${store.slug}`, "layout");
-}
+const withConfig = (a: Appearance, config: Partial<ThemeCustomization>): Appearance => ({
+  ...a,
+  themeConfig: { ...a.themeConfig, ...config },
+});
 
 // ─── Theme preset ─────────────────────────────────────────────────────────────
+
+/** Switching theme resets its look (colors, layout, sections) but keeps the merchant's own text. */
+function applyPreset(a: Appearance, presetId: ThemePresetId): Appearance {
+  return {
+    ...a,
+    themeConfig: { presetId, ...(a.themeConfig.sectionContent ? { sectionContent: a.themeConfig.sectionContent } : {}) },
+    navbarVariant: getThemePreset(presetId).layout.navbar,
+  };
+}
 
 export async function SelectThemePresetAction({
   storeId,
   presetId,
-}: {
-  storeId: string;
-  presetId: ThemePresetId;
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; presetId: ThemePresetId } & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    if (!isThemePresetId(presetId)) {
-      return { success: false, message: "الثيم غير صالح" };
-    }
-
-    const newConfig: ThemeCustomization = { presetId };
-
-    const storeInfo = await prisma.store.findUnique({
-      where: { id: storeId },
-      select: { slug: true },
-    });
-
-    await prisma.storeSettings.upsert({
-      where: { storeId },
-      update: { themeId: presetId, themeConfig: newConfig, draftThemeConfig: newConfig },
-      create: { storeId, themeId: presetId, themeConfig: newConfig, draftThemeConfig: newConfig },
-    });
-
-    revalidatePath("/dashboard/customization");
-    if (storeInfo?.slug) revalidatePath(`/store/${storeInfo.slug}`);
-
+    await guard(storeId);
+    if (!isThemePresetId(presetId)) return { success: false, message: "الثيم غير صالح" };
+    await mutateAppearance(storeId, (a) => applyPreset(a, presetId), target);
     return { success: true, message: "تم تحديث ثيم المتجر بنجاح" };
   } catch (error) {
     console.error("SelectThemePresetAction:", error);
@@ -93,38 +73,14 @@ export async function SelectThemePresetAction({
 export async function UpdateStoreThemeAction({
   storeId,
   themeId,
-}: {
-  storeId: string;
-  themeId: StoreThemeId;
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; themeId: StoreThemeId } & Target): Promise<ActionResult> {
   try {
     if (!storeId) return { success: false, message: "معرف المتجر غير موجود" };
-    if (!isStoreThemeId(themeId)) return { success: false, message: "الثيم غير صالح" };
-
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    const store = await prisma.store.findUnique({
-      where: { id: storeId },
-      select: { slug: true },
-    });
-
-    if (!store) return { success: false, message: "المتجر غير موجود" };
-
-    const theme = getStoreTheme(themeId);
-
-    await prisma.storeSettings.upsert({
-      where: { storeId },
-      update: { themeId, navbarVariant: theme.navbarVariant },
-      create: { storeId, themeId, navbarVariant: theme.navbarVariant },
-    });
-
-    revalidatePath("/dashboard/themes");
-    revalidatePath("/dashboard/customization");
-    revalidatePath(`/store/${store.slug}`);
-    revalidatePath(`/store/${store.slug}/products`);
-    revalidatePath(`/store/${store.slug}/categories`);
-
+    if (!isStoreThemeId(themeId) || !isThemePresetId(themeId)) return { success: false, message: "الثيم غير صالح" };
+    await guard(storeId);
+    // Through the theme config: it takes precedence over the legacy themeId column.
+    await mutateAppearance(storeId, (a) => applyPreset(a, themeId), target);
     return { success: true, message: "تم تحديث الثيم بنجاح" };
   } catch (error) {
     console.error("UpdateStoreThemeAction Error:", error);
@@ -135,44 +91,21 @@ export async function UpdateStoreThemeAction({
 export async function UpdateThemeAction({
   storeId,
   themeId,
-}: {
-  storeId: string;
-  themeId: string;
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; themeId: string } & Target): Promise<ActionResult> {
   if (!isThemePresetId(themeId)) return { success: false, message: "الثيم غير صالح" };
-  return SelectThemePresetAction({ storeId, presetId: themeId });
+  return SelectThemePresetAction({ storeId, presetId: themeId, target });
 }
 
 // ─── Publish draft ────────────────────────────────────────────────────────────
 
-export async function PublishThemeFromDraftAction({
-  storeId,
-}: {
-  storeId: string;
-}): Promise<ActionResult> {
+export async function PublishThemeFromDraftAction({ storeId }: { storeId: string }): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    const store = await MustOwnStore(storeId, userId);
-
-    // Every editor action already writes the live themeConfig. Copying the old
-    // draft over it (as this used to do) silently reverted newer changes, so
-    // "publish" now just snapshots the live config and refreshes the store.
-    const settings = await prisma.storeSettings.findUnique({
-      where: { storeId },
-      select: { themeConfig: true },
-    });
-    if (settings?.themeConfig) {
-      await prisma.storeSettings.update({
-        where: { storeId },
-        data: { draftThemeConfig: settings.themeConfig },
-      });
-    }
-
-    revalidatePath("/dashboard/customization");
-    revalidatePath("/builder");
-    revalidatePath(`/store/${store.slug}`, "layout");
-
-    return { success: true, message: "المتجر اتحدّث بآخر تعديلاتك 🎉" };
+    await guard(storeId);
+    const published = await publishDraft(storeId);
+    return published
+      ? { success: true, message: "المتجر اتحدّث بآخر تعديلاتك 🎉" }
+      : { success: true, message: "مفيش تعديلات جديدة تتنشر" };
   } catch (error) {
     console.error("PublishThemeFromDraftAction:", error);
     return { success: false, message: "حصل خطأ أثناء النشر" };
@@ -184,26 +117,19 @@ export async function PublishThemeFromDraftAction({
 export async function UpdateThemeTokensAction({
   storeId,
   overrides,
-}: {
-  storeId: string;
-  overrides: Partial<ThemeTokens>;
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; overrides: Partial<ThemeTokens> } & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    const current = await getThemeConfig(storeId);
-    const updated: ThemeCustomization = {
-      ...current,
-      tokenOverrides: { ...(current.tokenOverrides ?? {}), ...overrides },
-    };
-
-    await upsertThemeConfig(storeId, updated, {
-      ...(overrides.primary ? { primaryColor: overrides.primary } : {}),
-      ...(overrides.secondary ? { secondaryColor: overrides.secondary } : {}),
-    });
-
-    revalidatePath("/dashboard/customization");
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) => ({
+        ...withConfig(a, { tokenOverrides: { ...(a.themeConfig.tokenOverrides ?? {}), ...overrides } }),
+        ...(overrides.primary ? { primaryColor: overrides.primary } : {}),
+        ...(overrides.secondary ? { secondaryColor: overrides.secondary } : {}),
+      }),
+      target,
+    );
     return { success: true, message: "تم حفظ الألوان بنجاح" };
   } catch (error) {
     console.error("UpdateThemeTokensAction:", error);
@@ -211,49 +137,52 @@ export async function UpdateThemeTokensAction({
   }
 }
 
+/** Back to the theme's own colors. */
+export async function ResetThemeColorsAction({ storeId, target }: { storeId: string } & Target): Promise<ActionResult> {
+  try {
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) => {
+        const themeConfig = { ...a.themeConfig };
+        delete themeConfig.tokenOverrides;
+        return { ...a, themeConfig, primaryColor: null, secondaryColor: null };
+      },
+      target,
+    );
+    return { success: true, message: "رجعنا ألوان الثيم الأصلية" };
+  } catch (error) {
+    console.error("ResetThemeColorsAction:", error);
+    return { success: false, message: "حصل خطأ أثناء حفظ الألوان" };
+  }
+}
+
 // ─── Colors (legacy flat fields) ─────────────────────────────────────────────
 
-const colorsSchema = z.object({
-  storeId: z.string().min(1),
-  primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "لون غير صالح"),
-  secondaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "لون غير صالح"),
-});
+const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, "لون غير صالح");
+const colorsSchema = z.object({ storeId: z.string().min(1), primaryColor: hex, secondaryColor: hex });
 
-export async function UpdateStoreColorsAction(input: {
-  storeId: string;
-  primaryColor: string;
-  secondaryColor: string;
-}): Promise<ActionResult> {
+export async function UpdateStoreColorsAction(
+  input: { storeId: string; primaryColor: string; secondaryColor: string } & Target,
+): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
     const parsed = colorsSchema.safeParse(input);
     if (!parsed.success) return { success: false, message: "ألوان غير صالحة" };
-
     const { storeId, primaryColor, secondaryColor } = parsed.data;
-    await MustOwnStore(storeId, userId);
-
-    const store = await prisma.store.findUnique({ where: { id: storeId }, select: { slug: true } });
-    if (!store) return { success: false, message: "المتجر غير موجود" };
+    await guard(storeId);
 
     // themeConfig.tokenOverrides wins over the flat fields when resolving the
-    // theme, so keep both in sync — otherwise a color once saved from the
-    // visual builder would silently ignore every later change made here.
-    const current = await getThemeConfig(storeId);
-    const tokenOverrides = { ...(current.tokenOverrides ?? {}) };
-    tokenOverrides.primary = primaryColor;
-    tokenOverrides.secondary = secondaryColor;
-    delete tokenOverrides.primaryForeground;
-    delete tokenOverrides.secondaryForeground;
-
-    await prisma.storeSettings.upsert({
-      where: { storeId },
-      update: { primaryColor, secondaryColor, themeConfig: { ...current, tokenOverrides } },
-      create: { storeId, primaryColor, secondaryColor, themeConfig: { ...current, tokenOverrides } },
-    });
-
-    revalidatePath("/dashboard/customization");
-    revalidatePath(`/store/${store.slug}`, "layout");
-
+    // theme, so keep both in sync — and let the readable text colors be recomputed.
+    await mutateAppearance(
+      storeId,
+      (a) => {
+        const tokenOverrides = { ...(a.themeConfig.tokenOverrides ?? {}), primary: primaryColor, secondary: secondaryColor };
+        delete tokenOverrides.primaryForeground;
+        delete tokenOverrides.secondaryForeground;
+        return { ...withConfig(a, { tokenOverrides }), primaryColor, secondaryColor };
+      },
+      input.target,
+    );
     return { success: true, message: "تم حفظ الألوان بنجاح" };
   } catch {
     return { success: false, message: "حدث خطأ أثناء الحفظ" };
@@ -265,31 +194,18 @@ export async function UpdateStoreColorsAction(input: {
 export async function UpdateThemeLayoutAction({
   storeId,
   overrides,
-}: {
-  storeId: string;
-  overrides: Partial<ThemeLayout>;
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; overrides: Partial<ThemeLayout> } & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    const [current, storeInfo] = await Promise.all([
-      getThemeConfig(storeId),
-      prisma.store.findUnique({ where: { id: storeId }, select: { slug: true } }),
-    ]);
-
-    const updated: ThemeCustomization = {
-      ...current,
-      layoutOverrides: { ...(current.layoutOverrides ?? {}), ...overrides },
-    };
-
-    await upsertThemeConfig(storeId, updated, {
-      ...(overrides.navbar ? { navbarVariant: overrides.navbar } : {}),
-    });
-
-    revalidatePath("/dashboard/customization");
-    if (storeInfo?.slug) revalidatePath(`/store/${storeInfo.slug}`);
-
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) => ({
+        ...withConfig(a, { layoutOverrides: { ...(a.themeConfig.layoutOverrides ?? {}), ...overrides } }),
+        ...(overrides.navbar ? { navbarVariant: overrides.navbar } : {}),
+      }),
+      target,
+    );
     return { success: true, message: "تم حفظ إعدادات التصميم بنجاح" };
   } catch (error) {
     console.error("UpdateThemeLayoutAction:", error);
@@ -304,28 +220,19 @@ const allowedNavbarVariants: StoreNavbarVariant[] = ["default", "centered", "com
 export async function UpdateNavbarVariantAction({
   storeId,
   variant,
-}: {
-  storeId: string;
-  variant: StoreNavbarVariant;
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; variant: StoreNavbarVariant } & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    if (!allowedNavbarVariants.includes(variant)) {
-      return { success: false, message: "نوع النافبار غير صالح" };
-    }
-
-    await prisma.storeSettings.upsert({
-      where: { storeId },
-      update: { navbarVariant: variant },
-      create: { storeId, navbarVariant: variant },
-    });
-
-    revalidatePath("/dashboard/customization");
-    revalidatePath("/dashboard/settings");
-    revalidatePath(`/store/${storeId}`);
-
+    await guard(storeId);
+    if (!allowedNavbarVariants.includes(variant)) return { success: false, message: "نوع النافبار غير صالح" };
+    await mutateAppearance(
+      storeId,
+      (a) => ({
+        ...withConfig(a, { layoutOverrides: { ...(a.themeConfig.layoutOverrides ?? {}), navbar: variant } }),
+        navbarVariant: variant,
+      }),
+      target,
+    );
     return { success: true, message: "تم تحديث شكل النافبار بنجاح" };
   } catch (error) {
     console.error("UpdateNavbarVariantAction Error:", error);
@@ -336,36 +243,17 @@ export async function UpdateNavbarVariantAction({
 // ─── Font ─────────────────────────────────────────────────────────────────────
 
 const VALID_FONT_IDS = [...Object.keys(ARABIC_FONTS), ...Object.keys(ENGLISH_FONTS)];
-
 const fontSchema = z.object({
   storeId: z.string().min(1),
   fontId: z.string().refine((v) => VALID_FONT_IDS.includes(v), "خط غير صالح"),
 });
 
-export async function UpdateStoreFontAction(input: {
-  storeId: string;
-  fontId: string;
-}): Promise<ActionResult> {
+export async function UpdateStoreFontAction(input: { storeId: string; fontId: string } & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
     const parsed = fontSchema.safeParse(input);
     if (!parsed.success) return { success: false, message: "خط غير صالح" };
-
-    const { storeId, fontId } = parsed.data;
-    await MustOwnStore(storeId, userId);
-
-    const store = await prisma.store.findUnique({ where: { id: storeId }, select: { slug: true } });
-    if (!store) return { success: false, message: "المتجر غير موجود" };
-
-    await prisma.storeSettings.upsert({
-      where: { storeId },
-      update: { fontId },
-      create: { storeId, fontId },
-    });
-
-    revalidatePath("/dashboard/customization");
-    revalidatePath(`/store/${store.slug}`);
-
+    await guard(parsed.data.storeId);
+    await mutateAppearance(parsed.data.storeId, (a) => ({ ...a, fontId: parsed.data.fontId }), input.target);
     return { success: true, message: "تم حفظ الخط بنجاح" };
   } catch {
     return { success: false, message: "حدث خطأ أثناء الحفظ" };
@@ -374,39 +262,31 @@ export async function UpdateStoreFontAction(input: {
 
 // ─── Language ─────────────────────────────────────────────────────────────────
 
-const languageSchema = z.object({
-  storeId: z.string().min(1),
-  storeLanguage: z.enum(["ar", "en"]),
-});
+const languageSchema = z.object({ storeId: z.string().min(1), storeLanguage: z.enum(["ar", "en"]) });
 
-export async function UpdateStoreLanguageAction(input: {
-  storeId: string;
-  storeLanguage: "ar" | "en";
-}): Promise<ActionResult> {
+export async function UpdateStoreLanguageAction(
+  input: {
+    storeId: string;
+    storeLanguage: "ar" | "en";
+    /** Also switch to the language's default font (one undo step). */
+    withDefaultFont?: boolean;
+  } & Target,
+): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
     const parsed = languageSchema.safeParse(input);
     if (!parsed.success) return { success: false, message: "لغة غير صالحة" };
-
     const { storeId, storeLanguage } = parsed.data;
-    await MustOwnStore(storeId, userId);
-
-    const store = await prisma.store.findUnique({ where: { id: storeId }, select: { slug: true } });
-    if (!store) return { success: false, message: "المتجر غير موجود" };
-
-    await prisma.storeSettings.upsert({
-      where: { storeId },
-      update: { storeLanguage },
-      create: { storeId, storeLanguage },
-    });
-
-    revalidatePath("/dashboard/customization");
-    revalidatePath(`/store/${store.slug}`);
-
-    return {
-      success: true,
-      message: storeLanguage === "ar" ? "تم التحويل إلى العربية" : "Switched to English",
-    };
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) => ({
+        ...a,
+        storeLanguage,
+        ...(input.withDefaultFont ? { fontId: storeLanguage === "en" ? "inter" : "cairo" } : {}),
+      }),
+      input.target,
+    );
+    return { success: true, message: storeLanguage === "ar" ? "تم التحويل إلى العربية" : "Switched to English" };
   } catch {
     return { success: false, message: "حدث خطأ أثناء الحفظ" };
   }
@@ -414,52 +294,39 @@ export async function UpdateStoreLanguageAction(input: {
 
 // ─── Sections visibility ──────────────────────────────────────────────────────
 
+type HomeOverrides = { sectionOrder?: SectionKey[] } & Partial<Record<SectionKey, boolean>>;
+const homeOf = (a: Appearance) => (a.themeConfig.sectionOverrides?.home ?? {}) as HomeOverrides;
+
 export async function UpdateThemeSectionsAction({
   storeId,
   page,
   updates,
+  target,
 }: {
   storeId: string;
   page: keyof ThemeSections;
   updates: Partial<ThemeSections[keyof ThemeSections]>;
-}): Promise<ActionResult> {
+} & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    const current = await getThemeConfig(storeId);
-
-    let updatedHomeOrder: SectionKey[] | undefined;
-    if (page === "home") {
-      const currentOrder: SectionKey[] =
-        (current.sectionOverrides?.home as { sectionOrder?: SectionKey[] } | undefined)
-          ?.sectionOrder ?? DEFAULT_SECTION_ORDER;
-
-      const newlyEnabled = (Object.entries(updates) as [SectionKey, unknown][])
-        .filter(([, v]) => v === true)
-        .map(([k]) => k)
-        .filter((k) => !currentOrder.includes(k));
-
-      if (newlyEnabled.length > 0) {
-        updatedHomeOrder = [...currentOrder, ...newlyEnabled];
-      }
-    }
-
-    const updated: ThemeCustomization = {
-      ...current,
-      sectionOverrides: {
-        ...(current.sectionOverrides ?? {}),
-        [page]: {
-          ...(current.sectionOverrides?.[page] ?? {}),
-          ...updates,
-          ...(updatedHomeOrder ? { sectionOrder: updatedHomeOrder } : {}),
-        },
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) => {
+        const current = homeOf(a);
+        // A newly enabled section that isn't in the saved order goes last.
+        const order = current.sectionOrder ?? DEFAULT_SECTION_ORDER;
+        const added = (Object.entries(updates) as [SectionKey, unknown][])
+          .filter(([k, v]) => v === true && !order.includes(k))
+          .map(([k]) => k);
+        return withConfig(a, {
+          sectionOverrides: {
+            ...(a.themeConfig.sectionOverrides ?? {}),
+            [page]: { ...current, ...updates, ...(added.length ? { sectionOrder: [...order, ...added] } : {}) },
+          },
+        });
       },
-    };
-
-    await upsertThemeConfig(storeId, updated);
-    revalidatePath("/dashboard/customization");
-
+      target,
+    );
     return { success: true, message: "تم تحديث الأقسام بنجاح" };
   } catch (error) {
     console.error("UpdateThemeSectionsAction:", error);
@@ -472,33 +339,53 @@ export async function UpdateThemeSectionsAction({
 export async function UpdateSectionOrderAction({
   storeId,
   order,
-}: {
-  storeId: string;
-  order: SectionKey[];
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; order: SectionKey[] } & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    const current = await getThemeConfig(storeId);
-    const updated: ThemeCustomization = {
-      ...current,
-      sectionOverrides: {
-        ...(current.sectionOverrides ?? {}),
-        home: {
-          ...(current.sectionOverrides?.home ?? {}),
-          sectionOrder: order,
-        },
-      },
-    };
-
-    await upsertThemeConfig(storeId, updated);
-    revalidatePath("/dashboard/customization");
-
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) =>
+        withConfig(a, {
+          sectionOverrides: { ...(a.themeConfig.sectionOverrides ?? {}), home: { ...homeOf(a), sectionOrder: order } },
+        }),
+      target,
+    );
     return { success: true, message: "تم حفظ ترتيب الأقسام" };
   } catch (error) {
     console.error("UpdateSectionOrderAction:", error);
     return { success: false, message: "حصل خطأ أثناء حفظ الترتيب" };
+  }
+}
+
+/** Turn a section on and put it at `index` in the home order (section library "add here"). */
+export async function InsertSectionAction({
+  storeId,
+  key,
+  index,
+  target,
+}: { storeId: string; key: SectionKey; index: number } & Target): Promise<ActionResult> {
+  try {
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) => {
+        const current = homeOf(a);
+        const order = (current.sectionOrder ?? DEFAULT_SECTION_ORDER).filter((k) => k !== key);
+        const at = Math.max(0, Math.min(order.length, Math.round(index)));
+        return withConfig(a, {
+          sectionOverrides: {
+            ...(a.themeConfig.sectionOverrides ?? {}),
+            home: { ...current, [key]: true, sectionOrder: [...order.slice(0, at), key, ...order.slice(at)] },
+          },
+        });
+      },
+      target,
+    );
+    return { success: true, message: "اتضاف القسم" };
+  } catch (error) {
+    console.error("InsertSectionAction:", error);
+    return { success: false, message: "حصل خطأ أثناء إضافة القسم" };
   }
 }
 
@@ -507,23 +394,15 @@ export async function UpdateSectionOrderAction({
 export async function UpdateSectionContentAction({
   storeId,
   updates,
-}: {
-  storeId: string;
-  updates: Partial<SectionContentMap>;
-}): Promise<ActionResult> {
+  target,
+}: { storeId: string; updates: Partial<SectionContentMap> } & Target): Promise<ActionResult> {
   try {
-    const userId = await requireUserId();
-    await MustOwnStore(storeId, userId);
-
-    const current = await getThemeConfig(storeId);
-    const updated: ThemeCustomization = {
-      ...current,
-      sectionContent: { ...(current.sectionContent ?? {}), ...updates },
-    };
-
-    await upsertThemeConfig(storeId, updated);
-    revalidatePath("/dashboard/customization");
-
+    await guard(storeId);
+    await mutateAppearance(
+      storeId,
+      (a) => withConfig(a, { sectionContent: { ...(a.themeConfig.sectionContent ?? {}), ...updates } }),
+      target,
+    );
     return { success: true, message: "تم حفظ محتوى القسم بنجاح" };
   } catch (error) {
     console.error("UpdateSectionContentAction:", error);

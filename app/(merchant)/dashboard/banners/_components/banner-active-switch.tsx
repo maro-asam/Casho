@@ -34,7 +34,7 @@ export function BannerActiveSwitch({ bannerId, storeId, title, isActive }: { ban
       onCheckedChange={toggle}
       disabled={pending}
       aria-label={tr("إظهار \"{0}\" في المتجر", title)}
-      className="relative z-10"
+      className="apple-switch relative z-10"
     />
   );
 }

@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, Download, FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { tdir, tr } from "@/lib/i18n/dashboard";
+import { appleButton } from "@/components/saas-page";
 
 type Format = "xlsx" | "csv";
 
@@ -80,23 +80,23 @@ export function ExportOrdersButton() {
   return (
     <DropdownMenu dir={tdir()} modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="h-9 gap-1.5" disabled={exporting !== null}>
+        <button type="button" className={appleButton.gray} disabled={exporting !== null}>
           {exporting ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
           {exporting ? tr("جاري التجهيز...") : tr("تصدير")}
-          {!exporting && <ChevronDown className="size-3.5 opacity-60" />}
-        </Button>
+          {!exporting && <ChevronDown className="size-4 text-muted-foreground" />}
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+      <DropdownMenuContent align="end" className="w-60 rounded-xl p-1.5">
+        <DropdownMenuLabel className="text-[12px] leading-4 font-normal text-muted-foreground">
           {hasFilters ? tr("هيتصدّر الطلبات اللي ظاهرة بالفلاتر الحالية") : tr("هيتصدّر كل الطلبات")}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => exportAs("xlsx")} className="gap-2">
-          <FileSpreadsheet className="size-4 text-emerald-600 dark:text-emerald-400" />
+        <DropdownMenuItem onSelect={() => exportAs("xlsx")} className="h-10 gap-2.5 rounded-lg text-[15px]">
+          <FileSpreadsheet className="size-4 text-(--sys-green)" />
           <span className="flex-1">Excel</span>
           <span className="text-xs text-muted-foreground" dir="ltr">.xlsx</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => exportAs("csv")} className="gap-2">
+        <DropdownMenuItem onSelect={() => exportAs("csv")} className="h-10 gap-2.5 rounded-lg text-[15px]">
           <FileText className="size-4 text-muted-foreground" />
           <span className="flex-1">CSV</span>
           <span className="text-xs text-muted-foreground" dir="ltr">.csv</span>

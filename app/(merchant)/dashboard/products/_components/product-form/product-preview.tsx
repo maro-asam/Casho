@@ -18,28 +18,28 @@ export function ProductPreview({ name, image, price, compareAtPrice, categoryNam
   const discount = onSale ? Math.round((1 - price! / compareAtPrice!) * 100) : 0;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-background">
+    <div className="overflow-hidden rounded-2xl bg-background">
       <div className="relative aspect-square bg-muted">
         {image ? (
           <Image src={image} alt="" fill sizes="320px" className="object-cover" unoptimized />
         ) : (
-          <div className="absolute inset-0 grid place-items-center text-muted-foreground/60">
-            <ImageIcon className="size-8" />
+          <div className="absolute inset-0 grid place-items-center text-(--label-3)">
+            <ImageIcon className="size-9" strokeWidth={1.4} />
           </div>
         )}
         {onSale && (
-          <span className="absolute inset-s-2 top-2 rounded-md bg-rose-600 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+          <span className="absolute inset-s-2.5 top-2.5 rounded-full bg-(--sys-red) px-2 py-0.5 text-[12px] font-semibold text-white">
             {tr("خصم {0}٪", discount)}
           </span>
         )}
       </div>
-      <div className="space-y-1 p-3">
-        {categoryName && <p className="text-xs text-muted-foreground">{categoryName}</p>}
-        <p className="line-clamp-2 text-sm font-medium">{name || tr("اسم المنتج")}</p>
+      <div className="space-y-1 p-3.5">
+        {categoryName && <p className="text-[12px] text-muted-foreground">{categoryName}</p>}
+        <p className="line-clamp-2 text-[15px] leading-5">{name || tr("اسم المنتج")}</p>
         <div className="flex items-baseline gap-2">
-          <span className="text-sm font-bold tabular-nums">{price !== null ? money.format(price) : "—"}</span>
+          <span className="text-[17px] font-semibold tabular-nums">{price !== null ? money.format(price) : "—"}</span>
           {onSale && (
-            <span className="text-xs text-muted-foreground line-through tabular-nums">{money.format(compareAtPrice!)}</span>
+            <span className="text-[13px] text-muted-foreground line-through tabular-nums">{money.format(compareAtPrice!)}</span>
           )}
         </div>
       </div>

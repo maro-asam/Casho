@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AlertCircle, ArrowLeft, ArrowRight, Check, CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, Sparkles } from "lucide-react";
 
 import { RegisterAction } from "@/actions/auth/register.actions";
 import type { RegisterState } from "@/actions/auth/auth.types";
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { AuthSplit } from "../auth-split";
 import { GoogleButton, OrDivider, PasswordInput } from "../auth-controls";
 import { StorePreview } from "../store-preview";
-import { FormField } from "./form-field";
+import { FIELD_CLASS, FormAlert, FormField, PRIMARY_BUTTON_CLASS, SECONDARY_BUTTON_CLASS } from "./form-field";
 
 type Step = 1 | 2 | 3;
 
@@ -61,9 +61,9 @@ function passwordStrength(password: string) {
 }
 const STRENGTH = [
   { label: "", tone: "bg-border" },
-  { label: "ضعيفة", tone: "bg-destructive" },
-  { label: "كويسة", tone: "bg-amber-500" },
-  { label: "قوية", tone: "bg-emerald-500" },
+  { label: "ضعيفة", tone: "bg-(--sys-red)" },
+  { label: "كويسة", tone: "bg-(--sys-orange)" },
+  { label: "قوية", tone: "bg-(--sys-green)" },
 ];
 
 export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDays: number }) {
@@ -147,16 +147,16 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
     return (
       <AuthSplit aside={<StorePreview storeName={storeName} slug={slug?.suggestedSlug ?? ""} businessType={businessType} trialDays={trialDays} />}>
         <div className="flex flex-col items-center gap-4 text-center motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95" role="status">
-          <span className="grid size-14 place-items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="size-7" />
+          <span className="grid size-16 place-items-center rounded-full bg-(--sys-green) text-white">
+            <Check className="size-8" strokeWidth={2.6} />
           </span>
           <div className="space-y-1.5">
-            <h1 className="text-2xl font-bold tracking-tight">متجرك جاهز</h1>
-            <p className="font-mono text-sm text-muted-foreground" dir="ltr">
+            <h1 className="text-[34px] leading-[41px] font-bold">متجرك جاهز</h1>
+            <p className="font-mono text-[15px] text-muted-foreground" dir="ltr">
               {slug?.suggestedSlug}.casho.store
             </p>
           </div>
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <p className="flex items-center gap-2 text-[15px] text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
             بنجهّزلك الخطوات الأولى...
           </p>
@@ -174,22 +174,28 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
       switchLabel="سجّل دخول"
       switchHref="/login"
     >
-      <div className="space-y-6">
-        {/* Progress */}
-        <div className="space-y-2">
-          <div className="flex gap-1.5" aria-hidden>
+      <div className="space-y-7">
+        {/* Progress: page-control style dots, the current one stretches into a capsule. */}
+        <div className="flex flex-col items-center gap-2.5">
+          <div className="flex items-center gap-1.5" aria-hidden>
             {STEPS.map((_, i) => (
-              <span key={i} className={cn("h-1 flex-1 rounded-full transition-colors duration-300", i < step ? "bg-primary" : "bg-border")} />
+              <span
+                key={i}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300 ease-(--ease-apple)",
+                  i + 1 === step ? "w-6 bg-primary" : i < step ? "w-2 bg-primary/60" : "w-2 bg-(--label-3)",
+                )}
+              />
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[13px] font-semibold text-muted-foreground">
             خطوة {step.toLocaleString("ar-EG")} من {STEPS.length.toLocaleString("ar-EG")}
           </p>
         </div>
 
-        <div key={step} className="space-y-1.5 motion-safe:animate-in motion-safe:fade-in">
-          <h1 className="text-2xl font-bold tracking-tight">{current.title}</h1>
-          <p className="text-sm text-muted-foreground">{current.description}</p>
+        <div key={step} className="space-y-2 text-center motion-safe:animate-in motion-safe:fade-in">
+          <h1 className="text-[34px] leading-[41px] font-bold">{current.title}</h1>
+          <p className="text-[17px] text-muted-foreground">{current.description}</p>
         </div>
 
         {step === 1 && (
@@ -199,12 +205,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
           </>
         )}
 
-        {state?.error && !state.fieldErrors && (
-          <div role="alert" className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
-            <AlertCircle className="mt-0.5 size-4 shrink-0" />
-            {state.error}
-          </div>
-        )}
+        {state?.error && !state.fieldErrors && <FormAlert>{state.error}</FormAlert>}
 
         <form
           action={formAction}
@@ -244,7 +245,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
                   autoFocus
                   autoComplete="organization"
                   maxLength={60}
-                  className="h-11"
+                  className={FIELD_CLASS}
                 />
               </FormField>
             )}
@@ -259,13 +260,13 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
                     placeholder="الاسم بالكامل"
                     autoFocus
                     autoComplete="name"
-                    className="h-11"
+                    className={FIELD_CLASS}
                   />
                 </FormField>
 
                 <FormField htmlFor="country" label="البلد" error={errors.country}>
                   <Select value={country} onValueChange={setCountry} dir="rtl">
-                    <SelectTrigger id="country" className="h-11 w-full">
+                    <SelectTrigger id="country" className={cn(FIELD_CLASS, "w-full data-[size=default]:h-12")}>
                       <SelectValue placeholder="اختار البلد" />
                     </SelectTrigger>
                     <SelectContent>
@@ -279,7 +280,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
                 </FormField>
 
                 <fieldset className="space-y-2">
-                  <legend className="text-sm font-medium">بتبيع إيه؟</legend>
+                  <legend className="px-1 text-[13px] font-semibold text-muted-foreground">بتبيع إيه؟</legend>
                   <div role="radiogroup" aria-label="نوع النشاط" className="flex flex-wrap gap-2 pt-1.5">
                     {BUSINESS_TYPES.map((type) => {
                       const selected = businessType === type;
@@ -291,19 +292,19 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
                           aria-checked={selected}
                           onClick={() => setBusinessType(type)}
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                            "apple-press inline-flex h-9 items-center gap-1 rounded-full px-3.5 text-[15px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                             selected
-                              ? "border-primary bg-primary/10 font-medium text-primary"
-                              : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                              ? "bg-primary font-semibold text-primary-foreground"
+                              : "bg-card text-foreground/80 hover:text-foreground",
                           )}
                         >
-                          {selected && <Check className="size-3" strokeWidth={3} />}
+                          {selected && <Check className="size-3.5" strokeWidth={3} />}
                           {type}
                         </button>
                       );
                     })}
                   </div>
-                  {errors.businessType && <p className="text-xs text-destructive">{errors.businessType}</p>}
+                  {errors.businessType && <p className="px-1 text-[13px] text-[#d70015] dark:text-(--sys-red)">{errors.businessType}</p>}
                 </fieldset>
               </>
             )}
@@ -323,7 +324,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
                     autoComplete="email"
                     inputMode="email"
                     aria-invalid={!!emailError}
-                    className="h-11"
+                    className={FIELD_CLASS}
                   />
                 </FormField>
 
@@ -339,7 +340,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
                     autoComplete="tel"
                     inputMode="numeric"
                     aria-invalid={!!phoneError}
-                    className="h-11 tabular-nums"
+                    className={cn(FIELD_CLASS, "tabular-nums")}
                   />
                 </FormField>
 
@@ -352,15 +353,15 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
                     aria-invalid={!!errors.password}
                   />
                   <div className="space-y-2 pt-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 px-1">
                       <div className="flex flex-1 gap-1" aria-hidden>
                         {[1, 2, 3].map((n) => (
-                          <span key={n} className={cn("h-1 flex-1 rounded-full transition-colors", strength >= n ? STRENGTH[strength].tone : "bg-border")} />
+                          <span key={n} className={cn("h-1 flex-1 rounded-full transition-colors", strength >= n ? STRENGTH[strength].tone : "bg-(--label-3)/50")} />
                         ))}
                       </div>
-                      <span className="w-10 text-left text-xs text-muted-foreground">{password && STRENGTH[strength].label}</span>
+                      <span className="w-10 text-left text-[12px] text-muted-foreground">{password && STRENGTH[strength].label}</span>
                     </div>
-                    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <ul className="flex flex-wrap gap-x-4 gap-y-1 px-1 text-[13px]">
                       <Rule ok={password.length >= 8}>٨ حروف على الأقل</Rule>
                       <Rule ok={/\d/.test(password)}>فيها رقم</Rule>
                     </ul>
@@ -372,12 +373,12 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
 
           <div className="flex gap-3">
             {step > 1 && (
-              <Button type="button" variant="outline" onClick={() => setStep((step - 1) as Step)} className="h-11 gap-1.5 px-4">
-                <ArrowRight className="size-4" />
+              <Button type="button" variant="outline" onClick={() => setStep((step - 1) as Step)} className={cn(SECONDARY_BUTTON_CLASS, "gap-1 px-5")}>
+                <ChevronRight className="size-4" />
                 رجوع
               </Button>
             )}
-            <Button type="submit" disabled={!canContinue[step] || isPending} className="h-11 flex-1 gap-2 font-semibold">
+            <Button type="submit" disabled={!canContinue[step] || isPending} className={cn(PRIMARY_BUTTON_CLASS, "flex-1 gap-2")}>
               {isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
@@ -386,7 +387,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
               ) : step < 3 ? (
                 <>
                   التالي
-                  <ArrowLeft className="size-4" />
+                  <ChevronLeft className="size-4" />
                 </>
               ) : (
                 "اعمل متجري"
@@ -395,7 +396,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
           </div>
 
           {step === 3 && (
-            <p className="text-center text-xs leading-5 text-muted-foreground">
+            <p className="text-center text-[13px] leading-5 text-muted-foreground">
               لما تدوس &quot;اعمل متجري&quot; تبقى موافق على{" "}
               <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">
                 الشروط
@@ -415,7 +416,7 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
 
 function Rule({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   return (
-    <li className={cn("flex items-center gap-1 transition-colors", ok ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
+    <li className={cn("flex items-center gap-1 transition-colors", ok ? "text-[#248a3d] dark:text-(--sys-green)" : "text-muted-foreground")}>
       <Check className={cn("size-3", !ok && "opacity-40")} strokeWidth={3} />
       {children}
     </li>
@@ -435,11 +436,11 @@ function SlugStatus({ checking, slug }: { checking: boolean; slug: StoreSlugAvai
   return (
     <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
       {slug.available ? (
-        <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+        <CheckCircle2 className="size-3.5 text-[#248a3d] dark:text-(--sys-green)" />
       ) : (
         <Sparkles className="size-3.5 text-primary" />
       )}
-      <span className={slug.available ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}>
+      <span className={slug.available ? "text-[#248a3d] dark:text-(--sys-green)" : "text-foreground"}>
         {slug.available ? "متاح:" : "الاسم ده مستخدم، اقترحنالك:"}
       </span>
       <span className="font-mono font-medium text-foreground" dir="ltr">

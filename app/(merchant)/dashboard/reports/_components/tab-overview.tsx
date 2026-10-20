@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import DeltaBadge from "../../_components/overview/DeltaBadge";
 import { CHANNELS, formatMoney, formatNumber, formatPercent, percentChange } from "../../_components/overview/format";
 import type { Delta, ReportsData } from "../_lib/types";
-import { Panel, ShareBar, Stat } from "./report-ui";
+import { Note, Panel, ShareBar, Stat } from "./report-ui";
 import { TrendChart } from "./trend-chart";
 import { intlLocale, tr } from "@/lib/i18n/dashboard";
 
@@ -32,7 +32,7 @@ export function TabOverview({ data }: { data: ReportsData }) {
       : undefined;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat
           icon={Coins}
@@ -48,7 +48,7 @@ export function TabOverview({ data }: { data: ReportsData }) {
             delta={kpis.grossProfit}
             format={formatMoney}
             hint={tr("صافي المبيعات ناقص تكلفة البضاعة المباعة. المنتجات اللي ملهاش سعر تكلفة مش داخلة في الحساب.")}
-            sub={coverageNote && <span className="text-amber-600 dark:text-amber-400">{coverageNote}</span>}
+            sub={coverageNote && <span className="text-[#c93400] dark:text-(--sys-orange)">{coverageNote}</span>}
           />
         ) : (
           <Stat
@@ -57,7 +57,7 @@ export function TabOverview({ data }: { data: ReportsData }) {
             value="—"
             hint={tr("محتاجين سعر التكلفة للمنتجات عشان نحسب الربح.")}
             sub={
-              <Link href="/products" className="text-amber-600 hover:underline dark:text-amber-400">
+              <Link href="/products" className="text-primary hover:underline">
                 {tr("ضيف سعر التكلفة للمنتجات")}
               </Link>
             }
@@ -106,11 +106,11 @@ export function TabOverview({ data }: { data: ReportsData }) {
 
       <TrendChart series={data.series} previousLabel={data.range.previousLabel} />
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid gap-5 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <ProfitStatement data={data} />
         </div>
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-5 lg:col-span-2">
           <Insights insights={data.insights} />
           <Channels data={data} />
         </div>
@@ -139,13 +139,13 @@ function Row({
   note?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-3 py-2.5", strong && "border-t border-border pt-3")}>
+    <div className={cn("flex items-center gap-3 py-2.5", strong && "border-t-[0.5px] border-border pt-3")}>
       <div className="min-w-0 flex-1">
-        <p className={cn("text-sm", strong ? "font-semibold" : muted ? "text-muted-foreground" : "")}>{label}</p>
-        {note && <p className="text-xs text-muted-foreground">{note}</p>}
+        <p className={cn("text-[15px]", strong ? "font-semibold" : muted ? "text-muted-foreground" : "")}>{label}</p>
+        {note && <p className="text-[13px] text-muted-foreground">{note}</p>}
       </div>
       {delta && <DeltaBadge value={percentChange(delta.current, delta.previous)} invert={invert} className="hidden sm:inline-flex" />}
-      <p className={cn("w-32 text-end tabular-nums", strong ? "text-base font-bold" : "text-sm font-medium", muted && "text-muted-foreground")}>
+      <p className={cn("w-32 text-end tabular-nums", strong ? "text-[17px] font-bold" : "text-[15px] font-medium", muted && "text-muted-foreground")}>
         {sign === "-" && value > 0 ? "− " : ""}
         {formatMoney(value)}
       </p>
@@ -177,40 +177,40 @@ function ProfitStatement({ data }: { data: ReportsData }) {
             />
           </>
         ) : (
-          <p className="flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
-            <Info className="mt-0.5 size-3.5 shrink-0" />
-            {tr("مفيش سعر تكلفة لأي منتج اتباع، فمش هنقدر نحسب الربح. ضيف سعر التكلفة من صفحة تعديل المنتج.")}
-          </p>
+          <div className="pt-2">
+            <Note icon={Info}>{tr("مفيش سعر تكلفة لأي منتج اتباع، فمش هنقدر نحسب الربح. ضيف سعر التكلفة من صفحة تعديل المنتج.")}</Note>
+          </div>
         )}
       </div>
 
       {hasCost && pnl.costCoverage < 0.999 && (
-        <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-300">
-          <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+        <div className="mt-3">
+          <Note icon={AlertTriangle} tone="warning">
           {tr("{0} منتج اتباعوا من غير سعر تكلفة، فالربح محسوب على {1} من المبيعات بس.", formatNumber(pnl.productsMissingCost), formatPercent(pnl.costCoverage * 100))}{" "}
-          <Link href="/products" className="font-medium underline underline-offset-2">
+          <Link href="/products" className="text-primary hover:underline">
             {tr("ضيف التكلفة")}
           </Link>
-        </p>
+          </Note>
+        </div>
       )}
 
-      <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4 text-sm sm:grid-cols-4">
-        <div>
-          <dt className="text-xs text-muted-foreground">{tr("الشحن المحصّل")}</dt>
-          <dd className="mt-0.5 font-medium tabular-nums">{formatMoney(pnl.shipping)}</dd>
+      <dl className="mt-4 grid grid-cols-2 gap-2 text-[15px] sm:grid-cols-4">
+        <div className="rounded-xl bg-background px-3.5 py-2.5">
+          <dt className="text-[12px] text-muted-foreground">{tr("الشحن المحصّل")}</dt>
+          <dd className="mt-0.5 text-[17px] font-semibold tabular-nums">{formatMoney(pnl.shipping)}</dd>
         </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">{tr("القطع المباعة")}</dt>
-          <dd className="mt-0.5 font-medium tabular-nums">{formatNumber(pnl.units.current)}</dd>
+        <div className="rounded-xl bg-background px-3.5 py-2.5">
+          <dt className="text-[12px] text-muted-foreground">{tr("القطع المباعة")}</dt>
+          <dd className="mt-0.5 text-[17px] font-semibold tabular-nums">{formatNumber(pnl.units.current)}</dd>
         </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">{tr("قطع في الطلب")}</dt>
-          <dd className="mt-0.5 font-medium tabular-nums">{pnl.itemsPerOrder.toLocaleString(intlLocale(), { maximumFractionDigits: 1 })}</dd>
+        <div className="rounded-xl bg-background px-3.5 py-2.5">
+          <dt className="text-[12px] text-muted-foreground">{tr("قطع في الطلب")}</dt>
+          <dd className="mt-0.5 text-[17px] font-semibold tabular-nums">{pnl.itemsPerOrder.toLocaleString(intlLocale(), { maximumFractionDigits: 1 })}</dd>
         </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">{tr("طلبات ملغية")}</dt>
-          <dd className="mt-0.5 font-medium tabular-nums">
-            {formatNumber(pnl.canceledOrders)} <span className="text-xs font-normal text-muted-foreground">· {formatMoney(pnl.canceledValue)}</span>
+        <div className="rounded-xl bg-background px-3.5 py-2.5">
+          <dt className="text-[12px] text-muted-foreground">{tr("طلبات ملغية")}</dt>
+          <dd className="mt-0.5 text-[17px] font-semibold tabular-nums">
+            {formatNumber(pnl.canceledOrders)} <span className="text-[13px] font-normal text-muted-foreground">· {formatMoney(pnl.canceledValue)}</span>
           </dd>
         </div>
       </dl>
@@ -220,8 +220,8 @@ function ProfitStatement({ data }: { data: ReportsData }) {
 
 const INSIGHT_ICON = { positive: Sparkles, warning: AlertTriangle, info: Lightbulb };
 const INSIGHT_TONE = {
-  positive: "text-emerald-600 dark:text-emerald-400",
-  warning: "text-amber-600 dark:text-amber-400",
+  positive: "text-(--sys-green)",
+  warning: "text-(--sys-orange)",
   info: "text-primary",
 };
 
@@ -233,7 +233,7 @@ function Insights({ insights }: { insights: ReportsData["insights"] }) {
           {insights.map((insight, i) => {
             const Icon = INSIGHT_ICON[insight.tone];
             return (
-              <li key={i} className="flex items-start gap-2.5 text-sm leading-6">
+              <li key={i} className="flex items-start gap-2.5 text-[15px] leading-6">
                 <Icon className={cn("mt-1 size-4 shrink-0", INSIGHT_TONE[insight.tone])} />
                 <span>{insight.text}</span>
               </li>
@@ -241,7 +241,7 @@ function Insights({ insights }: { insights: ReportsData["insights"] }) {
           })}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">{tr("محتاجين بيانات أكتر في الفترة دي عشان نطلع ملاحظات مفيدة.")}</p>
+        <p className="text-[15px] text-muted-foreground">{tr("محتاجين بيانات أكتر في الفترة دي عشان نطلع ملاحظات مفيدة.")}</p>
       )}
     </Panel>
   );
@@ -256,13 +256,13 @@ function Channels({ data }: { data: ReportsData }) {
             const { label, icon: Icon } = CHANNELS[c.source];
             return (
               <li key={c.source} className="space-y-1.5">
-                <div className="flex items-center gap-2 text-sm">
-                  <Icon className="size-4 text-muted-foreground" />
-                  <span className="flex-1 font-medium">{label}</span>
+                <div className="flex items-center gap-2 text-[15px]">
+                  <Icon className="size-4 text-muted-foreground" strokeWidth={1.8} />
+                  <span className="flex-1">{label}</span>
                   <span className="font-semibold tabular-nums">{formatMoney(c.netSales)}</span>
                 </div>
                 <ShareBar value={c.share} />
-                <p className="text-xs text-muted-foreground tabular-nums">
+                <p className="text-[13px] text-muted-foreground tabular-nums">
                   {tr("{0} · {1} طلب · متوسط {2}", formatPercent(c.share * 100), formatNumber(c.orders), formatMoney(c.aov))}
                 </p>
               </li>
@@ -270,7 +270,7 @@ function Channels({ data }: { data: ReportsData }) {
           })}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">{tr("مفيش طلبات في الفترة دي.")}</p>
+        <p className="text-[15px] text-muted-foreground">{tr("مفيش طلبات في الفترة دي.")}</p>
       )}
     </Panel>
   );

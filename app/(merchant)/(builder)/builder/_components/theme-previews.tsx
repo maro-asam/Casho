@@ -1,23 +1,4 @@
-"use client";
-
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
-import { Check, Palette } from "lucide-react";
-
-import { STORE_THEMES, type StoreThemeId } from "@/constants/store-themes";
-import { cn } from "@/lib/utils";
-import { UpdateThemeAction } from "@/actions/settings/theme.actions";
-import { Card, CardContent } from "@/components/ui/card";
-import ThemeCategoryFilter, {
-  filterThemesByCategory,
-  type ThemeCategoryFilterValue,
-} from "@/components/common/ThemeCategoryFilter";
-import { tdir, tr, trv } from "@/lib/i18n/dashboard";
-
-type ThemePickerProps = {
-  storeId: string;
-  currentThemeId?: string | null;
-};
+import type { StoreThemeId } from "@/constants/store-themes";
 
 // ─── 1. Default ───────────────────────────────────────────────────
 function DefaultThemePreview() {
@@ -197,7 +178,8 @@ function CelloThemePreview() {
 }
 
 // ─────────────────────────────────────────────────────────────────
-const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
+/** Schematic thumbnail of each theme (no images, so it renders instantly). */
+export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   default: DefaultThemePreview,
   riwaq: RiwaqThemePreview,
   mada: MadaThemePreview,
@@ -205,83 +187,3 @@ const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   maximize: MaximizeThemePreview,
   cello: CelloThemePreview,
 };
-
-export default function ThemePicker({ storeId, currentThemeId }: ThemePickerProps) {
-  const [isPending, startTransition] = useTransition();
-  const [category, setCategory] = useState<ThemeCategoryFilterValue>("all");
-  const activeTheme = (currentThemeId as StoreThemeId) || "default";
-
-  const handleChange = (themeId: StoreThemeId) => {
-    if (themeId === activeTheme) return;
-    startTransition(async () => {
-      const result = await UpdateThemeAction({ storeId, themeId });
-      if (result.success) {
-        toast.success(trv(result.message));
-      } else {
-        toast.error(trv(result.message));
-      }
-    });
-  };
-
-  const allThemes = Object.values(STORE_THEMES);
-  const themes = filterThemesByCategory(allThemes, category);
-
-  return (
-    <Card dir={tdir()}>
-      <CardContent className="space-y-5">
-        <div className="flex items-center gap-3">
-          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-            <Palette className="size-4" />
-          </div>
-          <div>
-            <h2 className="font-semibold">{tr("ثيم المتجر")}</h2>
-            <p className="text-xs text-muted-foreground">{tr("اختر التصميم المناسب لهوية متجرك")}</p>
-          </div>
-        </div>
-
-        <ThemeCategoryFilter themes={allThemes} value={category} onChange={setCategory} />
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {themes.map((theme) => {
-            const isActive = activeTheme === theme.id;
-            const Preview = THEME_PREVIEWS[theme.id];
-
-            return (
-              <button
-                key={theme.id}
-                type="button"
-                onClick={() => handleChange(theme.id)}
-                disabled={isPending}
-                className={cn(
-                  "relative overflow-hidden rounded-2xl border p-4 text-start transition-all duration-200",
-                  "disabled:pointer-events-none disabled:opacity-60",
-                  isActive
-                    ? "border-primary bg-primary/5 shadow-sm ring-2 ring-primary/20"
-                    : "border-border bg-background hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md",
-                )}
-              >
-                {isActive && (
-                  <div className="absolute end-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white shadow-sm">
-                    <Check className="h-3 w-3" />
-                  </div>
-                )}
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold">{theme.name}</h4>
-                      {isActive && (
-                        <span className="text-[10px] font-medium text-primary">{tr("مُفعّل")}</span>
-                      )}
-                    </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{theme.description}</p>
-                  </div>
-                  <Preview />
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}

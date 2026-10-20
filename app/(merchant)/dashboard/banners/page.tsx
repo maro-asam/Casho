@@ -1,18 +1,17 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { GalleryHorizontal, Plus, SearchX, Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { Button } from "@/components/ui/button";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  PageHeader,
-  Pagination,
+  LargeTitle,
+  Pager,
+  Segmented,
   SearchInput,
-  hrefWith,
+  Unavailable,
+  appleButton,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -27,7 +26,6 @@ import {
   liveBannerWhere,
   type BannerStatus,
 } from "@/lib/banners/banner-link";
-import { UrlBannerDialog, type EditableBanner } from "./_components/banner-form-dialog";
 import { BannersTable, type BannerRow } from "./_components/banners-table";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -80,12 +78,13 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
 
   if (!store) {
     return (
-      <EmptyState
-        icon={Store}
-        title={tr("لسه معندكش متجر")}
-        description={tr("أنشئ متجرك الأول عشان تقدر تضيف بانرز للصفحة الرئيسية.")}
-        className="rounded-xl border border-dashed border-border"
-      />
+      <div className="apple-card" dir={tdir()}>
+        <Unavailable
+          icon={Store}
+          title={tr("لسه معندكش متجر")}
+          description={tr("أنشئ متجرك الأول عشان تقدر تضيف بانرز للصفحة الرئيسية.")}
+        />
+      </div>
     );
   }
 
@@ -93,8 +92,10 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
   const q = readParam(params, "q");
   const statusParam = readParam(params, "status");
   const status = isStatus(statusParam) ? statusParam : undefined;
-  const editId = readParam(params, "edit");
-  const dialogMode = editId ? "edit" : readParam(params, "new") ? "new" : null;
+  // Add / edit used to be a dialog on this page; keep those links working.
+  const legacyEdit = readParam(params, "edit");
+  if (legacyEdit) redirect(`/banners/${encodeURIComponent(legacyEdit)}/edit`);
+  if (readParam(params, "new")) redirect("/banners/new");
 
   const now = new Date();
   const baseWhere: Prisma.BannerWhereInput = {
@@ -104,36 +105,10 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
   const statuses = Object.keys(STATUS_LABELS) as BannerStatus[];
 
   // Tab counts respect search, so each number matches what its tab shows.
-  const [statusCounts, allCount, storeBannerCount, categories, editRow] = await Promise.all([
+  const [statusCounts, allCount, storeBannerCount] = await Promise.all([
     Promise.all(statuses.map((st) => prisma.banner.count({ where: { ...baseWhere, ...statusWhere(st, now) } }))),
     prisma.banner.count({ where: baseWhere }),
     prisma.banner.count({ where: { storeId: store.id } }),
-    prisma.category.findMany({
-      where: { storeId: store.id },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, slug: true },
-    }),
-    editId
-      ? prisma.banner.findFirst({
-          where: { id: editId, storeId: store.id },
-          select: {
-            id: true,
-            title: true,
-            subtitle: true,
-            ctaLabel: true,
-            image: true,
-            mobileImage: true,
-            isActive: true,
-            linkType: true,
-            linkCategoryId: true,
-            linkValue: true,
-            openInNewTab: true,
-            startsAt: true,
-            endsAt: true,
-            linkProduct: { select: { id: true, name: true, slug: true, image: true, isActive: true } },
-          },
-        })
-      : Promise.resolve(null),
   ]);
   const countFor = (st: BannerStatus) => statusCounts[statuses.indexOf(st)];
   const total = status ? countFor(status) : allCount;
@@ -167,79 +142,64 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
     status: bannerStatus(b, now),
     destination: describeDestination(b, Boolean(store.settings?.whatsappNumber)),
   }));
-  const editBanner: EditableBanner | null = editRow && {
-    ...editRow,
-    startsAt: editRow.startsAt?.toISOString() ?? null,
-    endsAt: editRow.endsAt?.toISOString() ?? null,
-  };
 
   const hasFilters = Boolean(q || status);
   const storefrontUrl = buildStoreUrl(store.slug);
-  const currentPage = readParam(params, "page");
-  const newHref = hrefWith(BASE_PATH, params, { new: 1, edit: null, page: currentPage });
-  const editHref = (id: string) => hrefWith(BASE_PATH, params, { edit: id, new: null, page: currentPage });
+  const newHref = "/banners/new";
+  const editHref = (id: string) => `/banners/${id}/edit`;
 
   return (
     <div className="space-y-6" dir={tdir()}>
-      <PageHeader
+      <LargeTitle
         title={tr("البانرز")}
-        description={tr("الصور اللي بتظهر أعلى الصفحة الرئيسية لمتجرك — اختار كل بانر يودّي العميل فين، ورتّبها وجدولها للعروض.")}
+        subtitle={tr("الصور اللي بتظهر أعلى الصفحة الرئيسية لمتجرك — اختار كل بانر يودّي العميل فين، ورتّبها وجدولها للعروض.")}
         actions={
           storeBannerCount > 0 && (
-            <Button asChild size="sm" className="gap-1.5">
-              <Link href={newHref} scroll={false}>
-                <Plus className="size-4" />
-                {tr("بانر جديد")}
-              </Link>
-            </Button>
+            // The one prominent action on the page.
+            <Link href={newHref} className={appleButton.filled}>
+              <Plus className="size-4" strokeWidth={2.4} />
+              {tr("بانر جديد")}
+            </Link>
           )
         }
       />
 
       {storeBannerCount === 0 ? (
-        <div className="rounded-xl border border-dashed border-border">
-          <EmptyState
+        <div className="apple-card">
+          <Unavailable
             icon={GalleryHorizontal}
             title={tr("لسه مفيش بانرز")}
             description={tr("ضيف بانر لعرض أو خصم، وهيظهر أول حاجة في الصفحة الرئيسية لمتجرك.")}
             action={
-              <Button asChild size="sm" className="gap-1.5">
-                <Link href={newHref} scroll={false}>
-                  <Plus className="size-4" />
-                  {tr("ضيف أول بانر")}
-                </Link>
-              </Button>
+              <Link href={newHref} className={`${appleButton.filled} h-9 px-4`}>
+                <Plus className="size-4" strokeWidth={2.4} />
+                {tr("ضيف أول بانر")}
+              </Link>
             }
           />
         </div>
       ) : (
         <div className="space-y-4">
-          <FilterTabs
+          <Segmented
             label={tr("حالة البانر")}
             param="status"
             basePath={BASE_PATH}
             searchParams={params}
-            tabs={[
+            segments={[
               { label: tr("الكل"), count: allCount },
               ...statuses.map((value) => ({ label: STATUS_LABELS[value], value, count: countFor(value) })),
             ]}
           />
 
-          <DataCard
-            toolbar={<SearchInput placeholder={tr("ابحث بعنوان البانر")} />}
-            footer={
-              total > 0 ? (
-                <Pagination
-                  page={page}
-                  pageSize={PAGE_SIZE}
-                  total={total}
-                  basePath={BASE_PATH}
-                  searchParams={params}
-                  noun={tr("بانر")}
-                />
-              ) : undefined
-            }
-          >
+          <section className="apple-card overflow-hidden">
+            <div className="p-4 sm:px-5">
+              <SearchInput
+                placeholder={tr("ابحث بعنوان البانر")}
+                className="sm:max-w-sm"
+                inputClassName="h-9 rounded-[10px] border-0 bg-muted text-[15px] focus-visible:ring-primary/40"
+              />
+            </div>
+
             {banners.length > 0 ? (
               <BannersTable
                 banners={banners}
@@ -251,31 +211,29 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
                 lastId={!hasFilters && page === totalPages ? banners.at(-1)?.id : undefined}
               />
             ) : (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title={tr("مفيش بانرز بالفلاتر دي")}
                 description={q ? tr("مفيش نتايج لـ \"{0}\". جرّب عنوان تاني.", q) : tr("جرّب تبويب تاني.")}
+                className="border-t-[0.5px] border-border"
                 action={
                   hasFilters && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={BASE_PATH}>{tr("مسح الفلاتر")}</Link>
-                    </Button>
+                    <Link href={BASE_PATH} className={appleButton.tinted}>
+                      {tr("مسح الفلاتر")}
+                    </Link>
                   )
                 }
               />
             )}
-          </DataCard>
+
+            {total > 0 && (
+              <div className="border-t-[0.5px] border-border">
+                <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun={tr("بانر")} />
+              </div>
+            )}
+          </section>
         </div>
       )}
-
-      <UrlBannerDialog
-        storeId={store.id}
-        storefrontUrl={storefrontUrl}
-        categories={categories}
-        whatsapp={store.settings?.whatsappNumber ?? null}
-        mode={dialogMode}
-        banner={editBanner}
-      />
     </div>
   );
 }

@@ -6,10 +6,11 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { FIELD_CLASS, SECONDARY_BUTTON_CLASS } from "./forms/form-field";
 
 export function GoogleButton({ label, refCode }: { label: string; refCode?: string }) {
   return (
-    <Button asChild type="button" variant="outline" className="h-11 w-full gap-2.5 font-medium">
+    <Button asChild type="button" variant="outline" className={cn(SECONDARY_BUTTON_CLASS, "w-full gap-2.5")}>
       <a href={refCode ? `/api/auth/google?ref=${encodeURIComponent(refCode)}` : "/api/auth/google"}>
         <GoogleIcon />
         {label}
@@ -20,10 +21,10 @@ export function GoogleButton({ label, refCode }: { label: string; refCode?: stri
 
 export function OrDivider({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-      <span className="h-px flex-1 bg-border" />
+    <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
+      <span className="flex-1 border-t-[0.5px] border-border" />
       {label}
-      <span className="h-px flex-1 bg-border" />
+      <span className="flex-1 border-t-[0.5px] border-border" />
     </div>
   );
 }
@@ -37,15 +38,15 @@ export const PasswordInput = forwardRef<HTMLInputElement, ComponentProps<typeof 
   return (
     // LTR wrapper so the padding and the toggle sit on the same side.
     <div className="relative" dir="ltr">
-      <Input ref={ref} type={visible ? "text" : "password"} dir="ltr" className={cn("h-11 pe-10", className)} {...props} />
+      <Input ref={ref} type={visible ? "text" : "password"} dir="ltr" className={cn(FIELD_CLASS, "pe-12", className)} {...props} />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
         aria-label={visible ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
         aria-pressed={visible}
-        className="absolute inset-y-0 inset-e-0 flex items-center rounded-e-md px-3 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="absolute inset-y-1.5 inset-e-1.5 grid w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+        {visible ? <EyeOff className="size-[18px]" strokeWidth={1.8} /> : <Eye className="size-[18px]" strokeWidth={1.8} />}
       </button>
     </div>
   );
@@ -53,7 +54,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, ComponentProps<typeof 
 
 export function GoogleIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="size-[18px]" aria-hidden="true">
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"

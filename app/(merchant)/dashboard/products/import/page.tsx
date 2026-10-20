@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ShoppingBag, Upload } from "lucide-react";
-import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
+import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import { LargeTitle } from "@/components/saas-page";
 import ImportProductsForm from "../_components/ImportProductsForm";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -18,28 +18,34 @@ export default async function ImportProductsPage() {
   await loadDashboardLocale();
   return (
     <div className="space-y-6" dir={tdir()}>
-      <DashboardSectionHeader
-        icon={Upload}
+      <LargeTitle
+        eyebrow={
+          <Link
+            href="/products"
+            className="apple-press -ms-1.5 mb-1 inline-flex h-8 items-center gap-0.5 rounded-full pe-2.5 ps-1 text-[15px] text-primary hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ChevronRight className="size-5 ltr:-scale-x-100" strokeWidth={2.2} />
+            {tr("المنتجات")}
+          </Link>
+        }
         title={tr("استيراد منتجات")}
-        description={tr("ارفع ملف CSV أو Excel لإضافة منتجات بالجملة دفعة واحدة")}
-        actionLabel={tr("عودة للمنتجات")}
-        actionHref="/dashboard/products"
+        subtitle={tr("ارفع ملف CSV أو Excel لإضافة منتجات بالجملة دفعة واحدة")}
       />
+
       <Link
         href="/integrations/shopify"
-        className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted/40"
+        className="apple-card flex min-h-16 items-center gap-3.5 px-4 py-3 transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-5"
       >
-        <span className="flex items-center gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
-            <ShoppingBag className="size-4.5" />
-          </span>
-          <span>
-            <span className="block text-sm font-semibold">{tr("عندك متجر على Shopify؟")}</span>
-            <span className="block text-xs text-muted-foreground">{tr("انقل المنتجات والعملاء والطلبات مباشرةً من غير ملفات")}</span>
-          </span>
+        <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-(--sys-green) text-white">
+          <ShoppingBag className="size-5" strokeWidth={1.8} />
         </span>
-        <ArrowLeft className="size-4 shrink-0 text-muted-foreground ltr:-scale-x-100" />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] leading-5 font-semibold">{tr("عندك متجر على Shopify؟")}</span>
+          <span className="block text-[13px] text-muted-foreground">{tr("انقل المنتجات والعملاء والطلبات مباشرةً من غير ملفات")}</span>
+        </span>
+        <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
       </Link>
+
       <ImportProductsForm />
     </div>
   );

@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { ShoppingBag } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { DEFAULT_SECTION_ORDER, type SectionKey } from "@/types/store-theme.types";
 import SectionRenderer from "../../../_components/sections/SectionRenderer";
+import { StudioAnchor } from "../../shared/studio-anchor";
 import type { HomeViewProps } from "../../types";
 import { RuledGrid } from "../product/ProductCard";
 import { Arrow, Empty, SectionHead, Wrap } from "../ui";
@@ -107,30 +108,41 @@ export default function RiwaqHome({
       ) : null,
   };
 
+  // One home section; null when it is off or has nothing to show.
+  const renderSection = (key: SectionKey) => {
+    const render = core[key];
+    if (render) {
+      const node = render();
+      return node ? <div key={key}>{node}</div> : null;
+    }
+
+    if (!sections[key as keyof typeof sections]) return null;
+
+    // Merchant-configured content sections (offer strip is full-bleed)
+    const content = (
+      <SectionRenderer sectionKey={key} store={store} sectionContent={sectionContent} categories={categories} />
+    );
+    return key === "showOfferStrip" ? (
+      <div key={key} className="my-[calc(var(--rq-section)/2)]">
+        {content}
+      </div>
+    ) : (
+      <Wrap key={key} className="rq-section">
+        {content}
+      </Wrap>
+    );
+  };
+
   return (
     <div className="pb-4">
       {order.map((key) => {
-        const render = core[key];
-        if (render) {
-          const node = render();
-          return node ? <div key={key}>{node}</div> : null;
-        }
-
-        if (!sections[key as keyof typeof sections]) return null;
-
-        // Merchant-configured content sections (offer strip is full-bleed)
-        const content = (
-          <SectionRenderer sectionKey={key} store={store} sectionContent={sectionContent} categories={categories} />
-        );
-        return key === "showOfferStrip" ? (
-          <div key={key} className="my-[calc(var(--rq-section)/2)]">
-            {content}
-          </div>
-        ) : (
-          <Wrap key={key} className="rq-section">
-            {content}
-          </Wrap>
-        );
+        const node = renderSection(key);
+        return node ? (
+          <Fragment key={key}>
+            <StudioAnchor id={key} />
+            {node}
+          </Fragment>
+        ) : null;
       })}
     </div>
   );

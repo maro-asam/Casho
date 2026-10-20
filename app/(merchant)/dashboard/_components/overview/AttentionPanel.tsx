@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ChevronLeft, Clock3, PackageX, type LucideIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, Check, ChevronLeft, Clock3, PackageX, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CardHeading from "./CardHeading";
 import { formatNumber } from "./format";
 import { tr } from "@/lib/i18n/dashboard";
 
@@ -14,10 +14,11 @@ export type AttentionItem = {
   icon: LucideIcon;
 };
 
+// Settings-style icon tiles: white glyph on a flat system color.
 const TONE_CLASSES: Record<AttentionItem["tone"], string> = {
-  danger: "bg-rose-500/10 text-rose-700 dark:text-rose-400",
-  warning: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
-  neutral: "bg-muted text-foreground",
+  danger: "bg-(--sys-red)",
+  warning: "bg-(--sys-orange)",
+  neutral: "bg-(--sys-gray)",
 };
 
 export function buildAttentionItems({
@@ -78,46 +79,42 @@ export function buildAttentionItems({
 
 export default function AttentionPanel({ items }: { items: AttentionItem[] }) {
   return (
-    <Card className="gap-0 rounded-xl py-0 shadow-none">
-      <CardHeader className="p-5 pb-3">
-        <CardTitle className="text-base font-semibold">{tr("محتاج انتباهك")}</CardTitle>
-      </CardHeader>
-      <CardContent className="p-2 pt-0">
-        {items.length > 0 ? (
-          <ul>
-            {items.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.id}>
-                  <Link
-                    href={item.href}
-                    className="group flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg", TONE_CLASSES[item.tone])}>
-                      <Icon className="size-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium">{item.title}</span>
-                      <span className="block text-xs leading-5 text-muted-foreground">{item.description}</span>
-                    </span>
-                    <ChevronLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5 ltr:-scale-x-100" />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <div className="flex items-center gap-3 p-3">
-            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
-              <CheckCircle2 className="size-4" />
-            </span>
-            <div>
-              <p className="text-sm font-medium">{tr("كله تمام")}</p>
-              <p className="text-xs text-muted-foreground">{tr("مفيش طلبات متأخرة ولا منتجات قربت تخلص.")}</p>
-            </div>
+    <section className="apple-card overflow-hidden">
+      <CardHeading title={tr("محتاج انتباهك")} />
+      {items.length > 0 ? (
+        <ul className="apple-rows pb-2 [--row-inset:61px]">
+          {items.map((item) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.id}>
+                <Link
+                  href={item.href}
+                  className="group flex min-h-14 items-center gap-3.5 px-4 py-2.5 transition-colors hover:bg-muted/60 active:bg-muted focus-visible:bg-muted/60 focus-visible:outline-none"
+                >
+                  <span className={cn("grid size-[29px] shrink-0 place-items-center rounded-[7px] text-white", TONE_CLASSES[item.tone])}>
+                    <Icon className="size-4" strokeWidth={2.2} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] leading-5">{item.title}</span>
+                    <span className="block text-[13px] leading-[18px] text-muted-foreground">{item.description}</span>
+                  </span>
+                  <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <div className="flex items-center gap-3.5 px-4 pt-1 pb-5">
+          <span className="grid size-[29px] shrink-0 place-items-center rounded-[7px] bg-(--sys-green) text-white">
+            <Check className="size-4" strokeWidth={2.6} />
+          </span>
+          <div>
+            <p className="text-[15px]">{tr("كله تمام")}</p>
+            <p className="text-[13px] text-muted-foreground">{tr("مفيش طلبات متأخرة ولا منتجات قربت تخلص.")}</p>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+    </section>
   );
 }

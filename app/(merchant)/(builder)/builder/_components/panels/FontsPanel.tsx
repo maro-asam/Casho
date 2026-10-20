@@ -1,187 +1,102 @@
 "use client";
 
-import { useTransition, useState } from "react";
-import { Check, Type, Globe, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from "react";
+import { Check, Loader2 } from "lucide-react";
+import { UpdateStoreFontAction, UpdateStoreLanguageAction } from "@/actions/settings/theme.actions";
+import { SegmentedButtons } from "@/components/saas-page";
+import { ARABIC_FONT_LIST } from "@/constants/arabic-fonts";
+import { ENGLISH_FONT_LIST } from "@/constants/english-fonts";
 import { cn } from "@/lib/utils";
 import { useBuilder } from "../BuilderContext";
-import { ARABIC_FONTS } from "@/constants/arabic-fonts";
-import { ENGLISH_FONTS } from "@/constants/english-fonts";
-import { UpdateStoreFontAction, UpdateStoreLanguageAction } from "@/actions/settings/theme.actions";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { Group, PanelBody, Row } from "../studio-ui";
+import { tr } from "@/lib/i18n/dashboard";
 
 export default function FontsPanel() {
-  const { storeId, currentFontId, storeLanguage, reloadPreview } = useBuilder();
-  const [isPending, startTransition] = useTransition();
-  const [isLangPending, startLangTransition] = useTransition();
-  const activeLanguage = (storeLanguage ?? "ar") as "ar" | "en";
-  const [tab, setTab] = useState<"arabic" | "english">(
-    Object.keys(ENGLISH_FONTS).includes(currentFontId) ? "english" : "arabic"
-  );
+  const { storeId, appearance, save } = useBuilder();
+  const [fontId, setFontId] = useState(appearance.fontId);
+  const [language, setLanguage] = useState(appearance.storeLanguage);
+  const [busy, setBusy] = useState<string | null>(null);
+  const english = language === "en";
+  const fonts = english ? ENGLISH_FONT_LIST : ARABIC_FONT_LIST;
 
-  const handleFontChange = (fontId: string) => {
-    if (fontId === currentFontId) return;
-    startTransition(async () => {
-      const result = await UpdateStoreFontAction({ storeId, fontId });
-      if (result.success) {
-        toast.success(tr("تم تحديث الخط"));
-        reloadPreview();
-      } else {
-        toast.error(trv(result.message));
-      }
-    });
-  };
+  async function pickFont(id: string) {
+    if (id === fontId || busy) return;
+    const previous = fontId;
+    setFontId(id);
+    setBusy(id);
+    await save(() => UpdateStoreFontAction({ storeId, fontId: id, target: "draft" }), { onError: () => setFontId(previous) });
+    setBusy(null);
+  }
 
-  const handleLanguageChange = (lang: "ar" | "en") => {
-    if (lang === activeLanguage || isLangPending) return;
-    startLangTransition(async () => {
-      const result = await UpdateStoreLanguageAction({ storeId, storeLanguage: lang });
-      if (result.success) {
-        toast.success(trv(result.message));
-        const defaultFont = lang === "en" ? "inter" : "cairo";
-        await UpdateStoreFontAction({ storeId, fontId: defaultFont });
-        reloadPreview();
-      } else {
-        toast.error(trv(result.message));
-      }
+  async function pickLanguage(next: "ar" | "en") {
+    if (next === language || busy) return;
+    const previous = { language, fontId };
+    setLanguage(next);
+    setFontId(next === "en" ? "inter" : "cairo");
+    setBusy("language");
+    // Language + its default font in one step, so one undo reverts both.
+    await save(() => UpdateStoreLanguageAction({ storeId, storeLanguage: next, withDefaultFont: true, target: "draft" }), {
+      onError: () => {
+        setLanguage(previous.language);
+        setFontId(previous.fontId);
+      },
     });
-  };
+    setBusy(null);
+  }
 
   return (
-    <div className="flex flex-col h-full" dir={tdir()}>
-      {/* Header */}
-      <div className="flex items-center gap-2 border-b px-4 py-3 bg-background">
-        <div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
-          <Type className="size-3.5" />
-        </div>
-        <div>
-          <h2 className="text-sm font-semibold">{tr("الخطوط")}</h2>
-          <p className="text-[10px] text-muted-foreground">{tr("اختر خط واتجاه المتجر")}</p>
-        </div>
-      </div>
+    <PanelBody>
+      {/* All candidates, so each row previews in its own face. */}
+      {fonts.map((f) => (
+        <link key={f.id} rel="stylesheet" href={f.googleUrl} />
+      ))}
 
-      {/* Language switcher */}
-      <div className="flex items-center justify-between border-b px-3 py-2.5 bg-muted/30">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Globe className="size-3.5" />
-          <span>{tr("اتجاه المتجر")}</span>
-        </div>
-        <div className="flex items-center gap-0.5 rounded-lg border bg-background p-0.5">
-          <button
-            type="button"
-            disabled={isLangPending}
-            onClick={() => handleLanguageChange("ar")}
-            className={cn(
-              "flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all",
-              "disabled:pointer-events-none disabled:opacity-60",
-              activeLanguage === "ar"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {isLangPending && activeLanguage === "en" && <Loader2 className="size-3 animate-spin" />}
-            {tr("عربي")}
-          </button>
-          <button
-            type="button"
-            disabled={isLangPending}
-            onClick={() => handleLanguageChange("en")}
-            className={cn(
-              "flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all",
-              "disabled:pointer-events-none disabled:opacity-60",
-              activeLanguage === "en"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {isLangPending && activeLanguage === "ar" && <Loader2 className="size-3 animate-spin" />}
-            EN
-          </button>
-        </div>
-      </div>
+      <Group footer={tr("اللغة بتغيّر اتجاه المتجر وخطه الافتراضي.")}>
+        <Row label={tr("لغة المتجر")}>
+          {busy === "language" && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+          <SegmentedButtons
+            label={tr("لغة المتجر")}
+            value={language}
+            onChange={pickLanguage}
+            options={[
+              ["ar", tr("عربي")],
+              ["en", "English"],
+            ]}
+          />
+        </Row>
+      </Group>
 
-      {/* Font tabs */}
-      <Tabs
-        value={tab}
-        onValueChange={(v) => setTab(v as "arabic" | "english")}
-        className="flex flex-col flex-1 min-h-0"
-      >
-        <TabsList className="w-full rounded-none border-b h-9 shrink-0">
-          <TabsTrigger value="arabic" className="flex-1 text-xs rounded-none">{tr("عربية")}</TabsTrigger>
-          <TabsTrigger value="english" className="flex-1 text-xs rounded-none" dir="ltr">English</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="arabic" className="flex-1 overflow-y-auto p-3 space-y-2 mt-0">
-          {Object.values(ARABIC_FONTS).map((font) => {
-            const isActive = currentFontId === font.id;
+      <Group title={english ? "Fonts" : tr("الخط")} footer={tr("اختار خط مريح للقراية على الموبايل — بيتطبق على كل كلام المتجر.")}>
+        <div role="radiogroup" aria-label={tr("الخط")} dir={english ? "ltr" : undefined}>
+          {fonts.map((f) => {
+            const active = f.id === fontId;
             return (
               <button
-                key={font.id}
+                key={f.id}
                 type="button"
-                onClick={() => handleFontChange(font.id)}
-                disabled={isPending}
-                className={cn(
-                  "w-full rounded-xl border p-3 text-start transition-all duration-150",
-                  "disabled:pointer-events-none disabled:opacity-60",
-                  isActive
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-background hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-md",
-                )}
+                role="radio"
+                aria-checked={active}
+                onClick={() => pickFont(f.id)}
+                className="relative flex w-full items-center gap-3 px-4 py-3 text-start transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none [&+&]:before:absolute [&+&]:before:inset-x-4 [&+&]:before:top-0 [&+&]:before:border-t-[0.5px] [&+&]:before:border-border"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {isActive && <Check className="size-3.5 text-primary shrink-0" />}
-                    <span className="text-xs font-medium">{font.name}</span>
-                  </div>
-                  {isActive && <span className="text-[10px] text-primary font-medium">{tr("مُفعّل")}</span>}
-                </div>
-                <p
-                  className="mt-1.5 text-start leading-relaxed text-sm text-foreground/80"
-                  style={{ fontFamily: font.family }}
-                >
-                  {font.sample ?? tr("متجرك الإلكتروني — تسوّق بكل سهولة")}
-                </p>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[19px] leading-7" style={{ fontFamily: f.family }}>
+                    {f.sample ?? tr("متجرك الإلكتروني — تسوّق بكل سهولة")}
+                  </span>
+                  <span className="block text-[12px] text-muted-foreground" dir="ltr">
+                    {f.name}
+                  </span>
+                </span>
+                {busy === f.id ? (
+                  <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" />
+                ) : (
+                  <Check className={cn("size-5 shrink-0 text-primary", !active && "invisible")} strokeWidth={2.6} />
+                )}
               </button>
             );
           })}
-        </TabsContent>
-
-        <TabsContent value="english" className="flex-1 overflow-y-auto p-3 space-y-2 mt-0" dir="ltr">
-          {Object.values(ENGLISH_FONTS).map((font) => {
-            const isActive = currentFontId === font.id;
-            return (
-              <button
-                key={font.id}
-                type="button"
-                onClick={() => handleFontChange(font.id)}
-                disabled={isPending}
-                className={cn(
-                  "w-full rounded-xl border p-3 text-end transition-all duration-150",
-                  "disabled:pointer-events-none disabled:opacity-60",
-                  isActive
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-background hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-md",
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {isActive && <Check className="size-3.5 text-primary shrink-0" />}
-                    <span className="text-xs font-medium">{font.name}</span>
-                  </div>
-                  {isActive && <span className="text-[10px] text-primary font-medium">Active</span>}
-                </div>
-                <p
-                  className="mt-1.5 text-end leading-relaxed text-sm text-foreground/80"
-                  style={{ fontFamily: font.family }}
-                >
-                  {font.sample}
-                </p>
-              </button>
-            );
-          })}
-        </TabsContent>
-      </Tabs>
-    </div>
+        </div>
+      </Group>
+    </PanelBody>
   );
 }

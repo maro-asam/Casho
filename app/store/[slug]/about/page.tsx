@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
+import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId } from "../_lib/storefront";
 
@@ -29,6 +30,7 @@ export default async function AboutStoreRoute({ params }: AboutStoreRouteProps) 
   const store = await prisma.store.findUnique({
     where: { slug },
     select: {
+      id: true,
       name: true,
       slug: true,
       subscriptionStatus: true,
@@ -37,6 +39,7 @@ export default async function AboutStoreRoute({ params }: AboutStoreRouteProps) 
     },
   });
   if (!store) return notFound();
+  store.settings = await withStudioDraft(store.id, store.settings);
 
   const theme = getStorefrontTheme(await getStoreThemeId(slug));
   if (!isStorefrontOpen(store.subscriptionStatus)) return <theme.StoreClosed storeSlug={store.slug} />;

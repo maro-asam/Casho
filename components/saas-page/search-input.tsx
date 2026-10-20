@@ -11,10 +11,12 @@ type SearchInputProps = {
   /** Search param to write, default "q". */
   param?: string;
   className?: string;
+  /** Overrides for the field itself (e.g. a filled, borderless variant). */
+  inputClassName?: string;
 };
 
 /** Debounced search box that keeps its value in the URL (`?q=`) and resets paging. */
-export function SearchInput({ placeholder, param = "q", className }: SearchInputProps) {
+export function SearchInput({ placeholder, param = "q", className, inputClassName }: SearchInputProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -58,7 +60,10 @@ export function SearchInput({ placeholder, param = "q", className }: SearchInput
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="h-9 w-full rounded-lg border border-input bg-background ps-9 pe-8 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 [&::-webkit-search-cancel-button]:hidden"
+        className={cn(
+          "h-9 w-full rounded-lg border border-input bg-background ps-9 pe-8 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 [&::-webkit-search-cancel-button]:hidden",
+          inputClassName,
+        )}
       />
       {value && (
         <button

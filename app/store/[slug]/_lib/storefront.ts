@@ -2,6 +2,7 @@ import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { BANNER_DEFAULT_CTA, BANNER_LINK_SELECT, liveBannerWhere, resolveBannerLink } from "@/lib/banners/banner-link";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import type { BannerData, ProductCardData } from "../_themes/types";
@@ -109,10 +110,11 @@ export async function toProductCards(rows: CardRow[]): Promise<ProductCardData[]
 
 /** Theme id the store renders with (themeConfig wins over the legacy column). */
 export const getStoreThemeId = cache(async (slug: string) => {
-  const settings = await prisma.storeSettings.findFirst({
+  const row = await prisma.storeSettings.findFirst({
     where: { store: { slug } },
-    select: { themeId: true, themeConfig: true },
+    select: { storeId: true, themeId: true, themeConfig: true },
   });
+  const settings = row && (await withStudioDraft(row.storeId, row));
   const config = settings?.themeConfig as ThemeCustomization | null;
   return config?.presetId ?? settings?.themeId ?? "default";
 });

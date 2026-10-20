@@ -30,10 +30,11 @@ function initialsOf(name: string) {
     .toUpperCase();
 }
 
+// macOS sidebar rows: monochrome glyphs, tinted glyph + soft fill on the current page.
 const itemBase =
-  "flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
-const itemIdle = "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
-const itemActive = "bg-sidebar-accent font-medium text-sidebar-accent-foreground";
+  "apple-press flex h-9 items-center gap-2.5 rounded-[10px] px-2.5 text-[13.5px] font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
+const itemIdle = "text-sidebar-foreground/80 hover:bg-sidebar-accent";
+const itemActive = "bg-sidebar-accent font-semibold text-sidebar-foreground";
 
 export default function DashboardSidebar({ store, active, collapsed = false, onToggleCollapsed, onNavigate }: Props) {
   // Groups start open when they contain the current page; the user can toggle freely after.
@@ -65,7 +66,7 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
               aria-current={isActive ? "page" : undefined}
               className={cn(itemBase, "justify-center px-0", isActive ? itemActive : itemIdle)}
             >
-              <Icon className={cn("size-4 shrink-0", isActive && "text-sidebar-primary")} />
+              <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
             </Link>
           </TooltipTrigger>
           <TooltipContent side={isRtl() ? "left" : "right"}>{item.name}</TooltipContent>
@@ -86,13 +87,15 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
             aria-controls={panelId}
             className={cn(itemBase, "w-full", isActive && !open ? itemActive : itemIdle)}
           >
-            <Icon className={cn("size-4 shrink-0", isActive && "text-sidebar-primary")} />
+            <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
             <span className="flex-1 truncate text-start">{item.name}</span>
-            <ChevronDown className={cn("size-3.5 opacity-60 transition-transform", open && "rotate-180")} />
+            <ChevronDown
+              className={cn("size-3.5 text-(--label-3) transition-transform duration-300 ease-(--ease-apple)", open && "rotate-180")}
+            />
           </button>
 
           {open && (
-            <ul id={panelId} className="my-0.5 ms-[1.1rem] space-y-0.5 border-s border-sidebar-border ps-2">
+            <ul id={panelId} className="my-0.5 space-y-0.5 ps-7">
               {item.children.map((child) => {
                 const childActive = active?.child?.href === child.href;
                 return (
@@ -101,7 +104,7 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
                       href={child.href}
                       onClick={onNavigate}
                       aria-current={childActive ? "page" : undefined}
-                      className={cn(itemBase, "h-8 text-[13px]", childActive ? itemActive : itemIdle)}
+                      className={cn(itemBase, "h-8 text-[13px]", childActive ? cn(itemActive, "text-sidebar-primary") : itemIdle)}
                     >
                       <span className="truncate">{child.name}</span>
                     </Link>
@@ -122,10 +125,10 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
         aria-current={isActive ? "page" : undefined}
         className={cn(itemBase, isActive ? itemActive : itemIdle)}
       >
-        <Icon className={cn("size-4 shrink-0", isActive && "text-sidebar-primary")} />
+        <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
         <span className="flex-1 truncate">{item.name}</span>
         {item.badge && (
-          <span className="rounded bg-sidebar-primary/10 px-1.5 py-px text-[10px] font-semibold text-sidebar-primary">
+          <span className="rounded-full bg-sidebar-accent px-1.5 py-px text-[10px] font-semibold text-sidebar-foreground/70">
             {item.badge}
           </span>
         )}
@@ -134,16 +137,16 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
   };
 
   return (
-    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+    <div className="apple-glass flex h-full flex-col overflow-hidden rounded-[22px] text-sidebar-foreground">
       {/* Store */}
-      <div className={cn("flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border", collapsed ? "justify-center px-2" : "px-3")}>
-        <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
+      <div className={cn("flex h-16 shrink-0 items-center gap-2.5", collapsed ? "justify-center px-2" : "px-3.5")}>
+        <div className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-linear-to-b from-sidebar-primary/85 to-sidebar-primary text-xs font-bold text-sidebar-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,.3)]">
           {initialsOf(store.name)}
         </div>
         {!collapsed && (
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold leading-tight">{store.name}</p>
-            <p className="truncate text-xs text-sidebar-foreground/60" dir="ltr">
+            <p className="truncate text-[11px] font-normal text-muted-foreground" dir="ltr">
               {buildStoreUrl(store.slug).replace(/^https?:\/\//, "")}
             </p>
           </div>
@@ -154,7 +157,7 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
             size="icon"
             onClick={onToggleCollapsed}
             aria-label={tr("طي القائمة")}
-            className="size-8 shrink-0 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="size-8 shrink-0 rounded-full text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <PanelRightClose className="size-4 ltr:-scale-x-100" />
           </Button>
@@ -162,14 +165,17 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
       </div>
 
       {/* Navigation */}
-      <nav aria-label={tr("القائمة الرئيسية")} className="flex-1 overflow-y-auto px-2 py-3">
+      <nav
+        aria-label={tr("القائمة الرئيسية")}
+        className="scrollbar-hide flex-1 overflow-y-auto px-2 pt-1 pb-3 mask-[linear-gradient(to_bottom,transparent,black_12px,black_calc(100%-16px),transparent)]"
+      >
         {onToggleCollapsed && collapsed && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
             aria-label={tr("توسيع القائمة")}
-            className="mb-2 h-9 w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="mb-2 h-9 w-full rounded-[10px] text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <PanelRightOpen className="size-4 ltr:-scale-x-100" />
           </Button>
@@ -180,9 +186,9 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
             <div key={section.title ?? i}>
               {section.title &&
                 (collapsed ? (
-                  <div className="mx-2 mb-2 h-px bg-sidebar-border" />
+                  <div className="mx-3 mb-2 border-t-[0.5px] border-sidebar-border" />
                 ) : (
-                  <p className="mb-1 px-2.5 text-xs font-medium text-sidebar-foreground/50">{section.title}</p>
+                  <p className="mb-1 px-2.5 text-[11px] font-semibold text-muted-foreground">{section.title}</p>
                 ))}
               <div className="space-y-0.5">{section.items.map(renderItem)}</div>
             </div>
@@ -191,7 +197,7 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
       </nav>
 
       {/* Footer */}
-      <div className="shrink-0 space-y-0.5 border-t border-sidebar-border p-2">{NAV_FOOTER.map(renderItem)}</div>
+      <div className="mx-2 shrink-0 space-y-0.5 border-t-[0.5px] border-sidebar-border py-2">{NAV_FOOTER.map(renderItem)}</div>
     </div>
   );
 }

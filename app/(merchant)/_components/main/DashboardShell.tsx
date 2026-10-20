@@ -131,7 +131,7 @@ export default function DashboardShell({
 
           <main
             id="main-content"
-            className="mx-auto w-full max-w-385 flex-1 px-4 pt-4 pb-10 sm:px-6 md:px-8 md:pt-6"
+            className="apple-auto apple-form mx-auto w-full max-w-385 flex-1 px-4 pt-4 pb-10 sm:px-6 md:px-8 md:pt-6"
           >
             {children}
           </main>

@@ -1,19 +1,9 @@
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
-import { FilePenLine } from "lucide-react";
-
 import { prisma } from "@/lib/prisma";
 
 import EditProductForm from "@/app/(merchant)/dashboard/products/_components/EditProductForm";
-import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -40,7 +30,7 @@ export default async function EditProductPage({
     where: { userId },
     select: {
       id: true,
-      name: true,
+      slug: true,
     },
   });
 
@@ -100,38 +90,13 @@ export default async function EditProductPage({
   ]);
 
   return (
-    <div className="space-y-6" dir={tdir()}>
-      <DashboardSectionHeader
-        icon={FilePenLine}
-        title={tr("تعديل المنتج")}
-        description={
-          <>
-            {tr("تعديل بيانات المنتج داخل متجر")}{" "}
-            <span className="font-semibold text-foreground">{store.name}</span>
-          </>
-        }
+    <div dir={tdir()}>
+      <EditProductForm
+        product={product}
+        categories={categories}
+        products={bundleProducts}
+        storefrontUrl={buildStoreUrl(store.slug, `/products/${product.slug}`)}
       />
-
-      <div className="mx-auto w-full max-w-3xl">
-        <Card className="rounded-xl shadow-sm">
-          <CardHeader className="space-y-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <FilePenLine className="size-6" />
-            </div>
-
-            <div>
-              <CardTitle className="text-xl">{tr("بيانات المنتج")}</CardTitle>
-              <CardDescription className="mt-1 leading-6">
-                {tr("عدّل الاسم والسعر والصورة والتصنيف وحالة المنتج، ثم احفظ التغييرات.")}
-              </CardDescription>
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <EditProductForm product={product} categories={categories} products={bundleProducts} />
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

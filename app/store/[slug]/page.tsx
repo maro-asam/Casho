@@ -2,6 +2,7 @@ import { isStorefrontOpen } from "@/lib/subscriptions";
 import type { Metadata } from "next";
 import { absoluteUrl, jsonLd, metaText, storeBaseUrl } from "@/lib/seo/store-seo";
 import { prisma } from "@/lib/prisma";
+import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { notFound } from "next/navigation";
 import { SubscriptionStatus } from "@prisma/client";
 import { getStorefrontTheme } from "./_themes";
@@ -111,6 +112,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   });
 
   if (!store) return notFound();
+  store.settings = await withStudioDraft(store.id, store.settings);
 
   // ── Resolve theme + sections ──────────────────────────────────────────────
   const themeConfig = store.settings?.themeConfig as ThemeCustomization | null;

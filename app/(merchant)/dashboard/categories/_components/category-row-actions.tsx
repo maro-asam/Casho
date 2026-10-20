@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ExternalLink, Loader2, MoreHorizontal, Package, Pencil, Trash2 } from "lucide-react";
+import { Ellipsis, ExternalLink, Loader2, Package, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { DeleteCategoryAction } from "@/actions/admin/categories.actions";
@@ -16,7 +16,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { appleButton, appleMenu } from "@/components/saas-page";
 import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 const nf = lazyIntl.number();
@@ -66,17 +65,11 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
     <>
       <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={pending}
-            aria-label={tr("إجراءات {0}", category.name)}
-            className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
-          >
-            {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
-          </Button>
+          <button type="button" disabled={pending} aria-label={tr("إجراءات {0}", category.name)} className={appleButton.more}>
+            {pending ? <Loader2 className="size-4 animate-spin" /> : <Ellipsis className="size-[18px]" strokeWidth={2.2} />}
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className={appleMenu}>
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
@@ -110,7 +103,7 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
       </DropdownMenu>
 
       <AlertDialog open={confirmDelete} onOpenChange={(open) => !pending && setConfirmDelete(open)}>
-        <AlertDialogContent dir={tdir()}>
+        <AlertDialogContent dir={tdir()} className="rounded-[22px]">
           {blocked ? (
             <>
               <AlertDialogHeader>
@@ -120,7 +113,7 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>{tr("رجوع")}</AlertDialogCancel>
+                <AlertDialogCancel className="rounded-full">{tr("رجوع")}</AlertDialogCancel>
               </AlertDialogFooter>
             </>
           ) : (
@@ -135,8 +128,10 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
               </AlertDialogHeader>
 
               {hasProducts && (
-                <div className="space-y-2">
-                  <Label htmlFor={`move-${category.id}`}>{tr("انقل المنتجات لـ")}</Label>
+                <div className="apple-form space-y-1.5">
+                  <label htmlFor={`move-${category.id}`} className="px-1 text-[13px] font-medium text-foreground/80">
+                    {tr("انقل المنتجات لـ")}
+                  </label>
                   <Select value={moveTo} onValueChange={setMoveTo} dir={tdir()} disabled={pending}>
                     <SelectTrigger id={`move-${category.id}`} className="w-full">
                       <SelectValue placeholder={tr("اختار تصنيف")} />
@@ -153,16 +148,16 @@ export function CategoryRowActions({ storeId, category, editHref, storefrontUrl,
               )}
 
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
-                <Button
-                  variant="destructive"
+                <AlertDialogCancel disabled={pending} className="rounded-full">{tr("رجوع")}</AlertDialogCancel>
+                <button
+                  type="button"
                   onClick={remove}
                   disabled={pending || (hasProducts && !moveTo)}
-                  className="gap-1.5"
+                  className={appleButton.destructiveFilled}
                 >
                   {pending && <Loader2 className="size-4 animate-spin" />}
                   {hasProducts ? tr("انقل وامسح") : tr("حذف نهائي")}
-                </Button>
+                </button>
               </AlertDialogFooter>
             </>
           )}

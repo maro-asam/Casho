@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Plus, Trash2, Layers } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { appleButton } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -77,38 +77,34 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
         value={type === "BUNDLE" ? JSON.stringify(items) : "[]"}
       />
 
-      <div className="flex items-center gap-3">
-        <Label>{tr("نوع المنتج")}</Label>
-        <div className="flex rounded-xl border overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setType("SIMPLE")}
-            className={`px-4 py-1.5 text-sm transition-colors ${
-              type === "SIMPLE"
-                ? "bg-primary text-primary-foreground"
-                : "bg-background text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            {tr("منتج عادي")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setType("BUNDLE")}
-            className={`flex items-center gap-1.5 px-4 py-1.5 text-sm transition-colors ${
-              type === "BUNDLE"
-                ? "bg-primary text-primary-foreground"
-                : "bg-background text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <Layers className="size-3.5" />
-            {tr("باقة")}
-          </button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="px-1 text-[13px] font-medium text-foreground/80">{tr("نوع المنتج")}</span>
+        {/* Segmented control */}
+        <div role="radiogroup" aria-label={tr("نوع المنتج")} className="inline-flex rounded-full bg-(--sys-gray)/14 p-[3px]">
+          {(["SIMPLE", "BUNDLE"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={type === value}
+              onClick={() => setType(value)}
+              className={cn(
+                "flex h-8 items-center gap-1.5 rounded-full px-4 text-[13px] transition-[background-color,box-shadow,color] duration-200 ease-(--ease-apple) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                type === value
+                  ? "bg-card font-semibold text-foreground shadow-[0_3px_8px_rgba(0,0,0,0.12),0_1px_1px_rgba(0,0,0,0.04)]"
+                  : "text-foreground/70 hover:text-foreground",
+              )}
+            >
+              {value === "BUNDLE" && <Layers className="size-3.5" />}
+              {value === "BUNDLE" ? tr("باقة") : tr("منتج عادي")}
+            </button>
+          ))}
         </div>
       </div>
 
       {type === "BUNDLE" && (
-        <div className="rounded-xl border bg-muted/20 p-4 space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">
+        <div className="space-y-3 rounded-2xl bg-background p-4">
+          <p className="text-[13px] text-muted-foreground">
             {tr("حدد المنتجات المشمولة في الباقة وكميتها")}
           </p>
 
@@ -118,7 +114,7 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
                 value={item.productId}
                 onValueChange={(val) => updateItem(i, "productId", val)}
               >
-                <SelectTrigger className="rounded-xl flex-1">
+                <SelectTrigger className="min-w-0 flex-1 bg-card!">
                   <SelectValue placeholder={tr("اختر منتج")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,38 +127,31 @@ export default function BundleItemsInput({ products, initialItems = [], initialT
               </Select>
 
               <div className="flex items-center gap-1">
-                <Label className="text-xs text-muted-foreground whitespace-nowrap">{tr("كمية:")}</Label>
+                <span className="text-[12px] whitespace-nowrap text-muted-foreground">{tr("كمية:")}</span>
                 <Input
                   type="number"
                   min="1"
                   value={item.quantity}
                   onChange={(e) => updateItem(i, "quantity", Number(e.target.value))}
-                  className="w-16 rounded-xl text-center"
+                  className="w-16 bg-card! text-center tabular-nums"
                 />
               </div>
 
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8 shrink-0 text-destructive hover:text-destructive"
+                aria-label={tr("حذف")}
+                className="apple-press grid size-9 shrink-0 place-items-center rounded-full text-(--sys-red) hover:bg-(--sys-red)/10"
                 onClick={() => removeItem(i)}
               >
-                <Trash2 className="size-3.5" />
-              </Button>
+                <Trash2 className="size-4" />
+              </button>
             </div>
           ))}
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="rounded-xl gap-1.5"
-            onClick={addItem}
-          >
-            <Plus className="size-3.5" />
+          <button type="button" className={cn(appleButton.plain, "mx-0 -ms-2")} onClick={addItem}>
+            <Plus className="size-4" strokeWidth={2.4} />
             {tr("إضافة منتج للباقة")}
-          </Button>
+          </button>
         </div>
       )}
     </div>

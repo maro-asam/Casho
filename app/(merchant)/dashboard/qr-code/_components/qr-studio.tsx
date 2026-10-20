@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { toWhatsAppDigits } from "@/lib/conversion/conversion-config";
 import { contrastRatio, hexToRgb } from "@/lib/theme/contrast";
 import { cn } from "@/lib/utils";
-import { Segmented } from "../../customization/_components/growth/controls";
+import { Segmented } from "@/components/common/settings-controls";
 import { lazyList, tdir, tr } from "@/lib/i18n/dashboard";
 
 type DotType = "square" | "dots" | "rounded" | "classy-rounded" | "extra-rounded";

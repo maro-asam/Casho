@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { Banknote, Clock, RotateCcw, Scale, Store, UserRound } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { formatMoney, formatNumber, formatPercent } from "../../_components/overview/format";
 import type { ReportsData } from "../_lib/types";
-import { EmptyNote, Panel, ReportTable, Stat } from "./report-ui";
+import { EmptyNote, Panel, PanelLink, ReportTable, Stat } from "./report-ui";
 import { tr } from "@/lib/i18n/dashboard";
 
 export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
@@ -12,20 +11,20 @@ export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
   const diff = shifts.netDifference;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat icon={Store} label={tr("مبيعات الكاشير")} value={formatMoney(pos.netSales)} sub={<span>{tr("{0} فاتورة", formatNumber(pos.orders))}</span>} />
         <Stat
           icon={Clock}
           label={tr("الورديات")}
           value={formatNumber(shifts.count)}
-          sub={shifts.open > 0 ? <span className="text-amber-600 dark:text-amber-400">{tr("{0} لسه مفتوحة", formatNumber(shifts.open))}</span> : undefined}
+          sub={shifts.open > 0 ? <span className="text-[#c93400] dark:text-(--sys-orange)">{tr("{0} لسه مفتوحة", formatNumber(shifts.open))}</span> : undefined}
         />
         <Stat
           icon={Scale}
           label={tr("فرق الكاش")}
           value={
-            <span className={cn(diff < 0 && "text-rose-600 dark:text-rose-400", diff > 0 && "text-emerald-600 dark:text-emerald-400")}>
+            <span className={cn(diff < 0 && "text-[#d70015] dark:text-(--sys-red)", diff > 0 && "text-[#248a3d] dark:text-(--sys-green)")}>
               {diff > 0 ? "+" : ""}
               {formatMoney(diff)}
             </span>
@@ -72,8 +71,8 @@ export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
             {pos.branches.map((b) => (
               <tr key={b.id}>
                 <td>
-                  <span className="flex items-center gap-2 font-medium">
-                    <Store className="size-4 text-muted-foreground" />
+                  <span className="flex items-center gap-2">
+                    <Store className="size-4 text-muted-foreground" strokeWidth={1.8} />
                     {b.name}
                   </span>
                 </td>
@@ -83,14 +82,14 @@ export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
                 <td className="text-end tabular-nums">
                   {formatNumber(b.shifts)}
                   {b.openShifts > 0 && (
-                    <span className="ms-1 text-xs text-amber-600 dark:text-amber-400">{tr("({0} مفتوحة)", formatNumber(b.openShifts))}</span>
+                    <span className="ms-1 text-[13px] text-[#c93400] dark:text-(--sys-orange)">{tr("({0} مفتوحة)", formatNumber(b.openShifts))}</span>
                   )}
                 </td>
                 <td
                   className={cn(
                     "text-end tabular-nums",
-                    b.cashDifference < 0 && "text-rose-600 dark:text-rose-400",
-                    b.cashDifference > 0 && "text-emerald-600 dark:text-emerald-400",
+                    b.cashDifference < 0 && "text-[#d70015] dark:text-(--sys-red)",
+                    b.cashDifference > 0 && "text-[#248a3d] dark:text-(--sys-green)",
                   )}
                 >
                   {b.cashDifference > 0 ? "+" : ""}
@@ -102,16 +101,14 @@ export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
         </Panel>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-5 lg:grid-cols-3">
         <Panel
           title={tr("أداء الكاشير")}
           description={tr("مبيعات كل موظف على نقطة البيع")}
           className="lg:col-span-2"
           contentClassName={pos.cashiers.length ? "p-0" : undefined}
           action={
-            <Link href="/pos/shifts" className="text-xs font-medium text-primary hover:underline">
-              {tr("الورديات")}
-            </Link>
+            <PanelLink href="/pos/shifts">{tr("الورديات")}</PanelLink>
           }
         >
           {pos.cashiers.length ? (
@@ -129,8 +126,8 @@ export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
               {pos.cashiers.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <span className="flex items-center gap-2 font-medium">
-                      <UserRound className="size-4 text-muted-foreground" />
+                    <span className="flex items-center gap-2">
+                      <UserRound className="size-4 text-muted-foreground" strokeWidth={1.8} />
                       {c.name}
                     </span>
                   </td>
@@ -149,24 +146,22 @@ export function TabPos({ pos }: { pos: NonNullable<ReportsData["pos"]> }) {
         <Panel
           title={tr("أكتر المنتجات رجوعًا")}
           action={
-            <Link href="/pos/returns" className="text-xs font-medium text-primary hover:underline">
-              {tr("المرتجعات")}
-            </Link>
+            <PanelLink href="/pos/returns">{tr("المرتجعات")}</PanelLink>
           }
         >
           {returns.topProducts.length ? (
-            <ul className="space-y-3">
+            <ul className="apple-rows -mx-5 -mb-2 [--row-inset:20px]">
               {returns.topProducts.map((p) => (
-                <li key={p.name} className="flex items-center justify-between gap-3 text-sm">
+                <li key={p.name} className="flex min-h-11 items-center justify-between gap-3 px-5 py-2.5 text-[15px]">
                   <span className="min-w-0 truncate">{p.name}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                  <span className="shrink-0 text-[13px] text-muted-foreground tabular-nums">
                     {tr("{0} قطعة · {1}", formatNumber(p.quantity), formatMoney(p.amount))}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">{tr("مفيش مرتجعات في الفترة دي.")}</p>
+            <p className="text-[15px] text-muted-foreground">{tr("مفيش مرتجعات في الفترة دي.")}</p>
           )}
         </Panel>
       </div>

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpToLine, Copy, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpToLine, Copy, Ellipsis, Loader2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { DeletePopupAction, DuplicatePopupAction, ReorderPopupsAction, SetPopupActiveAction } from "@/actions/store/popups.actions";
@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { appleButton, appleMenu } from "@/components/saas-page";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -116,17 +116,11 @@ export function PopupRowActions({
     <>
       <DropdownMenu dir={tdir()} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={pending}
-            aria-label={tr("إجراءات {0}", name)}
-            className="relative z-10 size-8 text-muted-foreground hover:text-foreground"
-          >
-            {pending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
-          </Button>
+          <button type="button" disabled={pending} aria-label={tr("إجراءات {0}", name)} className={appleButton.more}>
+            {pending ? <Loader2 className="size-4 animate-spin" /> : <Ellipsis className="size-[18px]" strokeWidth={2.2} />}
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuContent align="end" className={appleMenu}>
           <DropdownMenuItem asChild>
             <Link href={editHref} scroll={false}>
               <Pencil />
@@ -152,7 +146,7 @@ export function PopupRowActions({
       </DropdownMenu>
 
       <AlertDialog open={confirm} onOpenChange={(open) => !pending && setConfirm(open)}>
-        <AlertDialogContent dir={tdir()}>
+        <AlertDialogContent dir={tdir()} className="rounded-[22px]">
           <AlertDialogHeader>
             <AlertDialogTitle>{tr("تمسح \"{0}\"؟", name)}</AlertDialogTitle>
             <AlertDialogDescription>
@@ -160,11 +154,11 @@ export function PopupRowActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>{tr("رجوع")}</AlertDialogCancel>
-            <Button variant="destructive" onClick={remove} disabled={pending} className="gap-1.5">
+            <AlertDialogCancel disabled={pending} className="rounded-full">{tr("رجوع")}</AlertDialogCancel>
+            <button type="button" onClick={remove} disabled={pending} className={appleButton.destructiveFilled}>
               {pending && <Loader2 className="size-4 animate-spin" />}
               {tr("حذف نهائي")}
-            </Button>
+            </button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
