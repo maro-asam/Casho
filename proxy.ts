@@ -26,7 +26,9 @@ function getHost(req: NextRequest) {
 function isStaticAsset(pathname: string) {
   return (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
+    // Exact segment: "/api-keys" is a dashboard page, not an API route.
+    pathname === "/api" ||
+    pathname.startsWith("/api/") ||
     pathname.startsWith("/images") ||
     pathname.startsWith("/favicon") ||
     pathname.includes(".")

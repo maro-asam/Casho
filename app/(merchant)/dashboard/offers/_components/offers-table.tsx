@@ -1,9 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { StatusPill } from "@/components/saas-page";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { acceptRate, offerDiscountLabel, offerUnitPrice, type OfferDiscountType, type OfferType } from "@/lib/offers/offer-pricing";
+import { cn } from "@/lib/utils";
 import { offerTypeMeta } from "./offer-meta";
 import { OfferActiveSwitch, OfferRowActions } from "./offer-row-actions";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
@@ -35,124 +34,96 @@ function triggerSummary(o: OfferRow) {
   return tr("على {0} و{1} كمان", o.triggers[0].name, nf.format(o.triggers.length - 1));
 }
 
-function OfferProduct({ o }: { o: OfferRow }) {
-  const price = offerUnitPrice(o.offerProduct.price, o);
+/** The offered product as an app-icon-sized thumbnail, badged with the offer type. */
+function OfferThumb({ o }: { o: OfferRow }) {
+  const meta = offerTypeMeta(o.type);
   return (
-    <div className="flex min-w-0 items-center gap-2.5">
-      <span className="relative size-9 shrink-0 overflow-hidden rounded-md bg-muted">
-        <Image src={o.offerProduct.image || "/images/product-placeholder.png"} alt="" fill sizes="36px" className="object-cover" />
+    <span className="relative shrink-0">
+      <span className={cn("relative block size-12 overflow-hidden rounded-[12px] bg-(--fill-3)", !o.isActive && "opacity-50 grayscale")}>
+        <Image src={o.offerProduct.image || "/images/product-placeholder.png"} alt="" fill sizes="48px" className="object-cover" />
       </span>
-      <div className="min-w-0">
-        <p className="truncate text-sm">{o.offerProduct.name}</p>
-        <p className="text-xs text-muted-foreground tabular-nums">
-          <span className="font-medium text-foreground">{money.format(price)}</span>
-          {price < o.offerProduct.price && <span className="ms-1.5 line-through">{money.format(o.offerProduct.price)}</span>}
-          {!o.offerProduct.isActive && <span className="ms-1.5 text-amber-600">{tr("· المنتج مخفي")}</span>}
-        </p>
-      </div>
-    </div>
+      <span
+        title={meta.label}
+        className={cn("absolute -end-1.5 -bottom-1.5 grid size-5 place-items-center rounded-full text-white ring-2 ring-card", meta.glyph)}
+      >
+        <meta.icon className="size-3" strokeWidth={3} />
+      </span>
+    </span>
   );
 }
 
 function Performance({ o }: { o: OfferRow }) {
+  const rate = acceptRate(o.views, o.accepts);
   return (
-    <div className="text-sm tabular-nums">
-      <span className="font-medium">{tr("{0}٪", nf.format(acceptRate(o.views, o.accepts)))}</span>
-      <span className="text-xs text-muted-foreground">{" "}{tr("قبول")}</span>
-      <p className="text-xs text-muted-foreground">
-        {tr("{0} من {1} مشاهدة", nf.format(o.accepts), nf.format(o.views))}
+    <div className="w-28 space-y-1">
+      <p className="text-[13px] text-muted-foreground tabular-nums">
+        <span className="text-[15px] font-semibold text-foreground">{tr("{0}٪", nf.format(rate))}</span> {tr("قبول")}
       </p>
+      <div className="h-1 overflow-hidden rounded-full bg-(--fill-3)" role="img" aria-label={tr("{0} من {1} مشاهدة", o.accepts, o.views)}>
+        <div className="h-full rounded-full bg-(--sys-green)" style={{ width: `${rate}%` }} />
+      </div>
+      <p className="text-[12px] text-muted-foreground tabular-nums">{tr("{0} من {1} مشاهدة", nf.format(o.accepts), nf.format(o.views))}</p>
     </div>
   );
 }
 
-/** Desktop: table. Mobile: stacked rows — same data, same row link. */
+/** Mail-style list: what's offered, on what, at what price — and how it's converting. One row link opens the sheet. */
 export function OffersTable({ offers, editHref }: { offers: OfferRow[]; editHref: (id: string) => string }) {
-  const controls = (o: OfferRow) => (
-    <div className="flex items-center justify-end gap-2">
-      <OfferActiveSwitch key={String(o.isActive)} offerId={o.id} name={o.name} isActive={o.isActive} />
-      <OfferRowActions offer={{ id: o.id, name: o.name, orders: o.orders }} editHref={editHref(o.id)} />
-    </div>
-  );
-
   return (
-    <>
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 ps-4 text-start text-xs font-medium text-muted-foreground">{tr("العرض")}</TableHead>
-              <TableHead className="h-10 text-start text-xs font-medium text-muted-foreground">{tr("المنتج المعروض")}</TableHead>
-              <TableHead className="hidden h-10 text-start text-xs font-medium text-muted-foreground lg:table-cell">{tr("الأداء")}</TableHead>
-              <TableHead className="hidden h-10 text-end text-xs font-medium text-muted-foreground xl:table-cell">{tr("مبيعات العرض")}</TableHead>
-              <TableHead className="h-10 w-28 pe-4 text-end text-xs font-medium text-muted-foreground">{tr("تشغيل")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {offers.map((o) => {
-              const meta = offerTypeMeta(o.type);
-              const discount = offerDiscountLabel(o);
-              return (
-                <TableRow key={o.id} className="relative">
-                  <TableCell className="max-w-72 py-3 ps-4">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={editHref(o.id)}
-                        scroll={false}
-                        className="truncate text-sm font-semibold after:absolute after:inset-0 hover:underline focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
-                      >
-                        {o.name}
-                      </Link>
-                      <StatusPill tone={meta.tone}>{meta.short}</StatusPill>
-                    </div>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {triggerSummary(o)}
-                      {discount && <span className="font-medium text-foreground"> · {discount}</span>}
-                    </p>
-                  </TableCell>
-                  <TableCell className="max-w-64 py-3">
-                    <OfferProduct o={o} />
-                  </TableCell>
-                  <TableCell className="hidden py-3 lg:table-cell">
-                    <Performance o={o} />
-                  </TableCell>
-                  <TableCell className="hidden py-3 text-end xl:table-cell">
-                    <p className="text-sm font-medium tabular-nums">{money.format(o.revenue / 100)}</p>
-                    <p className="text-xs text-muted-foreground tabular-nums">{tr("{0} طلب", nf.format(o.orders))}</p>
-                  </TableCell>
-                  <TableCell className="py-3 pe-4">{controls(o)}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+    <ul className="apple-rows border-t-[0.5px] border-border [--row-inset:84px]">
+      {offers.map((o) => {
+        const meta = offerTypeMeta(o.type);
+        const discount = offerDiscountLabel(o);
+        const price = offerUnitPrice(o.offerProduct.price, o);
+        return (
+          <li key={o.id} className="relative flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-(--fill-3)/40">
+            <OfferThumb o={o} />
 
-      <ul className="divide-y divide-border md:hidden">
-        {offers.map((o) => {
-          const meta = offerTypeMeta(o.type);
-          return (
-            <li key={o.id} className="relative space-y-2 px-4 py-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <Link href={editHref(o.id)} scroll={false} className="block truncate text-sm font-semibold after:absolute after:inset-0">
-                    {o.name}
-                  </Link>
-                  <p className="truncate text-xs text-muted-foreground">{triggerSummary(o)}</p>
-                </div>
-                <StatusPill tone={meta.tone}>{meta.short}</StatusPill>
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <div className="flex items-baseline gap-2">
+                <Link
+                  href={editHref(o.id)}
+                  className={cn(
+                    "truncate text-[15px] font-semibold after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring",
+                    !o.isActive && "text-muted-foreground",
+                  )}
+                >
+                  {o.name}
+                </Link>
+                <span className="hidden shrink-0 text-[12px] text-muted-foreground sm:inline">{meta.title}</span>
               </div>
-              <OfferProduct o={o} />
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground tabular-nums">
+              <p className="truncate text-[13px] text-muted-foreground">
+                {o.offerProduct.name}
+                <span className="text-(--label-3)"> · </span>
+                {triggerSummary(o)}
+              </p>
+              <p className="flex flex-wrap items-baseline gap-x-2 text-[13px] tabular-nums">
+                <span className="font-semibold">{money.format(price)}</span>
+                {price < o.offerProduct.price && <span className="text-muted-foreground line-through">{money.format(o.offerProduct.price)}</span>}
+                {discount && <span className="text-foreground/80">{discount}</span>}
+                {!o.offerProduct.isActive && <span className="text-(--sys-orange)">{tr("المنتج مخفي")}</span>}
+                <span className="text-muted-foreground md:hidden">
                   {tr("{0}٪ قبول · {1}", nf.format(acceptRate(o.views, o.accepts)), money.format(o.revenue / 100))}
-                </p>
-                <div className="relative z-10">{controls(o)}</div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </>
+                </span>
+              </p>
+            </div>
+
+            <div className="hidden md:block">
+              <Performance o={o} />
+            </div>
+
+            <div className="hidden w-28 text-end lg:block">
+              <p className="text-[15px] font-semibold tabular-nums">{money.format(o.revenue / 100)}</p>
+              <p className="text-[12px] text-muted-foreground tabular-nums">{tr("{0} طلب", nf.format(o.orders))}</p>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2.5">
+              <OfferActiveSwitch key={String(o.isActive)} offerId={o.id} name={o.name} isActive={o.isActive} />
+              <OfferRowActions offer={{ id: o.id, name: o.name, orders: o.orders, isActive: o.isActive }} editHref={editHref(o.id)} />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
