@@ -60,8 +60,10 @@ export function ConnectPanel({ configured, shopDomain, reconnect, connecting, on
                 placeholder="my-store.myshopify.com"
                 value={shop}
                 onChange={(e) => setShop(e.target.value)}
-                disabled={connecting}
-                className="min-w-0 flex-1 bg-transparent text-[17px] outline-none placeholder:text-(--label-3)"
+                // readOnly, not disabled: onConnecting re-renders before the browser
+                // builds the form data, and a disabled field isn't submitted.
+                readOnly={connecting}
+                className="min-w-0 flex-1 bg-transparent text-[17px] outline-none placeholder:text-(--label-3) read-only:opacity-60"
               />
             </div>
             <button type="submit" disabled={connecting || !shop.trim()} className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}>
