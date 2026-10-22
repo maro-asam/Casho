@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { MustSession } from "@/actions/auth/auth-helpers.actions";
 import { checkOrderOtp, sendOrderOtp } from "@/lib/fraud/otp";
 import { announceNewOrder } from "@/lib/store/order-announce";
+import { applyCustomerAnswer, verifyOrderConfirmToken, type CustomerAnswer } from "@/lib/orders/whatsapp-confirm";
 
 const MAX_SENDS = 3;
 const RESEND_COOLDOWN_MS = 60 * 1000;
@@ -68,4 +69,25 @@ export async function ResendOrderCodeAction(storeSlug: string, orderId: string):
   return sent.ok
     ? { ok: true, message: sent.channel === "whatsapp" ? "بعتنالك كود جديد على واتساب." : "بعتنالك كود جديد في رسالة SMS." }
     : { ok: false, message: "مقدرناش نبعت الكود دلوقتي. جرّب كمان شوية أو تواصل مع المتجر." };
+}
+
+/**
+ * The customer's answer from the WhatsApp confirmation link. No session —
+ * the signed token in the link is the authorization.
+ */
+export async function RespondToOrderAction(
+  storeSlug: string,
+  orderId: string,
+  token: string,
+  answer: CustomerAnswer,
+): Promise<OrderCodeResult> {
+  if (!verifyOrderConfirmToken(orderId, token)) return { ok: false, message: "الرابط ده مش صحيح." };
+  const order = await prisma.order.findFirst({ where: { id: orderId, store: { slug: storeSlug } }, select: { id: true } });
+  if (!order) return { ok: false, message: "الطلب مش موجود." };
+
+  const changed = await applyCustomerAnswer(order.id, answer === "cancel" ? "cancel" : "confirm");
+  revalidatePath("/dashboard/orders");
+  revalidatePath(`/dashboard/orders/${order.id}`);
+  if (!changed) return { ok: false, message: "الطلب ده مبقاش ينفع يتغيّر — كلّم المتجر لو محتاج حاجة." };
+  return { ok: true, message: answer === "cancel" ? "اتلغى الطلب." : "اتأكد الطلب." };
 }

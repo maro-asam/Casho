@@ -62,6 +62,20 @@ function parseAttributes(value: FormDataEntryValue | null) {
   return null;
 }
 
+/** Digital product fields — a file or link the customer gets once the order is paid. */
+function parseDigital(formData: FormData) {
+  const isDigital = formData.get("isDigital") === "on";
+  const digitalUrl = normalizeOptional(formData.get("digitalUrl"));
+  const digitalFileName = normalizeOptional(formData.get("digitalFileName"));
+  const error =
+    isDigital && !digitalUrl
+      ? "ارفع ملف المنتج الرقمي أو حط لينك ليه"
+      : digitalUrl && !/^https?:\/\/\S+$/i.test(digitalUrl)
+        ? "لينك المنتج الرقمي لازم يبدأ بـ https://"
+        : null;
+  return { error, data: { isDigital, digitalUrl, digitalFileName: digitalUrl ? digitalFileName : null } };
+}
+
 function parseWholesaleOptions(value: FormDataEntryValue | null) {
   const raw = String(value ?? "[]").trim();
   try {
@@ -164,6 +178,8 @@ export async function CreateProductAction(
     const typeRaw = String(formData.get("type") ?? "SIMPLE").trim();
     const type: ProductType = typeRaw === "BUNDLE" ? "BUNDLE" : "SIMPLE";
     const bundleItems = parseBundleItems(formData.get("bundleItems"));
+    const digital = parseDigital(formData);
+    if (digital.error) return { success: false, message: digital.error };
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -244,6 +260,7 @@ export async function CreateProductAction(
         isFeatured,
         hasVariants,
         type,
+        ...digital.data,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         bundleItems: bundleItems as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -257,7 +274,7 @@ export async function CreateProductAction(
     });
     await seedDefaultBranchRows(prisma, store.id);
 
-    await checkAndNotifyLowStock(created.id, name, stock, store.id);
+    if (!digital.data.isDigital) await checkAndNotifyLowStock(created.id, name, stock, store.id);
 
     revalidatePath("/dashboard/products");
     revalidatePath("/dashboard");
@@ -327,6 +344,8 @@ export async function UpdateProductAction(
     const typeRaw = String(formData.get("type") ?? "SIMPLE").trim();
     const type: ProductType = typeRaw === "BUNDLE" ? "BUNDLE" : "SIMPLE";
     const bundleItems = parseBundleItems(formData.get("bundleItems"));
+    const digital = parseDigital(formData);
+    if (digital.error) return { success: false, message: digital.error };
 
     const store = await prisma.store.findFirst({
       where: { userId },
@@ -427,6 +446,7 @@ export async function UpdateProductAction(
           isFeatured,
           hasVariants,
           type,
+          ...digital.data,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           bundleItems: bundleItems as any,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -440,7 +460,7 @@ export async function UpdateProductAction(
       await syncDefaultBranch(tx, { storeId: store.id, productId: product.id, delta: stock - product.stock });
     });
 
-    await checkAndNotifyLowStock(product.id, name, stock, store.id);
+    if (!digital.data.isDigital) await checkAndNotifyLowStock(product.id, name, stock, store.id);
   } catch (error) {
     console.error("UpdateProductAction Error:", error);
     return { success: false, message: "حدث خطأ أثناء تعديل المنتج" };

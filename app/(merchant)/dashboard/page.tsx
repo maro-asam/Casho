@@ -14,6 +14,8 @@ import PerformanceChart from "./_components/overview/PerformanceChart";
 import RecentOrdersTable from "./_components/overview/RecentOrdersTable";
 import StoreStatus, { type StatusRow } from "./_components/overview/StoreStatus";
 import WelcomeBanner from "./_components/overview/WelcomeBanner";
+import DemoDataBanner from "./_components/overview/DemoDataBanner";
+import { hasDemoData } from "@/lib/demo-data/seed";
 import { getDailyQuote, getGreeting } from "./_components/overview/daily-quote";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import { formatMoney, formatNumber } from "./_components/overview/format";
@@ -81,7 +83,7 @@ const MerchantDashboardRoute = async () => {
     );
   }
 
-  const data = await getOverviewData(store.id);
+  const [data, demoData] = await Promise.all([getOverviewData(store.id), hasDemoData(store.id)]);
 
   const payments = store.storePaymentSettings;
   const hasPaymentMethods =
@@ -220,6 +222,8 @@ const MerchantDashboardRoute = async () => {
         yesterday={data.yesterday}
         onboarding={onboarding}
       />
+
+      {demoData && <DemoDataBanner />}
 
       <StarterGuideBar steps={starterSteps} />
 

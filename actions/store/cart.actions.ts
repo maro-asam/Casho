@@ -1,5 +1,6 @@
 "use server";
 
+import { stockOf } from "@/lib/products/digital";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -58,12 +59,13 @@ export async function AddToCartAction(
       storeId: store.id,
       isActive: true,
     },
-    select: { id: true, name: true, sizes: true, colors: true, stock: true, price: true, wholesaleOptions: true },
+    select: { id: true, name: true, sizes: true, colors: true, stock: true, isDigital: true, price: true, wholesaleOptions: true },
   });
 
   if (!product) throw new Error("Product not found");
+  const stock = stockOf(product);
 
-  if (product.stock <= 0) {
+  if (stock <= 0) {
     return { success: false, message: "المنتج ده نفد من المخزون" };
   }
 
@@ -73,14 +75,14 @@ export async function AddToCartAction(
     _sum: { quantity: true },
   });
   const alreadyInCart = inCart._sum.quantity ?? 0;
-  if (alreadyInCart + qty > product.stock) {
-    const left = product.stock - alreadyInCart;
+  if (alreadyInCart + qty > stock) {
+    const left = stock - alreadyInCart;
     return {
       success: false,
       message:
         left > 0
           ? `المتاح تضيفه من المنتج ده ${left} قطعة بس.`
-          : `المتاح من المنتج ده ${product.stock} قطعة بس، وكلهم في سلتك.`,
+          : `المتاح من المنتج ده ${stock} قطعة بس، وكلهم في سلتك.`,
     };
   }
 
@@ -381,6 +383,7 @@ export async function GetCartItemsAction(storeSlug: string) {
       shippingMethods,
       selectedShippingMethodId,
       selectedGovernorate,
+      digitalOnly: false,
     };
   }
 
@@ -400,6 +403,7 @@ export async function GetCartItemsAction(storeSlug: string) {
             image: true,
             wholesaleOptions: true,
             stock: true,
+            isDigital: true,
           },
         },
         offer: { select: CART_OFFER_SELECT },
@@ -442,7 +446,9 @@ export async function GetCartItemsAction(storeSlug: string) {
   if (staleOfferLines.length) {
     await prisma.cartItem.updateMany({ where: { id: { in: staleOfferLines } }, data: { offerId: null } });
   }
-  const items = rawItems.map((line) => {
+  const items = rawItems.map((raw) => {
+    // Themes cap quantities by `stock`; a digital product never runs out.
+    const line = { ...raw, product: { ...raw.product, stock: stockOf(raw.product) } };
     const { offer, ...item } = line;
     if (!offer || !validIds.has(item.id)) return { ...item, offerId: null, offer: null };
     return {
@@ -461,8 +467,11 @@ export async function GetCartItemsAction(storeSlug: string) {
     return acc + unitPrice * item.quantity;
   }, 0);
 
+  // Nothing to ship when every line is digital.
+  const digitalOnly = items.length > 0 && items.every((item) => item.product.isDigital);
+
   let shipping = 0;
-  if (items.length > 0) {
+  if (items.length > 0 && !digitalOnly) {
     if (shippingMethods.length > 0) {
       const method = shippingMethods.find((m) => m.id === selectedShippingMethodId) ?? shippingMethods[0];
       // Shipping methods are stored in piasters; the cart summary is in EGP.
@@ -528,6 +537,7 @@ export async function GetCartItemsAction(storeSlug: string) {
     shippingMethods,
     selectedShippingMethodId: activeMethodId,
     selectedGovernorate,
+    digitalOnly,
   };
 }
 
@@ -552,7 +562,7 @@ export async function UpdateCartItemQtyAction(
       productId: true,
       storeId: true,
       offerId: true,
-      product: { select: { stock: true } },
+      product: { select: { stock: true, isDigital: true } },
     },
   });
 
@@ -588,7 +598,7 @@ export async function UpdateCartItemQtyAction(
     where: { guestSessionId, productId: cartItem.productId, storeId: cartItem.storeId },
     _sum: { quantity: true },
   });
-  if ((inCart._sum.quantity ?? 0) + 1 > cartItem.product.stock) {
+  if ((inCart._sum.quantity ?? 0) + 1 > stockOf(cartItem.product)) {
     return { success: false, message: `المتاح ${Math.max(0, cartItem.product.stock)} قطعة بس` };
   }
 

@@ -3,6 +3,7 @@ import type { OrderRiskLevel, OrderSource, OrderStatus } from "@prisma/client";
 import { ChevronLeft } from "lucide-react";
 import { ORDER_CHANNELS, ORDER_RISK_META, paymentMethodLabel } from "./order-meta";
 import { OrderStatusSelect } from "./order-status-select";
+import { WhatsAppConfirmButton } from "./whatsapp-confirm-button";
 import { Tag, initialOf } from "@/components/saas-page";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
@@ -23,6 +24,10 @@ export type OrderRow = {
   awaitingCode: boolean;
   /** Canceled because the customer refused the delivery. */
   returned: boolean;
+  /** Confirmed by the customer (phone code or WhatsApp link). */
+  customerConfirmed: boolean;
+  /** Signed WhatsApp confirmation link while the order still needs one. */
+  confirmUrl: string | null;
 };
 
 const money = lazyIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 0 });
@@ -56,12 +61,14 @@ function Channel({ source }: { source: OrderSource }) {
   );
 }
 
-/** Only what needs the merchant's attention: risky numbers, unconfirmed and returned orders. */
+/** Only what needs the merchant's attention: risky numbers, unconfirmed, confirmed-but-pending and returned orders. */
 function Flags({ order }: { order: OrderRow }) {
   const risk = order.riskLevel && order.riskLevel !== "LOW" ? ORDER_RISK_META[order.riskLevel] : null;
-  if (!risk && !order.awaitingCode && !order.returned) return null;
+  const confirmed = order.customerConfirmed && order.status === "PENDING";
+  if (!risk && !order.awaitingCode && !order.returned && !confirmed) return null;
   return (
     <div className="mt-1.5 flex flex-wrap gap-1">
+      {confirmed && <Tag tone="success">{tr("العميل أكّد")}</Tag>}
       {risk && <Tag tone={risk.tone}>{risk.label}</Tag>}
       {order.awaitingCode && <Tag tone="warning">{tr("مستني التأكيد")}</Tag>}
       {order.returned && <Tag tone="danger">{tr("مرتجع")}</Tag>}
@@ -73,7 +80,18 @@ const th = "h-9 px-3 text-start align-bottom pb-2 text-[12px] font-medium text-m
 const td = "relative px-3 py-3 align-middle";
 
 /** Desktop: list-view table. Mobile: grouped rows — same data, same row link. */
-export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: string }) {
+function confirmTarget(order: OrderRow, confirmUrl: string) {
+  return {
+    fullName: order.fullName,
+    phone: order.phone,
+    total: order.total,
+    items: order.firstProduct ? [{ name: order.firstProduct, quantity: 1 }] : [],
+    moreCount: order.otherProducts,
+    confirmUrl,
+  };
+}
+
+export function OrdersTable({ orders, storeId, storeName }: { orders: OrderRow[]; storeId: string; storeName: string }) {
   return (
     <>
       <div className="hidden md:block">
@@ -86,7 +104,7 @@ export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: 
               <th className={`${th} hidden xl:table-cell`}>{tr("القناة")}</th>
               <th className={th}>{tr("الحالة")}</th>
               <th className={`${th} text-end`}>{tr("المبلغ")}</th>
-              <th aria-hidden className="w-10 pe-4" />
+              <th aria-hidden className="w-14 pe-4" />
             </tr>
           </thead>
           <tbody>
@@ -139,7 +157,11 @@ export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: 
                   <p className="text-[13px] text-muted-foreground">{paymentMethodLabel(order.paymentMethod)}</p>
                 </td>
                 <td className={`${td} pe-4`}>
-                  <ChevronLeft className="size-4 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
+                  {order.confirmUrl ? (
+                    <WhatsAppConfirmButton variant="icon" storeName={storeName} order={confirmTarget(order, order.confirmUrl)} />
+                  ) : (
+                    <ChevronLeft className="size-4 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
+                  )}
                 </td>
               </tr>
             ))}
@@ -172,7 +194,11 @@ export function OrdersTable({ orders, storeId }: { orders: OrderRow[]; storeId: 
               </div>
               <div className="flex items-center justify-between gap-3">
                 <OrderStatusSelect orderId={order.id} storeId={storeId} currentStatus={order.status} />
-                <Channel source={order.source} />
+                {order.confirmUrl ? (
+                  <WhatsAppConfirmButton variant="icon" storeName={storeName} order={confirmTarget(order, order.confirmUrl)} />
+                ) : (
+                  <Channel source={order.source} />
+                )}
               </div>
             </div>
           </li>

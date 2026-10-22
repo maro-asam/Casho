@@ -34,6 +34,7 @@ import {
   takeStockForOrder,
 } from "@/lib/inventory/order-stock";
 import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
+import { DIGITAL_ADDRESS, stockOf } from "@/lib/products/digital";
 
 const kashierAllowedMethodKeys = new Set(
   KASHIER_ALLOWED_METHODS.map((method) => method.key),
@@ -125,7 +126,7 @@ async function getClientIp() {
 async function notifyLowStock(storeId: string, productIds: string[]) {
   try {
     const products = await prisma.product.findMany({
-      where: { id: { in: productIds }, storeId },
+      where: { id: { in: productIds }, storeId, isDigital: false },
       select: { id: true, name: true, stock: true, lowStockThreshold: true },
     });
     for (const product of products) {
@@ -160,7 +161,21 @@ export async function CreateOrderAction(
   const { guestSessionId } = await MustSession();
 
   if (!storeSlug) throw new Error("storeSlug is missing");
-  if (!isGovernorateCode(data.governorate)) throw new Error("اختر المحافظة");
+
+  // A cart of only digital products ships nothing: no address, no shipping, no cash on delivery.
+  const cartKinds = await prisma.cartItem.findMany({
+    where: { guestSessionId, store: { slug: storeSlug } },
+    select: { product: { select: { isDigital: true } } },
+  });
+  const digitalOnly = cartKinds.length > 0 && cartKinds.every((item) => item.product.isDigital);
+  if (digitalOnly) {
+    data = { ...data, address: DIGITAL_ADDRESS, governorate: "" };
+    if (data.paymentMethod === "cash_on_delivery") {
+      throw new Error("المنتجات الرقمية مش بتتدفع عند الاستلام — اختار طريقة دفع تانية.");
+    }
+  } else if (!isGovernorateCode(data.governorate)) {
+    throw new Error("اختر المحافظة");
+  }
 
   const parsedCustomer = checkoutCustomerSchema.safeParse(data);
   if (!parsedCustomer.success) {
@@ -255,6 +270,7 @@ export async function CreateOrderAction(
             name: true,
             wholesaleOptions: true,
             stock: true,
+            isDigital: true,
             isActive: true,
           },
         },
@@ -297,7 +313,7 @@ export async function CreateOrderAction(
     cartQtyByProduct.set(item.productId, (cartQtyByProduct.get(item.productId) ?? 0) + item.quantity);
   }
   const cartHasStockProblem = cartItems.some(
-    (item) => !item.product.isActive || (cartQtyByProduct.get(item.productId) ?? 0) > item.product.stock,
+    (item) => !item.product.isActive || (cartQtyByProduct.get(item.productId) ?? 0) > stockOf(item.product),
   );
   if (cartHasStockProblem) {
     await fitCartToStock(store.id, guestSessionId);
@@ -321,9 +337,9 @@ export async function CreateOrderAction(
     select: { id: true, price: true, governorateRates: { select: { governorate: true, price: true } } },
   });
 
-  let shipping = (store.settings?.shippingPrice ?? 0) * 100;
+  let shipping = digitalOnly ? 0 : (store.settings?.shippingPrice ?? 0) * 100;
   let resolvedShippingMethodId: string | null = null;
-  if (shippingMethods.length > 0) {
+  if (shippingMethods.length > 0 && !digitalOnly) {
     const selected = shippingMethods.find((m) => m.id === selectedShippingMethodId);
     const method = selected ?? shippingMethods[0];
     shipping = shippingPriceFor(method, data.governorate);
@@ -419,8 +435,8 @@ export async function CreateOrderAction(
         phone: data.phone,
         // Prefixed so every place that shows the address (notifications,
         // invoice, exports, couriers) carries the governorate too.
-        address: `${governorateName(data.governorate)} - ${data.address}`,
-        governorate: data.governorate,
+        address: digitalOnly ? DIGITAL_ADDRESS : `${governorateName(data.governorate)} - ${data.address}`,
+        governorate: digitalOnly ? null : data.governorate,
         ipAddress,
         riskLevel: risk.level,
         riskSignals: risk.signals,

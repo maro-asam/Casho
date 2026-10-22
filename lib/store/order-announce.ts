@@ -5,7 +5,12 @@
 import { NotificationType, OrderRiskLevel } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
-import { sendWhatsAppOrderNotification } from "@/lib/notifications/whatsapp";
+import {
+  isOrderConfirmTemplateConfigured,
+  sendWhatsAppOrderConfirmation,
+  sendWhatsAppOrderNotification,
+} from "@/lib/notifications/whatsapp";
+import { canAskToConfirm, orderConfirmUrl } from "@/lib/orders/whatsapp-confirm";
 import { escapeTelegramMarkdown, sendTelegramMarkdown } from "@/lib/notifications/telegram";
 import { queueStoreServerEvent } from "@/lib/pixels/server";
 import { purchaseEventId } from "@/lib/pixels/shared";
@@ -26,11 +31,21 @@ export async function announceNewOrder(orderId: string) {
       address: true,
       total: true,
       paymentMethod: true,
+      status: true,
+      source: true,
+      confirmationStatus: true,
       riskLevel: true,
       riskSignals: true,
       items: { select: { productId: true, quantity: true, price: true, product: { select: { name: true } } } },
       store: {
-        select: { userId: true, name: true, settings: { select: { whatsappNumber: true, telegramChatId: true } } },
+        select: {
+          userId: true,
+          name: true,
+          slug: true,
+          customDomain: true,
+          customDomainStatus: true,
+          settings: { select: { whatsappNumber: true, telegramChatId: true } },
+        },
       },
     },
   });
@@ -92,6 +107,19 @@ export async function announceNewOrder(orderId: string) {
       itemCount,
       storeName: order.store.name,
     });
+  }
+
+  // Cash orders: ask the customer to confirm on WhatsApp (needs an approved template).
+  if (order.paymentMethod === "cash_on_delivery" && canAskToConfirm(order) && isOrderConfirmTemplateConfigured()) {
+    const confirmUrl = orderConfirmUrl(order.store, order.id);
+    if (confirmUrl) {
+      sendWhatsAppOrderConfirmation(order.phone, {
+        customerName: order.fullName,
+        storeName: order.store.name,
+        total: order.total,
+        confirmUrl,
+      });
+    }
   }
 
   const telegramChatId = order.store.settings?.telegramChatId;

@@ -14,6 +14,8 @@ import { canonicalPhone } from "@/lib/fraud/phone";
 import { BlockPhoneButton } from "./_components/block-phone-button";
 import { CopyButton } from "./_components/copy-button";
 import { OrderProgress } from "./_components/order-progress";
+import { WhatsAppConfirmButton } from "../_components/whatsapp-confirm-button";
+import { canAskToConfirm, orderConfirmUrl } from "@/lib/orders/whatsapp-confirm";
 import { ShipmentCard, type ShipCarrierOption, type ShipmentView } from "./_components/shipment-card";
 import { getStoreCarriers } from "@/lib/shipping/store-carriers";
 import { carrierDisplayName, getCarrier } from "@/lib/shipping/carriers";
@@ -66,7 +68,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   const order = await prisma.order.findFirst({
     where: { id, storeId: store.id },
     include: {
-      store: { select: { name: true, slug: true } },
+      store: { select: { name: true, slug: true, customDomain: true, customDomainStatus: true } },
       shippingMethod: { select: { name: true } },
       cashierUser: { select: { name: true, email: true } },
       // Latest live shipment — canceled ones stay in the shipments list only.
@@ -76,13 +78,14 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
         take: 1,
       },
       items: {
-        include: { product: { select: { id: true, name: true, image: true, slug: true } } },
+        include: { product: { select: { id: true, name: true, image: true, slug: true, isDigital: true } } },
       },
     },
   });
   if (!order) notFound();
 
   const isOnline = order.source === "ONLINE";
+  const digitalOnly = order.items.length > 0 && order.items.every((item) => item.product.isDigital);
   const [previousOrders, reputation, blocked, storeCarriers] = await Promise.all([
     prisma.order.count({ where: { storeId: store.id, phone: order.phone, id: { not: order.id } } }),
     // Live reputation (may have changed since checkout), this order excluded.
@@ -95,6 +98,8 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   ]);
   const awaitingCode = order.confirmationStatus === "PENDING" && order.status === "PENDING";
   const returned = order.status === "CANCELED" && order.returnedAt !== null;
+  const confirmUrl = canAskToConfirm(order) ? orderConfirmUrl(order.store, order.id) : null;
+  const customerConfirmed = order.confirmationStatus === "CONFIRMED";
 
   const shortId = order.id.slice(0, 8).toUpperCase();
   const status = ORDER_STATUS_META[order.status];
@@ -167,6 +172,11 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
         <div className="flex flex-wrap items-center gap-1.5 pt-2">
           <Tag tone={returned ? "danger" : status.tone}>{returned ? tr("مرتجع") : status.label}</Tag>
           {awaitingCode && <Tag tone="warning">{tr("مستني تأكيد العميل")}</Tag>}
+          {customerConfirmed && order.status !== "CANCELED" && (
+            <Tag tone="success">
+              {order.confirmedAt ? tr("العميل أكّد · {0}", shortDate.format(order.confirmedAt)) : tr("العميل أكّد")}
+            </Tag>
+          )}
           <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-card px-2.5 text-[12px] font-medium text-foreground/80">
             <ChannelIcon className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
             {channel.label}
@@ -188,7 +198,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
             returned={returned}
           />
 
-          {isOnline && (
+          {isOnline && !digitalOnly && (
             <ShipmentCard
               orderId={order.id}
               orderCanceled={order.status === "CANCELED"}
@@ -230,6 +240,11 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                         >
                           {item.product.name}
                         </Link>
+                        {item.product.isDigital && (
+                          <p className="text-[13px] text-muted-foreground">
+                            {isPaid ? tr("رقمي · العميل يقدر ينزّله من صفحة الطلب") : tr("رقمي · هيتفتح للعميل بعد الدفع")}
+                          </p>
+                        )}
                         {features.length > 0 && (
                           <p className="truncate text-[13px] text-muted-foreground">
                             {features.map(([key, val]) => `${FEATURE_LABELS[key] ?? key}: ${val}`).join(" · ")}
@@ -296,6 +311,23 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
 
         {/* Side column */}
         <div className="space-y-5">
+          {confirmUrl && (
+            <Card title={tr("أكّد الطلب مع العميل")} subtitle={tr("ابعتله رسالة فيها لينك — يدوس ويأكّد أو يلغي من غير مكالمة.")}>
+              <div className="px-5 pb-5">
+                <WhatsAppConfirmButton
+                  storeName={order.store.name}
+                  order={{
+                    fullName: order.fullName,
+                    phone: order.phone,
+                    total: order.total,
+                    items: order.items.slice(0, 3).map((item) => ({ name: item.product.name, quantity: item.quantity })),
+                    moreCount: Math.max(0, order.items.length - 3),
+                    confirmUrl,
+                  }}
+                />
+              </div>
+            </Card>
+          )}
           {reputation && (
             <Card
               title={tr("سمعة الرقم")}

@@ -18,6 +18,7 @@ export type ProductRow = {
   compareAtPrice: number | null;
   stock: number;
   lowStockThreshold: number | null;
+  isDigital: boolean;
   image: string | null;
   isActive: boolean;
   isFeatured: boolean;
@@ -45,6 +46,7 @@ function Thumb({ product }: { product: ProductRow }) {
 
 /** Plain count when healthy; a tinted capsule only when stock needs attention. */
 function Stock({ product }: { product: ProductRow }) {
+  if (product.isDigital) return <Tag tone="accent">{tr("رقمي")}</Tag>;
   if (product.stock <= 0) return <Tag tone="danger">{tr("نفد")}</Tag>;
   if (product.stock <= (product.lowStockThreshold ?? DEFAULT_LOW_STOCK_THRESHOLD)) {
     return <Tag tone="warning">{tr("{0} · قليل", nf.format(product.stock))}</Tag>;

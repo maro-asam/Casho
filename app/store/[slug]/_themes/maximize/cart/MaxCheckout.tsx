@@ -47,7 +47,7 @@ export default function MaxCheckout({ storeSlug, cart, paymentMethods, createOrd
       ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_26rem]">
           <div className="mx-checkout order-2 min-w-0 lg:order-1">
-            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} />
+            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
           <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
             <details className="mx-details rounded-(--mx-r-lg) border border-(--mx-line) bg-(--mx-band)" open>

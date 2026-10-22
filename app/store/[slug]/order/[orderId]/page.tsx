@@ -25,6 +25,8 @@ import { MustSession } from "@/actions/auth/auth-helpers.actions";
 import { purchaseEventId } from "@/lib/pixels/shared";
 import { PixelEvent } from "../../_components/pixels/PixelEvent";
 import { ShipmentTracking } from "./_components/ShipmentTracking";
+import { DigitalDownloads } from "./_components/DigitalDownloads";
+import { isOrderPaid } from "@/lib/products/digital";
 import { prisma } from "@/lib/prisma";
 import { getPaymentMethodLabel as getCatalogueLabel, isManualPaymentMethod } from "@/constants/welcome/payment-methods";
 
@@ -285,6 +287,9 @@ export default async function OrderDetailsPage({
           product: {
             select: {
               name: true,
+              isDigital: true,
+              digitalUrl: true,
+              digitalFileName: true,
             },
           },
         },
@@ -507,6 +512,19 @@ export default async function OrderDetailsPage({
             </div>
           </CardContent>
         </Card>
+
+        <DigitalDownloads
+          paid={isOrderPaid(order)}
+          canceled={order.status === "CANCELED"}
+          items={order.items
+            .filter((item) => item.product.isDigital)
+            .map((item) => ({
+              id: item.id,
+              name: item.product.name,
+              url: isOrderPaid(order) ? item.product.digitalUrl : null,
+              fileName: item.product.digitalFileName,
+            }))}
+        />
 
         {order.shipments[0] && <ShipmentTracking shipment={order.shipments[0]} />}
 

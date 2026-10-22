@@ -68,7 +68,7 @@ async function liveOffers(storeId: string, productIds: string[], excludeProductI
       ...(types && { type: { in: types } }),
       OR: [{ triggerProductIds: { isEmpty: true } }, { triggerProductIds: { hasSome: productIds } }],
       offerProductId: { notIn: [...productIds, ...excludeProductIds] },
-      offerProduct: { isActive: true, stock: { gt: 0 } },
+      offerProduct: { isActive: true, OR: [{ stock: { gt: 0 } }, { isDigital: true }] },
     },
     select: OFFER_ROW_SELECT,
     take: 30,

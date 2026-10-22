@@ -6,6 +6,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { PRODUCT_CARD_SELECT, toProductCards } from "@/app/store/[slug]/_lib/storefront";
+import { stockOf } from "@/lib/products/digital";
 
 const MAX_IDS = 24;
 
@@ -30,7 +31,7 @@ export async function GetStorefrontCardsAction(
   }
 
   const rows = await prisma.product.findMany({
-    where: { ...base, ...(exclude.length && { id: { notIn: exclude } }), stock: { gt: 0 } },
+    where: { ...base, ...(exclude.length && { id: { notIn: exclude } }), OR: [{ stock: { gt: 0 } }, { isDigital: true }] },
     orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
     take,
     select: PRODUCT_CARD_SELECT,
@@ -53,6 +54,7 @@ export async function GetQuickViewProductAction(storeSlug: string, productSlug: 
       images: true,
       description: true,
       stock: true,
+      isDigital: true,
       sizes: true,
       colors: true,
       brand: true,
@@ -73,7 +75,7 @@ export async function GetQuickViewProductAction(storeSlug: string, productSlug: 
     compareAtPrice: p.compareAtPrice,
     gallery,
     description: p.description?.trim().slice(0, 320) || null,
-    stock: p.stock,
+    stock: stockOf(p),
     sizes: p.sizes,
     colors: p.colors,
     brand: p.brand,

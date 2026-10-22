@@ -9,6 +9,7 @@ import {
   Gift,
   Globe,
   Headset,
+  ImageDown,
   ImageIcon,
   Layers,
   LayoutDashboard,
@@ -72,6 +73,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { get name() { return tr("التصنيفات"); }, href: "/categories", icon: Tag },
       { get name() { return tr("البانرات"); }, href: "/banners", icon: ImageIcon },
+      { get name() { return tr("ضغط الصور"); }, href: "/image-compressor", icon: ImageDown },
       { get name() { return tr("تخصيص المتجر"); }, href: "/customization", icon: PaintRoller },
       { get name() { return tr("المراجعات"); }, href: "/reviews", icon: Star },
       { get name() { return tr("المدونة"); }, href: "/blog", icon: BookOpen },

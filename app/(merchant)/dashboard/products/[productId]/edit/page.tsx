@@ -70,6 +70,9 @@ export default async function EditProductPage({
       categoryId: true,
       attributes: true,
       wholesaleOptions: true,
+      isDigital: true,
+      digitalUrl: true,
+      digitalFileName: true,
     },
   });
   if (!product) {

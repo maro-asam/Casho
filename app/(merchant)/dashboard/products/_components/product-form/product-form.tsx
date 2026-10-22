@@ -20,6 +20,7 @@ import MarketingAssistantModal, { type ProductDataForMarketing } from "../Market
 import TagInput from "../TagInput";
 import WholesaleInput, { type WholesaleTier } from "../WholesaleInput";
 import { Field, FormSection, ToggleRow } from "./form-section";
+import { DigitalInput } from "./digital-input";
 import { MediaInput } from "./media-input";
 import { MoneyInput } from "./money-input";
 import { ProductPreview } from "./product-preview";
@@ -56,6 +57,9 @@ export type ProductDefaults = {
   categoryId: string;
   attributes: unknown;
   wholesaleOptions: unknown;
+  isDigital: boolean;
+  digitalUrl: string | null;
+  digitalFileName: string | null;
 };
 
 type Props = {
@@ -97,6 +101,8 @@ export function ProductForm({ action, categories, products = [], product, storef
   );
   const [uploading, setUploading] = useState(false);
   const [hasVariants, setHasVariants] = useState(product?.hasVariants ?? false);
+  const [isDigital, setIsDigital] = useState(product?.isDigital ?? false);
+  const [fileUploading, setFileUploading] = useState(false);
   const categoryRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -132,11 +138,11 @@ export function ProductForm({ action, categories, products = [], product, storef
     }
   }
 
-  const busy = isPending || uploading;
+  const busy = isPending || uploading || fileUploading;
   const saveLabel = isPending
     ? tr("جاري الحفظ...")
-    : uploading
-      ? tr("استنى الصور...")
+    : uploading || fileUploading
+      ? fileUploading ? tr("استنى الملف...") : tr("استنى الصور...")
       : isEdit
         ? tr("حفظ التعديلات")
         : tr("حفظ المنتج");
@@ -240,7 +246,38 @@ export function ProductForm({ action, categories, products = [], product, storef
             </div>
           </FormSection>
 
-          <FormSection title={tr("المخزون")} description={tr("الكمية بتتخصم تلقائي مع كل بيعة أونلاين أو من الكاشير.")}>
+          <FormSection
+            title={tr("منتج رقمي")}
+            description={tr("كتاب، كورس، تصميم، أو أي ملف — مفيش شحن ولا مخزون، والعميل بينزّله من صفحة الطلب بعد الدفع.")}
+            aside={
+              <Switch
+                name="isDigital"
+                checked={isDigital}
+                onCheckedChange={setIsDigital}
+                aria-label={tr("ده منتج رقمي")}
+                className="mt-0.5"
+              />
+            }
+          >
+            {isDigital ? (
+              <DigitalInput
+                initialUrl={product?.digitalUrl}
+                initialFileName={product?.digitalFileName}
+                onUploadingChange={setFileUploading}
+              />
+            ) : (
+              <p className="rounded-xl bg-background px-4 py-3 text-[15px] text-muted-foreground">
+                {tr("منتج عادي بيتشحن للعميل. فعّل الزرار لو هتبيع ملف أو لينك.")}
+              </p>
+            )}
+          </FormSection>
+
+          {/* Kept mounted while digital so saving never changes the stock count. */}
+          <FormSection
+            className={cn(isDigital && "hidden")}
+            title={tr("المخزون")}
+            description={tr("الكمية بتتخصم تلقائي مع كل بيعة أونلاين أو من الكاشير.")}
+          >
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={tr("الكمية المتاحة")} htmlFor="stock">
                 <Input

@@ -9,6 +9,7 @@ import { getStorefrontTheme } from "../../_themes";
 import type { BundleItem, WholesaleTier } from "../../_themes/types";
 import { PRODUCT_CARD_SELECT, getStoreThemeId, toProductCards } from "../../_lib/storefront";
 import { PixelEvent } from "../../_components/pixels/PixelEvent";
+import { stockOf } from "@/lib/products/digital";
 
 // ISR: revalidate every 120 seconds — product data (price, stock, description) changes occasionally
 export const revalidate = 120;
@@ -147,7 +148,7 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
         url: productUrl,
         priceCurrency: "EGP",
         price: product.price.toFixed(2),
-        availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        availability: stockOf(product) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
         itemCondition: "https://schema.org/NewCondition",
         seller: { "@type": "Organization", name: store.name },
       },
@@ -199,7 +200,7 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
           brand: product.brand,
           sku: product.sku,
           weight: product.weight,
-          stock: product.stock,
+          stock: stockOf(product),
           isFeatured: product.isFeatured,
           sizes: product.sizes,
           colors: product.colors,

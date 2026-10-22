@@ -17,7 +17,7 @@ import { getShopifyConfig, isShopifyConfigured } from "@/lib/integrations/shopif
 import { encryptedTokenFields } from "@/lib/integrations/shopify/connection";
 import { handleShopifyCallback } from "@/lib/integrations/shopify/callback";
 import { exchangeCodeForToken, SHOPIFY_STATE_COOKIE } from "@/lib/integrations/shopify/oauth";
-import { createShopifyClient, fetchShopInfo } from "@/lib/integrations/shopify/source";
+import { createShopifyClient, fetchShopInfo, registerUninstallWebhook } from "@/lib/integrations/shopify/source";
 import { importPageUrl, stateCookieOptions } from "@/lib/integrations/shopify/http";
 
 function redirectClearingState(url: string) {
@@ -61,6 +61,14 @@ export async function GET(req: NextRequest) {
             create: { storeId, provider: "SHOPIFY", ...data },
             update: data,
           });
+
+          // Best effort: the import works without it; we only lose the uninstall signal.
+          await registerUninstallWebhook(
+            createShopifyClient(shop.domain, async () => tokens.accessToken),
+            getShopifyConfig().webhooksUri,
+          )
+            .then((errors) => errors.length && logger.warn("[Shopify OAuth] Uninstall webhook not registered", { shop: shop.domain, errors }))
+            .catch((err) => logger.warn("[Shopify OAuth] Uninstall webhook failed", errorLogContext(err)));
         },
       },
     );

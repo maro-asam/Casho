@@ -14,7 +14,7 @@ Merchants connect their Shopify store with OAuth and move their catalog, custome
 3. **Allowed redirection URL** (must match exactly):
    `https://app.casho.store/api/integrations/shopify/oauth/callback`
 4. **Access scopes** (read-only; see section 4).
-5. **Webhooks** (section 5): `app/uninstalled` plus the three mandatory privacy topics.
+5. **Webhooks** (section 5): the three mandatory privacy topics go in [`shopify-app/shopify.app.toml`](../../shopify-app/shopify.app.toml) (deploy with `npx @shopify/cli@latest app deploy` from that folder). `app/uninstalled` is subscribed per shop from the OAuth callback, because Shopify rejects app-wide subscriptions while `use_legacy_install_flow` is on — and the import needs that flow, since the merchant starts OAuth from the Kasho dashboard.
 6. **Protected customer data**: customers and orders contain personal data. In the Partner/Dev Dashboard, request access to protected customer data (name, email, phone and address fields) and explain the purpose: migrating the merchant's own customers and orders into their Kasho store. Without that approval, Shopify rejects the customer and order queries on production stores. Development stores are less restricted. Check Shopify's current rules before launch.
 7. **Distribution**: custom distribution only works for one store (or one Plus organization). To serve every Kasho merchant, the app needs public distribution, which goes through Shopify's app review. Check Shopify's current distribution rules before launch.
 8. Copy the **Client ID** and **Client secret** into the environment variables below.
@@ -71,20 +71,7 @@ Endpoint: `POST https://app.casho.store/api/integrations/shopify/webhooks`. Ever
 | `customers/redact` | Deletes the Shopify↔Kasho link for that customer. The Kasho customer row is the merchant's own record after the migration. |
 | `customers/data_request` | Acknowledged. Kasho keeps no Shopify-side copy beyond what the merchant imported into their own store. |
 
-Example `shopify.app.toml`:
-
-```toml
-[webhooks]
-api_version = "2026-10"
-
-  [[webhooks.subscriptions]]
-  topics = ["app/uninstalled"]
-  uri = "https://app.casho.store/api/integrations/shopify/webhooks"
-
-  [[webhooks.subscriptions]]
-  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
-  uri = "https://app.casho.store/api/integrations/shopify/webhooks"
-```
+The privacy topics are declared in [`shopify-app/shopify.app.toml`](../../shopify-app/shopify.app.toml). `app/uninstalled` is created per shop with `webhookSubscriptionCreate` right after OAuth (`registerUninstallWebhook` in `lib/integrations/shopify/source.ts`); a failure there is logged and doesn't block the connection.
 
 ## 6. Local development
 

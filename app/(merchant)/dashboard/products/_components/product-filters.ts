@@ -33,9 +33,10 @@ export function viewWhere(view: ProductView): Prisma.ProductWhereInput {
     case "hidden":
       return { isActive: false };
     case "out":
-      return { stock: { lte: 0 } };
+      return { stock: { lte: 0 }, isDigital: false };
     case "low":
       return {
+        isDigital: false,
         OR: [
           { lowStockThreshold: { not: null }, stock: { gt: 0, lte: prisma.product.fields.lowStockThreshold } },
           { lowStockThreshold: null, stock: { gt: 0, lte: DEFAULT_LOW_STOCK_THRESHOLD } },

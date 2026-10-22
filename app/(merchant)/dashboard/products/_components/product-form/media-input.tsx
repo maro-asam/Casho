@@ -2,17 +2,22 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ImagePlus, Link2, Loader2, Star, X } from "lucide-react";
+import Link from "next/link";
+import { ImagePlus, Info, Link2, Loader2, Star, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { appleButton } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
+import { ONE_MB, compressImage, isCompressible } from "@/lib/image-compress";
 import { tr } from "@/lib/i18n/dashboard";
 
-function uploadToCloudinary(file: File) {
-  return uploadImageToCloudinary(file, "casho/uploads/products", 10);
+/** Hard cap for a product image. Bigger photos are compressed on the device first. */
+const MAX_IMAGE_MB = 1;
+
+async function uploadToCloudinary(file: File) {
+  return uploadImageToCloudinary(await compressImage(file, { maxBytes: MAX_IMAGE_MB * ONE_MB }), "casho/uploads/products", MAX_IMAGE_MB);
 }
 
 type Props = {
@@ -59,7 +64,9 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
       return left;
     });
 
+    const shrunk = valid.filter((f) => f.size > MAX_IMAGE_MB * ONE_MB && isCompressible(f)).length;
     if (urls.length) toast.success(urls.length === 1 ? tr("الصورة اترفعت") : tr("اترفعت {0} صور", urls.length));
+    if (urls.length && shrunk) toast.info(tr("صغّرنا {0} صورة لأقل من 1 ميجا قبل الرفع", shrunk));
     if (failed) toast.error(failed.reason instanceof Error ? failed.reason.message : tr("صورة أو أكتر مترفعتش"));
   }
 
@@ -154,7 +161,7 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
             {images.length === 0 ? tr("اسحب الصور هنا أو دوس للاختيار") : tr("ضيف صور")}
           </span>
           {images.length === 0 && (
-            <span className="text-[12px] text-muted-foreground">{tr("PNG أو JPG أو WEBP · أول صورة هتبقى الأساسية")}</span>
+            <span className="text-[12px] text-muted-foreground">{tr("PNG أو JPG أو WEBP · أقصى حجم 1 ميجا للصورة")}</span>
           )}
           <input
             type="file"
@@ -168,6 +175,16 @@ export function MediaInput({ initialImages = [], onChange, onUploadingChange }: 
           />
         </label>
       </div>
+
+      <p className="flex items-start gap-1.5 text-[12px] leading-4 text-muted-foreground">
+        <Info className="size-3.5 shrink-0" />
+        <span>
+          {tr("أقصى حجم للصورة 1 ميجا — الأكبر بنضغطها تلقائيًا قبل الرفع. صور GIF لازم تكون أقل من 1 ميجا.")}{" "}
+          <Link href="/image-compressor" target="_blank" className="text-primary hover:underline">
+            {tr("صغّر صورك من هنا")}
+          </Link>
+        </span>
+      </p>
 
       {urlOpen ? (
         <div className="flex gap-2">

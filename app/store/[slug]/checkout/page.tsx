@@ -36,12 +36,18 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     getStoreThemeId(slug),
   ]);
   const theme = getStorefrontTheme(themeId);
+  // Digital-only carts can't be paid on delivery — there is no delivery.
+  const checkoutMethods = cartData.digitalOnly
+    ? paymentMethods.filter((method) => method.key !== "cash_on_delivery")
+    : paymentMethods;
 
   async function handleCreateOrder(formData: FormData) {
     "use server";
 
-    const enabledPaymentMethods =
-      await GetStoreCheckoutPaymentMethodsAction(slug);
+    const [enabledPaymentMethods, cart] = await Promise.all([
+      GetStoreCheckoutPaymentMethodsAction(slug),
+      GetCartItemsAction(slug),
+    ]);
 
     const fullName = String(formData.get("fullName") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
@@ -57,8 +63,10 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
 
     if (!fullName) throw new Error("الاسم بالكامل مطلوب");
     if (!phone) throw new Error("رقم الموبايل مطلوب");
-    if (!isGovernorateCode(governorate)) throw new Error("اختر المحافظة");
-    if (!address) throw new Error("العنوان مطلوب");
+    if (!cart.digitalOnly) {
+      if (!isGovernorateCode(governorate)) throw new Error("اختر المحافظة");
+      if (!address) throw new Error("العنوان مطلوب");
+    }
 
     if (!isValidPaymentMethod(paymentMethodValue, enabledPaymentMethods)) {
       throw new Error("طريقة الدفع غير متاحة");
@@ -93,7 +101,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
       <theme.Checkout
         storeSlug={slug}
         cart={cartData}
-        paymentMethods={paymentMethods}
+        paymentMethods={checkoutMethods}
         createOrder={handleCreateOrder}
       />
     </>

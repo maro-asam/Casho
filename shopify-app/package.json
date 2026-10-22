@@ -1,0 +1,7 @@
+{
+  "name": "casho-shopify-app",
+  "private": true,
+  "scripts": {
+    "deploy": "shopify app deploy"
+  }
+}

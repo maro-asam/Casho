@@ -6,6 +6,7 @@ import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { BANNER_DEFAULT_CTA, BANNER_LINK_SELECT, liveBannerWhere, resolveBannerLink } from "@/lib/banners/banner-link";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import type { BannerData, ProductCardData } from "../_themes/types";
+import { stockOf } from "@/lib/products/digital";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Storefront data helpers
@@ -25,6 +26,7 @@ export const PRODUCT_CARD_SELECT = {
   createdAt: true,
   isFeatured: true,
   stock: true,
+  isDigital: true,
   sizes: true,
   colors: true,
   category: { select: { name: true, slug: true } },
@@ -96,7 +98,7 @@ export async function toProductCards(rows: CardRow[]): Promise<ProductCardData[]
     compareAtPrice: p.compareAtPrice,
     image: p.image,
     isFeatured: p.isFeatured,
-    stock: p.stock,
+    stock: stockOf(p),
     hasOptions: p.sizes.length > 0 || p.colors.length > 0,
     categoryName: p.category?.name ?? null,
     rating: ratings.get(p.id) ?? null,

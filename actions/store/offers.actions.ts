@@ -11,6 +11,7 @@ import { MustSession, ReadSession } from "../auth/auth-helpers.actions";
 import { queueStoreServerEvent } from "@/lib/pixels/server";
 import { offerMatches, offerUnitPrice } from "@/lib/offers/offer-pricing";
 import { getProductOffers, type ProductOffers } from "@/lib/offers/storefront-offers";
+import { stockOf } from "@/lib/products/digital";
 
 const NO_OFFERS: ProductOffers = { upsell: null, downsell: null, crossSells: [] };
 
@@ -65,7 +66,7 @@ export async function AcceptOfferAction(storeSlug: string, offerId: string, inpu
       triggerProductIds: true,
       discountType: true,
       discountValue: true,
-      offerProduct: { select: { id: true, name: true, price: true, stock: true, isActive: true, sizes: true, colors: true } },
+      offerProduct: { select: { id: true, name: true, price: true, stock: true, isDigital: true, isActive: true, sizes: true, colors: true } },
     },
   });
   if (!offer || !offer.offerProduct.isActive) return { success: false as const, message: "العرض ده خلص" };
@@ -92,7 +93,7 @@ export async function AcceptOfferAction(storeSlug: string, offerId: string, inpu
     where: { guestSessionId, storeId: store.id, productId: product.id },
     _sum: { quantity: true },
   });
-  if ((inCart._sum.quantity ?? 0) + qty > product.stock) {
+  if ((inCart._sum.quantity ?? 0) + qty > stockOf(product)) {
     return { success: false as const, message: "الكمية المتاحة من المنتج ده خلصت" };
   }
 

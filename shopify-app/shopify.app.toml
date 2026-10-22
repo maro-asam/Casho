@@ -1,0 +1,26 @@
+# Shopify app config for the "Casho Import" app (Dev Dashboard).
+# Deployed with `npx @shopify/cli@latest app deploy` from this folder — every
+# deploy creates a new app version from this file, so keep it complete.
+# Docs: docs/integrations/shopify-import.md
+
+client_id = "cba5b70a0df3de100304dab43591de20"
+name = "Casho Import"
+application_url = "https://app.casho.store/integrations/shopify"
+embedded = false
+
+[access_scopes]
+scopes = "read_products,read_inventory,read_customers,read_orders"
+use_legacy_install_flow = true
+
+[auth]
+redirect_urls = ["https://app.casho.store/api/integrations/shopify/oauth/callback"]
+
+[webhooks]
+api_version = "2026-10"
+
+  # app/uninstalled can't live here while use_legacy_install_flow is on — it's
+  # subscribed per shop from the OAuth callback (registerUninstallWebhook).
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "https://app.casho.store/api/integrations/shopify/webhooks"

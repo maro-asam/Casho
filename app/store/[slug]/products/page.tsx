@@ -81,7 +81,7 @@ export default async function StoreProductsRoute({
     ...(query.search ? { name: { contains: query.search, mode: "insensitive" as const } } : {}),
     ...(query.category ? { category: { slug: query.category } } : {}),
     ...(query.featured ? { isFeatured: true } : {}),
-    ...(query.inStock ? { stock: { gt: 0 } } : {}),
+    ...(query.inStock ? { OR: [{ stock: { gt: 0 } }, { isDigital: true }] } : {}),
     ...(query.brand ? { brand: query.brand } : {}),
     ...(query.size ? { sizes: { has: query.size } } : {}),
     ...(query.color ? { colors: { has: query.color } } : {}),

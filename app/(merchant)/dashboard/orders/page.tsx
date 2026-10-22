@@ -16,6 +16,7 @@ import {
   type SearchParamsRecord,
 } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
+import { canAskToConfirm, orderConfirmUrl } from "@/lib/orders/whatsapp-confirm";
 import { ExportOrdersButton } from "./_components/export-orders-button";
 import { buildOrderWhere, parseOrderFilters } from "./_components/order-filters";
 import { ORDER_CHANNELS, ORDER_STATUSES } from "./_components/order-meta";
@@ -44,7 +45,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true },
+    select: { id: true, name: true, slug: true, customDomain: true, customDomainStatus: true },
   });
 
   if (!store) {
@@ -117,6 +118,8 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
     riskLevel: order.riskLevel,
     awaitingCode: order.confirmationStatus === "PENDING" && order.status === "PENDING",
     returned: order.status === "CANCELED" && order.returnedAt !== null,
+    customerConfirmed: order.confirmationStatus === "CONFIRMED",
+    confirmUrl: canAskToConfirm(order) ? orderConfirmUrl(store, order.id) : null,
   }));
 
   const hasFilters = Boolean(q || status || source);
@@ -172,7 +175,7 @@ const OrdersRoute = async ({ searchParams }: OrdersRouteProps) => {
             </div>
 
             {rows.length > 0 ? (
-              <OrdersTable orders={rows} storeId={store.id} />
+              <OrdersTable orders={rows} storeId={store.id} storeName={store.name} />
             ) : (
               <Unavailable
                 icon={SearchX}

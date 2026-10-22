@@ -399,6 +399,13 @@ model Product {
   type        ProductType @default(SIMPLE)
   bundleItems Json?
 
+  /// Digital product: no shipping and no stock. `digitalUrl` (an uploaded file
+  /// or an external link) unlocks on the customer's order page once paid.
+  isDigital       Boolean @default(false)
+  digitalUrl      String?
+  /// Shown on the download button when `digitalUrl` is an uploaded file.
+  digitalFileName String?
+
   isActive    Boolean @default(true)
   isFeatured  Boolean @default(false)
   hasVariants Boolean @default(false)

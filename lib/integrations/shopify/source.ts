@@ -197,6 +197,28 @@ export async function fetchShopInfo(client: ShopifyClient): Promise<ShopInfo> {
   };
 }
 
+const UNINSTALL_WEBHOOK_MUTATION = `
+  mutation RegisterUninstall($uri: String!) {
+    webhookSubscriptionCreate(topic: APP_UNINSTALLED, webhookSubscription: { uri: $uri }) {
+      userErrors { message }
+    }
+  }
+`;
+
+/**
+ * Subscribes this shop to app/uninstalled. The app uses the legacy install
+ * flow, where Shopify refuses app-wide subscriptions in shopify.app.toml, so
+ * each shop is subscribed when it connects. Re-subscribing an existing address
+ * just returns a user error, which is fine.
+ */
+export async function registerUninstallWebhook(client: ShopifyClient, uri: string) {
+  const data = await client.request<{ webhookSubscriptionCreate: { userErrors: { message: string }[] } }>(
+    UNINSTALL_WEBHOOK_MUTATION,
+    { uri },
+  );
+  return data.webhookSubscriptionCreate.userErrors.map((e) => e.message);
+}
+
 export async function fetchPreviewCounts(connection: Pick<ImportConnection, "id" | "shopDomain">): Promise<ShopifyPreviewCounts> {
   const data = await clientFor(connection).request<Record<string, { count: number } | null>>(COUNTS_QUERY);
   return {

@@ -1,6 +1,7 @@
 import { OrderConfirmationStatus, OrderStatus, StockMovementType, type Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { findDefaultBranchId, adjustBranchQuantity } from "./branch-stock";
+import { stockOf } from "@/lib/products/digital";
 
 type Tx = Prisma.TransactionClient;
 type Line = { productId: string; quantity: number };
@@ -32,7 +33,12 @@ export async function takeStockForOrder(
   const branchId = await findDefaultBranchId(tx, storeId);
 
   for (const [productId, quantity] of sumByProduct(lines)) {
-    const before = await tx.product.findUnique({ where: { id: productId }, select: { stock: true } });
+    const before = await tx.product.findUnique({ where: { id: productId }, select: { stock: true, isDigital: true, isActive: true } });
+    // Digital products have no stock to take — only check they're still on sale.
+    if (before?.isDigital) {
+      if (!before.isActive) failed.push(productId);
+      continue;
+    }
     const res = await tx.product.updateMany({
       where: { id: productId, storeId, isActive: true, stock: { gte: quantity } },
       data: { stock: { decrement: quantity } },
@@ -75,7 +81,12 @@ export async function adjustStockForOrderStatus(
   // POS sales go back to their branch; online orders to the main branch.
   const branchId = order?.branchId ?? (await findDefaultBranchId(tx, storeId));
 
+  const digital = new Set(
+    (await tx.product.findMany({ where: { id: { in: items.map((i) => i.productId) }, isDigital: true }, select: { id: true } })).map((p) => p.id),
+  );
+
   for (const [productId, quantity] of sumByProduct(items)) {
+    if (digital.has(productId)) continue;
     const product = await tx.product.update({
       where: { id: productId },
       data: { stock: { increment: sign * quantity } },
@@ -107,14 +118,14 @@ export async function fitCartToStock(storeId: string, guestSessionId: string) {
   const rows = await prisma.cartItem.findMany({
     where: { storeId, guestSessionId },
     orderBy: { createdAt: "asc" },
-    select: { id: true, productId: true, quantity: true, product: { select: { stock: true, isActive: true } } },
+    select: { id: true, productId: true, quantity: true, product: { select: { stock: true, isActive: true, isDigital: true } } },
   });
 
   const remaining = new Map<string, number>();
   const ops: Prisma.PrismaPromise<unknown>[] = [];
 
   for (const row of rows) {
-    const left = remaining.get(row.productId) ?? (row.product.isActive ? Math.max(0, row.product.stock) : 0);
+    const left = remaining.get(row.productId) ?? (row.product.isActive ? Math.max(0, stockOf(row.product)) : 0);
     if (left <= 0) {
       ops.push(prisma.cartItem.delete({ where: { id: row.id } }));
     } else if (row.quantity > left) {

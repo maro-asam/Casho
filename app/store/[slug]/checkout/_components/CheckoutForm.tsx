@@ -93,12 +93,15 @@ export default function CheckoutForm({
   action,
   storeSlug,
   defaultGovernorate,
+  digitalOnly = false,
 }: {
   paymentMethods: PaymentMethod[];
   action: (formData: FormData) => void;
   storeSlug: string;
   /** Last governorate picked (cart summary already prices shipping for it). */
   defaultGovernorate?: string | null;
+  /** Every item is digital: nothing ships, so no governorate or address. */
+  digitalOnly?: boolean;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const lastSaved = useRef("");
@@ -145,7 +148,9 @@ export default function CheckoutForm({
         <h2 className="text-2xl font-semibold">بيانات الطلب</h2>
 
         <p className="text-sm leading-6 text-muted-foreground">
-          املأ البيانات التالية بدقة عشان نقدر نأكد الطلب ونسلمه بدون أي تأخير.
+          {digitalOnly
+            ? "طلبك كله منتجات رقمية — مفيش شحن. هتلاقي روابط التحميل في صفحة الطلب أول ما الدفع يتأكد."
+            : "املأ البيانات التالية بدقة عشان نقدر نأكد الطلب ونسلمه بدون أي تأخير."}
         </p>
       </div>
 
@@ -190,6 +195,8 @@ export default function CheckoutForm({
           </div>
         </div>
 
+        {!digitalOnly && (
+        <>
         <div className="space-y-2">
           <Label htmlFor="governorate" className="text-sm font-medium">
             المحافظة
@@ -240,6 +247,8 @@ export default function CheckoutForm({
             />
           </div>
         </div>
+        </>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -320,8 +329,9 @@ export default function CheckoutForm({
             <p className="font-medium">راجع بياناتك قبل التأكيد</p>
 
             <p className="text-sm leading-6 text-muted-foreground">
-              تأكد إن الاسم، رقم الموبايل، والعنوان مكتوبين بشكل صحيح لتجنب أي
-              تأخير في التواصل أو الشحن.
+              {digitalOnly
+                ? "تأكد إن الاسم ورقم الموبايل صح عشان نقدر نتواصل معاك لو احتجنا."
+                : "تأكد إن الاسم، رقم الموبايل، والعنوان مكتوبين بشكل صحيح لتجنب أي تأخير في التواصل أو الشحن."}
             </p>
           </div>
         </div>

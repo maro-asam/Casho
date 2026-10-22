@@ -48,6 +48,7 @@ export function getShopifyConfig() {
     apiVersion: process.env.SHOPIFY_API_VERSION?.trim() || DEFAULT_SHOPIFY_API_VERSION,
     scopes,
     redirectUri: `${appUrl}/api/integrations/shopify/oauth/callback`,
+    webhooksUri: `${appUrl}/api/integrations/shopify/webhooks`,
   };
 }
 
