@@ -78,8 +78,8 @@ beforeAll(async () => {
   await prisma.store.create({ data: { id: "store-A", name: "A", slug: "a", userId: "u1" } });
   await prisma.store.create({ data: { id: "store-B", name: "B", slug: "b", userId: "u1" } });
   await prisma.branch.create({ data: { id: "br-A", storeId: "store-A", name: "Main", isDefault: true } });
-  // A customer that already exists in Kasho with the same phone (must be linked, not duplicated)
-  await prisma.customer.create({ data: { storeId: "store-A", phone: "01001234567", name: "Mona (Kasho)" } });
+  // A customer that already exists in Casho with the same phone (must be linked, not duplicated)
+  await prisma.customer.create({ data: { storeId: "store-A", phone: "01001234567", name: "Mona (Casho)" } });
 });
 
 async function importAll() {
@@ -108,7 +108,7 @@ describe.skipIf(!available)("Prisma sink on a real Postgres engine", () => {
 
     expect(await prisma.customer.count({ where: { storeId: "store-A" } })).toBe(1); // linked to the existing one
     const customer = await prisma.customer.findFirstOrThrow({ where: { storeId: "store-A" }, include: { tags: { include: { tag: true } } } });
-    expect(customer).toMatchObject({ name: "Mona (Kasho)", email: "mona@example.com" }); // merchant's name kept, blank filled
+    expect(customer).toMatchObject({ name: "Mona (Casho)", email: "mona@example.com" }); // merchant's name kept, blank filled
     expect(customer.tags.map((t) => t.tag.name)).toEqual(["vip"]);
 
     const order = await prisma.order.findFirstOrThrow({ where: { storeId: "store-A" }, include: { items: { include: { product: true } } } });

@@ -1,25 +1,25 @@
 # Import from Shopify
 
-Merchants connect their Shopify store with OAuth and move their catalog, customers and order history into their Kasho store. The import runs in the background, can be resumed, and never creates duplicates when it is run again.
+Merchants connect their Shopify store with OAuth and move their catalog, customers and order history into their Casho store. The import runs in the background, can be resumed, and never creates duplicates when it is run again.
 
 - Page: `/integrations/shopify` (app subdomain). Linked from the sidebar ("القنوات والربط"), the Integrations page and the product import page.
 - Who can use it: the store **owner** only (`manage_settings` permission). Managers and staff get an error.
 
 ---
 
-## 1. Shopify app setup (one time, done by Kasho)
+## 1. Shopify app setup (one time, done by Casho)
 
-1. Create an app in the Shopify **Dev Dashboard** (dev.shopify.com → Apps → Create app). This is a non-embedded app: merchants use it from the Kasho dashboard, not from Shopify admin.
+1. Create an app in the Shopify **Dev Dashboard** (dev.shopify.com → Apps → Create app). This is a non-embedded app: merchants use it from the Casho dashboard, not from Shopify admin.
 2. **App URL**: `https://app.casho.store/integrations/shopify`
 3. **Allowed redirection URL** (must match exactly):
    `https://app.casho.store/api/integrations/shopify/oauth/callback`
 4. **Access scopes** (read-only; see section 4).
-5. **Webhooks** (section 5): the three mandatory privacy topics go in [`shopify-app/shopify.app.toml`](../../shopify-app/shopify.app.toml) (deploy with `npx @shopify/cli@latest app deploy` from that folder). `app/uninstalled` is subscribed per shop from the OAuth callback, because Shopify rejects app-wide subscriptions while `use_legacy_install_flow` is on — and the import needs that flow, since the merchant starts OAuth from the Kasho dashboard.
-6. **Protected customer data**: customers and orders contain personal data. In the Partner/Dev Dashboard, request access to protected customer data (name, email, phone and address fields) and explain the purpose: migrating the merchant's own customers and orders into their Kasho store. Without that approval, Shopify rejects the customer and order queries on production stores. Development stores are less restricted. Check Shopify's current rules before launch.
-7. **Distribution**: custom distribution only works for one store (or one Plus organization). To serve every Kasho merchant, the app needs public distribution, which goes through Shopify's app review. Check Shopify's current distribution rules before launch.
+5. **Webhooks** (section 5): the three mandatory privacy topics go in [`shopify-app/shopify.app.toml`](../../shopify-app/shopify.app.toml) (deploy with `npx @shopify/cli@latest app deploy` from that folder). `app/uninstalled` is subscribed per shop from the OAuth callback, because Shopify rejects app-wide subscriptions while `use_legacy_install_flow` is on — and the import needs that flow, since the merchant starts OAuth from the Casho dashboard.
+6. **Protected customer data**: customers and orders contain personal data. In the Partner/Dev Dashboard, request access to protected customer data (name, email, phone and address fields) and explain the purpose: migrating the merchant's own customers and orders into their Casho store. Without that approval, Shopify rejects the customer and order queries on production stores. Development stores are less restricted. Check Shopify's current rules before launch.
+7. **Distribution**: custom distribution only works for one store (or one Plus organization). To serve every Casho merchant, the app needs public distribution, which goes through Shopify's app review. Check Shopify's current distribution rules before launch.
 8. Copy the **Client ID** and **Client secret** into the environment variables below.
 
-> Shopify requires **expiring offline access tokens** for new public apps. Kasho requests them (`expiring=1`) and refreshes them automatically. The refresh token lasts 90 days, so a merchant who leaves an import paused for longer than that has to reconnect. The page shows a reconnect form when that happens.
+> Shopify requires **expiring offline access tokens** for new public apps. Casho requests them (`expiring=1`) and refreshes them automatically. The refresh token lasts 90 days, so a merchant who leaves an import paused for longer than that has to reconnect. The page shows a reconnect form when that happens.
 
 ## 2. Environment variables
 
@@ -68,8 +68,8 @@ Endpoint: `POST https://app.casho.store/api/integrations/shopify/webhooks`. Ever
 |---|---|
 | `app/uninstalled` | Connection → `DISCONNECTED` and its tokens are deleted. A running job pauses and asks the merchant to reconnect. |
 | `shop/redact` | Deletes the connection, its job history and every record map for that shop |
-| `customers/redact` | Deletes the Shopify↔Kasho link for that customer. The Kasho customer row is the merchant's own record after the migration. |
-| `customers/data_request` | Acknowledged. Kasho keeps no Shopify-side copy beyond what the merchant imported into their own store. |
+| `customers/redact` | Deletes the Shopify↔Casho link for that customer. The Casho customer row is the merchant's own record after the migration. |
+| `customers/data_request` | Acknowledged. Casho keeps no Shopify-side copy beyond what the merchant imported into their own store. |
 
 The privacy topics are declared in [`shopify-app/shopify.app.toml`](../../shopify-app/shopify.app.toml). `app/uninstalled` is created per shop with `webhookSubscriptionCreate` right after OAuth (`registerUninstallWebhook` in `lib/integrations/shopify/source.ts`); a failure there is logged and doesn't block the connection.
 
@@ -108,8 +108,8 @@ lib/integrations/import/      provider-agnostic engine
   types.ts      Normalized* records, ImportSource / ImportSink contracts
   core.ts       page loop + checkpoints (pure, unit-tested)
   engine.ts     DB job queue: lease, budget, backoff, pause, finish + notification
-  sink.ts       Prisma writes into Kasho models + idempotency map
-  kasho-fields.ts  pure Normalized → Kasho field conversion
+  sink.ts       Prisma writes into Casho models + idempotency map
+  kasho-fields.ts  pure Normalized → Casho field conversion
   access.ts     owner-only guard;  views.ts  browser-safe DTOs;  errors.ts  safe messages + redaction
   registry.ts   provider → ImportSource
 
@@ -122,20 +122,20 @@ To add WooCommerce or Magento, write `lib/integrations/<provider>/` with an `Imp
 
 ### Import order
 
-Kasho's foreign keys set the order: **Collections → Products (with variants, images, inventory) → Customers → Orders**. A product needs a category; an order item needs a product and optionally links a customer. The merchant can deselect entities.
+Casho's foreign keys set the order: **Collections → Products (with variants, images, inventory) → Customers → Orders**. A product needs a category; an order item needs a product and optionally links a customer. The merchant can deselect entities.
 
 ### Data mapping
 
-| Shopify | Kasho | Notes |
+| Shopify | Casho | Notes |
 |---|---|---|
-| Collection | `Category` | Slug from handle. An existing Kasho category with the same slug is reused. |
+| Collection | `Category` | Slug from handle. An existing Casho category with the same slug is reused. |
 | Product | `Product` | title, description (HTML → text), vendor → brand, tags, status ACTIVE → `isActive`, media → `image` + `images`, `createdAt` |
 | Product → category | `Product.categoryId` | first imported collection → else a category named after the product type → else "منتجات مستوردة" |
 | Options | `sizes` / `colors` / `attributes` | Size/Color options (EN/AR names) feed the storefront pickers; other options go to attributes |
 | Variant | `ProductVariant` | name, SKU (cleared if already used in the store), barcode, price, compare-at, unit cost → `costPrice`, options → `attributes`, image |
 | Inventory | `Product.stock`, `ProductVariant.stock`, default-branch `BranchInventory`, `StockMovement` | Total across Shopify locations. Untracked variants get **999**. |
 | Price | `Product.price` (major units) | Lowest variant price. Compare-at kept only if higher. |
-| Customer | `Customer` | Matched by **phone** (`@@unique(storeId, phone)`). E.164 Egyptian numbers → `01…`. An existing Kasho customer with that phone is linked; only its empty fields are filled. Tags → `CustomerTag`. |
+| Customer | `Customer` | Matched by **phone** (`@@unique(storeId, phone)`). E.164 Egyptian numbers → `01…`. An existing Casho customer with that phone is linked; only its empty fields are filled. Tags → `CustomerTag`. |
 | Order | `Order` | `#1001` → `paymentReference`. Totals → piasters. `paymentProvider = "SHOPIFY"`. Original `createdAt`. Linked to the imported customer. |
 | Line item | `OrderItem` | Unit price, quantity, discount. Variant title and SKU → `selectedFeatures`. Lines whose product no longer exists point to one inactive "منتج غير متاح" product. |
 | Order status | `OrderStatus` | cancelled / refunded / voided → CANCELED · fulfilled → DELIVERED · partially fulfilled → SHIPPED · paid → PAID · else PENDING |
@@ -144,7 +144,7 @@ Imported orders **do not** reduce stock and do not send notifications, webhooks 
 
 ### Idempotency and duplicate protection
 
-- `ImportRecordMap` has a unique key `(storeId, provider, externalShopId, entityType, externalId)`. Every Kasho row the import creates is mapped **in the same transaction**. A second run finds the map and updates the row (or skips it, for orders).
+- `ImportRecordMap` has a unique key `(storeId, provider, externalShopId, entityType, externalId)`. Every Casho row the import creates is mapped **in the same transaction**. A second run finds the map and updates the row (or skips it, for orders).
 - If two workers race to create the same record, the second insert into the map violates the constraint, its transaction rolls back (so no orphan product) and it falls back to the update path.
 - The partial unique index `ImportJob_one_active_per_store` allows only one QUEUED, RUNNING or PAUSED import per store. A double click, a refresh or a second tab gets "an import is already running".
 - Re-import semantics: collections, products (including stock) and customers are refreshed from Shopify. Orders that were already imported are never changed.
@@ -180,10 +180,10 @@ Imported orders **do not** reduce stock and do not send notifications, webhooks 
 
 - **Currency**: amounts are imported as-is. A non-EGP shop gets its numbers without conversion, and the preview warns about it.
 - **Images stay on Shopify's CDN** (`cdn.shopify.com`). If the merchant closes their Shopify store for good, those images may stop loading.
-- **Customers without a phone number are skipped**: Kasho identifies customers by phone. The count appears in the result.
+- **Customers without a phone number are skipped**: Casho identifies customers by phone. The count appears in the result.
 - Orders older than 60 days need `read_all_orders`.
 - Untracked inventory gets a stock of 999.
-- Re-importing products overwrites Kasho-side edits to the same fields (Shopify wins), including category and stock.
+- Re-importing products overwrites Casho-side edits to the same fields (Shopify wins), including category and stock.
 - The UI wasn't driven end-to-end against a live Shopify store, because that needs app credentials. The logic is covered by unit tests and by an integration test against a real Postgres engine (below).
 
 ## 11. Tests
@@ -217,5 +217,5 @@ npm i -D pglite-prisma-adapter && npx vitest run lib/integrations/import/sink.in
 - Re-host product images to Cloudinary during the import.
 - Import discount codes into `Coupon` (needs `read_discounts`).
 - Optional ongoing sync (product/inventory webhooks) for merchants running both stores during the transition.
-- Per-location inventory → Kasho branches.
+- Per-location inventory → Casho branches.
 - Let the merchant choose how unknown-phone customers are handled.

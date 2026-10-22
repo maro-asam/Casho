@@ -33,6 +33,8 @@ const todayFormat = lazyIntl.date({
 
 // Merchants see the onboarding-call offer during their first week.
 const NEW_MERCHANT_DAYS = 7;
+/** Casho team WhatsApp (01211504120) in international form for wa.me. */
+const ONBOARDING_WHATSAPP = "201211504120";
 
 const MerchantDashboardRoute = async () => {
   await loadDashboardLocale();
@@ -194,11 +196,10 @@ const MerchantDashboardRoute = async () => {
 
   const now = new Date();
   const isNewMerchant = now.getTime() - store.createdAt.getTime() < NEW_MERCHANT_DAYS * 24 * 60 * 60 * 1000;
-  const meetingUrl = process.env.ONBOARDING_MEETING_URL;
+  // The onboarding call is booked on the Casho team's WhatsApp, with the store prefilled.
+  const meetingText = `أهلًا فريق كاشو 👋 عايز أحجز مكالمة زووم مجانية عشان أبدأ متجري.\nالمتجر: ${store.name}\nاللينك: ${buildStoreUrl(store.slug)}`;
   const onboarding = isNewMerchant
-    ? meetingUrl
-      ? { href: meetingUrl, external: true }
-      : { href: "/support", external: false }
+    ? { href: `https://wa.me/${ONBOARDING_WHATSAPP}?text=${encodeURIComponent(meetingText)}`, external: true }
     : null;
 
   const attentionItems = buildAttentionItems({

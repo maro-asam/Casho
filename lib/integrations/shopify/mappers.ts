@@ -1,12 +1,12 @@
 /**
  * Shopify GraphQL nodes → provider-agnostic Normalized* records. Pure functions.
  *
- * Mapping (Shopify → Kasho):
+ * Mapping (Shopify → Casho):
  *   Collection           → Category
  *   Product (+ media)    → Product (image + images, tags, vendor→brand)
  *   Product options      → Product.sizes / colors / attributes (storefront)
  *   ProductVariant       → ProductVariant (+ inventory, cost price)
- *   Customer             → Customer (identified by phone in Kasho)
+ *   Customer             → Customer (identified by phone in Casho)
  *   Order + LineItems    → Order + OrderItems (historical, no stock movement)
  */
 import type {
@@ -131,7 +131,7 @@ function clean(value: string | null | undefined): string | null {
 
 const ENTITIES: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&nbsp;": " " };
 
-/** Shopify descriptions are HTML; Kasho stores plain text with line breaks. */
+/** Shopify descriptions are HTML; Casho stores plain text with line breaks. */
 export function htmlToText(html: string | null | undefined): string | null {
   if (!html) return null;
   const text = html
@@ -148,7 +148,7 @@ export function htmlToText(html: string | null | undefined): string | null {
 }
 
 /**
- * Kasho stores Egyptian numbers in local form (01xxxxxxxxx). Shopify stores
+ * Casho stores Egyptian numbers in local form (01xxxxxxxxx). Shopify stores
  * E.164 (+201xxxxxxxxx). Other countries keep their international form.
  */
 export function normalizePhone(raw: string | null | undefined): string | null {
@@ -262,7 +262,7 @@ export function mapCustomer(node: ShopifyCustomerNode): NormalizedCustomer {
 
 const PAID_STATUSES = new Set(["PAID", "PARTIALLY_PAID", "PARTIALLY_REFUNDED"]);
 
-/** Shopify financial + fulfillment status → Kasho OrderStatus. */
+/** Shopify financial + fulfillment status → Casho OrderStatus. */
 export function mapOrderStatus(node: Pick<ShopifyOrderNode, "cancelledAt" | "displayFinancialStatus" | "displayFulfillmentStatus">): NormalizedOrder["status"] {
   if (node.cancelledAt) return "CANCELED";
   const financial = node.displayFinancialStatus ?? "";

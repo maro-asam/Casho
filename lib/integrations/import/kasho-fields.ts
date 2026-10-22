@@ -1,5 +1,5 @@
 /**
- * Pure Normalized* → Kasho field conversions (no DB) — used by the sink, unit-tested.
+ * Pure Normalized* → Casho field conversions (no DB) — used by the sink, unit-tested.
  */
 import { Prisma } from "@prisma/client";
 import { transliterate } from "@/lib/utils";

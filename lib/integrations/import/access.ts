@@ -3,7 +3,7 @@ import { requireStoreContext, type StoreContext } from "@/lib/store/store-guard"
 import { hasPermission } from "@/lib/store/permissions";
 
 /**
- * Connecting an external store and importing into Kasho is an owner-level
+ * Connecting an external store and importing into Casho is an owner-level
  * action (same permission as store settings): it stores third-party
  * credentials and creates products, customers and orders in bulk.
  */

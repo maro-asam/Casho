@@ -3,7 +3,7 @@
  * https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant
  *
  * CSRF / tenant binding: the `state` nonce is sealed (AES-256-GCM, so it can't be
- * read or forged) into an httpOnly cookie together with the Kasho user, store
+ * read or forged) into an httpOnly cookie together with the Casho user, store
  * and shop it was issued for. The callback only accepts a request whose
  * Shopify HMAC is valid AND whose state, shop and logged-in user all match.
  */

@@ -24,7 +24,7 @@ export default async function ShopifyImportPage({ searchParams }: { searchParams
       <LargeTitle
         eyebrow={<p className="text-[13px] font-semibold text-muted-foreground">{tr("التكاملات")}</p>}
         title={tr("استيراد من Shopify")}
-        subtitle={tr("انقل منتجاتك وعملاءك وطلباتك من Shopify لمتجرك على Kasho — من غير تكرار ومن غير ما تقعد جنب الصفحة.")}
+        subtitle={tr("انقل منتجاتك وعملاءك وطلباتك من Shopify لمتجرك على Casho — من غير تكرار ومن غير ما تقعد جنب الصفحة.")}
       />
 
       {!state.ok ? (

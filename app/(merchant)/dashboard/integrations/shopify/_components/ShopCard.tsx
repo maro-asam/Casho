@@ -78,7 +78,7 @@ export function ShopCard({ connection, busy }: { connection: ConnectionView; bus
               <AlertDialogTitle className="text-[17px] font-semibold">{tr("إلغاء الربط مع Shopify؟")}</AlertDialogTitle>
               <AlertDialogDescription className="text-[13px] leading-[18px]">
                 {busy ? tr("الاستيراد الشغال هيتلغي. ") : ""}
-                {tr("البيانات اللي اتنقلت بالفعل هتفضل في متجرك على Kasho. هنمسح مفاتيح الوصول لـ Shopify من عندنا.")}
+                {tr("البيانات اللي اتنقلت بالفعل هتفضل في متجرك على Casho. هنمسح مفاتيح الوصول لـ Shopify من عندنا.")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="grid grid-cols-2 gap-0 border-t border-border/60 sm:space-x-0">

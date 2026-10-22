@@ -90,7 +90,7 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
     notes.push(tr("الطلبات من غير المنتجات هتترتبط بمنتج «غير متاح» عام. الأفضل تنقل المنتجات معاها."));
   }
   if (selected.includes("CUSTOMER")) {
-    notes.push(tr("العملاء اللي مالهمش رقم موبايل مش هيتنقلوا، لأن Kasho بيعرّف العميل برقمه. هتلاقي عددهم في النتيجة."));
+    notes.push(tr("العملاء اللي مالهمش رقم موبايل مش هيتنقلوا، لأن Casho بيعرّف العميل برقمه. هتلاقي عددهم في النتيجة."));
   }
   if (selected.includes("PRODUCT")) {
     notes.push(tr("المنتجات اللي مش متتبع مخزونها في Shopify هتتنقل بمخزون 999. والصور هتفضل على سيرفرات Shopify، يعني لو قفلت متجر Shopify نهائياً لازم ترفعها تاني."));

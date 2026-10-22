@@ -38,7 +38,7 @@ export function ConnectPanel({ configured, shopDomain, reconnect, connecting, on
         <p className="mt-2 max-w-md text-[15px] leading-[22px] text-muted-foreground">
           {reconnect
             ? tr("صلاحية الربط انتهت أو اتلغت من Shopify. أعد الربط وكمّل الاستيراد من مكانه — مفيش حاجة هتتكرر.")
-            : tr("انقل منتجاتك وعملائك وطلباتك من Shopify لـ Kasho في خطوات بسيطة.")}
+            : tr("انقل منتجاتك وعملائك وطلباتك من Shopify لـ Casho في خطوات بسيطة.")}
         </p>
 
         {!configured ? (

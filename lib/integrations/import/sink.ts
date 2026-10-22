@@ -1,7 +1,7 @@
 /**
- * Writes normalized records into a Kasho store.
+ * Writes normalized records into a Casho store.
  *
- * Idempotency: every created Kasho row gets an ImportRecordMap row in the SAME
+ * Idempotency: every created Casho row gets an ImportRecordMap row in the SAME
  * transaction, keyed by (store, provider, external shop, entity, external id)
  * with a unique constraint. A second run finds the map and updates instead of
  * creating; a concurrent duplicate create hits the constraint and rolls back.
@@ -73,7 +73,7 @@ export function createPrismaSink(ctx: SinkContext): ImportSink {
 
   /**
    * Links an external record to a freshly created local row. `staleMapId` is set
-   * when a map existed but its Kasho row was deleted — the map is re-pointed.
+   * when a map existed but its Casho row was deleted — the map is re-pointed.
    * Otherwise a plain create, so a concurrent duplicate fails on the constraint.
    */
   async function linkMap(tx: Tx, entityType: ImportEntityType, externalId: string, localId: string, staleMapId?: string) {
@@ -143,7 +143,7 @@ export function createPrismaSink(ctx: SinkContext): ImportSink {
     const slug = slugFor(r.handle || r.name, "collection", r.externalId);
     return createOrRecheck("COLLECTION", r, () =>
       prisma.$transaction(async (tx) => {
-        // A Kasho category with the same slug is adopted instead of duplicated.
+        // A Casho category with the same slug is adopted instead of duplicated.
         const category = await tx.category.upsert({
           where: { storeId_slug: { storeId: ctx.storeId, slug } },
           create: { storeId: ctx.storeId, name: r.name, slug, image: r.imageUrl },
@@ -345,7 +345,7 @@ export function createPrismaSink(ctx: SinkContext): ImportSink {
 
     return createOrRecheck("CUSTOMER", r, () =>
       prisma.$transaction(async (tx) => {
-        // Kasho identifies customers by phone: an existing customer is linked, and
+        // Casho identifies customers by phone: an existing customer is linked, and
         // only their empty fields are filled — merchant edits are never overwritten.
         const byPhone = await tx.customer.findUnique({
           where: { storeId_phone: { storeId: ctx.storeId, phone } },
@@ -391,7 +391,7 @@ export function createPrismaSink(ctx: SinkContext): ImportSink {
     const map = await findMap(prisma, "ORDER", r.externalId);
     if (map) {
       const exists = await prisma.order.findFirst({ where: { id: map.localId, storeId: ctx.storeId }, select: { id: true } });
-      // Orders are history: once imported they belong to Kasho (status changes,
+      // Orders are history: once imported they belong to Casho (status changes,
       // shipping…) and a re-run never overwrites them.
       if (exists) return { result: "unchanged" };
     }

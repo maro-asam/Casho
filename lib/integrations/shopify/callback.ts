@@ -62,7 +62,7 @@ export async function handleShopifyCallback(
     return { ok: false, error: "invalid_state" };
   }
 
-  // The browser that finishes OAuth must be the Kasho user who started it.
+  // The browser that finishes OAuth must be the Casho user who started it.
   if (!input.sessionUserId || input.sessionUserId !== state.userId) return { ok: false, error: "session_mismatch" };
   if (!(await deps.canManageImports(state.userId, state.storeId))) return { ok: false, error: "forbidden" };
 

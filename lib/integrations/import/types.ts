@@ -26,7 +26,7 @@ export const PROVIDER_LABELS: Record<ImportProvider, string> = {
 
 // ─── Normalized records ──────────────────────────────────────────────────────
 // Money is in the shop currency's major unit (e.g. 12.5), exactly as the source
-// reports it. The sink converts to Kasho's conventions (Product.price in EGP
+// reports it. The sink converts to Casho's conventions (Product.price in EGP
 // units, Order amounts in piasters).
 
 export type NormalizedCollection = {
@@ -141,10 +141,10 @@ export interface ImportSource {
   fetchByIds(entity: ImportableEntity, externalIds: string[]): Promise<NormalizedRecord[]>;
 }
 
-// ─── Sink (Kasho side) ───────────────────────────────────────────────────────
+// ─── Sink (Casho side) ───────────────────────────────────────────────────────
 
 export type ApplyOutcome =
-  /** Created a new Kasho record. */
+  /** Created a new Casho record. */
   | { result: "imported" }
   /** Already imported before — refreshed from the source. */
   | { result: "updated" }

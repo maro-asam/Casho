@@ -41,7 +41,7 @@ const PLATFORMS = [
   {
     id: "shopify",
     get name() { return tr("استيراد من Shopify"); },
-    get description() { return tr("انقل منتجاتك وعملاءك وطلباتك من متجرك على Shopify لـ Kasho"); },
+    get description() { return tr("انقل منتجاتك وعملاءك وطلباتك من متجرك على Shopify لـ Casho"); },
     icon: ShoppingBag,
     href: "/integrations/shopify",
     available: true,

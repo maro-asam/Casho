@@ -31,7 +31,7 @@ export const JOB_STATUS_META: Record<string, { label: string; tone: PillTone }> 
 };
 
 export const SKIP_REASON_LABEL: Record<SkipReason, string> = {
-  get NO_PHONE() { return tr("من غير رقم موبايل (Kasho بيعرّف العميل برقمه)"); },
+  get NO_PHONE() { return tr("من غير رقم موبايل (Casho بيعرّف العميل برقمه)"); },
   get EMPTY() { return tr("بيانات فاضية"); },
 };
 

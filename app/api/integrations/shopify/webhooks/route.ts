@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       break;
 
     case "customers/redact": {
-      // Drop the Shopify ↔ Kasho link for this customer. The Kasho customer row
+      // Drop the Shopify ↔ Casho link for this customer. The Casho customer row
       // itself is the merchant's own record after migration (they are its controller).
       let payload: { customer?: { id?: number | string } } = {};
       try {
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     }
 
     case "customers/data_request":
-      // Kasho keeps no Shopify-side copy of customer data beyond what the merchant
+      // Casho keeps no Shopify-side copy of customer data beyond what the merchant
       // imported into their own store; the merchant answers from their dashboard.
       break;
   }
