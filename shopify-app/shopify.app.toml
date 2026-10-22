@@ -13,7 +13,11 @@ scopes = "read_products,read_inventory,read_customers,read_orders"
 use_legacy_install_flow = true
 
 [auth]
-redirect_urls = ["https://app.casho.store/api/integrations/shopify/oauth/callback"]
+# Built from APP_URL on the server, so every host APP_URL may use is listed.
+redirect_urls = [
+  "https://app.casho.store/api/integrations/shopify/oauth/callback",
+  "https://casho.store/api/integrations/shopify/oauth/callback",
+]
 
 [webhooks]
 api_version = "2026-10"
