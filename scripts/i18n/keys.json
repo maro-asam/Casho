@@ -514,6 +514,7 @@
   ],
   "{0} منتج": [
    "app/(merchant)/dashboard/page.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx",
    "app/(merchant)/dashboard/categories/_components/categories-table.tsx",
    "app/(merchant)/dashboard/inventory/adjustments/page.tsx"
   ],
@@ -1621,6 +1622,9 @@
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx",
    "app/(merchant)/dashboard/support/_components/support-form.tsx"
   ],
+  "إرسال طلب الحذف": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
+  ],
   "إرسال طلب دعم": [
    "app/(merchant)/dashboard/support/_components/support-form.tsx"
   ],
@@ -1893,6 +1897,7 @@
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
   ],
   "إلغاء الطلب": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx",
    "app/(merchant)/dashboard/orders/[id]/_components/order-progress.tsx"
   ],
   "إلغاء المفتاح": [
@@ -2056,7 +2061,8 @@
    "app/(merchant)/_components/main/DashboardSearch.tsx"
   ],
   "ابحث عن صفحة...": [
-   "app/(merchant)/_components/main/DashboardSearch.tsx"
+   "app/(merchant)/_components/main/DashboardSearch.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx"
   ],
   "ابحث عن صورة... (مثال: nature, food, fashion)": [
    "app/(merchant)/(builder)/builder/_components/media/UnsplashPickerModal.tsx"
@@ -2153,6 +2159,9 @@
   ],
   "اتبع الخطوات دي وهتبقى مرتبط في أقل من دقيقة": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
+  ],
+  "اتبعت يوم {0}": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
   ],
   "اتجدد بيه الاشتراك": [
    "app/(merchant)/dashboard/balance/page.tsx"
@@ -3081,6 +3090,9 @@
   "اكتب اليوزر بس أو اللينك كامل — الاتنين شغالين. سيب الفاضي للي معندكش.": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
+  "اكتب بريدك للتأكيد:": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
+  ],
   "اكتب بياناتك وسنتواصل معك بخصوص الخدمة في أسرع وقت.": [
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
   ],
@@ -3423,7 +3435,8 @@
    "app/(merchant)/dashboard/integrations/shopify/_components/import-meta.ts"
   ],
   "الاشتراك": [
-   "app/(merchant)/dashboard/page.tsx"
+   "app/(merchant)/dashboard/page.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx"
   ],
   "الاشتراك شغال حاليًا": [
    "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx"
@@ -4238,6 +4251,7 @@
    "app/(merchant)/_components/main/dashboard-nav.ts",
    "app/(merchant)/dashboard/settings/page.tsx",
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx",
    "app/(merchant)/dashboard/api-keys/_lib/scopes.ts",
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx",
    "app/(merchant)/dashboard/orders/[id]/page.tsx",
@@ -5185,6 +5199,7 @@
    "app/(merchant)/dashboard/products/page.tsx",
    "app/(merchant)/dashboard/reports/page.tsx",
    "app/(merchant)/pos/_components/PosTerminal.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx",
    "app/(merchant)/(builder)/builder/_components/section-meta.tsx",
    "app/(merchant)/dashboard/api-keys/_lib/scopes.ts",
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx",
@@ -5740,6 +5755,9 @@
   ],
   "بعد خصم قيمة الاشتراك، الرصيد المتبقي هيكون:": [
    "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx"
+  ],
+  "بعد ما فريق كاشو يراجع الطلب، حسابك ومتجرك ومنتجاتك وطلباتك وعملاءك هيتمسحوا ومش هينفع ترجعهم.": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
   ],
   "بعد موافقتك ينشأ الطلب تلقائياً في لوحة الطلبات": [
    "app/(merchant)/dashboard/integrations/instagram/page.tsx"
@@ -7032,6 +7050,7 @@
   ],
   "جاري الإرسال...": [
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx",
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx",
    "app/(merchant)/dashboard/support/_components/support-form.tsx"
   ],
   "جاري الإضافة...": [
@@ -7387,6 +7406,13 @@
    "app/(merchant)/dashboard/crm/tags/_components/TagsClient.tsx",
    "app/(merchant)/dashboard/inventory/branches/_components/BranchActions.tsx"
   ],
+  "حذف الحساب": [
+   "app/(merchant)/dashboard/settings/page.tsx",
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
+  ],
+  "حذف الحساب والمتجر": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
+  ],
   "حذف الشريحة": [
    "app/(merchant)/dashboard/crm/segments/_components/SegmentsClient.tsx"
   ],
@@ -7398,6 +7424,9 @@
   ],
   "حذف المقروء": [
    "app/(merchant)/dashboard/notifications/NotificationsPageClient.tsx"
+  ],
+  "حذف حسابك نهائيًا؟": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
   ],
   "حذف نهائي": [
    "app/(merchant)/dashboard/banners/_components/banner-row-actions.tsx",
@@ -7437,6 +7466,9 @@
   ],
   "حسابك مرتبط بنجاح!": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
+  ],
+  "حسابك ومتجرك وكل بياناتهم هيتمسحوا نهائيًا.": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
   ],
   "حسب الاتفاق": [
    "app/(merchant)/dashboard/services/page.tsx"
@@ -8286,7 +8318,8 @@
    "app/(merchant)/dashboard/_components/overview/WelcomeBanner.tsx"
   ],
   "زيارة المتجر": [
-   "app/(merchant)/_components/main/DashboardTopbar.tsx"
+   "app/(merchant)/_components/main/DashboardTopbar.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx"
   ],
   "زيارة صفحة": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
@@ -8987,6 +9020,7 @@
   "طرق الدفع": [
    "app/(merchant)/dashboard/page.tsx",
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx",
    "app/(merchant)/dashboard/reports/_components/tab-sales.tsx"
   ],
   "طرق الشحن": [
@@ -9035,8 +9069,14 @@
   "طلب #{0}": [
    "app/(merchant)/pos/returns/page.tsx"
   ],
+  "طلب الحذف قيد المراجعة": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
+  ],
   "طلب جديد": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
+  ],
+  "طلب حذف": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
   ],
   "طلب خدمة: {0}": [
    "app/(merchant)/dashboard/services/_components/RequestServiceDialog.tsx"
@@ -9664,6 +9704,9 @@
   ],
   "فريق الدعم جاهز للرد في أي وقت": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
+  ],
+  "فريق كاشو بيراجع كل طلب حذف ويتواصل معاك قبل التنفيذ. لحد ما الطلب يتنفذ متجرك شغال عادي.": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
   ],
   "فشل — {0}": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
@@ -10736,6 +10779,9 @@
   "لو عميل بعتلك رأيه على الواتساب أو الإنستجرام، سجّله هنا — ولو ربطته بطلبه هيظهر بعلامة \"مشتري موثق\".": [
    "app/(merchant)/dashboard/reviews/page.tsx"
   ],
+  "لو عندك رصيد متبقي أو اشتراك شغال، هنتواصل معاك بخصوصهم قبل التنفيذ.": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
+  ],
   "لو في سجل A اسمه @ بقيمة Parked امسحه.": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
@@ -10831,6 +10877,9 @@
   ],
   "ليه دومين خاص؟": [
    "app/(merchant)/dashboard/domain/page.tsx"
+  ],
+  "ليه عايز تحذف حسابك؟ (اختياري)": [
+   "app/(merchant)/dashboard/settings/_components/DeleteAccount.tsx"
   ],
   "م": [
    "app/(merchant)/dashboard/reports/_lib/range.ts"
@@ -11668,7 +11717,8 @@
    "app/(merchant)/_components/main/QuickCustomizeSheet.tsx"
   ],
   "مفعّلة": [
-   "app/(merchant)/dashboard/page.tsx"
+   "app/(merchant)/dashboard/page.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx"
   ],
   "مفيش أرقام محظورة لسه.": [
    "app/(merchant)/dashboard/fraud/_components/blocklist-manager.tsx"
@@ -12533,6 +12583,7 @@
    "lib/balance-ui/meta.ts",
    "app/(merchant)/dashboard/page.tsx",
    "app/(merchant)/dashboard/balance/page.tsx",
+   "app/(welcome)/_components/apple/DashboardPreview.tsx",
    "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx",
    "app/(merchant)/dashboard/crm/_components/CreateCustomerDialog.tsx",
    "app/(merchant)/dashboard/crm/_components/CustomerHealthBadge.tsx",
@@ -13170,6 +13221,9 @@
   "\nتم استلام طلب خدمة جديد\nتفاصيل الطلب:\n• الخدمة: {0}\n• الاسم: {1}\n• الهاتف: {2}\n• الواتساب: {3}\n• رابط المتجر: {4}\n• ملاحظات: {5}\nلوحة المتابعة: {6}/admin/service-requests\n": [
    "actions/services/services.actions.ts"
   ],
+  "\nطلب حذف حساب على Casho\nالحساب: {0}\n{1}\nمراجعة: {2}/admin/users/{3}\n": [
+   "actions/auth/account-deletion.actions.ts"
+  ],
   "\nطلب دعم جديد على Casho\nالمتجر: {0}\nالرابط: {1}\nالعنوان: {2}\nالرسالة: {3}\nرقم الطلب: {4}\nمراجعة الطلبات: {5}/admin/support-requests\n": [
    "actions/support/create-support.actions.ts"
   ],
@@ -13521,6 +13575,9 @@
   "استلمنا طلب الدعم: {0}. هنراجعه ونرد عليك قريبًا.": [
    "actions/support/create-support.actions.ts"
   ],
+  "استلمنا طلب حذف حسابك": [
+   "actions/auth/account-deletion.actions.ts"
+  ],
   "استنى {0} ثانية وجرب تاني.": [
    "actions/store/order-confirmation.actions.ts"
   ],
@@ -13728,11 +13785,17 @@
   "البريد الإلكتروني مطلوب": [
    "validations/auth.schema.ts"
   ],
+  "البريد اللي كتبته مش مطابق لبريد حسابك": [
+   "actions/auth/account-deletion.actions.ts"
+  ],
   "البلد مطلوب": [
    "validations/auth.schema.ts"
   ],
   "البيانات مستخدمة بالفعل، جرّب بريد أو رقم موبايل مختلف": [
    "actions/auth/register.actions.ts"
+  ],
+  "التاجر طلب حذف حسابه ({0}).": [
+   "actions/auth/account-deletion.actions.ts"
   ],
   "التاريخ مش صحيح.": [
    "actions/coupons/coupons.actions.ts",
@@ -13808,6 +13871,9 @@
   ],
   "الحساب محظور مؤقتاً بسبب المحاولات المتكررة. حاول بعد {0}.": [
    "actions/auth/login.actions.ts"
+  ],
+  "الحساب مش موجود": [
+   "actions/auth/account-deletion.actions.ts"
   ],
   "الخدمة غير محددة": [
    "actions/services/services.actions.ts"
@@ -14143,6 +14209,9 @@
   "المتجر مفعل بالفعل": [
    "actions/store/stores.actions.ts"
   ],
+  "المتجر: {0} ({1}) · الاشتراك: {2} · الرصيد: {3} ج.م": [
+   "actions/auth/account-deletion.actions.ts"
+  ],
   "المتغير غير موجود": [
    "actions/inventory/variants.actions.ts"
   ],
@@ -14422,6 +14491,9 @@
   "تم إرسال طلب إزالة Powered by Casho بالفعل": [
    "actions/services/services.actions.ts"
   ],
+  "تم إرسال طلب الحذف": [
+   "actions/auth/account-deletion.actions.ts"
+  ],
   "تم إرسال طلب الخدمة": [
    "actions/services/services.actions.ts"
   ],
@@ -14466,6 +14538,9 @@
   ],
   "تم إلغاء ربط تيليجرام": [
    "actions/store/telegram.actions.ts"
+  ],
+  "تم إلغاء طلب الحذف": [
+   "actions/auth/account-deletion.actions.ts"
   ],
   "تم إنشاء البوليصة على {0}": [
    "actions/store/shipments.actions.ts"
@@ -15033,6 +15108,9 @@
   "عميل نقدي": [
    "actions/pos/pos.actions.ts"
   ],
+  "عندك طلب حذف قيد المراجعة بالفعل": [
+   "actions/auth/account-deletion.actions.ts"
+  ],
   "عندك كود بنفس الاسم ده.": [
    "actions/coupons/coupons.actions.ts"
   ],
@@ -15077,6 +15155,9 @@
   ],
   "فرع غير صالح": [
    "actions/inventory/branches.actions.ts"
+  ],
+  "فريق كاشو هيراجع الطلب ويتواصل معاك قبل التنفيذ. تقدر تلغيه من الإعدادات.": [
+   "actions/auth/account-deletion.actions.ts"
   ],
   "فعّل الفرع الأول": [
    "actions/inventory/branches.actions.ts"
@@ -15334,6 +15415,9 @@
   "مفيش دومين مربوط.": [
    "actions/store/custom-domain.actions.ts"
   ],
+  "مفيش طلب حذف مفتوح": [
+   "actions/auth/account-deletion.actions.ts"
+  ],
   "مفيش طلب مستني تأكيد.": [
    "actions/store/order-confirmation.actions.ts"
   ],
@@ -15349,6 +15433,9 @@
   ],
   "مفيش متجر Shopify مربوط": [
    "actions/integrations/shopify-import.actions.ts"
+  ],
+  "مفيش متجر مملوك للحساب.": [
+   "actions/auth/account-deletion.actions.ts"
   ],
   "مقدرناش نبعت الكود دلوقتي. جرّب كمان شوية أو تواصل مع المتجر.": [
    "actions/store/order-confirmation.actions.ts"
@@ -15388,6 +15475,9 @@
   ],
   "مقدرناش نوصل لـ Paymob دلوقتي. جرّب كمان شوية.": [
    "actions/payment-methods/payment-methods.actions.ts"
+  ],
+  "مكتبش سبب": [
+   "actions/auth/account-deletion.actions.ts"
   ],
   "مميز": [
    "actions/products/import-products.actions.ts"

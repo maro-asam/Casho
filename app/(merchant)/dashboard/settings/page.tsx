@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AtSign, ExternalLink, Languages, Mail, ShieldCheck, Store, Truck, Users } from "lucide-react";
+import { AtSign, ExternalLink, Languages, Mail, ShieldCheck, Store, Truck, Users, UserX } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
@@ -12,10 +12,12 @@ import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
 import LanguageSettings from "./_components/LanguageSettings";
 import OrderEmailSettings from "./_components/OrderEmailSettings";
+import DeleteAccount from "./_components/DeleteAccount";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetActiveSessionsAction } from "@/actions/auth/sessions.actions";
 import { GetStoreMembersAction } from "@/actions/store/members.actions";
 import { GetMemberBranchAccessAction } from "@/actions/inventory/branches.actions";
+import { ACCOUNT_DELETION_TITLE, OPEN_DELETION_STATUSES } from "@/lib/account-deletion";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -30,10 +32,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SettingsRoute() {
   await loadDashboardLocale();
   const userId = await requireUserId();
-  const [sessions, { members, pendingInvitations }, branchAccess] = await Promise.all([
+  const [sessions, { members, pendingInvitations }, branchAccess, deletionRequest] = await Promise.all([
     GetActiveSessionsAction(),
     GetStoreMembersAction(),
     GetMemberBranchAccessAction().catch(() => null),
+    prisma.supportRequest.findFirst({
+      where: { userId, title: ACCOUNT_DELETION_TITLE, status: { in: OPEN_DELETION_STATUSES } },
+      select: { createdAt: true },
+    }),
   ]);
 
   const store = await prisma.store.findFirst({
@@ -82,6 +88,7 @@ export default async function SettingsRoute() {
     { id: "language", label: tr("لغة لوحة التحكم"), icon: Languages, tint: "bg-(--sys-indigo)" },
     { id: "team", label: tr("أعضاء المتجر"), icon: Users, tint: "bg-(--sys-teal)" },
     { id: "security", label: tr("الجلسات النشطة"), icon: ShieldCheck, tint: "bg-(--sys-gray)" },
+    { id: "delete-account", label: tr("حذف الحساب"), icon: UserX, tint: "bg-(--sys-red)" },
   ];
 
   return (
@@ -148,6 +155,7 @@ export default async function SettingsRoute() {
             />
           </div>
           <ActiveSessions sessions={sessions} />
+          <DeleteAccount email={store.user.email} pendingSince={deletionRequest?.createdAt ?? null} />
         </div>
       </div>
     </div>

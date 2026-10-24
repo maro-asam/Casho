@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Headset, Mail, SearchX } from "lucide-react";
+import { Headset, Mail, SearchX, UserX } from "lucide-react";
 import { Prisma, SupportRequestStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { isAccountDeletionRequest } from "@/lib/account-deletion";
 import { setSupportRequestStatusAction } from "@/actions/admin/admin-support.actions";
 import {
   DataCard,
@@ -105,6 +106,12 @@ export default async function AdminSupportPage({ searchParams }: { searchParams?
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold">{t.title}</p>
+                      {isAccountDeletionRequest(t.title) && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+                          <UserX className="size-3" />
+                          حذف حساب
+                        </span>
+                      )}
                       <span className="text-xs text-muted-foreground" title={fmtDateTime(t.createdAt)}>
                         {fmtRelative(t.createdAt, now)}
                       </span>
@@ -127,6 +134,16 @@ export default async function AdminSupportPage({ searchParams }: { searchParams?
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    {/* The delete itself (with its money-history checks) lives on the account page. */}
+                    {t.user && isAccountDeletionRequest(t.title) && (
+                      <Link
+                        href={`/admin/users/${t.user.id}`}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-destructive/30 px-2.5 text-xs text-destructive hover:bg-destructive/5"
+                      >
+                        <UserX className="size-3.5" />
+                        مراجعة الحذف
+                      </Link>
+                    )}
                     {t.user && (
                       <a
                         href={`mailto:${t.user.email}?subject=${encodeURIComponent(`بخصوص: ${t.title}`)}`}

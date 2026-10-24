@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { lazy, Suspense, useRef, useState, useSyncExternalStore } from "react";
 import { Boxes, ChevronLeft, ChevronRight, ScanBarcode, ShoppingBag } from "lucide-react";
 import {
   motion,
+  useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -13,7 +14,10 @@ import {
 import { cn } from "@/lib/utils";
 import { useLang } from "../../_i18n/LanguageContext";
 import { useLandingCopy } from "./copy";
-import { DashboardWindow, PosReceipt, StorefrontPhone } from "./Devices";
+import { BrowserFrame, PhoneFrame, PhoneStatusBar, PosReceipt, StorefrontPhone } from "./Devices";
+
+// The real dashboard components (+ recharts) load after the headline paints.
+const DashboardScreen = lazy(() => import("./DashboardPreview"));
 
 // Linear map with clamping. Function-form transforms keep framer-motion on the
 // JS scroll path (its native ScrollTimeline path mis-tracks pinned sections).
@@ -24,42 +28,81 @@ function lerp(v: number, [i0, i1]: [number, number], [o0, o1]: [number, number])
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+// The first two chips are also orders landing in the dashboard (online, then the POS receipt).
 const CHIPS = [
-  { icon: ShoppingBag, tone: "bg-[#1447e6]", at: 0.5, className: "-top-[11%] inset-s-[23%] sm:-top-[7%] sm:inset-s-[8%]" },
-  { icon: ScanBarcode, tone: "bg-[#1a8a3e]", at: 0.6, className: "bottom-[6%] inset-s-[23%] sm:bottom-[10%] sm:inset-s-[18%]" },
-  { icon: Boxes, tone: "bg-[#e0483a]", at: 0.7, className: "hidden sm:flex -top-[7%] inset-e-[26%]" },
+  { icon: ShoppingBag, tone: "bg-[#1447e6]", at: 0.46, className: "-top-[7%] inset-s-[8%]", phone: "top-[12%] inset-s-[-30%]" },
+  { icon: ScanBarcode, tone: "bg-[#1a8a3e]", at: 0.56, className: "bottom-[10%] inset-s-[18%]", phone: "top-[44%] inset-e-[-32%]" },
+  { icon: Boxes, tone: "bg-[#e0483a]", at: 0.66, className: "-top-[7%] inset-e-[26%]", phone: "bottom-[12%] inset-s-[-26%]" },
 ];
+
+// Real phone width for the dashboard below the `sm` breakpoint.
+const PHONE = { width: 390, height: 844 };
+const MAX_DESKTOP_WIDTH = 1440;
+
+function subscribeResize(callback: () => void) {
+  window.addEventListener("resize", callback);
+  return () => window.removeEventListener("resize", callback);
+}
+
+/** Viewport width (0 while server rendering), read the way media queries see it. */
+function useViewportWidth() {
+  return useSyncExternalStore(subscribeResize, () => window.innerWidth, () => 0);
+}
 
 /**
  * Pinned, scroll-driven product reveal (Apple launch-page style):
- * the headline lifts away while the dashboard tilts flat, the phone and POS
- * receipt slide in from the sides, and live notifications pop over it.
+ * the headline lifts away while the real dashboard tilts flat, the phone and
+ * POS receipt slide in from the sides, live orders pop over it and land in the
+ * dashboard, then the page scrolls inside the window.
+ *
+ * The dashboard is laid out at the visitor's own viewport width, so its
+ * breakpoints match what a merchant sees on that screen; below `sm` it moves
+ * into a phone.
  */
 export default function AppleHero() {
-  const c = useLandingCopy().hero;
+  const copy = useLandingCopy();
+  const c = copy.hero;
   const { lang } = useLang();
   const rtl = lang === "ar";
   const Chevron = rtl ? ChevronLeft : ChevronRight;
   const reduce = !!useReducedMotion();
+
+  const vw = useViewportWidth();
+  const phone = vw > 0 && vw < 640;
+  const desktopWidth = Math.min(vw, MAX_DESKTOP_WIDTH);
+  const desktopHeight = Math.round(desktopWidth * (vw >= 1024 ? 0.625 : 0.75));
 
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start start", "end end"] });
 
   // Under Reduce Motion everything sits at its final state (text stays visible).
   const at = (v: number) => (reduce ? 1 : v);
-  const textY = useTransform(p, (v) => (reduce ? 0 : lerp(v, [0, 0.38], [0, -160])));
-  const textOpacity = useTransform(p, (v) => (reduce ? 1 : lerp(v, [0.04, 0.32], [1, 0])));
-  const textScale = useTransform(p, (v) => (reduce ? 1 : lerp(v, [0, 0.38], [1, 0.92])));
-  const productY = useTransform(p, (v) => `${lerp(at(v), [0, 0.5], [58, 0])}svh`);
-  const rotateX = useTransform(p, (v) => lerp(at(v), [0, 0.5], [32, 0]));
-  const scale = useTransform(p, (v) => lerp(at(v), [0, 0.5], [0.78, 1]));
-  const sideOpacity = useTransform(p, (v) => lerp(at(v), [0.28, 0.5], [0, 1]));
-  const phoneX = useTransform(p, (v) => lerp(at(v), [0.28, 0.58], [rtl ? -220 : 220, 0]));
-  const receiptX = useTransform(p, (v) => lerp(at(v), [0.28, 0.58], [rtl ? 220 : -220, 0]));
-  const receiptRotate = useTransform(p, (v) => lerp(at(v), [0.28, 0.58], [rtl ? 14 : -14, rtl ? 5 : -5]));
-  const glow = useTransform(p, (v) => lerp(at(v), [0, 0.5], [0.45, 1]));
-  const captionOpacity = useTransform(p, (v) => lerp(at(v), [0.78, 0.9], [0, 1]));
-  const captionY = useTransform(p, (v) => lerp(at(v), [0.78, 0.9], [16, 0]));
+  const textY = useTransform(p, (v) => (reduce ? 0 : lerp(v, [0, 0.32], [0, -160])));
+  const textOpacity = useTransform(p, (v) => (reduce ? 1 : lerp(v, [0.03, 0.26], [1, 0])));
+  const textScale = useTransform(p, (v) => (reduce ? 1 : lerp(v, [0, 0.32], [1, 0.92])));
+  const productY = useTransform(p, (v) => `${lerp(at(v), [0, 0.42], [58, 0])}svh`);
+  const rotateX = useTransform(p, (v) => lerp(at(v), [0, 0.42], [32, 0]));
+  const scale = useTransform(p, (v) => lerp(at(v), [0, 0.42], [0.78, 1]));
+  const sideOpacity = useTransform(p, (v) => lerp(at(v), [0.24, 0.42], [0, 1]));
+  const phoneX = useTransform(p, (v) => lerp(at(v), [0.24, 0.5], [rtl ? -220 : 220, 0]));
+  const receiptX = useTransform(p, (v) => lerp(at(v), [0.24, 0.5], [rtl ? 220 : -220, 0]));
+  const receiptRotate = useTransform(p, (v) => lerp(at(v), [0.24, 0.5], [rtl ? 14 : -14, rtl ? 5 : -5]));
+  const glow = useTransform(p, (v) => lerp(at(v), [0, 0.42], [0.45, 1]));
+  // Reduce Motion keeps the page at its top; everything else sits at the end.
+  const screenScroll = useTransform(p, (v) => (reduce ? 0 : lerp(v, [0.5, 0.86], [0, 1])));
+  const captionOpacity = useTransform(p, (v) => lerp(at(v), [0.86, 0.94], [0, 1]));
+  const captionY = useTransform(p, (v) => lerp(at(v), [0.86, 0.94], [16, 0]));
+
+  // Orders that have arrived so far — each one lands with its chip.
+  const liveAt = (v: number) => CHIPS.slice(0, 2).filter((chip) => v >= chip.at).length;
+  const [live, setLive] = useState(() => (reduce ? 2 : 0));
+  useMotionValueEvent(p, "change", (v) => setLive(liveAt(at(v))));
+
+  const screen = (
+    <Suspense fallback={null}>
+      <DashboardScreen lang={lang} storeName={copy.mock.storeName} scroll={screenScroll} live={reduce ? 2 : live} />
+    </Suspense>
+  );
 
   const enter = (delay: number) =>
     reduce
@@ -71,7 +114,7 @@ export default function AppleHero() {
         };
 
   return (
-    <section ref={ref} className="relative bg-(--al-bg)" style={{ height: reduce ? undefined : "270vh" }}>
+    <section ref={ref} className="relative bg-(--al-bg)" style={{ height: reduce ? undefined : "340vh" }}>
       <div className={cn("overflow-hidden", reduce ? "relative pb-32 pt-32" : "sticky top-0 h-svh")}>
         {/* Light behind the product */}
         <motion.div style={{ opacity: glow }} aria-hidden className="pointer-events-none absolute inset-0">
@@ -117,41 +160,63 @@ export default function AppleHero() {
             reduce ? "relative mt-20" : "absolute inset-0 items-center",
           )}
         >
-          <motion.div
-            {...(reduce ? {} : { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 1.4, delay: 0.5, ease: EASE } })}
-            style={{ y: productY, rotateX, scale, transformOrigin: "50% 0%" }}
-            // On phones the dashboard is shown wider than the screen and cropped, so it stays legible.
-            className="relative w-[175%] max-w-none shrink-0 sm:w-full sm:max-w-[980px]"
-          >
-            <DashboardWindow className="shadow-[0_40px_100px_-30px_rgba(20,71,230,0.35),0_20px_40px_-20px_rgba(0,0,0,0.18)] dark:shadow-[0_40px_120px_-20px_rgba(51,102,255,0.5)]" />
-
+          {vw > 0 && (
             <motion.div
-              style={{ x: receiptX, rotate: receiptRotate, opacity: sideOpacity }}
-              className="absolute top-[44%] hidden w-[18%] max-w-[190px] inset-s-[-8%] md:block"
+              {...(reduce ? {} : { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 1.4, delay: 0.5, ease: EASE } })}
+              style={{ y: productY, rotateX, scale, transformOrigin: "50% 0%" }}
+              className={cn("relative shrink-0", phone ? "w-[60vw] max-w-[290px]" : "w-full max-w-[980px]")}
             >
-              <PosReceipt />
-            </motion.div>
+              {phone ? (
+                <PhoneFrame width={PHONE.width} height={PHONE.height} screenClassName="bg-transparent">
+                  <div className="apple-ui relative flex h-full flex-col bg-background text-foreground">
+                    <PhoneStatusBar />
+                    <div className="relative min-h-0 flex-1">{screen}</div>
+                  </div>
+                </PhoneFrame>
+              ) : (
+                <BrowserFrame
+                  width={desktopWidth}
+                  height={desktopHeight}
+                  className="shadow-[0_40px_100px_-30px_rgba(20,71,230,0.35),0_20px_40px_-20px_rgba(0,0,0,0.18)] dark:shadow-[0_40px_120px_-20px_rgba(51,102,255,0.5)]"
+                >
+                  {screen}
+                </BrowserFrame>
+              )}
 
-            <motion.div
-              style={{ x: phoneX, opacity: sideOpacity }}
-              className="absolute -bottom-[14%] w-[19%] max-w-[230px] inset-e-[23%] sm:-bottom-[12%] sm:w-[25%] sm:inset-e-[-5%]"
-            >
-              <StorefrontPhone />
-            </motion.div>
+              {!phone && (
+                <motion.div
+                  style={{ x: receiptX, rotate: receiptRotate, opacity: sideOpacity }}
+                  className="absolute top-[44%] hidden w-[18%] max-w-[190px] inset-s-[-8%] md:block"
+                >
+                  <PosReceipt />
+                </motion.div>
+              )}
 
-            {CHIPS.map((chip, i) => (
-              <Chip
-                key={i}
-                progress={p}
-                at={reduce ? 0 : chip.at}
-                icon={chip.icon}
-                tone={chip.tone}
-                title={c.chips[i].title}
-                sub={c.chips[i].sub}
-                className={chip.className}
-              />
-            ))}
-          </motion.div>
+              {/* On phones the storefront peeks out from behind the dashboard phone. */}
+              <motion.div
+                style={{ x: phoneX, opacity: sideOpacity }}
+                className={cn(
+                  "absolute",
+                  phone ? "-z-10 top-[16%] w-[74%] inset-e-[-52%]" : "-bottom-[12%] w-[25%] max-w-[230px] inset-e-[-5%]",
+                )}
+              >
+                <StorefrontPhone />
+              </motion.div>
+
+              {CHIPS.map((chip, i) => (
+                <Chip
+                  key={i}
+                  progress={p}
+                  at={reduce ? 0 : chip.at}
+                  icon={chip.icon}
+                  tone={chip.tone}
+                  title={c.chips[i].title}
+                  sub={c.chips[i].sub}
+                  className={phone ? chip.phone : chip.className}
+                />
+              ))}
+            </motion.div>
+          )}
         </div>
 
         <motion.p
