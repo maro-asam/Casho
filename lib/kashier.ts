@@ -15,6 +15,9 @@ const KASHIER_CALLBACK_FIELDS = [
   "currency",
 ] as const;
 
+// Kashier is retired — only the top-up callback verification for payments
+// still in flight is left (app/api/payments/kashier/topup-callback).
+
 function requiredEnv(name: string) {
   const value = process.env[name];
 
@@ -37,14 +40,6 @@ export function getKashierConfig() {
   };
 }
 
-export function piastersToKashierAmount(amountInPiasters: number) {
-  if (!Number.isInteger(amountInPiasters) || amountInPiasters <= 0) {
-    throw new Error("Invalid Kashier amount");
-  }
-
-  return (amountInPiasters / 100).toFixed(2);
-}
-
 export function kashierAmountToPiasters(amount: string | null) {
   if (!amount) return null;
 
@@ -53,63 +48,6 @@ export function kashierAmountToPiasters(amount: string | null) {
   if (!Number.isFinite(parsed)) return null;
 
   return Math.round(parsed * 100);
-}
-
-export function generateKashierOrderHash(input: {
-  merchantId: string;
-  orderId: string;
-  amount: string;
-  currency: string;
-  paymentApiKey: string;
-}) {
-  const path = `/?payment=${input.merchantId}.${input.orderId}.${input.amount}.${input.currency}`;
-
-  return crypto
-    .createHmac("sha256", input.paymentApiKey)
-    .update(path)
-    .digest("hex");
-}
-
-export function createKashierTopupHppUrl(input: {
-  orderId: string;
-  amountInPiasters: number;
-  merchantRedirect: string;
-  currency?: "EGP";
-  allowedMethods?: string;
-  metaData?: Record<string, string>;
-}) {
-  const config = getKashierConfig();
-
-  const currency = input.currency || "EGP";
-  const amount = piastersToKashierAmount(input.amountInPiasters);
-
-  const hash = generateKashierOrderHash({
-    merchantId: config.merchantId,
-    orderId: input.orderId,
-    amount,
-    currency,
-    paymentApiKey: config.paymentApiKey,
-  });
-
-  const params = new URLSearchParams({
-    merchantId: config.merchantId,
-    orderId: input.orderId,
-    amount,
-    currency,
-    hash,
-    merchantRedirect: input.merchantRedirect,
-    allowedMethods: input.allowedMethods ?? "card,wallet",
-    failureRedirect: "true",
-    redirectMethod: "get",
-    display: "ar",
-    mode: config.mode,
-  });
-
-  if (input.metaData) {
-    params.set("metaData", JSON.stringify(input.metaData));
-  }
-
-  return `${config.checkoutUrl}?${params.toString()}`;
 }
 
 function safeCompareHex(a: string, b: string) {

@@ -15,7 +15,7 @@ import {
   createNotification,
   formatPiastersAsEgp,
 } from "@/lib/notifications/in-app";
-import { createKashierTopupHppUrl } from "@/lib/kashier";
+import { createPaymobCheckout, getPlatformPaymobCredentials, paymobCallbackBaseUrl } from "@/lib/paymob";
 
 type CreateTopupRequestInput = {
   storeId: string;
@@ -36,6 +36,7 @@ const methodLabels: Record<TopupMethod, string> = {
   VODAFONE_CASH: "فودافون كاش",
   BANK_TRANSFER: "تحويل بنكي",
   KASHIER: "Kashier",
+  PAYMOB: "Paymob",
 };
 
 function isValidTopupAmount(amount: number) {
@@ -128,10 +129,15 @@ export async function CreateTopupRequestAction({
   }
 }
 
-export async function InitiateKashierTopupAction(
+/**
+ * Opens Paymob's hosted checkout (cards + mobile wallets) for a top-up. The
+ * balance is credited by the Paymob callback, never here.
+ */
+export async function InitiatePaymobTopupAction(
   storeId: string,
   amountInPiasters: number,
 ): Promise<ActionResult> {
+  let checkoutUrl: string;
   try {
     const userId = await requireUserId();
     await MustOwnStore(storeId, userId);
@@ -140,9 +146,14 @@ export async function InitiateKashierTopupAction(
       return { success: false, message: "قيمة الشحن غير صحيحة" };
     }
 
+    const creds = getPlatformPaymobCredentials();
+    if (!creds) {
+      return { success: false, message: "الدفع الأونلاين مش متاح دلوقتي — استخدم التحويل اليدوي." };
+    }
+
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, user: { select: { name: true, email: true, phone_number: true } } },
     });
 
     if (!store) {
@@ -153,52 +164,30 @@ export async function InitiateKashierTopupAction(
       data: {
         storeId,
         amount: amountInPiasters,
-        method: TopupMethod.KASHIER,
+        method: TopupMethod.PAYMOB,
         status: TopupRequestStatus.PENDING,
       },
       select: { id: true },
     });
 
-    const rawAppUrl = (
-      process.env.APP_URL ||
-      process.env.NEXT_PUBLIC_APP_URL
-    )?.replace(/\/$/, "");
-
-    if (!rawAppUrl) {
-      throw new Error("APP_URL is required for Kashier topup");
-    }
-
-    const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
-    let callbackBaseUrl = rawAppUrl;
-    try {
-      const u = new URL(rawAppUrl);
-      if (u.hostname === rootDomain) {
-        callbackBaseUrl = `${u.protocol}//app.${rootDomain}`;
-      }
-    } catch {
-      // fall through
-    }
-
-    const checkoutUrl = createKashierTopupHppUrl({
-      orderId: topupRequest.id,
-      amountInPiasters,
-      merchantRedirect: `${callbackBaseUrl}/api/payments/kashier/topup-callback`,
-      metaData: {
-        storeId: store.id,
-        storeName: store.name,
-        type: "topup",
+    const callbackUrl = `${paymobCallbackBaseUrl()}/api/payments/paymob/topup`;
+    ({ url: checkoutUrl } = await createPaymobCheckout(creds, {
+      amountCents: amountInPiasters,
+      items: [{ name: "Casho balance top-up", amountCents: amountInPiasters, quantity: 1 }],
+      billing: {
+        firstName: store.user.name || store.name,
+        phone: store.user.phone_number || "NA",
+        email: store.user.email,
       },
-    });
-
-    redirect(checkoutUrl);
+      specialReference: topupRequest.id,
+      notificationUrl: callbackUrl,
+      redirectionUrl: callbackUrl,
+      extras: { storeId: store.id, type: "topup" },
+    }));
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === "NEXT_REDIRECT"
-    ) {
-      throw error;
-    }
-    console.error("InitiateKashierTopupAction Error:", error);
-    return { success: false, message: "حدث خطأ أثناء بدء عملية الدفع" };
+    console.error("InitiatePaymobTopupAction Error:", error);
+    return { success: false, message: "مقدرناش نفتح صفحة الدفع. جرّب تاني أو استخدم التحويل اليدوي." };
   }
+
+  redirect(checkoutUrl);
 }

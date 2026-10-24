@@ -41,5 +41,5 @@ export const REGIONS: { value: PaymentRegion; label: string }[] = [
   { value: "global", get label() { return tr("دولي"); } },
 ];
 
-export const KASHIER_SIGNUP_URL = "https://merchant.kashier.io/signup";
-export const KASHIER_DASHBOARD_URL = "https://merchant.kashier.io";
+export const PAYMOB_SIGNUP_URL = "https://paymob.com/en";
+export const PAYMOB_DASHBOARD_URL = "https://accept.paymob.com/portal2/en/login";

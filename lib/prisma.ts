@@ -1,4 +1,5 @@
 import "dotenv/config";
+import net from "node:net";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Prisma, PrismaClient } from "@prisma/client";
@@ -8,6 +9,12 @@ const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error("DATABASE_URL is not set");
 }
+
+// Neon's host resolves to IPv4 and IPv6 addresses. Node tries each for only
+// 250ms before moving on, so one slow IPv4 handshake sent connections to
+// IPv6 — which some networks can't reach — and they died with ETIMEDOUT
+// (~40% of connects on such a network). 2s per address fixed it (15/15).
+net.setDefaultAutoSelectFamilyAttemptTimeout(Number(process.env.DB_FAMILY_ATTEMPT_TIMEOUT_MS ?? 2_000));
 
 // Queries that exceed this threshold are logged as warnings
 const SLOW_QUERY_THRESHOLD_MS = Number(process.env.SLOW_QUERY_THRESHOLD_MS ?? 500);

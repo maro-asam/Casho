@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { AlertTriangle, BadgeCheck, Check, ChevronDown, ChevronLeft, ChevronUp, CreditCard, Info, Lock, Wallet, Zap } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronUp, Info, Lock, Zap } from "lucide-react";
 
 import {
   ReorderPaymentMethodsAction,
@@ -15,7 +15,8 @@ import { Card, SegmentedButtons, StatusText, appleButton } from "@/components/sa
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { KashierSheetBody } from "./kashier-sheet";
+import { PaymobSheetBody } from "./paymob-sheet";
+import { PaymobCoverage } from "@/components/payments/PaymobCoverage";
 import { ManualSheetBody } from "./manual-sheet";
 import { REGIONS } from "./method-meta";
 import { MethodLogo } from "./shared";
@@ -41,14 +42,13 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
     const next = new URLSearchParams(searchParams.toString());
     if (key) next.set("setup", key);
     else next.delete("setup");
-    next.delete("kashier_test");
     const qs = next.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
-  const kashierConnected = Boolean(initial.kashierApiKeyHint && initial.kashierMerchantId);
+  const paymobConnected = initial.paymob.connected;
   const isOn = (key: PaymentMethodKey) => enabled.includes(key);
-  const isSetUp = (key: PaymentMethodKey) => (key === "kashier" ? kashierConnected : !PAYMENT_METHODS_BY_KEY[key].manual || !!details[key]?.trim());
+  const isSetUp = (key: PaymentMethodKey) => (key === "paymob" ? paymobConnected : !PAYMENT_METHODS_BY_KEY[key].manual || !!details[key]?.trim());
 
   function toggle(key: PaymentMethodKey, on: boolean) {
     if (on && !isSetUp(key)) {
@@ -90,26 +90,26 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
   }
 
   // ── Health, in plain words ───────────────────────────────────────────
-  const kashierOn = isOn("kashier");
-  const kashierTest = kashierOn && initial.kashierMode === "TEST";
+  const paymobOn = isOn("paymob");
+  const paymobTest = paymobOn && initial.paymob.mode === "test";
   const checks: { tone: "ok" | "warn" | "danger" | "tip"; text: string; action?: { label: string; key: PaymentMethodKey } }[] = [];
-  if (kashierTest) checks.push({ tone: "danger", text: tr("Kashier في وضع التجربة — الدفع الأونلاين مش حقيقي والفلوس مش هتوصلك."), action: { label: tr("شغّله لايف"), key: "kashier" } });
-  else if (kashierOn) checks.push({ tone: "ok", text: tr("الدفع الأونلاين شغال — الطلبات المدفوعة بتتعلّم لوحدها.") });
-  else checks.push({ tone: "tip", text: tr("مفيش دفع أونلاين. الدفع المسبق بيقلل الطلبات اللي بتترفض عند الاستلام."), action: { label: kashierConnected ? tr("فعّل Kashier") : tr("اربط Kashier"), key: "kashier" } });
+  if (paymobTest) checks.push({ tone: "danger", text: tr("Paymob على مفاتيح التجربة — الدفع الأونلاين مش حقيقي والفلوس مش هتوصلك."), action: { label: tr("حط مفاتيح الـ live"), key: "paymob" } });
+  else if (paymobOn) checks.push({ tone: "ok", text: tr("الدفع بالكارت والمحافظ شغال — الطلبات المدفوعة بتتعلّم لوحدها.") });
+  else checks.push({ tone: "tip", text: tr("مفيش دفع أونلاين. الدفع المسبق بالكارت أو المحفظة بيقلل الطلبات اللي بتترفض عند الاستلام."), action: { label: paymobConnected ? tr("فعّل Paymob") : tr("اربط Paymob"), key: "paymob" } });
   if (isOn("cash_on_delivery")) checks.push({ tone: "ok", text: tr("الدفع عند الاستلام متاح.") });
   const manualOn = enabled.filter((k) => PAYMENT_METHODS_BY_KEY[k]?.manual);
   if (manualOn.length) checks.push({ tone: "ok", text: tr("{0} طريقة تحويل — بياناتها بتظهر للعميل بعد الطلب.", nf.format(manualOn.length)) });
 
   const regionMethods = PAYMENT_METHODS.filter((m) => m.region === region && m.manual);
   const regionOnCount = (r: PaymentRegion) => PAYMENT_METHODS.filter((m) => m.region === r && m.manual && isOn(m.key)).length;
-  const kashierMethod = PAYMENT_METHODS_BY_KEY.kashier;
-  const kashierStatus = !kashierConnected
+  const paymobMethod = PAYMENT_METHODS_BY_KEY.paymob;
+  const paymobStatus = !paymobConnected
     ? { label: tr("مش مربوط"), tone: "neutral" as const }
-    : !kashierOn
+    : !paymobOn
       ? { label: tr("متوقف"), tone: "neutral" as const }
-      : initial.kashierMode === "LIVE"
-        ? { label: tr("شغال لايف"), tone: "success" as const }
-        : { label: tr("وضع تجربة"), tone: "warning" as const };
+      : initial.paymob.mode === "test"
+        ? { label: tr("وضع تجربة"), tone: "warning" as const }
+        : { label: tr("شغال لايف"), tone: "success" as const };
 
   const ready = (key: PaymentMethodKey) => isSetUp(key);
 
@@ -117,54 +117,58 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_23rem]">
       {/* ═══ Settings column ═══ */}
       <div className="min-w-0 space-y-6">
-        {/* ── Online: Kashier ─────────────────────────────────── */}
-        <Card title={tr("الدفع الأونلاين")} subtitle={tr("العميل يدفع وهو بيطلب، والفلوس توصل حسابك.")}>
-          {kashierConnected ? (
+        {/* ── Online: Paymob (cards + every mobile wallet) ───────── */}
+        <Card title={tr("الدفع الأونلاين — كارت أو محفظة")} subtitle={tr("العميل يدفع وهو بيطلب، والطلب يتعلّم مدفوع لوحده.")}>
+          {paymobConnected ? (
             <div className="apple-rows pb-2 [--row-inset:76px]">
               <label className="flex cursor-pointer items-center gap-4 px-5 py-3">
-                <MethodLogo src={kashierMethod.logo} alt="Kashier" />
+                <MethodLogo src={paymobMethod.logo} alt="Paymob" />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[17px] font-semibold">Kashier</span>
-                  <StatusText tone={kashierStatus.tone}>{kashierStatus.label}</StatusText>
+                  <span className="block text-[17px] font-semibold">Paymob</span>
+                  <StatusText tone={paymobStatus.tone}>{paymobStatus.label}</StatusText>
                 </span>
                 <Switch
                   className="apple-switch"
-                  checked={kashierOn}
-                  disabled={busyKey === "kashier"}
-                  onCheckedChange={(v) => toggle("kashier", v)}
-                  aria-label={tr("إظهار Kashier للعملاء")}
+                  checked={paymobOn}
+                  disabled={busyKey === "paymob"}
+                  onCheckedChange={(v) => toggle("paymob", v)}
+                  aria-label={tr("إظهار Paymob للعملاء")}
                 />
               </label>
-              <NavRow label={tr("الإعدادات")} value={initial.kashierMode === "LIVE" ? tr("لايف") : tr("تجربة")} onClick={() => openSetup("kashier")} />
+              <div className="py-3 ps-[76px] pe-5">
+                <PaymobCoverage compact />
+              </div>
+              <NavRow label={tr("الإعدادات")} value={initial.paymob.mode === "test" ? tr("تجربة") : tr("لايف")} onClick={() => openSetup("paymob")} />
             </div>
           ) : (
-            <div className="flex flex-col gap-5 px-5 pb-5 sm:flex-row sm:items-center">
-              <MethodLogo src={kashierMethod.logo} alt="Kashier" size="lg" />
-              <div className="min-w-0 flex-1 space-y-2">
-                <p className="flex items-center gap-2 text-[17px] font-semibold">
-                  Kashier
-                  <span className="text-[13px] font-semibold text-(--sys-orange)">{tr("موصى بيه")}</span>
-                </p>
-                <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
-                  <Benefit icon={CreditCard} text={tr("كروت ميزة وفيزا وماستركارد")} />
-                  <Benefit icon={Wallet} text={tr("محافظ إلكترونية وتقسيط")} />
-                  <Benefit icon={BadgeCheck} text={tr("الطلب يتعلّم مدفوع لوحده")} />
-                </ul>
+            <div className="space-y-5 px-5 pb-5">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                <MethodLogo src={paymobMethod.logo} alt="Paymob" size="lg" />
+                <div className="min-w-0 flex-1 space-y-1">
+                  <p className="flex items-center gap-2 text-[17px] font-semibold">
+                    Paymob
+                    <span className="text-[13px] font-semibold text-(--sys-orange)">{tr("موصى بيه")}</span>
+                  </p>
+                  <p className="text-[15px] leading-[21px] text-muted-foreground">
+                    {tr("بوابة واحدة لكل الكروت وكل المحافظ الإلكترونية في مصر.")}
+                  </p>
+                </div>
+                <button type="button" onClick={() => openSetup("paymob")} className={appleButton.filled}>
+                  <Zap className="size-4" />
+                  {tr("اربط Paymob")}
+                </button>
               </div>
-              <button type="button" onClick={() => openSetup("kashier")} className={appleButton.filled}>
-                <Zap className="size-4" />
-                {tr("اربط Kashier")}
-              </button>
+              <PaymobCoverage className="rounded-[14px] bg-(--fill-3)/50 p-4" />
             </div>
           )}
-          {kashierTest && (
+          {paymobTest && (
             <div className="flex flex-wrap items-center justify-between gap-3 border-t-[0.5px] border-border bg-(--sys-orange)/8 px-5 py-3.5">
               <span className="flex items-start gap-2.5 text-[15px]">
                 <AlertTriangle className="mt-0.5 size-[18px] shrink-0 text-(--sys-orange)" />
-                {tr("وضع التجربة شغال — العملاء بيشوفوا Kashier بس الدفع مش حقيقي.")}
+                {tr("مفاتيح التجربة شغالة — العملاء بيشوفوا Paymob بس الدفع مش حقيقي.")}
               </span>
-              <button type="button" className={cn(appleButton.filled, "h-9 px-4")} onClick={() => openSetup("kashier")}>
-                {tr("شغّله لايف")}
+              <button type="button" className={cn(appleButton.filled, "h-9 px-4")} onClick={() => openSetup("paymob")}>
+                {tr("حط مفاتيح الـ live")}
               </button>
             </div>
           )}
@@ -179,8 +183,8 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
 
         {/* ── Manual transfers ────────────────────────────────── */}
         <Card
-          title={tr("تحويلات ومحافظ")}
-          subtitle={tr("العميل يطلب، يحوّل على بياناتك، وإنت تأكد الدفع من صفحة الطلب.")}
+          title={tr("تحويلات مباشرة — InstaPay وفودافون كاش")}
+          subtitle={tr("من غير بوابة: العميل يطلب، يحوّل على رقمك أو حسابك، وإنت تأكد الدفع من صفحة الطلب.")}
         >
           <div className="px-5 pb-3">
             <SegmentedButtons
@@ -331,12 +335,12 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
           dir={tdir()}
           className="apple-ui apple-form gap-0 border-0 bg-background text-foreground data-[side=left]:w-full data-[side=left]:sm:max-w-md data-[side=right]:w-full data-[side=right]:sm:max-w-md"
         >
-          {setupKey === "kashier" ? (
-            <KashierSheetBody
-              key="kashier"
+          {setupKey === "paymob" ? (
+            <PaymobSheetBody
+              key="paymob"
               initial={initial}
               onDone={(on) => {
-                setEnabled((list) => (on ? (list.includes("kashier") ? list : ["kashier", ...list]) : list.filter((k) => k !== "kashier")));
+                setEnabled((list) => (on ? (list.includes("paymob") ? list : ["paymob", ...list]) : list.filter((k) => k !== "paymob")));
                 openSetup(null);
                 router.refresh();
               }}
@@ -388,15 +392,6 @@ function MethodRow({ methodKey, on, busy, onToggle }: { methodKey: PaymentMethod
       </span>
       <Switch className="apple-switch" checked={on} disabled={busy} onCheckedChange={onToggle} aria-label={tr("إظهار {0} للعملاء", m.label)} />
     </label>
-  );
-}
-
-function Benefit({ icon: Icon, text }: { icon: typeof Wallet; text: string }) {
-  return (
-    <li className="flex items-center gap-1.5">
-      <Icon className="size-3.5 shrink-0 text-primary" />
-      {text}
-    </li>
   );
 }
 

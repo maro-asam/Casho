@@ -38,6 +38,7 @@ const PAYMENT_LABELS: Record<string, string> = {
   get instapay() { return tr("إنستاباي"); },
   get bank_transfer() { return tr("تحويل بنكي"); },
   get kashier() { return tr("كاشير (أونلاين)"); },
+  get paymob() { return tr("Paymob (كارت / محفظة)"); },
   get cash() { return tr("كاش"); },
   get card() { return tr("بطاقة"); },
   get instagram() { return tr("إنستجرام"); },

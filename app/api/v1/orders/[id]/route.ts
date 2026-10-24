@@ -3,6 +3,7 @@ import { ok, err } from "@/lib/api/response";
 import { prisma } from "@/lib/prisma";
 import { dispatchWebhookEvent } from "@/lib/webhooks/events";
 import { emitPaymentReceived } from "@/lib/accounting/events";
+import { queueOrderStatusEmail } from "@/lib/notifications/email/order-emails";
 import type { ApiContext } from "@/lib/api/types";
 import { z } from "zod";
 
@@ -121,6 +122,8 @@ async function updateOrder(req: Request, ctx: ApiContext, params: { id: string }
   }
 
   await Promise.allSettled(events);
+
+  if (status && status !== existing.status) queueOrderStatusEmail(updated.id, status);
 
   return ok(updated);
 }

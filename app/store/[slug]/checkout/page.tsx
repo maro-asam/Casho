@@ -51,6 +51,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
 
     const fullName = String(formData.get("fullName") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
     const address = String(formData.get("address") ?? "").trim();
     const governorate = String(formData.get("governorate") ?? "").trim();
 
@@ -75,6 +76,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     await CreateOrderAction(slug, {
       fullName,
       phone,
+      email,
       address,
       governorate,
       paymentMethod: paymentMethodValue,

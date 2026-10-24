@@ -12,6 +12,7 @@ export type PaymentMethodKey =
   | "bank_transfer"
   | "cash_on_delivery"
   | "kashier"
+  | "paymob"
   | "mada"
   | "stc_pay"
   | "tabby"
@@ -28,6 +29,8 @@ export type PaymentMethodConfig = {
   logo: string;
   manual: boolean;
   kind: PaymentMethodKind;
+  /** No longer offered — kept so old orders still show a name. */
+  retired?: boolean;
 };
 
 export const PAYMENT_REGION_LABELS: Record<PaymentRegion, string> = {
@@ -125,6 +128,16 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
     kind: "manual",
   },
   {
+    key: "paymob",
+    // Named for what the customer does, not the gateway — shown at checkout.
+    get label() { return tr("كارت أو محفظة إلكترونية"); },
+    get description() { return tr("فيزا، ماستركارد، ميزة، فودافون كاش، أورنج كاش، اتصالات كاش وWE Pay — دفع آمن عن طريق Paymob."); },
+    region: "egypt",
+    logo: "/payment-logos/paymob.svg",
+    manual: false,
+    kind: "online",
+  },
+  {
     key: "kashier",
     label: "Kashier",
     get description() { return tr("بوابة دفع مصرية للبطاقات والمحافظ الإلكترونية."); },
@@ -132,6 +145,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
     logo: "/payment-logos/kashier.svg",
     manual: false,
     kind: "online",
+    retired: true,
   },
   {
     key: "mada",
@@ -182,26 +196,15 @@ export const PAYMENT_METHODS_BY_KEY = PAYMENT_METHODS.reduce(
 export const MANUAL_PAYMENT_METHOD_KEYS: PaymentMethodKey[] =
   PAYMENT_METHODS.filter((method) => method.manual).map((method) => method.key);
 
-export const KASHIER_ALLOWED_METHODS = [
-  {
-    key: "card",
-    get label() { return tr("بطاقات بنكية"); },
-    get description() { return tr("Visa / Mastercard / Meeza حسب تفعيل حساب Kashier"); },
-  },
-  {
-    key: "wallet",
-    get label() { return tr("محافظ إلكترونية"); },
-    get description() { return tr("Vodafone Cash وغيرها من المحافظ المدعومة داخل Kashier"); },
-  },
-  {
-    key: "bank_installments",
-    get label() { return tr("تقسيط بنكي"); },
-    get description() { return tr("التقسيط المتاح حسب إعدادات حساب Kashier"); },
-  },
-] as const;
+/** Methods a merchant can still turn on (retired ones only label old orders). */
+export function isAvailablePaymentMethod(key: string): key is PaymentMethodKey {
+  return PAYMENT_METHODS.some((method) => method.key === key && !method.retired);
+}
 
-export type KashierAllowedMethod =
-  (typeof KASHIER_ALLOWED_METHODS)[number]["key"];
+/** Paid on a gateway's hosted checkout rather than cash / transfer. */
+export function isOnlinePaymentMethod(key: string) {
+  return PAYMENT_METHODS.some((method) => method.key === key && method.kind === "online");
+}
 
 export function getPaymentMethodByKey(key: string) {
   return PAYMENT_METHODS.find((method) => method.key === key);

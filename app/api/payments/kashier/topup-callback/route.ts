@@ -1,19 +1,16 @@
+/**
+ * Kashier is retired (Paymob replaced it) — new top-ups go through Paymob.
+ * This route only stays so top-ups already in flight still settle.
+ */
 import { NextRequest, NextResponse } from "next/server";
-import { BalanceTransactionType, NotificationType, TopupRequestStatus } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
-import { applyBalanceChangeTx } from "@/lib/balance";
 import {
   verifyKashierCallbackSignature,
   isKashierPaid,
   kashierAmountToPiasters,
 } from "@/lib/kashier";
-import { renewIfDue } from "@/lib/billing/renewal";
-import {
-  createNotification,
-  formatPiastersAsEgp,
-} from "@/lib/notifications/in-app";
+import { settleTopupPayment } from "@/lib/payments/settle";
 
 async function extractParams(req: NextRequest) {
   const params = new URLSearchParams(req.nextUrl.searchParams);
@@ -75,19 +72,7 @@ async function handleTopupCallback(req: NextRequest) {
 
   const topupRequest = await prisma.topupRequest.findUnique({
     where: { id: merchantOrderId },
-    select: {
-      id: true,
-      amount: true,
-      status: true,
-      storeId: true,
-      store: {
-        select: {
-          id: true,
-          userId: true,
-          name: true,
-        },
-      },
-    },
+    select: { id: true, amount: true },
   });
 
   if (!topupRequest) {
@@ -104,14 +89,6 @@ async function handleTopupCallback(req: NextRequest) {
     return NextResponse.redirect(`${appUrl}/dashboard/balance?topup=invalid`);
   }
 
-  // Idempotency — لو الـ callback وصل أكتر من مرة
-  if (topupRequest.status !== TopupRequestStatus.PENDING) {
-    const paid = topupRequest.status === TopupRequestStatus.APPROVED;
-    return NextResponse.redirect(
-      `${appUrl}/dashboard/balance?topup=${paid ? "success" : "failed"}`,
-    );
-  }
-
   const callbackAmount = kashierAmountToPiasters(params.get("amount"));
 
   if (callbackAmount !== null && callbackAmount !== topupRequest.amount) {
@@ -123,72 +100,16 @@ async function handleTopupCallback(req: NextRequest) {
     return NextResponse.redirect(`${appUrl}/dashboard/balance?topup=invalid`);
   }
 
-  const paid = isKashierPaid(params);
-  const paymentReference =
-    params.get("transactionId") ||
-    params.get("orderReference") ||
-    params.get("merchantOrderId");
-
-  if (paid) {
-    // Claim + credit in one transaction: a replayed or concurrent callback
-    // finds the request no longer PENDING and credits nothing.
-    const credited = await prisma.$transaction(async (tx) => {
-      const claimed = await tx.topupRequest.updateMany({
-        where: { id: topupRequest.id, status: TopupRequestStatus.PENDING },
-        data: {
-          status: TopupRequestStatus.APPROVED,
-          transferRef: paymentReference,
-        },
-      });
-      if (claimed.count === 0) return false;
-
-      await applyBalanceChangeTx(tx, {
-        storeId: topupRequest.storeId,
-        amount: topupRequest.amount,
-        type: BalanceTransactionType.TOPUP,
-        note: `شحن رصيد عبر Kashier — مرجع: ${paymentReference ?? topupRequest.id}`,
-        reference: topupRequest.id,
-      });
-      return true;
-    });
-
-    if (!credited) {
-      return NextResponse.redirect(`${appUrl}/dashboard/balance?topup=success`);
-    }
-
-    await renewIfDue(topupRequest.storeId, { includeInactive: true }).catch((e) => console.error("[topup] renewal", e));
-
-    await createNotification({
-      storeId: topupRequest.storeId,
-      userId: topupRequest.store.userId,
-      type: NotificationType.TOPUP_APPROVED,
-      title: "تمت إضافة الرصيد بنجاح",
-      message: `تمت إضافة ${formatPiastersAsEgp(topupRequest.amount)} لرصيد متجرك عبر Kashier.`,
-      href: "/dashboard/balance",
-      data: {
-        topupRequestId: topupRequest.id,
-        amount: topupRequest.amount,
-      },
-    });
-
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/balance");
-    revalidatePath("/dashboard/balance/topup");
-    revalidatePath("/dashboard/notifications");
-
-    return NextResponse.redirect(`${appUrl}/dashboard/balance?topup=success`);
-  }
-
-  await prisma.topupRequest.updateMany({
-    where: { id: topupRequest.id, status: TopupRequestStatus.PENDING },
-    data: {
-      status: TopupRequestStatus.REJECTED,
-      note: "فشل الدفع عبر Kashier",
-      transferRef: paymentReference,
-    },
+  const result = await settleTopupPayment({
+    topupRequestId: topupRequest.id,
+    paid: isKashierPaid(params),
+    paymentReference: params.get("transactionId") || params.get("orderReference") || params.get("merchantOrderId"),
+    providerLabel: "Kashier",
   });
 
-  return NextResponse.redirect(`${appUrl}/dashboard/balance/topup?topup=failed`);
+  return result === "failed"
+    ? NextResponse.redirect(`${appUrl}/dashboard/balance/topup?topup=failed`)
+    : NextResponse.redirect(`${appUrl}/dashboard/balance?topup=success`);
 }
 
 export async function GET(req: NextRequest) {

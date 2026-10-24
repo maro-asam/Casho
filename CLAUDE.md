@@ -38,7 +38,7 @@ app/
     dashboard/            # merchant dashboard (requires auth)
   admin/                  # admin panel
   store/[slug]/           # storefront pages (cart, products, checkout, order, etc.)
-  api/                    # API routes (payments/kashier, meta, telegram, export)
+  api/                    # API routes (payments/paymob, meta, telegram, export)
 ```
 
 ### Subdomain Routing (middleware.ts)
@@ -55,7 +55,7 @@ Custom session-based auth — no NextAuth. Sessions are stored in the DB (`Sessi
 
 Prisma client uses the `@prisma/adapter-pg` driver adapter (not the default connector). The singleton is in [lib/prisma.ts](lib/prisma.ts). Always run `npx prisma generate` after editing `prisma/schema.prisma`.
 
-Key models: `User` → `Store` → `Product`, `Order`, `Category`, `Banner`, `Coupon`. Each store has one `StoreSettings` (theme, SEO, social links) and one `StorePaymentSettings` (Kashier credentials).
+Key models: `User` → `Store` → `Product`, `Order`, `Category`, `Banner`, `Coupon`. Each store has one `StoreSettings` (theme, SEO, social links) and one `StorePaymentSettings` (manual methods + the merchant's own Paymob keys).
 
 ### Server Actions Pattern
 
@@ -63,11 +63,13 @@ All mutations use Next.js Server Actions in [actions/](actions/). They are organ
 
 ### Subscription & Balance
 
-Subscriptions are billed from the store's internal balance (not Stripe). Balance is stored in piasters (`Store.balance`). Merchants top up via Kashier payment; admin approves topup requests. The subscription logic is in [lib/subscriptions.ts](lib/subscriptions.ts) — statuses are `INACTIVE`, `ACTIVE`, `GRACE_PERIOD`, `CANCELED`. Grace period = 3 days after expiry.
+Subscriptions are billed from the store's internal balance (not Stripe). Balance is stored in piasters (`Store.balance`). Merchants top up online via Paymob (cards + mobile wallets), or by manual transfer that an admin approves. The subscription logic is in [lib/subscriptions.ts](lib/subscriptions.ts) — statuses are `INACTIVE`, `ACTIVE`, `GRACE_PERIOD`, `CANCELED`. Grace period = 3 days after expiry.
 
-### Payment Integration — Kashier
+### Payment Integration — Paymob
 
-Kashier is the Egyptian payment gateway used for balance topups. Integration in [lib/kashier.ts](lib/kashier.ts). The callback endpoint is `/api/payments/kashier/callback`. Hash verification uses HMAC-SHA256. Amounts pass through the helpers `piastersToKashierAmount` / `kashierAmountToPiasters`.
+Paymob (Intention API + Unified Checkout) is used twice: Casho's own account (env `PAYMOB_*`) for balance top-ups, and each merchant's own account (`StorePaymentSettings.paymob*`, secrets encrypted) for storefront orders (payment method key `paymob`). Client in [lib/paymob.ts](lib/paymob.ts); callbacks `/api/payments/paymob/topup` and `/api/payments/paymob/order` (POST webhook + GET redirect, both HMAC-SHA512 verified, settled idempotently via [lib/payments/settle.ts](lib/payments/settle.ts)). Amounts are cents = piasters. InstaPay is not a Paymob method — it stays a manual transfer.
+
+Kashier is retired: it can't be chosen or set up any more. Only its callback routes remain so in-flight payments settle.
 
 ### Store Themes
 
@@ -87,17 +89,21 @@ Sales reps are `User.role = SALES` + `SalesRep`, created only by admins (`/admin
 
 In-app notifications use polling (every 30s). `createNotification` in [lib/notifications/in-app.ts](lib/notifications/in-app.ts) is safe to call inside any action — it catches errors silently so it never breaks the main flow. Notifications are scoped to `userId` or `storeId`.
 
+Order emails (Brevo SMTP via [lib/mail.ts](lib/mail.ts)) live in [lib/notifications/email/](lib/notifications/email/): the owner gets every new order, and a customer who typed an email at checkout (`Order.email`) gets a confirmation and each status change. Call the `queue*` functions — they send after the response via `after()` and never throw. Per-store switches: `StoreSettings.emailNewOrders` / `emailCustomerOrders`.
+
 ### Admin Panel
 
 Admin routes are under `app/admin/`. Access is gated by `adminGuard()` in [actions/admin/admin-guard.actions.ts](actions/admin/admin-guard.actions.ts). Admin manages: store listings, topup request approvals, service requests, and support requests.
 
 ### Environment Variables
 
-Required vars (see [lib/secrets.ts](lib/secrets.ts) and [lib/kashier.ts](lib/kashier.ts)):
+Required vars (see [lib/secrets.ts](lib/secrets.ts) and [lib/paymob.ts](lib/paymob.ts)):
 - `DATABASE_URL` — PostgreSQL connection string
 - `ROOT_DOMAIN` — defaults to `casho.store`
 - `APP_URL` — full app URL for callback redirects
-- `KASHIER_MERCHANT_ID`, `KASHIER_PAYMENT_API_KEY`, `KASHIER_MODE` (`test`|`live`)
+- `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS` (comma-separated card/wallet ids) — Casho's own account for top-ups; online top-ups are hidden until set
+- `PAYMENT_ENCRYPTION_KEY` — encrypts merchants' gateway secrets
+- `BREVO_SMTP_HOST`, `BREVO_SMTP_PORT`, `BREVO_SMTP_USER`, `BREVO_SMTP_PASS`, `MAIL_FROM_EMAIL` (+ optional `MAIL_FROM_NAME`) — password reset and order emails; order emails are skipped until set
 
 ## Key Conventions
 

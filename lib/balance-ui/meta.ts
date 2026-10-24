@@ -17,6 +17,7 @@ export const METHOD_LABELS: Record<TopupMethod, string> = {
   get INSTAPAY() { return tr("إنستاباي"); },
   get BANK_TRANSFER() { return tr("تحويل بنكي"); },
   get KASHIER() { return tr("دفع أونلاين"); },
+  get PAYMOB() { return tr("كارت أو محفظة (Paymob)"); },
 };
 
 export const TOPUP_STATUS: Record<TopupRequestStatus, { label: string; tone: "warning" | "success" | "danger" }> = {

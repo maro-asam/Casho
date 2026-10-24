@@ -11,7 +11,7 @@ Engine and rules: `lib/sales/`. Admin mutations: `actions/admin/sales.actions.ts
 | Referral link | `${APP_URL}/register?ref=<User.referralCode>` (the existing referral code column). |
 | Customer | The merchant `User`. Counted once, even with several stores. |
 | Attribution | `SalesAttribution` (one per customer, unique). Created in the signup transaction. Admin changes are append-only `SalesAttributionChange` rows. |
-| Qualifying payment | A `BalanceTransaction` of type `SUBSCRIPTION_CHARGE`. Subscriptions are paid from the store balance, and the balance is funded only by HMAC-verified Kashier callbacks or admin-approved top-ups. Browser redirects are never trusted. |
+| Qualifying payment | A `BalanceTransaction` of type `SUBSCRIPTION_CHARGE`. Subscriptions are paid from the store balance, and the balance is funded only by HMAC-verified Paymob callbacks or admin-approved top-ups. Browser redirects are never trusted. |
 | Commission | `SalesCommission`: an immutable snapshot (basis, rate, tier, position, rule id, cohort, eligibility end, payment ref). Unique on `(balanceTransactionId, kind)`. |
 | Correction | `SalesCommissionAdjustment` (signed piasters, reason, actor). Refund-credit clawbacks are unique per ledger row. |
 | Payout | `SalesPayout`: a transfer that already happened outside Casho, recorded by an admin. |
@@ -77,7 +77,7 @@ Duplicate deliveries, retries and concurrent hooks hit the unique keys (P2002) a
    - Also try the Google button: the ref survives in the `signupRef` cookie.
    - The customer appears under العملاء as "سجّل ولم يدفع".
 3. **Payment**:
-   - Approve a top-up for that store (or pay through Kashier test mode), then activate or choose a plan.
+   - Approve a top-up for that store (or pay through Paymob with test keys), then activate or choose a plan.
    - One acquisition commission appears at 17%, position 1, with the ledger reference.
    - Re-running the cron does not duplicate it.
 4. **Renewal**: renew from the admin store page → a 6% renewal commission appears.

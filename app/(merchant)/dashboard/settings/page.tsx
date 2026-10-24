@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AtSign, ExternalLink, Languages, ShieldCheck, Store, Truck, Users } from "lucide-react";
+import { AtSign, ExternalLink, Languages, Mail, ShieldCheck, Store, Truck, Users } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
@@ -11,6 +11,7 @@ import StoreSettingsForm from "./_components/StoreSettingsForm";
 import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
 import LanguageSettings from "./_components/LanguageSettings";
+import OrderEmailSettings from "./_components/OrderEmailSettings";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetActiveSessionsAction } from "@/actions/auth/sessions.actions";
 import { GetStoreMembersAction } from "@/actions/store/members.actions";
@@ -42,6 +43,7 @@ export default async function SettingsRoute() {
       name: true,
       slug: true,
       poweredByRemovalEnabled: true,
+      user: { select: { email: true } },
       settings: {
         select: {
           id: true,
@@ -54,6 +56,8 @@ export default async function SettingsRoute() {
           instagram: true,
           facebook: true,
           email: true,
+          emailNewOrders: true,
+          emailCustomerOrders: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -74,6 +78,7 @@ export default async function SettingsRoute() {
     { id: "store", label: tr("بيانات المتجر"), icon: Store, tint: "bg-primary" },
     { id: "shipping", label: tr("الشحن"), icon: Truck, tint: "bg-(--sys-orange)" },
     { id: "contact", label: tr("روابط التواصل"), icon: AtSign, tint: "bg-(--sys-green)" },
+    { id: "emails", label: tr("إيميلات الطلبات"), icon: Mail, tint: "bg-(--sys-red)" },
     { id: "language", label: tr("لغة لوحة التحكم"), icon: Languages, tint: "bg-(--sys-indigo)" },
     { id: "team", label: tr("أعضاء المتجر"), icon: Users, tint: "bg-(--sys-teal)" },
     { id: "security", label: tr("الجلسات النشطة"), icon: ShieldCheck, tint: "bg-(--sys-gray)" },
@@ -126,6 +131,13 @@ export default async function SettingsRoute() {
         {/* ── Content ─────────────────────────────────────────── */}
         <div className="min-w-0 max-w-3xl space-y-8">
           <StoreSettingsForm store={store} />
+          <OrderEmailSettings
+            ownerEmail={store.user.email}
+            initial={{
+              emailNewOrders: store.settings?.emailNewOrders ?? true,
+              emailCustomerOrders: store.settings?.emailCustomerOrders ?? true,
+            }}
+          />
           <LanguageSettings />
           <div>
             <StoreMembers

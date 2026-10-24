@@ -3,7 +3,7 @@
  * grace → past due, and warns stores whose balance won't cover the next
  * renewal, then re-syncs sales commissions for recent ledger activity (a safety
  * net for any missed billing hook — lib/sales/engine), and releases stock held
- * by unpaid Kashier orders. Trigger from an external scheduler (e.g. cron-job.org, every hour)
+ * by unpaid online (Paymob) orders. Trigger from an external scheduler (e.g. cron-job.org, every hour)
  * with `Authorization: Bearer <CRON_SECRET>`.
  */
 import { NextRequest, NextResponse } from "next/server";

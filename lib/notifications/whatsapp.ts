@@ -44,6 +44,7 @@ const paymentLabels: Record<string, string> = {
   instapay: "إنستاباي",
   bank_transfer: "تحويل بنكي",
   kashier: "بطاقة بنكية",
+  paymob: "كارت أو محفظة إلكترونية (مدفوع أونلاين)",
 };
 
 export async function sendWhatsAppOrderNotification(

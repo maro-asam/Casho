@@ -40,7 +40,9 @@ const TOPUP_RESULT = {
 } as const;
 
 const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400_000);
-const KASHIER_STALE_MS = 60 * 60 * 1000;
+// Online top-ups nobody finished paying stop showing after an hour.
+const ONLINE_STALE_MS = 60 * 60 * 1000;
+const ONLINE_METHODS = new Set(["KASHIER", "PAYMOB"]);
 
 type BalanceRouteProps = { searchParams?: Promise<SearchParamsRecord> };
 
@@ -95,7 +97,7 @@ export default async function BalanceRoute({ searchParams }: BalanceRouteProps) 
   ]);
 
   // Online-payment attempts that never came back are noise, not "pending".
-  const visibleRequests = requests.filter((r) => r.method !== "KASHIER" || now.getTime() - r.createdAt.getTime() < KASHIER_STALE_MS);
+  const visibleRequests = requests.filter((r) => !ONLINE_METHODS.has(r.method) || now.getTime() - r.createdAt.getTime() < ONLINE_STALE_MS);
 
   // ── Runway: how far the balance carries the subscription ────────────
   const price = store.monthlyPrice;

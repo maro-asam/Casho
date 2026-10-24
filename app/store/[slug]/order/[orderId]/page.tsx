@@ -29,6 +29,7 @@ import { DigitalDownloads } from "./_components/DigitalDownloads";
 import { isOrderPaid } from "@/lib/products/digital";
 import { prisma } from "@/lib/prisma";
 import { getPaymentMethodLabel as getCatalogueLabel, isManualPaymentMethod } from "@/constants/welcome/payment-methods";
+import { isOnlinePaymentProvider } from "@/lib/payments/providers";
 
 import {
   Card,
@@ -158,6 +159,14 @@ function getPaymentBanner(payment?: string) {
           "لم يتم تأكيد الدفع. يمكنك التواصل مع المتجر أو المحاولة مرة أخرى.",
         icon: XCircle,
         className: "border-red-500/20 bg-red-500/10 text-red-700",
+      };
+
+    case "pending":
+      return {
+        title: "الدفع قيد التأكيد",
+        description: "بنستنى تأكيد العملية من بوابة الدفع — حالة الطلب هتتحدث أول ما يوصل.",
+        icon: AlertTriangle,
+        className: "border-amber-500/20 bg-amber-500/10 text-amber-700",
       };
 
     case "invalid":
@@ -351,10 +360,10 @@ export default async function OrderDetailsPage({
 
   const statusMeta = getStatusMeta(order.status);
   const paymentStatusMeta = getPaymentStatusLabel(order.paymentStatus);
-  // A card order is only a purchase once Kashier confirmed it (it then lands on /success too).
+  // An online order is only a purchase once the gateway confirmed it (it then lands on /success too).
   const awaitingCode = order.confirmationStatus === "PENDING" && order.status === "PENDING";
   const countsAsPurchase =
-    order.source === "ONLINE" && !awaitingCode && (order.paymentProvider !== "KASHIER" || order.paidAt !== null);
+    order.source === "ONLINE" && !awaitingCode && (!isOnlinePaymentProvider(order.paymentProvider) || order.paidAt !== null);
 
   return (
     <div className="wrapper py-6 max-w-screen-2xl mx-auto" dir="rtl">

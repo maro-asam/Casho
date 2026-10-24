@@ -2,9 +2,10 @@
 // right after checkout — or, when the customer has to confirm their phone
 // first, only once they do, so fake orders never ping the merchant.
 
-import { NotificationType, OrderRiskLevel } from "@prisma/client";
+import { NotificationType, OrderRiskLevel, OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
+import { queueNewOrderEmails } from "@/lib/notifications/email/order-emails";
 import {
   isOrderConfirmTemplateConfigured,
   sendWhatsAppOrderConfirmation,
@@ -13,6 +14,7 @@ import {
 import { canAskToConfirm, orderConfirmUrl } from "@/lib/orders/whatsapp-confirm";
 import { escapeTelegramMarkdown, sendTelegramMarkdown } from "@/lib/notifications/telegram";
 import { queueStoreServerEvent } from "@/lib/pixels/server";
+import { isOnlinePaymentMethod } from "@/constants/welcome/payment-methods";
 import { purchaseEventId } from "@/lib/pixels/shared";
 
 const RISK_LABEL: Partial<Record<OrderRiskLevel, string>> = {
@@ -55,9 +57,9 @@ export async function announceNewOrder(orderId: string) {
   const risk = order.riskLevel ? RISK_LABEL[order.riskLevel] : undefined;
   const riskLine = risk ? `${risk}: ${order.riskSignals[0] ?? ""}` : null;
 
-  // Ad pixels: a cash/manual order is a purchase now; a card order only once
-  // Kashier confirms the payment (see the Kashier callback).
-  if (order.paymentMethod !== "kashier") {
+  // Ad pixels: a cash/manual order is a purchase now; an online order only once
+  // the gateway confirms the payment (lib/payments/settle).
+  if (!isOnlinePaymentMethod(order.paymentMethod)) {
     await queueStoreServerEvent({
       storeId: order.storeId,
       eventName: "Purchase",
@@ -121,6 +123,10 @@ export async function announceNewOrder(orderId: string) {
       });
     }
   }
+
+  queueNewOrderEmails(order.id, {
+    awaitingOnlinePayment: isOnlinePaymentMethod(order.paymentMethod) && order.status !== OrderStatus.PAID,
+  });
 
   const telegramChatId = order.store.settings?.telegramChatId;
   if (telegramChatId) {

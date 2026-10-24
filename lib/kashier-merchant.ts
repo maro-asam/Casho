@@ -1,8 +1,7 @@
 import crypto from "crypto";
 
-import type { KashierAllowedMethod } from "@/constants/welcome/payment-methods";
-
-export type KashierCheckoutMode = "test" | "live";
+// Kashier is retired — only the callback verification for payments still in
+// flight is left (app/api/payments/kashier/callback).
 
 const KASHIER_CALLBACK_FIELDS = [
   "paymentStatus",
@@ -17,14 +16,6 @@ const KASHIER_CALLBACK_FIELDS = [
   "currency",
 ] as const;
 
-export function piastersToKashierAmount(amountInPiasters: number) {
-  if (!Number.isInteger(amountInPiasters) || amountInPiasters <= 0) {
-    throw new Error("Invalid Kashier amount");
-  }
-
-  return (amountInPiasters / 100).toFixed(2);
-}
-
 export function kashierAmountToPiasters(amount: string | null) {
   if (!amount) return null;
 
@@ -32,76 +23,6 @@ export function kashierAmountToPiasters(amount: string | null) {
   if (!Number.isFinite(parsed)) return null;
 
   return Math.round(parsed * 100);
-}
-
-export function generateKashierOrderHash(input: {
-  merchantId: string;
-  orderId: string;
-  amount: string;
-  currency: string;
-  paymentApiKey: string;
-}) {
-  const path = `/?payment=${input.merchantId}.${input.orderId}.${input.amount}.${input.currency}`;
-
-  return crypto
-    .createHmac("sha256", input.paymentApiKey)
-    .update(path)
-    .digest("hex");
-}
-
-export function createMerchantKashierHppUrl(input: {
-  checkoutUrl?: string;
-  merchantId: string;
-  paymentApiKey: string;
-  mode: KashierCheckoutMode;
-  orderId: string;
-  amountInPiasters: number;
-  currency?: "EGP";
-  merchantRedirect: string;
-  allowedMethods: KashierAllowedMethod[];
-  display?: "ar" | "en";
-  metaData?: Record<string, string | number | boolean | null | undefined>;
-  brandColor?: string;
-}) {
-  const checkoutUrl = input.checkoutUrl || "https://checkout.kashier.io";
-  const currency = input.currency || "EGP";
-  const amount = piastersToKashierAmount(input.amountInPiasters);
-
-  const hash = generateKashierOrderHash({
-    merchantId: input.merchantId,
-    orderId: input.orderId,
-    amount,
-    currency,
-    paymentApiKey: input.paymentApiKey,
-  });
-
-  const params = new URLSearchParams({
-    merchantId: input.merchantId,
-    orderId: input.orderId,
-    amount,
-    currency,
-    hash,
-    merchantRedirect: input.merchantRedirect,
-    allowedMethods: input.allowedMethods.join(","),
-    failureRedirect: "true",
-    redirectMethod: "get",
-    display: input.display || "ar",
-    mode: input.mode,
-  });
-
-  if (input.brandColor) {
-    params.set("brandColor", input.brandColor);
-  }
-
-  if (input.metaData) {
-    const cleanedMetaData = Object.fromEntries(
-      Object.entries(input.metaData).filter(([, value]) => value != null),
-    );
-
-    params.set("metaData", JSON.stringify(cleanedMetaData));
-  }
-
-  return `${checkoutUrl}?${params.toString()}`;
 }
 
 function safeCompareHex(a: string, b: string) {

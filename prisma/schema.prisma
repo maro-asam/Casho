@@ -334,6 +334,11 @@ model StoreSettings {
   telegramChatId    String?
   telegramLinkToken String?
 
+  /// Order emails (lib/notifications/email): every new order to the owner,
+  /// confirmation + status updates to customers who left an email.
+  emailNewOrders      Boolean @default(true)
+  emailCustomerOrders Boolean @default(true)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -934,6 +939,8 @@ model Order {
 
   fullName  String
   phone     String
+  /// Optional at checkout — order confirmation and status emails go here (lib/notifications/email).
+  email     String?
   address   String
   /// Code from constants/egypt-governorates.ts (online checkout); its name is also prefixed to `address`.
   governorate String?
@@ -1078,6 +1085,16 @@ model StorePaymentSettings {
   kashierApiKeyHint      String?
   kashierAllowedMethods  String[]    @default([])
 
+  /// The merchant's own Paymob account (lib/paymob). Test vs live follows the
+  /// keys themselves (egy_sk_test_… / egy_sk_live_…).
+  paymobEnabled             Boolean @default(false)
+  paymobSecretKeyEncrypted  String?
+  paymobSecretKeyHint       String?
+  paymobPublicKey           String?
+  paymobHmacSecretEncrypted String?
+  paymobCardIntegrationId   Int?
+  paymobWalletIntegrationId Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1188,6 +1205,7 @@ enum TopupMethod {
   INSTAPAY
   BANK_TRANSFER
   KASHIER
+  PAYMOB
 }
 
 model TopupRequest {

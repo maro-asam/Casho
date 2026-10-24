@@ -2,6 +2,7 @@ import { OrderConfirmationStatus, OrderStatus, StockMovementType, type Prisma } 
 import { prisma } from "@/lib/prisma";
 import { findDefaultBranchId, adjustBranchQuantity } from "./branch-stock";
 import { stockOf } from "@/lib/products/digital";
+import { ONLINE_PAYMENT_PROVIDERS } from "@/lib/payments/providers";
 
 type Tx = Prisma.TransactionClient;
 type Line = { productId: string; quantity: number };
@@ -145,8 +146,8 @@ const UNCONFIRMED_ORDER_TTL_MS = 6 * 60 * 60 * 1000;
 
 /**
  * Cancels online orders that never became real and gives their stock back:
- * Kashier orders the shopper never paid (a payment that still arrives later
- * re-takes the stock in the Kashier callback), and cash orders whose phone
+ * online (Paymob) orders the shopper never paid (a payment that still arrives
+ * later re-takes the stock in the gateway callback), and cash orders whose phone
  * code was never entered. Run from the hourly cron.
  */
 export async function releaseUnpaidOnlineOrders(now = new Date()) {
@@ -155,7 +156,7 @@ export async function releaseUnpaidOnlineOrders(now = new Date()) {
       status: OrderStatus.PENDING,
       paidAt: null,
       OR: [
-        { paymentProvider: "KASHIER", createdAt: { lt: new Date(now.getTime() - UNPAID_ONLINE_ORDER_TTL_MS) } },
+        { paymentProvider: { in: ONLINE_PAYMENT_PROVIDERS }, createdAt: { lt: new Date(now.getTime() - UNPAID_ONLINE_ORDER_TTL_MS) } },
         {
           confirmationStatus: OrderConfirmationStatus.PENDING,
           createdAt: { lt: new Date(now.getTime() - UNCONFIRMED_ORDER_TTL_MS) },

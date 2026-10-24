@@ -58,6 +58,7 @@ export const TOPUP_METHOD_LABELS: Record<TopupMethod, string> = {
   INSTAPAY: "إنستا باي",
   BANK_TRANSFER: "تحويل بنكي",
   KASHIER: "Kashier",
+  PAYMOB: "Paymob",
 };
 
 export const SERVICE_STATUS_META: Record<ServiceRequestStatus, Meta> = {

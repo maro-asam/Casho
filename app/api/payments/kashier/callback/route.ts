@@ -1,6 +1,9 @@
+/**
+ * Kashier is retired (Paymob replaced it) — new payments can't start. This
+ * route only stays so payments already in flight still settle; delete it once
+ * nothing has used it for a while.
+ */
 import { NextRequest, NextResponse } from "next/server";
-import { OrderStatus } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { decryptSecret } from "@/lib/secrets";
@@ -10,9 +13,7 @@ import {
   verifyMerchantKashierCallbackSignature,
 } from "@/lib/kashier-merchant";
 import { verifyKashierCallbackSignature as verifyGlobalKashierCallbackSignature } from "@/lib/kashier";
-import { adjustStockForOrderStatus } from "@/lib/inventory/order-stock";
-import { queueStoreServerEvent } from "@/lib/pixels/server";
-import { purchaseEventId } from "@/lib/pixels/shared";
+import { settleOrderPayment } from "@/lib/payments/settle";
 
 async function extractParams(req: NextRequest) {
   const params = new URLSearchParams(req.nextUrl.searchParams);
@@ -131,10 +132,6 @@ async function handleKashierCallback(req: NextRequest) {
       id: true,
       storeId: true,
       total: true,
-      status: true,
-      phone: true,
-      fullName: true,
-      items: { select: { productId: true, quantity: true, price: true, product: { select: { name: true } } } },
       store: {
         select: {
           slug: true,
@@ -187,76 +184,14 @@ async function handleKashierCallback(req: NextRequest) {
 
   const paid = isKashierPaid(params);
 
-  const paymentStatus =
-    params.get("paymentStatus") ||
-    params.get("status") ||
-    (paid ? "PAID" : "FAILED");
-
-  const paymentReference =
-    params.get("transactionId") ||
-    params.get("orderReference") ||
-    params.get("merchantOrderId") ||
-    params.get("orderId");
-
-  if (paid && order.status !== OrderStatus.PAID) {
-    const newlyPaid = await prisma.$transaction(async (tx) => {
-      // Conditional updates: a replayed callback changes nothing twice.
-      const marked = await tx.order.updateMany({
-        where: { id: order.id, status: { in: [OrderStatus.PENDING, OrderStatus.CANCELED] } },
-        data: { status: OrderStatus.PAID, paymentStatus, paymentReference, paidAt: new Date() },
-      });
-      if (marked.count === 0) {
-        // Already shipped/delivered — just record the payment.
-        await tx.order.update({
-          where: { id: order.id },
-          data: { paymentStatus, paymentReference, paidAt: new Date() },
-        });
-      } else if (order.status === OrderStatus.CANCELED) {
-        // Paid after its stock was released (failed attempt / expired) — take it again.
-        await adjustStockForOrderStatus(tx, { storeId: order.storeId, orderId: order.id, direction: "take" });
-      }
-      return marked.count === 1;
-    });
-
-    // Ad pixels: a card order becomes a purchase only now, once.
-    if (newlyPaid) {
-      await queueStoreServerEvent({
-        storeId: order.storeId,
-        eventName: "Purchase",
-        payload: {
-          eventId: purchaseEventId(order.id),
-          value: order.total / 100,
-          currency: "EGP",
-          orderId: order.id,
-          contents: order.items.map((item) => ({
-            id: item.productId,
-            quantity: item.quantity,
-            price: item.price / 100,
-            name: item.product.name,
-          })),
-        },
-        customer: { phone: order.phone, fullName: order.fullName },
-        eventSourceUrl: getStorefrontBaseUrl(order.store.slug, req),
-      });
-    }
-  } else if (!paid) {
-    await prisma.$transaction(async (tx) => {
-      // A failed online payment gives its stock back; otherwise every declined
-      // card would keep those pieces locked forever.
-      const canceled = await tx.order.updateMany({
-        where: { id: order.id, status: OrderStatus.PENDING },
-        data: { status: OrderStatus.CANCELED, paymentStatus, paymentReference },
-      });
-      if (canceled.count === 1) {
-        await adjustStockForOrderStatus(tx, { storeId: order.storeId, orderId: order.id, direction: "restock" });
-      } else {
-        await tx.order.update({ where: { id: order.id }, data: { paymentStatus, paymentReference } });
-      }
-    });
-  }
-
-  revalidatePath("/dashboard/orders");
-  revalidatePath(`/store/${order.store.slug}/order/${order.id}`);
+  await settleOrderPayment({
+    orderId: order.id,
+    paid,
+    paymentStatus: params.get("paymentStatus") || params.get("status") || (paid ? "PAID" : "FAILED"),
+    paymentReference:
+      params.get("transactionId") || params.get("orderReference") || params.get("merchantOrderId") || params.get("orderId"),
+    eventSourceUrl: getStorefrontBaseUrl(order.store.slug, req),
+  });
 
   return NextResponse.redirect(
     buildOrderUrl({

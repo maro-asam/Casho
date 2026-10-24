@@ -14,7 +14,7 @@ const RESERVED_STORE_SLUGS = new Set([
   // auth / account / money
   "login", "logout", "signin", "signup", "register", "auth", "oauth", "sso", "account", "accounts",
   "secure", "security", "verify", "verification", "password", "reset", "billing", "pay", "payment",
-  "payments", "checkout", "wallet", "invoice", "invoices", "topup", "kashier", "fawry", "instapay",
+  "payments", "checkout", "wallet", "invoice", "invoices", "topup", "kashier", "paymob", "fawry", "instapay",
   // trust / support
   "help", "support", "contact", "docs", "blog", "news", "legal", "terms", "privacy", "abuse", "official",
   "team", "careers", "jobs", "partners", "affiliate", "affiliates", "root", "system", "sysadmin", "webmaster",

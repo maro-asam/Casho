@@ -1,20 +1,12 @@
 "use server";
 
-import { mailTransporter } from "@/lib/mail";
+import { sendMail } from "@/lib/mail";
 
 export async function sendPasswordResetEmail(
   to: string,
   resetLink: string,
 ): Promise<void> {
-  const fromEmail = process.env.MAIL_FROM_EMAIL;
-  const fromName = process.env.MAIL_FROM_NAME || "Casho";
-
-  if (!fromEmail) {
-    throw new Error("MAIL_FROM_EMAIL is missing");
-  }
-
-  const info = await mailTransporter.sendMail({
-    from: `"${fromName}" <${fromEmail}>`,
+  await sendMail({
     to,
     subject: "إعادة تعيين كلمة المرور",
     html: `
@@ -67,8 +59,4 @@ export async function sendPasswordResetEmail(
     `,
     text: `افتح الرابط التالي لإعادة تعيين كلمة المرور: ${resetLink}`,
   });
-
-  if (!info.messageId) {
-    throw new Error("فشل إرسال الإيميل");
-  }
 }

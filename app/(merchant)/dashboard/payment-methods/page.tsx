@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { AlertTriangle, CheckCircle2, ExternalLink, XCircle } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import { GetPaymentMethodsSettingsAction } from "@/actions/payment-methods/payment-methods.actions";
-import { LargeTitle, appleButton, readParam, type SearchParamsRecord } from "@/components/saas-page";
+import { LargeTitle, appleButton } from "@/components/saas-page";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
-import { cn } from "@/lib/utils";
 import { MethodPerformance, type MethodStat } from "./_components/method-performance";
 import { PaymentsStudio } from "./_components/payments-studio";
 import { tdir, tr } from "@/lib/i18n/dashboard";
@@ -20,29 +19,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const PERIOD_DAYS = 90;
 
-const TEST_RESULT = {
-  ok: {
-    icon: CheckCircle2,
-    tone: "text-(--sys-green)",
-    get text() { return tr("الربط مع Kashier سليم — العملية التجريبية رجعت وإمضاؤها صحيح. حوّل للايف لما تكون جاهز."); },
-  },
-  declined: {
-    icon: AlertTriangle,
-    tone: "text-(--sys-orange)",
-    get text() { return tr("الربط سليم، بس العملية التجريبية اترفضت أو اتلغت. ده طبيعي لو قفلت الصفحة أو استخدمت كارت تجربة مرفوض."); },
-  },
-  invalid: {
-    icon: XCircle,
-    tone: "text-(--sys-red)",
-    get text() { return tr("مقدرناش نتأكد من رد Kashier — غالبًا الـ API Key مش بتاع نفس الـ Merchant ID. انسخهم تاني من لوحة Kashier."); },
-  },
-} as const;
-
 const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
 
-export default async function PaymentMethodsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+export default async function PaymentMethodsPage() {
   await loadDashboardLocale();
-  const params = await searchParams;
   const settings = await GetPaymentMethodsSettingsAction();
 
   const grouped = await prisma.order.groupBy({
@@ -61,9 +41,6 @@ export default async function PaymentMethodsPage({ searchParams }: { searchParam
     byMethod.set(g.paymentMethod, s);
   }
 
-  const testParam = readParam(params, "kashier_test");
-  const test = testParam && testParam in TEST_RESULT ? TEST_RESULT[testParam as keyof typeof TEST_RESULT] : null;
-
   return (
     <div className="space-y-6" dir={tdir()}>
       <LargeTitle
@@ -76,13 +53,6 @@ export default async function PaymentMethodsPage({ searchParams }: { searchParam
           </a>
         }
       />
-
-      {test && (
-        <div role="status" className="apple-card flex items-start gap-3 px-5 py-4 text-[15px] leading-6">
-          <test.icon className={cn("mt-0.5 size-6 shrink-0", test.tone)} />
-          {test.text}
-        </div>
-      )}
 
       <PaymentsStudio initial={settings} />
 

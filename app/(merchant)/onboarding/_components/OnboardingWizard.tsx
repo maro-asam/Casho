@@ -705,7 +705,7 @@ function CheckoutStep(p: {
           />
         </PaymentRow>
       </div>
-      <Footnote>{p.errors.none ?? tr("الدفع بالكارت والمحافظ عن طريق Kashier تقدر تفعّله بعدين من صفحة طرق الدفع.")}</Footnote>
+      <Footnote>{p.errors.none ?? tr("الدفع الأونلاين بالكارت وأي محفظة (فودافون كاش، أورنج، اتصالات، WE Pay) عن طريق Paymob تقدر تفعّله بعدين من صفحة طرق الدفع.")}</Footnote>
 
       <div className="mt-8">
         <SectionLabel>{tr("الشحن")}</SectionLabel>

@@ -19,6 +19,7 @@ const SCOPE = [
   "components/branch",
   "components/shipping",
   "components/common",
+  "components/payments",
   "lib/i18n/dashboard",
 ];
 // Server-side message sources: not rewritten, but their static strings are

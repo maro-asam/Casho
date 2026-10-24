@@ -66,5 +66,11 @@
   "بيانات المتجر والشحن والتواصل": "Store, shipping and contact details",
   "خيارات {0}": "Options for {0}",
   "أقسام الإعدادات": "Settings sections",
-  "تخصيص شكل المتجر": "Customize store design"
+  "تخصيص شكل المتجر": "Customize store design",
+  "إيميلات الطلبات": "Order emails",
+  "إيميل بكل طلب جديد": "Email me every new order",
+  "يوصلك على {0} أول ما طلب جديد يتأكد.": "Sent to {0} as soon as a new order is confirmed.",
+  "إيميلات للعميل": "Customer emails",
+  "تأكيد الطلب، وتحديث لما يتدفع أو يتشحن أو يتسلّم أو يتلغى — للعملاء اللي كتبوا إيميلهم.": "Order confirmation, plus an update when it is paid, shipped, delivered or canceled — for customers who left their email.",
+  "إيميلات العميل بتتبعت باسم متجرك، ولو كاتب إيميل تواصل في بيانات المتجر، ردود العملاء بتوصلك عليه.": "Customer emails are sent under your store name. If you set a contact email in your store details, customer replies go there."
 }

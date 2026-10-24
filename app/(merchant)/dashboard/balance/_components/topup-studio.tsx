@@ -2,11 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, CreditCard, ImagePlus, Landmark, Loader2, Lock, Smartphone, Wallet, X } from "lucide-react";
+import { Check, Copy, CreditCard, ImagePlus, Landmark, Loader2, Smartphone, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 import type { TopupMethod } from "@prisma/client";
 
-import { CreateTopupRequestAction, InitiateKashierTopupAction } from "@/actions/balance/topup.actions";
+import { CreateTopupRequestAction, InitiatePaymobTopupAction } from "@/actions/balance/topup.actions";
+import { PaymobCoverage, PaymobMark } from "@/components/payments/PaymobCoverage";
 import { Card, Row, Rows, SegmentedButtons, appleButton } from "@/components/saas-page";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,12 +31,14 @@ type Props = {
   cycleWord: string;
   nextRenewal: string | null;
   initialAmount: number | null;
+  /** Casho's Paymob account is configured. */
+  onlineAvailable: boolean;
 };
 
 /** "حوّل على الرقم: 010…" → "010…" (what people actually need to copy). */
 const accountOf = (instructions: string) => instructions.split(":").slice(1).join(":").trim() || instructions;
 
-export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, nextRenewal, initialAmount }: Props) {
+export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, nextRenewal, initialAmount, onlineAvailable }: Props) {
   const router = useRouter();
   const shortBy = Math.max(0, price - balance);
   const presets = useMemo(() => {
@@ -50,7 +53,7 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
   }, [price, shortBy, cycleWord]);
 
   const [amount, setAmount] = useState(String(initialAmount ? Math.max(MIN_EGP, initialAmount) : (presets[0]?.egp ?? 200)));
-  const [mode, setMode] = useState<"online" | "manual">("online");
+  const [mode, setMode] = useState<"online" | "manual">(onlineAvailable ? "online" : "manual");
   const [method, setMethod] = useState<TopupMethod>(TOPUP_METHODS[0].value);
   const [transferRef, setTransferRef] = useState("");
   const [receipt, setReceipt] = useState("");
@@ -86,8 +89,8 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
     setError(null);
     if (!valid) return setError(tr("أقل مبلغ {0} جنيه.", MIN_EGP));
     startTransition(async () => {
-      // Redirects to Kashier on success; only returns on failure.
-      const result = await InitiateKashierTopupAction(storeId, piasters);
+      // Redirects to Paymob on success; only returns on failure.
+      const result = await InitiatePaymobTopupAction(storeId, piasters);
       if (result && !result.success) setError(result.message);
     });
   }
@@ -156,21 +159,34 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
               onChange={setMode}
               role="tablist"
               options={[
-                ["online", tr("دفع فوري")],
+                ["online", tr("كارت أو محفظة")],
                 ["manual", tr("تحويل يدوي")],
               ]}
             />
           }
         >
           {mode === "online" ? (
-            <div className="flex items-start gap-3 px-5 pb-5">
-              <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-(--sys-green) text-white">
-                <Lock className="size-[18px]" />
-              </span>
-              <p className="text-[15px] leading-6 text-muted-foreground">
-                {tr("هتتحوّل لصفحة الدفع الآمنة (Kashier) — فيزا، ماستركارد، ميزة، أو محفظة إلكترونية. بعد الدفع هترجع هنا والرصيد مضاف.")}
+            onlineAvailable ? (
+              <div className="space-y-4 px-5 pb-5">
+                <div className="flex items-center gap-3">
+                  <PaymobMark />
+                  <p className="text-[15px] leading-6 text-muted-foreground">
+                    {tr("هتدفع على صفحة Paymob الآمنة وترجع هنا والرصيد مضاف على طول.")}
+                  </p>
+                </div>
+                <PaymobCoverage className="rounded-[14px] bg-(--fill-3)/50 p-4" />
+                <p className="text-[13px] leading-5 text-muted-foreground">
+                  {tr("عايز تدفع بـ InstaPay؟ اختار")}{" "}
+                  <button type="button" onClick={() => { setMode("manual"); setMethod("INSTAPAY"); }} className="font-semibold text-primary hover:underline">
+                    {tr("تحويل يدوي ← إنستاباي")}
+                  </button>
+                </p>
+              </div>
+            ) : (
+              <p className="px-5 pb-5 text-[15px] leading-6 text-muted-foreground">
+                {tr("الدفع الأونلاين مش متاح دلوقتي — حوّل يدوي بفودافون كاش أو InstaPay أو تحويل بنكي وهنضيف الرصيد بعد المراجعة.")}
               </p>
-            </div>
+            )
           ) : (
             <div className="space-y-5 px-5 pb-5">
               <div className="grid gap-2 sm:grid-cols-3">
@@ -295,14 +311,14 @@ export function TopupStudio({ storeId, balance, price, periodDays, cycleWord, ne
         <button
           type="button"
           className={cn(appleButton.filled, "h-[50px] w-full text-[17px]")}
-          disabled={pending || uploading || !valid}
+          disabled={pending || uploading || !valid || (mode === "online" && !onlineAvailable)}
           onClick={mode === "online" ? payOnline : submitManual}
         >
           {pending && <Loader2 className="size-4 animate-spin" />}
           {mode === "online" ? tr("ادفع {0}", valid ? formatMoney(piasters) : "") : tr("ابعت طلب الشحن")}
         </button>
         <p className="px-4 text-center text-[13px] text-muted-foreground">
-          {mode === "online" ? tr("مش هنحفظ بيانات كارتك — الدفع كله على Kashier.") : tr("هيوصلك إشعار أول ما الرصيد يتضاف.")}
+          {mode === "online" ? tr("مش هنحفظ بيانات كارتك أو محفظتك — الدفع كله على Paymob.") : tr("هيوصلك إشعار أول ما الرصيد يتضاف.")}
         </p>
       </aside>
     </div>

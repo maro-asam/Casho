@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   CreditCard,
   Loader2,
+  Mail,
   MapPin,
   MapPinHouse,
   Phone,
@@ -193,6 +194,29 @@ export default function CheckoutForm({
               className="h-12 rounded-xl pr-10 text-right"
             />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium">
+            الإيميل <span className="font-normal text-muted-foreground">(اختياري)</span>
+          </Label>
+
+          <div className="relative">
+            <Mail className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              dir="ltr"
+              placeholder="name@example.com"
+              className="h-12 rounded-xl pr-10 text-right placeholder:text-right"
+            />
+          </div>
+
+          <p className="text-xs text-muted-foreground">هيوصلك عليه تأكيد الطلب وتحديثات الشحن.</p>
         </div>
 
         {!digitalOnly && (

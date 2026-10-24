@@ -213,3 +213,29 @@ export async function UpdateStoreSettingsAction(
     };
   }
 }
+
+const ORDER_EMAIL_SETTINGS = ["emailNewOrders", "emailCustomerOrders"] as const;
+export type OrderEmailSetting = (typeof ORDER_EMAIL_SETTINGS)[number];
+
+/** One of the order-email switches (lib/notifications/email). */
+export async function SetOrderEmailSettingAction(
+  setting: OrderEmailSetting,
+  enabled: boolean,
+): Promise<{ ok: boolean; message: string }> {
+  if (!ORDER_EMAIL_SETTINGS.includes(setting) || typeof enabled !== "boolean") {
+    return { ok: false, message: "إعداد غير معروف" };
+  }
+
+  const userId = await requireUserId();
+  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true } });
+  if (!store) return { ok: false, message: "غير مصرح لك بتعديل هذا المتجر" };
+
+  await prisma.storeSettings.upsert({
+    where: { storeId: store.id },
+    create: { storeId: store.id, [setting]: enabled },
+    update: { [setting]: enabled },
+  });
+
+  revalidatePath("/dashboard/settings");
+  return { ok: true, message: "تم حفظ الإعدادات" };
+}

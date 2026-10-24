@@ -315,7 +315,6 @@
   "مقدرناش نحفظ الكود. جرّب تاني.": "Couldn't save the code. Try again.",
   "مقدرناش نحفظ المراجعة. جرّب تاني.": "Couldn't save the review. Try again.",
   "مقدرناش نضيف النطاق للاستضافة دلوقتي. جرّب تاني بعد شوية.": "We couldn't add the domain to hosting right now. Try again later.",
-  "مقدرناش نفصل Kashier. جرّب تاني.": "Couldn't disconnect Kashier. Try again.",
   "مقدرناش نلاقي اسم متاح للنسخة.": "Couldn't find an available name for the copy.",
   "مقدرناش نمسح المنتج. جرّب تخفيه بدل كده.": "Couldn't delete the product. Try hiding it instead.",
   "مكافأة دعوة": "Referral reward",
@@ -374,5 +373,8 @@
   "يمكن الموافقة فقط على الطلبات المعلقة": "Only pending requests can be approved",
   "ينفق {0}x أكثر من متوسط العملاء": "Spends {0}x more than the average customer",
   "ينفق أكثر من المتوسط بنسبة {0}%": "Spends {0}% more than average",
-  "يو بي إس": "UPS"
+  "يو بي إس": "UPS",
+  "إعداد غير معروف": "Unknown setting",
+  "الإيميل غير صحيح": "Invalid email",
+  "تم حفظ الإعدادات": "Settings saved"
 }

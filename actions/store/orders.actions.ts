@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { markCartConverted } from "@/lib/cart-recovery/abandoned";
 
 import { revalidatePath } from "next/cache";
@@ -11,19 +12,15 @@ import { prisma } from "@/lib/prisma";
 import { MustOwnStore, MustSession } from "@/actions/auth/auth-helpers.actions";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
-import {
-  PAYMENT_METHODS,
-  KASHIER_ALLOWED_METHODS,
-  type KashierAllowedMethod,
-  type PaymentMethodKey,
-} from "@/constants/welcome/payment-methods";
-import { createMerchantKashierHppUrl } from "@/lib/kashier-merchant";
+import { isAvailablePaymentMethod, isOnlinePaymentMethod, type PaymentMethodKey } from "@/constants/welcome/payment-methods";
+import { createPaymobCheckout, paymobCallbackBaseUrl } from "@/lib/paymob";
 import { governorateName, isGovernorateCode } from "@/constants/egypt-governorates";
 import { shippingPriceFor } from "@/lib/shipping/governorate-pricing";
 import { decryptSecret } from "@/lib/secrets";
 import { createNotification, orderStatusLabels } from "@/lib/notifications/in-app";
 import { isOrderRateLimited, ORDER_RATE_LIMIT_MESSAGE } from "@/lib/store/order-rate-limit";
 import { announceNewOrder } from "@/lib/store/order-announce";
+import { queueOrderStatusEmail } from "@/lib/notifications/email/order-emails";
 import { assessPhoneRisk } from "@/lib/fraud/reputation";
 import { canonicalPhone } from "@/lib/fraud/phone";
 import { isOtpConfigured, sendOrderOtp } from "@/lib/fraud/otp";
@@ -36,25 +33,8 @@ import {
 import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
 import { DIGITAL_ADDRESS, stockOf } from "@/lib/products/digital";
 
-const kashierAllowedMethodKeys = new Set(
-  KASHIER_ALLOWED_METHODS.map((method) => method.key),
-);
-
-function getAppUrl() {
-  const url = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
-
-  if (!url) {
-    throw new Error(
-      "APP_URL environment variable is required for Kashier payments",
-    );
-  }
-
-  return url.replace(/\/$/, "");
-}
-
-function isPaymentMethodKey(value: string): value is PaymentMethodKey {
-  return PAYMENT_METHODS.some((method) => method.key === value);
-}
+// Retired methods (Kashier) can't be chosen any more.
+const isPaymentMethodKey = isAvailablePaymentMethod;
 
 function normalizeEnabledPaymentMethods(
   paymentMethods: string[] | null | undefined,
@@ -68,10 +48,52 @@ function normalizeEnabledPaymentMethods(
   return ["cash_on_delivery"];
 }
 
-function toKashierAllowedMethods(methods: string[]) {
-  return methods.filter((method): method is KashierAllowedMethod => {
-    return kashierAllowedMethodKeys.has(method as KashierAllowedMethod);
-  });
+/** Creates the Paymob intention for a storefront order; throws a customer-facing message on failure. */
+async function openPaymobCheckout(input: {
+  settings: {
+    paymobSecretKeyEncrypted: string | null;
+    paymobPublicKey: string | null;
+    paymobHmacSecretEncrypted: string | null;
+    paymobCardIntegrationId: number | null;
+    paymobWalletIntegrationId: number | null;
+  } | null;
+  orderId: string;
+  total: number;
+  storeId: string;
+  customer: { fullName: string; phone: string; address: string; city: string };
+  items: { name: string; amountCents: number; quantity: number }[];
+}) {
+  const s = input.settings;
+  const integrationIds = [s?.paymobCardIntegrationId, s?.paymobWalletIntegrationId].filter((id): id is number => !!id);
+  if (!s?.paymobSecretKeyEncrypted || !s.paymobPublicKey || !s.paymobHmacSecretEncrypted || !integrationIds.length) {
+    throw new Error("الدفع الأونلاين مش متاح في المتجر دلوقتي. اختار طريقة دفع تانية.");
+  }
+  if (input.total <= 0) throw new Error("إجمالي الطلب صفر — اختار الدفع عند الاستلام.");
+
+  try {
+    const callbackUrl = `${paymobCallbackBaseUrl()}/api/payments/paymob/order`;
+    const { url } = await createPaymobCheckout(
+      { secretKey: decryptSecret(s.paymobSecretKeyEncrypted), publicKey: s.paymobPublicKey, integrationIds },
+      {
+        amountCents: input.total,
+        items: input.items,
+        billing: {
+          firstName: input.customer.fullName,
+          phone: input.customer.phone,
+          street: input.customer.address,
+          city: input.customer.city,
+        },
+        specialReference: input.orderId,
+        notificationUrl: callbackUrl,
+        redirectionUrl: callbackUrl,
+        extras: { storeId: input.storeId },
+      },
+    );
+    return url;
+  } catch (error) {
+    console.error("[checkout] Paymob intention failed", { orderId: input.orderId, error: error instanceof Error ? error.message : error });
+    throw new Error("مقدرناش نفتح صفحة الدفع دلوقتي. جرّب تاني أو اختار طريقة دفع تانية.");
+  }
 }
 
 // Control characters out (they break Telegram/WhatsApp messages and exports).
@@ -84,6 +106,13 @@ const checkoutCustomerSchema = z.object({
     .transform((value) => value.replace(/[\s\-()]/g, ""))
     .pipe(z.string().regex(/^\+?\d{8,15}$/, "رقم الموبايل غير صحيح")),
   address: z.string().transform(cleanText).pipe(z.string().min(5, "العنوان قصير جدًا").max(500, "العنوان طويل جدًا")),
+  // Optional — only used for the order emails.
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.union([z.literal(""), z.string().email("الإيميل غير صحيح").max(254, "الإيميل طويل جدًا")]))
+    .optional(),
 });
 
 type WholesaleTier = { minQty: number; maxQty?: number; price: number };
@@ -153,6 +182,7 @@ export async function CreateOrderAction(
   data: {
     fullName: string;
     phone: string;
+    email?: string;
     address: string;
     governorate: string;
     paymentMethod: PaymentMethodKey;
@@ -206,11 +236,11 @@ export async function CreateOrderAction(
           vodafoneCashEnabled: true,
           instapayEnabled: true,
           bankTransferEnabled: true,
-          kashierEnabled: true,
-          kashierMode: true,
-          kashierMerchantId: true,
-          kashierApiKeyEncrypted: true,
-          kashierAllowedMethods: true,
+          paymobSecretKeyEncrypted: true,
+          paymobPublicKey: true,
+          paymobHmacSecretEncrypted: true,
+          paymobCardIntegrationId: true,
+          paymobWalletIntegrationId: true,
         },
       },
     },
@@ -235,7 +265,7 @@ export async function CreateOrderAction(
 
   // Fake-order / return protection (lib/fraud). Card payments are already
   // verified by the bank; cash and manual transfers are where fakes cost money.
-  const isManualPayment = data.paymentMethod !== "kashier";
+  const isManualPayment = !isOnlinePaymentMethod(data.paymentMethod);
   const [risk, fraudSettings] = await Promise.all([
     assessPhoneRisk(store.id, data.phone),
     prisma.storeSettings.findUnique({
@@ -248,7 +278,7 @@ export async function CreateOrderAction(
   }
   if (isManualPayment && risk.level === OrderRiskLevel.HIGH && fraudSettings?.blockHighRiskOrders) {
     throw new Error(
-      enabledPaymentMethods.includes("kashier")
+      enabledPaymentMethods.includes("paymob")
         ? "مش هنقدر نكمل الطلب ده بالدفع عند الاستلام. اختار الدفع أونلاين، أو تواصل مع المتجر."
         : "مش هنقدر نكمل الطلب ده. تواصل مع المتجر مباشرة.",
     );
@@ -414,15 +444,32 @@ export async function CreateOrderAction(
 
   const total = Math.max(0, subtotal + shipping - discount);
 
+  // Online payment: open the Paymob checkout first, under an id the order is
+  // then created with — if Paymob is down the customer can still pick
+  // another method, and nothing was written. An unpaid intention just expires.
+  const orderId = randomUUID();
+  let paymobCheckoutUrl: string | null = null;
+  if (data.paymentMethod === "paymob") {
+    paymobCheckoutUrl = await openPaymobCheckout({
+      settings: store.storePaymentSettings,
+      orderId,
+      total,
+      storeId: store.id,
+      customer: { fullName: data.fullName, phone: data.phone, address: digitalOnly ? "" : data.address, city: (!digitalOnly && governorateName(data.governorate)) || "" },
+      items: cartItems.map((item) => ({ name: item.product.name, amountCents: linePrice(item), quantity: item.quantity })),
+    });
+  }
+
   let order: { id: string };
   try {
   order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
+        id: orderId,
         guestSessionId,
         storeId: store.id,
         paymentMethod: data.paymentMethod,
-        paymentProvider: data.paymentMethod === "kashier" ? "KASHIER" : "MANUAL",
+        paymentProvider: data.paymentMethod === "paymob" ? "PAYMOB" : "MANUAL",
         paymentStatus: "PENDING",
         status: OrderStatus.PENDING,
         subtotal,
@@ -433,6 +480,7 @@ export async function CreateOrderAction(
         ...(resolvedShippingMethodId ? { shippingMethodId: resolvedShippingMethodId } : {}),
         fullName: data.fullName,
         phone: data.phone,
+        email: data.email || null,
         // Prefixed so every place that shows the address (notifications,
         // invoice, exports, couriers) carries the governorate too.
         address: digitalOnly ? DIGITAL_ADDRESS : `${governorateName(data.governorate)} - ${data.address}`,
@@ -542,10 +590,11 @@ export async function CreateOrderAction(
 
       const customer = await prisma.customer.upsert({
         where: { storeId_phone: { storeId: store.id, phone: data.phone } },
-        create: { storeId: store.id, phone: data.phone, name: data.fullName, points: pointsEarned },
+        create: { storeId: store.id, phone: data.phone, name: data.fullName, email: data.email || null, points: pointsEarned },
         // Redeemed points were already deducted inside the order transaction.
         update: {
           name: data.fullName,
+          ...(data.email ? { email: data.email } : {}),
           points: { increment: pointsEarned },
         },
       });
@@ -588,47 +637,7 @@ export async function CreateOrderAction(
   revalidatePath(`/store/${store.slug}/cart`);
   revalidatePath(`/store/${store.slug}/checkout`);
 
-  if (data.paymentMethod === "kashier") {
-    const settings = store.storePaymentSettings;
-
-    if (
-      !settings?.kashierMerchantId ||
-      !settings.kashierApiKeyEncrypted ||
-      !settings.kashierAllowedMethods.length
-    ) {
-      throw new Error("Kashier is not configured for this store");
-    }
-
-    const allowedMethods = toKashierAllowedMethods(settings.kashierAllowedMethods);
-
-    if (allowedMethods.length === 0) {
-      throw new Error("No valid Kashier allowed methods configured");
-    }
-
-    const paymentApiKey = decryptSecret(settings.kashierApiKeyEncrypted);
-    const appUrl = getAppUrl();
-
-    const checkoutUrl = createMerchantKashierHppUrl({
-      checkoutUrl: process.env.KASHIER_CHECKOUT_URL,
-      merchantId: settings.kashierMerchantId,
-      paymentApiKey,
-      mode: settings.kashierMode === "LIVE" ? "live" : "test",
-      orderId: order.id,
-      amountInPiasters: total,
-      merchantRedirect: `${appUrl}/api/payments/kashier/callback`,
-      allowedMethods,
-      display: "ar",
-      brandColor: store.settings?.primaryColor ?? undefined,
-      metaData: {
-        storeId: store.id,
-        storeName: store.name,
-        customerName: data.fullName,
-        customerPhone: data.phone,
-      },
-    });
-
-    redirect(checkoutUrl);
-  }
+  if (paymobCheckoutUrl) redirect(paymobCheckoutUrl);
 
   redirect(`/store/${store.slug}/order/${order.id}${awaitingCode ? "/confirm" : ""}`);
 }
@@ -738,6 +747,7 @@ export async function UpdateOrderStatusAction(
         total: order.total,
       },
     });
+    queueOrderStatusEmail(order.id, status);
   }
 
   revalidatePath("/dashboard");

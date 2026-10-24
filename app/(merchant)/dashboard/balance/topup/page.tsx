@@ -7,6 +7,7 @@ import { LargeTitle, Unavailable, appleButton, readParam, type SearchParamsRecor
 import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { getBillingPeriodDays } from "@/lib/subscriptions";
+import { getPlatformPaymobCredentials } from "@/lib/paymob";
 import { TopupStudio } from "../_components/topup-studio";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -67,6 +68,7 @@ export default async function TopupRoute({ searchParams }: TopupRouteProps) {
         cycleWord={store.billingCycle === "YEARLY" ? tr("سنة") : tr("شهر")}
         nextRenewal={store.subscriptionEndsAt?.toISOString() ?? null}
         initialAmount={Number.isFinite(requested) && requested > 0 ? Math.ceil(requested) : null}
+        onlineAvailable={getPlatformPaymobCredentials() !== null}
       />
     </div>
   );

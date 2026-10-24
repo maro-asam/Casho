@@ -12,7 +12,8 @@
       "Bash(npm test *)",
       "Bash(grep -n \"^  [a-z]*: {$\\\\|    name:\\\\|    description:\\\\|colorScheme\\\\|navbar:\\\\|heroStyle\\\\|productCardStyle\" constants/store-themes.ts)",
       "Bash(npx -y skills add nicohodt/claude-code-ui-ux-skill --agent claude-code)",
-      "WebFetch(domain:shopify.dev)"
+      "WebFetch(domain:shopify.dev)",
+      "mcp__claude_ai_Trello__trelloReadMember"
     ],
     "additionalDirectories": [
       "/home/maro/matjar/prisma"
