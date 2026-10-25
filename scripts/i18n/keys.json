@@ -1199,6 +1199,12 @@
   "أكتوبر": [
    "app/(merchant)/dashboard/crm/analytics/_components/CRMAnalyticsClient.tsx"
   ],
+  "أكّد": [
+   "app/(merchant)/_components/main/VerifyEmailNotice.tsx"
+  ],
+  "أكّد إيميلك": [
+   "app/(merchant)/_components/main/VerifyEmailNotice.tsx"
+  ],
   "أكّد الطلب مع العميل": [
    "app/(merchant)/dashboard/orders/[id]/page.tsx"
   ],
@@ -1532,6 +1538,7 @@
    "app/(merchant)/dashboard/inventory/page.tsx"
   ],
   "إخفاء": [
+   "app/(merchant)/_components/main/VerifyEmailNotice.tsx",
    "app/(merchant)/dashboard/abandoned-carts/_components/cart-row-actions.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/ColorsPanel.tsx"
   ],
@@ -9366,6 +9373,9 @@
   "علامة \"مشتري موثق\" بتظهر بس للمراجعات المربوطة بطلب فعلي فيه المنتج — عشان العملاء يثقوا فيها.": [
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
   ],
+  "علشان إشعارات الطلبات وإعادة تعيين كلمة المرور توصل لـ {0}.": [
+   "app/(merchant)/_components/main/VerifyEmailNotice.tsx"
+  ],
   "علّق فاتورة من زرار «تعليق» وارجعلها بعدين.": [
    "app/(merchant)/pos/_components/HeldOrdersDialog.tsx"
   ],
@@ -13422,6 +13432,9 @@
   "إنستا باي": [
    "actions/balance/topup.actions.ts"
   ],
+  "إيميلك متأكد بالفعل.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
   "اتأكد الطلب.": [
    "actions/store/order-confirmation.actions.ts"
   ],
@@ -13578,6 +13591,9 @@
   "استلمنا طلب حذف حسابك": [
    "actions/auth/account-deletion.actions.ts"
   ],
+  "استنى {0} ثانية وابعت تاني.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
   "استنى {0} ثانية وجرب تاني.": [
    "actions/store/order-confirmation.actions.ts"
   ],
@@ -13656,6 +13672,9 @@
    "actions/auth/register.actions.ts",
    "actions/store/settings.actions.ts"
   ],
+  "اكتب الإيميل": [
+   "actions/auth/email-verification.actions.ts"
+  ],
   "اكتب الاسم بشكل صحيح": [
    "actions/services/services.actions.ts"
   ],
@@ -13670,6 +13689,9 @@
   ],
   "اكتب الدومين كامل — مثال: mystore.com": [
    "actions/store/custom-domain.actions.ts"
+  ],
+  "اكتب الكود كامل — 6 أرقام.": [
+   "actions/auth/email-verification.actions.ts"
   ],
   "اكتب رقم البوليصة اللي {0} اديتهولك": [
    "actions/store/shipments.actions.ts"
@@ -13719,11 +13741,16 @@
   "الإيميل ده عليه حساب بالفعل. سجّل دخول بجوجل من صفحة تسجيل الدخول.": [
    "actions/auth/register-google.actions.ts"
   ],
+  "الإيميل ده مستخدم في حساب تاني.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
   "الإيميل طويل جدًا": [
+   "actions/auth/email-verification.actions.ts",
    "actions/store/orders.actions.ts",
    "actions/store/settings.actions.ts"
   ],
   "الإيميل غير صحيح": [
+   "actions/auth/email-verification.actions.ts",
    "actions/store/orders.actions.ts"
   ],
   "الاستيراد ده خلص بالفعل": [
@@ -14117,8 +14144,17 @@
   "الكود ده اتستخدم قبل كده فمينفعش تغيّر اسمه. اعمل نسخة منه باسم جديد.": [
    "actions/coupons/coupons.actions.ts"
   ],
+  "الكود ده خلص وقته. ابعت كود جديد.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
   "الكود غلط أو انتهى. راجع الرسالة أو اطلب كود جديد.": [
    "actions/store/order-confirmation.actions.ts"
+  ],
+  "الكود مش صح. فاضلك {0} محاولات.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
+  "الكود مش صح. فاضلك محاولة واحدة، وبعدها هتحتاج كود جديد.": [
+   "actions/auth/email-verification.actions.ts"
   ],
   "الكود مش موجود.": [
    "actions/coupons/coupons.actions.ts"
@@ -14382,11 +14418,17 @@
   "بطاقة بنكية": [
    "lib/notifications/whatsapp.ts"
   ],
+  "بعتنا أكواد كتير الساعة دي. جرّب تاني بعد شوية.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
   "بعتنالك كود جديد على واتساب.": [
    "actions/store/order-confirmation.actions.ts"
   ],
   "بعتنالك كود جديد في رسالة SMS.": [
    "actions/store/order-confirmation.actions.ts"
+  ],
+  "بعتنالك كود جديد.": [
+   "actions/auth/email-verification.actions.ts"
   ],
   "بعض المنتجات غير موجودة": [
    "actions/inventory/purchase-orders.actions.ts"
@@ -14746,6 +14788,9 @@
   "تنبيه مخزون منخفض — {0}": [
    "actions/pos/pos.actions.ts"
   ],
+  "حاولت كتير بالكود ده. ابعت كود جديد.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
   "حد المستوى التاني لازم يكون أكبر من الأول": [
    "validations/sales.schema.ts"
   ],
@@ -14876,6 +14921,9 @@
   ],
   "خليها أقل من ١٠٠٠ حرف": [
    "actions/payment-methods/payment-methods.actions.ts"
+  ],
+  "ده نفس الإيميل الحالي.": [
+   "actions/auth/email-verification.actions.ts"
   ],
   "ده نفس رابط متجرك الحالي": [
    "actions/store/check-store-name.actions.ts"
@@ -15143,6 +15191,12 @@
   "غير مضاف": [
    "actions/balance/topup.actions.ts",
    "actions/services/services.actions.ts"
+  ],
+  "غيّرنا الإيميل وبعتنالك كود عليه.": [
+   "actions/auth/email-verification.actions.ts"
+  ],
+  "غيّرنا الإيميل. {0}": [
+   "actions/auth/email-verification.actions.ts"
   ],
   "فترة السماح خلصت. اشحن رصيدك وجدّد عشان المتجر يرجع يستقبل طلبات.": [
    "lib/billing/renewal.ts"
@@ -15436,6 +15490,9 @@
   ],
   "مفيش متجر مملوك للحساب.": [
    "actions/auth/account-deletion.actions.ts"
+  ],
+  "مقدرناش نبعت الإيميل دلوقتي. جرّب تاني بعد دقيقة.": [
+   "actions/auth/email-verification.actions.ts"
   ],
   "مقدرناش نبعت الكود دلوقتي. جرّب كمان شوية أو تواصل مع المتجر.": [
    "actions/store/order-confirmation.actions.ts"

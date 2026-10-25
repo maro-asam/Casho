@@ -27,6 +27,8 @@ interface DashboardShellProps {
   };
   initialNotifications: NotificationDTO[];
   initialUnreadCount: number;
+  /** Account-level notice above every page (e.g. "confirm your email"). */
+  notice?: ReactNode;
   children: ReactNode;
 }
 
@@ -49,6 +51,7 @@ export default function DashboardShell({
   store,
   initialNotifications,
   initialUnreadCount,
+  notice,
   children,
 }: DashboardShellProps) {
   const pathname = usePathname();
@@ -133,6 +136,7 @@ export default function DashboardShell({
             id="main-content"
             className="apple-auto apple-form mx-auto w-full max-w-385 flex-1 px-4 pt-4 pb-10 sm:px-6 md:px-8 md:pt-6"
           >
+            {notice}
             {children}
           </main>
         </div>

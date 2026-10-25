@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { requireAuth } from "@/actions/auth/require.actions";
 import { prisma } from "@/lib/prisma";
+import { requireVerifiedEmail } from "@/lib/auth/email-verification";
 import DashboardI18nProvider from "@/lib/i18n/dashboard/provider";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -12,6 +13,7 @@ export default async function OnboardingLayout({
 }) {
   const locale = await loadDashboardLocale();
   const user = await requireAuth();
+  await requireVerifiedEmail(user.id);
 
   const store = await prisma.store.findFirst({
     where: { userId: user.id },

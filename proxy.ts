@@ -10,6 +10,8 @@ const AUTH_PATHS = [
   "/register",
   "/forgot-password",
   "/reset-password",
+  // Needs a session (the page checks), but lives beside the auth pages, not under /dashboard.
+  "/verify-email",
 ];
 
 function isAuthPath(pathname: string) {

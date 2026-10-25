@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { prisma } from "@/lib/prisma";
 import { requireStoreContext } from "@/lib/store/store-guard";
+import { requireVerifiedEmail } from "@/lib/auth/email-verification";
 import { hasPermission } from "@/lib/store/permissions";
 import { hasFeature, checkLimit, FEATURE_KEYS } from "@/lib/entitlements";
 import { UpgradeRequiredCard } from "@/components/entitlements/UpgradeRequiredCard";
@@ -22,6 +23,7 @@ export default async function PosLayout({ children }: { children: ReactNode }) {
   const locale = await loadDashboardLocale();
   // Owners and team members (cashiers) alike; branch access is checked per action.
   const ctx = await requireStoreContext({ usePicked: true });
+  await requireVerifiedEmail(ctx.userId);
   if (!ctx.isOwner && !hasPermission(ctx.role, "use_pos")) redirect("/dashboard");
 
   const store = await prisma.store.findUnique({

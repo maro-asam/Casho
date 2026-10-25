@@ -84,6 +84,11 @@ export function notice(html: string, tone: "info" | "warning" = "info") {
   return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:14px 16px;margin:0 0 20px;font-size:14px;line-height:1.8;">${html}</div>`;
 }
 
+/** A one-time code, big and spaced so it reads (and copies) at a glance. */
+export function codeBlock(code: string) {
+  return `<div dir="ltr" style="background:#f3f4f6;border-radius:14px;padding:18px 12px;margin:0 0 20px;text-align:center;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:34px;font-weight:bold;letter-spacing:10px;color:#111827;">${esc(code)}</div>`;
+}
+
 export function sectionTitle(text: string) {
   return `<h2 style="margin:0 0 8px;font-size:15px;">${esc(text)}</h2>`;
 }

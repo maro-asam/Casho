@@ -20,35 +20,39 @@ enum StoreRole {
 }
 
 model User {
-  id                  String               @id @default(uuid())
-  email               String               @unique
-  phone_number        String?              @unique
-  password            String?
-  passwordAlgo        String? // "argon2id" | "bcrypt" — for migration
-  googleId            String?              @unique
-  name                String?
-  country             String?
-  businessType        String?
-  role                UserRole             @default(USER)
+  id                     String                  @id @default(uuid())
+  email                  String                  @unique
+  phone_number           String?                 @unique
+  password               String?
+  passwordAlgo           String? // "argon2id" | "bcrypt" — for migration
+  googleId               String?                 @unique
+  name                   String?
+  country                String?
+  businessType           String?
+  role                   UserRole                @default(USER)
   /// Merchant dashboard UI language: "ar" | "en".
-  locale              String               @default("ar")
-  emailVerified       Boolean              @default(false)
-  stores              Store[]
-  createdAt           DateTime             @default(now())
-  cartItems           CartItem[]
-  orders              Order[]
-  sessions            Session[]
-  passwordResetTokens PasswordResetToken[]
-  loginAttempts       LoginAttempt[]
-  securityLogs        SecurityLog[]
-  supportRequests     SupportRequest[]
-  notifications       Notification[]
-  storeMembers        StoreMember[]
-  sentInvitations     StoreInvitation[]    @relation("SentInvitations")
-  cashierOrders       Order[]              @relation("CashierOrders")
-  posShifts           PosShift[]           @relation("CashierShifts")
-  heldOrders          PosHeldOrder[]       @relation("CashierHeldOrders")
-  cashierReturns      PosReturn[]          @relation("CashierReturns")
+  locale                 String                  @default("ar")
+  emailVerified          Boolean                 @default(false)
+  /// Set on email/password signup: the app stays locked until the emailed
+  /// code is entered (lib/auth/email-verification). Older accounts only see a banner.
+  mustVerifyEmail        Boolean                 @default(false)
+  emailVerificationCodes EmailVerificationCode[]
+  stores                 Store[]
+  createdAt              DateTime                @default(now())
+  cartItems              CartItem[]
+  orders                 Order[]
+  sessions               Session[]
+  passwordResetTokens    PasswordResetToken[]
+  loginAttempts          LoginAttempt[]
+  securityLogs           SecurityLog[]
+  supportRequests        SupportRequest[]
+  notifications          Notification[]
+  storeMembers           StoreMember[]
+  sentInvitations        StoreInvitation[]       @relation("SentInvitations")
+  cashierOrders          Order[]                 @relation("CashierOrders")
+  posShifts              PosShift[]              @relation("CashierShifts")
+  heldOrders             PosHeldOrder[]          @relation("CashierHeldOrders")
+  cashierReturns         PosReturn[]             @relation("CashierReturns")
 
   createdPurchaseOrders PurchaseOrder[]       @relation("PurchaseOrderCreatedBy")
   createdTransfers      StockTransfer[]       @relation("TransferCreatedBy")
@@ -127,6 +131,21 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+/// 6-digit email confirmation codes (lib/auth/email-verification). Only the
+/// hash is stored; rows also drive the resend rate limit.
+model EmailVerificationCode {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  /// Wrong guesses against this code; it stops working after the limit.
+  attempts  Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model LoginAttempt {
@@ -937,15 +956,15 @@ model Order {
   couponCode String?
   notes      String?
 
-  fullName  String
-  phone     String
+  fullName    String
+  phone       String
   /// Optional at checkout — order confirmation and status emails go here (lib/notifications/email).
-  email     String?
-  address   String
+  email       String?
+  address     String
   /// Code from constants/egypt-governorates.ts (online checkout); its name is also prefixed to `address`.
   governorate String?
   /// Online checkout only — rate-limits order floods (lib/store/order-rate-limit).
-  ipAddress String?
+  ipAddress   String?
 
   /// Fake-order protection (lib/fraud): number reputation at checkout time.
   riskLevel          OrderRiskLevel?

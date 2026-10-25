@@ -376,5 +376,20 @@
   "يو بي إس": "UPS",
   "إعداد غير معروف": "Unknown setting",
   "الإيميل غير صحيح": "Invalid email",
-  "تم حفظ الإعدادات": "Settings saved"
+  "تم حفظ الإعدادات": "Settings saved",
+  "إيميلك متأكد بالفعل.": "Your email is already confirmed.",
+  "استنى {0} ثانية وابعت تاني.": "Wait {0} seconds and send again.",
+  "اكتب الإيميل": "Enter your email",
+  "اكتب الكود كامل — 6 أرقام.": "Enter the full 6-digit code.",
+  "الإيميل ده مستخدم في حساب تاني.": "That email is used by another account.",
+  "الكود ده خلص وقته. ابعت كود جديد.": "This code has expired. Send a new one.",
+  "الكود مش صح. فاضلك {0} محاولات.": "Wrong code. {0} attempts left.",
+  "الكود مش صح. فاضلك محاولة واحدة، وبعدها هتحتاج كود جديد.": "Wrong code. One attempt left, then you will need a new code.",
+  "بعتنا أكواد كتير الساعة دي. جرّب تاني بعد شوية.": "Too many codes sent this hour. Try again later.",
+  "بعتنالك كود جديد.": "A new code is on its way.",
+  "حاولت كتير بالكود ده. ابعت كود جديد.": "Too many attempts with this code. Send a new one.",
+  "ده نفس الإيميل الحالي.": "That is already your email.",
+  "غيّرنا الإيميل وبعتنالك كود عليه.": "Email changed — a code is on its way there.",
+  "غيّرنا الإيميل. {0}": "Email changed. {0}",
+  "مقدرناش نبعت الإيميل دلوقتي. جرّب تاني بعد دقيقة.": "Could not send the email right now. Try again in a minute."
 }

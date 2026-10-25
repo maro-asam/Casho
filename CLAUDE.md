@@ -51,6 +51,8 @@ Reserved subdomains: `www`, `app`, `casho`.
 
 Custom session-based auth — no NextAuth. Sessions are stored in the DB (`Session` model). The raw token is stored in an `httpOnly` cookie (`sessionToken`); only the SHA-256 hash is stored in the DB. Key functions in [lib/auth/session.ts](lib/auth/session.ts): `createUserSession`, `getCurrentSession`, `deleteCurrentSession`. Protected routes call `requireUserId()` from [actions/auth/require-user-id.actions.ts](actions/auth/require-user-id.actions.ts).
 
+Email confirmation: email/password signups get `User.mustVerifyEmail` and a 6-digit emailed code; the dashboard, onboarding, builder and POS layouts redirect them to `/verify-email` until it's entered (`requireVerifiedEmail` in [lib/auth/email-verification.ts](lib/auth/email-verification.ts)). Older accounts (`mustVerifyEmail = false`) are never locked — they get a dismissible dashboard notice. Google signups are verified on creation. `/verify-email` is in `AUTH_PATHS` in `proxy.ts` so the app subdomain doesn't rewrite it under `/dashboard`.
+
 ### Database (Prisma + PostgreSQL)
 
 Prisma client uses the `@prisma/adapter-pg` driver adapter (not the default connector). The singleton is in [lib/prisma.ts](lib/prisma.ts). Always run `npx prisma generate` after editing `prisma/schema.prisma`.

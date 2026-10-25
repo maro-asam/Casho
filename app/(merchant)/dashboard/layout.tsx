@@ -4,10 +4,12 @@ import { headers } from "next/headers";
 import { ReactNode } from "react";
 import { prisma } from "@/lib/prisma";
 import DashboardShell from "../_components/main/DashboardShell";
+import VerifyEmailNotice from "../_components/main/VerifyEmailNotice";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetNotificationsAction } from "@/actions/notifications/notifications.actions";
 import { isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 import { renewIfDue } from "@/lib/billing/renewal";
+import { needsEmailVerification } from "@/lib/auth/email-verification";
 import { tr } from "@/lib/i18n/dashboard";
 import DashboardI18nProvider from "@/lib/i18n/dashboard/provider";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -45,6 +47,8 @@ export default async function DashboardLayout({
 }) {
   const locale = await loadDashboardLocale();
   const userId = await requireUserId();
+  const account = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, emailVerified: true, mustVerifyEmail: true } });
+  if (account && needsEmailVerification(account)) redirect("/verify-email");
   const storeQuery = {
     where: { userId },
     select: {
@@ -122,6 +126,7 @@ export default async function DashboardLayout({
       store={store}
       initialNotifications={notifications}
       initialUnreadCount={unreadCount}
+      notice={account && !account.emailVerified ? <VerifyEmailNotice email={account.email} /> : undefined}
     >
       {children}
     </DashboardShell>

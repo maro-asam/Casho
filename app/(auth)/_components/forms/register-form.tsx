@@ -94,7 +94,8 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
     if (result.success) {
       setDone(true);
       window.setTimeout(() => {
-        router.push("/onboarding");
+        // Confirms the email first; the page passes accounts that don't need it to onboarding.
+        router.push("/verify-email");
         router.refresh();
       }, 1200);
     } else {

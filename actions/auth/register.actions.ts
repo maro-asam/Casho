@@ -15,6 +15,8 @@ import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { generateReferralCode } from "@/lib/referral";
 import { createSignupAttribution, resolveSignupReferral } from "@/lib/sales/attribution";
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
+import { sendVerificationCode } from "@/lib/auth/email-verification";
+import { isMailConfigured } from "@/lib/mail";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -141,6 +143,9 @@ export async function RegisterAction(
           businessType: businessType || null,
           referralCode: generateReferralCode(),
           referredById: referredById || null,
+          // Locked until the emailed code is entered — unless email can't be
+          // sent at all (no SMTP configured), which must never trap a signup.
+          mustVerifyEmail: isMailConfigured(),
           stores: {
             create: {
               name: storeName.trim(),
@@ -183,6 +188,9 @@ export async function RegisterAction(
     });
 
     await createUserSession(created.id);
+
+    // A failed send is fine: the verify page offers "send again".
+    await sendVerificationCode(created.id).catch((error) => console.error("[register] verification code", error));
 
     const createdStore = created.stores[0];
 
