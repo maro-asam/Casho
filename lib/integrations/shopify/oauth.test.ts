@@ -101,12 +101,14 @@ describe("OAuth HMAC", () => {
 });
 
 describe("sealed state cookie", () => {
-  const input = { userId: "u1", storeId: "s1", shop: "acme.myshopify.com" };
+  // A long id: a two-letter one ("u1") turns up by chance in the random
+  // base64 of the sealed cookie every few dozen runs.
+  const input = { userId: "user-plaintext-id-0042", storeId: "s1", shop: "acme.myshopify.com" };
 
   it("round-trips", () => {
     const { state, cookie } = createOAuthState(input);
     expect(openOAuthState(cookie)).toEqual(state);
-    expect(cookie).not.toContain("u1");
+    expect(cookie).not.toContain(input.userId);
   });
 
   it("rejects tampered, foreign and expired cookies", () => {

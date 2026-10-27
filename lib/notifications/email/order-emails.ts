@@ -1,19 +1,21 @@
 // Order emails over Brevo SMTP (lib/mail): the store owner hears about every
-// new order, and a customer who left an email at checkout gets a confirmation
-// plus each status change. Each kind can be switched off in the store settings.
+// new order (and failed online payments), and a customer who left an email at
+// checkout gets a confirmation plus each status change. Each kind can be
+// switched off in the store settings.
 //
 // Callers use the queue* functions: the send runs after the response (so the
-// checkout never waits on SMTP) and never throws into the caller's flow.
+// checkout never waits on SMTP), retries and logs via deliver(), and never
+// throws into the caller's flow.
 
-import { after } from "next/server";
 import { OrderStatus } from "@prisma/client";
 
 import { getPaymentMethodLabel, isManualPaymentMethod } from "@/constants/payment-methods";
-import { isMailConfigured, sendMail } from "@/lib/mail";
+import { isMailConfigured } from "@/lib/mail";
 import { formatPiastersAsEgp } from "@/lib/notifications/in-app";
 import { prisma } from "@/lib/prisma";
 import { DIGITAL_ADDRESS } from "@/lib/products/digital";
 import { storeBaseUrl } from "@/lib/seo/store-seo";
+import { dashboardUrl, deliver, inBackground, sentWithin, type EmailKind } from "./deliver";
 import { esc, infoRows, itemsTable, notice, renderEmail, sectionTitle, type EmailBrand } from "./layout";
 
 const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون" };
@@ -23,6 +25,7 @@ async function loadOrder(orderId: string) {
     where: { id: orderId },
     select: {
       id: true,
+      storeId: true,
       email: true,
       fullName: true,
       phone: true,
@@ -54,7 +57,14 @@ async function loadOrder(orderId: string) {
           customDomainStatus: true,
           user: { select: { email: true } },
           settings: {
-            select: { logo: true, primaryColor: true, email: true, emailNewOrders: true, emailCustomerOrders: true },
+            select: {
+              logo: true,
+              primaryColor: true,
+              email: true,
+              emailNewOrders: true,
+              emailCustomerOrders: true,
+              emailStoreAlerts: true,
+            },
           },
         },
       },
@@ -63,16 +73,6 @@ async function loadOrder(orderId: string) {
 }
 
 export type EmailOrder = NonNullable<Awaited<ReturnType<typeof loadOrder>>>;
-
-function inBackground(task: () => Promise<void>) {
-  const run = () => task().catch((error) => console.error("[order-email]", error));
-  try {
-    after(run);
-  } catch {
-    // Outside a request (scripts, tests): just send now.
-    void run();
-  }
-}
 
 const orderNumber = (order: { id: string }) => `#${order.id.slice(-6).toUpperCase()}`;
 const firstName = (fullName: string) => fullName.trim().split(/\s+/)[0] ?? "";
@@ -106,9 +106,18 @@ function customerFooter(order: EmailOrder) {
   return `وصلك الإيميل ده علشان طلبت من ${order.store.name}.${reply}`;
 }
 
-async function sendToCustomer(order: EmailOrder, mail: { subject: string; html: string; text: string }) {
+type Mail = { subject: string; html: string; text: string };
+
+async function sendToCustomer(order: EmailOrder, mail: Mail, kind: EmailKind) {
   if (!order.email) return;
-  await sendMail({ ...mail, to: order.email, fromName: order.store.name, replyTo: order.store.settings?.email });
+  await deliver(
+    { ...mail, to: order.email, fromName: order.store.name, replyTo: order.store.settings?.email },
+    { kind, storeId: order.storeId, refId: order.id },
+  );
+}
+
+async function sendToOwner(order: EmailOrder, mail: Mail, kind: EmailKind) {
+  await deliver({ ...mail, to: order.store.user.email }, { kind, storeId: order.storeId, refId: order.id });
 }
 
 const wantsCustomerEmails = (order: EmailOrder) => Boolean(order.email && order.store.settings?.emailCustomerOrders !== false);
@@ -255,12 +264,32 @@ export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus)
   return { subject: `${copy.subject} — ${orderNumber(order)}`, html, text };
 }
 
+export function buildPaymentFailedEmail(order: EmailOrder, orderUrl: string) {
+  const html = renderEmail({
+    brand: { ...brandOf(order), url: orderUrl },
+    preheader: `${order.fullName} — ${money(order.total)}`,
+    heading: "دفع أونلاين مكمّلش",
+    intro: `${order.fullName} حاول يدفع طلب ${orderNumber(order)} أونلاين ومقدرش يكمّل، فالطلب اتلغى والمخزون رجع. كلّمه — ممكن يحب يكمّل بطريقة دفع تانية.`,
+    body: infoRows([
+      { label: "الموبايل", value: order.phone, ltr: true },
+      { label: "الإيميل", value: order.email, ltr: true },
+      { label: "الإجمالي", value: money(order.total) },
+    ]),
+    cta: { label: "افتح الطلب", href: orderUrl },
+    footer: "تقدر تقفل تنبيهات المتجر من إعدادات المتجر ← إيميلات الطلبات.",
+  });
+  const text = [
+    `دفع أونلاين مكمّلش — طلب ${orderNumber(order)}`,
+    `${order.fullName} — ${order.phone}`,
+    `الإجمالي: ${money(order.total)}`,
+    `افتح الطلب: ${orderUrl}`,
+  ].join("\n");
+  return { subject: `دفع أونلاين مكمّلش — ${order.fullName} (${orderNumber(order)})`, html, text };
+}
+
 // ─── Queue (what the order flow calls) ──────────────────────────────────────
 
-function dashboardOrderUrl(orderId: string) {
-  const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://casho.store";
-  return `${appUrl.replace(/\/$/, "")}/dashboard/orders/${orderId}`;
-}
+const dashboardOrderUrl = (orderId: string) => dashboardUrl(`/orders/${orderId}`);
 
 /**
  * A new order reached the merchant (lib/store/order-announce). Online-payment
@@ -273,13 +302,24 @@ export function queueNewOrderEmails(orderId: string, opts: { awaitingOnlinePayme
     const order = await loadOrder(orderId);
     if (!order) return;
 
-    const ownerEmail = order.store.user.email;
-    if (ownerEmail && order.store.settings?.emailNewOrders !== false) {
-      await sendMail({ ...buildMerchantNewOrderEmail(order, dashboardOrderUrl(order.id)), to: ownerEmail });
+    if (order.store.settings?.emailNewOrders !== false) {
+      await sendToOwner(order, buildMerchantNewOrderEmail(order, dashboardOrderUrl(order.id)), "ORDER_NEW");
     }
     if (!opts.awaitingOnlinePayment && wantsCustomerEmails(order)) {
-      await sendToCustomer(order, buildCustomerConfirmationEmail(order));
+      await sendToCustomer(order, buildCustomerConfirmationEmail(order), "ORDER_CONFIRMATION");
     }
+  });
+}
+
+/** The gateway reported a failed online payment and the order was released (lib/payments/settle). */
+export function queuePaymentFailedEmail(orderId: string) {
+  inBackground(async () => {
+    if (!isMailConfigured()) return;
+    const order = await loadOrder(orderId);
+    if (!order || order.store.settings?.emailStoreAlerts === false) return;
+    // Replayed gateway callbacks must not repeat it.
+    if (await sentWithin("PAYMENT_FAILED", order.id, 24 * 30)) return;
+    await sendToOwner(order, buildPaymentFailedEmail(order, dashboardOrderUrl(order.id)), "PAYMENT_FAILED");
   });
 }
 
@@ -289,7 +329,7 @@ export function queueOrderPaidEmail(orderId: string) {
     if (!isMailConfigured()) return;
     const order = await loadOrder(orderId);
     if (!order || !wantsCustomerEmails(order)) return;
-    await sendToCustomer(order, buildCustomerConfirmationEmail(order));
+    await sendToCustomer(order, buildCustomerConfirmationEmail(order), "ORDER_CONFIRMATION");
   });
 }
 
@@ -301,6 +341,6 @@ export function queueOrderStatusEmail(orderId: string, status: OrderStatus) {
     // A refused delivery is recorded as canceled + returned — nothing to tell the customer.
     if (!order || !wantsCustomerEmails(order) || order.status !== status || order.returnedAt) return;
     const mail = buildCustomerStatusEmail(order, status);
-    if (mail) await sendToCustomer(order, mail);
+    if (mail) await sendToCustomer(order, mail, "ORDER_STATUS");
   });
 }

@@ -25,11 +25,16 @@ export default function AnimatedNavbarShell({ children }: { children: React.Reac
     // Re-check once the page beneath has laid out (first paint can race this effect).
     const raf = requestAnimationFrame(onScroll);
     const timer = window.setTimeout(onScroll, 400);
+    // Streamed page content can land after this effect (e.g. a dark hero arriving
+    // late); re-check whenever the page height changes.
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(document.body);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       cancelAnimationFrame(raf);
       window.clearTimeout(timer);
+      ro.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };

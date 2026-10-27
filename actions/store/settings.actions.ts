@@ -214,7 +214,7 @@ export async function UpdateStoreSettingsAction(
   }
 }
 
-const ORDER_EMAIL_SETTINGS = ["emailNewOrders", "emailCustomerOrders"] as const;
+const ORDER_EMAIL_SETTINGS = ["emailNewOrders", "emailCustomerOrders", "emailStoreAlerts"] as const;
 export type OrderEmailSetting = (typeof ORDER_EMAIL_SETTINGS)[number];
 
 /** One of the order-email switches (lib/notifications/email). */

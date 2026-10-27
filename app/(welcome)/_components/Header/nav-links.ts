@@ -26,6 +26,7 @@ export function useNavLinks(variant: "short" | "full" = "short"): NavLink[] {
   return [
     { key: "pricing", name: t.nav.pricing, href: "/#pricing" },
     { key: "faq", name: variant === "full" ? t.nav.faqFull : t.nav.faq, href: "/#faq" },
+    { key: "sharks", name: t.nav.sharks, href: "/sharks" },
     { key: "blog", name: t.nav.blog, href: "/blog" },
   ];
 }
@@ -95,5 +96,6 @@ export function useActiveNavKey(): string | null {
 
   if (pathname === "/") return section && PRODUCT_SECTIONS.includes(section) ? "product" : section;
   if (pathname.startsWith("/blog")) return "blog";
+  if (pathname.startsWith("/sharks")) return "sharks";
   return null;
 }

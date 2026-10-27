@@ -243,6 +243,32 @@
 .al-aurora { animation: al-drift 14s ease-in-out infinite; }
 .al-aurora-2 { animation: al-drift-2 18s ease-in-out infinite; }
 
+/* Hero giant type: luminous at the top, dissolving into the stage light
+   where the devices float over it, with one pass of light across it
+   (reading direction). Background positions 87% / 13% put the highlight
+   band just off one edge / just off the other. */
+.al .al-giant {
+  font-weight: 800;
+  line-height: 1.1;
+  background-image:
+    linear-gradient(100deg, transparent 42%, rgba(255, 255, 255, 0.8) 50%, transparent 58%),
+    linear-gradient(180deg, #ffffff 6%, #e4eaff 36%, #85a3ff 66%, rgba(51, 102, 255, 0.16) 96%);
+  background-size: 300% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 87% 0, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: al-giant-sheen 1.6s 1.3s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+[dir="ltr"] .al .al-giant { letter-spacing: -0.045em; line-height: 0.98; }
+[dir="rtl"] .al .al-giant { background-position: 13% 0, 0 0; animation-name: al-giant-sheen-rtl; }
+@keyframes al-giant-sheen { from { background-position: 87% 0, 0 0; } to { background-position: 13% 0, 0 0; } }
+@keyframes al-giant-sheen-rtl { from { background-position: 13% 0, 0 0; } to { background-position: 87% 0, 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .al .al-giant { animation: none; }
+}
+
 /* Hero dashboard: orders that just arrived (data-live = how many) slide in tinted. */
 @keyframes al-row-in {
   from { opacity: 0; transform: translateY(-12px); }

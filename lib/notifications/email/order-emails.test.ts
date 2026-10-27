@@ -3,7 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/prisma", () => ({ prisma: {} }));
 vi.mock("next/server", () => ({ after: vi.fn() }));
 
-const { buildCustomerConfirmationEmail, buildCustomerStatusEmail, buildMerchantNewOrderEmail } = await import("./order-emails");
+const { buildCustomerConfirmationEmail, buildCustomerStatusEmail, buildMerchantNewOrderEmail, buildPaymentFailedEmail } = await import(
+  "./order-emails"
+);
 type EmailOrder = Parameters<typeof buildCustomerConfirmationEmail>[0];
 
 function makeOrder(overrides: Partial<EmailOrder> = {}): EmailOrder {
@@ -72,6 +74,12 @@ describe("order emails", () => {
     const mail = buildCustomerStatusEmail(order, "SHIPPED");
     expect(mail?.html).toContain("BOS-123");
     expect(mail?.html).toContain("https://bosta.co/track/BOS-123");
+  });
+
+  it("tells the merchant who to call when an online payment fails", () => {
+    const mail = buildPaymentFailedEmail(makeOrder({ paymentMethod: "paymob" }), "https://casho.store/dashboard/orders/x");
+    expect(mail.text).toContain("01012345678");
+    expect(mail.html).toContain("https://casho.store/dashboard/orders/x");
   });
 
   it("sends nothing for a status the customer isn't told about", () => {

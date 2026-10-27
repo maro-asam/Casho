@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { OrderSource, OrderStatus, StockMovementType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createNotification } from "@/lib/notifications/in-app";
+import { queueLowStockEmails } from "@/lib/notifications/email/store-alerts";
 import { NotificationType } from "@prisma/client";
 import { assertCanSellInBranch, requirePosContext } from "@/lib/pos/pos-context";
 import { changeBranchStock, getBranchQuantities } from "@/lib/inventory/branch-stock";
@@ -380,6 +381,10 @@ export async function CompletePOSSaleAction(input: {
   });
 
   // Low stock notifications for the store owner (createNotification never throws)
+  queueLowStockEmails(
+    storeId,
+    lowStock.map((p) => ({ id: p.id, name: p.name, stock: p.left, branchName: ctx.branch.name })),
+  );
   for (const p of lowStock) {
     await createNotification({
       storeId,

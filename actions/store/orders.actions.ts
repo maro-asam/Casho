@@ -21,6 +21,7 @@ import { createNotification, orderStatusLabels } from "@/lib/notifications/in-ap
 import { isOrderRateLimited, ORDER_RATE_LIMIT_MESSAGE } from "@/lib/store/order-rate-limit";
 import { announceNewOrder } from "@/lib/store/order-announce";
 import { queueOrderStatusEmail } from "@/lib/notifications/email/order-emails";
+import { queueLowStockEmails } from "@/lib/notifications/email/store-alerts";
 import { assessPhoneRisk } from "@/lib/fraud/reputation";
 import { canonicalPhone } from "@/lib/fraud/phone";
 import { isOtpConfigured, sendOrderOtp } from "@/lib/fraud/otp";
@@ -158,8 +159,9 @@ async function notifyLowStock(storeId: string, productIds: string[]) {
       where: { id: { in: productIds }, storeId, isDigital: false },
       select: { id: true, name: true, stock: true, lowStockThreshold: true },
     });
-    for (const product of products) {
-      if (product.stock > (product.lowStockThreshold ?? 5)) continue;
+    const low = products.filter((product) => product.stock <= (product.lowStockThreshold ?? 5));
+    queueLowStockEmails(storeId, low.map(({ id, name, stock }) => ({ id, name, stock })));
+    for (const product of low) {
       await createNotification({
         storeId,
         type: NotificationType.LOW_STOCK,

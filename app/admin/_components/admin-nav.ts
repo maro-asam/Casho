@@ -11,6 +11,7 @@ import {
   ListChecks,
   ShieldAlert,
   ShoppingCart,
+  Telescope,
   TrendingUp,
   Store,
   Users,
@@ -19,7 +20,7 @@ import {
 } from "lucide-react";
 
 /** Live counters shown as sidebar badges (filled by the layout). */
-export type AdminBadgeKey = "topups" | "services" | "support";
+export type AdminBadgeKey = "topups" | "services" | "support" | "sharks";
 export type AdminBadges = Partial<Record<AdminBadgeKey, number>>;
 
 export type AdminNavItem = {
@@ -65,6 +66,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
     title: "النمو والتواصل",
     items: [
       { name: "فريق المبيعات", href: "/admin/sales", icon: Handshake },
+      { name: "Casho Sharks", href: "/admin/sharks", icon: Telescope, badge: "sharks" },
       { name: "المدونة", href: "/admin/blog", icon: FileText },
       { name: "الإشعارات", href: "/admin/notifications", icon: Bell },
     ],

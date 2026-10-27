@@ -11,6 +11,7 @@ export const translations = {
       faq: "الأسئلة",
       faqFull: "الأسئلة الشائعة",
       blog: "المدونة",
+      sharks: "Casho Sharks",
     },
     navbar: {
       myAccount: "حسابي",
@@ -414,6 +415,7 @@ export const translations = {
         ],
         company: [
           { name: "عن كاشو", href: "/about" },
+          { name: "Casho Sharks", href: "/sharks" },
           { name: "ابدأ دلوقتي", href: "/register" },
           { name: "تسجيل الدخول", href: "/login" },
           { name: "تواصل معانا", href: "/contact-us" },
@@ -440,6 +442,7 @@ export const translations = {
       faq: "FAQ",
       faqFull: "FAQ",
       blog: "Blog",
+      sharks: "Casho Sharks",
     },
     navbar: {
       myAccount: "My Account",
@@ -843,6 +846,7 @@ export const translations = {
         ],
         company: [
           { name: "About Casho", href: "/about" },
+          { name: "Casho Sharks", href: "/sharks" },
           { name: "Get Started", href: "/register" },
           { name: "Sign In", href: "/login" },
           { name: "Contact Us", href: "/contact-us" },

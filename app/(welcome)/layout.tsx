@@ -4,6 +4,7 @@ import Footer from "./_components/Footer";
 import { LanguageProvider } from "./_i18n/LanguageContext";
 import WelcomeDir from "./_components/WelcomeDir";
 import "./_components/apple/apple.css";
+import "./_components/sharks/sharks.css";
 
 // The landing page is full-bleed (Apple-style alternating sections); inner
 // pages get their centered container from (pages)/layout.tsx.

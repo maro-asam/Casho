@@ -5,15 +5,14 @@ import { useLang } from "../../_i18n/LanguageContext";
 // Copy for the Apple-style landing. One claim per section; short fragments.
 const ar = {
   hero: {
-    eyebrow: "كاشو",
     title1: "محلك ومتجرك.",
-    title2: "في سيستم واحد.",
+    title2: "سيستم واحد.",
     subtitle:
       "كاشير بالباركود ومتجر أونلاين باسمك، على نفس المخزون ونفس التقرير. من أول يوم.",
     cta: "ابدأ مجانًا",
     secondary: "شوف الأسعار",
-    note: "من غير بطاقة ائتمان · متجرك جاهز في دقايق",
-    caption: "كاشير. متجر أونلاين. مخزون واحد.",
+    // Names under each device once they line up.
+    lineup: { pos: "كاشير.", store: "متجر أونلاين.", stock: "مخزون واحد." },
     chips: [
       { title: "طلب أونلاين جديد", sub: "+450 ج.م · الإسكندرية" },
       { title: "بيعة من الكاشير", sub: "فرع مدينة نصر · كاش" },
@@ -173,15 +172,13 @@ type LandingCopy = typeof ar;
 
 const en: LandingCopy = {
   hero: {
-    eyebrow: "Casho",
     title1: "Your shop. Your store.",
     title2: "One system.",
     subtitle:
       "A barcode POS and an online store in your name, on the same stock and the same report. From day one.",
     cta: "Start free",
     secondary: "See pricing",
-    note: "No credit card · Your store is ready in minutes",
-    caption: "POS. Online store. One inventory.",
+    lineup: { pos: "POS.", store: "Online store.", stock: "One inventory." },
     chips: [
       { title: "New online order", sub: "+EGP 450 · Alexandria" },
       { title: "In-store sale", sub: "Nasr City branch · Cash" },

@@ -23,15 +23,17 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const admin = await requireAdminPage();
 
   // Queue sizes for the sidebar badges — the work waiting on an admin.
-  const [viewer, topups, services, support] = await Promise.all([
+  const [viewer, topups, services, support, sharks] = await Promise.all([
     prisma.user.findUnique({ where: { id: admin.id }, select: { id: true, name: true, email: true, role: true } }),
     prisma.topupRequest.count({ where: { status: "PENDING" } }),
     prisma.serviceRequest.count({ where: { status: "PENDING" } }),
     prisma.supportRequest.count({ where: { status: "PENDING" } }),
+    // A badge must never take the whole panel down (e.g. code deployed before its migration).
+    prisma.sharksApplication.count({ where: { status: "SUBMITTED" } }).catch(() => 0),
   ]);
 
   return (
-    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ topups, services, support }}>
+    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ topups, services, support, sharks }}>
       {children}
     </AdminShell>
   );

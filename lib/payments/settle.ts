@@ -10,7 +10,7 @@ import { applyBalanceChangeTx } from "@/lib/balance";
 import { renewIfDue } from "@/lib/billing/renewal";
 import { adjustStockForOrderStatus } from "@/lib/inventory/order-stock";
 import { createNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
-import { queueOrderPaidEmail } from "@/lib/notifications/email/order-emails";
+import { queueOrderPaidEmail, queuePaymentFailedEmail } from "@/lib/notifications/email/order-emails";
 import { queueStoreServerEvent } from "@/lib/pixels/server";
 import { purchaseEventId } from "@/lib/pixels/shared";
 import { prisma } from "@/lib/prisma";
@@ -81,7 +81,7 @@ export async function settleOrderPayment(input: {
       queueOrderPaidEmail(order.id);
     }
   } else if (!input.paid) {
-    await prisma.$transaction(async (tx) => {
+    const released = await prisma.$transaction(async (tx) => {
       // A failed online payment gives its stock back; otherwise every declined
       // card would keep those pieces locked forever.
       const canceled = await tx.order.updateMany({
@@ -93,7 +93,9 @@ export async function settleOrderPayment(input: {
       } else if (order.status !== OrderStatus.PAID) {
         await tx.order.update({ where: { id: order.id }, data: { paymentStatus, paymentReference } });
       }
+      return canceled.count === 1;
     });
+    if (released) queuePaymentFailedEmail(order.id);
   }
 
   revalidatePath("/dashboard/orders");

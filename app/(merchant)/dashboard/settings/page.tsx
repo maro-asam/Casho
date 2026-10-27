@@ -64,6 +64,7 @@ export default async function SettingsRoute() {
           email: true,
           emailNewOrders: true,
           emailCustomerOrders: true,
+          emailStoreAlerts: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -143,6 +144,7 @@ export default async function SettingsRoute() {
             initial={{
               emailNewOrders: store.settings?.emailNewOrders ?? true,
               emailCustomerOrders: store.settings?.emailCustomerOrders ?? true,
+              emailStoreAlerts: store.settings?.emailStoreAlerts ?? true,
             }}
           />
           <LanguageSettings />

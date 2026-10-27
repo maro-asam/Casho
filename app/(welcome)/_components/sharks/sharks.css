@@ -1,0 +1,79 @@
+/* Casho Sharks — additions on top of the Apple landing tokens (apple.css).
+   Imported by layout.tsx next to apple.css. */
+
+.al .sk-eyebrow {
+  font-size: clamp(17px, 1.8vw, 21px);
+  font-weight: 600;
+}
+
+/* Display size for the hero claim. It sits in half the width beside the lens
+   on desktop; English runs wider, so it steps down to keep "Some businesses"
+   on one line. */
+.al .sk-hero-title {
+  font-size: clamp(42px, 6.6vw, 92px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+[dir="ltr"] .al .sk-hero-title { font-size: clamp(40px, 5.4vw, 78px); letter-spacing: -0.025em; line-height: 1.05; }
+
+/* The selection field fades into the section instead of ending at a box edge. */
+.al .sk-field-mask {
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 35%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 35%, transparent 85%);
+}
+.al .sk-field-mask-top {
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 22%, #000 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 22%, #000 20%, transparent 80%);
+}
+
+/* Scroll-read paragraph */
+.al .sk-manifesto {
+  font-size: clamp(26px, 3.6vw, 44px);
+  font-weight: 600;
+  line-height: 1.55;
+}
+[dir="ltr"] .al .sk-manifesto,
+.al[dir="ltr"] .sk-manifesto {
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+}
+
+/* A slow sonar ring on the empty-state frame's mark. */
+.al .sk-ping::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  animation: sk-ping 2.8s var(--al-ease) infinite;
+}
+@keyframes sk-ping {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .al .sk-ping::after { animation: none; opacity: 0; }
+}
+
+/* Story body: an editorial reading column. */
+.al .sk-prose {
+  font-size: clamp(17px, 1.5vw, 19px);
+  line-height: 1.9;
+  color: var(--al-text);
+}
+.al .sk-prose p + p { margin-top: 1.1em; }
+[dir="ltr"] .al .sk-prose { line-height: 1.7; }
+
+.al .sk-lead {
+  font-size: clamp(21px, 2.2vw, 28px);
+  font-weight: 600;
+  line-height: 1.6;
+}
+[dir="ltr"] .al .sk-lead { line-height: 1.4; letter-spacing: -0.01em; }
+
+.al .sk-quote {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1.45;
+}
+[dir="ltr"] .al .sk-quote { line-height: 1.2; letter-spacing: -0.015em; }

@@ -87,11 +87,15 @@ Merchants migrate from Shopify at `/integrations/shopify`. Provider-agnostic eng
 
 Sales reps are `User.role = SALES` + `SalesRep`, created only by admins (`/admin/sales`); reps use `/sales` (guard: `requireSalesRep()` in [lib/sales/guard.ts](lib/sales/guard.ts), scope always from the session). Signup attribution (`SalesAttribution`) comes from `?ref=` on `/register` (Google OAuth carries it in the `signupRef` cookie). Commissions are driven by `SUBSCRIPTION_CHARGE` / `REFUND` ledger rows: every billing path that writes one must call `recordSalesCommissionsForStore(storeId)` afterwards (idempotent; the renew-subscriptions cron also sweeps). Pure rules in [lib/sales/rules.ts](lib/sales/rules.ts); full policy in [docs/sales/commissions.md](docs/sales/commissions.md).
 
+### Casho Sharks (support program)
+
+Selective program for existing merchants: public page `casho.store/sharks` (+ `/sharks/[slug]` stories, teaser on the home page), application at `/dashboard/sharks` (store owners only; `/sharks/apply` redirects there on the app host), admin at `/admin/sharks`. Pure rules in [lib/sharks/workflow.ts](lib/sharks/workflow.ts) (status transitions, publish gates), public reads only through [lib/sharks/public.ts](lib/sharks/public.ts) (published + approved + consented, explicit field list). Tracks are Benefits / Growth only — **Casho Investment is a future pathway with no enum value, toggle, plan type or money path**; keep it that way unless a separately approved implementation is requested. A story publishes only from APPROVED with consent recorded and not revoked; editing an approved story sends it back to review; the video has its own publish switch. Videos are external URLs (YouTube / Vimeo / direct mp4/webm via [lib/sharks/video.ts](lib/sharks/video.ts)). Program switches live in the `SharksProgram` singleton.
+
 ### Notifications
 
 In-app notifications use polling (every 30s). `createNotification` in [lib/notifications/in-app.ts](lib/notifications/in-app.ts) is safe to call inside any action — it catches errors silently so it never breaks the main flow. Notifications are scoped to `userId` or `storeId`.
 
-Order emails (Brevo SMTP via [lib/mail.ts](lib/mail.ts)) live in [lib/notifications/email/](lib/notifications/email/): the owner gets every new order, and a customer who typed an email at checkout (`Order.email`) gets a confirmation and each status change. Call the `queue*` functions — they send after the response via `after()` and never throw. Per-store switches: `StoreSettings.emailNewOrders` / `emailCustomerOrders`.
+Order emails (Brevo SMTP via [lib/mail.ts](lib/mail.ts)) live in [lib/notifications/email/](lib/notifications/email/): the owner gets every new order, and a customer who typed an email at checkout (`Order.email`) gets a confirmation and each status change. The owner also gets store alerts (low/out of stock, at most once a day per product; failed online payments) from [store-alerts.ts](lib/notifications/email/store-alerts.ts). Call the `queue*` functions — they send after the response via `after()` and never throw. Every send goes through `deliver()` ([deliver.ts](lib/notifications/email/deliver.ts)): 3 tries with backoff, then one `EmailLog` row (also used to dedupe alerts). Per-store switches: `StoreSettings.emailNewOrders` / `emailCustomerOrders` / `emailStoreAlerts`.
 
 ### Admin Panel
 

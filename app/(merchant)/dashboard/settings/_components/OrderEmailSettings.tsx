@@ -35,6 +35,11 @@ export default function OrderEmailSettings({ ownerEmail, initial }: { ownerEmail
       description: tr("يوصلك على {0} أول ما طلب جديد يتأكد.", ownerEmail),
     },
     {
+      setting: "emailStoreAlerts",
+      title: tr("تنبيهات المتجر"),
+      description: tr("لما منتج يقرب يخلص أو يخلص، ولما دفع أونلاين ميكمّلش — مرة واحدة بالكتير لكل منتج في اليوم."),
+    },
+    {
       setting: "emailCustomerOrders",
       title: tr("إيميلات للعميل"),
       description: tr("تأكيد الطلب، وتحديث لما يتدفع أو يتشحن أو يتسلّم أو يتلغى — للعملاء اللي كتبوا إيميلهم."),
