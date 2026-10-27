@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
@@ -73,6 +74,6 @@ export async function SaveStoreSeoAction(storeId: string, input: SeoInput): Prom
   });
 
   revalidatePath("/dashboard/seo");
-  revalidatePath(`/store/${store.slug}`, "layout");
+  revalidateStorefront(store.slug);
   return { ok: true, verification };
 }

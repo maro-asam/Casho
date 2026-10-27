@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { tagStorefrontPage } from "@/lib/store/storefront-cache";
 import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import { buildThemeCSSString } from "@/lib/theme/build-css-vars";
@@ -140,40 +141,44 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   const { slug } = await params;
   if (!slug) return notFound();
 
-  const store = await prisma.store.findUnique({
-    where: { slug },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      showPoweredByCasho: true,
-      poweredByRemovalEnabled: true,
-      banners: liveBannersQuery(1),
-      pixelSettings: { select: { metaPixelId: true, tiktokPixelId: true, snapPixelId: true } },
-      settings: {
-        select: {
-          logo: true,
-          logoRadius: true,
-          logoSize: true,
-          themeId: true,
-          fontId: true,
-          storeLanguage: true,
-          primaryColor: true,
-          secondaryColor: true,
-          navbarVariant: true,
-          announcementText: true,
-          themeConfig: true,
-          showStoreName: true,
-          description: true,
-          email: true,
-          whatsappNumber: true,
-          instagram: true,
-          facebook: true,
-          tiktok: true,
+  const [store] = await Promise.all([
+    prisma.store.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        showPoweredByCasho: true,
+        poweredByRemovalEnabled: true,
+        banners: liveBannersQuery(1),
+        pixelSettings: { select: { metaPixelId: true, tiktokPixelId: true, snapPixelId: true } },
+        settings: {
+          select: {
+            logo: true,
+            logoRadius: true,
+            logoSize: true,
+            themeId: true,
+            fontId: true,
+            storeLanguage: true,
+            primaryColor: true,
+            secondaryColor: true,
+            navbarVariant: true,
+            announcementText: true,
+            themeConfig: true,
+            showStoreName: true,
+            description: true,
+            email: true,
+            whatsappNumber: true,
+            instagram: true,
+            facebook: true,
+            tiktok: true,
+          },
         },
       },
-    },
-  });
+    }),
+    // Lets revalidateStorefront(slug) expire this page when the store changes.
+    tagStorefrontPage(slug),
+  ]);
 
   if (!store) return notFound();
   // The owner previewing in the Studio sees their unpublished draft.

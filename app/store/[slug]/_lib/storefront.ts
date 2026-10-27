@@ -2,7 +2,9 @@ import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import { withStudioDraft } from "@/lib/studio/storefront-draft";
+import { isStudioPreview, withStudioDraft } from "@/lib/studio/storefront-draft";
+import { activePause, type StorePause } from "@/lib/store/pause";
+import { isStorefrontOpen } from "@/lib/subscriptions";
 import { BANNER_DEFAULT_CTA, BANNER_LINK_SELECT, liveBannerWhere, resolveBannerLink } from "@/lib/banners/banner-link";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import type { BannerData, ProductCardData } from "../_themes/types";
@@ -119,6 +121,25 @@ export const getStoreThemeId = cache(async (slug: string) => {
   const settings = row && (await withStudioDraft(row.storeId, row));
   const config = settings?.themeConfig as ThemeCustomization | null;
   return config?.presetId ?? settings?.themeId ?? "default";
+});
+
+/**
+ * Why the storefront is closed, or null when it's open. `pause` is set when
+ * the merchant paused it (the closed page shows their message / countdown);
+ * a lapsed subscription closes it with the generic page.
+ */
+export const getStorefrontClosure = cache(async (storeId: string): Promise<{ pause: StorePause | null } | null> => {
+  const store = await prisma.store.findUnique({
+    where: { id: storeId },
+    select: {
+      subscriptionStatus: true,
+      settings: { select: { pausedUntil: true, pauseMessage: true, pauseCountdown: true } },
+    },
+  });
+  if (!store || !isStorefrontOpen(store.subscriptionStatus)) return { pause: null };
+  const pause = activePause(store.settings);
+  if (!pause || (await isStudioPreview(storeId))) return null;
+  return { pause };
 });
 
 /** Categories with active-product counts — shared by header, footer and pages. */

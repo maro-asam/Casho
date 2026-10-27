@@ -7,7 +7,7 @@ import { absoluteUrl, isPlaceholderImage, jsonLd, metaText, storeBaseUrl } from 
 
 import { getStorefrontTheme } from "../../_themes";
 import type { BundleItem, WholesaleTier } from "../../_themes/types";
-import { PRODUCT_CARD_SELECT, getStoreThemeId, toProductCards } from "../../_lib/storefront";
+import { PRODUCT_CARD_SELECT, getStoreThemeId, getStorefrontClosure, toProductCards } from "../../_lib/storefront";
 import { PixelEvent } from "../../_components/pixels/PixelEvent";
 import { stockOf } from "@/lib/products/digital";
 
@@ -80,6 +80,13 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
 
   if (!store || !isStorefrontOpen(store.subscriptionStatus)) {
     return notFound();
+  }
+
+  // Paused by the merchant: the closed page, not a 404 — the product is coming back.
+  const closure = await getStorefrontClosure(store.id);
+  if (closure) {
+    const theme = getStorefrontTheme(await getStoreThemeId(slug));
+    return <theme.StoreClosed storeSlug={store.slug} pause={closure.pause} />;
   }
 
   const product = await prisma.product.findFirst({

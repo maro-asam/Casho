@@ -3,6 +3,7 @@
 // Merchant side of upsell / cross-sell / downsell offers (dashboard: /offers).
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { isOfferType, type OfferDiscountType, type OfferType } from "@/lib/offers/offer-pricing";
@@ -34,7 +35,7 @@ async function ownedStore() {
 
 function revalidateOffers(storeSlug: string) {
   revalidatePath("/dashboard/offers");
-  revalidatePath(`/store/${storeSlug}`, "layout");
+  revalidateStorefront(storeSlug);
 }
 
 async function validate(storeId: string, input: OfferInput) {

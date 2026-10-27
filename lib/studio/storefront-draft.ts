@@ -28,6 +28,21 @@ export const getStudioDraftAppearance = cache(async (storeId: string): Promise<A
   }
 });
 
+/**
+ * The owner is previewing in the Studio (same draft-mode + ownership check),
+ * so a paused store still renders for them to keep working on it.
+ */
+export const isStudioPreview = cache(async (storeId: string): Promise<boolean> => {
+  try {
+    if (!(await draftMode()).isEnabled) return false;
+    const session = await getCurrentSession();
+    if (!session) return false;
+    return (await prisma.store.count({ where: { id: storeId, userId: session.userId } })) > 0;
+  } catch {
+    return false;
+  }
+});
+
 /** `settings` with the Studio draft applied, when the viewer is previewing one. */
 export async function withStudioDraft<T extends object>(storeId: string, settings: T | null): Promise<T | null> {
   if (!settings) return settings;

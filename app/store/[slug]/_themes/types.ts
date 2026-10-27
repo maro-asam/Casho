@@ -10,6 +10,7 @@
 import type { ComponentType } from "react";
 import type { BannerLink } from "@/lib/banners/banner-link";
 import type { TrackedOrder } from "@/lib/orders/tracking";
+import type { StorePause } from "@/lib/store/pause";
 import type { ProductsQuery } from "@/lib/products-query";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type {
@@ -17,6 +18,9 @@ import type {
   SectionContentMap,
   ThemeLayout,
 } from "@/types/store-theme.types";
+
+/** Closed page props — `pause` is set when the merchant paused the store. */
+export type StoreClosedProps = { storeSlug?: string; pause?: StorePause | null };
 
 export type ProductCardData = {
   id: string;
@@ -243,7 +247,8 @@ export type StorefrontTheme = {
   Contact: ComponentType<ContactViewProps>;
   /** Order tracking — page chrome around the shared `OrderTracker` (shared/track). */
   Track: ComponentType<TrackViewProps>;
-  StoreClosed: ComponentType<{ storeSlug?: string }>;
+  /** Closed storefront: lapsed subscription, or paused by the merchant (`pause`). */
+  StoreClosed: ComponentType<StoreClosedProps>;
   /** className applied to the storefront root (scopes the theme's CSS). */
   rootClassName: string;
 };

@@ -4,11 +4,19 @@ import { SearchX, Store } from "lucide-react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { Empty, Wrap, btn } from "./ui";
+import type { StoreClosedProps } from "../types";
+import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
 
-export function MadaStoreClosed() {
+export function MadaStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Wrap className="py-16 sm:py-24">
-      <Empty icon={<Store />} title="المتجر مقفول مؤقتًا" description="المتجر ده مش متاح دلوقتي. جرب تزوره تاني بعد شوية." className="mx-auto max-w-xl" />
+      <Empty
+        icon={<Store />}
+        title="المتجر مقفول مؤقتًا"
+        description={closedDescription(pause)}
+        action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
+        className="mx-auto max-w-xl"
+      />
     </Wrap>
   );
 }

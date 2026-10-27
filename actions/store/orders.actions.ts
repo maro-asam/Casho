@@ -33,6 +33,7 @@ import {
 } from "@/lib/inventory/order-stock";
 import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
 import { DIGITAL_ADDRESS, stockOf } from "@/lib/products/digital";
+import { isPaused } from "@/lib/store/pause";
 
 // Retired methods (Kashier) can't be chosen any more.
 const isPaymentMethodKey = isAvailablePaymentMethod;
@@ -229,6 +230,7 @@ export async function CreateOrderAction(
           whatsappNumber: true,
           telegramChatId: true,
           primaryColor: true,
+          pausedUntil: true,
         },
       },
       storePaymentSettings: {
@@ -249,6 +251,9 @@ export async function CreateOrderAction(
   });
 
   if (!store) throw new Error("Store not found");
+  if (isPaused(store.settings?.pausedUntil)) {
+    throw new Error("المتجر واقف مؤقتًا ومش بياخد طلبات دلوقتي.");
+  }
 
   const enabledPaymentMethods = normalizeEnabledPaymentMethods(
     store.storePaymentSettings?.enabledPaymentMethods?.length

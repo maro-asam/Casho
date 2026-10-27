@@ -1,4 +1,3 @@
-import { isStorefrontOpen } from "@/lib/subscriptions";
 import type { Metadata } from "next";
 import { absoluteUrl, jsonLd, metaText, storeBaseUrl } from "@/lib/seo/store-seo";
 import { prisma } from "@/lib/prisma";
@@ -6,7 +5,7 @@ import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { notFound } from "next/navigation";
 import { SubscriptionStatus } from "@prisma/client";
 import { getStorefrontTheme } from "./_themes";
-import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, liveBannersQuery, toBannerData, toProductCards } from "./_lib/storefront";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, liveBannersQuery, toBannerData, toProductCards, getStorefrontClosure } from "./_lib/storefront";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import type { ThemeCustomization } from "@/types/store-theme.types";
 
@@ -95,7 +94,6 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
       id: true,
       name: true,
       slug: true,
-      subscriptionStatus: true,
       settings: {
         select: {
           themeId: true,
@@ -126,8 +124,9 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   const sections = resolvedTheme.sections.home;
   const sectionContent = resolvedTheme.sectionContent;
 
-  if (!isStorefrontOpen(store.subscriptionStatus)) {
-    return <theme.StoreClosed storeSlug={store.slug} />;
+  const closure = await getStorefrontClosure(store.id);
+  if (closure) {
+    return <theme.StoreClosed storeSlug={store.slug} pause={closure.pause} />;
   }
 
   const activeProducts = { storeId: store.id, isActive: true };

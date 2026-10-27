@@ -5,14 +5,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { Container, EmptyState, btn } from "./ui";
+import type { StoreClosedProps } from "../types";
+import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
 
-export function ClassicStoreClosed() {
+export function ClassicStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Container className="py-16 sm:py-24">
       <EmptyState
         icon={<Store />}
         title="المتجر مقفول مؤقتًا"
-        description="المتجر ده مش متاح دلوقتي. جرب تزوره تاني بعد شوية."
+        description={closedDescription(pause)}
+        action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
         className="mx-auto max-w-xl bg-transparent"
       />
     </Container>

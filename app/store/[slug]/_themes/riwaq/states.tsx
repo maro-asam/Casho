@@ -3,10 +3,12 @@ import Link from "next/link";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { Wrap, btn } from "./ui";
+import type { StoreClosedProps } from "../types";
+import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
 
 // ─── Closed / not found ─────────────────────────────────────────────────────
 
-export function RiwaqStoreClosed() {
+export function RiwaqStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Wrap className="grid min-h-[60dvh] items-center py-16">
       <div className="grid grid-cols-1 items-end gap-10 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-14">
@@ -14,7 +16,8 @@ export function RiwaqStoreClosed() {
         <div>
           <p className="rq-label text-(--rq-accent)">مقفول مؤقتًا</p>
           <h1 className="rq-h1 mt-3">المتجر واخد استراحة</h1>
-          <p className="rq-body mt-4 max-w-[44ch] text-(--rq-quiet)">المتجر ده مش متاح دلوقتي. جرب تزوره تاني بعد شوية.</p>
+          <p className="rq-body mt-4 max-w-[44ch] text-(--rq-quiet)">{closedDescription(pause)}</p>
+          {pause && storeSlug && <StorePauseDetails storeSlug={storeSlug} pause={pause} align="start" className="mt-8" />}
         </div>
       </div>
     </Wrap>

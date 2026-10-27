@@ -1,6 +1,7 @@
 // Server-side writes for store appearance. Imported by server actions only.
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
@@ -43,7 +44,7 @@ async function loadState(storeId: string) {
 }
 
 function revalidateStore(slug: string | null) {
-  if (slug) revalidatePath(`/store/${slug}`, "layout");
+  if (slug) revalidateStorefront(slug);
   revalidatePath("/builder");
 }
 

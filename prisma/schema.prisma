@@ -387,6 +387,14 @@ model StoreSettings {
   /// Low stock and failed online payments, to the owner.
   emailStoreAlerts    Boolean @default(true)
 
+  /// Merchant paused the store until this time (lib/store/pause.ts): the
+  /// storefront shows a closed page and takes no orders. Past = open.
+  pausedUntil    DateTime?
+  /// Shown on the closed page; null = the default text.
+  pauseMessage   String?
+  /// Show a countdown to `pausedUntil` on the closed page.
+  pauseCountdown Boolean   @default(true)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

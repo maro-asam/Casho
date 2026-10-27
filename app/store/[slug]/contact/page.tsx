@@ -1,11 +1,10 @@
-import { isStorefrontOpen } from "@/lib/subscriptions";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { getStorefrontTheme } from "../_themes";
-import { getStoreThemeId } from "../_lib/storefront";
+import { getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
 
 type StoreContactRouteProps = {
   params: Promise<{ slug: string }>;
@@ -29,16 +28,17 @@ export default async function StoreContactRoute({ params }: StoreContactRoutePro
   const store = await prisma.store.findUnique({
     where: { slug },
     select: {
+      id: true,
       name: true,
       slug: true,
-      subscriptionStatus: true,
       settings: { select: { email: true, whatsappNumber: true, instagram: true, facebook: true, tiktok: true } },
     },
   });
   if (!store) return notFound();
 
   const theme = getStorefrontTheme(await getStoreThemeId(slug));
-  if (!isStorefrontOpen(store.subscriptionStatus)) return <theme.StoreClosed storeSlug={store.slug} />;
+  const closure = await getStorefrontClosure(store.id);
+  if (closure) return <theme.StoreClosed storeSlug={store.slug} pause={closure.pause} />;
 
   const s = store.settings;
   return (

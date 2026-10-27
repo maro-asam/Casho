@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
@@ -32,7 +33,7 @@ async function ownedStore() {
 
 function revalidateCoupons(storeSlug: string) {
   revalidatePath("/dashboard/coupons");
-  revalidatePath(`/store/${storeSlug}`, "layout");
+  revalidateStorefront(storeSlug);
 }
 
 const positiveOrNull = (v: unknown) => {

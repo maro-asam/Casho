@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -59,7 +60,7 @@ function emptyToNull(value?: string | null) {
 
 function revalidateStorePayments(slug: string) {
   revalidatePath("/dashboard/payment-methods");
-  revalidatePath(`/store/${slug}`, "layout");
+  revalidateStorefront(slug);
 }
 
 async function getOwnedStore() {

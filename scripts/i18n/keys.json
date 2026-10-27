@@ -723,6 +723,9 @@
   "٣ {0}": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
   ],
+  "٣ ساعات": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "٣. إنت بتتأكد إن الفلوس وصلت وتعلّم الطلب «مدفوع».": [
    "app/(merchant)/dashboard/payment-methods/_components/manual-sheet.tsx"
   ],
@@ -1029,6 +1032,9 @@
   ],
   "أساسية": [
    "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
+  ],
+  "أسبوع": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "أسعار أقل لما العميل يطلب كميات أكبر.": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
@@ -1350,6 +1356,9 @@
   "أهلاً{0} 👋": [
    "app/(merchant)/dashboard/abandoned-carts/_components/recover-dialog.tsx",
    "app/(merchant)/dashboard/orders/_components/whatsapp-confirm-button.tsx"
+  ],
+  "أهلاً{0} 👋\nمعاك {1} بخصوص طلبك {2}.\nتقدر تتابع حالته في أي وقت من هنا 👇\n{3}": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx"
   ],
   "أهم الاختصارات لإدارة المتجر": [
    "app/(merchant)/_components/main/QuickActions.tsx"
@@ -1871,6 +1880,7 @@
    "app/(merchant)/dashboard/orders/_components/whatsapp-confirm-button.tsx",
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx",
    "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx",
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx",
    "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx",
    "app/(merchant)/dashboard/suggested-orders/_components/RejectDialog.tsx",
    "app/(merchant)/(builder)/builder/_components/media/LogoEditorModal.tsx",
@@ -2019,6 +2029,13 @@
   ],
   "إيقاف {0}": [
    "app/(merchant)/dashboard/shipping/integrations/_components/ShippingIntegrationsClient.tsx"
+  ],
+  "إيقاف المتجر": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
+  "إيقاف المتجر مؤقتًا": [
+   "app/(merchant)/dashboard/settings/page.tsx",
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "إيقاف بدل الحذف": [
    "app/(merchant)/dashboard/offers/_components/offer-row-actions.tsx"
@@ -2525,6 +2542,9 @@
   ],
   "اختار منتج": [
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
+  ],
+  "اختار ميعاد رجوع المتجر": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "اختار نوع وابدأ — تقدر تغيّره بعدين من داخل العرض.": [
    "app/(merchant)/dashboard/offers/page.tsx"
@@ -3052,6 +3072,9 @@
   "افتح المتجر": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
   ],
+  "افتح المتجر دلوقتي": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "افتح المعاينة في تاب جديد": [
    "app/(merchant)/(builder)/builder/_components/BuilderTopBar.tsx"
   ],
@@ -3101,6 +3124,9 @@
   ],
   "اقفل التجديد التلقائي في أي وقت. الاشتراك هيفضل شغال لآخر يوم إنت دافعه، ورصيدك بيفضل محفوظ.": [
    "app/(merchant)/dashboard/change-plan/page.tsx"
+  ],
+  "اقفل المتجر لحد ميعاد معيّن، مع عدّاد تنازلي لو حابب.": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "اقفل المعاينة": [
    "app/(merchant)/(builder)/builder/_components/BuilderShell.tsx",
@@ -4229,6 +4255,9 @@
    "app/(merchant)/dashboard/reports/_components/trend-chart.tsx",
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
   ],
+  "الزوار يشوفوا الوقت الباقي على فتح المتجر.": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "الزوايا": [
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
@@ -5067,6 +5096,9 @@
   "المتجر مش ظاهر للعملاء لحد ما تجدد الاشتراك.": [
    "app/(merchant)/dashboard/_components/overview/AttentionPanel.tsx"
   ],
+  "المتجر واقف مؤقتًا": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "المجال": [
    "app/(merchant)/dashboard/sharks/page.tsx",
    "app/(merchant)/dashboard/sharks/_components/ApplyFlow.tsx"
@@ -5844,6 +5876,9 @@
    "app/(merchant)/dashboard/inventory/movements/page.tsx",
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
   ],
+  "بعد {0}": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "بعد {0} ثانية": [
    "lib/popups/popup-config.ts"
   ],
@@ -6122,6 +6157,9 @@
   ],
   "بيعدّ لحد انتهاء الكود أو نهاية الجدولة — أقرب واحد.": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
+  ],
+  "بيفتح تاني {0}": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "بيكسل المتصفح": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
@@ -6610,6 +6648,9 @@
    "app/(merchant)/(builder)/builder/_components/popups/popup-row-actions.tsx",
    "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx",
    "app/(merchant)/dashboard/crm/customers/[id]/_components/CustomerProfileClient.tsx"
+  ],
+  "تعديل الإيقاف": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "تعديل البانر": [
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx",
@@ -7679,6 +7720,7 @@
    "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx",
    "app/(merchant)/dashboard/offers/_components/offer-form.tsx",
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx",
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx",
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
   "حفظ المنتج": [
@@ -8231,6 +8273,9 @@
   "رسالة ترحيب": [
    "app/(merchant)/dashboard/_components/overview/WelcomeBanner.tsx"
   ],
+  "رسالة للزوار (اختياري)": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "رصيد إضافي": [
    "app/(merchant)/dashboard/balance/history/export/route.ts"
   ],
@@ -8494,6 +8539,9 @@
   ],
   "سارة أحمد": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
+  ],
+  "ساعة": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "سبب الإرجاع (اختياري)": [
    "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
@@ -9413,6 +9461,9 @@
   ],
   "عجز: −{0} ج": [
    "app/(merchant)/pos/_components/ShiftModal.tsx"
+  ],
+  "عدّاد تنازلي": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "عدّاد تنازلي حقيقي": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
@@ -11361,6 +11412,9 @@
   ],
   "مثال: المادة": [
    "app/(merchant)/dashboard/products/_components/AttributesInput.tsx"
+  ],
+  "مثال: بنجهّز كولكشن الشتا، راجعين قريب!": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
   ],
   "مثال: ترقية السماعة للبرو": [
    "app/(merchant)/dashboard/offers/_components/offer-form.tsx"
@@ -13337,6 +13391,9 @@
   "وفّرت": [
    "app/(merchant)/dashboard/image-compressor/_components/image-compressor.tsx"
   ],
+  "وقت الإيقاف الزوار بيشوفوا صفحة «المتجر مقفول» ومحدش يقدر يطلب، والمتجر بيفتح لوحده في الميعاد. تتبع الطلبات بيفضل شغال، وإنت لسه تقدر تعدّل شكل المتجر من «تخصيص شكل المتجر».": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "وكل بيعة هتتسجل هنا ومن نفس المخزون.": [
    "app/(merchant)/dashboard/_components/overview/ChannelBreakdown.tsx"
   ],
@@ -13423,6 +13480,9 @@
   "يعني {0} في الشهر ·": [
    "app/(merchant)/dashboard/change-plan/_components/plan-picker.tsx"
   ],
+  "يفتح تاني في": [
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx"
+  ],
   "يقدر يترجع": [
    "app/(merchant)/dashboard/abandoned-carts/_components/recovery-meta.ts"
   ],
@@ -13471,6 +13531,7 @@
   ],
   "يوم": [
    "app/(merchant)/dashboard/change-plan/_components/subscription-hero.tsx",
+   "app/(merchant)/dashboard/settings/_components/StorePauseSettings.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/PopupsPanel.tsx"
   ],
   "يوم واحد بخصم كبير — جهّز الكود من بدري.": [
@@ -13639,6 +13700,9 @@
   ],
   "أقصى عدد {0} منتج يظهر عليهم العرض.": [
    "actions/offers/offers.actions.ts"
+  ],
+  "أقصى مدة للإيقاف 90 يوم": [
+   "lib/store/pause.ts"
   ],
   "أكّد إيميلك الأول": [
    "actions/sharks/apply.actions.ts"
@@ -13961,6 +14025,9 @@
   "اكتب رقم البوليصة اللي {0} اديتهولك": [
    "actions/store/shipments.actions.ts"
   ],
+  "اكتب رقم الموبايل اللي طلبت بيه.": [
+   "actions/store/track-order.actions.ts"
+  ],
   "اكتب رقم موبايل صحيح": [
    "actions/services/services.actions.ts"
   ],
@@ -14082,6 +14149,9 @@
   ],
   "البلد مطلوب": [
    "validations/auth.schema.ts"
+  ],
+  "البيانات غير صحيحة": [
+   "actions/store/store-pause.actions.ts"
   ],
   "البيانات مستخدمة بالفعل، جرّب بريد أو رقم موبايل مختلف": [
    "actions/auth/register.actions.ts"
@@ -14214,6 +14284,9 @@
   ],
   "الرابط مستخدم في مقال آخر": [
    "actions/blog/blog.actions.ts"
+  ],
+  "الرسالة طويلة — أقصى حاجة 280 حرف": [
+   "lib/store/pause.ts"
   ],
   "الرصيد الحالي لا يكفي — ناقص {0}": [
    "actions/subscription/subscription.actions.ts"
@@ -14472,11 +14545,17 @@
   "المتجر اتحدّث بآخر تعديلاتك 🎉": [
    "actions/settings/theme.actions.ts"
   ],
+  "المتجر اتوقف مؤقتًا": [
+   "actions/store/store-pause.actions.ts"
+  ],
   "المتجر المربوط اتغير — ابدأ استيراد جديد": [
    "lib/integrations/import/engine.ts"
   ],
   "المتجر المربوط حالياً مختلف عن متجر الاستيراد ده": [
    "actions/integrations/shopify-import.actions.ts"
+  ],
+  "المتجر رجع يشتغل": [
+   "actions/store/store-pause.actions.ts"
   ],
   "المتجر غير موجود": [
    "actions/shipping-integrations.actions.ts",
@@ -14514,10 +14593,14 @@
    "actions/offers/offers.actions.ts",
    "actions/products/reviews.actions.ts",
    "actions/store/cart-recovery.actions.ts",
-   "actions/store/custom-domain.actions.ts"
+   "actions/store/custom-domain.actions.ts",
+   "actions/store/track-order.actions.ts"
   ],
   "المتجر مفعل بالفعل": [
    "actions/store/stores.actions.ts"
+  ],
+  "المتجر واقف مؤقتًا ومش بياخد طلبات دلوقتي.": [
+   "actions/store/orders.actions.ts"
   ],
   "المتجر: {0} ({1}) · الاشتراك: {2} · الرصيد: {3} ج.م": [
    "actions/auth/account-deletion.actions.ts"
@@ -15280,6 +15363,9 @@
   "رقم الـ Integration ID أرقام بس": [
    "actions/payment-methods/payment-methods.actions.ts"
   ],
+  "رقم الطلب 6 حروف وأرقام زي A1B2C3 — تلاقيه في رسالة أو إيميل الطلب.": [
+   "actions/store/track-order.actions.ts"
+  ],
   "رقم الموبايل غير صحيح": [
    "validations/auth.schema.ts",
    "validations/sales.schema.ts",
@@ -15475,7 +15561,8 @@
   ],
   "غير مصرح لك بتعديل هذا المتجر": [
    "actions/store/settings.actions.ts",
-   "actions/store/store-identity.actions.ts"
+   "actions/store/store-identity.actions.ts",
+   "actions/store/store-pause.actions.ts"
   ],
   "غير مضاف": [
    "actions/balance/topup.actions.ts",
@@ -15671,6 +15758,9 @@
   "لينك المنتج الرقمي لازم يبدأ بـ https://": [
    "actions/products/products.actions.ts"
   ],
+  "مالقيناش طلب بالرقم ده والموبايل ده. راجع رقم الطلب واكتب نفس الموبايل اللي طلبت بيه.": [
+   "actions/store/track-order.actions.ts"
+  ],
   "مبلغ الاسترداد غير صالح": [
    "actions/crm/customer-wallet.actions.ts"
   ],
@@ -15851,6 +15941,9 @@
   ],
   "منتجات مستوردة": [
    "lib/integrations/import/sink.ts"
+  ],
+  "ميعاد الرجوع لازم يكون بعد دلوقتي": [
+   "lib/store/pause.ts"
   ],
   "مينفعش إعادة المحاولة دلوقتي": [
    "actions/integrations/shopify-import.actions.ts"

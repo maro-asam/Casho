@@ -1,4 +1,3 @@
-import { isStorefrontOpen } from "@/lib/subscriptions";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -6,7 +5,7 @@ import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { getStorefrontTheme } from "../_themes";
-import { getStoreThemeId } from "../_lib/storefront";
+import { getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
 
 type AboutStoreRouteProps = {
   params: Promise<{ slug: string }>;
@@ -33,7 +32,6 @@ export default async function AboutStoreRoute({ params }: AboutStoreRouteProps) 
       id: true,
       name: true,
       slug: true,
-      subscriptionStatus: true,
       settings: { select: { logo: true, coverImage: true, description: true, email: true, whatsappNumber: true, instagram: true, facebook: true, tiktok: true } },
       _count: { select: { categories: true, products: { where: { isActive: true } } } },
     },
@@ -42,7 +40,8 @@ export default async function AboutStoreRoute({ params }: AboutStoreRouteProps) 
   store.settings = await withStudioDraft(store.id, store.settings);
 
   const theme = getStorefrontTheme(await getStoreThemeId(slug));
-  if (!isStorefrontOpen(store.subscriptionStatus)) return <theme.StoreClosed storeSlug={store.slug} />;
+  const closure = await getStorefrontClosure(store.id);
+  if (closure) return <theme.StoreClosed storeSlug={store.slug} pause={closure.pause} />;
 
   const s = store.settings;
   return (

@@ -1,11 +1,10 @@
-import { isStorefrontOpen } from "@/lib/subscriptions";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
 import { normalizeProductsQueryParams } from "@/lib/products-query";
 import { getStorefrontTheme } from "../_themes";
-import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreFacets, getStoreThemeId, toProductCards } from "../_lib/storefront";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreFacets, getStoreThemeId, toProductCards, getStorefrontClosure } from "../_lib/storefront";
 
 type StoreProductsRouteProps = {
   params: Promise<{ slug: string }>;
@@ -62,7 +61,6 @@ export default async function StoreProductsRoute({
       id: true,
       name: true,
       slug: true,
-      subscriptionStatus: true,
       settings: { select: { storeLanguage: true } },
     },
   });
@@ -71,8 +69,9 @@ export default async function StoreProductsRoute({
 
   const theme = getStorefrontTheme(await getStoreThemeId(slug));
 
-  if (!isStorefrontOpen(store.subscriptionStatus)) {
-    return <theme.StoreClosed storeSlug={store.slug} />;
+  const closure = await getStorefrontClosure(store.id);
+  if (closure) {
+    return <theme.StoreClosed storeSlug={store.slug} pause={closure.pause} />;
   }
 
   const where = {

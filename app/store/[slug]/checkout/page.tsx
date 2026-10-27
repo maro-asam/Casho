@@ -6,7 +6,7 @@ import { GetCartItemsAction } from "@/actions/store/cart.actions";
 import type { PaymentMethodKey } from "@/constants/welcome/payment-methods";
 import { isGovernorateCode } from "@/constants/egypt-governorates";
 import { getStorefrontTheme } from "../_themes";
-import { getStoreThemeId } from "../_lib/storefront";
+import { getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
 import { PixelEvent } from "../_components/pixels/PixelEvent";
 
 type CheckoutPageProps = {
@@ -36,6 +36,9 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     getStoreThemeId(slug),
   ]);
   const theme = getStorefrontTheme(themeId);
+  const closure = await getStorefrontClosure(cartData.store.id);
+  if (closure) return <theme.StoreClosed storeSlug={slug} pause={closure.pause} />;
+
   // Digital-only carts can't be paid on delivery — there is no delivery.
   const checkoutMethods = cartData.digitalOnly
     ? paymentMethods.filter((method) => method.key !== "cash_on_delivery")

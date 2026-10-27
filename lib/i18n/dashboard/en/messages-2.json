@@ -391,5 +391,11 @@
   "ده نفس الإيميل الحالي.": "That is already your email.",
   "غيّرنا الإيميل وبعتنالك كود عليه.": "Email changed — a code is on its way there.",
   "غيّرنا الإيميل. {0}": "Email changed. {0}",
-  "مقدرناش نبعت الإيميل دلوقتي. جرّب تاني بعد دقيقة.": "Could not send the email right now. Try again in a minute."
+  "مقدرناش نبعت الإيميل دلوقتي. جرّب تاني بعد دقيقة.": "Could not send the email right now. Try again in a minute.",
+  "أقصى مدة للإيقاف 90 يوم": "A pause can last 90 days at most",
+  "الرسالة طويلة — أقصى حاجة 280 حرف": "The message is too long — 280 characters at most",
+  "ميعاد الرجوع لازم يكون بعد دلوقتي": "The reopen time has to be in the future",
+  "المتجر اتوقف مؤقتًا": "Store paused",
+  "المتجر رجع يشتغل": "Store reopened",
+  "البيانات غير صحيحة": "Invalid data"
 }

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AtSign, ExternalLink, Languages, Mail, ShieldCheck, Store, Truck, Users, UserX } from "lucide-react";
+import { AtSign, ExternalLink, Languages, Mail, PauseCircle, ShieldCheck, Store, Truck, Users, UserX } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
@@ -12,12 +12,14 @@ import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
 import LanguageSettings from "./_components/LanguageSettings";
 import OrderEmailSettings from "./_components/OrderEmailSettings";
+import StorePauseSettings from "./_components/StorePauseSettings";
 import DeleteAccount from "./_components/DeleteAccount";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetActiveSessionsAction } from "@/actions/auth/sessions.actions";
 import { GetStoreMembersAction } from "@/actions/store/members.actions";
 import { GetMemberBranchAccessAction } from "@/actions/inventory/branches.actions";
 import { ACCOUNT_DELETION_TITLE, OPEN_DELETION_STATUSES } from "@/lib/account-deletion";
+import { isPaused } from "@/lib/store/pause";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -65,6 +67,9 @@ export default async function SettingsRoute() {
           emailNewOrders: true,
           emailCustomerOrders: true,
           emailStoreAlerts: true,
+          pausedUntil: true,
+          pauseMessage: true,
+          pauseCountdown: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -85,6 +90,7 @@ export default async function SettingsRoute() {
     { id: "store", label: tr("بيانات المتجر"), icon: Store, tint: "bg-primary" },
     { id: "shipping", label: tr("الشحن"), icon: Truck, tint: "bg-(--sys-orange)" },
     { id: "contact", label: tr("روابط التواصل"), icon: AtSign, tint: "bg-(--sys-green)" },
+    { id: "pause", label: tr("إيقاف المتجر مؤقتًا"), icon: PauseCircle, tint: "bg-(--sys-orange)" },
     { id: "emails", label: tr("إيميلات الطلبات"), icon: Mail, tint: "bg-(--sys-red)" },
     { id: "language", label: tr("لغة لوحة التحكم"), icon: Languages, tint: "bg-(--sys-indigo)" },
     { id: "team", label: tr("أعضاء المتجر"), icon: Users, tint: "bg-(--sys-teal)" },
@@ -139,6 +145,13 @@ export default async function SettingsRoute() {
         {/* ── Content ─────────────────────────────────────────── */}
         <div className="min-w-0 max-w-3xl space-y-8">
           <StoreSettingsForm store={store} />
+          <StorePauseSettings
+            initial={{
+              pausedUntil: isPaused(store.settings?.pausedUntil) ? store.settings.pausedUntil.toISOString() : null,
+              pauseMessage: store.settings?.pauseMessage ?? null,
+              pauseCountdown: store.settings?.pauseCountdown ?? true,
+            }}
+          />
           <OrderEmailSettings
             ownerEmail={store.user.email}
             initial={{

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { MustOwnStore } from "@/actions/auth/auth-helpers.actions";
@@ -32,7 +33,7 @@ const MAX_POPUPS = 20;
 
 function revalidatePopups(storeSlug: string) {
   revalidatePath("/dashboard/customization");
-  revalidatePath(`/store/${storeSlug}`, "layout");
+  revalidateStorefront(storeSlug);
 }
 
 async function ownedStore(storeId: string) {

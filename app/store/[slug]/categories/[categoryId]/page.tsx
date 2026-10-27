@@ -1,10 +1,9 @@
-import { isStorefrontOpen } from "@/lib/subscriptions";
 import type { Metadata } from "next";
 import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { getStorefrontTheme } from "../../_themes";
-import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreThemeId, toProductCards } from "../../_lib/storefront";
+import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreThemeId, toProductCards, getStorefrontClosure } from "../../_lib/storefront";
 
 // ISR: revalidate every 300 seconds — category product lists change infrequently
 export const revalidate = 300;
@@ -47,14 +46,15 @@ export default async function CategoryProducts({ params }: PageProps) {
 
   const store = await prisma.store.findUnique({
     where: { slug },
-    select: { id: true, name: true, slug: true, subscriptionStatus: true },
+    select: { id: true, name: true, slug: true },
   });
   if (!store) return notFound();
 
   const theme = getStorefrontTheme(await getStoreThemeId(slug));
 
-  if (!isStorefrontOpen(store.subscriptionStatus)) {
-    return <theme.StoreClosed storeSlug={store.slug} />;
+  const closure = await getStorefrontClosure(store.id);
+  if (closure) {
+    return <theme.StoreClosed storeSlug={store.slug} pause={closure.pause} />;
   }
 
   const categories = await getStoreCategoryLinks(store.id);

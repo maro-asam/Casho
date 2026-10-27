@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { BalanceTransactionType, BillingCycle, NotificationType, SubscriptionStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
@@ -198,7 +199,7 @@ export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycle
 
     const { store, quote } = outcome;
     revalidatePath("/dashboard", "layout");
-    revalidatePath(`/store/${store.slug}`, "layout");
+    revalidateStorefront(store.slug);
 
     if (outcome.kind === "saved") {
       return {

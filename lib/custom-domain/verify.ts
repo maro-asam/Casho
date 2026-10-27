@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { prisma } from "@/lib/prisma";
 import { createNotification } from "@/lib/notifications/in-app";
 import { checkDomainDns, type DnsCheck } from "./dns";
@@ -56,7 +57,7 @@ export async function runDomainCheck(store: {
       data: { customDomainStatus: status, ...(status === "ACTIVE" && { customDomainConnectedAt: new Date() }) },
     });
     revalidatePath("/dashboard/domain");
-    revalidatePath(`/store/${store.slug}`, "layout");
+    revalidateStorefront(store.slug);
 
     if (status === "ACTIVE") {
       await createNotification({

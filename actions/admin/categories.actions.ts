@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { MustOwnStore } from "../auth/auth-helpers.actions";
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { slugify } from "@/lib/utils";
 import { SubscriptionStatus } from "@prisma/client";
 import { requireUserId } from "../auth/require-user-id.actions";
@@ -35,7 +36,7 @@ async function uniqueCategorySlug(storeId: string, name: string, excludeId?: str
 function revalidateCategories(storeSlug: string) {
   revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard/products");
-  revalidatePath(`/store/${storeSlug}`, "layout");
+  revalidateStorefront(storeSlug);
 }
 
 export async function CreateCategoryAction(

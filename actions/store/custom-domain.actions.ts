@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { assertCanUse, FEATURE_KEYS, isEntitlementError, entitlementErrorMessage } from "@/lib/entitlements";
@@ -82,7 +83,7 @@ export async function connectCustomDomainAction(input: string): Promise<DomainAc
       where: { id: conflict.id },
       data: { customDomain: null, customDomainStatus: "PENDING", customDomainConnectedAt: null },
     });
-    revalidatePath(`/store/${conflict.slug}`, "layout");
+    revalidateStorefront(conflict.slug);
     await createNotification({
       storeId: conflict.id,
       type: "SYSTEM",
@@ -131,6 +132,6 @@ export async function disconnectCustomDomainAction(): Promise<DomainActionResult
   });
 
   revalidatePath("/dashboard/domain");
-  revalidatePath(`/store/${store.slug}`, "layout");
+  revalidateStorefront(store.slug);
   return { ok: true, message: "اتفصل الدومين. متجرك لسه شغّال على رابط كاشو." };
 }

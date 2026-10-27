@@ -4,6 +4,7 @@ import { MustOwnStore } from "../auth/auth-helpers.actions";
 import { requireUserId } from "../auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import {
   BANNER_CTA_MAX,
   BANNER_SUBTITLE_MAX,
@@ -88,7 +89,7 @@ async function validate(storeId: string, input: BannerInput): Promise<CleanBanne
 
 function revalidateBanners(storeSlug: string) {
   revalidatePath("/dashboard/banners");
-  revalidatePath(`/store/${storeSlug}`, "layout");
+  revalidateStorefront(storeSlug);
 }
 
 async function findOwnedBanner(bannerId: string, storeId: string) {

@@ -1,5 +1,6 @@
 import { BalanceTransactionType, NotificationType, SubscriptionStatus, type BillingCycle } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_GRACE_PERIOD_DAYS, addDays } from "@/lib/subscriptions";
 import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
@@ -53,7 +54,7 @@ export async function getRenewalQuote(store: Parameters<typeof resolveRenewal>[0
 function safeRevalidate(slug: string) {
   try {
     revalidatePath("/dashboard", "layout");
-    revalidatePath(`/store/${slug}`, "layout");
+    revalidateStorefront(slug);
   } catch {
     // Called outside a request scope (scripts) — nothing to revalidate.
   }
