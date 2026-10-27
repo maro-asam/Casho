@@ -89,14 +89,15 @@ export function SectionHead({
         {index !== undefined && <span className="rq-num text-sm text-(--rq-accent)">{idx(index)}</span>}
         <span className="rq-rule flex-1" />
       </div>
-      <div className="mt-4 flex items-end justify-between gap-6">
+      <div className="mt-4 flex items-end justify-between gap-4 sm:gap-6">
         <div className="min-w-0">
-          <h2 className="rq-h2">{title}</h2>
+          <h2 className="rq-h2 break-words">{title}</h2>
           {subtitle && <p className="rq-caption mt-2">{subtitle}</p>}
         </div>
         {href && (
-          <Link href={href} className="group inline-flex min-h-11 shrink-0 items-center gap-2 text-sm font-semibold">
-            <span className="rq-link">{linkLabel}</span>
+          // Capped so a long label ("كل <category>") can't push the page wider than the screen.
+          <Link href={href} className="group inline-flex min-h-11 min-w-0 max-w-[45%] shrink-0 items-center gap-2 text-sm font-semibold">
+            <span className="rq-link truncate">{linkLabel}</span>
             <Arrow />
           </Link>
         )}
