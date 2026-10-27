@@ -25,7 +25,9 @@ export type SecurityEvent =
   | "BRANCH_ACTIVATED"
   | "BRANCH_DEACTIVATED"
   | "BRANCH_DELETED"
-  | "MEMBER_BRANCHES_CHANGED";
+  | "MEMBER_BRANCHES_CHANGED"
+  /** Written by lib/orders/track-order (awaited there, for its rate limit). */
+  | "ORDER_TRACK_FAILED";
 
 export function logSecurityEvent(opts: {
   event: SecurityEvent;

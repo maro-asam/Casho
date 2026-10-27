@@ -3,7 +3,8 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Empty, PageTitle, Wrap, btn, idx, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -144,6 +145,31 @@ export function RiwaqContact({ store, contact }: ContactViewProps) {
           )}
         </div>
       )}
+    </Wrap>
+  );
+}
+
+/** Hairline rules, not cards — the Riwaq way. */
+const TRACK_SKIN: TrackSkin = {
+  label: "rq-label",
+  field: "rq-field",
+  button: btn({ size: "lg", full: true }),
+  secondary: btn({ variant: "line" }),
+  panel: "border-t border-(--rq-rule-strong) pt-6",
+  ok: "var(--rq-success)",
+  warn: "var(--rq-warn)",
+  bad: "var(--rq-sale)",
+};
+
+export function RiwaqTrack({ store, whatsapp, initialCode, order }: TrackViewProps) {
+  return (
+    <Wrap className="pb-6">
+      <PageTitle
+        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
+        title="تتبّع طلبك"
+        intro={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
+      />
+      <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Wrap>
   );
 }

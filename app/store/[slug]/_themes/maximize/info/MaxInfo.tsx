@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ChevronLeft, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { CollectionBanner, Crumbs, Empty, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -120,6 +121,29 @@ export function MaxContact({ store, contact }: ContactViewProps) {
           )}
         </div>
       )}
+    </Wrap>
+  );
+}
+
+const TRACK_SKIN: TrackSkin = {
+  label: "text-sm font-semibold text-(--mx-ink)",
+  field: "mx-field",
+  button: btn({ size: "lg", full: true }),
+  secondary: btn({ variant: "outline" }),
+  panel: "rounded-(--mx-r-lg) border border-(--mx-line) p-5 sm:p-6",
+  ok: "var(--mx-success)",
+  warn: "var(--mx-warn)",
+  bad: "var(--mx-sale)",
+};
+
+export function MaxTrack({ store, whatsapp, initialCode, order }: TrackViewProps) {
+  return (
+    <Wrap className="pb-12">
+      <CollectionBanner title="تتبّع طلبك" note={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."} />
+      <Crumbs className="py-4" items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]} />
+      <div className="mt-4">
+        <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
+      </div>
     </Wrap>
   );
 }

@@ -61,6 +61,7 @@ export default async function CelloFooter({ shell }: { shell: StoreShell }) {
         { label: "البحث", href: url("/products") },
         { label: "عن المتجر", href: url("/about") },
         { label: "تواصل معنا", href: url("/contact") },
+        { label: "تتبّع طلبك", href: url("/track") },
         { label: "كل التصنيفات", href: url("/categories") },
         { label: "سلة المشتريات", href: url("/cart") },
       ],

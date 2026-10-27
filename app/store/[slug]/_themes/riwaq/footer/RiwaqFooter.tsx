@@ -52,6 +52,7 @@ export default function RiwaqFooter({ shell }: { shell: StoreShell }) {
     ...(shell.categories.length > 7 ? [{ label: "كل التصنيفات", href: url("/categories") }] : []),
   ];
   const help: LinkItem[] = [
+    { label: "تتبّع طلبك", href: url("/track") },
     { label: "تواصل معنا", href: url("/contact") },
     { label: "عن المتجر", href: url("/about") },
     ...(wa ? [{ label: "واتساب", href: wa, external: true }] : []),

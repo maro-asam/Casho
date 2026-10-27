@@ -39,6 +39,7 @@ function buildGroups(shell: StoreShell): Group[] {
   groups.push({
     title: "المساعدة",
     links: [
+      { label: "تتبّع طلبك", href: url("/track") },
       { label: "تواصل معنا", href: url("/contact") },
       { label: "عن المتجر", href: url("/about") },
       ...(wa ? [{ label: "واتساب", href: wa, external: true }] : []),

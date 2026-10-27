@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ChevronLeft, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
 import { getSocialLinks, whatsappHref } from "../social";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
 import ContactForm from "./ContactForm";
@@ -146,6 +147,31 @@ export function ClassicContact({ store, contact }: ContactViewProps) {
           )}
         </div>
       )}
+    </Container>
+  );
+}
+
+const TRACK_SKIN: TrackSkin = {
+  label: "text-sm font-medium",
+  field:
+    "h-11 w-full rounded-(--c-radius-sm) border border-border bg-background px-3.5 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground/40 sm:text-sm",
+  button: btn({ size: "lg", full: true }),
+  secondary: btn({ variant: "outline" }),
+  panel: "rounded-(--c-radius-lg) border border-border p-5 sm:p-6",
+  ok: "var(--c-success)",
+  warn: "var(--c-warning)",
+  bad: "var(--c-danger)",
+};
+
+export function ClassicTrack({ store, whatsapp, initialCode, order }: TrackViewProps) {
+  return (
+    <Container className="pb-6">
+      <PageHeader
+        breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
+        title="تتبّع طلبك"
+        meta={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
+      />
+      <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Container>
   );
 }

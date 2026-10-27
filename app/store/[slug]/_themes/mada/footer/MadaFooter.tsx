@@ -65,6 +65,7 @@ export default async function MadaFooter({ shell }: { shell: StoreShell }) {
     {
       title: "المساعدة",
       links: [
+        { label: "تتبّع طلبك", href: url("/track") },
         { label: "تواصل معنا", href: url("/contact") },
         { label: "عن المتجر", href: url("/about") },
         { label: "سلة المشتريات", href: url("/cart") },

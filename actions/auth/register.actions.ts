@@ -17,6 +17,7 @@ import { createSignupAttribution, resolveSignupReferral } from "@/lib/sales/attr
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
 import { sendVerificationCode } from "@/lib/auth/email-verification";
 import { isMailConfigured } from "@/lib/mail";
+import { canReusePhone } from "@/lib/auth/multi-account";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -74,9 +75,10 @@ export async function RegisterAction(
   const { storeName, name, country, businessType, email, phoneNumber, password } = parsed.data;
 
   try {
+    const checkPhone = phoneNumber && !canReusePhone(email, phoneNumber);
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [{ email }, ...(phoneNumber ? [{ phone_number: phoneNumber }] : [])],
+        OR: [{ email }, ...(checkPhone ? [{ phone_number: phoneNumber }] : [])],
       },
       select: {
         id: true,

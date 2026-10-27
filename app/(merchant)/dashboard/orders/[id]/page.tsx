@@ -16,6 +16,7 @@ import { CopyButton } from "./_components/copy-button";
 import { OrderProgress } from "./_components/order-progress";
 import { WhatsAppConfirmButton } from "../_components/whatsapp-confirm-button";
 import { canAskToConfirm, orderConfirmUrl } from "@/lib/orders/whatsapp-confirm";
+import { orderNumber, orderTrackUrl } from "@/lib/orders/tracking";
 import { ShipmentCard, type ShipCarrierOption, type ShipmentView } from "./_components/shipment-card";
 import { getStoreCarriers } from "@/lib/shipping/store-carriers";
 import { carrierDisplayName, getCarrier } from "@/lib/shipping/carriers";
@@ -100,6 +101,18 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   const returned = order.status === "CANCELED" && order.returnedAt !== null;
   const confirmUrl = canAskToConfirm(order) ? orderConfirmUrl(order.store, order.id) : null;
   const customerConfirmed = order.confirmationStatus === "CONFIRMED";
+  // The chat opens with the order's tracking link ready (POS sales aren't tracked).
+  const firstName = order.fullName.trim().split(/\s+/)[0];
+  const whatsappText =
+    order.source === "POS"
+      ? null
+      : tr(
+          "أهلاً{0} 👋\nمعاك {1} بخصوص طلبك {2}.\nتقدر تتابع حالته في أي وقت من هنا 👇\n{3}",
+          firstName ? ` ${firstName}` : "",
+          order.store.name,
+          orderNumber(order.id),
+          orderTrackUrl(order.store, order.id),
+        );
 
   const shortId = order.id.slice(0, 8).toUpperCase();
   const status = ORDER_STATUS_META[order.status];
@@ -398,7 +411,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                   {tr("اتصال")}
                 </a>
                 <a
-                  href={`https://wa.me/${whatsappNumber(order.phone)}`}
+                  href={`https://wa.me/${whatsappNumber(order.phone)}${whatsappText ? `?text=${encodeURIComponent(whatsappText)}` : ""}`}
                   target="_blank"
                   rel="noreferrer"
                   className={`${appleButton.tinted} text-primary`}

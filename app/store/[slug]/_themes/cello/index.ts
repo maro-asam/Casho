@@ -7,7 +7,7 @@ import { CelloCategoriesIndex, CelloCategory } from "./categories/CelloCategorie
 import CelloFooter from "./footer/CelloFooter";
 import CelloHeader from "./header/CelloHeader";
 import CelloHome from "./home/CelloHome";
-import { CelloAbout, CelloContact } from "./info/CelloInfo";
+import { CelloAbout, CelloContact, CelloTrack } from "./info/CelloInfo";
 import CelloListing from "./listing/CelloListing";
 import CelloProduct from "./pdp/CelloProduct";
 import { CelloStoreClosed } from "./states";
@@ -25,5 +25,6 @@ export const celloTheme: StorefrontTheme = {
   Checkout: CelloCheckout,
   About: CelloAbout,
   Contact: CelloContact,
+  Track: CelloTrack,
   StoreClosed: CelloStoreClosed,
 };

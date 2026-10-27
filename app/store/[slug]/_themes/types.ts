@@ -9,6 +9,7 @@
 
 import type { ComponentType } from "react";
 import type { BannerLink } from "@/lib/banners/banner-link";
+import type { TrackedOrder } from "@/lib/orders/tracking";
 import type { ProductsQuery } from "@/lib/products-query";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type {
@@ -218,6 +219,16 @@ export type ContactViewProps = {
   contact: StoreContact;
 };
 
+export type TrackViewProps = {
+  store: { name: string; slug: string };
+  /** Store WhatsApp — for "ask about this order". */
+  whatsapp: string | null;
+  /** Pre-filled order number (`/track?order=A1B2C3`). */
+  initialCode: string;
+  /** Opened from a signed link (emails, WhatsApp) — shown without a search. */
+  order: TrackedOrder | null;
+};
+
 export type StorefrontTheme = {
   Header: ComponentType<{ shell: StoreShell }>;
   Footer: ComponentType<{ shell: StoreShell }>;
@@ -230,6 +241,8 @@ export type StorefrontTheme = {
   Checkout: ComponentType<CheckoutViewProps>;
   About: ComponentType<AboutViewProps>;
   Contact: ComponentType<ContactViewProps>;
+  /** Order tracking — page chrome around the shared `OrderTracker` (shared/track). */
+  Track: ComponentType<TrackViewProps>;
   StoreClosed: ComponentType<{ storeSlug?: string }>;
   /** className applied to the storefront root (scopes the theme's CSS). */
   rootClassName: string;

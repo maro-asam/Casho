@@ -137,5 +137,6 @@
   "أكّد الطلب مع العميل": "Confirm with the customer",
   "ابعتله رسالة فيها لينك — يدوس ويأكّد أو يلغي من غير مكالمة.": "Send them a link — they confirm or cancel with one tap, no phone call needed.",
   "رقمي · العميل يقدر ينزّله من صفحة الطلب": "Digital · the customer can download it from the order page",
-  "رقمي · هيتفتح للعميل بعد الدفع": "Digital · unlocks for the customer after payment"
+  "رقمي · هيتفتح للعميل بعد الدفع": "Digital · unlocks for the customer after payment",
+  "أهلاً{0} 👋\nمعاك {1} بخصوص طلبك {2}.\nتقدر تتابع حالته في أي وقت من هنا 👇\n{3}": "Hi{0} 👋\nThis is {1} about your order {2}.\nYou can follow it any time here 👇\n{3}"
 }

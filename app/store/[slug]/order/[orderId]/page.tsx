@@ -30,6 +30,7 @@ import { isOrderPaid } from "@/lib/products/digital";
 import { prisma } from "@/lib/prisma";
 import { getPaymentMethodLabel as getCatalogueLabel, isManualPaymentMethod } from "@/constants/welcome/payment-methods";
 import { isOnlinePaymentProvider } from "@/lib/payments/providers";
+import { orderNumber, orderTrackPath } from "@/lib/orders/tracking";
 
 import {
   Card,
@@ -454,7 +455,9 @@ export default async function OrderDetailsPage({
                     <p className="mb-1 text-sm text-muted-foreground">
                       رقم الطلب
                     </p>
-                    <p className="font-mono text-sm break-all">{order.id}</p>
+                    <p className="font-mono text-sm font-semibold" dir="ltr">
+                      {orderNumber(order.id)}
+                    </p>
                   </div>
 
                   <div className="rounded-xl border bg-background/80 p-4 backdrop-blur">
@@ -716,8 +719,21 @@ export default async function OrderDetailsPage({
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-dashed p-4 text-sm leading-6 text-muted-foreground">
-                  احتفظ برقم الطلب لمتابعة الحالة بسهولة عند التواصل مع المتجر.
+                <div className="space-y-2 rounded-xl border border-dashed p-4 text-sm leading-6 text-muted-foreground">
+                  <p>
+                    احتفظ برقم الطلب{" "}
+                    <span className="font-mono font-semibold text-foreground" dir="ltr">
+                      {orderNumber(order.id)}
+                    </span>{" "}
+                    — تقدر تتابع طلبك بيه في أي وقت ومن أي جهاز.
+                  </p>
+                  <Link
+                    href={`/store/${slug}${orderTrackPath(order.id)}`}
+                    className="inline-flex items-center gap-1.5 font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    لينك تتبّع الطلب
+                    <ArrowLeft className="size-4" />
+                  </Link>
                 </div>
 
                 <div className="flex flex-col gap-3 pt-2">

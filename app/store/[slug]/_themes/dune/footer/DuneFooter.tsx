@@ -65,6 +65,7 @@ export default async function DuneFooter({ shell }: { shell: StoreShell }) {
       links: [
         { label: "عن المتجر", href: url("/about") },
         { label: "تواصل معنا", href: url("/contact") },
+        { label: "تتبّع طلبك", href: url("/track") },
         { label: "سلة المشتريات", href: url("/cart") },
       ],
     },

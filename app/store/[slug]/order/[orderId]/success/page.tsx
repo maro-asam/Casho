@@ -13,6 +13,7 @@ import { MustSession } from "@/actions/auth/auth-helpers.actions";
 import { purchaseEventId } from "@/lib/pixels/shared";
 import { PixelEvent } from "../../../_components/pixels/PixelEvent";
 import { prisma } from "@/lib/prisma";
+import { orderNumber, orderTrackPath } from "@/lib/orders/tracking";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -114,7 +115,9 @@ export default async function OrderSuccessPage({
                 <ClipboardList className="size-4" />
                 رقم الطلب
               </div>
-              <p className="break-all font-mono text-xs">{order.id}</p>
+              <p className="font-mono text-sm font-semibold" dir="ltr">
+                {orderNumber(order.id)}
+              </p>
             </div>
 
             <div className="rounded-2xl border bg-muted/40 p-4">
@@ -141,6 +144,17 @@ export default async function OrderSuccessPage({
               </span>
             </div>
           ) : null}
+
+          <p className="text-sm leading-7 text-muted-foreground">
+            تقدر تتابع طلبك في أي وقت ومن أي جهاز من{" "}
+            <Link
+              href={`/store/${slug}${orderTrackPath(order.id)}`}
+              className="font-medium text-primary underline underline-offset-4 hover:no-underline"
+            >
+              صفحة تتبّع الطلب
+            </Link>
+            .
+          </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button asChild className="h-12 flex-1 rounded-2xl">

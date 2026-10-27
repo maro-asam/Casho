@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ChevronLeft, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { CollectionBanner, Crumbs, Empty, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -120,6 +121,29 @@ export function CelloContact({ store, contact }: ContactViewProps) {
           )}
         </div>
       )}
+    </Wrap>
+  );
+}
+
+const TRACK_SKIN: TrackSkin = {
+  label: "text-sm font-semibold text-(--ce-ink)",
+  field: "ce-field",
+  button: btn({ size: "lg", full: true }),
+  secondary: btn({ variant: "outline" }),
+  panel: "rounded-(--ce-r-lg) border border-(--ce-line) bg-(--ce-card) p-5 sm:p-6",
+  ok: "var(--ce-success)",
+  warn: "var(--ce-warn)",
+  bad: "var(--ce-sale)",
+};
+
+export function CelloTrack({ store, whatsapp, initialCode, order }: TrackViewProps) {
+  return (
+    <Wrap className="pb-12">
+      <CollectionBanner title="تتبّع طلبك" note={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."} />
+      <Crumbs className="py-4" items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]} />
+      <div className="mt-4">
+        <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
+      </div>
     </Wrap>
   );
 }

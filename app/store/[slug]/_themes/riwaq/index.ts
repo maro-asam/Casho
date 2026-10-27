@@ -8,7 +8,7 @@ import { riwaqDisplay } from "./fonts";
 import RiwaqFooter from "./footer/RiwaqFooter";
 import RiwaqHeader from "./header/RiwaqHeader";
 import RiwaqHome from "./home/RiwaqHome";
-import { RiwaqAbout, RiwaqContact } from "./info/RiwaqInfo";
+import { RiwaqAbout, RiwaqContact, RiwaqTrack } from "./info/RiwaqInfo";
 import RiwaqListing from "./listing/RiwaqListing";
 import RiwaqProduct from "./pdp/RiwaqProduct";
 import { RiwaqStoreClosed } from "./states";
@@ -26,5 +26,6 @@ export const riwaqTheme: StorefrontTheme = {
   Checkout: RiwaqCheckout,
   About: RiwaqAbout,
   Contact: RiwaqContact,
+  Track: RiwaqTrack,
   StoreClosed: RiwaqStoreClosed,
 };

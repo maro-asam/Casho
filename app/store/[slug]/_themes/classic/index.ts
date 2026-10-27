@@ -9,7 +9,7 @@ import ClassicHeader from "./header/ClassicHeader";
 import ClassicHome from "./home/ClassicHome";
 import ClassicListing from "./listing/ClassicListing";
 import ClassicProduct from "./pdp/ClassicProduct";
-import { ClassicAbout, ClassicContact } from "./info/ClassicInfoPages";
+import { ClassicAbout, ClassicContact, ClassicTrack } from "./info/ClassicInfoPages";
 import { ClassicStoreClosed } from "./states";
 
 export const classicTheme: StorefrontTheme = {
@@ -25,5 +25,6 @@ export const classicTheme: StorefrontTheme = {
   Checkout: ClassicCheckout,
   About: ClassicAbout,
   Contact: ClassicContact,
+  Track: ClassicTrack,
   StoreClosed: ClassicStoreClosed,
 };

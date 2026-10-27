@@ -12,6 +12,7 @@ import { OrderStatus } from "@prisma/client";
 import { getPaymentMethodLabel, isManualPaymentMethod } from "@/constants/payment-methods";
 import { isMailConfigured } from "@/lib/mail";
 import { formatPiastersAsEgp } from "@/lib/notifications/in-app";
+import { orderNumber as formatOrderNumber, orderTrackUrl } from "@/lib/orders/tracking";
 import { prisma } from "@/lib/prisma";
 import { DIGITAL_ADDRESS } from "@/lib/products/digital";
 import { storeBaseUrl } from "@/lib/seo/store-seo";
@@ -74,7 +75,7 @@ async function loadOrder(orderId: string) {
 
 export type EmailOrder = NonNullable<Awaited<ReturnType<typeof loadOrder>>>;
 
-const orderNumber = (order: { id: string }) => `#${order.id.slice(-6).toUpperCase()}`;
+const orderNumber = (order: { id: string }) => formatOrderNumber(order.id);
 const firstName = (fullName: string) => fullName.trim().split(/\s+/)[0] ?? "";
 const money = formatPiastersAsEgp;
 
@@ -176,6 +177,7 @@ export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: stri
 
 export function buildCustomerConfirmationEmail(order: EmailOrder) {
   const name = firstName(order.fullName);
+  const trackUrl = orderTrackUrl(order.store, order.id);
   const intro =
     order.status === OrderStatus.PAID
       ? "الدفع اتأكد وبدأنا نجهّز طلبك. هنبعتلك أول ما يتشحن."
@@ -198,7 +200,7 @@ export function buildCustomerConfirmationEmail(order: EmailOrder) {
     heading: name ? `شكرًا يا ${name}، طلبك وصلنا` : "شكرًا، طلبك وصلنا",
     intro,
     body,
-    cta: { label: `زور ${order.store.name}`, href: brandOf(order).url },
+    cta: { label: "تتبّع طلبك", href: trackUrl },
     footer: customerFooter(order),
   });
 
@@ -207,6 +209,7 @@ export function buildCustomerConfirmationEmail(order: EmailOrder) {
     intro,
     ...lines(order).map((l) => `- ${l.name} × ${l.quantity}: ${money(l.total)}`),
     `الإجمالي: ${money(order.total)}`,
+    `تتبّع طلبك: ${trackUrl}`,
   ].join("\n");
 
   return { subject: `طلبك من ${order.store.name} وصلنا — ${orderNumber(order)}`, html, text };
@@ -231,11 +234,16 @@ export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus)
   const shipment = order.shipments[0];
   const tracking = shipment?.trackingNumber ?? order.trackingNumber;
   const courier = shipment?.courierName ?? order.shippingProvider;
-  const trackingUrl = status === OrderStatus.SHIPPED ? shipment?.trackingUrl : null;
+  const carrierUrl = status === OrderStatus.SHIPPED ? shipment?.trackingUrl : null;
+  // Canceled orders have nothing left to follow — send those back to the store.
+  const trackUrl = status === OrderStatus.CANCELED ? null : orderTrackUrl(order.store, order.id);
 
   const body =
     (status === OrderStatus.SHIPPED && tracking
-      ? notice(`${courier ? `شركة الشحن: <strong>${esc(courier)}</strong><br>` : ""}رقم الشحنة: <strong dir="ltr">${esc(tracking)}</strong>`)
+      ? notice(
+          `${courier ? `شركة الشحن: <strong>${esc(courier)}</strong><br>` : ""}رقم الشحنة: <strong dir="ltr">${esc(tracking)}</strong>` +
+            (carrierUrl ? `<br><a href="${esc(carrierUrl)}">تتبّع على موقع شركة الشحن</a>` : ""),
+        )
       : "") +
     infoRows([
       { label: "رقم الطلب", value: orderNumber(order) },
@@ -248,7 +256,7 @@ export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus)
     heading: copy.heading,
     intro: `${firstName(order.fullName) ? `أهلًا ${firstName(order.fullName)}، ` : ""}${copy.intro}`,
     body,
-    cta: trackingUrl ? { label: "تتبع الشحنة", href: trackingUrl } : { label: `زور ${order.store.name}`, href: brandOf(order).url },
+    cta: trackUrl ? { label: "تتبّع طلبك", href: trackUrl } : { label: `زور ${order.store.name}`, href: brandOf(order).url },
     footer: customerFooter(order),
   });
 
@@ -256,7 +264,8 @@ export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus)
     `${copy.heading} — ${orderNumber(order)} (${order.store.name})`,
     copy.intro,
     tracking && status === OrderStatus.SHIPPED ? `رقم الشحنة: ${tracking}` : null,
-    trackingUrl ? `تتبع الشحنة: ${trackingUrl}` : null,
+    trackUrl ? `تتبّع طلبك: ${trackUrl}` : null,
+    carrierUrl ? `موقع شركة الشحن: ${carrierUrl}` : null,
   ]
     .filter(Boolean)
     .join("\n");

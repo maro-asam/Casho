@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ChevronLeft, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Crumbs, Empty, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -133,6 +134,30 @@ export function MadaContact({ store, contact }: ContactViewProps) {
           )}
         </div>
       )}
+    </Wrap>
+  );
+}
+
+const TRACK_SKIN: TrackSkin = {
+  label: "text-sm font-medium",
+  field: "md-field",
+  button: btn({ size: "lg", full: true }),
+  secondary: btn({ variant: "outline" }),
+  panel: "md-panel p-5 sm:p-7",
+  ok: "var(--md-success)",
+  warn: "var(--md-warn)",
+  bad: "var(--md-sale)",
+};
+
+export function MadaTrack({ store, whatsapp, initialCode, order }: TrackViewProps) {
+  return (
+    <Wrap className="pb-10">
+      <header className="pb-8 pt-5 sm:pt-7">
+        <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]} />
+        <h1 className="md-h1 mt-4">تتبّع طلبك</h1>
+        {!order && <p className="mt-2 text-sm text-(--md-quiet)">اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.</p>}
+      </header>
+      <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Wrap>
   );
 }

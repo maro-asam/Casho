@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Crumbs, Empty, PageTitle, Wrap, btn, delay, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -130,6 +131,30 @@ export function DuneContact({ store, contact }: ContactViewProps) {
           )}
         </div>
       )}
+    </Wrap>
+  );
+}
+
+const TRACK_SKIN: TrackSkin = {
+  label: "dn-label",
+  field: "dn-field",
+  button: btn({ size: "lg", full: true }),
+  secondary: btn({ variant: "outline" }),
+  panel: "bg-(--dn-plate) p-6 sm:p-8",
+  ok: "var(--dn-success)",
+  warn: "var(--dn-warn)",
+  bad: "var(--dn-sale)",
+};
+
+export function DuneTrack({ store, whatsapp, initialCode, order }: TrackViewProps) {
+  return (
+    <Wrap className="pb-12">
+      <PageTitle
+        title="تتبّع طلبك"
+        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
+        note={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
+      />
+      <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Wrap>
   );
 }

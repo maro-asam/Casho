@@ -119,6 +119,7 @@ export const SECURITY_EVENT_META: Record<string, Meta> = {
   BRANCH_DEACTIVATED: { label: "تعطيل فرع", tone: "neutral" },
   BRANCH_DELETED: { label: "حذف فرع", tone: "neutral" },
   MEMBER_BRANCHES_CHANGED: { label: "تعديل فروع عضو", tone: "neutral" },
+  ORDER_TRACK_FAILED: { label: "بحث فاشل عن طلب", tone: "warning" },
 };
 
 export function securityEventMeta(event: string): Meta {

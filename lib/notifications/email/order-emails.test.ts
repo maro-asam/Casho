@@ -74,6 +74,8 @@ describe("order emails", () => {
     const mail = buildCustomerStatusEmail(order, "SHIPPED");
     expect(mail?.html).toContain("BOS-123");
     expect(mail?.html).toContain("https://bosta.co/track/BOS-123");
+    expect(mail?.text).toContain("تتبّع طلبك: https://");
+    expect(mail?.html).toContain("/track?");
   });
 
   it("tells the merchant who to call when an online payment fails", () => {

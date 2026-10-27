@@ -22,7 +22,9 @@ enum StoreRole {
 model User {
   id                     String                  @id @default(uuid())
   email                  String                  @unique
-  phone_number           String?                 @unique
+  /// Not unique in the DB so allow-listed team phones can repeat
+  /// (lib/auth/multi-account); registration rejects every other duplicate.
+  phone_number           String?
   password               String?
   passwordAlgo           String? // "argon2id" | "bcrypt" — for migration
   googleId               String?                 @unique
@@ -80,6 +82,8 @@ model User {
   // this account was attributed to when it signed up as a merchant.
   salesRep         SalesRep?         @relation("SalesRepUser")
   salesAttribution SalesAttribution? @relation("SalesAttributionCustomer")
+
+  @@index([phone_number])
 }
 
 model ReferralRewardLog {
