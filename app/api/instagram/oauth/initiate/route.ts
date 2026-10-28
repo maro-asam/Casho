@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getCurrentSession } from "@/lib/auth/session";
+import { INSTAGRAM_ORDERS_ENABLED } from "@/lib/instagram/feature";
 import { buildAuthorizationUrl } from "@/lib/instagram/oauth";
 
 export async function GET(req: NextRequest) {
@@ -20,7 +21,10 @@ export async function GET(req: NextRequest) {
     rootDomain === "localhost"
       ? (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000")
       : `https://app.${rootDomain}`;
-  const dashboardUrl = `${appOrigin}/dashboard/integrations/instagram`;
+  const dashboardUrl = `${appOrigin}/dashboard/instagram`;
+
+  // Paused ("coming soon"): nobody can start a new connection, even by URL.
+  if (!INSTAGRAM_ORDERS_ENABLED) return NextResponse.redirect(dashboardUrl);
 
   const session = await getCurrentSession();
   if (!session?.user) {

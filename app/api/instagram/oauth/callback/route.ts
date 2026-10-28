@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     rootDomain === "localhost"
       ? (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000")
       : `https://app.${rootDomain}`;
-  const dashboardUrl = `${appOrigin}/dashboard/integrations/instagram`;
+  const dashboardUrl = `${appOrigin}/dashboard/instagram`;
 
   try {
     const session = await getCurrentSession();

@@ -149,7 +149,7 @@ async function markExpired(connectionId: string, storeId: string) {
     type:    "IG_CONNECTION_EXPIRED",
     title:   "انتهت صلاحية ربط انستجرام ⚠️",
     message: "يجب إعادة ربط حساب انستجرام لاستمرار اكتشاف الطلبات تلقائياً",
-    href:    "/dashboard/integrations/instagram",
+    href:    "/dashboard/instagram",
   });
 
   logger.warn("[TokenRefresh] Connection marked EXPIRED", { connectionId, storeId });

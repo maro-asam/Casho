@@ -12,7 +12,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { appleButton } from "@/components/saas-page";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { XCircle } from "lucide-react";
@@ -48,14 +49,10 @@ export function RejectDialog({ suggestedOrderId, onRejected }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="rounded-xl text-rose-500 hover:bg-rose-500/10 hover:text-rose-600"
-        >
-          <XCircle className="ms-1.5 size-4" />
+        <button type="button" className={cn(appleButton.destructive, "relative z-10")}>
+          <XCircle className="size-4" />
           {tr("رفض")}
-        </Button>
+        </button>
       </AlertDialogTrigger>
       <AlertDialogContent dir={tdir()}>
         <AlertDialogHeader>
@@ -71,20 +68,16 @@ export function RejectDialog({ suggestedOrderId, onRejected }: Props) {
             placeholder={tr("مثال: مجرد استفسار، عميل غير جاد...")}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="resize-none rounded-xl"
+            className="resize-none"
             rows={3}
           />
         </div>
 
         <AlertDialogFooter>
           <AlertDialogCancel>{tr("إلغاء")}</AlertDialogCancel>
-          <Button
-            className="rounded-xl bg-rose-600 hover:bg-rose-700"
-            onClick={handleReject}
-            disabled={isPending}
-          >
+          <button type="button" className={appleButton.destructiveFilled} onClick={handleReject} disabled={isPending}>
             {isPending ? tr("جاري الرفض...") : tr("تأكيد الرفض")}
-          </Button>
+          </button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

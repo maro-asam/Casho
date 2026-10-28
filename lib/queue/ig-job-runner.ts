@@ -275,7 +275,7 @@ async function processJob(jobId: string, conversationId: string): Promise<JobOut
     message: result.customerName
       ? `اكتشف الذكاء الاصطناعي طلب محتمل من ${result.customerName} — راجعه الآن`
       : "اكتشف الذكاء الاصطناعي طلب محتمل من انستجرام — راجعه الآن",
-    href: "/dashboard/suggested-orders",
+    href: "/dashboard/instagram?status=PENDING",
   });
 
   return "created";

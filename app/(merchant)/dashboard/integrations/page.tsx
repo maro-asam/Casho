@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DashboardSectionHeader from "@/app/(merchant)/_components/main/DashboardSectionHeader";
 import { GetInstagramStatsAction } from "@/actions/instagram/instagram.actions";
+import { INSTAGRAM_ORDERS_ENABLED } from "@/lib/instagram/feature";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -32,10 +33,10 @@ const PLATFORMS = [
     get name() { return tr("انستجرام"); },
     get description() { return tr("اكتشاف الطلبات من محادثات DM تلقائياً بالذكاء الاصطناعي"); },
     icon: Camera,
-    href: "/integrations/instagram",
-    available: true,
-    get badge() { return tr("متاح"); },
-    badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+    href: "/instagram",
+    available: INSTAGRAM_ORDERS_ENABLED,
+    get badge() { return INSTAGRAM_ORDERS_ENABLED ? tr("متاح") : tr("قريباً"); },
+    badgeClass: INSTAGRAM_ORDERS_ENABLED ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
     gradient: "from-purple-500/10 to-pink-500/10 text-pink-500",
   },
   {
@@ -99,7 +100,7 @@ export default async function IntegrationsPage() {
       />
 
       {/* Pending suggestion alert */}
-      {igConnected && pendingCount > 0 && (
+      {INSTAGRAM_ORDERS_ENABLED && igConnected && pendingCount > 0 && (
         <Card className="border-amber-500/30 bg-amber-500/5">
           <CardContent className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
@@ -114,7 +115,7 @@ export default async function IntegrationsPage() {
               </div>
             </div>
             <Button asChild variant="outline" size="sm" className="rounded-xl">
-              <Link href="/suggested-orders">
+              <Link href="/instagram?status=PENDING">
                 {tr("مراجعة")}
                 <ArrowLeft className="ms-1.5 size-4 ltr:-scale-x-100" />
               </Link>

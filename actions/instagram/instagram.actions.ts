@@ -145,8 +145,7 @@ export async function SyncInstagramConversationsAction() {
 
   const { synced, errors } = await syncConversations(connection.id);
 
-  revalidatePath("/dashboard/instagram");
-  revalidatePath("/dashboard/suggested-orders");
+  revalidatePath("/dashboard/instagram", "layout");
 
   return { success: true, synced, errors: errors.length > 0 ? errors : undefined };
 }
@@ -371,7 +370,7 @@ export async function ApproveSuggestedOrderAction(input: ApproveInput) {
       suggestedOrderId: input.suggestedOrderId,
       existingOrderId: existingOrder.id,
     });
-    revalidatePath("/dashboard/suggested-orders");
+    revalidatePath("/dashboard/instagram", "layout");
     revalidatePath("/dashboard/orders");
     return { success: true, orderId: existingOrder.id };
   }
@@ -468,7 +467,7 @@ export async function ApproveSuggestedOrderAction(input: ApproveInput) {
       href: `/dashboard/orders/${result.id}`,
     });
 
-    revalidatePath("/dashboard/suggested-orders");
+    revalidatePath("/dashboard/instagram", "layout");
     revalidatePath("/dashboard/orders");
 
     return { success: true, orderId: result.id };
@@ -528,8 +527,7 @@ export async function RejectSuggestedOrderAction(
 
   logger.info("[RejectSuggestedOrder] Rejected", { suggestedOrderId, hasReason: !!reason });
 
-  revalidatePath("/dashboard/suggested-orders");
-  revalidatePath("/dashboard/integrations/instagram");
+  revalidatePath("/dashboard/instagram", "layout");
 
   return { success: true };
 }

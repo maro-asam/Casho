@@ -13,4 +13,10 @@ describe("canReusePhone", () => {
     expect(canReusePhone("someone@gmail.com", "01103129299")).toBe(false);
     expect(canReusePhone("mmcasho823@yahoo.com", "01103129299")).toBe(false);
   });
+
+  it("lets a phone-only entry sign up with any email", () => {
+    expect(canReusePhone("first@gmail.com", "01211504120")).toBe(true);
+    expect(canReusePhone("another@yahoo.com", " 01211504120 ")).toBe(true);
+    expect(canReusePhone("first@gmail.com", "01211504121")).toBe(false);
+  });
 });

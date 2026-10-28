@@ -36,6 +36,7 @@ import {
   ShoppingCartIcon,
   type LucideIcon,
 } from "lucide-react";
+import { INSTAGRAM_ORDERS_ENABLED } from "@/lib/instagram/feature";
 import { tr } from "@/lib/i18n/dashboard";
 
 export type NavLeaf = {
@@ -136,8 +137,7 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     get title() { return tr("القنوات والربط"); },
     items: [
-      { get name() { return tr("طلبات انستجرام"); }, href: "/suggested-orders", icon: Send, badge: "AI" },
-      { get name() { return tr("ربط انستجرام"); }, href: "/integrations/instagram", icon: Camera },
+      { get name() { return tr("انستجرام"); }, href: "/instagram", icon: Camera, get badge() { return INSTAGRAM_ORDERS_ENABLED ? "AI" : tr("قريباً"); } },
       { get name() { return tr("ربط تيليجرام"); }, href: "/telegram", icon: Send },
       { get name() { return tr("استيراد من Shopify"); }, href: "/integrations/shopify", icon: ShoppingBag },
       { get name() { return tr("مفاتيح API"); }, href: "/api-keys", icon: Code2 },
