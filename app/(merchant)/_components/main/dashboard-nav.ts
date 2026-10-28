@@ -1,15 +1,13 @@
 import {
   BanknoteArrowUp,
   BookOpen,
-  Camera,
+  Blocks,
   ChartNoAxesCombined,
   CirclePercent,
-  Code2,
   CreditCard,
   Gift,
-  Globe,
+  HandCoins,
   Headset,
-  ImageDown,
   ImageIcon,
   Layers,
   Telescope,
@@ -17,18 +15,14 @@ import {
   MonitorCheck,
   Package,
   PaintRoller,
-  QrCode,
   Rocket,
-  Send,
   Settings,
   ShieldCheck,
-  ShoppingBag,
   ShoppingCart,
   Star,
   Tag,
   Target,
   TrendingUp,
-  Timer,
   Truck,
   Users,
   Warehouse,
@@ -36,7 +30,6 @@ import {
   ShoppingCartIcon,
   type LucideIcon,
 } from "lucide-react";
-import { INSTAGRAM_ORDERS_ENABLED } from "@/lib/instagram/feature";
 import { tr } from "@/lib/i18n/dashboard";
 
 export type NavLeaf = {
@@ -50,6 +43,12 @@ export type NavItem = NavLeaf & {
   icon: LucideIcon;
   /** Sub-pages shown when the item is expanded. */
   children?: NavLeaf[];
+  /**
+   * Pages that belong to this item but aren't listed in the sidebar (the
+   * tools inside Apps, the domain page under Settings): they light the item
+   * up, show as "item › page" in the topbar and stay in the ⌘K search.
+   */
+  related?: NavLeaf[];
 };
 
 export type NavSection = {
@@ -57,6 +56,9 @@ export type NavSection = {
   title?: string;
   items: NavItem[];
 };
+
+/** Live counts next to an item, keyed by its href (e.g. orders waiting on the merchant). */
+export type NavBadges = Partial<Record<string, number>>;
 
 // Single source for the sidebar, the topbar title and the ⌘K search.
 // Hrefs are the clean app-subdomain paths; middleware maps them to /dashboard/*.
@@ -66,37 +68,6 @@ export const NAV_SECTIONS: NavSection[] = [
       { get name() { return tr("نظرة عامة"); }, href: "/", icon: LayoutDashboard },
       { get name() { return tr("الطلبات"); }, href: "/orders", icon: ShoppingCart },
       { get name() { return tr("المنتجات"); }, href: "/products", icon: Package },
-      { get name() { return tr("نقطة البيع (POS)"); }, href: "/pos", icon: MonitorCheck },
-      { get name() { return tr("التقارير"); }, href: "/reports", icon: ChartNoAxesCombined },
-    ],
-  },
-  {
-    get title() { return tr("المتجر"); },
-    items: [
-      { get name() { return tr("التصنيفات"); }, href: "/categories", icon: Tag },
-      { get name() { return tr("البانرات"); }, href: "/banners", icon: ImageIcon },
-      { get name() { return tr("ضغط الصور"); }, href: "/image-compressor", icon: ImageDown },
-      { get name() { return tr("تخصيص المتجر"); }, href: "/customization", icon: PaintRoller },
-      { get name() { return tr("المراجعات"); }, href: "/reviews", icon: Star },
-      { get name() { return tr("المدونة"); }, href: "/blog", icon: BookOpen },
-      { get name() { return tr("دومين مخصص"); }, href: "/domain", icon: Globe },
-    ],
-  },
-  {
-    get title() { return tr("التسويق"); },
-    items: [
-      { get name() { return tr("أكواد الخصم"); }, href: "/coupons", icon: CirclePercent },
-      { get name() { return tr("Upsell و Cross-sell"); }, href: "/offers", icon: TrendingUp },
-      { get name() { return tr("نظام النقاط"); }, href: "/loyalty", icon: Gift },
-      { get name() { return tr("الظهور في جوجل"); }, href: "/seo", icon: Rocket },
-      { get name() { return tr("عربات التسوق المهجورة"); }, href: "/abandoned-carts", icon: ShoppingCartIcon },
-      { get name() { return tr("البيكسل وتتبع الإعلانات"); }, href: "/pixels", icon: Target },
-      { get name() { return tr("QR Code المتجر"); }, href: "/qr-code", icon: QrCode },
-    ],
-  },
-  {
-    get title() { return tr("العمليات"); },
-    items: [
       {
         get name() { return tr("العملاء"); },
         href: "/crm",
@@ -109,6 +80,52 @@ export const NAV_SECTIONS: NavSection[] = [
           { get name() { return tr("التحليلات"); }, href: "/crm/analytics" },
         ],
       },
+      { get name() { return tr("التقارير"); }, href: "/reports", icon: ChartNoAxesCombined },
+      { get name() { return tr("نقطة البيع (POS)"); }, href: "/pos", icon: MonitorCheck },
+    ],
+  },
+  {
+    get title() { return tr("المتجر"); },
+    items: [
+      { get name() { return tr("تخصيص المتجر"); }, href: "/customization", icon: PaintRoller },
+      { get name() { return tr("التصنيفات"); }, href: "/categories", icon: Tag },
+      { get name() { return tr("البانرات"); }, href: "/banners", icon: ImageIcon },
+      { get name() { return tr("المراجعات"); }, href: "/reviews", icon: Star },
+      { get name() { return tr("المدونة"); }, href: "/blog", icon: BookOpen },
+      {
+        get name() { return tr("التطبيقات"); },
+        href: "/apps",
+        icon: Blocks,
+        // Same list as the cards on /apps (lib/apps/catalog.ts).
+        related: [
+          { get name() { return tr("الثيمات"); }, href: "/apps/themes" },
+          { get name() { return tr("الخطوط"); }, href: "/apps/fonts" },
+          { name: "Confirm It", href: "/apps/confirm-it" },
+          { get name() { return tr("ضغط الصور"); }, href: "/image-compressor" },
+          { get name() { return tr("QR Code المتجر"); }, href: "/qr-code" },
+          { get name() { return tr("انستجرام"); }, href: "/instagram" },
+          { get name() { return tr("ربط تيليجرام"); }, href: "/telegram" },
+          { get name() { return tr("استيراد من Shopify"); }, href: "/integrations/shopify" },
+          { get name() { return tr("التكاملات"); }, href: "/integrations" },
+          { get name() { return tr("مفاتيح API"); }, href: "/api-keys" },
+        ],
+      },
+    ],
+  },
+  {
+    get title() { return tr("التسويق"); },
+    items: [
+      { get name() { return tr("أكواد الخصم"); }, href: "/coupons", icon: CirclePercent },
+      { get name() { return tr("Upsell و Cross-sell"); }, href: "/offers", icon: TrendingUp },
+      { get name() { return tr("نظام النقاط"); }, href: "/loyalty", icon: Gift },
+      { get name() { return tr("عربات التسوق المهجورة"); }, href: "/abandoned-carts", icon: ShoppingCartIcon },
+      { get name() { return tr("الظهور في جوجل"); }, href: "/seo", icon: Rocket },
+      { get name() { return tr("البيكسل وتتبع الإعلانات"); }, href: "/pixels", icon: Target },
+    ],
+  },
+  {
+    get title() { return tr("العمليات"); },
+    items: [
       {
         get name() { return tr("المخزون"); },
         href: "/inventory",
@@ -131,16 +148,8 @@ export const NAV_SECTIONS: NavSection[] = [
           { get name() { return tr("طرق وأسعار الشحن"); }, href: "/shipping" },
         ],
       },
+      { get name() { return tr("بوابات الدفع"); }, href: "/payment-methods", icon: CreditCard },
       { get name() { return tr("الحماية من الوهمي"); }, href: "/fraud", icon: ShieldCheck },
-    ],
-  },
-  {
-    get title() { return tr("القنوات والربط"); },
-    items: [
-      { get name() { return tr("انستجرام"); }, href: "/instagram", icon: Camera, get badge() { return INSTAGRAM_ORDERS_ENABLED ? "AI" : tr("قريباً"); } },
-      { get name() { return tr("ربط تيليجرام"); }, href: "/telegram", icon: Send },
-      { get name() { return tr("استيراد من Shopify"); }, href: "/integrations/shopify", icon: ShoppingBag },
-      { get name() { return tr("مفاتيح API"); }, href: "/api-keys", icon: Code2 },
     ],
   },
   {
@@ -148,10 +157,9 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { get name() { return tr("الرصيد"); }, href: "/balance", icon: Wallet },
       { get name() { return tr("الخطة والاشتراك"); }, href: "/change-plan", icon: BanknoteArrowUp },
-      { get name() { return tr("بوابات الدفع"); }, href: "/payment-methods", icon: CreditCard },
       { get name() { return tr("خدمات إضافية"); }, href: "/services", icon: Layers },
       { name: "Casho Sharks", href: "/sharks", icon: Telescope },
-      { get name() { return tr("نظام المكافآت"); }, href: "/referral", icon: Gift },
+      { get name() { return tr("ادعُ واكسب"); }, href: "/referral", icon: HandCoins },
     ],
   },
 ];
@@ -159,7 +167,12 @@ export const NAV_SECTIONS: NavSection[] = [
 /** Pinned to the bottom of the sidebar. */
 export const NAV_FOOTER: NavItem[] = [
   { get name() { return tr("مركز المساعدة"); }, href: "/support", icon: Headset },
-  { get name() { return tr("الإعدادات"); }, href: "/settings", icon: Settings },
+  {
+    get name() { return tr("الإعدادات"); },
+    href: "/settings",
+    icon: Settings,
+    related: [{ get name() { return tr("دومين مخصص"); }, href: "/domain" }],
+  },
 ];
 
 /** `/dashboard/orders/123` and `/orders/123` both become `/orders/123`. */
@@ -181,9 +194,10 @@ export function findActiveNav(rawPathname: string): ActiveNav | null {
   let best: (ActiveNav & { length: number }) | null = null;
 
   for (const item of [...NAV_SECTIONS.flatMap((s) => s.items), ...NAV_FOOTER]) {
-    const candidates: ActiveNav[] = item.children
-      ? item.children.map((child) => ({ item, child }))
-      : [{ item }];
+    const candidates: ActiveNav[] = [
+      ...(item.children ? item.children.map((child) => ({ item, child })) : [{ item }]),
+      ...(item.related ?? []).map((child) => ({ item, child })),
+    ];
 
     for (const candidate of candidates) {
       const href = candidate.child?.href ?? candidate.item.href;

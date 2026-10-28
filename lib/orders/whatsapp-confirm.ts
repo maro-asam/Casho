@@ -51,8 +51,18 @@ export function canAskToConfirm(order: { status: OrderStatus; confirmationStatus
 
 export type CustomerAnswer = "confirm" | "cancel";
 
+/** Where the answer came from: Casho's own signed link, or the Confirm It app (lib/apps/confirm-it). */
+type AnswerSource = { via?: "link" | "confirm-it"; reason?: string | null };
+
+const SOURCE_TEXT = {
+  link: { confirmed: "من واتساب", canceled: "من رابط التأكيد على واتساب", signal: "العميل لغى الطلب من رابط التأكيد على واتساب" },
+  "confirm-it": { confirmed: "مع Confirm It", canceled: "مع Confirm It", signal: "العميل لغى الطلب مع Confirm It" },
+} as const;
+
 /** Applies the customer's answer. Returns false when the order can no longer change. */
-export async function applyCustomerAnswer(orderId: string, answer: CustomerAnswer) {
+export async function applyCustomerAnswer(orderId: string, answer: CustomerAnswer, source: AnswerSource = {}) {
+  const via = source.via ?? "link";
+  const text = SOURCE_TEXT[via];
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     select: { id: true, storeId: true, fullName: true, total: true, status: true, confirmationStatus: true, store: { select: { userId: true } } },
@@ -75,9 +85,9 @@ export async function applyCustomerAnswer(orderId: string, answer: CustomerAnswe
         userId: order.store.userId,
         type: NotificationType.ORDER_STATUS_CHANGED,
         title: "العميل أكّد الطلب",
-        message: `${order.fullName} أكّد طلبه من واتساب — جهّزه للشحن.`,
+        message: `${order.fullName} أكّد طلبه ${text.confirmed} — جهّزه للشحن.`,
         href: `/dashboard/orders/${order.id}`,
-        data: { orderId: order.id, confirmedBy: "whatsapp" },
+        data: { orderId: order.id, confirmedBy: via === "link" ? "whatsapp" : via },
       });
     }
     return true;
@@ -86,7 +96,7 @@ export async function applyCustomerAnswer(orderId: string, answer: CustomerAnswe
   const canceled = await prisma.$transaction(async (tx) => {
     const res = await tx.order.updateMany({
       where: { id: orderId, status: OrderStatus.PENDING, paidAt: null },
-      data: { status: OrderStatus.CANCELED, riskSignals: { push: "العميل لغى الطلب من رابط التأكيد على واتساب" } },
+      data: { status: OrderStatus.CANCELED, riskSignals: { push: source.reason ? `${text.signal}: ${source.reason}` : text.signal } },
     });
     if (res.count !== 1) return false;
     await adjustStockForOrderStatus(tx, { storeId: order.storeId, orderId, direction: "restock" });
@@ -99,7 +109,7 @@ export async function applyCustomerAnswer(orderId: string, answer: CustomerAnswe
     userId: order.store.userId,
     type: NotificationType.ORDER_STATUS_CHANGED,
     title: "العميل لغى الطلب",
-    message: `${order.fullName} لغى طلبه من رابط التأكيد على واتساب، والمخزون رجع.`,
+    message: `${order.fullName} لغى طلبه ${text.canceled}، والمخزون رجع.${source.reason ? ` السبب: ${source.reason}` : ""}`,
     href: `/dashboard/orders/${order.id}`,
     data: { orderId: order.id, previousStatus: order.status, status: OrderStatus.CANCELED, total: order.total },
   });

@@ -3,6 +3,7 @@
 import type { Dictionary } from "../runtime";
 import _abandoned_carts from "./abandoned-carts.json";
 import _api_keys from "./api-keys.json";
+import _apps from "./apps.json";
 import _balance from "./balance.json";
 import _banners from "./banners.json";
 import _blog from "./blog.json";
@@ -50,5 +51,5 @@ import _support from "./support.json";
 import _telegram from "./telegram.json";
 import _trial_expired from "./trial-expired.json";
 
-const english: Dictionary = Object.assign({}, _abandoned_carts, _api_keys, _balance, _banners, _blog, _builder, _categories, _change_plan, _colors, _common, _coupons, _crm, _customization, _domain, _fraud, _image_compressor, _integrations, _inventory, _invitation, _lib_constants, _loyalty, _messages_1, _messages_2, _notifications, _offers, _onboarding, _orders, _payment_methods, _pixels, _plans, _pos, _print, _products, _qr_code, _referral, _reports, _reviews, _seo, _services, _settings, _sharks, _shell, _shipping, _studio, _suggested_orders, _support, _telegram, _trial_expired);
+const english: Dictionary = Object.assign({}, _abandoned_carts, _api_keys, _apps, _balance, _banners, _blog, _builder, _categories, _change_plan, _colors, _common, _coupons, _crm, _customization, _domain, _fraud, _image_compressor, _integrations, _inventory, _invitation, _lib_constants, _loyalty, _messages_1, _messages_2, _notifications, _offers, _onboarding, _orders, _payment_methods, _pixels, _plans, _pos, _print, _products, _qr_code, _referral, _reports, _reviews, _seo, _services, _settings, _sharks, _shell, _shipping, _studio, _suggested_orders, _support, _telegram, _trial_expired);
 export default english;

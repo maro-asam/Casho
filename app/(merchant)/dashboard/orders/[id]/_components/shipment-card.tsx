@@ -58,6 +58,8 @@ export type ShipCarrierOption = {
   isApi: boolean;
   cod: boolean;
   defaultWeightKg: number | null;
+  /** Areas to pick from when the carrier needs one (Mylerz in Cairo/Giza). */
+  zones?: { code: string; name: string }[];
 };
 
 export type ShipmentView = {
@@ -191,6 +193,25 @@ function ShipForm({
         </fieldset>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          {carrier.zones && carrier.zones.length > 0 && (
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="px-1 text-[13px] font-normal text-muted-foreground" htmlFor="zone">
+                {tr("المنطقة")}
+                <span className="text-destructive"> *</span>
+              </Label>
+              <select key={`${carrier.key}-zone`} id="zone" name="zone" required defaultValue="" className={cn(field, "w-full px-3 outline-none")}>
+                <option value="" disabled>
+                  {tr("اختار منطقة العميل")}
+                </option>
+                {carrier.zones.map((z) => (
+                  <option key={z.code} value={z.code}>
+                    {z.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {!carrier.isApi && (
             <div className="space-y-1.5 sm:col-span-2">
               <Label className="px-1 text-[13px] font-normal text-muted-foreground" htmlFor="trackingNumber">

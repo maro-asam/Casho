@@ -18,10 +18,11 @@ import { WhatsAppConfirmButton } from "../_components/whatsapp-confirm-button";
 import { canAskToConfirm, orderConfirmUrl } from "@/lib/orders/whatsapp-confirm";
 import { orderNumber, orderTrackUrl } from "@/lib/orders/tracking";
 import { ShipmentCard, type ShipCarrierOption, type ShipmentView } from "./_components/shipment-card";
+import { getMylerzZones } from "@/lib/shipping/providers/mylerz";
 import { getStoreCarriers } from "@/lib/shipping/store-carriers";
 import { carrierDisplayName, getCarrier } from "@/lib/shipping/carriers";
 import { readShipmentEvents } from "@/lib/shipping/shipment-status";
-import { governorateName } from "@/constants/egypt-governorates";
+import { governorateName, governorateNameEn } from "@/constants/egypt-governorates";
 import { lazyIntl, tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 
@@ -127,6 +128,13 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
     (order.paymentMethod !== "cash_on_delivery" && ["PAID", "SHIPPED", "DELIVERED"].includes(order.status)) ||
     order.status === "DELIVERED";
 
+  // Mylerz prices by area: Cairo/Giza need one picked from its list; most governorates have a single area.
+  const governorateEn = governorateNameEn(order.governorate);
+  const mylerzZones =
+    !shipment && governorateEn && storeCarriers.some((c) => c.provider === "MYLERZ" && c.isActive)
+      ? await getMylerzZones(governorateEn).catch(() => [])
+      : [];
+
   const shipCarriers: ShipCarrierOption[] = storeCarriers.flatMap((c) => {
     const carrier = getCarrier(c.provider);
     if (!carrier || !c.isActive) return [];
@@ -137,6 +145,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
         isApi: carrier.integration === "api",
         cod: carrier.features.cod,
         defaultWeightKg: c.settings.defaultWeightKg ?? null,
+        ...(carrier.key === "MYLERZ" && mylerzZones.length > 1 && { zones: mylerzZones.map((z) => ({ code: z.code, name: z.nameAr || z.name })) }),
       },
     ];
   });

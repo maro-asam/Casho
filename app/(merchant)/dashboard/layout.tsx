@@ -7,6 +7,7 @@ import DashboardShell from "../_components/main/DashboardShell";
 import VerifyEmailNotice from "../_components/main/VerifyEmailNotice";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { GetNotificationsAction } from "@/actions/notifications/notifications.actions";
+import { countNavBadges } from "@/lib/dashboard/nav-badges";
 import { isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 import { renewIfDue } from "@/lib/billing/renewal";
 import { needsEmailVerification } from "@/lib/auth/email-verification";
@@ -118,7 +119,7 @@ export default async function DashboardLayout({
     redirect("/dashboard/trial-expired");
   }
 
-  const { notifications, unreadCount } = await GetNotificationsAction(10);
+  const [{ notifications, unreadCount }, navBadges] = await Promise.all([GetNotificationsAction(10), countNavBadges(store.id)]);
 
   return (
     <DashboardI18nProvider locale={locale}>
@@ -126,6 +127,7 @@ export default async function DashboardLayout({
       store={store}
       initialNotifications={notifications}
       initialUnreadCount={unreadCount}
+      initialNavBadges={navBadges}
       notice={account && !account.emailVerified ? <VerifyEmailNotice email={account.email} /> : undefined}
     >
       {children}

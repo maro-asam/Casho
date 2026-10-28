@@ -8,16 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
-import { NAV_FOOTER, NAV_SECTIONS, type ActiveNav, type NavItem } from "./dashboard-nav";
+import { NAV_FOOTER, NAV_SECTIONS, type ActiveNav, type NavBadges, type NavItem } from "./dashboard-nav";
 import { isRtl, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
   store: { name: string; slug: string };
   active: ActiveNav | null;
+  /** Live counts (orders waiting…), keyed by item href. */
+  badges?: NavBadges;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
   /** Called after following a link (closes the mobile sheet). */
   onNavigate?: () => void;
+  /** Off for the landing page's inert demo, where these routes don't exist. */
+  prefetch?: boolean;
 };
 
 function initialsOf(name: string) {
@@ -30,13 +34,15 @@ function initialsOf(name: string) {
     .toUpperCase();
 }
 
+const countLabel = (count: number) => (count > 99 ? "99+" : String(count));
+
 // macOS sidebar rows: monochrome glyphs, tinted glyph + soft fill on the current page.
 const itemBase =
   "apple-press flex h-9 items-center gap-2.5 rounded-[10px] px-2.5 text-[13.5px] font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
 const itemIdle = "text-sidebar-foreground/80 hover:bg-sidebar-accent";
 const itemActive = "bg-sidebar-accent font-semibold text-sidebar-foreground";
 
-export default function DashboardSidebar({ store, active, collapsed = false, onToggleCollapsed, onNavigate }: Props) {
+export default function DashboardSidebar({ store, active, badges, collapsed = false, onToggleCollapsed, onNavigate, prefetch }: Props) {
   // Groups start open when they contain the current page; the user can toggle freely after.
   const [openGroups, setOpenGroups] = useState<Set<string>>(
     () => new Set(active?.child ? [active.item.href] : []),
@@ -53,6 +59,7 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
   const renderItem = (item: NavItem) => {
     const Icon = item.icon;
     const isActive = active?.item.href === item.href;
+    const count = badges?.[item.href] ?? 0;
 
     // Collapsed rail: icon only, groups jump to their first page.
     if (collapsed) {
@@ -62,14 +69,16 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
             <Link
               href={item.href}
               onClick={onNavigate}
-              aria-label={item.name}
+              prefetch={prefetch}
+              aria-label={count > 0 ? `${item.name} (${count})` : item.name}
               aria-current={isActive ? "page" : undefined}
-              className={cn(itemBase, "justify-center px-0", isActive ? itemActive : itemIdle)}
+              className={cn(itemBase, "relative justify-center px-0", isActive ? itemActive : itemIdle)}
             >
               <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
+              {count > 0 && <span aria-hidden className="absolute top-1.5 end-3 size-2 rounded-full bg-(--sys-red) ring-2 ring-sidebar" />}
             </Link>
           </TooltipTrigger>
-          <TooltipContent side={isRtl() ? "left" : "right"}>{item.name}</TooltipContent>
+          <TooltipContent side={isRtl() ? "left" : "right"}>{count > 0 ? `${item.name} · ${countLabel(count)}` : item.name}</TooltipContent>
         </Tooltip>
       );
     }
@@ -103,6 +112,7 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
                     <Link
                       href={child.href}
                       onClick={onNavigate}
+                      prefetch={prefetch}
                       aria-current={childActive ? "page" : undefined}
                       className={cn(itemBase, "h-8 text-[13px]", childActive ? cn(itemActive, "text-sidebar-primary") : itemIdle)}
                     >
@@ -122,12 +132,21 @@ export default function DashboardSidebar({ store, active, collapsed = false, onT
         key={item.href}
         href={item.href}
         onClick={onNavigate}
+        prefetch={prefetch}
         aria-current={isActive ? "page" : undefined}
         className={cn(itemBase, isActive ? itemActive : itemIdle)}
       >
         <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
         <span className="flex-1 truncate">{item.name}</span>
-        {item.badge && (
+        {count > 0 && (
+          <span
+            aria-label={tr("{0} مستني", countLabel(count))}
+            className="min-w-5 rounded-full bg-(--sys-red) px-1.5 py-px text-center text-[11px] font-semibold text-white tabular-nums"
+          >
+            {countLabel(count)}
+          </span>
+        )}
+        {!count && item.badge && (
           <span className="rounded-full bg-sidebar-accent px-1.5 py-px text-[10px] font-semibold text-sidebar-foreground/70">
             {item.badge}
           </span>

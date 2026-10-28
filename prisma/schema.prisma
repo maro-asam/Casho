@@ -309,6 +309,8 @@ model Store {
 
   sharksApplications SharksApplication[]
 
+  apps StoreApp[]
+
   @@index([userId])
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -2377,6 +2379,30 @@ model WebhookDelivery {
 // ─────────────────────────────────────────────────────────────
 // Shipping Integrations (Logistics Engine)
 // ─────────────────────────────────────────────────────────────
+
+/// An app the merchant installed from the dashboard's Apps section (lib/apps/catalog.ts).
+/// Built-in apps (themes, fonts) need no row — only apps with their own config do.
+model StoreApp {
+  id                String    @id @default(uuid())
+  storeId           String
+  store             Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  /// App key from lib/apps/catalog.ts (e.g. "confirm-it")
+  appId             String
+  isActive          Boolean   @default(true)
+  /// AES-256-GCM encrypted JSON of the app's secrets (via lib/secrets.ts).
+  credentials       String?
+  /// App-specific non-secret settings.
+  settings          Json?
+  /// SHA-256 of the token in the app's inbound callback URL.
+  callbackTokenHash String?   @unique
+  lastSyncAt        DateTime?
+  lastError         String?
+  installedAt       DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([storeId, appId])
+  @@index([storeId])
+}
 
 model ShippingIntegration {
   id          String   @id @default(uuid())

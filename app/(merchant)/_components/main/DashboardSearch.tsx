@@ -26,18 +26,20 @@ const quickActions: SearchItem[] = [
   { get label() { return tr("الطلبات المكتملة"); }, href: "/orders?status=DELIVERED", icon: CheckCircle2 },
 ];
 
-// Same pages as the sidebar, sub-pages flattened under their parent's name.
+// Same pages as the sidebar (plus the ones inside an item), sub-pages flattened under their parent's name.
 // Built per render: labels are translated getters, read in the active locale.
 const getPageGroups = () => [
   ...NAV_SECTIONS.map((section) => ({ title: section.title ?? tr("الرئيسية"), items: section.items })),
   { title: tr("الحساب والدعم"), items: NAV_FOOTER },
 ].map(({ title, items }) => ({
   title,
-  items: items.flatMap<SearchItem>((item) =>
-    item.children
+  items: items.flatMap<SearchItem>((item) => [
+    ...(item.children
       ? item.children.map((child) => ({ label: tr("{0} · {1}", item.name, child.name), href: child.href, icon: item.icon }))
-      : [{ label: item.name, href: item.href, icon: item.icon }],
-  ),
+      : [{ label: item.name, href: item.href, icon: item.icon }]),
+    // Pages inside the item (Apps' tools…) are searchable by their own name.
+    ...(item.related ?? []).map((page) => ({ label: tr("{0} · {1}", item.name, page.name), href: page.href, icon: item.icon })),
+  ]),
 }));
 
 function isMac() {

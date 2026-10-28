@@ -98,5 +98,14 @@
   "مدة التوصيل": "Delivery time",
   "ابحث عن محافظة": "Search governorates",
   "كده العميل هيشوفها في صفحة الدفع": "How customers see it at checkout",
-  "{0} طريقة شغّالة": "{0} active methods"
+  "{0} طريقة شغّالة": "{0} active methods",
+  "اختار منطقة العميل": "Choose the customer's area",
+  "اختياري — أول مخزن في حسابك": "Optional — your account's first warehouse",
+  "اسم المخزن (Warehouse)": "Warehouse name",
+  "المكان اللي المندوب بيستلم منه الشحنات. بيتطبع على البوليصة كعنوان الراسل.": "Where the courier picks up your parcels. Printed on the waybill as the sender's address.",
+  "المنطقة": "Area",
+  "بيانات دخول الـ Integration اللي مايلرز بتديهالك": "The integration login Mylerz gives you",
+  "توصيل للتجارة الإلكترونية في مصر مع تحصيل عند الاستلام، بوليصة تلقائية وتتبع من جوه كاشو.": "E-commerce delivery across Egypt with cash on delivery — automatic waybills and tracking inside Casho.",
+  "عنوان الاستلام": "Pickup address",
+  "مثال: ١٢ شارع التحرير، الدقي": "e.g. 12 Tahrir St, Dokki"
 }

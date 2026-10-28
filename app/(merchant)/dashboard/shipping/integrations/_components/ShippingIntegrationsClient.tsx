@@ -392,6 +392,26 @@ function CarrierSheet({
                 </div>
               )}
             </div>
+
+            {carrier.integration === "api" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="pickupAddress" className={fieldLabel}>
+                  {tr("عنوان الاستلام")}
+                  {carrier.key === "ARAMEX" && <span className="text-(--sys-red)"> *</span>}
+                </Label>
+                <Input
+                  id="pickupAddress"
+                  name="pickupAddress"
+                  maxLength={200}
+                  required={carrier.key === "ARAMEX"}
+                  defaultValue={entry?.settings.pickupAddress ?? ""}
+                  placeholder={tr("مثال: ١٢ شارع التحرير، الدقي")}
+                />
+                <p className="px-1 text-[13px] leading-[18px] text-muted-foreground">
+                  {tr("المكان اللي المندوب بيستلم منه الشحنات. بيتطبع على البوليصة كعنوان الراسل.")}
+                </p>
+              </div>
+            )}
           </div>
         </section>
 

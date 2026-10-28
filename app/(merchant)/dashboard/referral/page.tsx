@@ -7,7 +7,7 @@ import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 export async function generateMetadata(): Promise<Metadata> {
   await loadDashboardLocale();
   return {
-  title: tr("نظام المكافأت"),
+  title: tr("ادعُ واكسب"),
 };
 }
 

@@ -93,12 +93,17 @@ export async function SaveCarrierIntegrationAction(carrierKey: string, formData:
   }
   const pickupRaw = String(formData.get("pickupGovernorate") ?? "").trim();
   const pickupGovernorate = isGovernorateCode(pickupRaw) ? pickupRaw : undefined;
+  const pickupAddress = String(formData.get("pickupAddress") ?? "").trim().slice(0, 200);
+  if (carrier.key === "ARAMEX" && !pickupAddress) {
+    return { success: false, message: "أرامكس محتاجة عنوان الاستلام بتاعك عشان يتطبع على البوليصة" };
+  }
 
   const settings: CarrierSettings = {
     ...(trackingUrlTemplate && { trackingUrlTemplate }),
     ...(displayName && { displayName }),
     ...(defaultWeightKg !== undefined && { defaultWeightKg }),
     ...(pickupGovernorate && { pickupGovernorate }),
+    ...(pickupAddress && { pickupAddress }),
   };
 
   await prisma.shippingIntegration.upsert({

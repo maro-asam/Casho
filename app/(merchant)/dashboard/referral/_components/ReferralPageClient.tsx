@@ -143,7 +143,7 @@ export function ReferralPageClient({
     <div className="space-y-6" dir={tdir()}>
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">{tr("نظام المكافأت")}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{tr("ادعُ واكسب")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {tr("ادعُ تجاراً جدداً واحصل على مكافآت تتصاعد كلما ارتقيت في المستويات")}
         </p>

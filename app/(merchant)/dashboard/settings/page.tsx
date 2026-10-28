@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AtSign, ExternalLink, Languages, Mail, PauseCircle, ShieldCheck, Store, Truck, Users, UserX } from "lucide-react";
+import { AtSign, ChevronLeft, ExternalLink, Globe, Languages, Mail, PauseCircle, ShieldCheck, Store, Truck, Users, UserX } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
 import { LargeTitle, Unavailable, appleButton } from "@/components/saas-page";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { IconTile } from "./_components/settings-ui";
+import { Group, IconTile } from "./_components/settings-ui";
 import StoreSettingsForm from "./_components/StoreSettingsForm";
 import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
@@ -51,6 +51,8 @@ export default async function SettingsRoute() {
       name: true,
       slug: true,
       poweredByRemovalEnabled: true,
+      customDomain: true,
+      customDomainStatus: true,
       user: { select: { email: true } },
       settings: {
         select: {
@@ -88,6 +90,7 @@ export default async function SettingsRoute() {
   const storeUrl = buildStoreUrl(store.slug);
   const nav = [
     { id: "store", label: tr("بيانات المتجر"), icon: Store, tint: "bg-primary" },
+    { id: "domain", label: tr("دومين مخصص"), icon: Globe, tint: "bg-sky-500" },
     { id: "shipping", label: tr("الشحن"), icon: Truck, tint: "bg-(--sys-orange)" },
     { id: "contact", label: tr("روابط التواصل"), icon: AtSign, tint: "bg-(--sys-green)" },
     { id: "pause", label: tr("إيقاف المتجر مؤقتًا"), icon: PauseCircle, tint: "bg-(--sys-orange)" },
@@ -145,6 +148,29 @@ export default async function SettingsRoute() {
         {/* ── Content ─────────────────────────────────────────── */}
         <div className="min-w-0 max-w-3xl space-y-8">
           <StoreSettingsForm store={store} />
+          {/* Its own page (DNS steps, verification) — linked from here instead of the sidebar. */}
+          <Group id="domain" title={tr("دومين مخصص")} inset={58}>
+            <Link href="/domain" className="flex min-h-11 items-center gap-3 px-4 py-2.5 text-[15px] transition-colors hover:bg-(--fill-3)/60">
+              <IconTile icon={Globe} tint="bg-sky-500" />
+              <span className="min-w-0 flex-1 truncate">
+                {store.customDomain ? (
+                  <span dir="ltr">{store.customDomain}</span>
+                ) : (
+                  tr("اربط دومين خاص بيك بدل {0}", storeUrl.replace(/^https?:\/\//, ""))
+                )}
+              </span>
+              <span className="shrink-0 text-[13px] text-muted-foreground">
+                {!store.customDomain
+                  ? tr("ربط")
+                  : store.customDomainStatus === "ACTIVE"
+                    ? tr("شغال")
+                    : store.customDomainStatus === "FAILED"
+                      ? tr("فيه مشكلة")
+                      : tr("مستني الإعداد")}
+              </span>
+              <ChevronLeft className="size-4 shrink-0 text-muted-foreground/60 ltr:-scale-x-100" />
+            </Link>
+          </Group>
           <StorePauseSettings
             initial={{
               pausedUntil: isPaused(store.settings?.pausedUntil) ? store.settings.pausedUntil.toISOString() : null,

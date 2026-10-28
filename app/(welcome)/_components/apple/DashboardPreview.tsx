@@ -264,7 +264,7 @@ export default function DashboardScreen({
       <div inert dir={tdir()} className="relative h-full overflow-hidden">
         {/* Floating glass sidebar island, as in DashboardShell. */}
         <aside className="absolute inset-y-3 start-3 z-40 hidden w-64 overflow-hidden rounded-[22px] md:block">
-          <DashboardSidebar store={store} active={ACTIVE} />
+          <DashboardSidebar store={store} active={ACTIVE} badges={{ "/orders": 1 }} prefetch={false} />
         </aside>
 
         <div className="relative h-full md:ps-70">

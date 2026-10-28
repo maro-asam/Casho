@@ -1,35 +1,36 @@
 /**
- * Aramex shipping provider adapter.
- * Docs: https://www.aramex.com/developers/apis
- * Base URL: https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc/json
+ * Aramex shipping provider adapter (Shipping Services API v2, JSON flavour of the
+ * WCF service). Field names and codes follow the Aramex API manual as used by the
+ * open-source SDKs: ProductGroup DOM/EXP, PaymentType P/C/3, Services "CODS".
  *
- * NOTE: Aramex uses SOAP/JSON hybrid API. This adapter wraps the JSON endpoints.
- * Credentials required: ClientInfo (UserName, Password, AccountNumber, AccountPin, etc.)
+ * Gotchas this adapter handles:
+ *  - Dates are WCF JSON dates — the string must arrive as `"\/Date(ms)\/"`, which
+ *    JSON.stringify can't produce, so the body is patched after serialising.
+ *  - Errors come per shipment (`Shipments[i].HasErrors` + `Notifications`), not
+ *    only at the top level, and with HTTP 200.
+ *  - Cash on delivery is the CODS *service* on a prepaid shipment. PaymentType "C"
+ *    means the receiver pays the shipping fee, which is something else.
  */
 
 import type {
-  ShippingProvider,
   CreateShipmentParams,
-  ShipmentResult,
-  TrackingResult,
   RateParams,
   RateResult,
+  ShipmentResult,
+  ShippingAddress,
+  ShippingProvider,
   StandardShipmentStatus,
+  TrackingResult,
 } from "@/lib/shipping/types";
 
-const SHIP_URL = "https://ws.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc/json";
-const TRACK_URL = "https://ws.aramex.net/ShippingAPI.V2/Tracking/Service_1_0.svc/json";
+const BASE = "https://ws.aramex.net/ShippingAPI.V2";
+const SHIP_URL = `${BASE}/Shipping/Service_1_0.svc/json`;
+const TRACK_URL = `${BASE}/Tracking/Service_1_0.svc/json`;
+const RATE_URL = `${BASE}/RateCalculator/Service_1_0.svc/json`;
 
-const ARAMEX_STATUS_MAP: Record<string, StandardShipmentStatus> = {
-  "PN": "CREATED",
-  "PP": "PICKED_UP",
-  "IT": "IN_TRANSIT",
-  "OD": "OUT_FOR_DELIVERY",
-  "DL": "DELIVERED",
-  "ND": "FAILED_DELIVERY",
-  "RR": "RETURNED",
-  "CX": "CANCELED",
-};
+/** Domestic parcels; international shipments use the express group. */
+const DOMESTIC = { ProductGroup: "DOM", ProductType: "ONP" } as const;
+const INTERNATIONAL = { ProductGroup: "EXP", ProductType: "PPX" } as const;
 
 export interface AramexConfig {
   userName: string;
@@ -39,6 +40,59 @@ export interface AramexConfig {
   accountEntity: string;
   accountCountryCode: string;
   version: string;
+}
+
+type Notification = { Code?: string; Message?: string };
+
+/** WCF JSON date placeholder; turned into `\/Date(ms)\/` when the body is serialised. */
+const wcfDate = (d: Date) => `/Date(${d.getTime()})/`;
+
+export function serializeAramexBody(body: unknown) {
+  return JSON.stringify(body).replace(/"\/Date\((\d+)\)\/"/g, '"\\/Date($1)\\/"');
+}
+
+/** `/Date(1700000000000+0200)/` → Date (null when it isn't one). */
+export function parseAramexDate(value: string | undefined | null): Date | null {
+  const match = value?.match(/\/Date\((-?\d+)(?:[+-]\d{4})?\)\//);
+  return match ? new Date(Number(match[1])) : null;
+}
+
+/**
+ * Aramex update codes are account/region specific, so the description decides
+ * the status; the few codes that are stable everywhere back it up.
+ */
+export function aramexStatus(code: string | undefined, description: string | undefined): StandardShipmentStatus {
+  const d = (description ?? "").toLowerCase();
+  if (code === "SH005" || code === "SH006" || code === "SH007" || /\bdelivered\b|collected by consignee/.test(d)) return "DELIVERED";
+  if (/return(ed)? to shipper|returned|return to origin/.test(d)) return "RETURNED";
+  if (/cancel/.test(d)) return "CANCELED";
+  if (code === "SH003" || /out for delivery|with delivery courier/.test(d)) return "OUT_FOR_DELIVERY";
+  if (/attempt|not delivered|refused|unable to deliver|consignee not available|address/.test(d)) return "FAILED_DELIVERY";
+  if (code === "SH014" || /record created|shipment created|data received/.test(d)) return "CREATED";
+  if (/picked up|collected from shipper|received at origin/.test(d)) return "PICKED_UP";
+  return "IN_TRANSIT";
+}
+
+function partyContact(p: ShippingAddress, fallbackCompany: string) {
+  const name = `${p.firstName} ${p.lastName ?? ""}`.trim();
+  return {
+    PersonName: name,
+    CompanyName: p.company || name || fallbackCompany,
+    PhoneNumber1: p.phone,
+    CellPhone: p.phone,
+    EmailAddress: p.email ?? "",
+  };
+}
+
+function partyAddress(p: ShippingAddress) {
+  return {
+    Line1: p.street,
+    Line2: [p.district, p.buildingNumber && `Building ${p.buildingNumber}`].filter(Boolean).join(", "),
+    Line3: [p.floor && `Floor ${p.floor}`, p.apartment && `Apt ${p.apartment}`].filter(Boolean).join(", "),
+    City: p.city,
+    PostCode: p.postalCode ?? "",
+    CountryCode: p.countryCode ?? "EG",
+  };
 }
 
 export class AramexProvider implements ShippingProvider {
@@ -62,64 +116,61 @@ export class AramexProvider implements ShippingProvider {
   private async post<T>(url: string, body: unknown): Promise<T> {
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(15_000),
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: serializeAramexBody(body),
+      signal: AbortSignal.timeout(20_000),
     });
 
-    const data = (await res.json()) as Record<string, unknown>;
-    const hasErrors =
-      (data.HasErrors as boolean) ||
-      (Array.isArray(data.Notifications) &&
-        (data.Notifications as Array<{ Code: string }>).some((n) => n.Code !== "000"));
+    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    const notes: Notification[] = [
+      ...((data.Notifications as Notification[] | undefined) ?? []),
+      ...(((data.Shipments as { Notifications?: Notification[] }[] | undefined) ?? []).flatMap((s) => s.Notifications ?? [])),
+    ];
+    const shipmentFailed = ((data.Shipments as { HasErrors?: boolean }[] | undefined) ?? []).some((s) => s.HasErrors);
 
-    if (!res.ok || hasErrors) {
-      const msgs = (data.Notifications as Array<{ Message: string }> | undefined)
-        ?.map((n) => n.Message)
-        .join("; ");
-      throw new Error(`Aramex API error: ${msgs ?? "Unknown error"}`);
+    if (!res.ok || data.HasErrors === true || shipmentFailed) {
+      const msgs = notes.map((n) => [n.Code, n.Message].filter(Boolean).join(": ")).filter(Boolean);
+      if (res.status === 401 || msgs.some((m) => /invalid (user ?name|password|account)|authentication/i.test(m))) {
+        throw new Error("بيانات حساب أرامكس غلط (اسم المستخدم أو الباسورد أو رقم الحساب أو الـ PIN). راجعها من صفحة شركات الشحن.");
+      }
+      if (res.status >= 500 && msgs.length === 0) throw new Error("أرامكس فيها مشكلة من عندها دلوقتي. جرّب تاني بعد شوية.");
+      throw new Error(`Aramex API error: ${msgs.join("; ") || `HTTP ${res.status}`}`);
     }
 
     return data as T;
   }
 
   async createShipment(params: CreateShipmentParams): Promise<ShipmentResult> {
-    const hasCOD = (params.codAmountPiasters ?? 0) > 0;
-    const codAmount = hasCOD ? (params.codAmountPiasters! / 100).toFixed(2) : "0.00";
+    const sender = params.sender;
+    if (!sender?.street) throw new Error("أرامكس محتاجة عنوان الاستلام بتاعك. اكتبه في إعدادات أرامكس من صفحة شركات الشحن.");
+    if (!sender.phone) throw new Error("أرامكس محتاجة رقم موبايل للمتجر. ضيفه في إعدادات المتجر.");
+
+    const cod = (params.codAmountPiasters ?? 0) / 100;
+    const domestic = (params.receiver.countryCode ?? "EG") === (sender.countryCode ?? "EG");
+    const now = new Date();
 
     const body = {
       ClientInfo: this.clientInfo,
+      LabelInfo: { ReportID: 9201, ReportType: "URL" },
       Shipments: [
         {
           Reference1: params.reference ?? params.orderId ?? "",
           Shipper: {
             Reference1: params.reference ?? "",
             AccountNumber: this.config.accountNumber,
-            PartyAddress: {
-              CountryCode: params.sender?.countryCode ?? "EG",
-              City: params.sender?.city ?? "Cairo",
-              Line1: params.sender?.street ?? "",
-            },
-            Contact: {
-              PersonName: `${params.sender?.firstName ?? "Store"} ${params.sender?.lastName ?? ""}`.trim(),
-              PhoneNumber1: params.sender?.phone ?? "",
-            },
+            PartyAddress: partyAddress(sender),
+            Contact: partyContact(sender, "Store"),
           },
           Consignee: {
             Reference1: params.reference ?? "",
-            PartyAddress: {
-              CountryCode: params.receiver.countryCode ?? "EG",
-              City: params.receiver.city,
-              Line1: params.receiver.street,
-              Line2: [params.receiver.district, params.receiver.buildingNumber]
-                .filter(Boolean)
-                .join(", "),
-            },
-            Contact: {
-              PersonName: `${params.receiver.firstName} ${params.receiver.lastName ?? ""}`.trim(),
-              PhoneNumber1: params.receiver.phone,
-            },
+            PartyAddress: partyAddress(params.receiver),
+            Contact: partyContact(params.receiver, "Customer"),
           },
+          ShippingDateTime: wcfDate(now),
+          DueDate: wcfDate(new Date(now.getTime() + 2 * 86_400_000)),
+          Comments: params.notes ?? "",
+          PickupLocation: "Reception",
+          TransportType: 0,
           Details: {
             Dimensions: {
               Length: params.parcel.lengthCm ?? 10,
@@ -128,33 +179,25 @@ export class AramexProvider implements ShippingProvider {
               Unit: "CM",
             },
             ActualWeight: { Value: params.parcel.weightKg, Unit: "KG" },
-            ProductType: "PDX",
-            PayType: hasCOD ? "C" : "P",
+            ...(domestic ? DOMESTIC : INTERNATIONAL),
+            PaymentType: "P",
+            PaymentOptions: "",
+            Services: cod > 0 ? "CODS" : "",
             NumberOfPieces: 1,
-            DescriptionOfGoods: params.parcel.description ?? "Goods",
+            DescriptionOfGoods: (params.parcel.description ?? "Goods").slice(0, 100),
             GoodsOriginCountry: "EG",
-            CashOnDeliveryAmount: { CurrencyCode: "EGP", Value: codAmount },
-            CollectAmount: { CurrencyCode: "EGP", Value: codAmount },
+            ...(cod > 0 && { CashOnDeliveryAmount: { CurrencyCode: "EGP", Value: cod } }),
           },
         },
       ],
-      LabelInfo: { ReportID: 9201, ReportType: "URL" },
     };
 
     const data = await this.post<{
-      Shipments: Array<{
-        ID: string;
-        Reference1: string;
-        ShipmentLabel: { LabelURL: string };
-      }>;
-      ProcessedShipment: {
-        ID: string;
-        ForeignHAWB: string;
-        ShipmentLabel: { LabelURL: string };
-      };
+      Shipments?: Array<{ ID: string; ShipmentLabel?: { LabelURL?: string } }>;
     }>(`${SHIP_URL}/CreateShipments`, body);
 
-    const shipment = data.Shipments?.[0] ?? data.ProcessedShipment;
+    const shipment = data.Shipments?.[0];
+    if (!shipment?.ID) throw new Error("Aramex API error: no waybill number in the response");
 
     return {
       providerShipmentId: shipment.ID,
@@ -166,81 +209,66 @@ export class AramexProvider implements ShippingProvider {
   }
 
   async trackShipment(trackingNumber: string): Promise<TrackingResult> {
-    const body = {
+    const data = await this.post<{
+      TrackingResults?: Array<{
+        Key?: string;
+        Value?: Array<{ UpdateCode?: string; UpdateDescription?: string; UpdateDateTime?: string; UpdateLocation?: string }>;
+      }>;
+    }>(`${TRACK_URL}/TrackShipments`, {
       ClientInfo: this.clientInfo,
       Shipments: [trackingNumber],
-    };
+      GetLastTrackingUpdateOnly: false,
+    });
 
-    const data = await this.post<{
-      TrackingResults: Array<{
-        Value: Array<{
-          WaybillNumber: string;
-          UpdateCode: string;
-          UpdateDescription: string;
-          UpdateDateTime: string;
-          UpdateLocation: string;
-        }>;
-      }>;
-    }>(`${TRACK_URL}/TrackShipments`, body);
-
-    const results = data.TrackingResults?.[0]?.Value ?? [];
-    const latest = results[results.length - 1];
-    const status = ARAMEX_STATUS_MAP[latest?.UpdateCode ?? ""] ?? "IN_TRANSIT";
+    const updates = (data.TrackingResults?.find((r) => r.Key === trackingNumber) ?? data.TrackingResults?.[0])?.Value ?? [];
+    // Order isn't guaranteed — sort oldest → newest by the update time.
+    const events = updates
+      .map((u) => ({
+        timestamp: parseAramexDate(u.UpdateDateTime) ?? new Date(0),
+        status: aramexStatus(u.UpdateCode, u.UpdateDescription),
+        description: u.UpdateDescription ?? u.UpdateCode ?? "",
+        location: u.UpdateLocation || undefined,
+      }))
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
     return {
       trackingNumber,
-      status,
+      status: events.at(-1)?.status ?? "CREATED",
       courierName: "Aramex",
-      events: results.map((r) => ({
-        timestamp: new Date(r.UpdateDateTime),
-        status: ARAMEX_STATUS_MAP[r.UpdateCode] ?? "IN_TRANSIT",
-        description: r.UpdateDescription,
-        location: r.UpdateLocation,
-      })),
+      events,
     };
   }
 
   async cancelShipment(providerShipmentId: string): Promise<void> {
-    // Aramex doesn't have a direct cancel API — requires manual cancellation via dashboard
-    // or creating a return shipment
-    throw new Error(
-      `Aramex does not support programmatic cancellation for ${providerShipmentId}. Cancel via the Aramex dashboard.`,
-    );
+    // The Shipping API has no cancel call; Aramex cancels from their portal.
+    throw new Error(`أرامكس مش بتسمح بإلغاء البوليصة ${providerShipmentId} من الـ API. الغيها من بوابة أرامكس.`);
   }
 
   async calculateRates(params: RateParams): Promise<RateResult[]> {
-    const body = {
+    const cod = (params.codAmountPiasters ?? 0) > 0;
+    const data = await this.post<{
+      TotalAmount?: { CurrencyCode: string; Value: number };
+    }>(`${RATE_URL}/CalculateRate`, {
       ClientInfo: this.clientInfo,
-      OriginAddress: {
-        CountryCode: "EG",
-        City: params.originCity,
-      },
-      DestinationAddress: {
-        CountryCode: "EG",
-        City: params.destinationCity,
-      },
+      OriginAddress: { CountryCode: "EG", City: params.originCity },
+      DestinationAddress: { CountryCode: "EG", City: params.destinationCity },
       ShipmentDetails: {
         ActualWeight: { Value: params.parcel.weightKg, Unit: "KG" },
-        ProductType: "PDX",
+        ChargeableWeight: { Value: params.parcel.weightKg, Unit: "KG" },
+        ...DOMESTIC,
+        PaymentType: "P",
+        Services: cod ? "CODS" : "",
         NumberOfPieces: 1,
-        PayType: (params.codAmountPiasters ?? 0) > 0 ? "C" : "P",
       },
-    };
+    });
 
-    const data = await this.post<{
-      RateCalculatorResponse: {
-        TotalAmount: { CurrencyCode: string; Value: string };
-        DeliveryDays: number;
-      };
-    }>(`${SHIP_URL}/CalculateRate`, body);
-
-    const r = data.RateCalculatorResponse;
+    if (!data.TotalAmount) return [];
     return [
       {
-        serviceLevel: "Aramex Standard",
-        costPiasters: Math.round(parseFloat(r.TotalAmount.Value) * 100),
-        estimatedDays: r.DeliveryDays,
-        currency: r.TotalAmount.CurrencyCode,
+        serviceLevel: "Aramex Domestic",
+        costPiasters: Math.round(Number(data.TotalAmount.Value) * 100),
+        estimatedDays: 2,
+        currency: data.TotalAmount.CurrencyCode,
       },
     ];
   }

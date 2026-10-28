@@ -9,6 +9,7 @@
 
 import { BostaProvider } from "./providers/bosta";
 import { AramexProvider } from "./providers/aramex";
+import { MylerzProvider } from "./providers/mylerz";
 import type { ShippingProvider } from "./types";
 import type { CarrierKey } from "./carriers";
 
@@ -26,6 +27,12 @@ export interface AramexCredentials {
   accountPin: string;
   accountEntity: string;
   accountCountryCode?: string; // defaults to "EG"
+}
+
+export interface MylerzCredentials {
+  username: string;
+  password: string;
+  warehouse?: string;
 }
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
@@ -66,6 +73,12 @@ export function getShippingProvider(
         accountCountryCode: creds.accountCountryCode || "EG",
         version: "v1.0",
       });
+    }
+
+    case "MYLERZ": {
+      const creds = credentials as unknown as MylerzCredentials;
+      if (!creds.username || !creds.password) throw new Error("Mylerz: username and password are required");
+      return new MylerzProvider({ username: creds.username, password: creds.password, warehouse: creds.warehouse });
     }
 
     default:

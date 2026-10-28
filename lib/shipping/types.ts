@@ -4,7 +4,12 @@ export interface ShippingAddress {
   firstName: string;
   lastName?: string;
   phone: string;
+  email?: string;
+  /** Business name (sender only). */
+  company?: string;
   city: string;
+  /** Carrier-specific area code inside the city (Mylerz "Neighborhood"). */
+  zone?: string;
   district?: string;
   street: string;
   buildingNumber?: string;

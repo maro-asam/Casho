@@ -16,6 +16,7 @@ import { escapeTelegramMarkdown, sendTelegramMarkdown } from "@/lib/notification
 import { queueStoreServerEvent } from "@/lib/pixels/server";
 import { isOnlinePaymentMethod } from "@/constants/welcome/payment-methods";
 import { purchaseEventId } from "@/lib/pixels/shared";
+import { confirmItHandlesOrder, queueConfirmItOrder } from "@/lib/apps/confirm-it";
 
 const RISK_LABEL: Partial<Record<OrderRiskLevel, string>> = {
   HIGH: "⚠️ رقم عالي الخطورة",
@@ -111,8 +112,16 @@ export async function announceNewOrder(orderId: string) {
     });
   }
 
+  // The Confirm It app confirms the order (and books the courier) instead of
+  // Casho's own WhatsApp message — it gets phone-verified orders too.
+  const confirmIt =
+    order.status === OrderStatus.PENDING &&
+    order.source !== "POS" &&
+    (await confirmItHandlesOrder(order.storeId, order.paymentMethod));
+  if (confirmIt) queueConfirmItOrder(order.id);
+
   // Cash orders: ask the customer to confirm on WhatsApp (needs an approved template).
-  if (order.paymentMethod === "cash_on_delivery" && canAskToConfirm(order) && isOrderConfirmTemplateConfigured()) {
+  if (!confirmIt && order.paymentMethod === "cash_on_delivery" && canAskToConfirm(order) && isOrderConfirmTemplateConfigured()) {
     const confirmUrl = orderConfirmUrl(order.store, order.id);
     if (confirmUrl) {
       sendWhatsAppOrderConfirmation(order.phone, {

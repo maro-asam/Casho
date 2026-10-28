@@ -7,7 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { UpdateOrderStatusAction } from "@/actions/store/orders.actions";
 import { dispatchWebhookEvent } from "@/lib/webhooks/events";
-import { buildTrackingUrl, carrierDisplayName } from "@/lib/shipping/carriers";
+import { buildTrackingUrl, carrierDisplayName, type CarrierSettings } from "@/lib/shipping/carriers";
+import type { ShippingAddress } from "@/lib/shipping/types";
 import { loadStoreCarrier } from "@/lib/shipping/store-carriers";
 import {
   ACTIVE_SHIPMENT_STATUSES,
@@ -24,6 +25,27 @@ type Result = { success: true; message: string } | { success: false; message: st
 
 async function getStoreForUser(userId: string) {
   return prisma.store.findFirst({ where: { userId }, select: { id: true } });
+}
+
+/** The merchant as the shipper: store name, contact and pickup address (Aramex prints these on the waybill). */
+async function getSender(storeId: string, settings: CarrierSettings): Promise<ShippingAddress> {
+  const store = await prisma.store.findUnique({
+    where: { id: storeId },
+    select: {
+      name: true,
+      settings: { select: { email: true, whatsappNumber: true } },
+      user: { select: { name: true, email: true, phone_number: true } },
+    },
+  });
+  return {
+    firstName: store?.user.name?.trim() || store?.name || "Store",
+    company: store?.name,
+    phone: store?.settings?.whatsappNumber || store?.user.phone_number || "",
+    email: store?.settings?.email || store?.user.email,
+    city: governorateNameEn(settings.pickupGovernorate) ?? "Cairo",
+    street: settings.pickupAddress ?? "",
+    countryCode: "EG",
+  };
 }
 
 function revalidateShipment(orderId: string | null) {
@@ -109,6 +131,8 @@ export async function CreateShipmentAction(orderId: string, formData: FormData):
 
   if (provider) {
     const spaceIndex = order.fullName.indexOf(" ");
+    const sender = await getSender(store.id, settings);
+    const zone = String(formData.get("zone") ?? "").trim().slice(0, 64) || undefined;
     try {
       const result = await provider.createShipment({
         orderId: order.id,
@@ -118,9 +142,12 @@ export async function CreateShipmentAction(orderId: string, formData: FormData):
           lastName: spaceIndex > -1 ? order.fullName.slice(spaceIndex + 1) : "",
           phone: order.phone,
           city: governorateNameEn(order.governorate) ?? "Cairo",
+          zone,
           street: order.address,
+          email: order.email ?? undefined,
           countryCode: "EG",
         },
+        sender,
         parcel: {
           weightKg,
           description: order.items

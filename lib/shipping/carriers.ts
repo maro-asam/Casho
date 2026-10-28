@@ -113,11 +113,17 @@ export const CARRIERS: Carrier[] = [
     key: "MYLERZ",
     name: "Mylerz",
     get nameAr() { return tr("مايلرز"); },
-    get tagline() { return tr("توصيل للتجارة الإلكترونية في مصر مع تحصيل عند الاستلام."); },
+    get tagline() { return tr("توصيل للتجارة الإلكترونية في مصر مع تحصيل عند الاستلام، بوليصة تلقائية وتتبع من جوه كاشو."); },
     category: "local",
-    integration: "manual",
+    integration: "api",
     mark: { text: "My", bg: "#1B2A4A", fg: "#FFFFFF" },
+    website: "https://mylerz.com",
     features: { cod: true, international: false, fulfillment: false },
+    credentialFields: [
+      { key: "username", get label() { return tr("اسم المستخدم"); }, type: "text", get help() { return tr("بيانات دخول الـ Integration اللي مايلرز بتديهالك"); }, required: true, hint: true },
+      { key: "password", get label() { return tr("كلمة المرور"); }, type: "password", required: true },
+      { key: "warehouse", get label() { return tr("اسم المخزن (Warehouse)"); }, type: "text", get placeholder() { return tr("اختياري — أول مخزن في حسابك"); }, required: false },
+    ],
   },
   {
     key: "JT_EXPRESS",
@@ -267,6 +273,8 @@ export type CarrierSettings = {
   defaultWeightKg?: number;
   /** Governorate code the carrier picks orders up from. */
   pickupGovernorate?: string;
+  /** Street address the carrier picks orders up from (Aramex needs it on every waybill). */
+  pickupAddress?: string;
 };
 
 export function readCarrierSettings(value: unknown): CarrierSettings {
@@ -277,6 +285,7 @@ export function readCarrierSettings(value: unknown): CarrierSettings {
     displayName: typeof v.displayName === "string" ? v.displayName : undefined,
     defaultWeightKg: typeof v.defaultWeightKg === "number" ? v.defaultWeightKg : undefined,
     pickupGovernorate: typeof v.pickupGovernorate === "string" ? v.pickupGovernorate : undefined,
+    pickupAddress: typeof v.pickupAddress === "string" ? v.pickupAddress : undefined,
   };
 }
 

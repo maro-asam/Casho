@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 
 import type { NotificationDTO } from "@/actions/notifications/notifications.actions";
+import { GetNavBadgesAction } from "@/actions/notifications/nav-badges.actions";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,7 +17,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardTopbar from "./DashboardTopbar";
-import { findActiveNav } from "./dashboard-nav";
+import { findActiveNav, type NavBadges } from "./dashboard-nav";
 import { isRtl, tdir, tr } from "@/lib/i18n/dashboard";
 
 interface DashboardShellProps {
@@ -27,12 +28,40 @@ interface DashboardShellProps {
   };
   initialNotifications: NotificationDTO[];
   initialUnreadCount: number;
+  initialNavBadges: NavBadges;
   /** Account-level notice above every page (e.g. "confirm your email"). */
   notice?: ReactNode;
   children: ReactNode;
 }
 
 const COLLAPSED_KEY = "casho-sidebar-collapsed";
+const BADGES_REFRESH_MS = 60_000;
+
+/** Sidebar counts: refetched after every navigation (an order just handled) and once a minute while the tab is visible. */
+function useNavBadges(initial: NavBadges, pathname: string) {
+  const [badges, setBadges] = useState(initial);
+  // The server just counted for the first page — no need to ask again right away.
+  const firstPage = useRef(true);
+
+  useEffect(() => {
+    let alive = true;
+    const refresh = () => {
+      if (document.visibilityState !== "visible") return;
+      GetNavBadgesAction()
+        .then((next) => alive && setBadges(next))
+        .catch(() => {});
+    };
+    if (firstPage.current) firstPage.current = false;
+    else refresh();
+    const timer = setInterval(refresh, BADGES_REFRESH_MS);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [pathname]);
+
+  return badges;
+}
 
 function subscribeStorage(callback: () => void) {
   window.addEventListener("storage", callback);
@@ -51,11 +80,13 @@ export default function DashboardShell({
   store,
   initialNotifications,
   initialUnreadCount,
+  initialNavBadges,
   notice,
   children,
 }: DashboardShellProps) {
   const pathname = usePathname();
   const active = findActiveNav(pathname);
+  const badges = useNavBadges(initialNavBadges, pathname);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isCollapsed = useSyncExternalStore(
     subscribeStorage,
@@ -94,6 +125,7 @@ export default function DashboardShell({
           key={pathname}
           store={store}
           active={active}
+          badges={badges}
           onNavigate={() => setMobileOpen(false)}
         />
       </SheetContent>
@@ -113,6 +145,7 @@ export default function DashboardShell({
           <DashboardSidebar
             store={store}
             active={active}
+            badges={badges}
             collapsed={isCollapsed}
             onToggleCollapsed={toggleCollapsed}
           />
