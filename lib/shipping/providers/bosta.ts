@@ -83,6 +83,22 @@ export function bostaCityCode(city: string): string | null {
   return BOSTA_CITY_CODES[key] ?? null;
 }
 
+/**
+ * What the merchant should do about a Bosta rejection, in Arabic. Problems on the
+ * merchant's Bosta account get a fix-it sentence; anything unknown keeps Bosta's
+ * own text so it can still be reported.
+ */
+export function bostaErrorMessage(status: number, message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("bundle subscription"))
+    return "حسابك على بوسطة مفيهوش باقة مفعّلة، وبوسطة مش بتسمح بإنشاء شحنات من غيرها. فعّل باقة من لوحة بوسطة (business.bosta.co) أو كلّم دعم بوسطة، وبعدها جرّب تاني.";
+  if (status === 401 || status === 403 || m.includes("unauthorized") || m.includes("api key"))
+    return "مفتاح الـ API بتاع بوسطة غلط أو اتلغى. طلّع مفتاح جديد من بوسطة (الإعدادات ← API Integration) وحدّثه من صفحة شركات الشحن.";
+  if (status === 429) return "بوسطة مستقبلة طلبات كتير دلوقتي. استنى دقيقة وجرّب تاني.";
+  if (status >= 500) return "بوسطة فيها مشكلة من عندها دلوقتي. جرّب تاني بعد شوية.";
+  return `Bosta API error ${status}: ${message || "Unknown error"}`;
+}
+
 export class BostaProvider implements ShippingProvider {
   readonly name = "bosta";
 
@@ -103,12 +119,11 @@ export class BostaProvider implements ShippingProvider {
       signal: AbortSignal.timeout(15_000),
     });
 
-    const data = (await res.json()) as Record<string, unknown>;
+    // Outages can answer with an HTML page instead of JSON.
+    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
     if (!res.ok) {
-      throw new Error(
-        `Bosta API error ${res.status}: ${(data.message as string) ?? "Unknown error"}`,
-      );
+      throw new Error(bostaErrorMessage(res.status, typeof data.message === "string" ? data.message : ""));
     }
 
     return data as T;

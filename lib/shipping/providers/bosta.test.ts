@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EGYPT_GOVERNORATES } from "@/constants/egypt-governorates";
-import { BostaProvider, bostaCityCode } from "./bosta";
+import { BostaProvider, bostaCityCode, bostaErrorMessage } from "./bosta";
 
 describe("bostaCityCode", () => {
   it("maps every governorate we offer at checkout", () => {
@@ -50,5 +50,23 @@ describe("BostaProvider.createShipment", () => {
       }),
     ).rejects.toThrow("Atlantis");
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("bostaErrorMessage", () => {
+  it("explains account problems in Arabic", () => {
+    expect(bostaErrorMessage(400, "Active bundle subscription required to create orders")).toContain("باقة مفعّلة");
+    expect(bostaErrorMessage(401, "")).toContain("مفتاح الـ API");
+    expect(bostaErrorMessage(502, "")).toContain("جرّب تاني");
+  });
+
+  it("keeps Bosta's text for anything it doesn't recognise", () => {
+    expect(bostaErrorMessage(400, "dropOffAddress.firstLine is required")).toBe("Bosta API error 400: dropOffAddress.firstLine is required");
+  });
+
+  it("survives a non-JSON error page", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("<html>Bad Gateway</html>", { status: 502 })));
+    await expect(new BostaProvider({ apiKey: "k" }).trackShipment("1")).rejects.toThrow("بوسطة فيها مشكلة");
+    vi.unstubAllGlobals();
   });
 });
