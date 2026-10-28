@@ -39,7 +39,48 @@ const BOSTA_STATUS_MAP: Record<string, StandardShipmentStatus> = {
 
 export interface BostaConfig {
   apiKey: string;
+  /** Not sent: Bosta picks up from the business's default location in the Bosta account. */
   pickupCity?: string;
+}
+
+// Bosta city codes (GET /api/v2/cities), keyed by our governorates' English
+// names (constants/egypt-governorates.ts). Codes are stable; names differ in spelling.
+const BOSTA_CITY_CODES: Record<string, string> = {
+  cairo: "EG-01",
+  alexandria: "EG-02",
+  "north coast": "EG-03",
+  beheira: "EG-04",
+  dakahlia: "EG-05",
+  qalyubia: "EG-06",
+  gharbia: "EG-07",
+  "kafr el sheikh": "EG-08",
+  monufia: "EG-09",
+  sharqia: "EG-10",
+  ismailia: "EG-11",
+  suez: "EG-12",
+  "port said": "EG-13",
+  damietta: "EG-14",
+  fayoum: "EG-15",
+  "beni suef": "EG-16",
+  asyut: "EG-17",
+  sohag: "EG-18",
+  minya: "EG-19",
+  qena: "EG-20",
+  aswan: "EG-21",
+  luxor: "EG-22",
+  "red sea": "EG-23",
+  "new valley": "EG-24",
+  giza: "EG-25",
+  "south sinai": "EG-26",
+  "north sinai": "EG-27",
+  matrouh: "EG-28",
+};
+
+/** Bosta's city code for a governorate's English name (or an "EG-xx" code passed through). */
+export function bostaCityCode(city: string): string | null {
+  const key = city.trim().toLowerCase();
+  if (/^eg-\d{2}$/.test(key)) return key.toUpperCase();
+  return BOSTA_CITY_CODES[key] ?? null;
 }
 
 export class BostaProvider implements ShippingProvider {
@@ -75,40 +116,35 @@ export class BostaProvider implements ShippingProvider {
 
   async createShipment(params: CreateShipmentParams): Promise<ShipmentResult> {
     const hasCOD = (params.codAmountPiasters ?? 0) > 0;
+    const city = bostaCityCode(params.receiver.city);
+    if (!city) throw new Error(`المحافظة "${params.receiver.city}" مش موجودة في قايمة مدن بوسطة`);
 
+    // dropOffAddress is where the parcel goes (the customer); the receiver block
+    // is only the contact. City is a Bosta code ("EG-12"), not a name or object.
     const payload = {
       type: BOSTA_DELIVERY_TYPE.SEND,
       specs: {
+        weight: params.parcel.weightKg,
         packageDetails: {
-          weight: params.parcel.weightKg,
-          length: params.parcel.lengthCm,
-          width: params.parcel.widthCm,
-          height: params.parcel.heightCm,
+          itemsCount: 1,
           description: params.parcel.description ?? "Parcel",
-          numberOfPieces: 1,
-        },
-      },
-      receiver: {
-        firstName: params.receiver.firstName,
-        lastName: params.receiver.lastName ?? "",
-        phone: params.receiver.phone,
-        address: {
-          city: { name: params.receiver.city },
-          district: params.receiver.district ?? "",
-          firstLine: params.receiver.street,
-          buildingNumber: params.receiver.buildingNumber ?? "",
-          floor: params.receiver.floor ?? "",
-          apartment: params.receiver.apartment ?? "",
         },
       },
       dropOffAddress: {
-        city: { name: this.config.pickupCity ?? "Cairo" },
+        city,
+        firstLine: params.receiver.street,
+        ...(params.receiver.district && { district: params.receiver.district }),
+        ...(params.receiver.buildingNumber && { buildingNumber: params.receiver.buildingNumber }),
+        ...(params.receiver.floor && { floor: params.receiver.floor }),
+        ...(params.receiver.apartment && { apartment: params.receiver.apartment }),
       },
-      notes: params.notes ?? "",
-      ...(hasCOD && {
-        cod: (params.codAmountPiasters! / 100).toFixed(2),
-        cashOnDelivery: { amount: params.codAmountPiasters! / 100 },
-      }),
+      receiver: {
+        firstName: params.receiver.firstName,
+        lastName: params.receiver.lastName || params.receiver.firstName,
+        phone: params.receiver.phone,
+      },
+      ...(params.notes && { notes: params.notes }),
+      ...(hasCOD && { cod: params.codAmountPiasters! / 100 }),
       ...(params.reference && { businessReference: params.reference }),
     };
 
