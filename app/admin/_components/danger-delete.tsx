@@ -47,22 +47,22 @@ export function DangerDelete({ noun, confirmValue, confirmLabel, consequences, b
     });
 
   return (
-    <section className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+    <section className="apple-card p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <h2 className="text-sm font-semibold text-destructive">حذف {noun} نهائيًا</h2>
+          <h2 className="text-[17px] leading-[22px] font-semibold text-(--sys-red)">حذف {noun} نهائيًا</h2>
           {blockers.length ? (
             <>
-              <p className="text-xs leading-5 text-muted-foreground">مينفعش يتحذف عشان سجل الإيرادات والعمولات يفضل صحيح:</p>
-              <ul className="list-disc space-y-0.5 ps-5 text-xs leading-5">
+              <p className="text-[13px] leading-[18px] text-muted-foreground">مينفعش يتحذف عشان سجل الإيرادات والعمولات يفضل صحيح:</p>
+              <ul className="list-disc space-y-0.5 ps-5 text-[13px] leading-[18px]">
                 {blockers.map((b) => (
                   <li key={b}>{b}</li>
                 ))}
               </ul>
-              {alternative && <p className="pt-1 text-xs leading-5 text-muted-foreground">{alternative}</p>}
+              {alternative && <p className="pt-1 text-[13px] leading-[18px] text-muted-foreground">{alternative}</p>}
             </>
           ) : (
-            <p className="text-xs leading-5 text-muted-foreground">بيمسح {noun} وكل بياناته من قاعدة البيانات. مفيش رجوع.</p>
+            <p className="text-[13px] leading-[18px] text-muted-foreground">بيمسح {noun} وكل بياناته من قاعدة البيانات. مفيش رجوع.</p>
           )}
         </div>
 

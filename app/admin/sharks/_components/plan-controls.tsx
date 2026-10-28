@@ -166,7 +166,7 @@ export function TaskList({ planId, tasks }: { planId: string; tasks: TaskRow[] }
   return (
     <div className="space-y-4">
       {tasks.length > 0 ? (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="apple-rows overflow-hidden rounded-[12px] bg-(--fill-3)">
           {tasks.map((t) => (
             <li key={t.id} className="flex flex-wrap items-center gap-3 px-3 py-2.5 text-sm">
               {t.isMilestone && <Flag className="size-3.5 text-primary" aria-label="مرحلة" />}

@@ -7,7 +7,7 @@ import { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { markUserEmailVerifiedAction, revokeUserSessionsAction, setUserRoleAction } from "@/actions/admin/admin-users.actions";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { ActionButton } from "../../_components/action-button";
 import { BackLink, Fields, Panel, PanelEmpty, th, theadRow } from "../../_components/admin-ui";
@@ -79,7 +79,7 @@ export default async function AdminUserPage({ params }: PageProps) {
         <div className="min-w-0 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight">{user.name ?? "بدون اسم"}</h1>
-            {isSelf && <StatusPill tone="info">ده حسابك</StatusPill>}
+            {isSelf && <StatusText tone="info">ده حسابك</StatusText>}
           </div>
           <p className="text-sm text-muted-foreground">
             <span dir="ltr">{user.email}</span> · سجّل {fmtDate(user.createdAt)}
@@ -89,7 +89,7 @@ export default async function AdminUserPage({ params }: PageProps) {
           {canEditRole ? (
             <StatusMenu value={user.role} options={ROLE_OPTIONS} action={setUserRoleAction.bind(null, user.id)} label="تغيير الصلاحية" />
           ) : (
-            <StatusPill tone={ROLE_META[user.role].tone}>{ROLE_META[user.role].label}</StatusPill>
+            <StatusText tone={ROLE_META[user.role].tone}>{ROLE_META[user.role].label}</StatusText>
           )}
           {!isSelf && (
             <ActionButton
@@ -137,7 +137,7 @@ export default async function AdminUserPage({ params }: PageProps) {
                         </p>
                       </td>
                       <td className="py-3">
-                        <StatusPill tone={SUBSCRIPTION_META[s.subscriptionStatus].tone}>{SUBSCRIPTION_META[s.subscriptionStatus].label}</StatusPill>
+                        <StatusText tone={SUBSCRIPTION_META[s.subscriptionStatus].tone}>{SUBSCRIPTION_META[s.subscriptionStatus].label}</StatusText>
                       </td>
                       <td className="hidden py-3 sm:table-cell">{s.plan?.name ?? "—"}</td>
                       <td className="py-3 pe-4 text-left tabular-nums">{fmtMoney(s.balance)}</td>
@@ -200,7 +200,7 @@ export default async function AdminUserPage({ params }: PageProps) {
                   const meta = securityEventMeta(log.event);
                   return (
                     <li key={log.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                      <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
+                      <StatusText tone={meta.tone}>{meta.label}</StatusText>
                       <span className="text-xs text-muted-foreground">
                         <span dir="ltr">{log.ipAddress ?? ""}</span> {log.ipAddress && "·"} {fmtDateTime(log.createdAt)}
                       </span>
@@ -290,12 +290,12 @@ export default async function AdminUserPage({ params }: PageProps) {
           />
 
           {user.role === UserRole.SALES && (
-            <p className="rounded-lg border border-dashed border-border p-3 text-xs leading-5 text-muted-foreground">
+            <p className="rounded-[12px] bg-(--fill-3) p-3 text-xs leading-5 text-muted-foreground">
               صلاحية المندوب وإيقافه بيتداروا من صفحة فريق المبيعات.
             </p>
           )}
           {viewer.role !== UserRole.SUPER_ADMIN && user.role !== UserRole.SALES && (
-            <p className="rounded-lg border border-dashed border-border p-3 text-xs leading-5 text-muted-foreground">تغيير الصلاحيات متاح للسوبر أدمن بس.</p>
+            <p className="rounded-[12px] bg-(--fill-3) p-3 text-xs leading-5 text-muted-foreground">تغيير الصلاحيات متاح للسوبر أدمن بس.</p>
           )}
         </div>
       </div>

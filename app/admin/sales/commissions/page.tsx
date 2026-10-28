@@ -3,10 +3,10 @@ import { BadgeDollarSign, SearchX } from "lucide-react";
 import { SalesCommissionKind, SalesCommissionStatus } from "@prisma/client";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  Pagination,
+  ListCard,
+  Unavailable,
+  Segmented,
+  Pager,
   SearchInput,
   SelectFilter,
   readPage,
@@ -73,18 +73,18 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
         كل عمولة صورة ثابتة وقت الدفع: الأساس = مبلغ خصم الاشتراك، والنسبة والمستوى وقاعدة الحساب محفوظين. العمولات بتتعتمد تلقائيًا؛ التصحيح بيتم بتعليق أو إلغاء أو تسوية مسجلة.
       </p>
 
-      <FilterTabs
+      <Segmented
         label="حالة العمولة"
         param="status"
         basePath={BASE_PATH}
         searchParams={params}
-        tabs={[
+        segments={[
           { label: "الكل", count: countOf() },
           ...STATUSES.map((s) => ({ label: COMMISSION_STATUS_META[s].label, value: s, count: countOf(s) })),
         ]}
       />
 
-      <DataCard
+      <ListCard
         toolbar={
           <>
             <SearchInput placeholder="ابحث باسم العميل أو بريده أو المتجر" />
@@ -105,13 +105,13 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
             <p className="border-b px-4 py-2 text-xs text-muted-foreground">
               إجمالي النتيجة: عمولات {fmtMoney(list.sumAmount)} على أساس {fmtMoney(list.sumBasis)} (قبل التسويات)
             </p>
-            <Pagination page={list.page} pageSize={PAGE_SIZE} total={list.total} basePath={BASE_PATH} searchParams={params} noun="عمولة" />
+            <Pager page={list.page} pageSize={PAGE_SIZE} total={list.total} basePath={BASE_PATH} searchParams={params} noun="عمولة" />
           </>
         }
       >
         {list.rows.length === 0 ? (
           filtered ? (
-            <EmptyState
+            <Unavailable
               icon={SearchX}
               title="مفيش عمولات بالفلاتر دي"
               action={
@@ -121,7 +121,7 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
               }
             />
           ) : (
-            <EmptyState icon={BadgeDollarSign} title="مفيش عمولات لسه" description="أول ما عميل منسوب يدفع اشتراكه هتتسجل العمولة هنا تلقائيًا." />
+            <Unavailable icon={BadgeDollarSign} title="مفيش عمولات لسه" description="أول ما عميل منسوب يدفع اشتراكه هتتسجل العمولة هنا تلقائيًا." />
           )
         ) : (
           <CommissionsTable
@@ -132,7 +132,7 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
             )}
           />
         )}
-      </DataCard>
+      </ListCard>
     </div>
   );
 }

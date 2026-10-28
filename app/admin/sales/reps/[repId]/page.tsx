@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { CopyButton, ReferralLinkBox } from "@/components/sales/copy-button";
 import { CommissionsTable } from "@/components/sales/commissions-table";
 import { CustomersTable } from "@/components/sales/customers-table";
@@ -42,11 +42,11 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-6">
-      <section className="flex flex-col gap-4 rounded-xl border bg-card p-4 shadow-sm lg:flex-row lg:items-start lg:justify-between">
+      <section className="flex flex-col gap-4 apple-card p-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-semibold">{repName}</h2>
-            <StatusPill tone={rep.status === "ACTIVE" ? "success" : "danger"}>{rep.status === "ACTIVE" ? "نشط" : "موقوف"}</StatusPill>
+            <StatusText tone={rep.status === "ACTIVE" ? "success" : "danger"}>{rep.status === "ACTIVE" ? "نشط" : "موقوف"}</StatusText>
           </div>
           <p className="text-sm text-muted-foreground">
             <span dir="ltr">{rep.user.email}</span>
@@ -61,7 +61,7 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
           </p>
           {rep.notes && <p className="text-sm">{rep.notes}</p>}
           <div className="grid max-w-3xl gap-4 pt-3 md:grid-cols-2">
-            <div className="space-y-2 rounded-lg border p-3">
+            <div className="space-y-2 rounded-[12px] bg-(--fill-3) p-3">
               <p className="text-sm font-medium">دخول المندوب — ابعتهوله هو</p>
               <p className="text-xs text-muted-foreground">
                 يسجّل دخول بالبريد ده وكلمة المرور المؤقتة اللي عملتها، وهيتحوّل على لوحة المبيعات. مش محتاج يعمل متجر.
@@ -80,7 +80,7 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
               </p>
             </div>
             {rep.user.referralCode && (
-              <div className="space-y-2 rounded-lg border p-3">
+              <div className="space-y-2 rounded-[12px] bg-(--fill-3) p-3">
                 <p className="text-sm font-medium">رابط الإحالة — للتجار مش للمندوب</p>
                 <p className="text-xs text-muted-foreground">ده فورم إنشاء متجر. المندوب بيبعته للتجار، وأي حد يسجل منه بيتنسب له.</p>
                 <ReferralLinkBox link={buildReferralLink(rep.user.referralCode)} code={rep.user.referralCode} />

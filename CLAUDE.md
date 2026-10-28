@@ -65,7 +65,7 @@ All mutations use Next.js Server Actions in [actions/](actions/). They are organ
 
 ### Subscription & Balance
 
-Subscriptions are billed from the store's internal balance (not Stripe). Balance is stored in piasters (`Store.balance`). Merchants top up online via Paymob (cards + mobile wallets), or by manual transfer that an admin approves. The subscription logic is in [lib/subscriptions.ts](lib/subscriptions.ts) — statuses are `INACTIVE`, `ACTIVE`, `GRACE_PERIOD`, `CANCELED`. Grace period = 3 days after expiry.
+Subscriptions are billed from the store's internal balance (not Stripe). Balance is stored in piasters (`Store.balance`). Merchants top up online via Paymob (cards + mobile wallets), or by manual transfer that an admin approves. The subscription logic is in [lib/subscriptions.ts](lib/subscriptions.ts) — statuses are `INACTIVE`, `ACTIVE`, `PAST_DUE`, `CANCELED`. There is no grace period: when a period or the 3-day trial ends and the balance can't cover renewal, the store goes straight to `PAST_DUE` (closed) on the next renewal sweep (`/api/cron/renew-subscriptions`, hourly on cron-job.org). `GRACE_PERIOD` is legacy — only stores from before the change carry it.
 
 ### Payment Integration — Paymob
 

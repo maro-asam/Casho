@@ -102,7 +102,7 @@ export default async function AdminProfitPage({ searchParams }: { searchParams?:
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-border bg-muted/40 font-semibold">
+                <tr className="border-t-[0.5px] border-border font-semibold">
                   <td className="py-3 ps-4">الإجمالي</td>
                   <td className="hidden py-3 text-left tabular-nums md:table-cell">{fmtMoney(window.charges)}</td>
                   <td className="hidden py-3 text-left tabular-nums md:table-cell">{window.refunds ? `−${fmtMoney(window.refunds)}` : "—"}</td>

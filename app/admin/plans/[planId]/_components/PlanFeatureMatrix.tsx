@@ -7,7 +7,7 @@ import { Loader2, Save } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { UpsertPlanFeatureAction } from "@/actions/admin/admin-plans.actions";
 import type { Feature, PlanFeature } from "@prisma/client";
 import { cn } from "@/lib/utils";
@@ -94,8 +94,8 @@ export function PlanFeatureMatrix({ planId, rows }: { planId: string; rows: Row[
                   <td className="py-3 ps-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium">{feature.name}</span>
-                      {!feature.isActive && <StatusPill tone="neutral">مخفية من المقارنة</StatusPill>}
-                      {changed && <StatusPill tone="warning">متغيرة</StatusPill>}
+                      {!feature.isActive && <StatusText tone="neutral">مخفية من المقارنة</StatusText>}
+                      {changed && <StatusText tone="warning">متغيرة</StatusText>}
                     </div>
                     {feature.description && <p className="mt-0.5 max-w-md text-xs text-muted-foreground">{feature.description}</p>}
                   </td>

@@ -176,8 +176,7 @@ export async function RenewStoreSubscriptionAction(storeId: string): Promise<Act
 const RENEWAL_RESULTS: Record<RenewalOutcome, ActionResult> = {
   none: { success: true, message: "الاشتراك ما زال فعالًا" },
   renewed: { success: true, message: "تم تجديد الاشتراك تلقائيًا من الرصيد" },
-  grace: { success: false, message: "الرصيد غير كافٍ، تم إدخال المتجر في فترة السماح" },
-  past_due: { success: false, message: "انتهت فترة السماح وأصبح الاشتراك متأخرًا" },
+  past_due: { success: false, message: "الرصيد غير كافٍ للتجديد، والمتجر اتقفل لحد ما يتشحن" },
 };
 
 async function payPeriodNow(storeId: string, note: string, okMessage: string): Promise<ActionResult> {

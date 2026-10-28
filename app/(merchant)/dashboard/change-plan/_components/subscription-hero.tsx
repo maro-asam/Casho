@@ -75,7 +75,7 @@ export function SubscriptionHero({
       action: shortfall > 0 ? { label: tr("اشحن {0}", formatMoney(shortfall)), href: topup(shortfall) } : undefined,
     };
   } else if (!store.autoRenew && endsAt) {
-    notice = { tone: "info", text: tr("التجديد التلقائي مقفول — الاشتراك هيخلص يوم {0} والمتجر هيتقفل بعد فترة السماح.", df.format(endsAt)) };
+    notice = { tone: "info", text: tr("التجديد التلقائي مقفول — الاشتراك هيخلص يوم {0} والمتجر هيتقفل وقتها.", df.format(endsAt)) };
   } else if (shortfall > 0 && endsAt) {
     notice = {
       tone: daysLeft <= 3 ? "danger" : "warning",

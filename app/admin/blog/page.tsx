@@ -5,14 +5,14 @@ import { BlogStatus, Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type PillTone,
@@ -83,12 +83,12 @@ export default async function AdminBlogPage({ searchParams }: { searchParams?: P
       />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="حالة المقال"
           param="status"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
             { label: STATUS_META.PUBLISHED.label, value: "PUBLISHED", count: counts.PUBLISHED ?? 0 },
             { label: STATUS_META.DRAFT.label, value: "DRAFT", count: counts.DRAFT ?? 0 },
@@ -96,7 +96,7 @@ export default async function AdminBlogPage({ searchParams }: { searchParams?: P
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={
             <>
               <SearchInput placeholder="ابحث بالعنوان أو الرابط" />
@@ -105,11 +105,11 @@ export default async function AdminBlogPage({ searchParams }: { searchParams?: P
               )}
             </>
           }
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="مقال" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="مقال" />}
         >
           {posts.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title="مفيش مقالات بالفلاتر دي"
                 action={
@@ -119,7 +119,7 @@ export default async function AdminBlogPage({ searchParams }: { searchParams?: P
                 }
               />
             ) : (
-              <EmptyState
+              <Unavailable
                 icon={FileText}
                 title="مفيش مقالات لسه"
                 description="المقالات بتجيب زيارات من جوجل للموقع."
@@ -159,7 +159,7 @@ export default async function AdminBlogPage({ searchParams }: { searchParams?: P
                     </td>
                     <td className="hidden py-3 text-muted-foreground md:table-cell">{post.category?.name ?? "—"}</td>
                     <td className="py-3">
-                      <StatusPill tone={STATUS_META[post.status].tone}>{STATUS_META[post.status].label}</StatusPill>
+                      <StatusText tone={STATUS_META[post.status].tone}>{STATUS_META[post.status].label}</StatusText>
                     </td>
                     <td className="hidden py-3 text-left tabular-nums text-muted-foreground sm:table-cell">
                       <span className="inline-flex items-center gap-1">
@@ -176,7 +176,7 @@ export default async function AdminBlogPage({ searchParams }: { searchParams?: P
               </tbody>
             </table>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

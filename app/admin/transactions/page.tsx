@@ -5,14 +5,14 @@ import { BalanceTransactionType, Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -92,29 +92,29 @@ export default async function AdminTransactionsPage({ searchParams }: { searchPa
       />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="نوع الحركة"
           param="type"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
             ...(Object.keys(TX_TYPE_META) as BalanceTransactionType[]).map((t) => ({ label: TX_TYPE_META[t].label, value: t, count: byType[t]?._count._all ?? 0 })),
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={
             <>
               <SearchInput placeholder="ابحث بالمتجر أو الملاحظة أو المرجع" />
               <SelectFilter param="range" allLabel="كل الوقت" label="الفترة" options={Object.entries(RANGES).map(([value, label]) => ({ value, label }))} />
             </>
           }
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="حركة" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="حركة" />}
         >
           {rows.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title="مفيش حركات بالفلاتر دي"
                 action={
@@ -124,7 +124,7 @@ export default async function AdminTransactionsPage({ searchParams }: { searchPa
                 }
               />
             ) : (
-              <EmptyState icon={ArrowLeftRight} title="مفيش حركات مالية لسه" />
+              <Unavailable icon={ArrowLeftRight} title="مفيش حركات مالية لسه" />
             )
           ) : (
             <>
@@ -149,7 +149,7 @@ export default async function AdminTransactionsPage({ searchParams }: { searchPa
                           </Link>
                         </td>
                         <td className="py-3">
-                          <StatusPill tone={TX_TYPE_META[tx.type].tone}>{TX_TYPE_META[tx.type].label}</StatusPill>
+                          <StatusText tone={TX_TYPE_META[tx.type].tone}>{TX_TYPE_META[tx.type].label}</StatusText>
                         </td>
                         <td className="hidden max-w-72 py-3 lg:table-cell">
                           <p className="truncate text-muted-foreground" title={tx.note ?? undefined}>
@@ -188,7 +188,7 @@ export default async function AdminTransactionsPage({ searchParams }: { searchPa
                       </span>
                     </div>
                     <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                      <StatusPill tone={TX_TYPE_META[tx.type].tone}>{TX_TYPE_META[tx.type].label}</StatusPill>
+                      <StatusText tone={TX_TYPE_META[tx.type].tone}>{TX_TYPE_META[tx.type].label}</StatusText>
                       {fmtDateTime(tx.createdAt)}
                     </div>
                   </li>
@@ -196,7 +196,7 @@ export default async function AdminTransactionsPage({ searchParams }: { searchPa
               </ul>
             </>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

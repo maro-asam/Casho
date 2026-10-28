@@ -2,13 +2,13 @@ import { BalanceTransactionType, NotificationType, SubscriptionStatus, type Bill
 import { revalidatePath } from "next/cache";
 import { revalidateStorefront } from "@/lib/store/storefront-cache";
 import { prisma } from "@/lib/prisma";
-import { DEFAULT_GRACE_PERIOD_DAYS, addDays } from "@/lib/subscriptions";
+import { addDays } from "@/lib/subscriptions";
 import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
 import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
 import { nextPeriodEnd, resolveRenewal, type RenewalPlan } from "./plan-quote";
 
-export type RenewalOutcome = "none" | "renewed" | "grace" | "past_due";
+export type RenewalOutcome = "none" | "renewed" | "past_due";
 
 const RENEWABLE: SubscriptionStatus[] = [SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE_PERIOD, SubscriptionStatus.PAST_DUE];
 
@@ -125,9 +125,9 @@ async function chargePeriod(store: BillingStore, anchor: Date, now: Date, note: 
 
 /**
  * The one renewal engine. Charges the period price from the balance when the
- * period is over, otherwise walks the store ACTIVE → GRACE_PERIOD → PAST_DUE.
- * Safe to call from anywhere (cron, dashboard layout, top-up callbacks) and
- * concurrently.
+ * period is over, otherwise closes the store (ACTIVE → PAST_DUE) right away —
+ * there is no grace period. Safe to call from anywhere (cron, dashboard layout,
+ * top-up callbacks) and concurrently.
  *
  * `includeInactive` lets a fresh top-up activate a store that never started a
  * paid period (INACTIVE) — only from merchant-initiated money events.
@@ -147,10 +147,10 @@ export async function renewIfDue(storeId: string, opts: { includeInactive?: bool
 
   const { price } = await getRenewalQuote(store);
   if (store.autoRenew && price > 0 && store.balance >= price) {
-    // Within grace the store kept selling, so the new period continues from the
-    // old end date; after that it starts today (no paying for blocked days).
-    const graceEnd = endsAt ? addDays(endsAt, DEFAULT_GRACE_PERIOD_DAYS) : null;
-    const anchor = endsAt && graceEnd && graceEnd.getTime() > now.getTime() ? endsAt : now;
+    // Until it's closed the store kept selling, so the new period continues from
+    // the old end date; once closed it starts today (no paying for blocked days).
+    const stillOpen = store.subscriptionStatus === SubscriptionStatus.ACTIVE || store.subscriptionStatus === SubscriptionStatus.GRACE_PERIOD;
+    const anchor = endsAt && stillOpen ? endsAt : now;
     const result = await chargePeriod(store, anchor, now, (what) => `تجديد تلقائي — ${what}`);
     if (!result.ok) return "none";
 
@@ -164,40 +164,21 @@ export async function renewIfDue(storeId: string, opts: { includeInactive?: bool
     return "renewed";
   }
 
-  // Can't charge: move along the dunning path.
+  // Can't charge: the store closes as soon as its period (or trial) ends.
+  // GRACE_PERIOD only exists on stores from before grace was removed.
   if (!endsAt || store.subscriptionStatus === SubscriptionStatus.PAST_DUE || store.subscriptionStatus === SubscriptionStatus.INACTIVE) {
     return "none";
   }
 
-  const graceEnd = store.gracePeriodEndsAt ?? addDays(endsAt, DEFAULT_GRACE_PERIOD_DAYS);
-  if (graceEnd.getTime() > now.getTime()) {
-    if (store.subscriptionStatus === SubscriptionStatus.GRACE_PERIOD) return "none";
-    await prisma.store.update({
-      where: { id: store.id },
-      data: { subscriptionStatus: SubscriptionStatus.GRACE_PERIOD, gracePeriodEndsAt: graceEnd },
-    });
-    await createStoreNotification({
-      storeId: store.id,
-      type: NotificationType.SUBSCRIPTION_EXPIRED,
-      title: "اشتراكك محتاج تجديد",
-      message: store.autoRenew
-        ? `رصيدك مش مكفي للتجديد (${formatPiastersAsEgp(price)}). متجرك شغال فترة سماح لحد ${graceEnd.toLocaleDateString("ar-EG", { timeZone: "Africa/Cairo" })} — اشحن قبلها.`
-        : `التجديد التلقائي مقفول. متجرك شغال فترة سماح لحد ${graceEnd.toLocaleDateString("ar-EG", { timeZone: "Africa/Cairo" })}.`,
-      href: "/change-plan",
-    });
-    safeRevalidate(store.slug);
-    return "grace";
-  }
-
   await prisma.store.update({
     where: { id: store.id },
-    data: { subscriptionStatus: SubscriptionStatus.PAST_DUE, gracePeriodEndsAt: graceEnd },
+    data: { subscriptionStatus: SubscriptionStatus.PAST_DUE, gracePeriodEndsAt: null },
   });
   await createStoreNotification({
     storeId: store.id,
     type: NotificationType.STORE_PAST_DUE,
     title: "متجرك اتقفل مؤقتًا",
-    message: "فترة السماح خلصت. اشحن رصيدك وجدّد عشان المتجر يرجع يستقبل طلبات.",
+    message: "اشتراكك خلص ورصيدك مش مكفي للتجديد. اشحن رصيدك وجدّد عشان المتجر يرجع يستقبل طلبات.",
     href: "/change-plan",
   });
   safeRevalidate(store.slug);
@@ -281,7 +262,7 @@ export async function sweepSubscriptions(now = new Date()) {
     getEntryPlan(),
   ]);
 
-  const counts: Record<RenewalOutcome, number> = { none: 0, renewed: 0, grace: 0, past_due: 0 };
+  const counts: Record<RenewalOutcome, number> = { none: 0, renewed: 0, past_due: 0 };
   for (const s of due) {
     if (s.subscriptionStatus === SubscriptionStatus.PAST_DUE && s.balance < resolveRenewal(s, entryPlan).price) continue;
     try {

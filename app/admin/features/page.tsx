@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ListChecks } from "lucide-react";
 
 import { GetFeaturesForAdminAction } from "@/actions/admin/admin-plans.actions";
-import { EmptyState, PageHeader } from "@/components/saas-page";
+import { Unavailable, PageHeader } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import { th, theadRow } from "../_components/admin-ui";
@@ -27,9 +27,9 @@ export default async function AdminFeaturesPage() {
         actions={<CreateFeatureDialog nextSortOrder={nextSortOrder} />}
       />
 
-      <section className="overflow-hidden rounded-xl border border-border bg-card">
+      <section className="apple-card overflow-hidden">
         {features.length === 0 ? (
-          <EmptyState icon={ListChecks} title="مفيش ميزات لسه" description="أضف أول ميزة وبعدين فعّلها في الباقات." />
+          <Unavailable icon={ListChecks} title="مفيش ميزات لسه" description="أضف أول ميزة وبعدين فعّلها في الباقات." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

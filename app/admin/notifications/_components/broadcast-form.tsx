@@ -85,8 +85,8 @@ export function BroadcastForm() {
             <label
               key={a.value}
               className={cn(
-                "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
-                audience === a.value ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50",
+                "flex cursor-pointer items-start gap-3 rounded-[12px] bg-(--fill-3) p-3 transition-colors",
+                audience === a.value ? "bg-primary/10 ring-2 ring-primary/40" : "hover:bg-muted",
               )}
             >
               <input type="radio" name="audience" value={a.value} checked={audience === a.value} onChange={() => setAudience(a.value)} className="mt-1 accent-primary" />
@@ -121,7 +121,7 @@ export function BroadcastForm() {
 
       {/* Preview, as the merchant sees it in the bell. */}
       {(title || message) && (
-        <div className="rounded-lg border border-dashed border-border p-3">
+        <div className="rounded-[12px] bg-(--fill-3) p-3">
           <p className="mb-2 text-xs text-muted-foreground">معاينة</p>
           <p className="text-sm font-semibold">{title || "العنوان"}</p>
           <p className="mt-0.5 text-sm leading-6 text-muted-foreground">{message || "الرسالة"}</p>

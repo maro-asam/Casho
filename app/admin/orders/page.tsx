@@ -5,14 +5,14 @@ import { OrderSource, OrderStatus, Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -98,18 +98,18 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams?:
       />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="حالة الطلب"
           param="status"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
             ...(Object.keys(ORDER_STATUS_META) as OrderStatus[]).map((s) => ({ label: ORDER_STATUS_META[s].label, value: s, count: counts[s] ?? 0 })),
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={
             <>
               <SearchInput placeholder="ابحث برقم الطلب أو العميل أو الموبايل أو المتجر" className="sm:max-w-sm" />
@@ -119,11 +119,11 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams?:
               </div>
             </>
           }
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
         >
           {orders.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title="مفيش طلبات بالفلاتر دي"
                 action={
@@ -133,7 +133,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams?:
                 }
               />
             ) : (
-              <EmptyState icon={ShoppingCart} title="مفيش طلبات على المنصة لسه" />
+              <Unavailable icon={ShoppingCart} title="مفيش طلبات على المنصة لسه" />
             )
           ) : (
             <>
@@ -168,7 +168,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams?:
                         </td>
                         <td className="hidden py-3 text-muted-foreground lg:table-cell">{SOURCE_LABELS[o.source]}</td>
                         <td className="py-3">
-                          <StatusPill tone={ORDER_STATUS_META[o.status].tone}>{ORDER_STATUS_META[o.status].label}</StatusPill>
+                          <StatusText tone={ORDER_STATUS_META[o.status].tone}>{ORDER_STATUS_META[o.status].label}</StatusText>
                         </td>
                         <td className="py-3 text-left font-medium tabular-nums">{fmtMoney(o.total)}</td>
                         <td className="hidden py-3 pe-4 text-left text-xs text-muted-foreground xl:table-cell" title={fmtDateTime(o.createdAt)}>
@@ -194,7 +194,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams?:
                       · {fmtRelative(o.createdAt, now)}
                     </p>
                     <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                      <StatusPill tone={ORDER_STATUS_META[o.status].tone}>{ORDER_STATUS_META[o.status].label}</StatusPill>
+                      <StatusText tone={ORDER_STATUS_META[o.status].tone}>{ORDER_STATUS_META[o.status].label}</StatusText>
                       {SOURCE_LABELS[o.source]}
                     </div>
                   </li>
@@ -202,7 +202,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams?:
               </ul>
             </>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { ExternalLink } from "lucide-react";
 
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { prisma } from "@/lib/prisma";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { APPLICATION_STATUS, OPERATING_SINCE, RUBRIC, STORY_STATUS, TRACKS, type OperatingSince } from "@/lib/sharks/catalog";
 import { getSharksProgram } from "@/lib/sharks/program";
 import { availableTracks, nextApplicationStatuses } from "@/lib/sharks/workflow";
@@ -81,7 +81,7 @@ export default async function SharksApplicationPage({ params }: { params: Promis
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-2xl font-bold">{app.businessName}</h2>
-            <StatusPill tone={meta.tone}>{meta.ar}</StatusPill>
+            <StatusText tone={meta.tone}>{meta.ar}</StatusText>
           </div>
           <p className="text-sm text-muted-foreground">
             {app.industry} · اتقدّم {fmtDateTime(app.createdAt)}
@@ -182,7 +182,7 @@ export default async function SharksApplicationPage({ params }: { params: Promis
           <Panel title="القصة" description="النشر منفصل عن القبول: محتاج موافقة صريحة من البيزنس واعتماد داخلي.">
             {app.story ? (
               <div className="flex flex-wrap items-center gap-3 text-sm">
-                <StatusPill tone={STORY_STATUS[app.story.status].tone}>{STORY_STATUS[app.story.status].ar}</StatusPill>
+                <StatusText tone={STORY_STATUS[app.story.status].tone}>{STORY_STATUS[app.story.status].ar}</StatusText>
                 <Link href={`/admin/sharks/stories/${app.story.id}`} className="text-primary hover:underline">
                   افتح القصة
                 </Link>

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import {
   AlertTriangle,
-  ArrowUpRight,
   BriefcaseBusiness,
-  CheckCircle2,
+  Check,
   ChevronLeft,
   Clock3,
   Headset,
@@ -13,9 +12,9 @@ import {
 } from "lucide-react";
 import { SubscriptionStatus } from "@prisma/client";
 
-import { PageHeader, StatusPill } from "@/components/saas-page";
+import { Dot, LargeTitle, StatusText, appleButton, initialOf } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
-import { KpiStrip, Panel, PanelEmpty, th, theadRow } from "./_components/admin-ui";
+import { KpiStrip, PanelEmpty } from "./_components/admin-ui";
 import { OverviewTrend } from "./_components/overview-trend";
 import { SUBSCRIPTION_META, TX_TYPE_META, fmtDate, fmtMoney, fmtNum, fmtRelative } from "./_lib/format";
 import { getAdminOverview } from "./_lib/overview-data";
@@ -31,22 +30,33 @@ function delta(current: number, previous: number) {
   return `${sign}${new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 0 }).format(pct)}٪ عن الشهر اللي فات`;
 }
 
-type Attention = { id: string; title: string; description: string; href: string; tone: "warning" | "danger" | "neutral"; icon: LucideIcon };
+type Attention = { id: string; title: string; description: string; href: string; color: string; icon: LucideIcon };
 
-const TONE: Record<Attention["tone"], string> = {
-  danger: "bg-rose-500/10 text-rose-700 dark:text-rose-400",
-  warning: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
-  neutral: "bg-muted text-foreground",
-};
+// Settings-style row icons: white glyph on a flat system color. The color names the kind of work.
+const ICON_SQUARE = "grid size-[29px] shrink-0 place-items-center rounded-[7px] text-white";
 
 const STATUS_ORDER: SubscriptionStatus[] = ["ACTIVE", "GRACE_PERIOD", "PAST_DUE", "INACTIVE", "CANCELED"];
 const STATUS_BAR: Record<SubscriptionStatus, string> = {
-  ACTIVE: "bg-emerald-500",
-  GRACE_PERIOD: "bg-amber-500",
-  PAST_DUE: "bg-rose-500",
-  INACTIVE: "bg-muted-foreground/40",
-  CANCELED: "bg-muted-foreground/20",
+  ACTIVE: "bg-(--sys-green)",
+  GRACE_PERIOD: "bg-(--sys-orange)",
+  PAST_DUE: "bg-(--sys-red)",
+  INACTIVE: "bg-(--sys-gray)/50",
+  CANCELED: "bg-(--sys-gray)/25",
 };
+
+/** Card heading row: Headline title + optional trailing "See All" link. */
+function CardHeader({ title, href, linkLabel }: { title: string; href?: string; linkLabel?: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-2">
+      <h2 className="text-[17px] leading-[22px] font-semibold">{title}</h2>
+      {href && (
+        <Link href={href} className={appleButton.plain}>
+          {linkLabel}
+        </Link>
+      )}
+    </div>
+  );
+}
 
 export default async function AdminOverviewPage() {
   const data = await getAdminOverview();
@@ -60,16 +70,16 @@ export default async function AdminOverviewPage() {
       title: `${fmtNum(q.pendingTopups)} طلب شحن مستني مراجعة`,
       description: `إجمالي ${fmtMoney(q.pendingTopupsAmount)} — التجار مستنيين الرصيد عشان يجددوا.`,
       href: "/admin/topup-requests",
-      tone: "warning",
+      color: "bg-(--sys-orange)",
       icon: Wallet,
     });
   if (q.pastDue > 0)
     attention.push({
       id: "pastdue",
       title: `${fmtNum(q.pastDue)} متجر اشتراكه متأخر`,
-      description: "فترة السماح خلصت والمتجر واقف. تابع معاهم.",
+      description: "الاشتراك خلص والرصيد مش مكفي، والمتجر واقف. تابع معاهم.",
       href: "/admin/stores?status=PAST_DUE",
-      tone: "danger",
+      color: "bg-(--sys-red)",
       icon: AlertTriangle,
     });
   if (q.grace > 0)
@@ -78,7 +88,7 @@ export default async function AdminOverviewPage() {
       title: `${fmtNum(q.grace)} متجر في فترة السماح`,
       description: "هيقفوا لو مشحنوش رصيد قبل ما الفترة تخلص.",
       href: "/admin/stores?status=GRACE_PERIOD",
-      tone: "warning",
+      color: "bg-(--sys-orange)",
       icon: Clock3,
     });
   if (q.atRiskRenewals > 0)
@@ -87,7 +97,7 @@ export default async function AdminOverviewPage() {
       title: `${fmtNum(q.atRiskRenewals)} تجديد في خطر خلال ٣ أيام`,
       description: "الرصيد مش مكفي التجديد الجاي.",
       href: "/admin/stores?status=EXPIRING",
-      tone: "neutral",
+      color: "bg-(--sys-indigo)",
       icon: Clock3,
     });
   if (q.newServices > 0)
@@ -96,7 +106,7 @@ export default async function AdminOverviewPage() {
       title: `${fmtNum(q.newServices)} طلب خدمة جديد`,
       description: "لسه محدش تواصل معاهم.",
       href: "/admin/service-requests?status=PENDING",
-      tone: "neutral",
+      color: "bg-primary",
       icon: BriefcaseBusiness,
     });
   if (q.newSupport > 0)
@@ -105,7 +115,7 @@ export default async function AdminOverviewPage() {
       title: `${fmtNum(q.newSupport)} تذكرة دعم جديدة`,
       description: "ردّ عليهم أو غيّر الحالة بعد المتابعة.",
       href: "/admin/support-requests?status=PENDING",
-      tone: "neutral",
+      color: "bg-(--sys-teal)",
       icon: Headset,
     });
   if (q.unconfirmedPlans > 0)
@@ -114,13 +124,17 @@ export default async function AdminOverviewPage() {
       title: `${fmtNum(q.unconfirmedPlans)} باقة أسعارها مش مؤكدة`,
       description: "أكّد الأسعار قبل ما التجار يشتركوا عليها.",
       href: "/admin/plans",
-      tone: "neutral",
+      color: "bg-(--sys-gray)",
       icon: Layers,
     });
 
   return (
     <div className="space-y-6">
-      <PageHeader title="نظرة عامة" description={`أداء المنصة النهارده — ${todayFmt.format(new Date())}`} />
+      <LargeTitle
+        eyebrow={<p className="text-[13px] font-semibold text-muted-foreground">{todayFmt.format(new Date())}</p>}
+        title="نظرة عامة"
+        subtitle="أداء المنصة والشغل اللي مستنيك."
+      />
 
       <KpiStrip
         items={[
@@ -156,144 +170,135 @@ export default async function AdminOverviewPage() {
           <OverviewTrend months={data.months} />
         </div>
 
-        <section className="overflow-hidden rounded-xl border border-border bg-card">
-          <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-semibold">محتاج انتباهك</h2>
+        {/* Work waiting on an admin — a grouped list, most urgent first. */}
+        <section aria-labelledby="attention-title" className="apple-card overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-2">
+            <h2 id="attention-title" className="text-[17px] leading-[22px] font-semibold">
+              محتاج انتباهك
+            </h2>
+            {attention.length > 0 && <span className="text-[15px] text-muted-foreground tabular-nums">{fmtNum(attention.length)}</span>}
           </div>
           {attention.length > 0 ? (
-            <ul className="p-2">
+            <ul className="apple-rows pb-2 [--row-inset:61px]">
               {attention.map((item) => {
                 const Icon = item.icon;
                 return (
                   <li key={item.id}>
                     <Link
                       href={item.href}
-                      className="group flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="flex min-h-14 items-center gap-3 px-5 py-2.5 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:bg-muted"
                     >
-                      <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg", TONE[item.tone])}>
-                        <Icon className="size-4" />
+                      <span className={cn(ICON_SQUARE, item.color)}>
+                        <Icon className="size-4" strokeWidth={2} />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-medium">{item.title}</span>
-                        <span className="block text-xs leading-5 text-muted-foreground">{item.description}</span>
+                        <span className="block text-[15px] leading-5">{item.title}</span>
+                        <span className="block text-[13px] leading-[18px] text-muted-foreground">{item.description}</span>
                       </span>
-                      <ChevronLeft className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+                      <ChevronLeft className="size-4 shrink-0 text-(--label-3)" strokeWidth={2.2} />
                     </Link>
                   </li>
                 );
               })}
             </ul>
           ) : (
-            <div className="flex items-center gap-3 p-5">
-              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
-                <CheckCircle2 className="size-4" />
+            <div className="flex flex-col items-center gap-2 px-6 pt-8 pb-10 text-center">
+              <span className="mb-1 grid size-11 place-items-center rounded-full bg-(--sys-green) text-white">
+                <Check className="size-6" strokeWidth={2.4} />
               </span>
-              <div>
-                <p className="text-sm font-medium">مفيش حاجة مستنياك</p>
-                <p className="text-xs text-muted-foreground">كل الطلبات اتراجعت ومفيش متاجر متعثرة.</p>
-              </div>
+              <p className="text-[17px] font-semibold">مفيش حاجة مستنياك</p>
+              <p className="max-w-60 text-[13px] leading-[18px] text-muted-foreground">كل الطلبات اتراجعت ومفيش متاجر متعثرة.</p>
             </div>
           )}
         </section>
       </div>
 
       {/* Subscription health: one stacked meter, every segment labelled below. */}
-      <Panel title="حالة الاشتراكات" description="توزيع كل المتاجر حسب حالة الاشتراك دلوقتي.">
+      <section aria-labelledby="health-title" className="apple-card overflow-hidden">
+        <div className="space-y-0.5 px-5 pt-5 pb-4">
+          <h2 id="health-title" className="text-[17px] leading-[22px] font-semibold">
+            حالة الاشتراكات
+          </h2>
+          <p className="text-[13px] leading-[18px] text-muted-foreground">توزيع كل المتاجر حسب حالة الاشتراك دلوقتي.</p>
+        </div>
         {data.totalStores === 0 ? (
-          <p className="text-sm text-muted-foreground">مفيش متاجر لسه.</p>
+          <PanelEmpty>مفيش متاجر لسه.</PanelEmpty>
         ) : (
-          <div className="space-y-4">
-            <div className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full" role="img" aria-label="توزيع حالات الاشتراك">
+          <div className="space-y-4 px-5 pb-5">
+            <div className="flex h-3 w-full gap-[3px] overflow-hidden rounded-full" role="img" aria-label="توزيع حالات الاشتراك">
               {STATUS_ORDER.map((s) => {
                 const n = data.statusCounts[s] ?? 0;
-                return n > 0 ? <div key={s} className={STATUS_BAR[s]} style={{ width: `${(n / data.totalStores) * 100}%` }} /> : null;
+                return n > 0 ? <div key={s} className={cn("rounded-full", STATUS_BAR[s])} style={{ width: `${(n / data.totalStores) * 100}%` }} /> : null;
               })}
             </div>
-            <ul className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
+            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
               {STATUS_ORDER.map((s) => (
                 <li key={s}>
-                  <Link href={`/admin/stores?status=${s}`} className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:bg-muted/50">
-                    <StatusPill tone={SUBSCRIPTION_META[s].tone}>{SUBSCRIPTION_META[s].label}</StatusPill>
-                    <span className="font-semibold tabular-nums">{fmtNum(data.statusCounts[s] ?? 0)}</span>
+                  <Link
+                    href={`/admin/stores?status=${s}`}
+                    className="apple-press flex flex-col gap-1 rounded-[14px] bg-(--fill-3) px-3.5 py-3 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <span className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                      <Dot tone={SUBSCRIPTION_META[s].tone} />
+                      {SUBSCRIPTION_META[s].label}
+                    </span>
+                    <span className="text-[22px] leading-7 font-bold tabular-nums">{fmtNum(data.statusCounts[s] ?? 0)}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
         )}
-      </Panel>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <Panel
-          title="أحدث المتاجر"
-          className="lg:col-span-3"
-          flush
-          actions={
-            <Link href="/admin/stores" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-              كل المتاجر <ArrowUpRight className="size-3" />
-            </Link>
-          }
-        >
+        <section className="apple-card overflow-hidden lg:col-span-3">
+          <CardHeader title="أحدث المتاجر" href="/admin/stores" linkLabel="عرض الكل" />
           {data.latestStores.length === 0 ? (
             <PanelEmpty>مفيش متاجر لسه.</PanelEmpty>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className={theadRow}>
-                  <th className={cn(th, "ps-4")}>المتجر</th>
-                  <th className={cn(th, "hidden sm:table-cell")}>الحالة</th>
-                  <th className={cn(th, "hidden md:table-cell")}>اتعمل</th>
-                  <th className={cn(th, "pe-4 text-left")}>الرصيد</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.latestStores.map((store) => (
-                  <tr key={store.id} className="relative transition-colors hover:bg-muted/40">
-                    <td className="py-3 ps-4">
-                      <Link href={`/admin/stores/${store.slug}`} className="font-medium after:absolute after:inset-0">
-                        {store.name}
-                      </Link>
-                      <p className="truncate text-xs text-muted-foreground" dir="ltr">
-                        {store.user.email}
-                      </p>
-                    </td>
-                    <td className="hidden py-3 sm:table-cell">
-                      <StatusPill tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusPill>
-                    </td>
-                    <td className="hidden py-3 text-muted-foreground md:table-cell">{fmtDate(store.createdAt)}</td>
-                    <td className="py-3 pe-4 text-left tabular-nums">{fmtMoney(store.balance)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ul className="apple-rows pb-2 [--row-inset:68px]">
+              {data.latestStores.map((store) => (
+                <li key={store.id} className="relative flex items-center gap-3 px-5 py-2.5 transition-colors hover:bg-muted/60">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-linear-to-b from-[#a1a1a6] to-[#8e8e93] text-[13px] font-semibold text-white">
+                    {initialOf(store.name)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/admin/stores/${store.slug}`} className="block truncate text-[15px] after:absolute after:inset-0">
+                      {store.name}
+                    </Link>
+                    <p className="truncate text-[13px] text-muted-foreground">
+                      <span dir="ltr">{store.user.email}</span>
+                      <span className="hidden md:inline"> · {fmtDate(store.createdAt)}</span>
+                    </p>
+                  </div>
+                  <StatusText tone={SUBSCRIPTION_META[store.subscriptionStatus].tone} className="hidden sm:inline-flex">
+                    {SUBSCRIPTION_META[store.subscriptionStatus].label}
+                  </StatusText>
+                  <span className="w-24 shrink-0 text-left text-[15px] tabular-nums">{fmtMoney(store.balance)}</span>
+                </li>
+              ))}
+            </ul>
           )}
-        </Panel>
+        </section>
 
-        <Panel
-          title="آخر الحركات المالية"
-          className="lg:col-span-2"
-          flush
-          actions={
-            <Link href="/admin/transactions" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-              كل الحركات <ArrowUpRight className="size-3" />
-            </Link>
-          }
-        >
+        <section className="apple-card overflow-hidden lg:col-span-2">
+          <CardHeader title="آخر الحركات المالية" href="/admin/transactions" linkLabel="عرض الكل" />
           {data.latestActivity.length === 0 ? (
             <PanelEmpty>مفيش حركات لسه.</PanelEmpty>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="apple-rows pb-2 [--row-inset:20px]">
               {data.latestActivity.map((tx) => (
-                <li key={tx.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                <li key={tx.id} className="relative flex items-center justify-between gap-3 px-5 py-2.5 transition-colors hover:bg-muted/60">
                   <div className="min-w-0">
-                    <Link href={`/admin/stores/${tx.store.slug}`} className="block truncate font-medium hover:underline">
+                    <Link href={`/admin/stores/${tx.store.slug}`} className="block truncate text-[15px] after:absolute after:inset-0">
                       {tx.store.name}
                     </Link>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[13px] text-muted-foreground">
                       {TX_TYPE_META[tx.type].label} · {fmtRelative(tx.createdAt)}
                     </p>
                   </div>
-                  <span className={cn("shrink-0 font-semibold tabular-nums", tx.amount < 0 ? "text-muted-foreground" : "text-emerald-700 dark:text-emerald-400")} dir="ltr">
+                  <span className={cn("shrink-0 text-[15px] font-semibold tabular-nums", tx.amount < 0 ? "text-muted-foreground" : "text-[#248a3d] dark:text-(--sys-green)")} dir="ltr">
                     {tx.amount > 0 ? "+" : ""}
                     {fmtMoney(tx.amount)}
                   </span>
@@ -301,7 +306,7 @@ export default async function AdminOverviewPage() {
               ))}
             </ul>
           )}
-        </Panel>
+        </section>
       </div>
     </div>
   );

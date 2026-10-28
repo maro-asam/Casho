@@ -40,7 +40,7 @@ export default async function AdminSalesRulesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="h-10 bg-muted/40 text-right text-xs text-muted-foreground">
+              <tr className="h-9 border-b-[0.5px] border-border text-right text-[13px] text-muted-foreground">
                 <th className="ps-4 font-medium">من</th>
                 <th className="font-medium">المستوى 1</th>
                 <th className="font-medium">المستوى 2</th>

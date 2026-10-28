@@ -227,7 +227,7 @@ const EditBlogForm = ({
           />
 
           {/* Cover image upload */}
-          <div className="space-y-3 rounded-xl border p-4">
+          <div className="space-y-3 rounded-[12px] bg-(--fill-3) p-4">
             <p className="flex items-center gap-2 text-sm font-medium">
               <ImagePlus className="size-4" />
               صورة المقال
@@ -397,7 +397,7 @@ const EditBlogForm = ({
             </SelectContent>
           </Select>
 
-          <div className="flex items-center gap-3 rounded-xl border px-4 py-3">
+          <div className="flex items-center gap-3 rounded-[12px] bg-(--fill-3) px-4 py-3">
             <Checkbox
               checked={
                 form.featured

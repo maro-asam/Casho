@@ -3,7 +3,7 @@ import { BookOpen, Video } from "lucide-react";
 
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { prisma } from "@/lib/prisma";
-import { DataCard, EmptyState, StatusPill } from "@/components/saas-page";
+import { ListCard, Unavailable, StatusText } from "@/components/saas-page";
 import { STORY_STATUS } from "@/lib/sharks/catalog";
 import { hasValidConsent } from "@/lib/sharks/workflow";
 import { fmtDate } from "../../_lib/format";
@@ -27,9 +27,9 @@ export default async function SharksStoriesPage() {
   });
 
   return (
-    <DataCard>
+    <ListCard>
       {stories.length === 0 ? (
-        <EmptyState icon={BookOpen} title="مفيش قصص لسه" description="افتح طلب مقبول واضغط «اقترح قصة». القصة مش بتتنشر إلا بعد موافقة البيزنس واعتماد داخلي." />
+        <Unavailable icon={BookOpen} title="مفيش قصص لسه" description="افتح طلب مقبول واضغط «اقترح قصة». القصة مش بتتنشر إلا بعد موافقة البيزنس واعتماد داخلي." />
       ) : (
         <ul className="divide-y divide-border">
           {stories.map((s) => (
@@ -51,12 +51,12 @@ export default async function SharksStoriesPage() {
                 {s.publishedAt && s.status === "PUBLISHED" && <span>اتنشرت {fmtDate(s.publishedAt)}</span>}
               </div>
               <div className="md:justify-self-end">
-                <StatusPill tone={STORY_STATUS[s.status].tone}>{STORY_STATUS[s.status].ar}</StatusPill>
+                <StatusText tone={STORY_STATUS[s.status].tone}>{STORY_STATUS[s.status].ar}</StatusText>
               </div>
             </li>
           ))}
         </ul>
       )}
-    </DataCard>
+    </ListCard>
   );
 }

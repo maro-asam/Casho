@@ -735,6 +735,13 @@ body:has(.apple-auto) :is([data-slot="select-content"], [data-slot="dropdown-men
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.14), 0 0 0 0.5px var(--border);
 }
 
+/* Admin panel: hand-written <table>s and divided lists inside cards. Edge cells
+   align to the card's 20px text inset, dividers are hairlines, cells read at 15px. */
+.admin-ui .apple-card table :is(th, td):first-child { padding-inline-start: 20px; }
+.admin-ui .apple-card table :is(th, td):last-child { padding-inline-end: 20px; }
+.admin-ui .apple-card table td { font-size: 15px; }
+.admin-ui .apple-card .divide-y > :not(:last-child) { border-bottom-width: 0.5px; }
+
 @media (prefers-reduced-motion: reduce) {
   .apple-press, .apple-press:active { transition: none; transform: none; }
 }

@@ -5,13 +5,13 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
+  ListCard,
+  Unavailable,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -88,7 +88,7 @@ export default async function AdminSecurityPage({ searchParams }: { searchParams
         ]}
       />
 
-      <DataCard
+      <ListCard
         toolbar={
           <>
             <SearchInput placeholder="ابحث بالبريد أو الاسم أو الـ IP" />
@@ -101,11 +101,11 @@ export default async function AdminSecurityPage({ searchParams }: { searchParams
             />
           </>
         }
-        footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="حدث" />}
+        footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="حدث" />}
       >
         {logs.length === 0 ? (
           filtered ? (
-            <EmptyState
+            <Unavailable
               icon={SearchX}
               title="مفيش أحداث بالفلاتر دي"
               action={
@@ -115,7 +115,7 @@ export default async function AdminSecurityPage({ searchParams }: { searchParams
               }
             />
           ) : (
-            <EmptyState icon={ShieldAlert} title="السجل فاضي" />
+            <Unavailable icon={ShieldAlert} title="السجل فاضي" />
           )
         ) : (
           <div className="overflow-x-auto">
@@ -135,7 +135,7 @@ export default async function AdminSecurityPage({ searchParams }: { searchParams
                   return (
                     <tr key={log.id} className="transition-colors hover:bg-muted/40">
                       <td className="py-3 ps-4">
-                        <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
+                        <StatusText tone={meta.tone}>{meta.label}</StatusText>
                       </td>
                       <td className="max-w-60 py-3">
                         {log.user ? (
@@ -158,7 +158,7 @@ export default async function AdminSecurityPage({ searchParams }: { searchParams
             </table>
           </div>
         )}
-      </DataCard>
+      </ListCard>
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { BalanceTransactionType, SubscriptionStatus } from "@prisma/client";
 // Arabic everywhere except the merchant dashboard in English (see lib/i18n/dashboard).
 import { intlLocale } from "@/lib/i18n/dashboard/runtime";
 
-export const DEFAULT_GRACE_PERIOD_DAYS = 3;
 export const FREE_TRIAL_DAYS = 3;
 
 // Plan/feature configuration (limits, prices, capabilities) lives entirely in
@@ -137,7 +136,7 @@ export const BALANCE_TRANSACTION_LABELS: Record<
   REFERRAL_REWARD: "مكافأة إحالة",
 };
 
-/** Storefront stays open while the merchant is in the grace period — that's what grace is for. */
+/** GRACE_PERIOD is legacy (grace was removed); such stores stay open until the next renewal sweep closes them. */
 export function isStorefrontOpen(status: SubscriptionStatus) {
   return status === SubscriptionStatus.ACTIVE || status === SubscriptionStatus.GRACE_PERIOD;
 }

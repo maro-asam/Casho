@@ -19,10 +19,11 @@ type Props = {
 
 const nf = new Intl.NumberFormat("ar-EG");
 
+// macOS sidebar rows: monochrome glyphs, tinted glyph + soft fill on the current page.
 const itemBase =
-  "flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
-const itemIdle = "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
-const itemActive = "bg-sidebar-accent font-medium text-sidebar-accent-foreground";
+  "apple-press flex h-9 items-center gap-2.5 rounded-[10px] px-2.5 text-[13.5px] font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
+const itemIdle = "text-sidebar-foreground/80 hover:bg-sidebar-accent";
+const itemActive = "bg-sidebar-accent font-semibold text-sidebar-foreground";
 
 export default function AdminSidebar({ activeHref, badges, collapsed = false, onToggleCollapsed, onNavigate }: Props) {
   const renderItem = (item: AdminNavItem) => {
@@ -41,8 +42,8 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
               aria-current={isActive ? "page" : undefined}
               className={cn(itemBase, "relative justify-center px-0", isActive ? itemActive : itemIdle)}
             >
-              <Icon className={cn("size-4 shrink-0", isActive && "text-sidebar-primary")} />
-              {count > 0 && <span aria-hidden className="absolute inset-e-2 top-1.5 size-1.5 rounded-full bg-amber-500" />}
+              <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
+              {count > 0 && <span aria-hidden className="absolute inset-e-2 top-1.5 size-2 rounded-full bg-(--sys-red)" />}
             </Link>
           </TooltipTrigger>
           <TooltipContent side="left">
@@ -61,10 +62,11 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
         aria-current={isActive ? "page" : undefined}
         className={cn(itemBase, isActive ? itemActive : itemIdle)}
       >
-        <Icon className={cn("size-4 shrink-0", isActive && "text-sidebar-primary")} />
+        <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
         <span className="flex-1 truncate">{item.name}</span>
+        {/* Work waiting on an admin: the one place red is used in the chrome. */}
         {count > 0 && (
-          <span className="min-w-5 rounded-md bg-amber-500/15 px-1.5 py-px text-center text-[11px] font-semibold tabular-nums text-amber-700 dark:text-amber-400">
+          <span className="min-w-5 rounded-full bg-(--sys-red) px-1.5 text-center text-[11px] leading-5 font-semibold text-white tabular-nums">
             {nf.format(count)}
           </span>
         )}
@@ -73,16 +75,16 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
   };
 
   return (
-    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+    <div className="apple-glass flex h-full flex-col overflow-hidden rounded-[22px] text-sidebar-foreground">
       {/* Brand */}
-      <div className={cn("flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border", collapsed ? "justify-center px-2" : "px-3")}>
-        <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-          <ShieldCheck className="size-4" />
+      <div className={cn("flex h-16 shrink-0 items-center gap-2.5", collapsed ? "justify-center px-2" : "px-3.5")}>
+        <div className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-linear-to-b from-sidebar-primary/85 to-sidebar-primary text-sidebar-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,.3)]">
+          <ShieldCheck className="size-[18px]" strokeWidth={1.8} />
         </div>
         {!collapsed && (
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold leading-tight">كاشو</p>
-            <p className="truncate text-xs text-sidebar-foreground/60">لوحة الإدارة</p>
+            <p className="truncate text-[11px] font-normal text-muted-foreground">لوحة الإدارة</p>
           </div>
         )}
         {onToggleCollapsed && !collapsed && (
@@ -91,7 +93,7 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
             size="icon"
             onClick={onToggleCollapsed}
             aria-label="طي القائمة"
-            className="size-8 shrink-0 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="size-8 shrink-0 rounded-full text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <PanelRightClose className="size-4" />
           </Button>
@@ -99,14 +101,17 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
       </div>
 
       {/* Navigation */}
-      <nav aria-label="قائمة الإدارة" className="flex-1 overflow-y-auto px-2 py-3">
+      <nav
+        aria-label="قائمة الإدارة"
+        className="scrollbar-hide flex-1 overflow-y-auto px-2 pt-1 pb-3 mask-[linear-gradient(to_bottom,transparent,black_12px,black_calc(100%-16px),transparent)]"
+      >
         {onToggleCollapsed && collapsed && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
             aria-label="توسيع القائمة"
-            className="mb-2 h-9 w-full text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="mb-2 h-9 w-full rounded-[10px] text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <PanelRightOpen className="size-4" />
           </Button>
@@ -117,9 +122,9 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
             <div key={section.title ?? i}>
               {section.title &&
                 (collapsed ? (
-                  <div className="mx-2 mb-2 h-px bg-sidebar-border" />
+                  <div className="mx-3 mb-2 border-t-[0.5px] border-sidebar-border" />
                 ) : (
-                  <p className="mb-1 px-2.5 text-xs font-medium text-sidebar-foreground/50">{section.title}</p>
+                  <p className="mb-1 px-2.5 text-[11px] font-semibold text-muted-foreground">{section.title}</p>
                 ))}
               <div className="space-y-0.5">{section.items.map(renderItem)}</div>
             </div>
@@ -128,7 +133,7 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
       </nav>
 
       {/* Footer */}
-      <div className="shrink-0 border-t border-sidebar-border p-2">
+      <div className="mx-2 shrink-0 border-t-[0.5px] border-sidebar-border py-2">
         {/* Absolute: on the app host "/" is the merchant dashboard. */}
         {renderItem({ name: "الموقع الرئيسي", href: process.env.NEXT_PUBLIC_APP_URL || "https://casho.store", icon: ExternalLink })}
       </div>

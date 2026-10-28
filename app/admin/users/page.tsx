@@ -5,14 +5,14 @@ import { Prisma, UserRole } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -84,29 +84,29 @@ export default async function AdminUsersPage({ searchParams }: { searchParams?: 
       <PageHeader title="المستخدمين" description="كل الحسابات على المنصة: تجار، أدمن، ومندوبين. افتح الحساب عشان تشوف جلساته ونشاطه." />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="الدور"
           param="role"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
             ...(Object.keys(ROLE_META) as UserRole[]).map((r) => ({ label: ROLE_META[r].label, value: r, count: counts[r] ?? 0 })),
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={
             <>
               <SearchInput placeholder="ابحث بالاسم أو البريد أو الموبايل أو المتجر" className="sm:max-w-sm" />
               <SelectFilter param="has" allLabel="كل الحسابات" label="فلتر الحساب" options={Object.entries(STORE_FILTER).map(([value, label]) => ({ value, label }))} />
             </>
           }
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="مستخدم" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="مستخدم" />}
         >
           {users.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title="مفيش مستخدمين بالفلاتر دي"
                 action={
@@ -116,7 +116,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams?: 
                 }
               />
             ) : (
-              <EmptyState icon={Users} title="مفيش مستخدمين لسه" />
+              <Unavailable icon={Users} title="مفيش مستخدمين لسه" />
             )
           ) : (
             <>
@@ -148,7 +148,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams?: 
                           <span className="block text-right">{u.phone_number ?? "—"}</span>
                         </td>
                         <td className="py-3">
-                          <StatusPill tone={ROLE_META[u.role].tone}>{ROLE_META[u.role].label}</StatusPill>
+                          <StatusText tone={ROLE_META[u.role].tone}>{ROLE_META[u.role].label}</StatusText>
                         </td>
                         <td className="max-w-48 py-3">
                           {u.stores.length === 0 ? (
@@ -175,7 +175,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams?: 
                       <Link href={`${BASE_PATH}/${u.id}`} className="min-w-0 truncate font-medium after:absolute after:inset-0">
                         {u.name ?? "بدون اسم"}
                       </Link>
-                      <StatusPill tone={ROLE_META[u.role].tone}>{ROLE_META[u.role].label}</StatusPill>
+                      <StatusText tone={ROLE_META[u.role].tone}>{ROLE_META[u.role].label}</StatusText>
                     </div>
                     <p className="truncate text-xs text-muted-foreground" dir="ltr">
                       {u.email}
@@ -188,7 +188,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams?: 
               </ul>
             </>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

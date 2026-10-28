@@ -45,11 +45,11 @@ export default function AdminShell({ viewer, badges, children }: { viewer: Admin
   const mobileMenu = (
     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="فتح القائمة" className="-ms-2 size-9 md:hidden">
+        <Button variant="ghost" size="icon" aria-label="فتح القائمة" className="-ms-2 size-10 rounded-full md:hidden">
           <Menu className="size-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-72 border-sidebar-border p-0 [&>button]:hidden">
+      <SheetContent side="right" className="apple-ui w-72 border-none bg-transparent p-3 shadow-none [&>button]:hidden">
         <SheetTitle className="sr-only">قائمة الإدارة</SheetTitle>
         <AdminSidebar activeHref={active?.href ?? null} badges={badges} onNavigate={() => setMobileOpen(false)} />
       </SheetContent>
@@ -58,19 +58,20 @@ export default function AdminShell({ viewer, badges, children }: { viewer: Admin
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div dir="rtl" className="min-h-screen bg-background text-foreground">
+      <div dir="rtl" className="apple-ui min-h-screen bg-background text-foreground">
+        {/* Desktop sidebar — a floating glass island; content scrolls beside it. */}
         <aside
           className={cn(
-            "fixed inset-y-0 start-0 z-40 hidden overflow-hidden border-e border-sidebar-border transition-[width] duration-200 ease-out md:block",
+            "fixed inset-y-3 start-3 z-40 hidden overflow-hidden rounded-[22px] transition-[width] duration-300 ease-(--ease-apple) md:block",
             isCollapsed ? "w-16" : "w-64",
           )}
         >
           <AdminSidebar activeHref={active?.href ?? null} badges={badges} collapsed={isCollapsed} onToggleCollapsed={toggleCollapsed} />
         </aside>
 
-        <div className={cn("flex min-h-screen flex-col transition-[padding] duration-200 ease-out", isCollapsed ? "md:ps-16" : "md:ps-64")}>
+        <div className={cn("flex min-h-screen flex-col transition-[padding] duration-300 ease-(--ease-apple)", isCollapsed ? "md:ps-22" : "md:ps-70")}>
           <AdminTopbar active={active} viewer={viewer} menuSlot={mobileMenu} />
-          <main id="main-content" className="mx-auto w-full max-w-385 flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">
+          <main id="main-content" className="admin-ui apple-auto apple-form mx-auto w-full max-w-385 flex-1 px-4 pt-4 pb-10 sm:px-6 md:px-8 md:pt-6">
             {children}
           </main>
         </div>

@@ -128,14 +128,14 @@ export function PlanMetadataForm({ plan }: { plan: Plan }) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+          <label className="flex items-center justify-between gap-3 rounded-[12px] bg-(--fill-3) p-3">
             <span>
               <span className="block text-sm font-medium">ظاهرة للتجار</span>
               <span className="block text-xs text-muted-foreground">لو مخفية محدش يقدر يختارها</span>
             </span>
             <Switch checked={isActive} onCheckedChange={setIsActive} />
           </label>
-          <label className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+          <label className="flex items-center justify-between gap-3 rounded-[12px] bg-(--fill-3) p-3">
             <span>
               <span className="block text-sm font-medium">السعر مؤكد</span>
               <span className="block text-xs text-muted-foreground">شيل علامة «مبدئي» من الباقة</span>

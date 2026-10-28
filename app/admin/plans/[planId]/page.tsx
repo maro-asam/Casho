@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { GetPlanWithFeaturesForAdminAction } from "@/actions/admin/admin-plans.actions";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
 import { BackLink, Panel, PanelEmpty } from "../../_components/admin-ui";
 import { fmtNum, fmtRelative } from "../../_lib/format";
@@ -44,8 +44,8 @@ export default async function AdminPlanEditorPage({ params }: { params: Promise<
       <header className="space-y-1.5">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-bold tracking-tight">{plan.name}</h1>
-          <StatusPill tone={plan.isActive ? "success" : "neutral"}>{plan.isActive ? "ظاهرة" : "مخفية"}</StatusPill>
-          {!plan.pricingConfigured && <StatusPill tone="warning">السعر مش مؤكد</StatusPill>}
+          <StatusText tone={plan.isActive ? "success" : "neutral"}>{plan.isActive ? "ظاهرة" : "مخفية"}</StatusText>
+          {!plan.pricingConfigured && <StatusText tone="warning">السعر مش مؤكد</StatusText>}
         </div>
         <p className="text-sm text-muted-foreground">
           <span className="font-mono" dir="ltr">

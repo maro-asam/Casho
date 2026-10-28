@@ -5,14 +5,14 @@ import { Prisma, SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -110,12 +110,12 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
       <PageHeader title="المتاجر" description="كل المتاجر على المنصة: الاشتراك، الرصيد، والنشاط. افتح أي متجر عشان تديره." />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="حالة الاشتراك"
           param="status"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: all },
             { label: SUBSCRIPTION_META.ACTIVE.label, value: "ACTIVE", count: counts.ACTIVE ?? 0 },
             { label: "تنتهي خلال ٧ أيام", value: EXPIRING, count: expiringCount },
@@ -126,7 +126,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={
             <>
               <SearchInput placeholder="ابحث بالاسم أو الرابط أو بريد المالك أو موبايله" className="sm:max-w-sm" />
@@ -136,11 +136,11 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
               </div>
             </>
           }
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="متجر" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="متجر" />}
         >
           {stores.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title="مفيش متاجر بالفلاتر دي"
                 action={
@@ -150,7 +150,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
                 }
               />
             ) : (
-              <EmptyState icon={Store} title="مفيش متاجر لسه" description="أول ما تاجر يسجّل ويعمل متجره هيظهر هنا." />
+              <Unavailable icon={Store} title="مفيش متاجر لسه" description="أول ما تاجر يسجّل ويعمل متجره هيظهر هنا." />
             )
           ) : (
             <>
@@ -189,7 +189,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
                           <p className="text-xs text-muted-foreground">{store.billingCycle === "YEARLY" ? "سنوي" : "شهري"}</p>
                         </td>
                         <td className="py-3">
-                          <StatusPill tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusPill>
+                          <StatusText tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusText>
                           {store.subscriptionEndsAt && (
                             <p className="mt-1 text-xs text-muted-foreground">
                               {store.subscriptionEndsAt > now ? "ينتهي" : "انتهى"} {fmtRelative(store.subscriptionEndsAt, now)}
@@ -220,7 +220,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
                       {store.user.email}
                     </p>
                     <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                      <StatusPill tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusPill>
+                      <StatusText tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusText>
                       <span>{store.plan?.name ?? "بدون باقة"}</span>
                     </div>
                   </li>
@@ -228,7 +228,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
               </ul>
             </>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

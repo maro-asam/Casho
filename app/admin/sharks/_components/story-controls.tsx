@@ -94,7 +94,7 @@ export function StoryEditor({ storyId, content, locked, approved }: { storyId: s
           <ImageField label="اللوجو" value={text("logoUrl")} onChange={(x) => set("logoUrl", x)} error={errors.logoUrl} />
         </div>
 
-        <div className="space-y-3 rounded-lg border border-border p-4">
+        <div className="space-y-3 rounded-[12px] bg-(--fill-3) p-4">
           <TextField
             label="رابط الفيديو (YouTube / Vimeo / ملف mp4 أو webm)"
             value={text("videoUrl")}

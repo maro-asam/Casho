@@ -2,10 +2,10 @@ import Link from "next/link";
 import { SearchX, Users } from "lucide-react";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  Pagination,
+  ListCard,
+  Unavailable,
+  Segmented,
+  Pager,
   SearchInput,
   SelectFilter,
   readPage,
@@ -51,12 +51,12 @@ export default async function AdminSalesCustomersPage({ searchParams }: { search
         <AssignCustomerDialog reps={activeReps} triggerLabel="نسب عميل بالبريد" />
       </div>
 
-      <FilterTabs
+      <Segmented
         label="حالة العملاء"
         param="state"
         basePath={BASE_PATH}
         searchParams={params}
-        tabs={[
+        segments={[
           { label: "الكل", count: counts.all },
           { label: "سجّل ولم يدفع", value: "signup", count: counts.signup },
           { label: "مؤهل حاليًا", value: "eligible", count: counts.eligible },
@@ -64,18 +64,18 @@ export default async function AdminSalesCustomersPage({ searchParams }: { search
         ]}
       />
 
-      <DataCard
+      <ListCard
         toolbar={
           <>
             <SearchInput placeholder="ابحث بالاسم أو البريد أو الموبايل أو المتجر" />
             <SelectFilter param="rep" allLabel="كل المندوبين" label="المندوب" options={repOptions.map((r) => ({ value: r.id, label: r.label }))} />
           </>
         }
-        footer={<Pagination page={list.page} pageSize={PAGE_SIZE} total={list.total} basePath={BASE_PATH} searchParams={params} noun="عميل" />}
+        footer={<Pager page={list.page} pageSize={PAGE_SIZE} total={list.total} basePath={BASE_PATH} searchParams={params} noun="عميل" />}
       >
         {list.rows.length === 0 ? (
           filtered ? (
-            <EmptyState
+            <Unavailable
               icon={SearchX}
               title="مفيش عملاء بالفلاتر دي"
               action={
@@ -85,7 +85,7 @@ export default async function AdminSalesCustomersPage({ searchParams }: { search
               }
             />
           ) : (
-            <EmptyState icon={Users} title="مفيش عملاء منسوبين لسه" description="أول ما تاجر يسجل من رابط مندوب هيظهر هنا." />
+            <Unavailable icon={Users} title="مفيش عملاء منسوبين لسه" description="أول ما تاجر يسجل من رابط مندوب هيظهر هنا." />
           )
         ) : (
           <CustomersTable
@@ -97,7 +97,7 @@ export default async function AdminSalesCustomersPage({ searchParams }: { search
             )}
           />
         )}
-      </DataCard>
+      </ListCard>
     </div>
   );
 }

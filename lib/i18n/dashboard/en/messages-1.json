@@ -328,7 +328,7 @@
  "انتهت صلاحية الربط — يرجى إعادة الاتصال": "The connection expired — please reconnect",
  "انتهت صلاحية الربط مع Shopify — أعد ربط المتجر ثم استكمل الاستيراد": "The Shopify connection expired — reconnect the store, then resume the import",
  "انتهت صلاحية جلسة Google، ابدأ من جديد": "Your Google session expired, start again",
- "انتهت فترة السماح وأصبح الاشتراك متأخرًا": "The grace period ended and the subscription is past due",
+ "الرصيد غير كافٍ للتجديد، والمتجر اتقفل لحد ما يتشحن": "Your balance isn't enough to renew — the store is paused until you top up",
  "انضم عضو جديد": "A new member joined",
  "باقة {0} ({1})": "{0} plan ({1})",
  "باقتك اتحدثت": "Your plan was updated",

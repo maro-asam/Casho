@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
-import { PageHeader, StatusPill } from "@/components/saas-page";
+import { PageHeader, StatusText } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
@@ -102,11 +102,11 @@ export default async function AdminInstagramPage() {
       <PageHeader
         title="Instagram AI"
         description="مراقبة ربط إنستجرام، الطلبات المقترحة من الرسايل، ووظائف الذكاء الاصطناعي."
-        actions={<StatusPill tone="neutral">داخلي</StatusPill>}
+        actions={<StatusText tone="neutral">داخلي</StatusText>}
       />
 
       {expiringConnections > 0 && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+        <div className="flex items-start gap-3 rounded-[22px] bg-(--sys-orange)/12 px-5 py-4">
           <Clock className="mt-0.5 size-4 shrink-0 text-amber-600" />
           <p className="text-sm leading-6 text-amber-800 dark:text-amber-300">
             <span className="font-semibold">{fmtNum(expiringConnections)} اتصال</span> التوكن بتاعه بينتهي خلال ١٤ يوم. التحديث بيشتغل من{" "}
@@ -132,7 +132,7 @@ export default async function AdminInstagramPage() {
           title="آخر الوظائف الفاشلة"
           className="lg:col-span-3"
           flush
-          actions={failedJobs24h > 0 ? <StatusPill tone="danger">{fmtNum(failedJobs24h)} آخر ٢٤ ساعة</StatusPill> : undefined}
+          actions={failedJobs24h > 0 ? <StatusText tone="danger">{fmtNum(failedJobs24h)} آخر ٢٤ ساعة</StatusText> : undefined}
         >
           {recentFailedJobs.length === 0 ? (
             <div className="flex items-center gap-2 px-4 py-8 text-sm text-muted-foreground">

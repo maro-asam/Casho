@@ -204,8 +204,7 @@ export async function adminActivateStoreSubscriptionAction(storeId: string): Pro
 const ADMIN_RENEWAL_RESULTS: Record<RenewalOutcome, ActionResult> = {
   none: { success: true, message: "مفيش تجديد مستحق دلوقتي" },
   renewed: { success: true, message: "تم تجديد الاشتراك تلقائيًا من الرصيد" },
-  grace: { success: false, message: "الرصيد غير كافٍ، تم إدخال المتجر في فترة السماح" },
-  past_due: { success: false, message: "انتهت فترة السماح وأصبح الاشتراك متأخرًا" },
+  past_due: { success: false, message: "الرصيد غير كافٍ للتجديد، والمتجر اتقفل لحد ما يتشحن" },
 };
 
 export async function adminTryRenewStoreSubscriptionAction(storeId: string): Promise<ActionResult> {

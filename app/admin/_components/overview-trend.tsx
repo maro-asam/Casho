@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { LineChart } from "lucide-react";
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedButtons, Unavailable } from "@/components/saas-page";
 import { fmtMoney, fmtMoneyCompact, fmtNum } from "../_lib/format";
 import type { MonthPoint } from "../_lib/overview-data";
 
@@ -20,7 +20,7 @@ const METRICS: Record<Metric, { label: string; format: (v: number) => string; ax
 function ChartTooltip({ active, payload, label, metric }: { active?: boolean; payload?: { value?: number }[]; label?: string; metric: Metric }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="min-w-32 rounded-lg border border-border bg-popover px-3 py-2 text-right text-xs shadow-md" dir="rtl">
+    <div className="min-w-32 rounded-xl bg-popover px-3 py-2 text-right text-[13px] shadow-[0_10px_40px_rgba(0,0,0,0.14),0_0_0_0.5px_var(--border)]" dir="rtl">
       <p className="text-muted-foreground">{label}</p>
       <p className="mt-1 font-semibold tabular-nums">{METRICS[metric].format(Number(payload[0].value ?? 0))}</p>
     </div>
@@ -34,36 +34,34 @@ export function OverviewTrend({ months }: { months: MonthPoint[] }) {
   const hasData = months.some((m) => m[metric] !== 0);
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-card">
-      <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
-          <h2 className="text-sm font-semibold">{config.label} — آخر ١٢ شهر</h2>
-          <p className="text-2xl font-bold tracking-tight tabular-nums">{config.format(total)}</p>
-          <p className="text-xs text-muted-foreground">{config.note}</p>
+    <section className="apple-card overflow-hidden">
+      <div className="flex flex-col gap-4 px-5 pt-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-0.5">
+          <h2 className="text-[13px] font-semibold text-muted-foreground">{config.label} — آخر ١٢ شهر</h2>
+          <p className="text-[34px] leading-[41px] font-bold tabular-nums">{config.format(total)}</p>
+          <p className="text-[13px] text-muted-foreground">{config.note}</p>
         </div>
-        <Tabs value={metric} onValueChange={(v) => setMetric(v as Metric)} dir="rtl">
-          <TabsList>
-            {(Object.keys(METRICS) as Metric[]).map((key) => (
-              <TabsTrigger key={key} value={key} className="px-3 text-xs">
-                {METRICS[key].label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <SegmentedButtons
+          label="المؤشر"
+          value={metric}
+          onChange={setMetric}
+          options={(Object.keys(METRICS) as Metric[]).map((key) => [key, METRICS[key].label] as const)}
+          className="max-w-full self-start overflow-x-auto [scrollbar-width:none]"
+        />
       </div>
 
-      <div className="p-5">
+      <div className="px-3 pt-4 pb-4 sm:px-5">
         {hasData ? (
           <div className="h-72 w-full" dir="ltr" role="img" aria-label={`${config.label} شهريًا`}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={months} margin={{ top: 8, right: 4, left: 4, bottom: 0 }}>
                 <defs>
                   <linearGradient id="admin-trend-area" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.14} />
+                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.18} />
                     <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="var(--border)" vertical={false} />
+                <CartesianGrid stroke="var(--border)" strokeDasharray="2 4" vertical={false} />
                 <XAxis
                   dataKey="label"
                   tickLine={false}
@@ -87,7 +85,7 @@ export function OverviewTrend({ months }: { months: MonthPoint[] }) {
                   type="monotone"
                   dataKey={metric}
                   stroke="var(--primary)"
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   fill="url(#admin-trend-area)"
                   dot={false}
                   activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--card)" }}
@@ -96,11 +94,7 @@ export function OverviewTrend({ months }: { months: MonthPoint[] }) {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="flex h-72 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border text-center">
-            <LineChart className="size-5 text-muted-foreground" />
-            <p className="text-sm font-medium">مفيش بيانات للمؤشر ده لسه</p>
-            <p className="max-w-xs text-xs leading-5 text-muted-foreground">أول ما يحصل نشاط هيظهر هنا شهر بشهر.</p>
-          </div>
+          <Unavailable icon={LineChart} title="مفيش بيانات للمؤشر ده لسه" description="أول ما يحصل نشاط هيظهر هنا شهر بشهر." className="h-72" />
         )}
       </div>
     </section>

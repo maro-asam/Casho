@@ -5,14 +5,14 @@ import { Prisma, TopupMethod, TopupRequestStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -90,12 +90,12 @@ export default async function AdminTopupRequestsPage({ searchParams }: { searchP
       />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="حالة الطلب"
           param="status"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
             { label: "مستني مراجعة", value: "PENDING", count: counts.PENDING ?? 0 },
             { label: "اتعتمد", value: "APPROVED", count: counts.APPROVED ?? 0 },
@@ -103,7 +103,7 @@ export default async function AdminTopupRequestsPage({ searchParams }: { searchP
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={
             <>
               <SearchInput placeholder="ابحث بالمتجر أو البريد أو رقم التحويل" />
@@ -115,11 +115,11 @@ export default async function AdminTopupRequestsPage({ searchParams }: { searchP
               />
             </>
           }
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
         >
           {requests.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title={status === "PENDING" && !q && !method ? "مفيش طلبات مستنية" : "مفيش طلبات بالفلاتر دي"}
                 description={status === "PENDING" && !q && !method ? "كل طلبات الشحن اتراجعت." : undefined}
@@ -130,7 +130,7 @@ export default async function AdminTopupRequestsPage({ searchParams }: { searchP
                 }
               />
             ) : (
-              <EmptyState icon={Wallet} title="مفيش طلبات شحن لسه" description="لما تاجر يحوّل ويرفع الإيصال من صفحة الرصيد هيظهر هنا." />
+              <Unavailable icon={Wallet} title="مفيش طلبات شحن لسه" description="لما تاجر يحوّل ويرفع الإيصال من صفحة الرصيد هيظهر هنا." />
             )
           ) : (
             <>
@@ -170,7 +170,7 @@ export default async function AdminTopupRequestsPage({ searchParams }: { searchP
                         </td>
                         <td className="py-3 text-left font-semibold tabular-nums">{fmtMoney(r.amount)}</td>
                         <td className="py-3">
-                          <StatusPill tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusPill>
+                          <StatusText tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusText>
                           {r.status !== "PENDING" && <p className="mt-1 text-xs text-muted-foreground">{fmtRelative(r.updatedAt, now)}</p>}
                         </td>
                         <td className="py-3 pe-4">
@@ -202,7 +202,7 @@ export default async function AdminTopupRequestsPage({ searchParams }: { searchP
                       <span className="shrink-0 font-semibold tabular-nums">{fmtMoney(r.amount)}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <StatusPill tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusPill>
+                      <StatusText tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusText>
                       <span>{TOPUP_METHOD_LABELS[r.method]}</span>
                       <span>· {fmtRelative(r.createdAt, now)}</span>
                     </div>
@@ -227,7 +227,7 @@ export default async function AdminTopupRequestsPage({ searchParams }: { searchP
               </ul>
             </>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

@@ -5,13 +5,13 @@ import { Prisma, SharksApplicationStatus, SharksTrack } from "@prisma/client";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { prisma } from "@/lib/prisma";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
-  Pagination,
+  ListCard,
+  Unavailable,
+  Segmented,
+  Pager,
   SearchInput,
   SelectFilter,
-  StatusPill,
+  StatusText,
   readPage,
   readParam,
   type SearchParamsRecord,
@@ -75,17 +75,17 @@ export default async function AdminSharksApplicationsPage({ searchParams }: { se
 
   return (
     <div className="space-y-4">
-      <FilterTabs
+      <Segmented
         label="حالة الطلب"
         param="status"
         basePath={BASE_PATH}
         searchParams={params}
-        tabs={[
+        segments={[
           { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
           ...STATUSES.map((s) => ({ label: APPLICATION_STATUS[s].ar, value: s, count: counts[s] ?? 0 })),
         ]}
       />
-      <DataCard
+      <ListCard
         toolbar={
           <>
             <SearchInput placeholder="ابحث باسم البيزنس أو المتجر أو إيميل التاجر" />
@@ -98,11 +98,11 @@ export default async function AdminSharksApplicationsPage({ searchParams }: { se
             />
           </>
         }
-        footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
+        footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
       >
         {rows.length === 0 ? (
           filtered ? (
-            <EmptyState
+            <Unavailable
               icon={SearchX}
               title="مفيش طلبات بالفلاتر دي"
               action={
@@ -112,7 +112,7 @@ export default async function AdminSharksApplicationsPage({ searchParams }: { se
               }
             />
           ) : (
-            <EmptyState icon={Telescope} title="مفيش طلبات لسه" description="لما تاجر يقدّم من لوحة التحكم (Casho Sharks) هيظهر طلبه هنا." />
+            <Unavailable icon={Telescope} title="مفيش طلبات لسه" description="لما تاجر يقدّم من لوحة التحكم (Casho Sharks) هيظهر طلبه هنا." />
           )
         ) : (
           <ul className="divide-y divide-border">
@@ -143,14 +143,14 @@ export default async function AdminSharksApplicationsPage({ searchParams }: { se
                     <span className="text-xs text-muted-foreground" title={fmtDateTime(r.createdAt)}>
                       {fmtRelative(r.createdAt, now)}
                     </span>
-                    <StatusPill tone={APPLICATION_STATUS[r.status].tone}>{APPLICATION_STATUS[r.status].ar}</StatusPill>
+                    <StatusText tone={APPLICATION_STATUS[r.status].tone}>{APPLICATION_STATUS[r.status].ar}</StatusText>
                   </div>
                 </li>
               );
             })}
           </ul>
         )}
-      </DataCard>
+      </ListCard>
     </div>
   );
 }

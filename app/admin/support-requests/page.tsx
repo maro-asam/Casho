@@ -7,11 +7,11 @@ import { prisma } from "@/lib/prisma";
 import { isAccountDeletionRequest } from "@/lib/account-deletion";
 import { setSupportRequestStatusAction } from "@/actions/admin/admin-support.actions";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   readPage,
   readParam,
@@ -70,24 +70,24 @@ export default async function AdminSupportPage({ searchParams }: { searchParams?
       <PageHeader title="الدعم الفني" description="تذاكر الدعم من التجار. التاجر بيوصله إشعار لما التذكرة تبقى قيد المتابعة أو تتحل." />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="حالة التذكرة"
           param="status"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
             ...STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value, count: counts[o.value] ?? 0 })),
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={<SearchInput placeholder="ابحث في العنوان أو الرسالة أو البريد أو المتجر" className="sm:max-w-sm" />}
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="تذكرة" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="تذكرة" />}
         >
           {tickets.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title="مفيش تذاكر بالفلاتر دي"
                 action={
@@ -97,7 +97,7 @@ export default async function AdminSupportPage({ searchParams }: { searchParams?
                 }
               />
             ) : (
-              <EmptyState icon={Headset} title="مفيش تذاكر دعم" description="لما تاجر يبعت طلب من صفحة الدعم هيظهر هنا." />
+              <Unavailable icon={Headset} title="مفيش تذاكر دعم" description="لما تاجر يبعت طلب من صفحة الدعم هيظهر هنا." />
             )
           ) : (
             <ul className="divide-y divide-border">
@@ -159,7 +159,7 @@ export default async function AdminSupportPage({ searchParams }: { searchParams?
               ))}
             </ul>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { Check, ExternalLink, X } from "lucide-react";
 
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { prisma } from "@/lib/prisma";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { STORY_STATUS } from "@/lib/sharks/catalog";
 import { parseVideoUrl } from "@/lib/sharks/video";
 import { canApproveStory, canMoveStory, canPublishStory, hasValidConsent, manualStoryMoves, missingStoryContent } from "@/lib/sharks/workflow";
@@ -52,7 +52,7 @@ export default async function SharksStoryEditorPage({ params }: { params: Promis
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-2xl font-bold">{story.businessName}</h2>
-            <StatusPill tone={STORY_STATUS[story.status].tone}>{STORY_STATUS[story.status].ar}</StatusPill>
+            <StatusText tone={STORY_STATUS[story.status].tone}>{STORY_STATUS[story.status].ar}</StatusText>
           </div>
           <p className="text-sm text-muted-foreground">
             <Link href={`/admin/sharks/${story.application.id}`} className="text-primary hover:underline">

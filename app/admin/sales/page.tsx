@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Users } from "lucide-react";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { EmptyState, StatusPill } from "@/components/saas-page";
+import { Unavailable, StatusText } from "@/components/saas-page";
 import { CopyButton } from "@/components/sales/copy-button";
 import { CommissionBreakdown, ExpiringCohorts, Panel, SalesKpis } from "@/components/sales/sales-summary";
 import { buildReferralLink } from "@/lib/sales/attribution";
@@ -25,12 +25,12 @@ export default async function AdminSalesPage() {
         flush
       >
         {reps.length === 0 ? (
-          <EmptyState icon={Users} title="مفيش مندوبين لسه" description="ضيف أول مندوب وابعتله رابط الدخول من صفحته." />
+          <Unavailable icon={Users} title="مفيش مندوبين لسه" description="ضيف أول مندوب وابعتله رابط الدخول من صفحته." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="h-10 bg-muted/40 text-right text-xs text-muted-foreground">
+                <tr className="h-9 border-b-[0.5px] border-border text-right text-[13px] text-muted-foreground">
                   <th className="ps-4 font-medium">المندوب</th>
                   <th className="font-medium">رابط إحالة التجار</th>
                   <th className="font-medium">المستوى</th>
@@ -51,7 +51,7 @@ export default async function AdminSalesPage() {
                       <p dir="ltr" className="text-right text-xs text-muted-foreground">
                         {rep.user.email}
                       </p>
-                      {rep.status === "DISABLED" && <StatusPill tone="danger" className="mt-1">موقوف</StatusPill>}
+                      {rep.status === "DISABLED" && <StatusText tone="danger" className="mt-1">موقوف</StatusText>}
                     </td>
                     <td className="py-3">
                       {rep.user.referralCode && (
@@ -74,7 +74,7 @@ export default async function AdminSalesPage() {
                       <span className="block text-muted-foreground">{fmtMoney(rep.renewalCommissions)}</span>
                     </td>
                     <td className="py-3 pe-4 text-left">
-                      <Link href={`/admin/sales/reps/${rep.id}`} className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium hover:bg-muted">
+                      <Link href={`/admin/sales/reps/${rep.id}`} className="apple-press relative z-10 inline-flex h-8 items-center gap-1 rounded-full bg-muted px-3 text-[13px] text-primary hover:bg-muted/70">
                         التفاصيل <ArrowUpRight className="size-3" />
                       </Link>
                     </td>

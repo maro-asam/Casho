@@ -7,11 +7,11 @@ import { prisma } from "@/lib/prisma";
 import { setServiceRequestStatusAction } from "@/actions/admin/service-requests.actions";
 import { ApproveRemovePoweredByRequestAction, RejectRemovePoweredByRequestAction } from "@/actions/admin/powered-by-casho.actions";
 import {
-  DataCard,
-  EmptyState,
-  FilterTabs,
+  ListCard,
+  Unavailable,
+  Segmented,
   PageHeader,
-  Pagination,
+  Pager,
   SearchInput,
   SelectFilter,
   readPage,
@@ -82,29 +82,29 @@ export default async function AdminServiceRequestsPage({ searchParams }: { searc
       <PageHeader title="طلبات الخدمات" description="طلبات الخدمات المدفوعة والإضافات من التجار. غيّر الحالة بعد كل تواصل عشان التاجر يتابع." />
 
       <div className="space-y-4">
-        <FilterTabs
+        <Segmented
           label="حالة الطلب"
           param="status"
           basePath={BASE_PATH}
           searchParams={params}
-          tabs={[
+          segments={[
             { label: "الكل", count: grouped.reduce((s, g) => s + g._count._all, 0) },
             ...STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value, count: counts[o.value] ?? 0 })),
           ]}
         />
 
-        <DataCard
+        <ListCard
           toolbar={
             <>
               <SearchInput placeholder="ابحث بالاسم أو الموبايل أو المتجر أو الخدمة" />
               <SelectFilter param="service" allLabel="كل الخدمات" label="الخدمة" options={serviceOptions} className="sm:w-52" />
             </>
           }
-          footer={total > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
+          footer={total > 0 && <Pager page={page} pageSize={PAGE_SIZE} total={total} basePath={BASE_PATH} searchParams={params} noun="طلب" />}
         >
           {requests.length === 0 ? (
             filtered ? (
-              <EmptyState
+              <Unavailable
                 icon={SearchX}
                 title="مفيش طلبات بالفلاتر دي"
                 action={
@@ -114,7 +114,7 @@ export default async function AdminServiceRequestsPage({ searchParams }: { searc
                 }
               />
             ) : (
-              <EmptyState icon={BriefcaseBusiness} title="مفيش طلبات خدمات لسه" description="لما تاجر يطلب خدمة من صفحة الخدمات هتظهر هنا." />
+              <Unavailable icon={BriefcaseBusiness} title="مفيش طلبات خدمات لسه" description="لما تاجر يطلب خدمة من صفحة الخدمات هتظهر هنا." />
             )
           ) : (
             <ul className="divide-y divide-border">
@@ -196,7 +196,7 @@ export default async function AdminServiceRequestsPage({ searchParams }: { searc
               })}
             </ul>
           )}
-        </DataCard>
+        </ListCard>
       </div>
     </div>
   );

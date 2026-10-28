@@ -134,6 +134,21 @@ export function Card({
   );
 }
 
+/** List page surface: toolbar (search + filters, filled fields), content, hairline-topped footer (usually <Pager />). */
+export function ListCard({ toolbar, footer, children, className }: { toolbar?: ReactNode; footer?: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <section className={cn("apple-card overflow-hidden", className)}>
+      {toolbar && (
+        <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 [&_input[type=search]]:h-11 [&_input[type=search]]:rounded-[12px] [&_input[type=search]]:border-0 [&_input[type=search]]:bg-(--fill-3) [&_input[type=search]]:text-[15px]">
+          {toolbar}
+        </div>
+      )}
+      {children}
+      {footer && <div className="border-t-[0.5px] border-border">{footer}</div>}
+    </section>
+  );
+}
+
 /** Settings-style rows: label on the leading side, value (secondary label) trailing, inset hairlines. */
 export function Rows({ children, className }: { children: ReactNode; className?: string }) {
   return <dl className={cn("apple-rows pb-2 [--row-inset:20px]", className)}>{children}</dl>;

@@ -21,22 +21,22 @@ export function ProgramForm({ initial }: { initial: ProgramSettings }) {
 
   return (
     <div className="space-y-6">
-      <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+      <ul className="apple-card apple-rows overflow-hidden [--row-inset:20px]">
         {ROWS.map((r) => (
-          <li key={r.key} className="flex items-start justify-between gap-6 p-4">
+          <li key={r.key} className="flex items-start justify-between gap-6 px-5 py-4">
             <div>
-              <p className="text-sm font-medium" dir="auto">
+              <p className="text-[15px] font-medium" dir="auto">
                 {r.title}
               </p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">{r.body}</p>
+              <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{r.body}</p>
             </div>
             <Switch aria-label={r.title} checked={v[r.key]} onCheckedChange={(on) => setV((s) => ({ ...s, [r.key]: on }))} />
           </li>
         ))}
-        <li className="flex items-start justify-between gap-6 bg-muted/40 p-4">
+        <li className="flex items-start justify-between gap-6 px-5 py-4 opacity-70">
           <div>
-            <p className="text-sm font-medium">Casho Investment</p>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            <p className="text-[15px] font-medium">Casho Investment</p>
+            <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
               مسار مستقبلي ومقفول. مفيش ميزانية تمويل أو استثمار، ومفيش أي مسار في النظام يقدر يعمل التزام مالي أو تحويل. تفعيله محتاج تنفيذ منفصل وموافقة صريحة على الميزانية والشروط — مش زرار هنا.
             </p>
           </div>

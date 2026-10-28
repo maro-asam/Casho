@@ -12,7 +12,7 @@ import {
   adminResumeStoreSubscriptionAutoRenewAction,
   adminSetPoweredByRemovalAction,
 } from "@/actions/admin/admin-store.actions";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
@@ -122,8 +122,8 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
         <div className="min-w-0 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight">{store.name}</h1>
-            <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
-            {store.plan && <StatusPill tone="neutral">{store.plan.name} · {cycleWord}</StatusPill>}
+            <StatusText tone={meta.tone}>{meta.label}</StatusText>
+            {store.plan && <StatusText tone="neutral">{store.plan.name} · {cycleWord}</StatusText>}
           </div>
           <p className="text-sm text-muted-foreground">
             <a href={storeUrl} target="_blank" rel="noreferrer" className="font-mono hover:text-foreground hover:underline" dir="ltr">
@@ -277,7 +277,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
                     {store.balanceTransactions.map((tx) => (
                       <tr key={tx.id}>
                         <td className="py-3 ps-4">
-                          <StatusPill tone={TX_TYPE_META[tx.type].tone}>{TX_TYPE_META[tx.type].label}</StatusPill>
+                          <StatusText tone={TX_TYPE_META[tx.type].tone}>{TX_TYPE_META[tx.type].label}</StatusText>
                         </td>
                         <td className="hidden max-w-64 truncate py-3 text-muted-foreground sm:table-cell" title={tx.note ?? undefined}>
                           {tx.note ?? "—"}
@@ -312,7 +312,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
                 {store.topupRequests.map((r) => (
                   <li key={r.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
                     <div className="flex items-center gap-2">
-                      <StatusPill tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusPill>
+                      <StatusText tone={TOPUP_STATUS_META[r.status].tone}>{TOPUP_STATUS_META[r.status].label}</StatusText>
                       <span className="text-muted-foreground">{TOPUP_METHOD_LABELS[r.method]}</span>
                     </div>
                     <div className="text-left">
@@ -341,7 +341,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
                 { label: "الاسم", value: store.user.name ?? "—" },
                 { label: "البريد", value: store.user.email, ltr: true },
                 { label: "الموبايل", value: store.user.phone_number ?? "—", ltr: true },
-                { label: "الدور", value: <StatusPill tone={ROLE_META[store.user.role].tone}>{ROLE_META[store.user.role].label}</StatusPill> },
+                { label: "الدور", value: <StatusText tone={ROLE_META[store.user.role].tone}>{ROLE_META[store.user.role].label}</StatusText> },
                 { label: "البريد متأكد", value: store.user.emailVerified ? "أيوه" : "لأ" },
                 { label: "سجّل", value: fmtDate(store.user.createdAt) },
               ]}
@@ -360,7 +360,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
                 { label: "أعضاء الفريق", value: fmtNum(store._count.members) },
               ]}
             />
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-[12px] bg-(--fill-3) p-3">
               <div>
                 <p className="text-sm font-medium">علامة Powered by Casho</p>
                 <p className="text-xs text-muted-foreground">{store.poweredByRemovalEnabled ? "مسموح للتاجر يخفيها" : "ظاهرة في فوتر المتجر"}</p>
@@ -389,7 +389,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
                     <Link href={`/admin/service-requests?q=${encodeURIComponent(store.slug)}`} className="min-w-0 truncate hover:underline">
                       خدمة: {r.serviceTitle}
                     </Link>
-                    <StatusPill tone={SERVICE_STATUS_META[r.status].tone}>{SERVICE_STATUS_META[r.status].label}</StatusPill>
+                    <StatusText tone={SERVICE_STATUS_META[r.status].tone}>{SERVICE_STATUS_META[r.status].label}</StatusText>
                   </li>
                 ))}
                 {store.supportRequests.map((r) => (
@@ -397,7 +397,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
                     <Link href={`/admin/support-requests?q=${encodeURIComponent(store.slug)}`} className="min-w-0 truncate hover:underline">
                       دعم: {r.title}
                     </Link>
-                    <StatusPill tone={SUPPORT_STATUS_META[r.status].tone}>{SUPPORT_STATUS_META[r.status].label}</StatusPill>
+                    <StatusText tone={SUPPORT_STATUS_META[r.status].tone}>{SUPPORT_STATUS_META[r.status].label}</StatusText>
                   </li>
                 ))}
               </ul>

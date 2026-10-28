@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { StatusPill } from "@/components/saas-page";
+import { StatusText } from "@/components/saas-page";
 import { Panel } from "@/components/sales/sales-summary";
 import { prisma } from "@/lib/prisma";
 import { fmtDate, fmtDateTime, fmtMoney, fmtNum } from "@/lib/sales/format";
@@ -27,7 +27,7 @@ export default async function AdminSalesPayoutsPage() {
       >
         <table className="w-full text-sm">
           <thead>
-            <tr className="h-10 bg-muted/40 text-right text-xs text-muted-foreground">
+            <tr className="h-9 border-b-[0.5px] border-border text-right text-[13px] text-muted-foreground">
               <th className="ps-4 font-medium">المندوب</th>
               <th className="font-medium">بنود</th>
               <th className="text-left font-medium">المستحق</th>
@@ -42,7 +42,7 @@ export default async function AdminSalesPayoutsPage() {
                 <tr key={rep.id}>
                   <td className="py-3 ps-4">
                     {name}
-                    {rep.status === "DISABLED" && <StatusPill tone="danger" className="ms-2">موقوف</StatusPill>}
+                    {rep.status === "DISABLED" && <StatusText tone="danger" className="ms-2">موقوف</StatusText>}
                   </td>
                   <td className="py-3 tabular-nums text-muted-foreground">
                     {fmtNum(p.commissionIds.length)} عمولة · {fmtNum(p.adjustmentIds.length)} تسوية
@@ -65,7 +65,7 @@ export default async function AdminSalesPayoutsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="h-10 bg-muted/40 text-right text-xs text-muted-foreground">
+                <tr className="h-9 border-b-[0.5px] border-border text-right text-[13px] text-muted-foreground">
                   <th className="ps-4 font-medium">التاريخ</th>
                   <th className="font-medium">المندوب</th>
                   <th className="font-medium">الطريقة والمرجع</th>
