@@ -75,6 +75,7 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
       subscriptionStatus: true,
       customDomain: true,
       customDomainStatus: true,
+      settings: { select: { whatsappNumber: true } },
     },
   });
 
@@ -219,6 +220,7 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
         reviews={reviews}
         related={await toProductCards(relatedRows)}
         shipping={shipping}
+        whatsapp={store.settings?.whatsappNumber ?? null}
       />
     </>
   );

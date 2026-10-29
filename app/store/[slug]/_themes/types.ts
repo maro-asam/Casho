@@ -104,6 +104,8 @@ export type HomeViewProps = {
   sections: HomePageSections;
   sectionContent: SectionContentMap;
   layout: ThemeLayout;
+  /** Store WhatsApp (raw) — for chat hand-offs such as sending a prescription. */
+  whatsapp: string | null;
 };
 
 export type ListingViewProps = {
@@ -188,6 +190,8 @@ export type ProductViewProps = {
   reviews: ReviewData[];
   related: ProductCardData[];
   shipping: ShippingOption[];
+  /** Store WhatsApp (raw) — for "ask about this product". */
+  whatsapp: string | null;
 };
 
 export type CartViewProps = {

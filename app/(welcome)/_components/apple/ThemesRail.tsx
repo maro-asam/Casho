@@ -14,6 +14,7 @@ const THEME_TOKENS: Record<string, { bg: string; fg: string; primary: string; ac
   dune: { bg: "#f7f7f7", fg: "#2a2a28", primary: "#2a2a28", accent: "#c7b8a1", serif: true },
   maximize: { bg: "#ffffff", fg: "#100f0f", primary: "#0b7f6f", accent: "#e3f4f1" },
   cello: { bg: "#f8f8f8", fg: "#202020", primary: "#1447e6", accent: "#ffd23f" },
+  medical: { bg: "#f4f8f8", fg: "#0f2a2e", primary: "#0a6c74", accent: "#e3f3f1" },
 };
 
 export default function ThemesRail() {

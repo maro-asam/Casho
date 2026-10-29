@@ -275,7 +275,14 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         </Suspense>
         <StoreVisitTracker storeId={store.id} />
         {hasAnyPixel(pixelConfig) && <StorePixels config={pixelConfig} />}
-        <div dir={storeDir} className={`store-theme-root ${theme.rootClassName} flex min-h-dvh flex-col`}>
+        {/* Studio layout choices that themes style globally (card style, spacing, motion). */}
+        <div
+          dir={storeDir}
+          data-card={resolvedTheme.layout.productCardStyle}
+          data-density={resolvedTheme.layout.density}
+          data-motion={resolvedTheme.layout.animations}
+          className={`store-theme-root ${theme.rootClassName} flex min-h-dvh flex-col`}
+        >
           <a
             href="#store-main"
             className="sr-only z-50 rounded-md bg-background px-4 py-2 font-semibold focus:not-sr-only focus:fixed focus:start-3 focus:top-3"

@@ -5,7 +5,7 @@
 
 // ─── Preset IDs ──────────────────────────────────────────────────────────────
 
-export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello"] as const;
+export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical"] as const;
 
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 
@@ -22,6 +22,7 @@ export const THEME_CATEGORY_IDS = [
   "beauty",
   "food",
   "home",
+  "health",
 ] as const;
 
 export type ThemeCategoryId = (typeof THEME_CATEGORY_IDS)[number];

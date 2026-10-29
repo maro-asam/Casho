@@ -10,6 +10,7 @@ import { classicTheme } from "./classic";
 import { duneTheme } from "./dune";
 import { madaTheme } from "./mada";
 import { maximizeTheme } from "./maximize";
+import { medicalTheme } from "./medical";
 import { celloTheme } from "./cello";
 import { riwaqTheme } from "./riwaq";
 import type { StorefrontTheme } from "./types";
@@ -21,6 +22,7 @@ const THEMES: Record<ThemePresetId, StorefrontTheme> = {
   dune: duneTheme,
   maximize: maximizeTheme,
   cello: celloTheme,
+  medical: medicalTheme,
 };
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {

@@ -61,6 +61,15 @@ import {
   CelloPageSkeleton,
   CelloProductSkeleton,
 } from "./cello/states";
+import {
+  MedicalCategoriesSkeleton,
+  MedicalGridPageSkeleton,
+  MedicalHomeSkeleton,
+  MedicalListingSkeleton,
+  MedicalNotFound,
+  MedicalPageSkeleton,
+  MedicalProductSkeleton,
+} from "./medical/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -118,6 +127,15 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     categories: CelloCategoriesSkeleton,
     grid: CelloGridPageSkeleton,
     "not-found": CelloNotFound,
+  },
+  medical: {
+    home: MedicalHomeSkeleton,
+    listing: MedicalListingSkeleton,
+    product: MedicalProductSkeleton,
+    page: MedicalPageSkeleton,
+    categories: MedicalCategoriesSkeleton,
+    grid: MedicalGridPageSkeleton,
+    "not-found": MedicalNotFound,
   },
 };
 

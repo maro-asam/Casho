@@ -133,6 +133,7 @@ const ar = {
       { id: "dune", name: "ديون", note: "سيريف هادي. صور مربعة." },
       { id: "maximize", name: "ماكسيمايز", note: "للكتالوجات الكبيرة." },
       { id: "cello", name: "تشيلو", note: "كحلي وأصفر. إلكترونيات." },
+      { id: "medical", name: "كاشو ميديكال", note: "طبي وهادي. للصيدليات." },
     ],
   },
   pricing: {
@@ -299,6 +300,7 @@ const en: LandingCopy = {
       { id: "dune", name: "Dune", note: "Quiet serif. Square media." },
       { id: "maximize", name: "Maximize", note: "Built for big catalogs." },
       { id: "cello", name: "Cello", note: "Navy and yellow. Electronics." },
+      { id: "medical", name: "Casho Medical", note: "Clinical and calm. For pharmacies." },
     ],
   },
   pricing: {

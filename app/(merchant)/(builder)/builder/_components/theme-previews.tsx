@@ -177,6 +177,42 @@ function CelloThemePreview() {
   );
 }
 
+// ─── 7. Casho Medical ─────────────────────────────────────────────
+function MedicalThemePreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-[#f4f8f8]">
+      <div className="h-2 bg-[#063c41]" />
+      <div className="flex items-center gap-1.5 bg-white px-2.5 py-2">
+        <div className="grid size-3 place-items-center rounded-[3px] bg-[#0a6c74]">
+          <div className="h-0.5 w-1.5 bg-white" />
+        </div>
+        <div className="h-3 flex-1 rounded-full border border-[#0a6c74]/30 bg-white" />
+        <div className="h-3 w-5 rounded-full bg-[#e3f3f1]" />
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 px-2.5 pt-2">
+        <div className="col-span-2 h-11 rounded-lg bg-gradient-to-l from-[#0a6c74] to-[#0d8f8f]" />
+        <div className="h-11 rounded-lg bg-[#063c41]" />
+      </div>
+      <div className="flex justify-between px-2.5 pt-2">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="size-3.5 rounded-full bg-[#e3f3f1] ring-1 ring-[#0a6c74]/20" />
+        ))}
+      </div>
+      <div className="grid grid-cols-4 gap-1.5 p-2.5">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex flex-col gap-1 rounded-md border border-[#d9e6e6] bg-white p-1">
+            <div className="relative aspect-square rounded-sm bg-[#eef6f5]">
+              {i === 0 && <div className="absolute start-0.5 top-0.5 h-1.5 w-3 rounded-full bg-[#d42a4a]" />}
+            </div>
+            <div className="h-1 w-3/4 rounded-full bg-[#0f2a2e]/40" />
+            <div className="h-1.5 w-full rounded-full bg-[#0a6c74]" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 /** Schematic thumbnail of each theme (no images, so it renders instantly). */
 export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
@@ -186,4 +222,5 @@ export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   dune: DuneThemePreview,
   maximize: MaximizeThemePreview,
   cello: CelloThemePreview,
+  medical: MedicalThemePreview,
 };

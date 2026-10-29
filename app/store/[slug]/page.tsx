@@ -173,6 +173,7 @@ export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
         sections={sections}
         sectionContent={sectionContent}
         layout={resolvedTheme.layout}
+        whatsapp={store.settings?.whatsappNumber ?? null}
       />
     </>
   );
