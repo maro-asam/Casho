@@ -240,6 +240,8 @@ export async function deleteBlogPostAction(
     });
 
     revalidatePath("/blog");
+    // The post page is cached (ISR) — drop it so the deleted post stops showing.
+    revalidatePath(`/blog/${blog.slug}`);
     revalidatePath("/admin/blog");
 
     return {
@@ -262,15 +264,18 @@ export async function publishBlogPostAction(
   try {
     await requireAdmin();
 
-    await prisma.blogPost.update({
+    const post = await prisma.blogPost.update({
       where: { id: blogId },
       data: {
         status: BlogStatus.PUBLISHED,
         publishedAt: new Date(),
       },
+      select: { slug: true },
     });
 
     revalidatePath("/blog");
+    // A visit before publishing may have cached the post page as "not found".
+    revalidatePath(`/blog/${post.slug}`);
     revalidatePath("/admin/blog");
 
     return {

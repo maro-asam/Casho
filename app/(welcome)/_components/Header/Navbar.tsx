@@ -1,22 +1,11 @@
-import { getCurrentUser } from "@/actions/auth/auth-helpers.actions";
-import MobileNavMenu from "./MobileNavMenu";
 import AnimatedNavbarShell from "./AnimatedNavbarShell";
 import NavbarBrand from "./NavbarBrand";
 import NavbarDesktopLinks from "./NavbarDesktopLinks";
-import NavbarDesktopActions from "./NavbarDesktopActions";
+import NavbarAccount from "./NavbarAccount";
 
-const Navbar = async () => {
-  const user = await getCurrentUser();
-  const store = user?.stores?.[0];
-
-  const navUser = user
-    ? {
-        email: user.email,
-        storeName: store?.name ?? null,
-        storeSlug: store?.slug ?? null,
-      }
-    : null;
-
+// No session read here: it would make every marketing page render per
+// request. NavbarAccount loads the signed-in user from the browser.
+const Navbar = () => {
   return (
     <header className="al fixed inset-x-0 top-0 z-50 px-3 pt-2.5 sm:pt-3">
       <div aria-hidden className="al-scroll-edge -z-10" />
@@ -27,15 +16,7 @@ const Navbar = async () => {
           {/* Desktop nav — centered */}
           <NavbarDesktopLinks />
 
-          {/* Desktop actions */}
-          <div className="hidden justify-self-end lg:block">
-            <NavbarDesktopActions user={navUser} />
-          </div>
-
-          {/* Mobile */}
-          <div className="justify-self-end lg:hidden">
-            <MobileNavMenu user={navUser} />
-          </div>
+          <NavbarAccount />
         </div>
       </AnimatedNavbarShell>
     </header>

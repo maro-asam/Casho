@@ -25,6 +25,8 @@ function revalidatePlanPaths() {
   revalidatePath("/admin/plans");
   revalidatePath("/admin/features");
   revalidatePath("/dashboard/change-plan");
+  // The landing page's pricing section is cached.
+  revalidatePath("/");
 }
 
 // ─── Read ───────────────────────────────────────────────────────────────────

@@ -27,6 +27,10 @@ import AppleFAQ from "./_components/apple/AppleFAQ";
 import FinalCTA from "./_components/apple/FinalCTA";
 import SharksTeaser from "./_components/sharks/SharksTeaser";
 
+// Cached (ISR): plan edits revalidate "/" right away (actions/admin/admin-plans.actions.ts),
+// this window is only the safety net.
+export const revalidate = 300;
+
 export default async function Page() {
   const allPlans = await getAllActivePlans();
   const plans: WelcomePlan[] = allPlans.map((plan) => ({

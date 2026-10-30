@@ -77,15 +77,39 @@ export async function processDelivery(deliveryId: string): Promise<void> {
   });
 }
 
+/** How long a claimed delivery is hidden from other runs (well above the 15s send timeout). */
+export const CLAIM_LEASE_MS = 2 * 60 * 1000;
+
+/**
+ * Atomically takes a due delivery for this run by pushing its nextRetryAt past
+ * the lease. Two overlapping cron runs can both list the same row, but only one
+ * update matches, so only one of them sends it. If the run dies mid-send the
+ * lease simply expires and the delivery is due again (processDelivery always
+ * rewrites nextRetryAt when it finishes).
+ */
+export async function claimDelivery(deliveryId: string, now = new Date()): Promise<boolean> {
+  const claimed = await prisma.webhookDelivery.updateMany({
+    where: {
+      id: deliveryId,
+      status: { in: ["PENDING", "FAILED"] },
+      nextRetryAt: { lte: now },
+    },
+    data: { nextRetryAt: new Date(now.getTime() + CLAIM_LEASE_MS) },
+  });
+  return claimed.count === 1;
+}
+
 /**
  * Process all deliveries that are due for retry.
  * Call this from a cron job (e.g., every minute via /api/internal/webhooks/process).
+ * Returns how many this run actually claimed and attempted.
  */
 export async function processRetryQueue(batchSize = 50): Promise<number> {
+  const now = new Date();
   const due = await prisma.webhookDelivery.findMany({
     where: {
       status: { in: ["PENDING", "FAILED"] },
-      nextRetryAt: { lte: new Date() },
+      nextRetryAt: { lte: now },
     },
     select: { id: true },
     take: batchSize,
@@ -94,6 +118,12 @@ export async function processRetryQueue(batchSize = 50): Promise<number> {
 
   if (due.length === 0) return 0;
 
-  await Promise.allSettled(due.map((d) => processDelivery(d.id)));
-  return due.length;
+  const results = await Promise.allSettled(
+    due.map(async (d) => {
+      if (!(await claimDelivery(d.id, now))) return false;
+      await processDelivery(d.id);
+      return true;
+    }),
+  );
+  return results.filter((r) => r.status === "fulfilled" && r.value).length;
 }

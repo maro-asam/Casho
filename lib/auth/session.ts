@@ -1,4 +1,5 @@
 import { randomBytes, createHash } from "crypto";
+import { cache } from "react";
 import { cookies, headers } from "next/headers";
 
 import { prisma } from "@/lib/prisma";
@@ -99,7 +100,16 @@ export async function deleteAllUserSessions(userId: string) {
   await prisma.session.deleteMany({ where: { userId } });
 }
 
-export async function getCurrentSession() {
+/**
+ * The signed-in session, looked up once per server render: the dashboard
+ * layout, its page, the locale loader and the notifications/badge helpers all
+ * ask for it, and each call used to repeat the same session + user + store
+ * query. Where React has no request scope (e.g. route handlers) cache()
+ * just calls through, so those keep one lookup per call as before.
+ */
+export const getCurrentSession = cache(readCurrentSession);
+
+async function readCurrentSession() {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 

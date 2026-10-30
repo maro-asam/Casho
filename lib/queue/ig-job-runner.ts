@@ -27,6 +27,18 @@ import { featureFlags } from "@/lib/feature-flags";
 
 const MAX_JOBS_PER_RUN        = 5;
 const MIN_REANALYSIS_INTERVAL = 30 * 60 * 1000; // 30 minutes
+/** A PROCESSING job older than this was left by a run that died; it may be taken again. */
+export const STALE_PROCESSING_MS = 10 * 60 * 1000;
+
+/** Jobs a run may take: waiting ones, plus ones a crashed run left in PROCESSING. */
+export function claimableJobWhere(now: Date) {
+  return {
+    OR: [
+      { status: { in: ["QUEUED" as const, "FAILED" as const] } },
+      { status: "PROCESSING" as const, lastAttemptAt: { lt: new Date(now.getTime() - STALE_PROCESSING_MS) } },
+    ],
+  };
+}
 
 type RunResult = {
   processed: number;
@@ -46,9 +58,8 @@ export async function runPendingJobs(): Promise<RunResult> {
 
   const jobs = await prisma.igProcessingJob.findMany({
     where: {
-      status: { in: ["QUEUED", "FAILED"] },
+      AND: [claimableJobWhere(now), { OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }] }],
       attempts: { lt: 3 },
-      OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
     },
     orderBy: { createdAt: "asc" },
     take: MAX_JOBS_PER_RUN,
@@ -61,7 +72,8 @@ export async function runPendingJobs(): Promise<RunResult> {
 
   for (const job of jobs) {
     try {
-      const outcome = await processJob(job.id, job.conversationId);
+      const outcome = await processJob(job.id, job.conversationId, now);
+      if (outcome === "not_claimed") continue; // an overlapping run took it
       result.processed++;
       if (outcome === "created")      result.created++;
       else if (outcome === "skipped") result.skipped++;
@@ -97,14 +109,17 @@ export async function runPendingJobs(): Promise<RunResult> {
   return result;
 }
 
-type JobOutcome = "created" | "skipped" | "no_order" | "rate_limited";
+type JobOutcome = "created" | "skipped" | "no_order" | "rate_limited" | "not_claimed";
 
-async function processJob(jobId: string, conversationId: string): Promise<JobOutcome> {
-  // ── Mark PROCESSING ──────────────────────────────────────────────────────────
-  await prisma.igProcessingJob.update({
-    where: { id: jobId },
+async function processJob(jobId: string, conversationId: string, runStartedAt: Date): Promise<JobOutcome> {
+  // ── Claim: mark PROCESSING only if it's still claimable ──────────────────────
+  // Overlapping cron runs can list the same job; only one update matches, so the
+  // conversation is analysed (and OpenAI paid for) once.
+  const claimed = await prisma.igProcessingJob.updateMany({
+    where: { id: jobId, ...claimableJobWhere(runStartedAt) },
     data: { status: "PROCESSING", lastAttemptAt: new Date(), attempts: { increment: 1 } },
   });
+  if (claimed.count !== 1) return "not_claimed";
 
   // ── Load conversation + messages ─────────────────────────────────────────────
   const conversation = await prisma.instagramConversation.findUnique({

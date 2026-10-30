@@ -9,7 +9,11 @@
  *   - Replay protection via IgProcessedWebhookEvent (deduplicates igMessageId)
  *   - Feature flag guard
  *   - Structured logging
- *   - Always returns 200 immediately; processing is fire-and-forget
+ *   - Events are stored before the response (only DB writes — the AI work is
+ *     queued as IgProcessingJob). Work left running after the response could
+ *     be cut off on serverless, and an event marked processed but never stored
+ *     was lost for good. A failure now answers 500 so Meta redelivers; events
+ *     already stored are skipped as duplicates on the retry.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -71,13 +75,15 @@ export async function POST(req: NextRequest) {
 
   logger.info("[Webhook] Received events", { eventCount: messageEvents.length });
 
-  // Fire-and-forget — never block the 200 response
-  void processEvents(messageEvents);
+  const failed = await processEvents(messageEvents);
+  if (failed > 0) {
+    return new NextResponse("Retry", { status: 500 });
+  }
 
   return new NextResponse("OK", { status: 200 });
 }
 
-// ─── Background processing ─────────────────────────────────────────────────────
+// ─── Processing ────────────────────────────────────────────────────────────────
 
 type MessageEvent = {
   merchantIgId: string;
@@ -89,27 +95,35 @@ type MessageEvent = {
   timestamp: Date;
 };
 
-async function processEvents(events: MessageEvent[]) {
+function isUniqueViolation(error: unknown) {
+  return typeof error === "object" && error !== null && "code" in error && (error as { code: string }).code === "P2002";
+}
+
+/** Stores each new event once. Returns how many failed (and can be redelivered). */
+async function processEvents(events: MessageEvent[]): Promise<number> {
+  let failed = 0;
   for (const event of events) {
+    // ── Replay protection ────────────────────────────────────────────────────
+    // IgProcessedWebhookEvent.eventKey is @unique: creating the marker claims
+    // the event, so a concurrent or repeated delivery of it is skipped.
     try {
-      // ── Replay protection ──────────────────────────────────────────────────
-      // IgProcessedWebhookEvent has a @unique on eventKey — the upsert either
-      // creates (new event) or does nothing (already processed).
-      const existing = await prisma.igProcessedWebhookEvent.findUnique({
-        where: { eventKey: event.messageId },
-        select: { id: true },
-      });
-
-      if (existing) {
-        logger.debug("[Webhook] Duplicate event — skipped", { messageId: event.messageId });
-        continue;
-      }
-
-      // Mark as processed BEFORE doing work to prevent concurrent duplicates
       await prisma.igProcessedWebhookEvent.create({
         data: { eventKey: event.messageId },
       });
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        logger.debug("[Webhook] Duplicate event — skipped", { messageId: event.messageId });
+        continue;
+      }
+      failed++;
+      logger.error("[Webhook] Could not record event", {
+        messageId: event.messageId,
+        err: err instanceof Error ? err.message : String(err),
+      });
+      continue;
+    }
 
+    try {
       await upsertWebhookMessage(event);
 
       logger.debug("[Webhook] Event processed", {
@@ -117,10 +131,16 @@ async function processEvents(events: MessageEvent[]) {
         messageType: event.messageType,
       });
     } catch (err) {
+      failed++;
       logger.error("[Webhook] Failed to process event", {
         messageId: event.messageId,
         err: err instanceof Error ? err.message : String(err),
       });
+      // Release the claim so Meta's redelivery can store it.
+      await prisma.igProcessedWebhookEvent
+        .deleteMany({ where: { eventKey: event.messageId } })
+        .catch(() => {});
     }
   }
+  return failed;
 }

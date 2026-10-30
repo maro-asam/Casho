@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition, type ComponentType } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
 import { useSseNotifications } from "@/hooks/use-sse-notifications";
 import {
@@ -85,7 +85,9 @@ function formatRelativeTime(dateIso: string) {
 export default function NotificationsBell({
   initialNotifications,
   initialUnreadCount,
-  pollEveryMs = 30000,
+  // New orders land here, so keep it within a minute; opening the menu or
+  // coming back to the tab refreshes right away anyway.
+  pollEveryMs = 60_000,
 }: NotificationsBellProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -99,15 +101,34 @@ export default function NotificationsBell({
     return String(unreadCount);
   }, [unreadCount]);
 
+  // One request at a time, nothing applied after unmount, and a timestamp so
+  // focus + visibilitychange (which fire together) don't both refetch.
+  const inFlight = useRef(false);
+  const mounted = useRef(true);
+  const lastRefreshAt = useRef(Date.now()); // the layout just rendered fresh data
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const refresh = useCallback(async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    lastRefreshAt.current = Date.now();
     try {
       const result = await GetNotificationsAction(10);
+      if (!mounted.current) return;
 
       setNotifications(result.notifications);
 
       setUnreadCount(result.unreadCount);
     } catch (error) {
       console.error("GetNotificationsAction Error:", error);
+    } finally {
+      inFlight.current = false;
     }
   }, []);
 
@@ -139,30 +160,28 @@ export default function NotificationsBell({
   // ──────────────────────────────────────────────────────────────────────────
 
   // ── Polling (fallback while SSE is active; disabled once SSE is proven stable)
+  // No fetch on mount (the server rendered the list), none while the tab is
+  // hidden, and returning to the tab catches up unless we fetched moments ago.
   useEffect(() => {
-    void refresh();
+    const RETURN_THROTTLE_MS = 15_000;
 
     const id = window.setInterval(() => {
-      void refresh();
+      if (document.visibilityState === "visible") void refresh();
     }, pollEveryMs);
 
-    const handleFocus = () => {
+    const catchUp = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastRefreshAt.current < RETURN_THROTTLE_MS) return;
       void refresh();
     };
 
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        void refresh();
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", catchUp);
+    document.addEventListener("visibilitychange", catchUp);
 
     return () => {
       window.clearInterval(id);
-      window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", catchUp);
+      document.removeEventListener("visibilitychange", catchUp);
     };
   }, [pollEveryMs, refresh]);
 

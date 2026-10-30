@@ -70,10 +70,20 @@ function isCustomDomain(host: string): boolean {
   return true;
 }
 
+// A warm instance serves many requests: remember each custom domain's slug for
+// a minute (the same freshness as the fetch cache below) instead of calling
+// the lookup route on every page and RSC prefetch. Failed lookups aren't
+// cached; the size cap keeps junk Host headers from growing it.
+const DOMAIN_CACHE_TTL_MS = 60_000;
+const DOMAIN_CACHE_MAX = 500;
+const domainCache = new Map<string, { slug: string | null; expires: number }>();
+
 async function resolveCustomDomain(
   host: string,
   origin: string,
 ): Promise<string | null> {
+  const cached = domainCache.get(host);
+  if (cached && cached.expires > Date.now()) return cached.slug;
   try {
     const res = await fetch(
       `${origin}/api/internal/domain-lookup?domain=${encodeURIComponent(host)}`,
@@ -81,7 +91,10 @@ async function resolveCustomDomain(
     );
     if (!res.ok) return null;
     const data = await res.json();
-    return data.slug ?? null;
+    const slug: string | null = data.slug ?? null;
+    if (domainCache.size >= DOMAIN_CACHE_MAX) domainCache.clear();
+    domainCache.set(host, { slug, expires: Date.now() + DOMAIN_CACHE_TTL_MS });
+    return slug;
   } catch {
     return null;
   }
@@ -191,5 +204,10 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Only page requests (and the server actions posted to them) need the proxy.
+  // API routes, Next internals and anything with a file extension are passed
+  // straight through by isStaticAsset() anyway, so keep them out entirely —
+  // each skipped path is one less proxy invocation. "api/" keeps its slash:
+  // "/api-keys" is a dashboard page.
+  matcher: ["/((?!api/|_next/|.*\\.).*)"],
 };

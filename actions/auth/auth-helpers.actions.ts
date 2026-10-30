@@ -25,6 +25,21 @@ export async function getCurrentUser() {
   return session?.user ?? null;
 }
 
+/**
+ * The account chip on the marketing navbar. Fetched from the browser so the
+ * marketing pages don't read the session cookie and can be served from cache.
+ */
+export async function GetNavbarUserAction() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return null;
+    const store = user.stores?.[0];
+    return { email: user.email, storeName: store?.name ?? null, storeSlug: store?.slug ?? null };
+  } catch {
+    return null;
+  }
+}
+
 export async function MustOwnStore(storeId: string, userId: string) {
   const store = await prisma.store.findFirst({
     where: {
