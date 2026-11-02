@@ -32,6 +32,15 @@ describe("liveAppearance", () => {
     expect(live.themeConfig.presetId).toBe("riwaq");
   });
 
+  it("shows the theme a store with a removed theme id actually renders with", () => {
+    const base = { ...live, themeId: "default" } as unknown as Parameters<typeof liveAppearance>[0];
+    // "minimal" / "bold" stores carry the old id in themeConfig; "classic" ones in the column.
+    expect(liveAppearance({ ...base!, themeConfig: { presetId: "minimal" } }).themeConfig.presetId).toBe("default");
+    expect(liveAppearance({ ...base!, themeId: "classic", themeConfig: null }).themeConfig.presetId).toBe("default");
+    // Matches the storefront: a saved themeConfig id wins over the column, even a removed one.
+    expect(liveAppearance({ ...base!, themeId: "mada", themeConfig: { presetId: "bold" } }).themeConfig.presetId).toBe("default");
+  });
+
   it("fills defaults for a store without settings", () => {
     const a = liveAppearance(null);
     expect(a.themeConfig.presetId).toBe("default");

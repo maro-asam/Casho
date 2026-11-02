@@ -30,6 +30,7 @@ export const THEME_CATEGORIES: Record<ThemeCategoryId, { label: string; descript
   food: { get label() { return tr("أكل ومشروبات"); }, get description() { return tr("مطاعم، حلويات، قهوة، ومنتجات غذائية"); } },
   home: { get label() { return tr("منزل وديكور"); }, get description() { return tr("أثاث، ديكور، وأدوات منزلية"); } },
   health: { get label() { return tr("صيدليات وصحة"); }, get description() { return tr("أدوية، فيتامينات، عناية شخصية، ومستلزمات طبية"); } },
+  sports: { get label() { return tr("جيم ورياضة"); }, get description() { return tr("مكملات، أدوات جيم، ملابس رياضية، ومعدات"); } },
 };
 
 export const THEME_CATEGORY_LIST = THEME_CATEGORY_IDS.map((id) => ({ id, ...THEME_CATEGORIES[id] }));
@@ -62,6 +63,8 @@ const DEFAULT_HOME_SECTIONS = {
   // ── Visual Builder (off by default — merchant designs as needed) ──────────
   showHeroBanner: false,
   showRichText: false,
+  // ── Theme-specific ────────────────────────────────────────────────────────
+  showCalculator: false,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -543,6 +546,77 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
       home: {
         ...DEFAULT_HOME_SECTIONS,
         showBestSellers: true,
+      },
+    },
+  },
+
+  // ── 8. Casho Gym (supplements & equipment · iron, chalk & gym red) ─────────
+  // Dark by default. gym.css mixes every surface from background / foreground /
+  // primary, so these tokens only seed the look; the Studio repaints all of it.
+  gym: {
+    id: "gym",
+    get name() { return tr("كاشو جيم"); },
+    get description() { return tr("ثيم جيم قوي للمكملات والأدوات: أسود وأحمر، هيرو ضخم، أقسام زي الأوزان، ترتيب الأكثر مبيعًا، عروض بعدّاد، وحاسبة بروتين."); },
+    colorScheme: "dark",
+    categories: ["sports", "health"],
+    tokens: {
+      primary: "#e10600",
+      primaryForeground: "#ffffff",
+      secondary: "#efece6",
+      secondaryForeground: "#121214",
+      background: "#0b0b0d",
+      foreground: "#f5f3ef",
+      surface: "#151518",
+      surfaceForeground: "#f5f3ef",
+      card: "#151518",
+      cardForeground: "#f5f3ef",
+      muted: "#1c1c20",
+      mutedForeground: "#a3a19c",
+      border: "#2a2a2f",
+      accent: "#2a0d0c",
+      accentForeground: "#ff6a5e",
+      heroOverlay: "linear-gradient(to left, rgba(0,0,0,.82), rgba(0,0,0,.12) 72%)",
+      radius: "0.25rem",
+      shadowSm: "0 2px 10px -4px rgba(0,0,0,0.5)",
+      shadowMd: "0 12px 30px -14px rgba(0,0,0,0.7)",
+      shadowLg: "0 24px 56px -24px rgba(0,0,0,0.75)",
+      glowPrimary: "0 22px 50px -24px rgba(225,6,0,0.7)",
+    },
+    layout: {
+      navbar: "default",
+      heroStyle: "fullscreen",
+      productCardStyle: "default",
+      categoryCardStyle: "square",
+      desktopGridCols: 4,
+      density: "default",
+      animations: "dynamic",
+      buttonStyle: "sharp",
+      imageAspectRatio: "square",
+    },
+    sections: {
+      home: {
+        ...DEFAULT_HOME_SECTIONS,
+        showBestSellers: true,
+        showUrgency: true,
+        showCalculator: true,
+        sectionOrder: [
+          "showHero",
+          "showHeroBanner",
+          "showOfferStrip",
+          "showCategories",
+          "showBestSellers",
+          "showUrgency",
+          "showFeaturedProducts",
+          "showCollections",
+          "showCalculator",
+          "showLatestProducts",
+          "showSocialProof",
+          "showWhyChooseUs",
+          "showTestimonials",
+          "showAboutBrand",
+          "showRichText",
+          "showNewsletter",
+        ],
       },
     },
   },

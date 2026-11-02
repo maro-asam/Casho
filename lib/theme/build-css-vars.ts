@@ -89,6 +89,9 @@ export function buildThemeCSSVars(
       : theme.layout.buttonStyle === "pill" ? "9999px"
       : "0.5rem",
 
+    // 1 when buttons are "sharp" — lets a theme lean them instead of just squaring them
+    "--store-btn-slant": theme.layout.buttonStyle === "sharp" ? "1" : "0",
+
     // Hover / transition duration
     "--store-motion":
       theme.layout.animations === "none" ? "0ms"
@@ -190,6 +193,7 @@ export function buildThemeCSSString(
   const layoutVars = [
     `  --store-img-ratio: ${imgRatio};`,
     `  --store-btn-radius: ${btnRadius};`,
+    `  --store-btn-slant: ${layout.buttonStyle === "sharp" ? 1 : 0};`,
     `  --store-motion: ${motion};`,
     `  --store-grid-cols: ${gridColsLg};`,
     fontFamily ? `  font-family: ${fontFamily};` : "",

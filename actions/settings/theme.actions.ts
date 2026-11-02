@@ -50,6 +50,9 @@ function applyPreset(a: Appearance, presetId: ThemePresetId): Appearance {
   return {
     ...a,
     themeConfig: { presetId, ...(a.themeConfig.sectionContent ? { sectionContent: a.themeConfig.sectionContent } : {}) },
+    // The flat columns override the preset when resolving, so they reset too.
+    primaryColor: null,
+    secondaryColor: null,
     navbarVariant: getThemePreset(presetId).layout.navbar,
   };
 }
@@ -296,6 +299,8 @@ export async function UpdateStoreLanguageAction(
 
 type HomeOverrides = { sectionOrder?: SectionKey[] } & Partial<Record<SectionKey, boolean>>;
 const homeOf = (a: Appearance) => (a.themeConfig.sectionOverrides?.home ?? {}) as HomeOverrides;
+/** The order the store renders: saved, else the theme's own, else the default. */
+const orderOf = (a: Appearance) => homeOf(a).sectionOrder ?? getThemePreset(a.themeConfig.presetId).sections.home.sectionOrder ?? DEFAULT_SECTION_ORDER;
 
 export async function UpdateThemeSectionsAction({
   storeId,
@@ -314,7 +319,7 @@ export async function UpdateThemeSectionsAction({
       (a) => {
         const current = homeOf(a);
         // A newly enabled section that isn't in the saved order goes last.
-        const order = current.sectionOrder ?? DEFAULT_SECTION_ORDER;
+        const order = orderOf(a);
         const added = (Object.entries(updates) as [SectionKey, unknown][])
           .filter(([k, v]) => v === true && !order.includes(k))
           .map(([k]) => k);
@@ -371,7 +376,7 @@ export async function InsertSectionAction({
       storeId,
       (a) => {
         const current = homeOf(a);
-        const order = (current.sectionOrder ?? DEFAULT_SECTION_ORDER).filter((k) => k !== key);
+        const order = orderOf(a).filter((k) => k !== key);
         const at = Math.max(0, Math.min(order.length, Math.round(index)));
         return withConfig(a, {
           sectionOverrides: {

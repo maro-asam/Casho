@@ -5,7 +5,7 @@
 
 // ─── Preset IDs ──────────────────────────────────────────────────────────────
 
-export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical"] as const;
+export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym"] as const;
 
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 
@@ -23,6 +23,7 @@ export const THEME_CATEGORY_IDS = [
   "food",
   "home",
   "health",
+  "sports",
 ] as const;
 
 export type ThemeCategoryId = (typeof THEME_CATEGORY_IDS)[number];
@@ -236,7 +237,9 @@ export type SectionKey =
   | "showCollections"
   // ── Visual Builder ────────────────────────────────────────────────────────
   | "showHeroBanner"
-  | "showRichText";
+  | "showRichText"
+  // ── Theme-specific (see `themes` in the Studio's SECTION_META) ───────────
+  | "showCalculator";
 
 /**
  * Recommended default section order for new stores.
@@ -258,6 +261,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "showAboutBrand",
   "showRichText",
   "showNewsletter",
+  "showCalculator",
 ];
 
 export type HomePageSections = {
@@ -279,6 +283,8 @@ export type HomePageSections = {
   // ── Visual Builder ────────────────────────────────────────────────────────
   showHeroBanner: boolean;
   showRichText: boolean;
+  // ── Theme-specific ────────────────────────────────────────────────────────
+  showCalculator: boolean;
   /** Render order — falls back to DEFAULT_SECTION_ORDER */
   sectionOrder?: SectionKey[];
 };

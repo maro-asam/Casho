@@ -25,7 +25,7 @@ export const ARABIC_FONTS: Record<ArabicFontId, ArabicFont> = {
     name: "Cairo",
     family: "'Cairo', sans-serif",
     googleUrl:
-      "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap",
     sample: "أهلاً بك في متجرنا",
   },
   alexandria: {
@@ -33,7 +33,7 @@ export const ARABIC_FONTS: Record<ArabicFontId, ArabicFont> = {
     name: "Alexandria",
     family: "'Alexandria', sans-serif",
     googleUrl:
-      "https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&display=swap",
     sample: "أهلاً بك في متجرنا",
   },
   tajawal: {
@@ -41,7 +41,7 @@ export const ARABIC_FONTS: Record<ArabicFontId, ArabicFont> = {
     name: "Tajawal",
     family: "'Tajawal', sans-serif",
     googleUrl:
-      "https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap",
     sample: "أهلاً بك في متجرنا",
   },
   almarai: {
@@ -49,7 +49,7 @@ export const ARABIC_FONTS: Record<ArabicFontId, ArabicFont> = {
     name: "Almarai",
     family: "'Almarai', sans-serif",
     googleUrl:
-      "https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap",
     sample: "أهلاً بك في متجرنا",
   },
   amiri: {
@@ -81,7 +81,7 @@ export const ARABIC_FONTS: Record<ArabicFontId, ArabicFont> = {
     name: "Noto Sans Arabic",
     family: "'Noto Sans Arabic', sans-serif",
     googleUrl:
-      "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700;800;900&display=swap",
     sample: "أهلاً بك في متجرنا",
   },
   "el-messiri": {
@@ -97,7 +97,7 @@ export const ARABIC_FONTS: Record<ArabicFontId, ArabicFont> = {
     name: "Mada",
     family: "'Mada', sans-serif",
     googleUrl:
-      "https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700;800;900&display=swap",
     sample: "أهلاً بك في متجرنا",
   },
   "reem-kufi": {

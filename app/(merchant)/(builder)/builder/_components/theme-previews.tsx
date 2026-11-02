@@ -213,6 +213,40 @@ function MedicalThemePreview() {
   );
 }
 
+// ─── 8. Casho Gym ─────────────────────────────────────────────────
+function GymThemePreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-[#0b0b0d]">
+      <div className="h-1.5 bg-[#e10600]" />
+      <div className="flex items-center justify-between px-2.5 py-1.5">
+        <div className="h-2 w-8 -skew-x-12 bg-white/90" />
+        <div className="h-2.5 w-5 -skew-x-12 bg-[#e10600]" />
+      </div>
+      <div className="relative grid h-16 grid-cols-2 items-center gap-2 overflow-hidden px-2.5">
+        <div className="space-y-1">
+          <div className="h-2.5 w-full rounded-[1px] bg-[#f5f3ef]" />
+          <div className="h-2.5 w-2/3 rounded-[1px] bg-[#f5f3ef]" />
+          <div className="mt-1 h-2 w-7 -skew-x-12 bg-[#e10600]" />
+        </div>
+        <div className="relative h-full">
+          <div className="absolute inset-y-[-4px] start-1/3 end-[20%] -skew-x-12 bg-[#e10600]" />
+          <div className="absolute inset-x-2 top-1.5 bottom-1.5 rounded-[2px] bg-[#ecebe7]" />
+        </div>
+      </div>
+      <div className="h-2 -rotate-1 scale-105 bg-[#e10600]" />
+      <div className="grid grid-cols-4 gap-1.5 p-2.5">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex flex-col gap-1 rounded-[2px] border border-white/10 bg-[#151518]">
+            <div className="aspect-square bg-[#ecebe7]" />
+            <div className="mx-1 h-1 rounded-full bg-white/40" />
+            <div className="mx-1 mb-1 h-1.5 -skew-x-12 bg-[#e10600]" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 /** Schematic thumbnail of each theme (no images, so it renders instantly). */
 export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
@@ -223,4 +257,5 @@ export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   maximize: MaximizeThemePreview,
   cello: CelloThemePreview,
   medical: MedicalThemePreview,
+  gym: GymThemePreview,
 };

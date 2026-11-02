@@ -26,18 +26,19 @@ import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 const nf = lazyIntl.number();
 
 /** Saved order first, then any enabled section that isn't in it yet (same rule as the storefront). */
-function resolveOrder(home: HomePageSections): SectionKey[] {
-  const base = (home.sectionOrder ?? DEFAULT_SECTION_ORDER).filter(isSectionKey);
-  const rest = allSectionKeys().filter((k) => !base.includes(k));
+function resolveOrder(home: HomePageSections, keys: SectionKey[]): SectionKey[] {
+  const base = (home.sectionOrder ?? DEFAULT_SECTION_ORDER).filter((k) => isSectionKey(k) && keys.includes(k));
+  const rest = keys.filter((k) => !base.includes(k));
   return [...base, ...rest];
 }
 
 function useSections() {
   const { storeId, theme, save } = useBuilder();
   const home = theme.sections.home;
-  const [order, setOrder] = useState<SectionKey[]>(() => resolveOrder(home));
+  const keys = allSectionKeys(theme.presetId);
+  const [order, setOrder] = useState<SectionKey[]>(() => resolveOrder(home, keys));
   const [visible, setVisible] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(allSectionKeys().map((k) => [k, Boolean(home[k as keyof HomePageSections])])),
+    Object.fromEntries(keys.map((k) => [k, Boolean(home[k as keyof HomePageSections])])),
   );
   const enabled = order.filter((k) => visible[k]);
   const hidden = order.filter((k) => !visible[k]);

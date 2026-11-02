@@ -49,7 +49,12 @@ export type AppearanceRow = Prisma.StoreSettingsGetPayload<{ select: typeof APPE
 
 export function liveAppearance(row: AppearanceRow | null | undefined): Appearance {
   const config = row?.themeConfig as ThemeCustomization | null | undefined;
-  const presetId: ThemePresetId = config?.presetId ?? (isThemePresetId(row?.themeId) ? row.themeId : "default");
+  // Same pick as the storefront (`themeConfig.presetId ?? themeId`, unknown ids →
+  // "default"). Old ids from removed themes ("classic", "minimal", "bold") are
+  // still saved on some stores and render as "default", so Studio must show
+  // "default" as their active theme too — not an id no picker knows.
+  const saved = config?.presetId ?? row?.themeId;
+  const presetId: ThemePresetId = isThemePresetId(saved) ? saved : "default";
   return {
     themeConfig: { ...(config ?? {}), presetId },
     primaryColor: row?.primaryColor ?? null,

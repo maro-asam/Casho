@@ -1,0 +1,2371 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Casho Gym storefront theme — design system
+   Iron, chalk and one hot color: a black gym floor, the merchant's red, chalk
+   plates under the product shots, knurled steel texture and a forward slant
+   on everything that moves. Scoped to `.theme-gym` (and `.gy-portal` for
+   drawers and dialogs rendered outside the store root).
+
+   Every surface is mixed from the merchant's background / foreground / primary
+   / secondary, so the Studio's color panel repaints the whole theme live —
+   a merchant can flip it to a white store and it still holds together. The
+   layout follows the Studio (card style, density, motion, button shape, image
+   ratio, grid columns — the root carries them as data attributes / CSS vars).
+   See DESIGN.md.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.theme-gym,
+.gy-portal {
+  /* Color roles (all derived, never fixed, so the Studio repaints them) */
+  --gy-bg: var(--background);
+  --gy-ink: var(--foreground);
+  --gy-text: color-mix(in srgb, var(--foreground) 80%, var(--background));
+  --gy-quiet: color-mix(in srgb, var(--foreground) 62%, var(--background));
+  --gy-line: color-mix(in srgb, var(--foreground) 13%, var(--background));
+  --gy-line-strong: color-mix(in srgb, var(--foreground) 28%, var(--background));
+  --gy-card: color-mix(in srgb, var(--foreground) 5%, var(--background));
+  --gy-band: color-mix(in srgb, var(--foreground) 8%, var(--background));
+  --gy-surface: color-mix(in srgb, var(--foreground) 6%, var(--background));
+  --gy-btn: var(--primary);
+  --gy-btn-ink: var(--primary-foreground);
+  --gy-btn-hover: color-mix(in srgb, var(--primary) 86%, #000);
+  --gy-link: color-mix(in srgb, var(--primary) 72%, var(--foreground));        /* red that reads as text */
+  --gy-tint: color-mix(in srgb, var(--primary) 15%, var(--background));        /* hot wash under selected things */
+  --gy-tint-ink: var(--foreground);
+  --gy-chalk: var(--secondary);
+  --gy-chalk-ink: var(--secondary-foreground);
+  --gy-accent: var(--accent);
+  --gy-deep: color-mix(in srgb, var(--foreground) 3%, var(--background));      /* footer, stage floors */
+  --gy-plate: #eeece8;                                                         /* always light: pack shots multiply onto it */
+  --gy-plate-ink: #141416;
+  --gy-plate-text: #3c3c42;
+  --gy-plate-quiet: #66666d;
+  --gy-steel-1: color-mix(in srgb, var(--foreground) 16%, var(--background));
+  --gy-steel-2: color-mix(in srgb, var(--foreground) 9%, var(--background));
+  --gy-sale: var(--gy-link);
+  --gy-sale-tint: var(--gy-tint);
+  --gy-ok: color-mix(in srgb, #1fbf73 74%, var(--foreground));                 /* status colors stay legible on any background */
+  --gy-ok-tint: color-mix(in srgb, #1fbf73 14%, var(--background));
+  --gy-low: color-mix(in srgb, #f59e0b 76%, var(--foreground));
+  --gy-low-tint: color-mix(in srgb, #f59e0b 14%, var(--background));
+  --gy-error: var(--gy-link);
+  --gy-warn: var(--gy-low);
+  --gy-wa: #2fbf71;
+  --gy-star: #ffb627;
+  --gy-scrim: rgb(0 0 0 / 0.62);
+  --gy-shadow-sm: 0 2px 10px -4px rgb(0 0 0 / 0.5);
+  --gy-shadow: 0 24px 56px -24px rgb(0 0 0 / 0.75);
+  --gy-glow: 0 22px 50px -24px color-mix(in srgb, var(--primary) 70%, transparent);
+
+  /* Type — the merchant's store font everywhere, as heavy as it goes */
+  --gy-display: inherit;
+
+  /* Shape */
+  --gy-r: var(--radius, 0.25rem);
+  --gy-r-sm: calc(var(--gy-r) * 0.75);
+  --gy-r-lg: calc(var(--gy-r) * 1.5);
+  --gy-btn-r: var(--store-btn-radius, 0px);
+  --gy-dir: 1;
+  --gy-slant: calc(12deg * var(--gy-dir));                                     /* the forward lean; "sharp" buttons take it */
+
+  /* Layout */
+  --gy-wrap: 90rem;
+  --gy-gutter: 1rem;
+  --gy-gap: 0.75rem;
+  --gy-section: 2.75rem;
+  --gy-header-h: 3.75rem;
+  --gy-control: 2.875rem;
+
+  /* Motion (Studio → الحركة) */
+  --gy-dur: 200ms;
+  --gy-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* The surfaces the Studio can't edit follow the ones it can, for anything
+   shared that reads the raw tokens (checkout form, popups, tracker). */
+.store-theme-root.theme-gym,
+.store-theme-root.gy-portal {
+  --card: var(--gy-card);
+  --card-foreground: var(--foreground);
+  --popover: var(--gy-surface);
+  --popover-foreground: var(--foreground);
+  --muted: var(--gy-band);
+  --muted-foreground: var(--gy-quiet);
+  --border: var(--gy-line);
+  --input: var(--gy-line-strong);
+  --store-card: var(--gy-card);
+  --store-card-foreground: var(--foreground);
+  --store-surface: var(--gy-surface);
+  --store-surface-foreground: var(--foreground);
+  --store-muted: var(--gy-band);
+  --store-muted-foreground: var(--gy-quiet);
+  --store-border: var(--gy-line);
+}
+
+.theme-gym[dir="ltr"],
+.gy-portal[dir="ltr"] {
+  --gy-dir: -1;
+}
+
+@media (min-width: 768px) {
+  .theme-gym,
+  .gy-portal {
+    --gy-gutter: 1.5rem;
+    --gy-section: 3.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  .theme-gym,
+  .gy-portal {
+    --gy-gutter: 2.5rem;
+    --gy-gap: 1rem;
+    --gy-section: 5rem;
+    --gy-header-h: 4.75rem;
+  }
+}
+
+/* Merchant density (Studio → المسافات) */
+.theme-gym[data-density="compact"] {
+  --gy-section: 1.75rem;
+  --gy-gap: 0.5rem;
+}
+.theme-gym[data-density="spacious"] {
+  --gy-section: 4rem;
+  --gy-gap: 1.125rem;
+}
+@media (min-width: 1024px) {
+  .theme-gym[data-density="compact"] {
+    --gy-section: 3rem;
+    --gy-gap: 0.75rem;
+  }
+  .theme-gym[data-density="spacious"] {
+    --gy-section: 7.5rem;
+    --gy-gap: 1.5rem;
+  }
+}
+.theme-gym[data-motion="none"] {
+  --gy-dur: 0ms;
+}
+.theme-gym[data-motion="dynamic"] {
+  --gy-dur: 260ms;
+}
+
+@layer base {
+  /* The app resets every element to a light weight; this theme sets its own. */
+  .theme-gym *,
+  .gy-portal * {
+    font-weight: inherit;
+  }
+  /* Base look sits in a layer so utilities (drawer surfaces, scrims) win. */
+  .theme-gym,
+  .gy-portal {
+    background: var(--gy-bg);
+    color: var(--gy-text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.65;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .theme-gym svg.lucide,
+  .gy-portal svg.lucide {
+    stroke-width: 2;
+  }
+  .theme-gym :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  .gy-portal :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--gy-link);
+    outline-offset: 2px;
+  }
+  .theme-gym ::selection,
+  .gy-portal ::selection {
+    background: var(--gy-btn);
+    color: var(--gy-btn-ink);
+  }
+}
+
+@layer components {
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+
+.gy-wrap {
+  width: 100%;
+  max-width: var(--gy-wrap);
+  margin-inline: auto;
+  padding-inline: var(--gy-gutter);
+}
+.gy-section {
+  padding-block: calc(var(--gy-section) / 2);
+}
+.gy-bleed {
+  margin-inline: calc(var(--gy-gutter) * -1);
+  padding-inline: var(--gy-gutter);
+  scroll-padding-inline: var(--gy-gutter);
+}
+.gy-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.gy-rail::-webkit-scrollbar {
+  display: none;
+}
+.gy-rail > * {
+  scroll-snap-align: start;
+}
+.gy-has-bar {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .gy-has-bar {
+    padding-bottom: 0;
+  }
+}
+.gy-panel {
+  background: var(--gy-card);
+  border: 1px solid var(--gy-line);
+  border-radius: var(--gy-r);
+}
+
+/* Barbell knurling: a diamond crosshatch in the current color */
+.gy-knurl {
+  position: relative;
+  isolation: isolate;
+}
+.gy-knurl::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: currentColor;
+  opacity: 0.07;
+  pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath d='M0 6 6 0l6 6-6 6z' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") 0 0 / 12px 12px repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath d='M0 6 6 0l6 6-6 6z' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") 0 0 / 12px 12px repeat;
+}
+
+/* ─── Type ──────────────────────────────────────────────────────────────── */
+
+.gy-display {
+  font-family: var(--gy-display);
+  font-weight: 900;
+  color: var(--gy-ink);
+}
+.gy-mega {
+  font-family: var(--gy-display);
+  font-weight: 900;
+  font-size: clamp(3.5rem, 11.5vw, 10.5rem);
+  line-height: 1.02;
+  color: var(--gy-ink);
+}
+.gy-mega--md {
+  font-size: clamp(2.875rem, 8vw, 7.5rem);
+  line-height: 1.08;
+}
+.gy-mega--sm {
+  font-size: clamp(2.375rem, 5.6vw, 5.25rem);
+  line-height: 1.14;
+}
+.gy-hero {
+  font-family: var(--gy-display);
+  font-weight: 900;
+  font-size: clamp(2.375rem, 6.4vw, 5.5rem);
+  line-height: 1.1;
+  color: var(--gy-ink);
+}
+.gy-h1 {
+  font-family: var(--gy-display);
+  font-weight: 900;
+  font-size: clamp(1.875rem, 4vw, 3.375rem);
+  line-height: 1.15;
+  color: var(--gy-ink);
+}
+.gy-h2 {
+  font-family: var(--gy-display);
+  font-weight: 900;
+  font-size: clamp(1.625rem, 3.2vw, 2.75rem);
+  line-height: 1.18;
+  color: var(--gy-ink);
+}
+.gy-h3 {
+  font-family: var(--gy-display);
+  font-weight: 800;
+  font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+  line-height: 1.35;
+  color: var(--gy-ink);
+}
+.gy-h4 {
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--gy-ink);
+}
+.gy-sub {
+  margin-top: 0.375rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--gy-quiet);
+}
+/* Small label above titles: a red slash and the words. Arabic is never tracked. */
+.gy-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--gy-link);
+}
+.gy-eyebrow::before {
+  content: "";
+  width: 1.375rem;
+  height: 0.5rem;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant));
+}
+.gy-eyebrow svg {
+  width: 1rem;
+  height: 1rem;
+}
+[dir="ltr"] .gy-eyebrow,
+.gy-portal[dir="ltr"] .gy-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+/* Outlined numerals and ghost words. `paint-order` keeps Arabic joins clean:
+   the fill covers the seams a stroke would draw inside connected letters. */
+.gy-outline {
+  color: var(--gy-outline-fill, var(--gy-bg));
+  -webkit-text-stroke: 3px var(--gy-outline-line, var(--gy-line-strong));
+  paint-order: stroke fill;
+  font-weight: 900;
+}
+.gy-price {
+  font-weight: 900;
+  color: var(--gy-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.gy-num {
+  font-variant-numeric: tabular-nums;
+}
+.gy-prose {
+  max-width: 68ch;
+  line-height: 1.95;
+  white-space: pre-line;
+  color: var(--gy-text);
+}
+.gy-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 800;
+  color: var(--gy-link);
+  text-underline-offset: 4px;
+  transition: color var(--gy-dur);
+}
+.gy-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+/* The shape lives on ::before, so "sharp" (Studio → شكل الزراير) can lean
+   forward while the label stays upright; rounded and pill stand straight. */
+
+.gy-btn {
+  --gy-b-bg: transparent;
+  --gy-b-line: transparent;
+  --gy-b-ink: inherit;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--gy-control);
+  padding-inline: 1.625rem;
+  color: var(--gy-b-ink);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: color var(--gy-dur) var(--gy-ease), transform 120ms var(--gy-ease);
+}
+.gy-btn::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline: calc(var(--store-btn-slant, 0) * 0.3rem);
+  z-index: -1;
+  background: var(--gy-b-bg);
+  border: 1.5px solid var(--gy-b-line);
+  border-radius: var(--gy-btn-r);
+  transform: skewX(calc(var(--gy-slant) * var(--store-btn-slant, 0)));
+  transition: background-color var(--gy-dur) var(--gy-ease), border-color var(--gy-dur) var(--gy-ease), box-shadow var(--gy-dur) var(--gy-ease);
+}
+.gy-btn:active {
+  transform: scale(0.97);
+}
+.gy-btn:disabled,
+.gy-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.gy-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+.gy-btn--solid {
+  --gy-b-bg: var(--gy-btn);
+  --gy-b-ink: var(--gy-btn-ink);
+  /* Stays a visible button even when the merchant's color matches the page. */
+  --gy-b-line: color-mix(in srgb, var(--foreground) 12%, var(--gy-btn));
+}
+.gy-btn--solid:hover {
+  --gy-b-bg: var(--gy-btn-hover);
+}
+.gy-btn--solid:hover::before {
+  box-shadow: var(--gy-glow);
+}
+.gy-btn--outline {
+  --gy-b-line: var(--gy-line-strong);
+  --gy-b-ink: var(--gy-ink);
+}
+.gy-btn--outline:hover {
+  --gy-b-line: var(--gy-btn);
+  --gy-b-bg: var(--gy-tint);
+}
+.gy-btn--soft {
+  --gy-b-bg: var(--gy-band);
+  --gy-b-ink: var(--gy-ink);
+}
+.gy-btn--soft:hover {
+  --gy-b-bg: var(--gy-line);
+}
+.gy-btn--tint {
+  --gy-b-bg: var(--gy-chalk);
+  --gy-b-ink: var(--gy-chalk-ink);
+}
+.gy-btn--tint:hover {
+  --gy-b-bg: color-mix(in srgb, var(--gy-chalk) 88%, var(--gy-chalk-ink));
+}
+.gy-btn--white {
+  --gy-b-bg: #f4f2ee;
+  --gy-b-ink: #141416;
+}
+.gy-btn--white:hover {
+  --gy-b-bg: #ffffff;
+}
+.gy-btn--ghost-light {
+  --gy-b-line: rgb(255 255 255 / 0.5);
+  --gy-b-ink: #fff;
+}
+.gy-btn--ghost-light:hover {
+  --gy-b-bg: rgb(255 255 255 / 0.14);
+  --gy-b-line: #fff;
+}
+.gy-btn--wa {
+  --gy-b-bg: var(--gy-wa);
+  --gy-b-ink: #06140c;
+}
+.gy-btn--wa:hover {
+  --gy-b-bg: color-mix(in srgb, var(--gy-wa) 86%, #fff);
+}
+.gy-btn--sm {
+  min-height: 2.5rem;
+  padding-inline: 1rem;
+  font-size: 0.875rem;
+}
+.gy-btn--lg {
+  min-height: 3.375rem;
+  padding-inline: 2.125rem;
+  font-size: 1.0625rem;
+}
+.gy-btn--icon {
+  width: var(--gy-control);
+  padding-inline: 0;
+}
+.gy-btn--full {
+  width: 100%;
+}
+.gy-btn .gy-arrow-icon {
+  transition: transform var(--gy-dur) var(--gy-ease);
+}
+.gy-btn:hover .gy-arrow-icon {
+  transform: translateX(calc(-4px * var(--gy-dir)));
+}
+
+/* Header / toolbar icon buttons */
+.gy-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--gy-r);
+  color: inherit;
+  transition: background-color var(--gy-dur) var(--gy-ease), transform 120ms var(--gy-ease);
+}
+.gy-icon:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.gy-icon:active {
+  transform: scale(0.94);
+}
+.gy-icon svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+.gy-fab {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--gy-r);
+  background: var(--gy-surface);
+  color: var(--gy-ink);
+  box-shadow: var(--gy-shadow-sm);
+  transition: background-color var(--gy-dur), color var(--gy-dur);
+}
+.gy-fab:hover {
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+}
+.gy-fab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* ─── Fields ────────────────────────────────────────────────────────────── */
+
+.gy-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--gy-control);
+  padding-inline: 0.875rem;
+  border: 1px solid var(--gy-line-strong);
+  border-radius: var(--gy-r-sm);
+  background: var(--gy-bg);
+  color: var(--gy-ink);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--gy-dur), box-shadow var(--gy-dur);
+  appearance: none;
+}
+@media (min-width: 768px) {
+  .gy-field {
+    font-size: 0.9375rem;
+  }
+}
+.gy-field::placeholder {
+  color: var(--gy-quiet);
+}
+.gy-field:hover {
+  border-color: var(--gy-quiet);
+}
+.gy-field:focus,
+.gy-field:focus-visible {
+  outline: none;
+  border-color: var(--gy-btn);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gy-btn) 24%, transparent);
+}
+.gy-field::-webkit-search-cancel-button,
+.gy-field::-webkit-inner-spin-button,
+.gy-field::-webkit-outer-spin-button {
+  appearance: none;
+}
+.gy-field[type="number"] {
+  -moz-appearance: textfield;
+}
+textarea.gy-field {
+  padding-block: 0.75rem;
+  line-height: 1.8;
+}
+.gy-select {
+  padding-inline-end: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23999' stroke-width='1.5'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.875rem center;
+  appearance: none;
+  cursor: pointer;
+}
+[dir="ltr"] .gy-select,
+.gy-portal[dir="ltr"] .gy-select {
+  background-position: right 0.875rem center;
+}
+
+.gy-search {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 3rem;
+  border-radius: var(--gy-r);
+  border: 1.5px solid var(--gy-line-strong);
+  background: var(--gy-card);
+  padding-inline: 0.875rem 0.3125rem;
+  transition: border-color var(--gy-dur), box-shadow var(--gy-dur);
+}
+.gy-search:focus-within {
+  border-color: var(--gy-btn);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gy-btn) 24%, transparent);
+}
+.gy-search--lg {
+  height: 3.75rem;
+}
+.gy-search .gy-btn {
+  min-height: 0;
+}
+
+/* ─── Options & checks ──────────────────────────────────────────────────── */
+
+.gy-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  min-width: 3rem;
+  padding-inline: 1rem;
+  border-radius: var(--gy-r-sm);
+  border: 1.5px solid var(--gy-line);
+  background: var(--gy-card);
+  color: var(--gy-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--gy-dur), background-color var(--gy-dur), color var(--gy-dur);
+}
+.gy-opt:hover {
+  border-color: var(--gy-btn);
+}
+.gy-opt[aria-checked="true"],
+.gy-opt[aria-pressed="true"],
+.gy-opt[aria-current="page"],
+.gy-opt:has(input:checked) {
+  border-color: var(--gy-btn);
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+  font-weight: 800;
+}
+.gy-opt[data-error="true"] {
+  border-color: var(--gy-error);
+}
+.gy-opt:has(input:focus-visible),
+.gy-swatch-btn:has(input:focus-visible),
+.gy-check:has(input:focus-visible) {
+  outline: 2px solid var(--gy-link);
+  outline-offset: 2px;
+}
+.gy-swatch {
+  display: inline-block;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(128 128 128 / 0.4);
+}
+.gy-swatch-btn {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  transition: border-color var(--gy-dur);
+}
+.gy-swatch-btn:hover {
+  border-color: var(--gy-quiet);
+}
+.gy-swatch-btn[aria-checked="true"],
+.gy-swatch-btn:has(input:checked) {
+  border-color: var(--gy-link);
+}
+.gy-swatch-btn[data-error="true"] {
+  border-color: var(--gy-error);
+}
+
+/* ─── Badges ────────────────────────────────────────────────────────────── */
+
+.gy-badge {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.5rem;
+  padding-inline: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.gy-badge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--gy-badge-bg, var(--gy-btn));
+  transform: skewX(var(--gy-slant));
+}
+.gy-badge--sale {
+  --gy-badge-bg: var(--gy-btn);
+  color: var(--gy-btn-ink);
+}
+.gy-badge--new {
+  --gy-badge-bg: #141416;
+  color: #f4f2ee;
+}
+.gy-badge--pick {
+  --gy-badge-bg: var(--gy-chalk);
+  color: var(--gy-chalk-ink);
+}
+.gy-badge--out {
+  --gy-badge-bg: #55555c;
+  color: #fff;
+}
+.gy-chip-off {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3125rem 0.625rem;
+  color: var(--gy-btn-ink);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.gy-chip-off::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant));
+}
+
+/* Stock line ("▰ متوفر") */
+.gy-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+.gy-stock::before {
+  content: "";
+  width: 0.75rem;
+  height: 0.5rem;
+  background: currentColor;
+  transform: skewX(var(--gy-slant));
+}
+
+/* ─── Media ─────────────────────────────────────────────────────────────── */
+
+.gy-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--gy-plate);
+  border-radius: var(--gy-r);
+  isolation: isolate;
+}
+/* Pack shots stay whole on the chalk plate; white backgrounds melt into it. */
+.gy-product-img {
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  padding: 8%;
+}
+.gy-zoom-img {
+  transition: transform 500ms var(--gy-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .gy-zoom-img {
+    transform: scale(1.06);
+  }
+}
+
+/* ─── Product card (follows Studio → كارت المنتج) ───────────────────────── */
+
+.gy-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--gy-card);
+  border: 1px solid var(--gy-line);
+  border-radius: var(--gy-r);
+  overflow: hidden;
+  transition: box-shadow 300ms var(--gy-ease), border-color 300ms var(--gy-ease), transform 300ms var(--gy-ease);
+}
+.gy-card .gy-media {
+  isolation: auto;
+  border-radius: 0;
+}
+/* A red slash climbs the plate's far edge on hover, clear of the pack shot */
+.gy-card .gy-media::before {
+  content: "";
+  position: absolute;
+  inset-block: -10%;
+  inset-inline-end: -5%;
+  width: 17%;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant)) scaleY(0);
+  transform-origin: bottom;
+  transition: transform 420ms var(--gy-ease);
+}
+.gy-card-body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 0.75rem;
+}
+@media (min-width: 640px) {
+  .gy-card-body {
+    padding: 0.875rem 1rem 1rem;
+  }
+}
+.gy-card-title {
+  color: var(--gy-ink);
+  font-weight: 800;
+}
+.gy-card-cta {
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+.gy-card .gy-card-quick {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .gy-card:hover {
+    border-color: var(--gy-btn);
+    box-shadow: var(--gy-glow);
+    transform: translateY(-4px);
+  }
+  .gy-card:hover .gy-media::before {
+    transform: skewX(var(--gy-slant)) scaleY(1);
+  }
+  .gy-card-peek {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 300ms var(--gy-ease), transform 300ms var(--gy-ease);
+  }
+  .gy-card:hover .gy-card-peek,
+  .gy-card:focus-within .gy-card-peek {
+    opacity: 1;
+    transform: none;
+  }
+}
+.theme-gym[data-motion="none"] .gy-card:hover {
+  transform: none;
+}
+
+/* Bold: the whole card is the chalk plate, the price a red tag on it */
+.theme-gym[data-card="bold"] .gy-card {
+  --gy-ink: var(--gy-plate-ink);
+  --gy-text: var(--gy-plate-text);
+  --gy-quiet: var(--gy-plate-quiet);
+  --gy-link: color-mix(in srgb, var(--primary) 82%, #000);
+  --gy-line: rgb(0 0 0 / 0.12);
+  background: var(--gy-plate);
+  border-color: transparent;
+}
+.theme-gym[data-card="bold"] .gy-card .gy-media {
+  background: transparent;
+}
+.theme-gym[data-card="bold"] .gy-card-title {
+  font-weight: 900;
+}
+.theme-gym[data-card="bold"] .gy-card .gy-price {
+  position: relative;
+  isolation: isolate;
+  padding: 0.25rem 0.625rem;
+  color: var(--gy-btn-ink);
+}
+.theme-gym[data-card="bold"] .gy-card .gy-price::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant));
+}
+.theme-gym[data-card="bold"] .gy-card s {
+  color: var(--gy-plate-quiet);
+}
+
+/* Minimal: no frame, just the plate, a square add button on the image */
+.theme-gym[data-card="minimal"] .gy-card {
+  overflow: visible;
+  border-color: transparent;
+  background: transparent;
+}
+.theme-gym[data-card="minimal"] .gy-card:hover {
+  box-shadow: none;
+  border-color: transparent;
+}
+.theme-gym[data-card="minimal"] .gy-card .gy-media {
+  border-radius: var(--gy-r);
+}
+.theme-gym[data-card="minimal"] .gy-card-body {
+  padding: 0.625rem 0.125rem 0;
+}
+.theme-gym[data-card="minimal"] .gy-card-cta {
+  display: none;
+}
+.theme-gym[data-card="minimal"] .gy-card .gy-card-quick {
+  display: grid;
+}
+
+/* Elegant: centered copy under a thin rule, quiet outline button */
+.theme-gym[data-card="elegant"] .gy-card {
+  overflow: visible;
+  border-color: transparent;
+  background: transparent;
+}
+.theme-gym[data-card="elegant"] .gy-card:hover {
+  box-shadow: none;
+  border-color: transparent;
+}
+.theme-gym[data-card="elegant"] .gy-card .gy-media {
+  border-radius: var(--gy-r);
+}
+.theme-gym[data-card="elegant"] .gy-card-body {
+  align-items: center;
+  padding-inline: 0.25rem;
+  text-align: center;
+}
+.theme-gym[data-card="elegant"] .gy-card-body > * {
+  justify-content: center;
+}
+.theme-gym[data-card="elegant"] .gy-card-title {
+  font-weight: 700;
+}
+.theme-gym[data-card="elegant"] .gy-card-cta .gy-btn--solid {
+  --gy-b-bg: transparent;
+  --gy-b-ink: var(--gy-ink);
+  --gy-b-line: var(--gy-line-strong);
+}
+.theme-gym[data-card="elegant"] .gy-card-cta .gy-btn--solid:hover {
+  --gy-b-bg: var(--gy-btn);
+  --gy-b-ink: var(--gy-btn-ink);
+  --gy-b-line: var(--gy-btn);
+}
+.theme-gym[data-card="elegant"] .gy-card-cta {
+  width: 100%;
+}
+
+.gy-card-img-1,
+.gy-card-img-2 {
+  transition: opacity 400ms var(--gy-ease), transform 500ms var(--gy-ease);
+}
+.gy-card-img-2 {
+  opacity: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .gy-card:hover .gy-card-img-2 {
+    opacity: 1;
+  }
+  .gy-card:hover .gy-card-img-1.has-swap {
+    opacity: 0;
+  }
+  .gy-card:hover .gy-card-img-1:not(.has-swap) {
+    transform: scale(1.05);
+  }
+}
+/* Square add button on the image (minimal cards, mini cards) */
+.gy-add-fab {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--gy-btn-r);
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+  box-shadow: var(--gy-shadow-sm);
+  transition: background-color var(--gy-dur), transform 120ms var(--gy-ease);
+}
+.gy-add-fab:hover {
+  background: var(--gy-btn-hover);
+}
+.gy-add-fab:active {
+  transform: scale(0.94);
+}
+.gy-add-fab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+/* Rail arrows */
+.gy-arrow {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--gy-r);
+  border: 1.5px solid var(--gy-line-strong);
+  color: var(--gy-ink);
+  transition: background-color var(--gy-dur), color var(--gy-dur), border-color var(--gy-dur), opacity var(--gy-dur);
+}
+.gy-arrow:hover:not(:disabled) {
+  background: var(--gy-btn);
+  border-color: var(--gy-btn);
+  color: var(--gy-btn-ink);
+}
+.gy-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.gy-arrow svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* ─── Product grids (columns follow Studio → المنتجات في الصف) ─────────── */
+
+.gy-pgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+@media (min-width: 768px) {
+  .gy-pgrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gy-gap);
+  }
+}
+@media (min-width: 1024px) {
+  .gy-pgrid {
+    grid-template-columns: repeat(min(var(--store-grid-cols, 4), 4), minmax(0, 1fr));
+  }
+  [data-sidebar="true"] .gy-pgrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1280px) {
+  .gy-pgrid {
+    grid-template-columns: repeat(var(--store-grid-cols, 4), minmax(0, 1fr));
+  }
+  [data-sidebar="true"] .gy-pgrid {
+    grid-template-columns: repeat(max(calc(var(--store-grid-cols, 4) - 1), 3), minmax(0, 1fr));
+  }
+}
+[data-view="list"] .gy-pgrid {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* Swipe rails: 2 cards on phones, then 3 / 4 / the merchant's columns */
+.gy-prail > li {
+  width: calc((100% - 0.625rem) / 2);
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .gy-prail > li {
+    width: calc((100% - var(--gy-gap) * 2) / 3);
+  }
+}
+@media (min-width: 1024px) {
+  .gy-prail > li {
+    width: calc((100% - var(--gy-gap) * 3) / 4);
+  }
+}
+@media (min-width: 1280px) {
+  .gy-prail > li {
+    width: calc((100% - var(--gy-gap) * (var(--store-grid-cols, 4) - 1)) / var(--store-grid-cols, 4));
+  }
+}
+
+/* ─── Section header ────────────────────────────────────────────────────── */
+
+.gy-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+@media (min-width: 640px) {
+  .gy-head {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Page head: the title big on knurled steel, a slanted window on the end */
+.gy-pagehead {
+  position: relative;
+  overflow: hidden;
+  margin-block-start: 1rem;
+  background: var(--gy-card);
+  border: 1px solid var(--gy-line);
+  border-radius: var(--gy-r);
+  color: var(--gy-ink);
+}
+.gy-pagehead::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 0.375rem;
+  background: var(--gy-btn);
+}
+.gy-pagehead-art {
+  position: relative;
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 24%;
+  min-width: 9rem;
+  max-width: 20rem;
+  margin-inline-end: -1px;
+  background: var(--gy-band);
+  clip-path: polygon(0 0, 88% 0, 100% 100%, 0 100%);
+}
+[dir="ltr"] .gy-pagehead-art {
+  clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ─── Offer tape: two crossed bands of gym tape ─────────────────────────── */
+
+.gy-tape-wrap {
+  position: relative;
+  overflow: hidden;
+  padding-block: 1.5rem;
+}
+.gy-tape {
+  position: relative;
+  z-index: 1;
+  width: 104%;
+  margin-inline: -2%;
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+  transform: rotate(calc(-1.4deg * var(--gy-dir)));
+  box-shadow: 0 14px 30px -18px rgb(0 0 0 / 0.8);
+}
+.gy-tape--under {
+  position: absolute;
+  inset-block-start: 50%;
+  z-index: 0;
+  height: 2.75rem;
+  margin-block-start: -1.375rem;
+  background: var(--gy-chalk);
+  transform: rotate(calc(1.6deg * var(--gy-dir)));
+  box-shadow: none;
+}
+.gy-tape-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-inline-end: 1.5rem;
+  font-size: clamp(1rem, 1.7vw, 1.375rem);
+  font-weight: 900;
+  white-space: nowrap;
+}
+.gy-tape-item i {
+  width: 1.5rem;
+  height: 0.5rem;
+  background: currentColor;
+  opacity: 0.85;
+  transform: skewX(var(--gy-slant));
+}
+
+/* Scrolling strips */
+.gy-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: gy-marquee var(--gy-marquee-dur, 40s) linear infinite;
+}
+.gy-marquee:hover .gy-marquee-track,
+.gy-marquee:focus-within .gy-marquee-track {
+  animation-play-state: paused;
+}
+
+/* ─── Hero ──────────────────────────────────────────────────────────────── */
+
+.gy-poster {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(70% 90% at var(--gy-glow-x, 22%) 42%, color-mix(in srgb, var(--primary) 26%, transparent), transparent 70%), var(--gy-bg);
+  color: var(--gy-ink);
+}
+[dir="ltr"] .gy-poster {
+  --gy-glow-x: 78%;
+}
+.gy-poster-ghost {
+  position: absolute;
+  inset-block-end: -0.16em;
+  inset-inline: 0;
+  z-index: -1;
+  overflow: hidden;
+  font-size: clamp(6rem, 21vw, 22rem);
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+  --gy-outline-line: color-mix(in srgb, var(--foreground) 12%, var(--background));
+  pointer-events: none;
+}
+.gy-poster-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: center;
+  padding-block: 2.5rem 3.5rem;
+}
+@media (min-width: 1024px) {
+  .gy-poster-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 3rem;
+    min-height: min(84dvh, 52rem);
+    padding-block: 3.5rem 5rem;
+  }
+}
+.gy-poster-stats {
+  display: flex;
+  gap: 1.75rem;
+  margin-top: 2rem;
+}
+.gy-poster-stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  padding-inline-start: 0.875rem;
+  border-inline-start: 3px solid var(--gy-btn);
+}
+.gy-poster-stats dd {
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--gy-ink);
+  font-variant-numeric: tabular-nums;
+}
+.gy-poster-stats dt {
+  font-size: 0.8125rem;
+  color: var(--gy-quiet);
+}
+
+/* The product stage: a turning plate, a red slash, chalk plates stacked on it */
+.gy-stage {
+  position: relative;
+  aspect-ratio: 1 / 0.92;
+  min-width: 0;
+  max-width: 38rem;
+  width: 100%;
+  margin-inline: auto;
+}
+.gy-stage-slash {
+  position: absolute;
+  inset-block: -14%;
+  inset-inline: 30% 24%;
+  z-index: -1;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant));
+}
+.gy-weight {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: auto;
+  color: var(--gy-ink);
+}
+.gy-stage .gy-weight {
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  width: 100%;
+  margin-block-start: -50%;
+  margin-inline-start: -50%;
+}
+.gy-stage-item {
+  position: absolute;
+  display: block;
+  width: var(--w);
+  inset-inline-start: var(--x);
+  inset-block-start: var(--y);
+  z-index: var(--z);
+  transition: transform 300ms var(--gy-ease);
+}
+.gy-stage-item:hover {
+  transform: translateY(-6px);
+}
+.gy-stage-plate {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--gy-plate);
+  border-radius: var(--gy-r);
+  box-shadow: var(--gy-shadow);
+}
+.gy-stage-tag {
+  position: absolute;
+  inset-block-end: -0.625rem;
+  inset-inline-start: 0.625rem;
+  inset-inline-end: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--gy-bg);
+  border: 1px solid var(--gy-line-strong);
+  border-radius: var(--gy-r-sm);
+  box-shadow: var(--gy-shadow-sm);
+  font-size: 0.8125rem;
+}
+
+/* Banner slideshow */
+.gy-slides {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--gy-deep);
+  color: #fff;
+}
+.gy-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+}
+.gy-slide[data-active="true"] {
+  z-index: 1;
+  opacity: 1;
+}
+.gy-slide-copy > * {
+  opacity: 0;
+}
+.gy-slide[data-active="true"] .gy-slide-copy > * {
+  animation: gy-copy-in 620ms var(--gy-ease) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 140ms);
+}
+.gy-wipe {
+  position: absolute;
+  inset-block: -6%;
+  inset-inline-start: -58%;
+  z-index: 3;
+  width: 46%;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant));
+  pointer-events: none;
+  animation: gy-wipe 760ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+.gy-slides-bar {
+  position: absolute;
+  inset-block-end: 1rem;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.gy-tick {
+  position: relative;
+  display: block;
+  width: 1.75rem;
+  height: 0.3125rem;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.32);
+  transform: skewX(var(--gy-slant));
+}
+.gy-tick[data-active="true"] {
+  width: 3.5rem;
+}
+.gy-tick[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gy-btn);
+  transform-origin: var(--gy-origin, right);
+  animation: gy-fill var(--gy-tick, 6s) linear both;
+}
+[dir="ltr"] .gy-tick {
+  --gy-origin: left;
+}
+.gy-tick[data-playing="false"]::after {
+  animation: none;
+}
+
+/* Split: copy on the page, the banner behind a slanted edge */
+.gy-split-img {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: 62%;
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+}
+[dir="ltr"] .gy-split-img {
+  clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+}
+@media (max-width: 1023px) {
+  .gy-split-img {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 15rem;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 92%);
+  }
+  [dir="ltr"] .gy-split-img {
+    clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+  }
+}
+
+/* ─── Category wall / plates (follows Studio → شكل التصنيفات) ───────────── */
+
+.gy-cat-icon {
+  display: grid;
+  place-items: center;
+  background: var(--gy-band);
+  color: var(--gy-link);
+}
+.gy-cat-icon svg {
+  width: 42%;
+  height: 42%;
+  stroke-width: 1.5;
+}
+.gy-wall {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 10rem;
+  gap: var(--gy-gap);
+}
+.gy-wall > li:first-child {
+  grid-column: span 2;
+}
+.gy-wall > li[data-wide="phone"] {
+  grid-column: span 2;
+}
+@media (min-width: 1024px) {
+  .gy-wall {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: clamp(11rem, 15vw, 14.5rem);
+  }
+  .gy-wall > li,
+  .gy-wall > li[data-wide="phone"] {
+    grid-column: span var(--span, 1);
+  }
+  .gy-wall > li:first-child {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  .gy-wall[data-flat="true"] > li:first-child {
+    grid-column: span var(--span, 1);
+    grid-row: span 1;
+  }
+}
+.gy-wall-tile {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--gy-line);
+  border-radius: var(--gy-r);
+  background: var(--gy-card);
+  color: #fff;
+  transition: border-color var(--gy-dur);
+}
+.gy-wall-tile[data-image="false"] {
+  color: var(--gy-ink);
+}
+.gy-wall-tile:hover {
+  border-color: var(--gy-btn);
+}
+.gy-wall-tile[data-image="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.86), rgb(0 0 0 / 0.12) 62%);
+}
+/* Red floods up the tile on hover, on a slant */
+.gy-wall-flood {
+  position: absolute;
+  inset: -2% -30%;
+  z-index: 1;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant)) translateY(102%);
+  transition: transform 380ms var(--gy-ease);
+}
+.gy-wall-tile:hover .gy-wall-flood {
+  transform: skewX(var(--gy-slant)) translateY(0);
+}
+.gy-wall-tile:hover {
+  color: var(--gy-btn-ink);
+}
+.gy-wall-tile .gy-wall-icon {
+  position: absolute;
+  inset-block-start: 0.875rem;
+  inset-inline-end: 0.875rem;
+  z-index: 2;
+  width: clamp(2.75rem, 4.5vw, 4.25rem);
+  height: auto;
+  color: var(--gy-link);
+  transition: transform 380ms var(--gy-ease);
+}
+.gy-wall-tile:hover .gy-wall-icon {
+  transform: rotate(calc(-10deg * var(--gy-dir))) scale(1.08);
+}
+.gy-wall-tile:hover .gy-wall-icon {
+  color: inherit;
+}
+.gy-wall-copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: auto;
+  padding: 0.875rem 1rem;
+}
+
+/* Circle: every shelf is a bumper plate */
+.gy-wplate {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--gy-steel-2) 0 40%, var(--gy-bg) 41% 44%, var(--gy-steel-1) 45% 68%, var(--gy-steel-2) 69% 90%, var(--gy-btn) 91% 95%, var(--gy-steel-2) 96%);
+  transition: transform 500ms var(--gy-ease);
+}
+.gy-wplate-hub {
+  position: relative;
+  width: 62%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--gy-plate);
+  box-shadow: 0 0 0 3px var(--gy-bg);
+  transition: transform 500ms var(--gy-ease);
+}
+.group:hover .gy-wplate {
+  transform: rotate(calc(-24deg * var(--gy-dir)));
+}
+.group:hover .gy-wplate-hub {
+  transform: rotate(calc(24deg * var(--gy-dir)));
+}
+
+/* ─── Podium (best sellers) ─────────────────────────────────────────────── */
+
+.gy-podium {
+  display: grid;
+  gap: var(--gy-gap);
+}
+@media (min-width: 1024px) {
+  .gy-podium {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+.gy-champ {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  overflow: hidden;
+  border-radius: var(--gy-r);
+  border: 1px solid var(--gy-line);
+  background: var(--gy-card);
+  color: var(--gy-ink);
+}
+@media (min-width: 640px) {
+  .gy-champ {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+.gy-champ-plate {
+  position: relative;
+  min-height: 19rem;
+  overflow: hidden;
+  background: var(--gy-plate);
+}
+.gy-champ-plate::before {
+  content: "";
+  position: absolute;
+  inset-block: -10%;
+  inset-inline-start: -7%;
+  width: 24%;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant));
+}
+.gy-ranks > li + li {
+  border-block-start: 1px solid var(--gy-line);
+}
+.gy-rank-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.75rem 4.75rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  transition: background-color var(--gy-dur);
+}
+.gy-rank-row:hover {
+  background: var(--gy-tint);
+}
+.gy-rank-num {
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  color: var(--gy-link);
+  font-variant-numeric: tabular-nums;
+}
+/* Ranks past the top five keep counting in a row that fills the width */
+.gy-ranks-more {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+  gap: 1px;
+  margin-top: var(--gy-gap);
+  overflow: hidden;
+  border: 1px solid var(--gy-line);
+  border-radius: var(--gy-r);
+  background: var(--gy-line);
+}
+.gy-ranks-more > li {
+  background: var(--gy-card);
+}
+/* A short product row: the title takes the columns the cards don't need */
+@media (min-width: 1024px) {
+  .gy-few {
+    display: grid;
+    grid-template-columns: repeat(var(--store-grid-cols, 4), minmax(0, 1fr));
+    gap: var(--gy-gap);
+    align-items: stretch;
+  }
+  .gy-few-head {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    grid-column: span calc(var(--store-grid-cols, 4) - var(--n));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 1.5rem;
+    border-radius: var(--gy-r);
+    background: var(--gy-card);
+    border: 1px solid var(--gy-line);
+  }
+  .gy-few-head .gy-weight {
+    inset-block-start: -18%;
+    inset-inline-end: -14%;
+    width: min(26rem, 78%);
+  }
+}
+@media (max-width: 1023px) {
+  .gy-few-head .gy-weight {
+    display: none;
+  }
+}
+
+/* ─── Deals poster (urgency) ────────────────────────────────────────────── */
+
+.gy-deals {
+  position: relative;
+  isolation: isolate;
+  margin-block: calc(var(--gy-section) / 2);
+  padding-block: 3.5rem;
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+  clip-path: polygon(0 1.75rem, 100% 0, 100% calc(100% - 1.75rem), 0 100%);
+}
+[dir="ltr"] .gy-deals {
+  clip-path: polygon(0 0, 100% 1.75rem, 100% 100%, 0 calc(100% - 1.75rem));
+}
+@media (min-width: 1024px) {
+  .gy-deals {
+    padding-block: 5.5rem;
+    clip-path: polygon(0 3.5rem, 100% 0, 100% calc(100% - 3.5rem), 0 100%);
+  }
+  [dir="ltr"] .gy-deals {
+    clip-path: polygon(0 0, 100% 3.5rem, 100% 100%, 0 calc(100% - 3.5rem));
+  }
+}
+.gy-deals-ghost {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline: 0;
+  z-index: -1;
+  overflow: hidden;
+  transform: translateY(-50%);
+  font-size: clamp(7rem, 24vw, 26rem);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+  color: color-mix(in srgb, #000 8%, transparent);
+  pointer-events: none;
+}
+
+/* Countdown: gym-timer digits */
+.gy-count {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-width: 3.75rem;
+  height: 4rem;
+  padding-inline: 0.375rem;
+  border-radius: var(--gy-r-sm);
+  background: var(--gy-count-bg, #101012);
+  color: var(--gy-count-ink, #f4f2ee);
+  font-size: 1.625rem;
+  font-weight: 900;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.gy-count small {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  opacity: 0.72;
+}
+@media (min-width: 768px) {
+  .gy-count {
+    min-width: 5.25rem;
+    height: 5.5rem;
+    font-size: 2.5rem;
+  }
+  .gy-count small {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ─── Scoreboard / specs / posters ──────────────────────────────────────── */
+
+.gy-score {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-block: 1px solid var(--gy-line-strong);
+  color: var(--gy-ink);
+}
+.gy-score > li {
+  position: relative;
+  padding: 1.5rem 1rem;
+}
+.gy-score > li + li {
+  border-inline-start: 1px solid var(--gy-line);
+}
+.gy-score > li:nth-child(odd) {
+  border-inline-start: 0;
+}
+.gy-score > li:nth-child(n + 3) {
+  border-block-start: 1px solid var(--gy-line);
+}
+@media (min-width: 1024px) {
+  .gy-score {
+    grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr));
+  }
+  .gy-score > li {
+    padding: 2.5rem 2rem;
+  }
+  .gy-score > li:nth-child(odd) {
+    border-inline-start: 1px solid var(--gy-line);
+  }
+  .gy-score > li:first-child {
+    border-inline-start: 0;
+  }
+  .gy-score > li:nth-child(n + 3) {
+    border-block-start: 0;
+  }
+}
+.gy-score-value {
+  display: block;
+  font-size: clamp(2.5rem, 6vw, 5.25rem);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.gy-spec {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  padding: 1.5rem;
+  border-block-start: 3px solid var(--gy-btn);
+  background: var(--gy-card);
+}
+.gy-spec-num {
+  position: absolute;
+  inset-block-start: 0.05em;
+  inset-inline-end: 0.12em;
+  font-size: 5.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--gy-band);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.gy-spec-icon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  background: var(--gy-chalk);
+  color: var(--gy-chalk-ink);
+  font-size: 1.5rem;
+  line-height: 1;
+  border-radius: var(--gy-r-sm);
+}
+.gy-quote {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 1.5rem;
+  background: var(--gy-card);
+  border: 1px solid var(--gy-line);
+  border-radius: var(--gy-r);
+}
+.gy-quote-mark {
+  position: absolute;
+  inset-block-start: -1.5rem;
+  inset-inline-end: 0.75rem;
+  font-size: 7.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--gy-btn);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* Collections: tall poster tiles; the one under the cursor takes the room */
+.gy-posters {
+  display: grid;
+  gap: var(--gy-gap);
+}
+@media (min-width: 768px) {
+  .gy-posters {
+    display: flex;
+    min-height: clamp(24rem, 36vw, 34rem);
+  }
+  .gy-posters > li {
+    min-width: 0;
+    flex: 1 1 0;
+    transition: flex-grow 500ms var(--gy-ease);
+  }
+  .gy-posters > li:hover {
+    flex-grow: 1.7;
+  }
+}
+.gy-poster-tile {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  height: 100%;
+  min-height: 15rem;
+  overflow: hidden;
+  border-radius: var(--gy-r);
+  background: var(--gy-card);
+  color: #fff;
+}
+.gy-poster-tile[data-image="false"] {
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+}
+
+/* Merchant banner (Studio section): photo, slanted foot */
+.gy-banner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: clamp(24rem, 42vw, 40rem);
+  overflow: hidden;
+  margin-block: calc(var(--gy-section) / 2);
+  color: #fff;
+  background: var(--gy-deep);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2.25rem), 0 100%);
+}
+[dir="ltr"] .gy-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 2.25rem));
+}
+.gy-banner[data-image="false"] {
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+}
+
+/* Calculator */
+.gy-calc {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  border: 1px solid var(--gy-line);
+  border-radius: var(--gy-r);
+  background: var(--gy-card);
+  color: var(--gy-ink);
+}
+@media (min-width: 1024px) {
+  .gy-calc {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  }
+}
+.gy-calc-result {
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+}
+.gy-range {
+  width: 100%;
+  height: 2.75rem;
+  background: transparent;
+  appearance: none;
+  cursor: pointer;
+}
+.gy-range::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  background: linear-gradient(to var(--gy-range-to, left), var(--gy-btn) var(--p, 50%), var(--gy-line-strong) var(--p, 50%));
+}
+.gy-range::-moz-range-track {
+  height: 0.5rem;
+  background: var(--gy-line-strong);
+}
+.gy-range::-moz-range-progress {
+  height: 0.5rem;
+  background: var(--gy-btn);
+}
+.gy-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.5rem;
+  height: 2.25rem;
+  margin-top: -0.875rem;
+  background: var(--gy-ink);
+  border: 3px solid var(--gy-btn);
+  border-radius: var(--gy-r-sm);
+  transform: skewX(var(--gy-slant));
+}
+.gy-range::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.875rem;
+  background: var(--gy-ink);
+  border: 3px solid var(--gy-btn);
+  border-radius: var(--gy-r-sm);
+}
+[dir="ltr"] .gy-range {
+  --gy-range-to: right;
+}
+
+/* Studio canvas only: where an empty section will appear */
+.gy-studio-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2.25rem 1.5rem;
+  border: 2px dashed var(--gy-line-strong);
+  border-radius: var(--gy-r);
+  color: var(--gy-quiet);
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+/* ─── Drawers & dialogs (Radix data-state) ──────────────────────────────── */
+
+.gy-drawer[data-state="open"] {
+  animation: gy-drawer-in 420ms var(--gy-ease) both;
+}
+.gy-drawer[data-state="closed"] {
+  animation: gy-drawer-out 260ms var(--gy-ease) both;
+}
+.gy-drawer--start[data-state="open"] {
+  animation-name: gy-drawer-in-start;
+}
+.gy-drawer--start[data-state="closed"] {
+  animation-name: gy-drawer-out-start;
+}
+.gy-modal[data-state="open"] {
+  animation: gy-modal-in 300ms var(--gy-ease) both;
+}
+.gy-modal[data-state="closed"] {
+  animation: gy-fade 180ms ease-in reverse both;
+}
+@media (max-width: 1023px) {
+  .gy-modal--sheet[data-state="open"] {
+    animation: gy-sheet-in 380ms var(--gy-ease) both;
+  }
+  .gy-modal--sheet[data-state="closed"] {
+    animation: gy-sheet-out 240ms var(--gy-ease) both;
+  }
+}
+.gy-scrim {
+  background: var(--gy-scrim);
+}
+.gy-scrim[data-state="open"] {
+  animation: gy-fade 300ms ease-out both;
+}
+.gy-scrim[data-state="closed"] {
+  animation: gy-fade 200ms ease-in reverse both;
+}
+[data-state="open"] .gy-stagger > * {
+  animation: gy-rise 420ms var(--gy-ease) both;
+  animation-delay: calc(var(--i, 0) * 35ms + 100ms);
+}
+
+/* ─── Details (accordions) ──────────────────────────────────────────────── */
+
+.gy-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.gy-details > summary::-webkit-details-marker {
+  display: none;
+}
+.gy-chev {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  transition: transform 300ms var(--gy-ease);
+}
+.gy-details[open] > summary .gy-chev {
+  transform: rotate(180deg);
+}
+@supports (interpolate-size: allow-keywords) {
+  .gy-details {
+    interpolate-size: allow-keywords;
+  }
+  .gy-details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition: block-size 320ms var(--gy-ease), content-visibility 320ms allow-discrete;
+  }
+  .gy-details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* ─── Skeleton ──────────────────────────────────────────────────────────── */
+
+.gy-skel {
+  border-radius: var(--gy-r-sm);
+  background: linear-gradient(90deg, var(--gy-band) 25%, var(--gy-line) 50%, var(--gy-band) 75%);
+  background-size: 300% 100%;
+  animation: gy-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+
+.gy-utility {
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+}
+.gy-header {
+  background: color-mix(in srgb, var(--gy-bg) 90%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  color: var(--gy-ink);
+  border-bottom: 1px solid var(--gy-line);
+  transition: transform 350ms var(--gy-ease), box-shadow 350ms var(--gy-ease);
+}
+.gy-header[data-hidden="true"] {
+  transform: translateY(-100%);
+}
+.gy-header[data-stuck="true"] {
+  box-shadow: 0 14px 30px -22px rgb(0 0 0 / 0.9);
+}
+.gy-cart-dot {
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+  box-shadow: 0 0 0 2px var(--gy-bg);
+}
+.gy-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--gy-ink);
+  white-space: nowrap;
+  transition: color var(--gy-dur);
+}
+.gy-nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0.75rem;
+  inset-block-end: 0.375rem;
+  height: 0.1875rem;
+  background: var(--gy-btn);
+  transform: skewX(var(--gy-slant)) scaleX(0);
+  transform-origin: var(--gy-origin, right);
+  transition: transform var(--gy-dur) var(--gy-ease);
+}
+[dir="ltr"] .gy-nav-link::after {
+  --gy-origin: left;
+}
+.gy-nav-link:hover::after,
+.gy-nav-link[aria-expanded="true"]::after,
+.gy-nav-link[aria-current="page"]::after {
+  transform: skewX(var(--gy-slant)) scaleX(1);
+}
+.gy-nav-link svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--gy-link);
+}
+.gy-announce > * {
+  animation: gy-rise 450ms var(--gy-ease) both;
+}
+
+/* Back-to-top */
+.gy-top {
+  position: fixed;
+  inset-inline-end: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  width: 2.875rem;
+  height: 2.875rem;
+  border-radius: var(--gy-r);
+  background: var(--gy-btn);
+  color: var(--gy-btn-ink);
+  box-shadow: var(--gy-shadow-sm);
+  transition: opacity 300ms var(--gy-ease), transform 300ms var(--gy-ease), background-color var(--gy-dur);
+}
+.gy-top:hover {
+  background: var(--gy-btn-hover);
+}
+.gy-top[data-show="false"] {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+/* Footer: the store's name as one huge outlined line */
+.gy-footer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--gy-deep);
+  border-block-start: 4px solid var(--gy-btn);
+  color: var(--gy-text);
+}
+.gy-footer-word {
+  display: block;
+  overflow: hidden;
+  margin-block-end: -0.2em;
+  font-size: clamp(4rem, 15vw, 15rem);
+  line-height: 1.15;
+  white-space: nowrap;
+  text-align: center;
+  --gy-outline-fill: var(--gy-deep);
+  --gy-outline-line: var(--gy-line-strong);
+  user-select: none;
+  pointer-events: none;
+}
+
+.gy-tab-panel[data-state="active"] {
+  animation: gy-rise 300ms var(--gy-ease) both;
+}
+}
+
+/* Shared checkout form follows the theme's radii */
+.gy-checkout :where(.rounded-xl, .rounded-2xl, .rounded-lg) {
+  border-radius: var(--gy-r);
+}
+
+/* ─── Motion ────────────────────────────────────────────────────────────── */
+/* Scroll-driven, so server-rendered markup needs no script. Off for "بدون"
+   motion, in browsers without scroll timelines and for reduced-motion users.
+   "حيوية" adds the heavier moves: the plate turns with the page, the ghost
+   word slides, sections kick in harder. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-gym:not([data-motion="none"]) .gy-reveal {
+      animation: gy-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--d, 0) * 5%) entry calc(38% + var(--d, 0) * 5%);
+    }
+    .theme-gym[data-motion="dynamic"] .gy-reveal {
+      animation-name: gy-reveal-hard;
+    }
+    .theme-gym[data-motion="dynamic"] .gy-weight {
+      animation: gy-turn linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 1600px;
+    }
+    .theme-gym[data-motion="dynamic"] .gy-poster-ghost,
+    .theme-gym[data-motion="dynamic"] .gy-footer-word {
+      animation: gy-drift linear both;
+      animation-timeline: view();
+    }
+    .theme-gym[data-motion="dynamic"] .gy-stage-slash {
+      animation: gy-slash-grow 900ms var(--gy-ease) both;
+    }
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .theme-gym[data-motion="dynamic"] .gy-stage-item {
+    animation: gy-stage-in 720ms var(--gy-ease) both;
+    animation-delay: calc(var(--z) * 110ms);
+  }
+}
+.theme-gym[data-motion="none"] *,
+.theme-gym[data-motion="none"] *::before,
+.theme-gym[data-motion="none"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+.theme-gym[data-motion="none"] .gy-marquee-track {
+  animation: none !important;
+}
+.theme-gym[data-motion="none"] .gy-wipe {
+  display: none;
+}
+
+@keyframes gy-reveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gy-reveal-hard {
+  from { opacity: 0; transform: translateY(34px) skewY(calc(1.6deg * var(--gy-dir))); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gy-turn {
+  to { transform: rotate(calc(-200deg * var(--gy-dir))); }
+}
+@keyframes gy-drift {
+  from { transform: translateX(calc(5% * var(--gy-dir))); }
+  to { transform: translateX(calc(-5% * var(--gy-dir))); }
+}
+@keyframes gy-slash-grow {
+  from { transform: skewX(var(--gy-slant)) scaleY(0); }
+  to { transform: skewX(var(--gy-slant)) scaleY(1); }
+}
+@keyframes gy-stage-in {
+  from { opacity: 0; translate: 0 30px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes gy-copy-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gy-wipe {
+  from { translate: 0 0; }
+  to { translate: calc(-360% * var(--gy-dir)) 0; }
+}
+@keyframes gy-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes gy-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes gy-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gy-modal-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gy-drop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+/* Drawers open from the reading end (cart) or the reading start (menu) */
+@keyframes gy-drawer-in {
+  from { transform: translateX(calc(-100% * var(--gy-dir))); }
+  to { transform: none; }
+}
+@keyframes gy-drawer-out {
+  to { transform: translateX(calc(-100% * var(--gy-dir))); }
+}
+@keyframes gy-drawer-in-start {
+  from { transform: translateX(calc(100% * var(--gy-dir))); }
+  to { transform: none; }
+}
+@keyframes gy-drawer-out-start {
+  to { transform: translateX(calc(100% * var(--gy-dir))); }
+}
+@keyframes gy-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes gy-sheet-out {
+  to { transform: translateY(100%); }
+}
+@keyframes gy-shimmer {
+  to { background-position: -150% 0; }
+}
+@keyframes gy-marquee {
+  to { transform: translateX(calc(50% * var(--gy-dir))); }
+}
+@keyframes gy-bump {
+  40% { transform: scale(1.3); }
+}
+@keyframes gy-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gy-wa) 45%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--gy-wa) 0%, transparent); }
+}
+
+.gy-bump {
+  animation: gy-bump 420ms var(--gy-ease);
+}
+.gy-pop {
+  animation: gy-drop 220ms var(--gy-ease) both;
+}
+.gy-live-dot {
+  animation: gy-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-gym *,
+  .theme-gym *::before,
+  .theme-gym *::after,
+  .gy-portal *,
+  .gy-portal *::before,
+  .gy-portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .gy-marquee-track {
+    animation: none !important;
+  }
+  .gy-wipe {
+    display: none;
+  }
+}
+
+/* ─── Toasts (rendered outside the store root) ──────────────────────────── */
+
+.gy-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: var(--width, 356px);
+  max-width: calc(100vw - 2rem);
+  padding: 0.875rem 1rem;
+  border-radius: 0.25rem;
+  border-inline-start: 4px solid #e10600;
+  background: #18181b;
+  color: #f4f2ee;
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.7);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.gy-toast [data-title] {
+  font-weight: 800;
+}
+.gy-toast [data-description] {
+  color: #b9b7b2;
+  font-size: 0.8125rem;
+}
+.gy-toast [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  background: #2a2a2e;
+  color: #3fd18a;
+}
+.gy-toast--error [data-icon] {
+  color: #ff6b5e;
+}

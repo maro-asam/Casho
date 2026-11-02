@@ -281,7 +281,11 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           data-card={resolvedTheme.layout.productCardStyle}
           data-density={resolvedTheme.layout.density}
           data-motion={resolvedTheme.layout.animations}
-          className={`store-theme-root ${theme.rootClassName} flex min-h-dvh flex-col`}
+          // `relative` makes the root the containing block of sr-only elements (the
+          // skip link, hidden labels). Without it they hang off the page itself,
+          // body's overflow-x-hidden can't clip them, and in an English (ltr) store
+          // inside the rtl document their -1px margin scrolls the page sideways.
+          className={`store-theme-root ${theme.rootClassName} relative flex min-h-dvh flex-col`}
         >
           <a
             href="#store-main"

@@ -8,6 +8,7 @@
 import { isThemePresetId, type ThemePresetId } from "@/types/store-theme.types";
 import { classicTheme } from "./classic";
 import { duneTheme } from "./dune";
+import { gymTheme } from "./gym";
 import { madaTheme } from "./mada";
 import { maximizeTheme } from "./maximize";
 import { medicalTheme } from "./medical";
@@ -23,6 +24,7 @@ const THEMES: Record<ThemePresetId, StorefrontTheme> = {
   maximize: maximizeTheme,
   cello: celloTheme,
   medical: medicalTheme,
+  gym: gymTheme,
 };
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {

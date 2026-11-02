@@ -70,6 +70,15 @@ import {
   MedicalPageSkeleton,
   MedicalProductSkeleton,
 } from "./medical/states";
+import {
+  GymCategoriesSkeleton,
+  GymGridPageSkeleton,
+  GymHomeSkeleton,
+  GymListingSkeleton,
+  GymNotFound,
+  GymPageSkeleton,
+  GymProductSkeleton,
+} from "./gym/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -136,6 +145,15 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     categories: MedicalCategoriesSkeleton,
     grid: MedicalGridPageSkeleton,
     "not-found": MedicalNotFound,
+  },
+  gym: {
+    home: GymHomeSkeleton,
+    listing: GymListingSkeleton,
+    product: GymProductSkeleton,
+    page: GymPageSkeleton,
+    categories: GymCategoriesSkeleton,
+    grid: GymGridPageSkeleton,
+    "not-found": GymNotFound,
   },
 };
 

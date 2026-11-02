@@ -289,7 +289,9 @@ export function PlateImage({
   priority?: boolean;
   className?: string;
 }) {
-  if (!src) {
+  // Products saved without a photo carry the dashboard's placeholder path —
+  // give them Riwaq's own mark, like the other themes do.
+  if (!src || src.includes("product-placeholder")) {
     return (
       <span aria-hidden className="absolute inset-0 grid place-items-center text-(--rq-rule-strong)">
         <StarMark className="size-[18%] min-w-4 max-w-10" />

@@ -232,60 +232,38 @@
 }
 [dir="ltr"] .al-hero-xl { letter-spacing: -0.025em; line-height: 1.04; }
 
-@keyframes al-drift {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-44%, -56%) scale(1.08); }
+/* Hero stage. All transform/opacity, one-shot except the idle float, laser
+   and badge. Timeline: the tag's pulse lands at ~1.7s (48 → 47), the store's
+   at ~2.9s (47 → 46); the counter's keyframes are timed to match. */
+@keyframes al-laser { to { transform: translateY(0.3em); } }
+@keyframes al-ping { 0%, 70%, 100% { transform: scale(1); } 80% { transform: scale(1.35); } }
+@keyframes al-chip-in { from { opacity: 0; transform: scale(0.6) rotate(var(--tilt, 0deg)); } }
+@keyframes al-float { 50% { transform: translateY(-0.05em); } }
+@keyframes al-pulse {
+  from { transform: translateX(0); opacity: 0; }
+  15%, 85% { opacity: 1; }
+  to { transform: translateX(var(--to)); opacity: 0; }
 }
-@keyframes al-drift-2 {
-  0%, 100% { transform: translate(-50%, -50%) scale(1.05); }
-  50% { transform: translate(-58%, -44%) scale(0.95); }
+@keyframes al-tick {
+  0%, 50% { transform: translateY(0); }
+  56%, 88% { transform: translateY(-33.333%); }
+  94%, 100% { transform: translateY(-66.667%); }
 }
-.al-aurora { animation: al-drift 14s ease-in-out infinite; }
-.al-aurora-2 { animation: al-drift-2 18s ease-in-out infinite; }
-
-/* Hero giant type: luminous at the top, dissolving into the stage light
-   where the devices float over it, with one pass of light across it
-   (reading direction). Background positions 87% / 13% put the highlight
-   band just off one edge / just off the other. */
-.al .al-giant {
-  font-weight: 800;
-  line-height: 1.1;
-  background-image:
-    linear-gradient(100deg, transparent 42%, rgba(255, 255, 255, 0.8) 50%, transparent 58%),
-    linear-gradient(180deg, #ffffff 6%, #e4eaff 36%, #85a3ff 66%, rgba(51, 102, 255, 0.16) 96%);
-  background-size: 300% 100%, 100% 100%;
-  background-repeat: no-repeat;
-  background-position: 87% 0, 0 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: al-giant-sheen 1.6s 1.3s cubic-bezier(0.45, 0, 0.25, 1) both;
-}
-[dir="ltr"] .al .al-giant { letter-spacing: -0.045em; line-height: 0.98; }
-[dir="rtl"] .al .al-giant { background-position: 13% 0, 0 0; animation-name: al-giant-sheen-rtl; }
-@keyframes al-giant-sheen { from { background-position: 87% 0, 0 0; } to { background-position: 13% 0, 0 0; } }
-@keyframes al-giant-sheen-rtl { from { background-position: 13% 0, 0 0; } to { background-position: 87% 0, 0 0; } }
+.al-laser { animation: al-laser 1.2s ease-in-out infinite alternate; }
+.al-ping { animation: al-ping 2.4s ease-in-out infinite; }
+.al-chip { transform: rotate(var(--tilt, 0deg)); animation: al-chip-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.al-float { animation: al-float 6s ease-in-out infinite; }
+.al-pulse { animation: al-pulse 0.9s cubic-bezier(0.5, 0, 0.3, 1) both; }
+.al-tick { animation: al-tick 3.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @media (prefers-reduced-motion: reduce) {
-  .al .al-giant { animation: none; }
-}
-
-/* Hero dashboard: orders that just arrived (data-live = how many) slide in tinted. */
-@keyframes al-row-in {
-  from { opacity: 0; transform: translateY(-12px); }
-}
-.al-live-orders[data-live="1"] .apple-rows > li:nth-child(-n + 1),
-.al-live-orders[data-live="2"] .apple-rows > li:nth-child(-n + 2) {
-  background: color-mix(in oklch, var(--primary) 7%, transparent);
-  animation: al-row-in 0.6s var(--al-ease) both;
-}
-
-/* Zig-zag tear on the bottom of the POS receipt */
-.al-receipt {
-  --zz: 7px;
-  mask:
-    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--zz)) 100%;
-  -webkit-mask:
-    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--zz)) 100%;
+  .al .al-laser,
+  .al .al-ping,
+  .al .al-chip,
+  .al .al-float,
+  .al .al-pulse,
+  .al .al-tick { animation: none !important; }
+  .al .al-pulse { opacity: 0; }
+  .al .al-tick { transform: translateY(-66.667%); }
 }
 
 @media (prefers-reduced-motion: reduce) {

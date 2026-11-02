@@ -1,5 +1,6 @@
 import {
   AlignLeft,
+  Calculator,
   Clock,
   FolderOpen,
   Image as ImageIcon,
@@ -16,7 +17,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import type { SectionKey } from "@/types/store-theme.types";
+import type { SectionKey, ThemePresetId } from "@/types/store-theme.types";
 import { cn } from "@/lib/utils";
 import { tr } from "@/lib/i18n/dashboard";
 import type { PanelId } from "./BuilderContext";
@@ -32,6 +33,8 @@ type SectionMeta = {
   group: SectionGroup;
   /** Where its data lives when it isn't edited here (banners, categories…). */
   source?: { label: string; href: string };
+  /** Offered only with these themes; omitted = every theme. */
+  themes?: ThemePresetId[];
 };
 
 export const SECTION_META: Record<SectionKey, SectionMeta> = {
@@ -143,6 +146,14 @@ export const SECTION_META: Record<SectionKey, SectionMeta> = {
     get description() { return tr("عنوان وفقرة — لأي رسالة عايز توصلها."); },
     group: "story",
   },
+  showCalculator: {
+    icon: Calculator,
+    tint: "bg-(--sys-red)",
+    get label() { return tr("حاسبة البروتين"); },
+    get description() { return tr("وزن وهدف، والعميل يعرف احتياجه ويدخل على قسم البروتين."); },
+    group: "sales",
+    themes: ["gym"],
+  },
 };
 
 export const SECTION_GROUP_LABELS: Record<SectionGroup, string> = {
@@ -151,8 +162,9 @@ export const SECTION_GROUP_LABELS: Record<SectionGroup, string> = {
   get story() { return tr("محتوى وقصة"); },
 };
 
-/** Every home section the Studio knows. */
-export const allSectionKeys = () => Object.keys(SECTION_META) as SectionKey[];
+/** Every home section the Studio offers with this theme. */
+export const allSectionKeys = (presetId: ThemePresetId) =>
+  (Object.keys(SECTION_META) as SectionKey[]).filter((k) => !SECTION_META[k].themes || SECTION_META[k].themes.includes(presetId));
 
 export const isSectionKey = (v: unknown): v is SectionKey => typeof v === "string" && v in SECTION_META;
 
@@ -313,6 +325,19 @@ function thumb(id: SectionKey) {
           <div className="flex w-3/4 gap-1">
             <div className="h-3 flex-1 rounded-full bg-card" />
             <div className={cn("h-3 w-6 rounded-full", accent)} />
+          </div>
+        </div>
+      );
+    case "showCalculator":
+      return (
+        <div className="flex h-full gap-1.5">
+          <div className={cn(tile, "flex flex-1 flex-col justify-center gap-1 p-1.5")}>
+            <div className={cn(bar, "h-1 w-2/3")} />
+            <div className={cn("h-1 w-full rounded-full", accent)} />
+            <div className={cn(bar, "h-2 w-full")} />
+          </div>
+          <div className={cn("grid flex-1 place-items-center rounded-[5px]", accent)}>
+            <div className="h-2.5 w-3/5 rounded-full bg-white/90" />
           </div>
         </div>
       );
