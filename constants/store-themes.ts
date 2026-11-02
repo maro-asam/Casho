@@ -31,6 +31,7 @@ export const THEME_CATEGORIES: Record<ThemeCategoryId, { label: string; descript
   home: { get label() { return tr("منزل وديكور"); }, get description() { return tr("أثاث، ديكور، وأدوات منزلية"); } },
   health: { get label() { return tr("صيدليات وصحة"); }, get description() { return tr("أدوية، فيتامينات، عناية شخصية، ومستلزمات طبية"); } },
   sports: { get label() { return tr("جيم ورياضة"); }, get description() { return tr("مكملات، أدوات جيم، ملابس رياضية، ومعدات"); } },
+  grocery: { get label() { return tr("سوبر ماركت وأكشاك"); }, get description() { return tr("سوبر ماركت، بقالة، أكشاك، خضار وفاكهة، ومنتجات يومية"); } },
 };
 
 export const THEME_CATEGORY_LIST = THEME_CATEGORY_IDS.map((id) => ({ id, ...THEME_CATEGORIES[id] }));
@@ -65,6 +66,7 @@ const DEFAULT_HOME_SECTIONS = {
   showRichText: false,
   // ── Theme-specific ────────────────────────────────────────────────────────
   showCalculator: false,
+  showShoppingList: false,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -620,6 +622,99 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
       },
     },
   },
+  // ── 9. Casho Market (supermarkets & kiosks · Apple's language, in orange) ─
+  // Adaptive: market.css mixes every surface from background / foreground, and
+  // darkTokens only swap those two plus the tints. See market/DESIGN.md.
+  market: {
+    id: "market",
+    get name() { return tr("كاشو ماركت"); },
+    get description() { return tr("ثيم سوبر ماركت وأكشاك بروح Apple: فاتح وغامق، أقسام زي أيقونات الموبايل، زرار + بيتحول لعدّاد على الكارت، شريط سفلي زي التطبيقات، وقايمة مشتريات تتبعت واتساب."); },
+    colorScheme: "light",
+    adaptive: true,
+    categories: ["grocery", "food"],
+    tokens: {
+      primary: "#f26a00",
+      primaryForeground: "#ffffff",
+      secondary: "#fff1e4",
+      secondaryForeground: "#7a3500",
+      background: "#ffffff",
+      foreground: "#1d1d1f",
+      surface: "#ffffff",
+      surfaceForeground: "#1d1d1f",
+      card: "#f5f5f7",
+      cardForeground: "#1d1d1f",
+      muted: "#ededf0",
+      mutedForeground: "#6e6e73",
+      border: "#e2e2e7",
+      accent: "#fff1e4",
+      accentForeground: "#a84a00",
+      heroOverlay: "linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,.28) 45%, rgba(0,0,0,0) 72%)",
+      radius: "1.125rem",
+      shadowSm: "0 1px 3px rgba(0,0,0,0.06)",
+      shadowMd: "0 8px 24px -8px rgba(0,0,0,0.12)",
+      shadowLg: "0 24px 56px -20px rgba(0,0,0,0.18)",
+      glowPrimary: "0 12px 28px -12px rgba(242,106,0,0.5)",
+    },
+    darkTokens: {
+      primary: "#ff9230",
+      primaryForeground: "#1f1000",
+      secondary: "#3a2410",
+      secondaryForeground: "#ffd9b5",
+      background: "#000000",
+      foreground: "#f5f5f7",
+      surface: "#1c1c1e",
+      surfaceForeground: "#f5f5f7",
+      card: "#1c1c1e",
+      cardForeground: "#f5f5f7",
+      muted: "#2c2c2e",
+      mutedForeground: "#a1a1a6",
+      border: "#38383a",
+      accent: "#3a2410",
+      accentForeground: "#ffb067",
+      shadowSm: "0 1px 3px rgba(0,0,0,0.5)",
+      shadowMd: "0 8px 24px -8px rgba(0,0,0,0.6)",
+      shadowLg: "0 24px 56px -20px rgba(0,0,0,0.75)",
+      glowPrimary: "0 12px 28px -12px rgba(255,146,48,0.45)",
+    },
+    layout: {
+      navbar: "default",
+      heroStyle: "fullscreen",
+      productCardStyle: "default",
+      categoryCardStyle: "square",
+      desktopGridCols: 5,
+      density: "default",
+      animations: "subtle",
+      buttonStyle: "pill",
+      imageAspectRatio: "square",
+    },
+    sections: {
+      home: {
+        ...DEFAULT_HOME_SECTIONS,
+        showBestSellers: true,
+        showUrgency: true,
+        showCollections: true,
+        showShoppingList: true,
+        sectionOrder: [
+          "showHero",
+          "showCategories",
+          "showOfferStrip",
+          "showBestSellers",
+          "showUrgency",
+          "showFeaturedProducts",
+          "showShoppingList",
+          "showHeroBanner",
+          "showCollections",
+          "showLatestProducts",
+          "showWhyChooseUs",
+          "showSocialProof",
+          "showTestimonials",
+          "showAboutBrand",
+          "showRichText",
+          "showNewsletter",
+        ],
+      },
+    },
+  },
 };
 
 // ─── Backward-Compat: Legacy StoreTheme shape ─────────────────────────────
@@ -691,6 +786,8 @@ export function getStoreTheme(themeId?: string | null): StoreTheme {
  * longer be readable on them (e.g. white on yellow). Pick a readable one —
  * unless the merchant set the foreground explicitly.
  */
+const SURFACE_TOKENS = ["background", "foreground", "surface", "surfaceForeground", "card", "cardForeground", "muted", "mutedForeground", "border"] as const;
+
 function withReadableForegrounds(
   tokens: ThemeTokens,
   presetTokens: ThemeTokens,
@@ -739,14 +836,20 @@ export function resolveStoreTheme(
 
   // Merge dark token overrides from the preset, plus any merchant token
   // overrides that were also passed in customization.
-  const darkTokens = preset.darkTokens
+  const darkOverrides = { ...(customization?.tokenOverrides ?? {}) };
+  if (preset.adaptive) for (const key of SURFACE_TOKENS) delete darkOverrides[key];
+  const mergedDark = preset.darkTokens
     ? {
         ...preset.darkTokens,
         ...(primaryColorOverride ? { primary: primaryColorOverride } : {}),
         ...(secondaryColorOverride ? { secondary: secondaryColorOverride } : {}),
-        ...(customization?.tokenOverrides ?? {}),
+        ...darkOverrides,
       }
     : undefined;
+  const darkTokens =
+    mergedDark && preset.adaptive
+      ? withReadableForegrounds({ ...preset.tokens, ...mergedDark }, { ...preset.tokens, ...preset.darkTokens }, customization?.tokenOverrides)
+      : mergedDark;
 
   return {
     id: preset.id,

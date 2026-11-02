@@ -247,6 +247,37 @@ function GymThemePreview() {
   );
 }
 
+// ─── 9. Casho Market ──────────────────────────────────────────────
+function MarketThemePreview() {
+  const aisles = ["#34c759", "#ff9230", "#0088ff", "#ff383c"];
+  return (
+    <div className="relative overflow-hidden rounded-xl border bg-white">
+      <div className="mx-2 mt-1.5 flex items-center justify-between rounded-full bg-[#f5f5f7] px-2 py-1">
+        <div className="h-1.5 w-7 rounded-full bg-[#1d1d1f]" />
+        <div className="size-2.5 rounded-full bg-[#f26a00]" />
+      </div>
+      <div className="mx-2 mt-1.5 h-12 rounded-[10px] bg-[#1d1d1f] p-2">
+        <div className="h-2 w-1/2 rounded-full bg-white/90" />
+        <div className="mt-1 h-2 w-8 rounded-full bg-[#f26a00]" />
+      </div>
+      <div className="flex justify-between gap-1.5 px-2.5 pt-1.5">
+        {aisles.map((c) => (
+          <div key={c} className="aspect-square flex-1 rounded-[6px]" style={{ background: c }} />
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 p-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="relative rounded-[7px] bg-[#f5f5f7] p-1">
+            <div className="aspect-square rounded-[5px] bg-white" />
+            <div className="absolute bottom-3 end-1.5 size-2.5 rounded-full bg-[#f26a00]" />
+            <div className="mt-1 h-1 w-3/4 rounded-full bg-[#1d1d1f]/40" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 /** Schematic thumbnail of each theme (no images, so it renders instantly). */
 export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
@@ -258,4 +289,5 @@ export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   cello: CelloThemePreview,
   medical: MedicalThemePreview,
   gym: GymThemePreview,
+  market: MarketThemePreview,
 };

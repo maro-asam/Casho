@@ -5,7 +5,7 @@
 
 // ─── Preset IDs ──────────────────────────────────────────────────────────────
 
-export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym"] as const;
+export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym", "market"] as const;
 
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 
@@ -24,6 +24,7 @@ export const THEME_CATEGORY_IDS = [
   "home",
   "health",
   "sports",
+  "grocery",
 ] as const;
 
 export type ThemeCategoryId = (typeof THEME_CATEGORY_IDS)[number];
@@ -239,7 +240,8 @@ export type SectionKey =
   | "showHeroBanner"
   | "showRichText"
   // ── Theme-specific (see `themes` in the Studio's SECTION_META) ───────────
-  | "showCalculator";
+  | "showCalculator"
+  | "showShoppingList";
 
 /**
  * Recommended default section order for new stores.
@@ -262,6 +264,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "showRichText",
   "showNewsletter",
   "showCalculator",
+  "showShoppingList",
 ];
 
 export type HomePageSections = {
@@ -285,6 +288,7 @@ export type HomePageSections = {
   showRichText: boolean;
   // ── Theme-specific ────────────────────────────────────────────────────────
   showCalculator: boolean;
+  showShoppingList: boolean;
   /** Render order — falls back to DEFAULT_SECTION_ORDER */
   sectionOrder?: SectionKey[];
 };
@@ -305,6 +309,9 @@ export type ThemePreset = {
   tokens: ThemeTokens;
   /** Tokens to apply when the user activates dark mode (overrides `tokens`). */
   darkTokens?: Partial<ThemeTokens>;
+  /** Built for both appearances: shoppers switch light/dark, so the merchant's
+   *  brand colors apply to both while their surface colors stay in light mode. */
+  adaptive?: boolean;
   layout: ThemeLayout;
   sections: ThemeSections;
 };

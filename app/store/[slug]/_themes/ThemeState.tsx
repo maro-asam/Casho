@@ -79,6 +79,15 @@ import {
   GymPageSkeleton,
   GymProductSkeleton,
 } from "./gym/states";
+import {
+  MarketCategoriesSkeleton,
+  MarketGridPageSkeleton,
+  MarketHomeSkeleton,
+  MarketListingSkeleton,
+  MarketNotFound,
+  MarketPageSkeleton,
+  MarketProductSkeleton,
+} from "./market/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -154,6 +163,15 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     categories: GymCategoriesSkeleton,
     grid: GymGridPageSkeleton,
     "not-found": GymNotFound,
+  },
+  market: {
+    home: MarketHomeSkeleton,
+    listing: MarketListingSkeleton,
+    product: MarketProductSkeleton,
+    page: MarketPageSkeleton,
+    categories: MarketCategoriesSkeleton,
+    grid: MarketGridPageSkeleton,
+    "not-found": MarketNotFound,
   },
 };
 

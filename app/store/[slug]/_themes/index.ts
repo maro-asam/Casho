@@ -10,6 +10,7 @@ import { classicTheme } from "./classic";
 import { duneTheme } from "./dune";
 import { gymTheme } from "./gym";
 import { madaTheme } from "./mada";
+import { marketTheme } from "./market";
 import { maximizeTheme } from "./maximize";
 import { medicalTheme } from "./medical";
 import { celloTheme } from "./cello";
@@ -25,6 +26,7 @@ const THEMES: Record<ThemePresetId, StorefrontTheme> = {
   cello: celloTheme,
   medical: medicalTheme,
   gym: gymTheme,
+  market: marketTheme,
 };
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {

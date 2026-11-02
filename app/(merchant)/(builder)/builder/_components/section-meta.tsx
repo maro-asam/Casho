@@ -1,6 +1,7 @@
 import {
   AlignLeft,
   Calculator,
+  ListChecks,
   Clock,
   FolderOpen,
   Image as ImageIcon,
@@ -153,6 +154,14 @@ export const SECTION_META: Record<SectionKey, SectionMeta> = {
     get description() { return tr("وزن وهدف، والعميل يعرف احتياجه ويدخل على قسم البروتين."); },
     group: "sales",
     themes: ["gym"],
+  },
+  showShoppingList: {
+    icon: ListChecks,
+    tint: "bg-(--sys-orange)",
+    get label() { return tr("قايمة المشتريات"); },
+    get description() { return tr("العميل يكتب طلباته زي الورقة ويبعتها للمتجر على واتساب."); },
+    group: "sales",
+    themes: ["market"],
   },
 };
 
@@ -339,6 +348,17 @@ function thumb(id: SectionKey) {
           <div className={cn("grid flex-1 place-items-center rounded-[5px]", accent)}>
             <div className="h-2.5 w-3/5 rounded-full bg-white/90" />
           </div>
+        </div>
+      );
+    case "showShoppingList":
+      return (
+        <div className={cn(tile, "flex h-full flex-col justify-center gap-1 p-1.5")}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-1">
+              <div className={cn("size-1.5 shrink-0 rounded-full", i === 0 ? accent : "bg-foreground/20")} />
+              <div className={cn(bar, "h-1", i === 1 ? "w-3/5" : "w-4/5")} />
+            </div>
+          ))}
         </div>
       );
     case "showRichText":
