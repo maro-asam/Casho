@@ -88,6 +88,15 @@ import {
   MarketPageSkeleton,
   MarketProductSkeleton,
 } from "./market/states";
+import {
+  StageCategoriesSkeleton,
+  StageGridPageSkeleton,
+  StageHomeSkeleton,
+  StageListingSkeleton,
+  StageNotFound,
+  StagePageSkeleton,
+  StageProductSkeleton,
+} from "./stage/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -172,6 +181,15 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     categories: MarketCategoriesSkeleton,
     grid: MarketGridPageSkeleton,
     "not-found": MarketNotFound,
+  },
+  stage: {
+    home: StageHomeSkeleton,
+    listing: StageListingSkeleton,
+    product: StageProductSkeleton,
+    page: StagePageSkeleton,
+    categories: StageCategoriesSkeleton,
+    grid: StageGridPageSkeleton,
+    "not-found": StageNotFound,
   },
 };
 

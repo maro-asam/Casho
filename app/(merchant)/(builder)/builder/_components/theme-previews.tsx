@@ -278,6 +278,38 @@ function MarketThemePreview() {
   );
 }
 
+// ─── 10. Casho Stage ──────────────────────────────────────────────
+function StageThemePreview() {
+  return (
+    <div className="relative overflow-hidden rounded-xl border bg-white">
+      <div className="flex h-3.5 items-center justify-center gap-1.5 bg-[#fbfbfd]/90 px-2">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-[3px] w-3 rounded-full bg-[#1d1d1f]/45" />
+        ))}
+      </div>
+      <div className="flex flex-col items-center bg-[#f5f5f7] px-2 pt-2">
+        <div className="h-2.5 w-2/5 rounded-full bg-[#1d1d1f]" />
+        <div className="mt-1 h-1 w-1/3 rounded-full bg-[#1d1d1f]/35" />
+        <div className="mt-1.5 flex gap-1">
+          <div className="h-2 w-6 rounded-full bg-[#0071e3]" />
+          <div className="h-2 w-6 rounded-full border border-[#0071e3]" />
+        </div>
+        <div className="mt-1.5 h-6 w-1/2 rounded-t-[8px] bg-white shadow-[0_-4px_10px_rgba(0,0,0,.06)]" />
+      </div>
+      <div className="grid grid-cols-2 gap-1 p-1">
+        <div className="flex h-11 flex-col items-center rounded-[6px] bg-black pt-1.5">
+          <div className="h-1.5 w-1/2 rounded-full bg-white/90" />
+          <div className="mt-1 h-1 w-1/3 rounded-full bg-[#2997ff]" />
+        </div>
+        <div className="flex h-11 flex-col items-center rounded-[6px] bg-[#f5f5f7] pt-1.5">
+          <div className="h-1.5 w-1/2 rounded-full bg-[#1d1d1f]" />
+          <div className="mt-1 h-1 w-1/3 rounded-full bg-[#0071e3]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 /** Schematic thumbnail of each theme (no images, so it renders instantly). */
 export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
@@ -290,4 +322,5 @@ export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   medical: MedicalThemePreview,
   gym: GymThemePreview,
   market: MarketThemePreview,
+  stage: StageThemePreview,
 };

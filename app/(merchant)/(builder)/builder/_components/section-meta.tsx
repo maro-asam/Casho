@@ -3,6 +3,7 @@ import {
   Calculator,
   ListChecks,
   Clock,
+  Focus,
   FolderOpen,
   Image as ImageIcon,
   LayoutGrid,
@@ -162,6 +163,14 @@ export const SECTION_META: Record<SectionKey, SectionMeta> = {
     get description() { return tr("العميل يكتب طلباته زي الورقة ويبعتها للمتجر على واتساب."); },
     group: "sales",
     themes: ["market"],
+  },
+  showSpotlight: {
+    icon: Focus,
+    tint: "bg-(--sys-indigo)",
+    get label() { return tr("منتج تحت الأضواء"); },
+    get description() { return tr("منتج واحد مميز على خلفية سودا، بيكبر ويظهر مع السكرول زي إعلانات Apple."); },
+    group: "sales",
+    themes: ["stage"],
   },
 };
 
@@ -359,6 +368,14 @@ function thumb(id: SectionKey) {
               <div className={cn(bar, "h-1", i === 1 ? "w-3/5" : "w-4/5")} />
             </div>
           ))}
+        </div>
+      );
+    case "showSpotlight":
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-1 rounded-[6px] bg-[#000]">
+          <div className="h-1 w-1/3 rounded-full bg-white/80" />
+          <div className="h-5 w-2/5 rounded-[4px] bg-white/25 shadow-[0_0_12px_rgba(255,255,255,.35)]" />
+          <div className={cn("h-1.5 w-6 rounded-full", accent)} />
         </div>
       );
     case "showRichText":

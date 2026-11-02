@@ -17,6 +17,7 @@ const THEME_TOKENS: Record<string, { bg: string; fg: string; primary: string; ac
   medical: { bg: "#f4f8f8", fg: "#0f2a2e", primary: "#0a6c74", accent: "#e3f3f1" },
   gym: { bg: "#0b0b0d", fg: "#f5f3ef", primary: "#e10600", accent: "#efece6" },
   market: { bg: "#ffffff", fg: "#1d1d1f", primary: "#f26a00", accent: "#f5f5f7" },
+  stage: { bg: "#f5f5f7", fg: "#1d1d1f", primary: "#0071e3", accent: "#000000" },
 };
 
 export default function ThemesRail() {

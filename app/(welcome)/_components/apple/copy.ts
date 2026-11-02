@@ -92,6 +92,7 @@ const ar = {
       { id: "medical", name: "كاشو ميديكال", note: "طبي وهادي. للصيدليات." },
       { id: "gym", name: "كاشو جيم", note: "أسود وأحمر. مكملات وأدوات جيم." },
       { id: "market", name: "كاشو ماركت", note: "برتقالي، فاتح وغامق. سوبر ماركت وأكشاك." },
+      { id: "stage", name: "كاشو ستيدج", note: "روح Apple. براندات وأي مجال." },
     ],
   },
   pricing: {
@@ -217,6 +218,7 @@ const en: LandingCopy = {
       { id: "medical", name: "Casho Medical", note: "Clinical and calm. For pharmacies." },
       { id: "gym", name: "Casho Gym", note: "Black and red. Supplements and gear." },
       { id: "market", name: "Casho Market", note: "Orange, light and dark. Supermarkets and kiosks." },
+      { id: "stage", name: "Casho Stage", note: "Apple's spirit. Brands and any field." },
     ],
   },
   pricing: {

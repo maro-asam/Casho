@@ -11,6 +11,7 @@ import { duneTheme } from "./dune";
 import { gymTheme } from "./gym";
 import { madaTheme } from "./mada";
 import { marketTheme } from "./market";
+import { stageTheme } from "./stage";
 import { maximizeTheme } from "./maximize";
 import { medicalTheme } from "./medical";
 import { celloTheme } from "./cello";
@@ -27,6 +28,7 @@ const THEMES: Record<ThemePresetId, StorefrontTheme> = {
   medical: medicalTheme,
   gym: gymTheme,
   market: marketTheme,
+  stage: stageTheme,
 };
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {
