@@ -30,6 +30,7 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
     const Icon = item.icon;
     const isActive = activeHref === item.href;
     const count = item.badge ? (badges[item.badge] ?? 0) : 0;
+    const badgeFill = item.badgeTone === "news" ? "bg-sidebar-primary" : "bg-(--sys-red)";
 
     if (collapsed) {
       return (
@@ -43,7 +44,7 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
               className={cn(itemBase, "relative justify-center px-0", isActive ? itemActive : itemIdle)}
             >
               <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
-              {count > 0 && <span aria-hidden className="absolute inset-e-2 top-1.5 size-2 rounded-full bg-(--sys-red)" />}
+              {count > 0 && <span aria-hidden className={cn("absolute inset-e-2 top-1.5 size-2 rounded-full", badgeFill)} />}
             </Link>
           </TooltipTrigger>
           <TooltipContent side="left">
@@ -64,9 +65,9 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
       >
         <Icon className={cn("size-[18px] shrink-0", isActive && "text-sidebar-primary")} strokeWidth={1.8} />
         <span className="flex-1 truncate">{item.name}</span>
-        {/* Work waiting on an admin: the one place red is used in the chrome. */}
+        {/* Work waiting on an admin: the one place red is used in the chrome. "News" counts use the tint. */}
         {count > 0 && (
-          <span className="min-w-5 rounded-full bg-(--sys-red) px-1.5 text-center text-[11px] leading-5 font-semibold text-white tabular-nums">
+          <span className={cn("min-w-5 rounded-full px-1.5 text-center text-[11px] leading-5 font-semibold text-white tabular-nums", badgeFill)}>
             {nf.format(count)}
           </span>
         )}

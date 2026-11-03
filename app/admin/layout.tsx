@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound, unstable_rethrow } from "next/navigation";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { prisma } from "@/lib/prisma";
+import { countUnseenStores } from "@/lib/admin/new-stores";
 import AdminShell from "./_components/admin-shell";
 
 export const metadata: Metadata = {
@@ -22,9 +23,10 @@ async function requireAdminPage() {
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const admin = await requireAdminPage();
 
-  // Queue sizes for the sidebar badges — the work waiting on an admin.
-  const [viewer, topups, services, support, sharks] = await Promise.all([
+  // Queue sizes for the sidebar badges — the work waiting on an admin — plus stores new since the last visit.
+  const [viewer, stores, topups, services, support, sharks] = await Promise.all([
     prisma.user.findUnique({ where: { id: admin.id }, select: { id: true, name: true, email: true, role: true } }),
+    countUnseenStores(),
     prisma.topupRequest.count({ where: { status: "PENDING" } }),
     prisma.serviceRequest.count({ where: { status: "PENDING" } }),
     prisma.supportRequest.count({ where: { status: "PENDING" } }),
@@ -33,7 +35,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   ]);
 
   return (
-    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ topups, services, support, sharks }}>
+    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ stores, topups, services, support, sharks }}>
       {children}
     </AdminShell>
   );

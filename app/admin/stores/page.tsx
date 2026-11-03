@@ -4,6 +4,7 @@ import { SearchX, Store } from "lucide-react";
 import { Prisma, SubscriptionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { countUnseenStores } from "@/lib/admin/new-stores";
 import {
   ListCard,
   Unavailable,
@@ -20,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { th, theadRow } from "../_components/admin-ui";
 import { SUBSCRIPTION_META, fmtDate, fmtMoney, fmtRelative, pickEnum } from "../_lib/format";
+import MarkStoresSeen from "./_components/mark-stores-seen";
 
 export const metadata: Metadata = { title: "المتاجر" };
 
@@ -67,10 +69,11 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
     ...(expiring && expiringWhere),
   };
 
-  const [grouped, expiringCount, total] = await Promise.all([
+  const [grouped, expiringCount, total, unseen] = await Promise.all([
     prisma.store.groupBy({ by: ["subscriptionStatus"], where: baseWhere, _count: { _all: true } }),
     prisma.store.count({ where: { ...baseWhere, ...expiringWhere } }),
     prisma.store.count({ where }),
+    countUnseenStores(),
   ]);
   const counts = Object.fromEntries(grouped.map((g) => [g.subscriptionStatus, g._count._all])) as Partial<Record<SubscriptionStatus, number>>;
   const all = grouped.reduce((s, g) => s + g._count._all, 0);
@@ -107,6 +110,7 @@ export default async function AdminStoresPage({ searchParams }: { searchParams?:
 
   return (
     <div className="space-y-6">
+      {unseen > 0 && <MarkStoresSeen at={now.toISOString()} />}
       <PageHeader title="المتاجر" description="كل المتاجر على المنصة: الاشتراك، الرصيد، والنشاط. افتح أي متجر عشان تديره." />
 
       <div className="space-y-4">

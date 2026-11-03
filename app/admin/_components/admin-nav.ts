@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 /** Live counters shown as sidebar badges (filled by the layout). */
-export type AdminBadgeKey = "topups" | "services" | "support" | "sharks";
+export type AdminBadgeKey = "stores" | "topups" | "services" | "support" | "sharks";
 export type AdminBadges = Partial<Record<AdminBadgeKey, number>>;
 
 export type AdminNavItem = {
@@ -28,6 +28,8 @@ export type AdminNavItem = {
   href: string;
   icon: LucideIcon;
   badge?: AdminBadgeKey;
+  /** "news" counts something to look at, not work waiting on an admin (those stay red). */
+  badgeTone?: "news";
 };
 
 export type AdminNavSection = { title?: string; items: AdminNavItem[] };
@@ -39,7 +41,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   {
     title: "العملاء",
     items: [
-      { name: "المتاجر", href: "/admin/stores", icon: Store },
+      { name: "المتاجر", href: "/admin/stores", icon: Store, badge: "stores", badgeTone: "news" },
       { name: "المستخدمين", href: "/admin/users", icon: Users },
       { name: "طلبات المتاجر", href: "/admin/orders", icon: ShoppingCart },
     ],
