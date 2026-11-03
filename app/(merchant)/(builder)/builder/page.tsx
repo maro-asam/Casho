@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { getStoreFont } from "@/constants/arabic-fonts";
 import { getThemePreset, resolveStoreTheme } from "@/constants/store-themes";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { readConversionConfig } from "@/lib/conversion/conversion-config";
 import { POPUP_TEMPLATES, isPopupType, readPopupConfig } from "@/lib/popups/popup-config";
 import { prisma } from "@/lib/prisma";
@@ -32,7 +32,7 @@ export default async function BuilderPage({ searchParams }: BuilderPageProps) {
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true, name: true, settings: { select: { whatsappNumber: true, seoDescription: true } } },
+    select: { id: true, slug: true, name: true, customDomain: true, customDomainStatus: true, settings: { select: { whatsappNumber: true, seoDescription: true } } },
   });
   if (!store) redirect("/dashboard");
 
@@ -41,7 +41,7 @@ export default async function BuilderPage({ searchParams }: BuilderPageProps) {
   const preset = getThemePreset(working.themeConfig.presetId);
   const theme = resolveStoreTheme(preset.id, working.themeConfig, working.primaryColor, working.secondaryColor);
   const font = getStoreFont(working.fontId);
-  const storeUrl = buildStoreUrl(store.slug);
+  const storeUrl = storePublicUrl(store);
 
   // Sales tools + readiness signals. Guarded: never block the editor.
   const [conversionRow, popupRows, sampleProduct, activeBanners, categories, categoriesWithImage] = await Promise.all([

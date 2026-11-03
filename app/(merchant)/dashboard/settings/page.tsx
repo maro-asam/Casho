@@ -5,7 +5,8 @@ import { AtSign, ChevronLeft, ExternalLink, Globe, Languages, Mail, PauseCircle,
 import { prisma } from "@/lib/prisma";
 
 import { LargeTitle, Unavailable, appleButton } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { activeCustomDomain, buildStoreUrl, displayHost, storePublicUrl } from "@/helpers/BuildStoreURL";
+import { SubdomainSwitch } from "../domain/_components/subdomain-switch";
 import { Group, IconTile } from "./_components/settings-ui";
 import StoreSettingsForm from "./_components/StoreSettingsForm";
 import ActiveSessions from "./_components/ActiveSessions";
@@ -53,6 +54,7 @@ export default async function SettingsRoute() {
       poweredByRemovalEnabled: true,
       customDomain: true,
       customDomainStatus: true,
+      subdomainEnabled: true,
       user: { select: { email: true } },
       settings: {
         select: {
@@ -87,7 +89,10 @@ export default async function SettingsRoute() {
     );
   }
 
-  const storeUrl = buildStoreUrl(store.slug);
+  // The address merchants open/share — the custom domain once it's live.
+  const storeUrl = storePublicUrl(store);
+  const subdomainUrl = buildStoreUrl(store.slug);
+  const liveDomain = activeCustomDomain(store);
   const nav = [
     { id: "store", label: tr("بيانات المتجر"), icon: Store, tint: "bg-primary" },
     { id: "domain", label: tr("دومين مخصص"), icon: Globe, tint: "bg-sky-500" },
@@ -156,7 +161,7 @@ export default async function SettingsRoute() {
                 {store.customDomain ? (
                   <span dir="ltr">{store.customDomain}</span>
                 ) : (
-                  tr("اربط دومين خاص بيك بدل {0}", storeUrl.replace(/^https?:\/\//, ""))
+                  tr("اربط دومين خاص بيك بدل {0}", displayHost(subdomainUrl))
                 )}
               </span>
               <span className="shrink-0 text-[13px] text-muted-foreground">
@@ -170,6 +175,9 @@ export default async function SettingsRoute() {
               </span>
               <ChevronLeft className="size-4 shrink-0 text-muted-foreground/60 ltr:-scale-x-100" />
             </Link>
+            {liveDomain && (
+              <SubdomainSwitch subdomainHost={displayHost(subdomainUrl)} domain={liveDomain} initialEnabled={store.subdomainEnabled} />
+            )}
           </Group>
           <StorePauseSettings
             initial={{

@@ -131,7 +131,7 @@ async function readCurrentSession() {
           name: true,
           role: true,
           stores: {
-            select: { id: true, name: true, slug: true },
+            select: { id: true, name: true, slug: true, customDomain: true, customDomainStatus: true },
             orderBy: { createdAt: "asc" },
             take: 1,
           },

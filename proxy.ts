@@ -100,6 +100,32 @@ async function resolveCustomDomain(
   }
 }
 
+// slug → custom domain to redirect to (merchant turned the subdomain off), same
+// one-minute memory as above. Most stores have none, and that's cached too.
+const subdomainRedirectCache = new Map<string, { to: string | null; expires: number }>();
+
+async function resolveSubdomainRedirect(
+  slug: string,
+  origin: string,
+): Promise<string | null> {
+  const cached = subdomainRedirectCache.get(slug);
+  if (cached && cached.expires > Date.now()) return cached.to;
+  try {
+    const res = await fetch(
+      `${origin}/api/internal/domain-lookup?slug=${encodeURIComponent(slug)}`,
+      { next: { revalidate: 60 } },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const to: string | null = data.redirectTo ?? null;
+    if (subdomainRedirectCache.size >= DOMAIN_CACHE_MAX) subdomainRedirectCache.clear();
+    subdomainRedirectCache.set(slug, { to, expires: Date.now() + DOMAIN_CACHE_TTL_MS });
+    return to;
+  } catch {
+    return null;
+  }
+}
+
 function withPathname(res: NextResponse, pathname: string): NextResponse {
   res.headers.set("x-pathname", pathname);
   return res;
@@ -190,6 +216,18 @@ export async function proxy(req: NextRequest) {
     !RESERVED_SUBDOMAINS.has(subdomain) &&
     !pathname.startsWith("/store/")
   ) {
+    // Subdomain turned off for a live custom domain → send visitors (and old
+    // shared links) there, same path. Page loads only: a server action posted
+    // from an already-open tab still lands. Temporary (307), not 301 — the
+    // merchant can turn it back on, and browsers would cache a 301 for good.
+    if (req.method === "GET" || req.method === "HEAD") {
+      const origin = `${req.nextUrl.protocol}//${req.nextUrl.host}`;
+      const target = await resolveSubdomainRedirect(subdomain, origin);
+      if (target) {
+        return NextResponse.redirect(`https://${target}${pathname}${req.nextUrl.search}`);
+      }
+    }
+
     const url = req.nextUrl.clone();
 
     url.pathname =

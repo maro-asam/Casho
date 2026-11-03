@@ -232,38 +232,77 @@
 }
 [dir="ltr"] .al-hero-xl { letter-spacing: -0.025em; line-height: 1.04; }
 
-/* Hero stage. All transform/opacity, one-shot except the idle float, laser
-   and badge. Timeline: the tag's pulse lands at ~1.7s (48 → 47), the store's
-   at ~2.9s (47 → 46); the counter's keyframes are timed to match. */
-@keyframes al-laser { to { transform: translateY(0.3em); } }
-@keyframes al-ping { 0%, 70%, 100% { transform: scale(1); } 80% { transform: scale(1.35); } }
-@keyframes al-chip-in { from { opacity: 0; transform: scale(0.6) rotate(var(--tilt, 0deg)); } }
-@keyframes al-float { 50% { transform: translateY(-0.05em); } }
-@keyframes al-pulse {
-  from { transform: translateX(0); opacity: 0; }
-  15%, 85% { opacity: 1; }
-  to { transform: translateX(var(--to)); opacity: 0; }
+/* Hero: the day's receipt. Drawn in em, so one font-size scales the whole
+   object. Everything below is transform/opacity. */
+/* Floor of 14.5px: Cairo's smallest receipt text breaks apart under ~9.5px. */
+.al-stage { font-size: clamp(14.5px, 3.95vw, 16px); }
+@media (min-width: 1024px) {
+  .al-stage { font-size: clamp(14px, min(1.45vw, 2.35svh), 20px); }
 }
-@keyframes al-tick {
-  0%, 50% { transform: translateY(0); }
-  56%, 88% { transform: translateY(-33.333%); }
-  94%, 100% { transform: translateY(-66.667%); }
+
+/* Thermal paper, torn along the top. A mask also drops box-shadow: depth comes
+   from the stage light behind it, never from a filter. */
+.al-paper {
+  --zz: 0.9em;
+  width: 20em;
+  height: 33em;
+  color: #1d1d1f;
+  background: linear-gradient(180deg, #e2e0d9, #f6f5f0 2.4em, #fbfaf7 55%, #f1f0ea);
+  -webkit-mask:
+    conic-gradient(from 135deg at 50% 0, #000 90deg, #0000 0) 50% 0 / var(--zz) calc(var(--zz) / 2) repeat-x,
+    linear-gradient(#000 0 0) 0 calc(var(--zz) / 2) / 100% 100% no-repeat;
+  mask:
+    conic-gradient(from 135deg at 50% 0, #000 90deg, #0000 0) 50% 0 / var(--zz) calc(var(--zz) / 2) repeat-x,
+    linear-gradient(#000 0 0) 0 calc(var(--zz) / 2) / 100% 100% no-repeat;
 }
-.al-laser { animation: al-laser 1.2s ease-in-out infinite alternate; }
-.al-ping { animation: al-ping 2.4s ease-in-out infinite; }
-.al-chip { transform: rotate(var(--tilt, 0deg)); animation: al-chip-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.al-float { animation: al-float 6s ease-in-out infinite; }
-.al-pulse { animation: al-pulse 0.9s cubic-bezier(0.5, 0, 0.3, 1) both; }
-.al-tick { animation: al-tick 3.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Desktop — the feed: the paper rises out of the slot one block at a time,
+   pausing on each line like a thermal printer. Stops are block boundaries in the 33em
+   paper (AppleHero's Receipt): header, then four sales, totals, footer. */
+@keyframes al-feed {
+  0% { transform: translateY(92%); }
+  16%, 20% { transform: translateY(73.6%); }
+  27%, 33% { transform: translateY(64.5%); }
+  40%, 46% { transform: translateY(55.5%); }
+  53%, 59% { transform: translateY(46.4%); }
+  67%, 72% { transform: translateY(34.5%); }
+  83%, 87% { transform: translateY(15.8%); }
+  100% { transform: translateY(0); }
+}
+/* Phones — the paper is already out (a feed would print below the fold) and
+   its lines ink in top to bottom. */
+@keyframes al-ink { from { opacity: 0; transform: translateY(-0.35em); } }
+@keyframes al-led { 50% { opacity: 0.2; } }
+@keyframes al-grow { from { transform: scaleX(0); } }
+@keyframes al-notice { from { opacity: 0; transform: translateY(0.9em) scale(0.94); } }
+@keyframes al-bob { 50% { transform: translateY(-0.3em); } }
+
+.al-led { animation: al-led 0.32s steps(1, end) 0.5s 8; }
+.al-grow { animation: al-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.4s both; }
+.al-notice { animation: al-notice 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (max-width: 1023.98px) {
+  .al-line { animation: al-ink 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(0.3s + var(--i, 0) * 0.28s); }
+}
+@media (min-width: 1024px) {
+  .al-feed { animation: al-feed 3.2s cubic-bezier(0.45, 0, 0.25, 1) 0.5s both; }
+  .al-led { animation-iteration-count: 10; }
+  .al-grow { animation-delay: 3.05s; }
+  .al-bob { animation: al-bob 7s ease-in-out infinite; }
+}
+
+/* Held on the first frame until the slot is on screen (data-play). */
+.al-stage[data-play="false"] .al-feed,
+.al-stage[data-play="false"] .al-line,
+.al-stage[data-play="false"] .al-led,
+.al-stage[data-play="false"] .al-grow { animation-play-state: paused; }
+
 @media (prefers-reduced-motion: reduce) {
-  .al .al-laser,
-  .al .al-ping,
-  .al .al-chip,
-  .al .al-float,
-  .al .al-pulse,
-  .al .al-tick { animation: none !important; }
-  .al .al-pulse { opacity: 0; }
-  .al .al-tick { transform: translateY(-66.667%); }
+  .al .al-feed,
+  .al .al-line,
+  .al .al-led,
+  .al .al-grow,
+  .al .al-notice,
+  .al .al-bob { animation: none !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

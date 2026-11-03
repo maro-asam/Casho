@@ -22,6 +22,8 @@ type MobileNavMenuProps = {
     email: string;
     storeName: string | null;
     storeSlug: string | null;
+    /** Public address — the custom domain once it's live. */
+    storeUrl: string | null;
   } | null;
 };
 
@@ -177,8 +179,8 @@ export default function MobileNavMenu({ user }: MobileNavMenuProps) {
                       <LayoutDashboard className="size-4" />
                       {t.navbar.dashboard}
                     </Link>
-                    {user.storeSlug ? (
-                      <Link href={buildStoreUrl(user.storeSlug)} onClick={close} className="al-btn al-btn-gray gap-2 text-[15px]">
+                    {user.storeUrl ? (
+                      <Link href={user.storeUrl} onClick={close} className="al-btn al-btn-gray gap-2 text-[15px]">
                         <Store className="size-4" />
                         {t.navbar.viewStore}
                       </Link>

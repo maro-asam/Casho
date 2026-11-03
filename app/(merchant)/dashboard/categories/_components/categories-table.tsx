@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Tag } from "lucide-react";
 
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { CategoryRowActions } from "./category-row-actions";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
 
@@ -27,7 +26,8 @@ const dateFormat = lazyIntl.date({
 type Props = {
   categories: CategoryRow[];
   storeId: string;
-  storeSlug: string;
+  /** The store's public address (custom domain once live), no trailing slash. */
+  storeUrl: string;
   allCategories: { id: string; name: string }[];
   /** Builds the `?edit=<id>` link while keeping the current filters. */
   editHref: (id: string) => string;
@@ -64,13 +64,13 @@ const th = "h-9 px-3 pb-2 text-start align-bottom text-[12px] font-medium whites
 const td = "relative px-3 py-3 align-middle";
 
 /** Desktop: list-view table. Mobile: grouped rows — same data, same row link. */
-export function CategoriesTable({ categories, storeId, storeSlug, allCategories, editHref }: Props) {
+export function CategoriesTable({ categories, storeId, storeUrl, allCategories, editHref }: Props) {
   const actionsFor = (category: CategoryRow) => (
     <CategoryRowActions
       storeId={storeId}
       category={{ id: category.id, name: category.name, productCount: category.productCount }}
       editHref={editHref(category.id)}
-      storefrontUrl={buildStoreUrl(storeSlug, `/categories/${category.slug}`)}
+      storefrontUrl={`${storeUrl}/categories/${category.slug}`}
       otherCategories={allCategories.filter((c) => c.id !== category.id)}
     />
   );

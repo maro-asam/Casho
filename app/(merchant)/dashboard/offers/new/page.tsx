@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { isOfferType } from "@/lib/offers/offer-pricing";
 import { OfferForm } from "../_components/offer-form";
 import { loadOfferStore } from "../_lib/offer-form-data";
@@ -24,7 +24,7 @@ export default async function NewOfferPage({ searchParams }: { searchParams?: Pr
 
   return (
     <div dir={tdir()}>
-      <OfferForm key={type ?? "new"} offer={null} initialType={isOfferType(type) ? type : "CROSS_SELL"} storefrontUrl={buildStoreUrl(store.slug)} />
+      <OfferForm key={type ?? "new"} offer={null} initialType={isOfferType(type) ? type : "CROSS_SELL"} storefrontUrl={storePublicUrl(store)} />
     </div>
   );
 }

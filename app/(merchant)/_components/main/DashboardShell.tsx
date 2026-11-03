@@ -25,6 +25,8 @@ interface DashboardShellProps {
     id: string;
     name: string;
     slug: string;
+    /** Public address — the custom domain once it's live. */
+    url: string;
   };
   initialNotifications: NotificationDTO[];
   initialUnreadCount: number;

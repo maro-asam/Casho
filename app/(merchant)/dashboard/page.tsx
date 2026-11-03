@@ -2,7 +2,7 @@ import { SubscriptionStatus } from "@prisma/client";
 import { Store } from "lucide-react";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
 
 import StarterGuideBar, { type StarterGuideStep } from "../_components/main/StarterGuideCard";
@@ -197,7 +197,7 @@ const MerchantDashboardRoute = async () => {
   const now = new Date();
   const isNewMerchant = now.getTime() - store.createdAt.getTime() < NEW_MERCHANT_DAYS * 24 * 60 * 60 * 1000;
   // The onboarding call is booked on the Casho team's WhatsApp, with the store prefilled.
-  const meetingText = `أهلًا فريق كاشو 👋 عايز أحجز مكالمة زووم مجانية عشان أبدأ متجري.\nالمتجر: ${store.name}\nاللينك: ${buildStoreUrl(store.slug)}`;
+  const meetingText = `أهلًا فريق كاشو 👋 عايز أحجز مكالمة زووم مجانية عشان أبدأ متجري.\nالمتجر: ${store.name}\nاللينك: ${storePublicUrl(store)}`;
   const onboarding = isNewMerchant
     ? { href: `https://wa.me/${ONBOARDING_WHATSAPP}?text=${encodeURIComponent(meetingText)}`, external: true }
     : null;
@@ -211,7 +211,7 @@ const MerchantDashboardRoute = async () => {
   return (
     <div className="space-y-4 sm:space-y-5" dir={tdir()}>
       <OverviewHeader
-        storeUrl={buildStoreUrl(store.slug)}
+        storeUrl={storePublicUrl(store)}
         today={todayFormat.format(now)}
       />
 

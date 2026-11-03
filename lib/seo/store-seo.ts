@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl, type StoreAddress } from "@/helpers/BuildStoreURL";
 
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN || process.env.NEXT_PUBLIC_ROOT_DOMAIN || "casho.store";
 const RESERVED = new Set(["www", "app", "casho"]);
 
 /** The store's public address: live custom domain first, platform subdomain otherwise. */
-export function storeBaseUrl(store: { slug: string; customDomain?: string | null; customDomainStatus?: string | null }) {
-  return store.customDomain && store.customDomainStatus === "ACTIVE" ? `https://${store.customDomain}` : buildStoreUrl(store.slug);
+export function storeBaseUrl(store: StoreAddress) {
+  return storePublicUrl(store);
 }
 
 /** Plain text for meta descriptions: no tags, collapsed spaces, cut on a word. */

@@ -35,6 +35,11 @@ async function ownStore() {
   });
 }
 
+/** Every page that shows or copies the store's address. */
+function revalidateStoreLinks() {
+  revalidatePath("/dashboard", "layout");
+}
+
 export async function checkDomainAvailabilityAction(
   input: string,
 ): Promise<{ status: "valid"; domain: string } | { status: "invalid"; reason: string } | { status: "taken" }> {
@@ -81,7 +86,7 @@ export async function connectCustomDomainAction(input: string): Promise<DomainAc
     }
     await prisma.store.update({
       where: { id: conflict.id },
-      data: { customDomain: null, customDomainStatus: "PENDING", customDomainConnectedAt: null },
+      data: { customDomain: null, customDomainStatus: "PENDING", customDomainConnectedAt: null, subdomainEnabled: true },
     });
     revalidateStorefront(conflict.slug);
     await createNotification({
@@ -102,7 +107,8 @@ export async function connectCustomDomainAction(input: string): Promise<DomainAc
   try {
     await prisma.store.update({
       where: { id: store.id },
-      data: { customDomain: domain, customDomainStatus: "PENDING", customDomainConnectedAt: null },
+      // A new domain starts PENDING: the Casho address stays on until the merchant turns it off for this one.
+      data: { customDomain: domain, customDomainStatus: "PENDING", customDomainConnectedAt: null, subdomainEnabled: true },
     });
   } catch {
     return { ok: false, message: "الدومين ده مربوط بمتجر تاني على كاشو." };
@@ -110,7 +116,7 @@ export async function connectCustomDomainAction(input: string): Promise<DomainAc
 
   // Maybe DNS is already set (e.g. reconnecting) — check right away.
   const report = await runDomainCheck({ id: store.id, slug: store.slug, customDomain: domain, customDomainStatus: "PENDING" });
-  revalidatePath("/dashboard/domain");
+  revalidateStoreLinks();
   return { ok: true, data: report };
 }
 
@@ -118,6 +124,8 @@ export async function verifyCustomDomainAction(): Promise<DomainActionResult<Dom
   const store = await ownStore();
   if (!store?.customDomain) return { ok: false, message: "مفيش دومين مربوط." };
   const report = await runDomainCheck({ ...store, customDomain: store.customDomain });
+  // Going ACTIVE (or failing) flips every link in the dashboard between the two addresses.
+  if (report.status !== store.customDomainStatus) revalidateStoreLinks();
   return { ok: true, data: report };
 }
 
@@ -128,10 +136,32 @@ export async function disconnectCustomDomainAction(): Promise<DomainActionResult
   if (store.customDomain && vercelConfigured) await removeProjectDomain(store.customDomain);
   await prisma.store.update({
     where: { id: store.id },
-    data: { customDomain: null, customDomainStatus: "PENDING", customDomainConnectedAt: null },
+    data: { customDomain: null, customDomainStatus: "PENDING", customDomainConnectedAt: null, subdomainEnabled: true },
   });
 
-  revalidatePath("/dashboard/domain");
+  revalidateStoreLinks();
   revalidateStorefront(store.slug);
   return { ok: true, message: "اتفصل الدومين. متجرك لسه شغّال على رابط كاشو." };
+}
+
+/**
+ * Keep slug.casho.store serving the store, or redirect it to the custom domain.
+ * Turning it off needs a live (ACTIVE) domain; the proxy also re-checks that on
+ * every lookup, so a domain that breaks later brings the subdomain back.
+ */
+export async function setSubdomainEnabledAction(enabled: boolean): Promise<DomainActionResult> {
+  const store = await ownStore();
+  if (!store) return { ok: false, message: "المتجر مش موجود." };
+  if (!enabled && !(store.customDomain && store.customDomainStatus === "ACTIVE")) {
+    return { ok: false, message: "لازم الدومين الجديد يبقى شغّال الأول قبل ما تقفل رابط كاشو." };
+  }
+
+  await prisma.store.update({ where: { id: store.id }, data: { subdomainEnabled: Boolean(enabled) } });
+  revalidateStoreLinks();
+  return {
+    ok: true,
+    message: enabled
+      ? "رابط كاشو القديم رجع يفتح متجرك."
+      : "رابط كاشو القديم بقى بيحوّل لدومينك الجديد — التغيير بياخد دقيقة أو اتنين.",
+  };
 }

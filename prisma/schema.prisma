@@ -265,6 +265,10 @@ model Store {
   customDomain            String?            @unique
   customDomainStatus      CustomDomainStatus @default(PENDING)
   customDomainConnectedAt DateTime?
+  /// false = the Casho subdomain (slug.casho.store) redirects to the custom
+  /// domain. Only honoured while that domain is ACTIVE, so a store is never
+  /// left without an address.
+  subdomainEnabled        Boolean            @default(true)
 
   instagramConnection InstagramConnection?
   suggestedOrders     SuggestedOrder[]

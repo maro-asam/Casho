@@ -4,7 +4,7 @@ import type { EditableOffer } from "../_components/offer-form";
 const PRODUCT_SELECT = { id: true, name: true, image: true, price: true, isActive: true } as const;
 
 export async function loadOfferStore(userId: string) {
-  return prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true } });
+  return prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true, customDomain: true, customDomainStatus: true } });
 }
 
 /** The offer as the form edits it, plus its real performance (non-canceled orders). */

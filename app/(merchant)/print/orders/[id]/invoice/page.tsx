@@ -7,7 +7,7 @@ import {
   ORDER_CHANNELS,
   paymentMethodLabel,
 } from "@/app/(merchant)/dashboard/orders/_components/order-meta";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
 import { PrintToolbar } from "../../../_components/print-toolbar";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
@@ -51,6 +51,8 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
       id: true,
       name: true,
       slug: true,
+      customDomain: true,
+      customDomainStatus: true,
       showPoweredByCasho: true,
       poweredByRemovalEnabled: true,
       settings: { select: { logo: true, email: true, whatsappNumber: true } },
@@ -92,7 +94,7 @@ export default async function OrderInvoicePage({ params, searchParams }: PagePro
   if (!order) notFound();
 
   const invoiceNo = order.id.slice(0, 8).toUpperCase();
-  const storeUrl = buildStoreUrl(store.slug).replace(/^https?:\/\//, "");
+  const storeUrl = storePublicUrl(store).replace(/^https?:\/\//, "");
   const isPaid =
     Boolean(order.paidAt) ||
     order.paymentStatus === "PAID" ||

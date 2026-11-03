@@ -6,13 +6,13 @@ import { ChevronDown, PanelRightClose, PanelRightOpen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { displayHost } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { NAV_FOOTER, NAV_SECTIONS, type ActiveNav, type NavBadges, type NavItem } from "./dashboard-nav";
 import { isRtl, tr } from "@/lib/i18n/dashboard";
 
 type Props = {
-  store: { name: string; slug: string };
+  store: { name: string; slug: string; url: string };
   active: ActiveNav | null;
   /** Live counts (orders waiting…), keyed by item href. */
   badges?: NavBadges;
@@ -166,7 +166,7 @@ export default function DashboardSidebar({ store, active, badges, collapsed = fa
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold leading-tight">{store.name}</p>
             <p className="truncate text-[11px] font-normal text-muted-foreground" dir="ltr">
-              {buildStoreUrl(store.slug).replace(/^https?:\/\//, "")}
+              {displayHost(store.url)}
             </p>
           </div>
         )}

@@ -17,7 +17,7 @@ import {
   readParam,
   type SearchParamsRecord,
 } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { loadAbandonedCarts, type RecoveryStatus } from "@/lib/cart-recovery/abandoned";
 import { couponStatusWhere, formatCouponValue } from "@/lib/coupons/coupon-status";
 import { checkLimit, FEATURE_KEYS, hasFeature } from "@/lib/entitlements";
@@ -120,8 +120,7 @@ export default async function AbandonedCartsRoute({ searchParams }: AbandonedCar
   const recoveredValue = recovered.reduce((s, c) => s + c.value, 0);
   const openCart = openKey ? (all.find((c) => c.key === openKey && c.status !== "recovered") ?? all.find((c) => c.key === openKey) ?? null) : null;
 
-  const storeBaseUrl =
-    store.customDomain && store.customDomainStatus === "ACTIVE" ? `https://${store.customDomain}` : buildStoreUrl(store.slug);
+  const storeBaseUrl = storePublicUrl(store);
   const currentPage = readParam(params, "page");
   const openHref = (key: string) => hrefWith(BASE_PATH, params, { cart: key, page: currentPage });
   const hasFilters = Boolean(q || status || periodParam);

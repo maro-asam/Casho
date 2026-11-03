@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { displayHost } from "@/helpers/BuildStoreURL";
 import NotificationsBell from "../notifications/NotificationsBell";
 import DashboardSearch from "./DashboardSearch";
 import type { ActiveNav } from "./dashboard-nav";
@@ -24,7 +24,7 @@ import { currentLocale, tdir, tr } from "@/lib/i18n/dashboard";
 import { useSwitchLocale } from "@/lib/i18n/dashboard/use-switch-locale";
 
 type Props = {
-  store: { name: string; slug: string };
+  store: { name: string; slug: string; url: string };
   active: ActiveNav | null;
   initialNotifications: NotificationDTO[];
   initialUnreadCount: number;
@@ -67,12 +67,12 @@ function AccountMenu({ store }: { store: Props["store"] }) {
         <DropdownMenuLabel className="font-normal">
           <p className="truncate text-sm font-semibold">{store.name}</p>
           <p className="truncate text-xs text-muted-foreground" dir="ltr">
-            {buildStoreUrl(store.slug).replace(/^https?:\/\//, "")}
+            {displayHost(store.url)}
           </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={buildStoreUrl(store.slug)} target="_blank" rel="noreferrer">
+          <Link href={store.url} target="_blank" rel="noreferrer">
             <ExternalLink />
             {tr("زيارة المتجر")}
           </Link>
@@ -158,7 +158,7 @@ export default function DashboardTopbar({ store, active, initialNotifications, i
       <div className="flex shrink-0 items-center gap-1">
         <DashboardSearch />
         <Button asChild variant="ghost" size="sm" className="hidden h-9 gap-1.5 rounded-full font-normal text-foreground/80 hover:bg-muted hover:text-foreground lg:inline-flex">
-          <Link href={buildStoreUrl(store.slug)} target="_blank" rel="noreferrer">
+          <Link href={store.url} target="_blank" rel="noreferrer">
             <ExternalLink className="size-4" />
             {tr("زيارة المتجر")}
           </Link>

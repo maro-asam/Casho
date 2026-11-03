@@ -36,7 +36,7 @@ export default async function DomainRoute() {
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true, customDomain: true, customDomainStatus: true, customDomainConnectedAt: true },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true, customDomainConnectedAt: true, subdomainEnabled: true },
   });
 
   if (!store) {
@@ -70,6 +70,7 @@ export default async function DomainRoute() {
             initialStatus={store.customDomainStatus as "PENDING" | "ACTIVE" | "FAILED"}
             connectedAt={store.customDomainConnectedAt?.toISOString() ?? null}
             storeUrl={storeUrl}
+            subdomainEnabled={store.subdomainEnabled}
             targets={DNS_TARGETS}
             verifyToken={domainVerificationToken(store.id)}
           />

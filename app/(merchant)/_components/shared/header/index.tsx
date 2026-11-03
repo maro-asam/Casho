@@ -15,7 +15,7 @@ import {
 import MobileHeaderMenu from "./MobileHeaderMenu";
 import Image from "next/image";
 import { ModeToggle } from "@/theme/ModeToggle";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 
 const links = [
@@ -30,6 +30,7 @@ const Header = async () => {
 
   const storeName = user?.stores?.[0]?.name;
   const storeSlug = user?.stores?.[0]?.slug;
+  const storeUrl = user?.stores?.[0] ? storePublicUrl(user.stores[0]) : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
@@ -103,7 +104,7 @@ const Header = async () => {
 
                 {storeSlug && (
                   <DropdownMenuItem asChild>
-                    <Link href={buildStoreUrl(storeSlug)}>{tr("عرض المتجر")}</Link>
+                    <Link href={storeUrl!}>{tr("عرض المتجر")}</Link>
                   </DropdownMenuItem>
                 )}
 

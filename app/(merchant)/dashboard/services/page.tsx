@@ -18,7 +18,7 @@ import type { ServiceRequestStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { Card, LargeTitle, Segmented, StatusText, readParam, type PillTone, type SearchParamsRecord } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import RequestServiceDialog from "./_components/RequestServiceDialog";
 import { lazyIntl, lazyList, tdir, tr } from "@/lib/i18n/dashboard";
@@ -220,7 +220,7 @@ export default async function ServicesRoute({ searchParams }: { searchParams?: P
   const userId = await requireUserId();
   const params = await searchParams;
   const [store, user] = await Promise.all([
-    prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true } }),
+    prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true, customDomain: true, customDomainStatus: true } }),
     prisma.user.findUnique({ where: { id: userId }, select: { name: true, phone_number: true } }),
   ]);
   const requests = store
@@ -237,7 +237,7 @@ export default async function ServicesRoute({ searchParams }: { searchParams?: P
   const defaults: Defaults = {
     fullName: user?.name ?? undefined,
     phone: user?.phone_number ?? undefined,
-    storeLink: store ? buildStoreUrl(store.slug) : undefined,
+    storeLink: store ? storePublicUrl(store) : undefined,
   };
   const catParam = readParam(params, "cat");
   const active = CATEGORIES.find((c) => c.value === catParam)?.value;

@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { prisma } from "@/lib/prisma";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { decryptSecret, encryptSecret, maskSecret } from "@/lib/secrets";
 import { PaymobError, createPaymobCheckout, paymobKeyMode, type PaymobMode } from "@/lib/paymob";
 import { PAYMENT_METHODS, isAvailablePaymentMethod, type PaymentMethodKey } from "@/constants/welcome/payment-methods";
@@ -19,6 +20,8 @@ export type PaymentMethodsSettingsData = {
   storeId: string;
   storeName: string;
   storeSlug: string;
+  /** Public address — the custom domain once it's live. */
+  storeUrl: string;
 
   /** Ordered — the first one is preselected at checkout. */
   enabledPaymentMethods: PaymentMethodKey[];
@@ -72,6 +75,8 @@ async function getOwnedStore() {
       id: true,
       name: true,
       slug: true,
+      customDomain: true,
+      customDomainStatus: true,
       paymentMethods: true,
       settings: { select: { primaryColor: true } },
       storePaymentSettings: {
@@ -112,6 +117,7 @@ export async function GetPaymentMethodsSettingsAction(): Promise<PaymentMethodsS
     storeId: store.id,
     storeName: store.name,
     storeSlug: store.slug,
+    storeUrl: storePublicUrl(store),
     enabledPaymentMethods,
     manualPaymentDetails,
     paymob: {

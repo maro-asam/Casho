@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 
 import EditProductForm from "@/app/(merchant)/dashboard/products/_components/EditProductForm";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { tdir, tr } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -31,6 +31,8 @@ export default async function EditProductPage({
     select: {
       id: true,
       slug: true,
+      customDomain: true,
+      customDomainStatus: true,
     },
   });
 
@@ -98,7 +100,7 @@ export default async function EditProductPage({
         product={product}
         categories={categories}
         products={bundleProducts}
-        storefrontUrl={buildStoreUrl(store.slug, `/products/${product.slug}`)}
+        storefrontUrl={storePublicUrl(store, `/products/${product.slug}`)}
       />
     </div>
   );

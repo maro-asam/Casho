@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ImageIcon, Layers, Star } from "lucide-react";
 
 import { StatusText, Tag } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { DEFAULT_LOW_STOCK_THRESHOLD } from "./product-filters";
 import { ProductRowActions } from "./product-row-actions";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
@@ -90,7 +89,8 @@ const th = "h-9 px-3 pb-2 text-start align-bottom text-[12px] font-medium whites
 const td = "relative px-3 py-3 align-middle";
 
 /** Desktop: list-view table. Mobile: grouped rows — same data, same row link. */
-export function ProductsTable({ products, storeSlug }: { products: ProductRow[]; storeSlug: string }) {
+/** `storeUrl` — the store's public address (custom domain once live), no trailing slash. */
+export function ProductsTable({ products, storeUrl }: { products: ProductRow[]; storeUrl: string }) {
   return (
     <>
       <div className="hidden md:block">
@@ -148,7 +148,7 @@ export function ProductsTable({ products, storeSlug }: { products: ProductRow[];
                   <Price product={product} />
                 </td>
                 <td className={`${td} pe-4 text-end`}>
-                  <ProductRowActions product={product} storefrontUrl={buildStoreUrl(storeSlug, `/products/${product.slug}`)} />
+                  <ProductRowActions product={product} storefrontUrl={`${storeUrl}/products/${product.slug}`} />
                 </td>
               </tr>
             ))}
@@ -179,7 +179,7 @@ export function ProductsTable({ products, storeSlug }: { products: ProductRow[];
                 <span>{product.categoryName}</span>
               </div>
             </div>
-            <ProductRowActions product={product} storefrontUrl={buildStoreUrl(storeSlug, `/products/${product.slug}`)} />
+            <ProductRowActions product={product} storefrontUrl={`${storeUrl}/products/${product.slug}`} />
           </li>
         ))}
       </ul>

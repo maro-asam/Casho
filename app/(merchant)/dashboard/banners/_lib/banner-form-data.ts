@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
 import type { BannerFormContext, EditableBanner } from "../_components/banner-form";
 
@@ -7,7 +7,7 @@ import type { BannerFormContext, EditableBanner } from "../_components/banner-fo
 export async function loadBannerFormContext(userId: string): Promise<BannerFormContext | null> {
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true, settings: { select: { whatsappNumber: true } } },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true, settings: { select: { whatsappNumber: true } } },
   });
   if (!store) return null;
 
@@ -19,7 +19,7 @@ export async function loadBannerFormContext(userId: string): Promise<BannerFormC
 
   return {
     storeId: store.id,
-    storefrontUrl: buildStoreUrl(store.slug),
+    storefrontUrl: storePublicUrl(store),
     categories,
     whatsapp: store.settings?.whatsappNumber ?? null,
   };

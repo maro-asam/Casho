@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/auth/session";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { EnsureGuestSessionId, GetGuestSessionId } from "@/actions/session/guest.actions";
 
 export async function MustSession() {
@@ -34,7 +35,7 @@ export async function GetNavbarUserAction() {
     const user = await getCurrentUser();
     if (!user) return null;
     const store = user.stores?.[0];
-    return { email: user.email, storeName: store?.name ?? null, storeSlug: store?.slug ?? null };
+    return { email: user.email, storeName: store?.name ?? null, storeSlug: store?.slug ?? null, storeUrl: store ? storePublicUrl(store) : null };
   } catch {
     return null;
   }

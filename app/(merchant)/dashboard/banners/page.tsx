@@ -16,7 +16,7 @@ import {
   readParam,
   type SearchParamsRecord,
 } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
 import {
   BANNER_LINK_TYPES,
@@ -73,7 +73,7 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true, settings: { select: { whatsappNumber: true } } },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true, settings: { select: { whatsappNumber: true } } },
   });
 
   if (!store) {
@@ -144,7 +144,7 @@ export default async function BannersRoute({ searchParams }: BannersRouteProps) 
   }));
 
   const hasFilters = Boolean(q || status);
-  const storefrontUrl = buildStoreUrl(store.slug);
+  const storefrontUrl = storePublicUrl(store);
   const newHref = "/banners/new";
   const editHref = (id: string) => `/banners/${id}/edit`;
 

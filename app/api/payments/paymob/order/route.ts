@@ -7,7 +7,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl, type StoreAddress } from "@/helpers/BuildStoreURL";
 import { transactionFromRedirect, transactionFromWebhook, verifyPaymobHmac, type PaymobTransaction } from "@/lib/paymob";
 import { settleOrderPayment } from "@/lib/payments/settle";
 import { prisma } from "@/lib/prisma";
@@ -15,7 +15,7 @@ import { decryptSecret } from "@/lib/secrets";
 
 type Outcome = "success" | "failed" | "invalid" | "pending";
 
-async function settle(tx: PaymobTransaction | null, hmac: string | null): Promise<{ outcome: Outcome; order?: { id: string; slug: string } }> {
+async function settle(tx: PaymobTransaction | null, hmac: string | null): Promise<{ outcome: Outcome; order?: { id: string; store: StoreAddress } }> {
   if (!tx?.merchantOrderId) return { outcome: "invalid" };
 
   const order = await prisma.order.findUnique({
@@ -23,11 +23,11 @@ async function settle(tx: PaymobTransaction | null, hmac: string | null): Promis
     select: {
       id: true,
       total: true,
-      store: { select: { slug: true, storePaymentSettings: { select: { paymobHmacSecretEncrypted: true } } } },
+      store: { select: { slug: true, customDomain: true, customDomainStatus: true, storePaymentSettings: { select: { paymobHmacSecretEncrypted: true } } } },
     },
   });
   if (!order) return { outcome: "invalid" };
-  const ref = { id: order.id, slug: order.store.slug };
+  const ref = { id: order.id, store: order.store };
 
   const encrypted = order.store.storePaymentSettings?.paymobHmacSecretEncrypted;
   let valid = false;
@@ -52,7 +52,7 @@ async function settle(tx: PaymobTransaction | null, hmac: string | null): Promis
     paid: tx.success,
     paymentStatus: tx.success ? "PAID" : "FAILED",
     paymentReference: tx.id,
-    eventSourceUrl: buildStoreUrl(order.store.slug),
+    eventSourceUrl: storePublicUrl(order.store),
   });
   return { outcome: tx.success ? "success" : "failed", order: ref };
 }
@@ -70,7 +70,9 @@ export async function GET(req: NextRequest) {
   if (!order) return NextResponse.redirect(new URL("/?payment=order-not-found", process.env.NEXT_PUBLIC_APP_URL || "https://casho.store"));
 
   const path = outcome === "success" ? `/order/${order.id}/success` : `/order/${order.id}`;
-  const url = new URL(buildStoreUrl(order.slug, path));
+  // Back to the store's public address: with a live custom domain that's where
+  // checkout started (and where the shopper's guest cookie lives).
+  const url = new URL(storePublicUrl(order.store, path));
   url.searchParams.set("payment", outcome);
   return NextResponse.redirect(url);
 }

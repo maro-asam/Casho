@@ -23,6 +23,8 @@ type Props = {
     email: string;
     storeName: string | null;
     storeSlug: string | null;
+    /** Public address — the custom domain once it's live. */
+    storeUrl: string | null;
   } | null;
 };
 
@@ -99,9 +101,9 @@ export default function NavbarDesktopActions({ user }: Props) {
               </Link>
             </DropdownMenuItem>
 
-            {user.storeSlug && (
+            {user.storeUrl && (
               <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg py-2">
-                <Link href={buildStoreUrl(user.storeSlug)}>
+                <Link href={user.storeUrl}>
                   <Store className="size-4 text-muted-foreground" />
                   <span>{t.navbar.viewStore}</span>
                 </Link>

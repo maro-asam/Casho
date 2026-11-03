@@ -6,7 +6,7 @@ import { LogIn, Menu, Store, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { LogoutAction } from "@/actions/auth/logout.actions";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { tr } from "@/lib/i18n/dashboard";
 
 type HeaderUser = {
@@ -29,6 +29,7 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
 
   const storeName = user?.stores?.[0]?.name;
   const storeSlug = user?.stores?.[0]?.slug;
+  const storeUrl = user?.stores?.[0] ? storePublicUrl(user.stores[0]) : null;
 
   return (
     <div className="md:hidden">
@@ -79,7 +80,7 @@ const MobileHeaderMenu = ({ user, links }: Props) => {
 
                 {storeSlug && (
                   <Button className="w-full" variant="outline" asChild>
-                    <Link href={buildStoreUrl(storeSlug)} onClick={() => setOpen(false)}>
+                    <Link href={storeUrl!} onClick={() => setOpen(false)}>
                       {tr("عرض المتجر")}
                     </Link>
                   </Button>

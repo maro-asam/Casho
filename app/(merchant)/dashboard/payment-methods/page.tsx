@@ -3,7 +3,6 @@ import { ExternalLink } from "lucide-react";
 
 import { GetPaymentMethodsSettingsAction } from "@/actions/payment-methods/payment-methods.actions";
 import { LargeTitle, appleButton } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
 import { MethodPerformance, type MethodStat } from "./_components/method-performance";
 import { PaymentsStudio } from "./_components/payments-studio";
@@ -47,7 +46,7 @@ export default async function PaymentMethodsPage() {
         title={tr("بوابات الدفع")}
         subtitle={tr("اختار إزاي عملاءك يدفعوا ورتّب ظهورهم — أي تغيير بيوصل صفحة الدفع في متجرك على طول.")}
         actions={
-          <a href={buildStoreUrl(settings.storeSlug, "/products")} target="_blank" rel="noreferrer" className={appleButton.gray}>
+          <a href={`${settings.storeUrl}/products`} target="_blank" rel="noreferrer" className={appleButton.gray}>
             <ExternalLink className="size-4" />
             {tr("افتح متجرك")}
           </a>

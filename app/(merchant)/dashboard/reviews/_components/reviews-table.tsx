@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { BadgeCheck, ImageIcon } from "lucide-react";
 
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { ReviewRowActions } from "./review-row-actions";
 import { Stars } from "./stars";
 import { lazyIntl, tr } from "@/lib/i18n/dashboard";
@@ -22,12 +21,13 @@ const dateFormat = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", mon
 
 type Props = {
   reviews: ReviewRow[];
-  storeSlug: string;
+  /** The store's public address (custom domain once live), no trailing slash. */
+  storeUrl: string;
   editHref: (id: string) => string;
 };
 
 /** App Store–style review cards: title, stars · date · name, the review, then its product. */
-export function ReviewsTable({ reviews, storeSlug, editHref }: Props) {
+export function ReviewsTable({ reviews, storeUrl, editHref }: Props) {
   return (
     <ul className="grid gap-3 p-3 sm:p-4 lg:grid-cols-2">
       {reviews.map((r) => (
@@ -53,7 +53,7 @@ export function ReviewsTable({ reviews, storeSlug, editHref }: Props) {
               reviewId={r.id}
               customerName={r.customerName}
               editHref={editHref(r.id)}
-              productUrl={buildStoreUrl(storeSlug, `/products/${r.product.slug}`)}
+              productUrl={`${storeUrl}/products/${r.product.slug}`}
             />
           </div>
 

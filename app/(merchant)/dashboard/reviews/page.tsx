@@ -18,6 +18,7 @@ import {
   type SearchParamsRecord,
 } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { UrlReviewDialog, type EditableReview } from "./_components/review-form-dialog";
 import { ReviewsTable, type ReviewRow } from "./_components/reviews-table";
 import { Stars } from "./_components/stars";
@@ -49,7 +50,7 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true },
   });
 
   if (!store) {
@@ -297,7 +298,7 @@ export default async function ReviewsRoute({ searchParams }: ReviewsRouteProps) 
 
               {rows.length > 0 ? (
                 <div className="border-t-[0.5px] border-border">
-                  <ReviewsTable reviews={rows} storeSlug={store.slug} editHref={editHref} />
+                  <ReviewsTable reviews={rows} storeUrl={storePublicUrl(store)} editHref={editHref} />
                 </div>
               ) : (
                 <Unavailable

@@ -1,206 +1,316 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Globe, ScanBarcode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "../../_i18n/LanguageContext";
 import { useLandingCopy } from "./copy";
 
-const BARS = [2, 1, 1, 3, 1, 2, 1, 1, 3, 2, 1, 1, 2, 1, 3, 1, 1, 2, 1, 2];
-// When each channel's pulse leaves for the counter (s). apple.css times the
-// counter's ticks (al-tick) to their arrival.
-const POS_PULSE_AT = 0.8;
-const ONLINE_PULSE_AT = 2.0;
+// Barcode at the foot of the receipt (bar widths in units).
+const BARS = [2, 1, 1, 3, 1, 2, 1, 1, 3, 2, 1, 1, 2, 1, 3, 1, 1, 2, 1, 2, 3, 1, 1, 2, 1, 1, 3, 1, 2, 1];
+
+const CHANNEL = {
+  pos: { icon: ScanBarcode, ink: "#1a8a3e", wash: "rgba(26,138,62,0.12)", solid: "linear-gradient(160deg,#34c759,#1a8a3e)" },
+  online: { icon: Globe, ink: "#1447e6", wash: "rgba(20,71,230,0.1)", solid: "linear-gradient(160deg,#4d7cff,#1447e6)" },
+} as const;
+
+// When each notice lands (s): just before its line reaches the slot. The feed
+// itself (apple.css al-feed) runs 3.2s after a 0.5s delay.
+const POS_NOTICE_AT = 1.1;
+const ONLINE_NOTICE_AT = 1.55;
 
 /**
- * Dark cinematic stage: the claim centred, and under it the whole product in
- * one line — the shop's price tag and the online store floating either side of
- * one stock counter. A pulse of light leaves the tag (a sale in the shop),
- * then the store (an order online); each lands on the counter and takes one
- * off: 48 → 47 → 46. Two channels, one inventory.
+ * Split hero. The claim on one side; on the other, the day's receipt feeding
+ * out of a slot in the counter that runs along the bottom of the section.
+ * Every line is a sale: some rung up in the shop, some ordered online, all on
+ * one roll and one total. Two notices land as the first sale of each kind
+ * comes in.
  *
- * The scene is drawn in `em`, so it scales as one piece with the viewport.
- * Built to be cheap on phones: CSS keyframes on transform/opacity only, no JS
- * animation, no images, no blur filters, and the headline (the LCP) paints
- * unanimated. Reduce Motion lands on the final frame (apple.css).
+ * Built to be cheap on phones: the object is plain DOM drawn in `em` (one
+ * font-size scales it), every animation is CSS transform/opacity, no images,
+ * no blur, and the headline (the LCP) paints unanimated. The paper starts
+ * feeding when the slot scrolls into view, so phones see the print too.
+ * Reduce Motion shows the finished receipt (apple.css).
  */
 export default function AppleHero() {
-  const c = useLandingCopy().hero;
-  const s = c.scene;
+  const copy = useLandingCopy();
+  const c = copy.hero;
   const { lang } = useLang();
-  const rtl = lang === "ar";
-  const Chevron = rtl ? ChevronLeft : ChevronRight;
-  // Physical direction from each object toward the counter.
-  const toCounter: 1 | -1 = rtl ? -1 : 1;
+  const Chevron = lang === "ar" ? ChevronLeft : ChevronRight;
+  const themeCount = copy.themes.items.length;
 
   return (
-    <section className="al-dark relative isolate flex flex-col overflow-hidden md:min-h-[100dvh]">
-      {/* Stage light: a spot from above and brand light pooling under the scene. Gradients only. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-x-0 top-0 h-[55%] bg-[radial-gradient(50%_60%_at_50%_0%,rgba(255,255,255,0.07),transparent)]" />
-        <div className="absolute left-1/2 top-[58%] h-[70vmin] w-[130vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,102,255,0.26),transparent)]" />
+    <section aria-labelledby="hero-title" className="al-dark relative isolate overflow-hidden">
+      {/* A cool wash from the top. Gradients only. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[70%] bg-[radial-gradient(70%_60%_at_50%_0%,rgba(51,102,255,0.13),transparent)]"
+      />
+
+      <div className="al-container-wide grid gap-y-12 pt-[clamp(104px,14svh,132px)] lg:min-h-[calc(100dvh-56px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10 lg:pt-24">
+        <div className="text-center lg:self-center lg:pb-16 lg:text-start">
+          <Link
+            href={c.badge.href}
+            className="group inline-flex items-center gap-2 rounded-full bg-white/6 py-1 ps-1 pe-3 text-[13px] text-white/75 ring-1 ring-white/12 transition-colors hover:bg-white/10"
+          >
+            <span className="rounded-full bg-[#ff9f45]/15 px-2 py-0.5 text-[12px] font-semibold text-[#ff9f45]">{c.badge.tag}</span>
+            {c.badge.text}
+            <Chevron className="size-3.5 opacity-60" strokeWidth={2} />
+          </Link>
+
+          <h1
+            id="hero-title"
+            className="mt-6 text-[clamp(42px,11.5vw,60px)] font-bold leading-[1.22] text-balance lg:text-[clamp(56px,5.6vw,88px)] ltr:leading-[1.04] ltr:tracking-[-0.035em]"
+          >
+            <span className="block">{c.title1}</span>
+            <span className="al-gradient-text block pb-[0.06em]">{c.title2}</span>
+          </h1>
+
+          <p className="mx-auto mt-5 max-w-[36ch] text-pretty text-[16px] leading-relaxed text-(--al-muted) sm:text-[19px] lg:mx-0">
+            {c.subtitle}
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 lg:justify-start">
+            <Link href="/register" className="al-btn al-btn-filled px-8">
+              {c.cta}
+            </Link>
+            <Link href="#pricing" className="al-link">
+              {c.secondary}
+              <Chevron className="size-4" strokeWidth={2} />
+            </Link>
+          </div>
+          <p className="mt-3 text-[13px] text-(--al-faint)">{c.note}</p>
+
+          <dl className="mt-12 hidden w-fit border-t border-white/10 pt-6 lg:flex">
+            <Spec value={c.specs.launch.value} label={c.specs.launch.label} />
+            <Spec
+              value={`${themeCount} ${themeCount > 10 ? c.specs.themes.unitMany : c.specs.themes.unit}`}
+              label={c.specs.themes.label}
+            />
+            <Spec value={c.specs.payments.value} label={c.specs.payments.label} />
+          </dl>
+        </div>
+
+        <ReceiptStage />
       </div>
 
-      <div className="al-container-wide flex flex-1 flex-col items-center justify-center pb-14 pt-[clamp(100px,13svh,128px)] text-center md:pb-16">
-        <h1 className="text-[clamp(40px,6.6vw,96px)] font-bold leading-[1.22] text-balance ltr:leading-[1.04] ltr:tracking-[-0.035em]">
-          <span className="block">{c.title1}</span>
-          <span className="al-gradient-text block pb-[0.06em]">{c.title2}</span>
-        </h1>
-
-        {/* tag ── pulse ──▶ counter ◀── pulse ── store */}
-        <div
-          aria-hidden
-          className="mt-[clamp(36px,6svh,64px)] grid w-full max-w-[1000px] grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center text-[clamp(54px,10vw,148px)]"
-        >
-          <Node caption={s.pos} glow="rgba(26,138,62,0.32)">
-            <PriceTag />
-          </Node>
-          <Wire to={toCounter} at={POS_PULSE_AT} color="#4cd07a" />
-          <Counter caption={s.stock} unit={s.unit} />
-          <Wire to={toCounter === 1 ? -1 : 1} at={ONLINE_PULSE_AT} color="#7da2ff" />
-          <Node caption={s.online} glow="rgba(51,102,255,0.38)">
-            <MiniStore />
-          </Node>
-        </div>
-
-        <p className="mt-[clamp(52px,8svh,80px)] max-w-[44ch] text-pretty text-[15px] leading-relaxed text-(--al-muted) sm:text-[18px]">{c.subtitle}</p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
-          <Link href="/register" className="al-btn al-btn-filled px-8">
-            {c.cta}
-          </Link>
-          <Link href="#pricing" className="al-link">
-            {c.secondary}
-            <Chevron className="size-4" strokeWidth={2} />
-          </Link>
-        </div>
-        <p className="mt-3 text-[13px] text-(--al-faint)">{c.note}</p>
+      {/* The counter the receipt prints out of. */}
+      <div aria-hidden className="relative h-10 bg-linear-to-b from-[#17181d] via-[#0b0c0f] to-black lg:h-14">
+        <span className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
       </div>
     </section>
   );
 }
 
-/** An object floating on its own light, named underneath. */
-function Node({ caption, glow, children }: { caption: string; glow: string; children: React.ReactNode }) {
+function Spec({ value, label }: { value: string; label: string }) {
   return (
-    <span className="relative flex justify-center">
-      <span className="absolute -inset-[0.35em] rounded-full" style={{ background: `radial-gradient(closest-side, ${glow}, transparent)` }} />
-      <span className="al-float relative flex">{children}</span>
-      <Caption>{caption}</Caption>
-    </span>
+    <div className="border-white/10 pe-6 not-first:border-s not-first:ps-6">
+      <dt className="text-[19px] font-semibold text-white">{value}</dt>
+      <dd className="mt-1 whitespace-nowrap text-[13px] leading-snug text-(--al-faint)">{label}</dd>
+    </div>
   );
 }
 
-function Caption({ children }: { children: string }) {
+/**
+ * Starts the print once it can be seen: on desktop when the slot (the stage's
+ * bottom edge) is on screen, on phones as soon as the top of the paper is.
+ */
+function usePlayInView() {
+  const topRef = useRef<HTMLDivElement>(null);
+  const slotRef = useRef<HTMLSpanElement>(null);
+  const [play, setPlay] = useState(false);
+  useEffect(() => {
+    const el = window.matchMedia("(min-width: 1024px)").matches ? slotRef.current : topRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setPlay(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setPlay(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -24px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return { topRef, slotRef, play };
+}
+
+function ReceiptStage() {
+  const c = useLandingCopy().hero;
+  const n = c.notices;
+  const { topRef, slotRef, play } = usePlayInView();
+
   return (
-    <span className="absolute left-1/2 top-full mt-[clamp(14px,0.16em,24px)] -translate-x-1/2 whitespace-nowrap text-[11px] font-medium text-white/50 sm:text-[13px]">
-      {children}
-    </span>
+    <div
+      aria-hidden
+      data-play={play}
+      className="al-stage relative z-10 mx-auto flex w-full flex-col items-center lg:self-end"
+    >
+      {/* Light: a spot on the paper, brand light pooling on the counter. */}
+      <span className="pointer-events-none absolute bottom-0 left-1/2 -z-10 h-[44em] w-[38em] -translate-x-1/2 bg-[radial-gradient(closest-side,rgba(255,255,255,0.085),transparent)]" />
+      <span className="pointer-events-none absolute bottom-0 left-1/2 -z-10 h-[7em] w-[34em] -translate-x-1/2 translate-y-1/2 bg-[radial-gradient(closest-side,rgba(51,102,255,0.4),transparent)]" />
+
+      {/* Phones: the two notices sit above the paper. Desktop: they float beside it. */}
+      <div className="mb-[1.1em] grid w-[22em] grid-cols-2 gap-[0.6em] lg:contents">
+        <div className="al-bob lg:absolute lg:top-[2.6em] lg:start-[calc(50%+7.4em)] lg:z-20 lg:w-[12.6em]">
+          <Notice channel="pos" title={n.pos.title} detail={n.pos.detail} now={n.now} at={POS_NOTICE_AT} />
+        </div>
+        <div className="al-bob lg:absolute lg:bottom-[1.1em] lg:end-[calc(50%+7.4em)] lg:z-20 lg:w-[12.6em]" style={{ animationDelay: "-3.5s" }}>
+          <Notice channel="online" title={n.online.title} detail={n.online.detail} now={n.now} at={ONLINE_NOTICE_AT} />
+        </div>
+      </div>
+
+      {/* The paper, clipped where it leaves the counter. */}
+      <div ref={topRef} className="relative overflow-hidden">
+        <Receipt />
+        {/* Shadow where the paper meets the slot. */}
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[1.4em] bg-linear-to-t from-black/30 to-transparent" />
+      </div>
+
+      {/* The slot, sunk into the counter's top edge, and the printer's light. */}
+      <span
+        ref={slotRef}
+        className="absolute bottom-0 left-1/2 h-[0.5em] w-[21.6em] -translate-x-1/2 translate-y-1/2 rounded-full bg-black shadow-[inset_0_0.12em_0.22em_#000,0_0.06em_0_rgba(255,255,255,0.1)] ring-1 ring-white/10"
+      />
+      <span className="al-led absolute bottom-0 h-[0.26em] w-[0.26em] translate-y-[0.95em] rounded-full bg-[#30d158] shadow-[0_0_0.4em_#30d158] ltr:left-[calc(50%+10.2em)] rtl:right-[calc(50%+10.2em)]" />
+    </div>
   );
 }
 
-/** The line between an object and the counter, with one pulse travelling `to` (+1 right, -1 left). */
-function Wire({ to, at, color }: { to: 1 | -1; at: number; color: string }) {
-  return (
-    <span className="relative mx-[0.1em] h-px bg-linear-to-r from-white/5 via-white/25 to-white/5">
-      <span className="al-pulse absolute inset-0" style={{ "--to": `${to * 100}%`, animationDelay: `${at}s` } as React.CSSProperties}>
-        <span
-          className={cn("absolute top-1/2 size-[0.06em] min-h-1.5 min-w-1.5 -translate-y-1/2 rounded-full", to > 0 ? "left-0" : "right-0")}
-          style={{ background: color, boxShadow: `0 0 0.12em 0.03em ${color}` }}
-        />
-      </span>
-    </span>
-  );
-}
+/** Print order of a block, for the phone animation (apple.css al-line). */
+const line = (i: number) => ({ "--i": i }) as React.CSSProperties;
 
-/** One stock for both channels: ticks 48 → 47 → 46 as the pulses land. */
-function Counter({ caption, unit }: { caption: string; unit: string }) {
+/**
+ * 20em × 33em of thermal paper. Block heights are fixed in em so the desktop
+ * feed's keyframes (apple.css al-feed) stop on line boundaries.
+ */
+function Receipt() {
+  const r = useLandingCopy().hero.receipt;
   return (
-    <span className="relative grid size-[1.08em] place-items-center rounded-full bg-[#0a0c14] shadow-[0_0_0.5em_rgba(51,102,255,0.28),inset_0_0_0.22em_rgba(51,102,255,0.22)] ring-1 ring-white/15">
-      <span className="flex flex-col items-center">
-        <span className="h-[1em] overflow-hidden text-[0.36em] font-bold leading-none tabular-nums text-white">
-          <span className="al-tick flex flex-col">
-            {["48", "47", "46"].map((n) => (
-              <span key={n} className="h-[1em]">
-                {n}
-              </span>
-            ))}
+    <div className="al-paper al-feed flex flex-col px-[1.5em]">
+      <div className="h-[1.4em] shrink-0" />
+
+      {/* Header — 5.4em */}
+      <div style={line(0)} className="al-line flex h-[5.4em] shrink-0 flex-col items-center justify-center text-center">
+        <span className="grid size-[1.9em] place-items-center rounded-[0.55em] bg-[#1447e6] font-bold text-white">
+          <span className="text-[1em] leading-none">{r.initial}</span>
+        </span>
+        <span className="mt-[0.3em] text-[1.05em] font-bold leading-tight">{r.store}</span>
+        <span className="text-[0.68em] leading-tight text-black/50" dir="ltr">
+          {r.url}
+        </span>
+      </div>
+
+      {/* Meta — 1.9em */}
+      <div style={line(1)} className="al-line flex h-[1.9em] shrink-0 items-center justify-between border-y border-dashed border-black/20">
+        <span className="text-[0.7em] font-semibold">{r.meta}</span>
+        <span className="text-[0.7em] text-black/50">{r.count}</span>
+      </div>
+
+      {/* Items — 4 × 3em */}
+      {r.items.map((item, i) => {
+        const ch = CHANNEL[item.channel as keyof typeof CHANNEL];
+        const Icon = ch.icon;
+        return (
+          <div key={item.name} style={line(2 + i)} className="al-line flex h-[3em] shrink-0 items-center gap-[0.6em]">
+            <span className="grid size-[1.75em] shrink-0 place-items-center rounded-full" style={{ background: ch.wash }}>
+              <Icon className="size-[0.95em]" style={{ color: ch.ink }} strokeWidth={2.2} />
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-[0.86em] font-semibold leading-snug">{item.name}</span>
+              <span className="truncate text-[0.7em] leading-snug text-black/50">{item.via}</span>
+            </span>
+            <span className="text-[0.86em] font-semibold tabular-nums">{item.price}</span>
+          </div>
+        );
+      })}
+
+      {/* Rule — 0.9em */}
+      <div style={line(6)} className="al-line flex h-[0.9em] shrink-0 items-center">
+        <span className="h-0 w-full border-t border-dashed border-black/20" />
+      </div>
+
+      {/* Totals — 6.2em */}
+      <div style={line(6)} className="al-line flex h-[6.2em] shrink-0 flex-col justify-center">
+        <TotalRow ink={CHANNEL.pos.ink} label={r.shop} value={r.shopTotal} />
+        <TotalRow ink={CHANNEL.online.ink} label={r.online} value={r.onlineTotal} />
+        {/* Shop vs online share of the day. */}
+        <span className="al-grow my-[0.45em] flex h-[0.32em] origin-left gap-[0.12em] rtl:origin-right">
+          <span className="rounded-full" style={{ background: CHANNEL.pos.ink, flex: 670 }} />
+          <span className="rounded-full" style={{ background: CHANNEL.online.ink, flex: 1950 }} />
+        </span>
+        <span className="flex items-baseline justify-between">
+          <span className="text-[0.95em] font-bold">{r.total}</span>
+          <span className="flex items-baseline gap-[0.25em]">
+            <span className="text-[1.4em] font-bold leading-none tabular-nums">{r.grand}</span>
+            <span className="text-[0.7em] font-semibold text-black/60">{r.currency}</span>
           </span>
         </span>
-        <span className="mt-1 text-[9px] text-white/50 sm:text-[12px]">{unit}</span>
-      </span>
-      <Caption>{caption}</Caption>
-    </span>
-  );
-}
+      </div>
 
-// Shared by both objects: tilt and pop in.
-const OBJECT = "al-chip relative inline-flex h-[0.76em]";
-
-/** The shop: a price tag with a scanner's laser sweeping its barcode. */
-function PriceTag() {
-  return (
-    <span
-      className={cn(
-        OBJECT,
-        "w-[1.34em] items-center rounded-[0.12em] bg-white shadow-[0_0.1em_0.24em_-0.06em_rgba(10,60,30,0.45)] ring-[0.012em] ring-black/10",
-      )}
-      style={{ "--tilt": "-7deg", animationDelay: "0.15s" } as React.CSSProperties}
-    >
-      {/* The tag's coloured end, punched for the string. */}
-      <span className="flex h-full w-[0.22em] shrink-0 items-center justify-center rounded-s-[0.12em] bg-[#1a8a3e]">
-        <span className="size-[0.075em] rounded-full bg-white ring-[0.012em] ring-black/15" />
-      </span>
-      <span className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-[0.035em] px-[0.08em]" dir="ltr">
-        <span className="flex h-[0.32em] items-stretch gap-[0.016em]">
+      {/* Footer — 4.4em */}
+      <div style={line(7)} className="al-line flex h-[4.4em] shrink-0 flex-col items-center justify-center gap-[0.4em] border-t border-dashed border-black/20">
+        <span className="flex h-[1.8em] items-stretch gap-[0.1em]" dir="ltr">
           {BARS.map((bar, i) => (
-            <span key={i} className="bg-[#1d1d1f]" style={{ width: `${bar * 0.014}em` }} />
+            <span key={i} className="bg-[#1d1d1f]" style={{ width: `${bar * 0.1}em` }} />
           ))}
         </span>
-        <span className="text-[0.085em] font-semibold leading-none tracking-[0.12em] text-[#1d1d1f]/70 tabular-nums">6 221034 004509</span>
-        {/* Laser: sweeps the bars top to bottom and back. */}
-        <span className="al-laser absolute inset-x-[0.04em] top-[0.14em] h-[0.018em] rounded-full bg-[#ff3b30] shadow-[0_0_0.06em_0.015em_rgba(255,59,48,0.75)]" />
+        <span className="text-[0.66em] leading-none text-black/45">{r.thanks}</span>
+      </div>
+    </div>
+  );
+}
+
+function TotalRow({ ink, label, value }: { ink: string; label: string; value: string }) {
+  return (
+    <span className="flex h-[1.45em] items-center justify-between">
+      <span className="flex items-center gap-[0.45em]">
+        <span className="size-[0.45em] rounded-full" style={{ background: ink }} />
+        <span className="text-[0.74em] text-black/65">{label}</span>
       </span>
+      <span className="text-[0.74em] font-semibold tabular-nums">{value}</span>
     </span>
   );
 }
 
-/** The online store: a tiny storefront window whose cart just got an order. */
-function MiniStore() {
+/** A phone-style notification: one sale arriving from one channel. */
+function Notice({
+  channel,
+  title,
+  detail,
+  now,
+  at,
+}: {
+  channel: keyof typeof CHANNEL;
+  title: string;
+  detail: string;
+  now: string;
+  at: number;
+}) {
+  const ch = CHANNEL[channel];
+  const Icon = ch.icon;
   return (
-    <span
-      className={cn(
-        OBJECT,
-        "w-[1.4em] flex-col overflow-hidden rounded-[0.12em] bg-white shadow-[0_0.1em_0.24em_-0.06em_rgba(20,71,230,0.5)] ring-[0.012em] ring-black/10",
-      )}
-      style={{ "--tilt": "6deg", animationDelay: "0.3s" } as React.CSSProperties}
+    <div
+      className="al-notice flex items-center gap-[0.55em] rounded-[0.95em] bg-[#1c1c1e]/95 p-[0.55em] pe-[0.75em] text-[0.8em] shadow-[0_1em_2.2em_-0.5em_rgba(0,0,0,0.8)] ring-1 ring-white/10 lg:text-[0.86em]"
+      style={{ animationDelay: `${at}s` }}
     >
-      {/* Browser bar */}
-      <span className="flex h-[0.15em] shrink-0 items-center gap-[0.028em] bg-[#1447e6] px-[0.06em]" dir="ltr">
-        {[0, 1, 2].map((dot) => (
-          <span key={dot} className="size-[0.034em] rounded-full bg-white/70" />
-        ))}
-        <span className="ms-[0.05em] h-[0.05em] flex-1 rounded-full bg-white/25" />
+      <span className="grid size-[2.2em] shrink-0 place-items-center rounded-[0.6em]" style={{ background: ch.solid }}>
+        <Icon className="size-[1.15em] text-white" strokeWidth={2.2} />
       </span>
-      {/* Two products and the cart */}
-      <span className="flex flex-1 items-center gap-[0.05em] px-[0.07em]">
-        {[
-          { tile: "bg-[#e8eeff]", art: "rounded-full bg-[#1447e6]/40" },
-          { tile: "bg-[#f1f1f4]", art: "rounded-[0.03em] bg-[#1d1d1f]/25" },
-        ].map((p, i) => (
-          <span key={i} className="flex h-[0.42em] flex-1 flex-col items-center justify-center gap-[0.035em]">
-            <span className={cn("flex h-[0.26em] w-full items-center justify-center rounded-[0.05em]", p.tile)}>
-              <span className={cn("size-[0.12em]", p.art)} />
-            </span>
-            <span className="h-[0.035em] w-[60%] rounded-full bg-[#1d1d1f]/20" />
-          </span>
-        ))}
-        <span className="relative grid size-[0.3em] shrink-0 place-items-center rounded-full bg-[#1447e6] text-white">
-          <ShoppingBag className="size-[0.16em]" strokeWidth={2.4} />
-          <span className="al-ping absolute -end-[0.06em] -top-[0.06em] grid size-[0.15em] place-items-center rounded-full bg-[#ff3b30] ring-[0.015em] ring-white">
-            <span className="text-[0.1em] font-bold leading-none">1</span>
-          </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-[0.1em] text-start">
+        <span className="flex items-baseline justify-between gap-[0.6em]">
+          <span className="truncate text-[0.92em] font-semibold leading-tight text-white">{title}</span>
+          <span className="hidden shrink-0 text-[0.72em] text-white/40 lg:inline">{now}</span>
         </span>
+        <span className="truncate text-[0.8em] leading-tight text-white/60 tabular-nums">{detail}</span>
       </span>
-    </span>
+    </div>
   );
 }

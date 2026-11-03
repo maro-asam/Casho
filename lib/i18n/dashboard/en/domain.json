@@ -79,5 +79,12 @@
   "مقدرناش نفحص دلوقتي.": "We couldn't check right now.",
   "هتقدر تربط نفس الدومين أو دومين تاني بعدين.": "You can connect the same domain or another one later.",
   "ليه دومين خاص؟": "Why a custom domain?",
-  "روابط متجرك": "Your store links"
+  "روابط متجرك": "Your store links",
+  "رابط كاشو القديم": "Old Casho link",
+  "شغّال — متجرك بيفتح على الرابطين.": "On — your store opens on both links.",
+  "مقفول — أي حد يفتحه بيتحوّل لـ {0} على نفس الصفحة، فاللينكات القديمة مش هتبوظ.": "Off — anyone who opens it is sent to {0}, same page, so old links keep working.",
+  "مقدرناش نحفظ دلوقتي.": "We couldn't save right now.",
+  "رابط كاشو القديم رجع يفتح متجرك.": "Your old Casho link opens your store again.",
+  "رابط كاشو القديم بقى بيحوّل لدومينك الجديد — التغيير بياخد دقيقة أو اتنين.": "Your old Casho link now redirects to your new domain — it takes a minute or two.",
+  "لازم الدومين الجديد يبقى شغّال الأول قبل ما تقفل رابط كاشو.": "Your new domain has to be live before you can turn off the Casho link."
 }

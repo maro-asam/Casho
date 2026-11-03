@@ -14,7 +14,7 @@ import {
 } from "@/actions/admin/admin-store.actions";
 import { StatusText } from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import { ActionButton } from "../../_components/action-button";
 import { BackLink, Fields, KpiStrip, Panel, PanelEmpty, th, theadRow } from "../../_components/admin-ui";
@@ -109,7 +109,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
   const meta = SUBSCRIPTION_META[store.subscriptionStatus];
   const enoughForRenewal = store.balance >= store.monthlyPrice;
   const hasSubscription = !!store.subscriptionEndsAt;
-  const storeUrl = buildStoreUrl(store.slug);
+  const storeUrl = storePublicUrl(store);
   const whatsapp = store.user.phone_number?.replace(/[^\d]/g, "");
   const cycleWord = store.billingCycle === "YEARLY" ? "سنوي" : "شهري";
 

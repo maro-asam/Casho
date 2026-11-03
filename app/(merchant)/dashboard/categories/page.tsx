@@ -18,6 +18,7 @@ import {
   type SearchParamsRecord,
 } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { CategoriesTable, type CategoryRow } from "./_components/categories-table";
 import { UrlCategoryDialog } from "./_components/category-form-dialog";
 import { tdir, tr } from "@/lib/i18n/dashboard";
@@ -60,7 +61,7 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true },
   });
 
   if (!store) {
@@ -219,7 +220,7 @@ export default async function CategoriesRoute({ searchParams }: CategoriesRouteP
               <CategoriesTable
                 categories={rows}
                 storeId={store.id}
-                storeSlug={store.slug}
+                storeUrl={storePublicUrl(store)}
                 allCategories={allCategories}
                 editHref={editHref}
               />

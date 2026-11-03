@@ -22,6 +22,7 @@ import type { DomainCheckReport } from "@/lib/custom-domain/verify";
 import { cn } from "@/lib/utils";
 import { lazyIntl, lazyList, tdir, tr, trv } from "@/lib/i18n/dashboard";
 import { BrowserBar } from "./browser-bar";
+import { SubdomainSwitch } from "./subdomain-switch";
 
 type Status = "PENDING" | "ACTIVE" | "FAILED";
 
@@ -29,7 +30,10 @@ type Props = {
   domain: string;
   initialStatus: Status;
   connectedAt: string | null;
+  /** The Casho subdomain address — always, whatever the domain's status. */
   storeUrl: string;
+  /** false = the subdomain redirects to this domain (only while it's ACTIVE). */
+  subdomainEnabled: boolean;
   targets: { cname: string; a: string };
   /** This store's ownership token (TXT record). */
   verifyToken: string;
@@ -128,7 +132,7 @@ function ValueLine({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, targets, verifyToken }: Props) {
+export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, subdomainEnabled, targets, verifyToken }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>(initialStatus);
   const [report, setReport] = useState<DomainCheckReport | null>(null);
@@ -399,16 +403,20 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, tar
                 <p className="pe-2 text-[12px] text-muted-foreground">{tr("ده اللي جوجل والمشاركات هيستخدموه.")}</p>
               </div>
             )}
-            <div className="space-y-0.5 py-2.5 ps-4 pe-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[13px] text-muted-foreground">{tr("رابط كاشو")}</span>
-                <CopyButton value={storeUrl} label={tr("رابط كاشو")} />
+            {live ? (
+              <SubdomainSwitch subdomainHost={storeUrl.replace(/^https?:\/\//, "")} domain={domain} initialEnabled={subdomainEnabled} />
+            ) : (
+              <div className="space-y-0.5 py-2.5 ps-4 pe-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[13px] text-muted-foreground">{tr("رابط كاشو")}</span>
+                  <CopyButton value={storeUrl} label={tr("رابط كاشو")} />
+                </div>
+                <p className="truncate text-[15px] text-muted-foreground rtl:text-right" dir="ltr">
+                  {storeUrl.replace(/^https?:\/\//, "")}
+                </p>
+                <p className="pe-2 text-[12px] text-muted-foreground">{tr("لسه شغّال — أي لينك قديم مش هيبوظ.")}</p>
               </div>
-              <p className="truncate text-[15px] text-muted-foreground rtl:text-right" dir="ltr">
-                {storeUrl.replace(/^https?:\/\//, "")}
-              </p>
-              <p className="pe-2 text-[12px] text-muted-foreground">{tr("لسه شغّال — أي لينك قديم مش هيبوظ.")}</p>
-            </div>
+            )}
           </div>
         </section>
       </aside>

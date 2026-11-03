@@ -17,7 +17,7 @@ import {
   readParam,
   type SearchParamsRecord,
 } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { COUPON_STATUSES, couponStatus, couponStatusWhere, isCouponStatus } from "@/lib/coupons/coupon-status";
 import { readPopupConfig } from "@/lib/popups/popup-config";
 import { prisma } from "@/lib/prisma";
@@ -47,7 +47,7 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
   const userId = await requireUserId();
   const params = await searchParams;
 
-  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true } });
+  const store = await prisma.store.findFirst({ where: { userId }, select: { id: true, slug: true, customDomain: true, customDomainStatus: true } });
 
   if (!store) {
     return (
@@ -153,7 +153,7 @@ export default async function CouponsRoute({ searchParams }: CouponsRouteProps) 
   const currentPage = readParam(params, "page");
   const newHref = hrefWith(BASE_PATH, params, { new: 1, edit: null, page: currentPage });
   const editHref = (id: string) => hrefWith(BASE_PATH, params, { edit: id, new: null, page: currentPage });
-  const storeUrl = buildStoreUrl(store.slug);
+  const storeUrl = storePublicUrl(store);
   const shareUrl = (code: string) => `${storeUrl}/?coupon=${encodeURIComponent(code)}`;
 
   const filterClass = "h-9 rounded-full border-0 bg-muted text-[15px] shadow-none sm:w-40";

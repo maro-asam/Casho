@@ -15,6 +15,7 @@ import {
   type SearchParamsRecord,
 } from "@/components/saas-page";
 import { prisma } from "@/lib/prisma";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { baseProductWhere, parseProductFilters, productWhere, viewWhere } from "./_components/product-filters";
 import { ProductsTable, type ProductRow } from "./_components/products-table";
 import { tdir, tr } from "@/lib/i18n/dashboard";
@@ -42,7 +43,7 @@ export default async function ProductsRoute({ searchParams }: ProductsRouteProps
 
   const store = await prisma.store.findFirst({
     where: { userId },
-    select: { id: true, slug: true },
+    select: { id: true, slug: true, customDomain: true, customDomainStatus: true },
   });
 
   if (!store) {
@@ -208,7 +209,7 @@ export default async function ProductsRoute({ searchParams }: ProductsRouteProps
             </div>
 
             {rows.length > 0 ? (
-              <ProductsTable products={rows} storeSlug={store.slug} />
+              <ProductsTable products={rows} storeUrl={storePublicUrl(store)} />
             ) : (
               <Unavailable
                 icon={SearchX}

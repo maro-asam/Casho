@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { ReactNode } from "react";
 import { prisma } from "@/lib/prisma";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import DashboardShell from "../_components/main/DashboardShell";
 import VerifyEmailNotice from "../_components/main/VerifyEmailNotice";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
@@ -56,6 +57,8 @@ export default async function DashboardLayout({
       id: true,
       name: true,
       slug: true,
+      customDomain: true,
+      customDomainStatus: true,
       planSelected: true,
       onboardingCompleted: true,
       subscriptionStatus: true,
@@ -124,7 +127,7 @@ export default async function DashboardLayout({
   return (
     <DashboardI18nProvider locale={locale}>
     <DashboardShell
-      store={store}
+      store={{ ...store, url: storePublicUrl(store) }}
       initialNotifications={notifications}
       initialUnreadCount={unreadCount}
       initialNavBadges={navBadges}

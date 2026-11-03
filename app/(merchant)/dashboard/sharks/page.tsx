@@ -5,7 +5,7 @@ import type { SharksApplicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { Card, LargeTitle, Rows, Row, StatusText, appleButton } from "@/components/saas-page";
-import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { APPLICATION_STATUS, BENEFITS, OPERATING_SINCE, PLAN_STATUS, TRACKS, pick, type BenefitKey, type OperatingSince } from "@/lib/sharks/catalog";
 import { getSharksProgram } from "@/lib/sharks/program";
 import { OPEN_APPLICATION_STATUSES, acceptingApplications, availableTracks } from "@/lib/sharks/workflow";
@@ -88,7 +88,7 @@ export default async function SharksDashboardPage() {
     .map((s) => ({
       id: s.id,
       name: s.name,
-      url: s.customDomain && s.customDomainStatus === "ACTIVE" ? `https://${s.customDomain}` : buildStoreUrl(s.slug),
+      url: storePublicUrl(s),
       industry: s.businessCategory,
     }));
   const accepting = acceptingApplications(program);
