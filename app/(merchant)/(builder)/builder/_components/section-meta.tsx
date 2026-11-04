@@ -5,6 +5,7 @@ import {
   Clock,
   Focus,
   FolderOpen,
+  Gift,
   Image as ImageIcon,
   LayoutGrid,
   Mail,
@@ -171,6 +172,14 @@ export const SECTION_META: Record<SectionKey, SectionMeta> = {
     get description() { return tr("منتج واحد مميز على خلفية سودا، بيكبر ويظهر مع السكرول زي إعلانات Apple."); },
     group: "sales",
     themes: ["stage"],
+  },
+  showGiftFinder: {
+    icon: Gift,
+    tint: "bg-(--sys-orange)",
+    get label() { return tr("مساعد الهدايا"); },
+    get description() { return tr("العميل يختار الميزانية ونوع القطعة ويوصل للهدية المناسبة، أو يسألك على واتساب."); },
+    group: "sales",
+    themes: ["qirat"],
   },
 };
 
@@ -376,6 +385,22 @@ function thumb(id: SectionKey) {
           <div className="h-1 w-1/3 rounded-full bg-white/80" />
           <div className="h-5 w-2/5 rounded-[4px] bg-white/25 shadow-[0_0_12px_rgba(255,255,255,.35)]" />
           <div className={cn("h-1.5 w-6 rounded-full", accent)} />
+        </div>
+      );
+    case "showGiftFinder":
+      return (
+        <div className="flex h-full flex-col justify-center gap-1.5 rounded-[6px] bg-[#16120e] px-2">
+          <div className="h-1 w-1/3 rounded-full bg-[#c9a66b]" />
+          <div className="flex gap-1">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={cn("h-2.5 flex-1 rounded-full border border-[#c9a66b]/60", i === 1 && "bg-[#c9a66b]/70")} />
+            ))}
+          </div>
+          <div className="flex gap-1">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="aspect-[3/4] flex-1 rounded-[3px] bg-white/15" />
+            ))}
+          </div>
         </div>
       );
     case "showRichText":

@@ -126,6 +126,7 @@ const ar = {
       { id: "gym", name: "كاشو جيم", note: "أسود وأحمر. مكملات وأدوات جيم." },
       { id: "market", name: "كاشو ماركت", note: "برتقالي، فاتح وغامق. سوبر ماركت وأكشاك." },
       { id: "stage", name: "كاشو ستيدج", note: "روح Apple. براندات وأي مجال." },
+      { id: "qirat", name: "كاشو قيراط", note: "سيريف ودهبي. مجوهرات وإكسسوارات." },
     ],
   },
   pricing: {
@@ -282,6 +283,7 @@ const en: LandingCopy = {
       { id: "gym", name: "Casho Gym", note: "Black and red. Supplements and gear." },
       { id: "market", name: "Casho Market", note: "Orange, light and dark. Supermarkets and kiosks." },
       { id: "stage", name: "Casho Stage", note: "Apple's spirit. Brands and any field." },
+      { id: "qirat", name: "Casho Qirat", note: "Serif and gold. Jewelry and accessories." },
     ],
   },
   pricing: {

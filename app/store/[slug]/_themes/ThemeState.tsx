@@ -97,6 +97,15 @@ import {
   StagePageSkeleton,
   StageProductSkeleton,
 } from "./stage/states";
+import {
+  QiratCategoriesSkeleton,
+  QiratGridPageSkeleton,
+  QiratHomeSkeleton,
+  QiratListingSkeleton,
+  QiratNotFound,
+  QiratPageSkeleton,
+  QiratProductSkeleton,
+} from "./qirat/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -190,6 +199,15 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     categories: StageCategoriesSkeleton,
     grid: StageGridPageSkeleton,
     "not-found": StageNotFound,
+  },
+  qirat: {
+    home: QiratHomeSkeleton,
+    listing: QiratListingSkeleton,
+    product: QiratProductSkeleton,
+    page: QiratPageSkeleton,
+    categories: QiratCategoriesSkeleton,
+    grid: QiratGridPageSkeleton,
+    "not-found": QiratNotFound,
   },
 };
 

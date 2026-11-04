@@ -310,6 +310,45 @@ function StageThemePreview() {
   );
 }
 
+// ─── 11. Casho Qirat ──────────────────────────────────────────────
+function QiratThemePreview() {
+  return (
+    <div className="relative overflow-hidden rounded-xl border bg-[#fbf9f5]">
+      <div className="h-2 bg-[#16120e]" />
+      <div className="flex h-6 items-center justify-between border-b border-[#e6dccd] px-2.5">
+        <div className="h-1 w-6 rounded-full bg-[#1f1a14]/25" />
+        <div className="h-1.5 w-12 rounded-full bg-[#1f1a14]" />
+        <div className="flex gap-1">
+          <div className="size-1.5 rounded-full bg-[#1f1a14]/40" />
+          <div className="size-1.5 rounded-full bg-[#1f1a14]/40" />
+        </div>
+      </div>
+      <div className="relative mx-2 mt-2 flex h-12 flex-col items-center justify-end bg-gradient-to-t from-[#2a2117] to-[#8a7458] pb-1.5">
+        <div className="h-1.5 w-1/3 rounded-full bg-white/90" />
+        <div className="mt-1 flex items-center gap-1">
+          <div className="h-px w-3 bg-[#d8bd8a]" />
+          <div className="size-1 rotate-45 bg-[#d8bd8a]" />
+          <div className="h-px w-3 bg-[#d8bd8a]" />
+        </div>
+      </div>
+      <div className="flex justify-center gap-2 pt-2">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="size-4 rounded-full bg-[#efe8dd] ring-1 ring-[#b08d57] ring-offset-1 ring-offset-[#fbf9f5]" />
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 p-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-0.5">
+            <div className="aspect-[3/4] w-full bg-[radial-gradient(circle_at_50%_40%,#ffffff,#efe8dd)]" />
+            <div className="h-1 w-2/3 rounded-full bg-[#1f1a14]/40" />
+            <div className="h-1 w-1/3 rounded-full bg-[#b08d57]" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 /** Schematic thumbnail of each theme (no images, so it renders instantly). */
 export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
@@ -323,4 +362,5 @@ export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   gym: GymThemePreview,
   market: MarketThemePreview,
   stage: StageThemePreview,
+  qirat: QiratThemePreview,
 };

@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import AttributesInput from "../AttributesInput";
 import BundleItemsInput, { type BundleItem } from "../BundleItemsInput";
 import ColorInput from "../ColorInput";
-import MarketingAssistantModal, { type ProductDataForMarketing } from "../MarketingAssistantModal";
 import TagInput from "../TagInput";
 import WholesaleInput, { type WholesaleTier } from "../WholesaleInput";
 import { Field, FormSection, ToggleRow } from "./form-section";
@@ -109,14 +108,12 @@ export function ProductForm({ action, categories, products = [], product, storef
     if (!state?.message) return;
     if (state.success) {
       toast.success(trv(state.message));
-      // New product: with product data the AI marketing modal opens (below); otherwise go back to the list.
-      if (!isEdit && !state.productData) router.push("/products");
+      // New product: go back to the list. (The AI marketing modal is paused — MarketingAssistantModal is kept for later.)
+      if (!isEdit) router.push("/products");
     } else {
       toast.error(trv(state.message));
     }
   }, [state, router, isEdit]);
-
-  const marketingData: ProductDataForMarketing | null = !isEdit && state.success ? (state.productData ?? null) : null;
 
   const priceNum = toNumber(price);
   const compareNum = toNumber(compareAtPrice);
@@ -487,10 +484,6 @@ export function ProductForm({ action, categories, products = [], product, storef
           </button>
         </div>
       </div>
-
-      {marketingData && (
-        <MarketingAssistantModal productData={marketingData} open={!!marketingData} onDone={() => router.push("/products")} />
-      )}
     </form>
   );
 }

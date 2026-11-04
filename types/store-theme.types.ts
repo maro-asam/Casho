@@ -5,7 +5,7 @@
 
 // ─── Preset IDs ──────────────────────────────────────────────────────────────
 
-export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym", "market", "stage"] as const;
+export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym", "market", "stage", "qirat"] as const;
 
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 
@@ -25,6 +25,7 @@ export const THEME_CATEGORY_IDS = [
   "health",
   "sports",
   "grocery",
+  "jewelry",
 ] as const;
 
 export type ThemeCategoryId = (typeof THEME_CATEGORY_IDS)[number];
@@ -242,7 +243,8 @@ export type SectionKey =
   // ── Theme-specific (see `themes` in the Studio's SECTION_META) ───────────
   | "showCalculator"
   | "showShoppingList"
-  | "showSpotlight";
+  | "showSpotlight"
+  | "showGiftFinder";
 
 /**
  * Recommended default section order for new stores.
@@ -267,6 +269,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "showCalculator",
   "showShoppingList",
   "showSpotlight",
+  "showGiftFinder",
 ];
 
 export type HomePageSections = {
@@ -292,6 +295,7 @@ export type HomePageSections = {
   showCalculator: boolean;
   showShoppingList: boolean;
   showSpotlight: boolean;
+  showGiftFinder: boolean;
   /** Render order — falls back to DEFAULT_SECTION_ORDER */
   sectionOrder?: SectionKey[];
 };
