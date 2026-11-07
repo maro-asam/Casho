@@ -66,7 +66,7 @@ export async function createSalesRepAction(input: unknown): Promise<SalesActionR
   const admin = await requireAdmin();
   const parsed = createSalesRepSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
-  const { name, email, phone, password, notes } = parsed.data;
+  const { name, email, phone, password, notes, joinCampaign } = parsed.data;
 
   const existing = await prisma.user.findFirst({
     where: { OR: [{ email }, ...(phone ? [{ phone_number: phone }] : [])] },
@@ -78,9 +78,10 @@ export async function createSalesRepAction(input: unknown): Promise<SalesActionR
       : { success: false, message: "رقم الموبايل مستخدم لحساب تاني", fieldErrors: { phone: "الرقم مستخدم بالفعل" } };
   }
 
+  let joined: string | null = null;
   try {
     const hashed = await hashPassword(password);
-    await prisma.$transaction(async (tx) => {
+    joined = await prisma.$transaction(async (tx): Promise<string | null> => {
       const user = await tx.user.create({
         data: {
           email,
@@ -105,6 +106,31 @@ export async function createSalesRepAction(input: unknown): Promise<SalesActionR
         salesRepId: rep.id,
         after: { email, name, referralCode: user.referralCode },
       });
+
+      // Optional: take a seat in the campaign that hasn't ended yet.
+      if (joinCampaign === "on") {
+        const campaign = await tx.salesCampaign.findFirst({
+          where: { endsAt: { gt: new Date() } },
+          orderBy: { startsAt: "asc" },
+          select: { id: true, name: true, maxMembers: true },
+        });
+        if (campaign) {
+          await tx.$queryRaw`SELECT "id" FROM "SalesCampaign" WHERE "id" = ${campaign.id} FOR UPDATE`;
+          const seated = await tx.salesCampaignMember.count({ where: { campaignId: campaign.id } });
+          if (seated < campaign.maxMembers) {
+            await tx.salesCampaignMember.create({ data: { campaignId: campaign.id, salesRepId: rep.id, createdById: admin.id } });
+            await audit(tx, {
+              actorUserId: admin.id,
+              action: "campaign_member_added",
+              entityType: "SalesCampaign",
+              entityId: campaign.id,
+              salesRepId: rep.id,
+            });
+            return campaign.name;
+          }
+        }
+      }
+      return null;
     });
   } catch (error) {
     console.error("createSalesRepAction", error);
@@ -112,7 +138,8 @@ export async function createSalesRepAction(input: unknown): Promise<SalesActionR
   }
 
   revalidateSales();
-  return { success: true, message: "تم إنشاء حساب المندوب" };
+  if (joinCampaign === "on" && !joined) return { success: true, message: "تم إنشاء الحساب — بس العرض كامل فماتضافش له" };
+  return { success: true, message: joined ? `تم إنشاء الحساب وانضم لـ${joined}` : "تم إنشاء حساب المندوب" };
 }
 
 export async function updateSalesRepAction(input: unknown): Promise<SalesActionResult> {

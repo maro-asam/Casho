@@ -40,6 +40,20 @@ Engine and rules: `lib/sales/`. Admin mutations: `actions/admin/sales.actions.ts
   - Their link stops attributing new signups.
   - Their history is kept.
 
+## Campaigns (launch offer, Nov 2026)
+
+A `SalesCampaign` is a time-boxed offer for a set of reps (`SalesCampaignMember`, capped by `maxMembers`). Admin: `/admin/sales/campaign`; reps see it on `/sales`. The launch offer was seeded by `20261108120000_sales_launch_campaign`: 8 Nov – 8 Dec 2026 (Cairo, last day included), first 6 reps.
+
+- **New customers only**: an acquisition (a customer's first payment) a member brings inside `[startsAt, endsAt)` earns `max(tier rate, campaign rate)`. A campaign never lowers a commission. Renewals are not part of the offer — they keep the normal renewal rate (6%).
+- **Campaign rate** = the best that applies to the paying store: POS plan (`PLATINUM`, the only plan with the POS feature) 32% > pharmacy 30% > base 20%. Pharmacy = the merchant picked «صيدلية» as business type at signup (`User.businessType` / `Store.businessCategory`). The plan is read right after the charge (billing hook).
+- **Bonus**: once per member, when `bonusTarget` customers make their *first* payment inside the window → one `BONUS` commission (`amount = bonusAmount`, basis 0, rate 0) tied to the charge that completed the count. It's payable like any commission and can be reviewed/reversed. Refund clawbacks never target it.
+- Raised and bonus commissions carry `campaignId` + `campaignReason` (`BASE | PHARMACY | POS | BONUS`). After `endsAt` nothing changes — snapshots stay, new payments follow the normal rules.
+- Rules: `lib/sales/campaign.ts` (pure, tested); engine hook in `lib/sales/engine.ts`; reads in `lib/sales/campaign-queries.ts`.
+
+## Announcements board
+
+`SalesAnnouncement` rows (title, body, tone `INFO | PROMO | ALERT`, pinned, optional last day) are written at `/admin/sales/announcements` and shown at the top of every rep's `/sales` until they expire.
+
 ## Payment flow and idempotency
 
 1. Billing writes the ledger row (unchanged code paths): `lib/billing/renewal.ts`, `actions/subscription/*`, `actions/admin/admin-store.actions.ts`.

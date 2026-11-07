@@ -6,13 +6,19 @@ import { CopyButton } from "@/components/sales/copy-button";
 import { CommissionBreakdown, ExpiringCohorts, Panel, SalesKpis } from "@/components/sales/sales-summary";
 import { buildReferralLink } from "@/lib/sales/attribution";
 import { fmtMoney, fmtNum, fmtPct } from "@/lib/sales/format";
+import { getCampaignAdmin } from "@/lib/sales/campaign-queries";
 import { getSalesSummary, listSalesReps } from "@/lib/sales/queries";
 import { TIER_LABELS } from "@/lib/sales/rules";
 import { CreateRepDialog } from "./_components/sales-dialogs";
 
 export default async function AdminSalesPage() {
   await requireAdmin();
-  const [summary, reps] = await Promise.all([getSalesSummary({ all: true }), listSalesReps()]);
+  const [summary, reps, campaign] = await Promise.all([getSalesSummary({ all: true }), listSalesReps(), getCampaignAdmin()]);
+  const now = new Date();
+  const campaignSeat =
+    campaign && campaign.campaign.endsAt > now
+      ? { name: campaign.campaign.name, seatsLeft: campaign.campaign.maxMembers - campaign.members.length }
+      : null;
 
   return (
     <div className="space-y-6">
@@ -21,7 +27,7 @@ export default async function AdminSalesPage() {
       <Panel
         title="المندوبين"
         description="المستوى بيتحسب من عدد العملاء المؤهلين حاليًا. الإيراد = اشتراكات العملاء المنسوبين حاليًا (خصم − مرتجع)."
-        actions={<CreateRepDialog />}
+        actions={<CreateRepDialog campaign={campaignSeat} />}
         flush
       >
         {reps.length === 0 ? (
@@ -72,6 +78,7 @@ export default async function AdminSalesPage() {
                     <td className="py-3 text-left text-xs tabular-nums">
                       {fmtMoney(rep.acquisitionCommissions)}
                       <span className="block text-muted-foreground">{fmtMoney(rep.renewalCommissions)}</span>
+                      {rep.bonusCommissions > 0 && <span className="block text-muted-foreground">+ بونص {fmtMoney(rep.bonusCommissions)}</span>}
                     </td>
                     <td className="py-3 pe-4 text-left">
                       <Link href={`/admin/sales/reps/${rep.id}`} className="apple-press relative z-10 inline-flex h-8 items-center gap-1 rounded-full bg-muted px-3 text-[13px] text-primary hover:bg-muted/70">

@@ -41,7 +41,7 @@ import { COMMISSION_ACTIONS, availableCommissionActions, type CommissionAction }
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 
 /** Runs an admin sales action from a form: toast, refresh, field errors. */
-function useSalesForm(action: (input: unknown) => Promise<SalesActionResult>, onDone?: () => void) {
+export function useSalesForm(action: (input: unknown) => Promise<SalesActionResult>, onDone?: () => void) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -66,12 +66,12 @@ function useSalesForm(action: (input: unknown) => Promise<SalesActionResult>, on
   return { submit, pending, errors };
 }
 
-function formValues(e: FormEvent<HTMLFormElement>) {
+export function formValues(e: FormEvent<HTMLFormElement>) {
   e.preventDefault();
   return Object.fromEntries(new FormData(e.currentTarget).entries()) as Record<string, string>;
 }
 
-function Field({ label, name, error, children }: { label: string; name: string; error?: string; children: ReactNode }) {
+export function Field({ label, name, error, children }: { label: string; name: string; error?: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
       <Label htmlFor={name}>{label}</Label>
@@ -81,7 +81,7 @@ function Field({ label, name, error, children }: { label: string; name: string; 
   );
 }
 
-function SubmitRow({ pending, label, destructive }: { pending: boolean; label: string; destructive?: boolean }) {
+export function SubmitRow({ pending, label, destructive }: { pending: boolean; label: string; destructive?: boolean }) {
   return (
     <DialogFooter>
       <Button type="submit" disabled={pending} variant={destructive ? "destructive" : "default"}>
@@ -94,7 +94,8 @@ function SubmitRow({ pending, label, destructive }: { pending: boolean; label: s
 
 // ─── Sales reps ─────────────────────────────────────────────────────────────
 
-export function CreateRepDialog() {
+/** `campaign` = the running campaign when it still has seats — offers to seat the new rep. */
+export function CreateRepDialog({ campaign }: { campaign?: { name: string; seatsLeft: number } | null }) {
   const [open, setOpen] = useState(false);
   const { submit, pending, errors } = useSalesForm(createSalesRepAction, () => setOpen(false));
   return (
@@ -125,6 +126,15 @@ export function CreateRepDialog() {
           <Field label="ملاحظات داخلية (اختياري)" name="notes" error={errors.notes}>
             <Textarea id="notes" name="notes" rows={2} />
           </Field>
+          {campaign && campaign.seatsLeft > 0 && (
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-(--fill-3) p-3">
+              <input type="checkbox" name="joinCampaign" defaultChecked className="mt-0.5 size-4 accent-primary" />
+              <span className="text-sm">
+                <span className="block font-medium">ضمّه لـ{campaign.name}</span>
+                <span className="text-muted-foreground">فاضل {campaign.seatsLeft} {campaign.seatsLeft === 1 ? "مكان" : "أماكن"} في العرض.</span>
+              </span>
+            </label>
+          )}
           <SubmitRow pending={pending} label="إنشاء الحساب" />
         </form>
       </DialogContent>

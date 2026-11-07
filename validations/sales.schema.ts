@@ -18,6 +18,8 @@ export const createSalesRepSchema = z.object({
     .max(100)
     .refine((p) => /\d/.test(p), "كلمة المرور لازم تحتوي على رقم واحد على الأقل"),
   notes: z.string().trim().max(1000).optional(),
+  /** Checkbox: add the new rep to the running campaign if it has a seat. */
+  joinCampaign: z.string().optional(),
 });
 
 export const updateSalesRepSchema = z.object({
@@ -88,3 +90,38 @@ export const commissionRuleSchema = z
     message: "حد المستوى التاني لازم يكون أكبر من الأول",
     path: ["growthMaxPosition"],
   });
+
+// ─── Campaigns & announcements ──────────────────────────────────────────────
+
+const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "اختار تاريخ");
+
+export const campaignSchema = z.object({
+  campaignId: z.string().uuid(),
+  name: z.string().trim().min(2, "الاسم قصير جدًا").max(60, "الاسم طويل"),
+  firstDay: day,
+  lastDay: day,
+  baseRate: percent,
+  pharmacyRate: percent,
+  posRate: percent,
+  bonusTarget: z.coerce.number().int("رقم صحيح").min(0, "0 أو أكتر").max(1000),
+  bonusEgp: z.coerce.number().int("بالجنيه من غير كسور").min(0, "0 أو أكتر").max(1_000_000),
+  maxMembers: z.coerce.number().int().min(1, "مندوب واحد على الأقل").max(100),
+});
+
+export const campaignMemberSchema = z.object({ campaignId: z.string().uuid(), salesRepId: z.string().uuid("اختار مندوب") });
+
+export const removeCampaignMemberSchema = z.object({ memberId: z.string().uuid() });
+
+export const ANNOUNCEMENT_TONES = ["INFO", "PROMO", "ALERT"] as const;
+
+export const announcementSchema = z.object({
+  id: z.string().uuid().optional().or(z.literal("")),
+  title: z.string().trim().min(2, "العنوان قصير جدًا").max(80, "العنوان طويل — خليه سطر واحد"),
+  body: z.string().trim().min(2, "اكتب الرسالة").max(1200, "الرسالة طويلة جدًا"),
+  tone: z.enum(ANNOUNCEMENT_TONES),
+  pinned: z.string().optional(),
+  /** Last day it shows (Cairo), empty = until deleted. */
+  expiresOn: day.optional().or(z.literal("")),
+});
+
+export const deleteAnnouncementSchema = z.object({ id: z.string().uuid() });

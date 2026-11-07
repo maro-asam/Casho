@@ -9,6 +9,8 @@ const TABS = [
   { href: "/admin/sales/customers", label: "العملاء" },
   { href: "/admin/sales/commissions", label: "العمولات" },
   { href: "/admin/sales/payouts", label: "الصرف" },
+  { href: "/admin/sales/campaign", label: "عرض الإطلاق" },
+  { href: "/admin/sales/announcements", label: "الإعلانات" },
   { href: "/admin/sales/rules", label: "القواعد والسجل" },
 ];
 

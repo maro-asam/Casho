@@ -1,5 +1,6 @@
 import { SalesCommissionStatus, SubscriptionStatus } from "@prisma/client";
 import type { PillTone } from "@/components/saas-page";
+import { toWhatsAppDigits } from "@/lib/conversion/conversion-config";
 import { SALES_TIMEZONE, cairoMonthStart } from "./rules";
 
 export { formatMoneyFromPiasters as fmtMoney } from "@/lib/subscriptions";
@@ -22,6 +23,32 @@ export function fmtCohort(cohortMonth: string | null | undefined) {
   return monthFmt.format(new Date(cairoMonthStart(y, m).getTime() + 12 * 3_600_000));
 }
 
+const monthNameFmt = new Intl.DateTimeFormat("ar-EG", { month: "long", timeZone: SALES_TIMEZONE });
+const dayMonthFmt = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "long", timeZone: SALES_TIMEZONE });
+
+/** "٨ ديسمبر" (Cairo). */
+export const fmtDayMonth = (d: Date) => dayMonthFmt.format(d);
+
+/** Whole pounds from piasters, no decimals: 100000 → "١٬٠٠٠ ج.م". */
+export const fmtPounds = (piasters: number) => `${numFmt.format(Math.round(piasters / 100))} ج.م`;
+const relativeFmt = new Intl.RelativeTimeFormat("ar-EG", { numeric: "auto" });
+
+/** "2026-10" → "أكتوبر" (chart axis labels). */
+export function fmtMonthName(month: string) {
+  const [y, m] = month.split("-").map(Number);
+  return monthNameFmt.format(new Date(cairoMonthStart(y, m).getTime() + 12 * 3_600_000));
+}
+
+/** Whole days from now: "اليوم", "غدًا", "بعد ٣ أيام", "منذ يومين". */
+export function fmtRelativeDays(date: Date, now = new Date()) {
+  return relativeFmt.format(Math.round((date.getTime() - now.getTime()) / 86_400_000), "day");
+}
+
+/** wa.me chat with a prefilled message; Egyptian 01… numbers get the country code. */
+export function whatsappLink(phone: string, text: string) {
+  return `https://wa.me/${toWhatsAppDigits(phone)}?text=${encodeURIComponent(text)}`;
+}
+
 /** Last day the customer is still eligible (eligibleUntil is exclusive). */
 export function fmtEligibleThrough(eligibleUntil: Date | null | undefined) {
   return eligibleUntil ? fmtDate(new Date(eligibleUntil.getTime() - 1)) : "—";
@@ -36,7 +63,7 @@ export const COMMISSION_STATUS_META: Record<SalesCommissionStatus, { label: stri
   PAID: { label: "مدفوعة", tone: "success" },
 };
 
-export const KIND_LABELS = { ACQUISITION: "اكتساب عميل", RENEWAL: "تجديد" } as const;
+export const KIND_LABELS = { ACQUISITION: "اكتساب عميل", RENEWAL: "تجديد", BONUS: "بونص" } as const;
 
 export const SUBSCRIPTION_META: Record<SubscriptionStatus, { label: string; tone: PillTone }> = {
   ACTIVE: { label: "نشط", tone: "success" },

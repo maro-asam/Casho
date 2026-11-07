@@ -2793,6 +2793,7 @@ enum SalesAttributionSource {
 enum SalesCommissionKind {
   ACQUISITION // the customer's first-ever subscription charge — tiered rate
   RENEWAL // any later subscription charge inside the 6-month window
+  BONUS // fixed campaign bonus (e.g. N paying customers inside a campaign) — no basis, rate 0
 }
 
 enum SalesCommissionStatus {
@@ -2817,6 +2818,7 @@ model SalesRep {
   attributions SalesAttribution[]
   commissions  SalesCommission[]
   payouts      SalesPayout[]
+  campaigns    SalesCampaignMember[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2919,12 +2921,18 @@ model SalesCommission {
   payoutId String?
   payout   SalesPayout? @relation(fields: [payoutId], references: [id])
 
+  // Set when a campaign raised the rate (or for its bonus): BASE | PHARMACY | POS | BONUS.
+  campaignId     String?
+  campaign       SalesCampaign? @relation(fields: [campaignId], references: [id])
+  campaignReason String?
+
   adjustments SalesCommissionAdjustment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([balanceTransactionId, kind])
+  @@index([campaignId, salesRepId])
   @@index([salesRepId, status, createdAt])
   @@index([customerUserId, paymentAt])
   @@index([status, createdAt])
@@ -2991,6 +2999,61 @@ model SalesAuditLog {
   @@index([entityType, entityId, createdAt])
   @@index([salesRepId, createdAt])
   @@index([action, createdAt])
+}
+
+/// A time-boxed offer for a set of reps (the launch offer for the first 6).
+/// Inside [startsAt, endsAt) a member's acquisition commissions (a new customer's
+/// first payment) use max(tier rate, campaign rate): POS plan > pharmacy > base.
+/// Renewals keep the normal rate. One fixed bonus once `bonusTarget` customers
+/// make their first payment inside the window. Snapshots never change afterwards.
+model SalesCampaign {
+  id              String   @id @default(uuid())
+  name            String
+  startsAt        DateTime
+  endsAt          DateTime // exclusive
+  baseRateBps     Int // a new customer's first payment
+  pharmacyRateBps Int // customer's business type is a pharmacy
+  posRateBps      Int // the store is on the POS plan (PLATINUM)
+  bonusTarget     Int // new paying customers inside the window
+  bonusAmount     Int // piasters
+  maxMembers      Int      @default(6)
+  createdById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  members     SalesCampaignMember[]
+  commissions SalesCommission[]
+
+  @@index([startsAt, endsAt])
+}
+
+model SalesCampaignMember {
+  id             String        @id @default(uuid())
+  campaignId     String
+  campaign       SalesCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  salesRepId     String
+  salesRep       SalesRep      @relation(fields: [salesRepId], references: [id])
+  bonusAwardedAt DateTime?
+  createdById    String?
+  createdAt      DateTime      @default(now())
+
+  @@unique([campaignId, salesRepId])
+  @@index([salesRepId])
+}
+
+/// Admin → sales team board, shown on every rep's overview until it expires.
+model SalesAnnouncement {
+  id          String    @id @default(uuid())
+  title       String
+  body        String
+  tone        String    @default("INFO") // INFO | PROMO | ALERT
+  pinned      Boolean   @default(false)
+  expiresAt   DateTime?
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([pinned, createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────

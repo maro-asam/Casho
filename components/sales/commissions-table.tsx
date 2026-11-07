@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { StatusPill } from "@/components/saas-page";
 import type { listCommissions } from "@/lib/sales/queries";
+import { CAMPAIGN_REASON_LABELS, type CampaignReason } from "@/lib/sales/campaign";
 import { TIER_LABELS, formatRateBps, type SalesTier } from "@/lib/sales/rules";
 import { COMMISSION_STATUS_META, KIND_LABELS, fmtCohort, fmtDate, fmtEligibleThrough, fmtMoney } from "@/lib/sales/format";
 
@@ -42,8 +43,17 @@ export function CommissionsTable({ rows, showRep = false, actions }: { rows: Row
                   {showRep && <td className="py-3 text-xs">{row.salesRep.user.name ?? row.salesRep.user.email}</td>}
                   <td className="py-3">
                     <p>
-                      {KIND_LABELS[row.kind]} · <span className="font-medium tabular-nums">{formatRateBps(row.rateBps)}</span>
+                      {KIND_LABELS[row.kind]}
+                      {row.kind !== "BONUS" && (
+                        <>
+                          {" · "}
+                          <span className="font-medium tabular-nums">{formatRateBps(row.rateBps)}</span>
+                        </>
+                      )}
                     </p>
+                    {row.campaignReason && (
+                      <p className="text-xs font-medium text-(--sys-indigo)">{CAMPAIGN_REASON_LABELS[row.campaignReason as CampaignReason | "BONUS"]}</p>
+                    )}
                     {row.tier && (
                       <p className="text-xs text-muted-foreground">
                         {TIER_LABELS[row.tier as SalesTier]} · العميل رقم {row.customerPosition}

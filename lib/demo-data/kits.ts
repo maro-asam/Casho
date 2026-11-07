@@ -154,6 +154,7 @@ const BY_BUSINESS_TYPE: Record<string, DemoKit> = {
   "إلكترونيات وتقنية": ELECTRONICS,
   "أغذية ومشروبات": FOOD,
   "صحة وجمال": BEAUTY,
+  "صيدلية": BEAUTY,
   "منزل وديكور": HOME,
   "رياضة ولياقة": SPORTS,
   "كتب وتعليم": BOOKS,

@@ -41,6 +41,19 @@ const db = {
   adjustments: [] as Adjustment[],
   reps: new Map<string, { status: "ACTIVE" | "DISABLED" }>(),
   audit: [] as unknown[],
+  campaigns: [] as Campaign[],
+  stores: new Map<string, { planKey: string | null; businessType: string | null }>(),
+};
+type Campaign = {
+  id: string;
+  startsAt: Date;
+  endsAt: Date;
+  baseRateBps: number;
+  pharmacyRateBps: number;
+  posRateBps: number;
+  bonusTarget: number;
+  bonusAmount: number;
+  members: { id: string; salesRepId: string; bonusAwardedAt: Date | null }[];
 };
 let seq = 0;
 const id = (p: string) => `${p}${++seq}`;
@@ -63,9 +76,32 @@ const fake = {
   $queryRaw: vi.fn(async () => [{ id: "locked" }]),
   $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(fake)),
   store: {
-    findUnique: vi.fn(async ({ where }: { where: { id: string } }) => {
+    findUnique: vi.fn(async ({ where, select }: { where: { id: string }; select: Record<string, unknown> }) => {
+      if (select.plan) {
+        const s = db.stores.get(where.id);
+        return { businessCategory: null, plan: s?.planKey ? { key: s.planKey } : null, user: { businessType: s?.businessType ?? null } };
+      }
       const row = db.ledger.find((l) => l.storeId === where.id);
       return row ? { userId: row.userId } : { userId: where.id.replace("store-", "") };
+    }),
+  },
+  salesCampaignMember: {
+    findFirst: vi.fn(async ({ where }: { where: { salesRepId: string; campaign: { startsAt: { lte: Date }; endsAt: { gt: Date } } } }) => {
+      const at = where.campaign.startsAt.lte;
+      for (const c of db.campaigns) {
+        const m = c.members.find((x) => x.salesRepId === where.salesRepId);
+        if (m && c.startsAt <= at && c.endsAt > where.campaign.endsAt.gt) {
+          const { members: _members, ...campaign } = c;
+          return { id: m.id, bonusAwardedAt: m.bonusAwardedAt, campaign };
+        }
+      }
+      return null;
+    }),
+    updateMany: vi.fn(async ({ where, data }: { where: { id: string; bonusAwardedAt: null }; data: { bonusAwardedAt: Date } }) => {
+      const m = db.campaigns.flatMap((c) => c.members).find((x) => x.id === where.id && x.bonusAwardedAt === null);
+      if (!m) return { count: 0 };
+      m.bonusAwardedAt = data.bonusAwardedAt;
+      return { count: 1 };
     }),
   },
   salesCommissionRule: { findFirst: vi.fn(async () => RULE) },
@@ -117,6 +153,17 @@ const fake = {
       db.commissions
         .filter((c) => c.attributionId === where.attributionId)
         .map((c) => ({ ...c, adjustments: db.adjustments.filter((a) => a.commissionId === c.id).map((a) => ({ ...a })) })),
+    ),
+    count: vi.fn(
+      async ({ where }: { where: { salesRepId: string; kind: string; status: { notIn: string[] }; paymentAt: { gte: Date; lt: Date } } }) =>
+        db.commissions.filter(
+          (c) =>
+            c.salesRepId === where.salesRepId &&
+            c.kind === where.kind &&
+            !where.status.notIn.includes(c.status) &&
+            c.paymentAt >= where.paymentAt.gte &&
+            c.paymentAt < where.paymentAt.lt,
+        ).length,
     ),
     create: vi.fn(async ({ data }: { data: Omit<Commission, "id"> }) => {
       if (db.commissions.some((c) => c.balanceTransactionId === data.balanceTransactionId && c.kind === data.kind)) throw unique();
@@ -194,6 +241,8 @@ beforeEach(() => {
   db.adjustments = [];
   db.reps = new Map();
   db.audit = [];
+  db.campaigns = [];
+  db.stores = new Map();
   seq = 0;
   vi.clearAllMocks();
 });
@@ -420,5 +469,150 @@ describe("attribution changes", () => {
     a.changes.push({ toSalesRepId: "B", createdAt: new Date("2026-04-20Z") });
     await syncSalesCommissionsForCustomer("u1");
     expect(commissionsOf("u1")[0]).toMatchObject({ kind: "ACQUISITION", salesRepId: "A" });
+  });
+});
+
+// ─── launch campaign ────────────────────────────────────────────────────────
+
+describe("launch campaign", () => {
+  const START = new Date("2026-11-07T22:00:00Z"); // 8 Nov 00:00 Cairo
+  const END = new Date("2026-12-08T22:00:00Z"); // 9 Dec 00:00 Cairo (exclusive)
+
+  function campaign(members: string[], overrides: Partial<Campaign> = {}) {
+    const c: Campaign = {
+      id: "camp1",
+      startsAt: START,
+      endsAt: END,
+      baseRateBps: 2000,
+      pharmacyRateBps: 3000,
+      posRateBps: 3200,
+      bonusTarget: 10,
+      bonusAmount: 100_000,
+      members: members.map((salesRepId) => ({ id: `m-${salesRepId}`, salesRepId, bonusAwardedAt: null })),
+      ...overrides,
+    };
+    db.campaigns.push(c);
+    return c;
+  }
+
+  it("a member's first payment inside the window earns the base rate instead of the tier", async () => {
+    rep("A");
+    campaign(["A"]);
+    attribute("u1", "A");
+    charge("u1", 30_000, "2026-11-10T10:00:00Z");
+    await syncSalesCommissionsForCustomer("u1");
+    expect(commissionsOf("u1")).toEqual([
+      expect.objectContaining({ kind: "ACQUISITION", rateBps: 2000, amount: 6_000, tier: "STARTER", customerPosition: 1, campaignId: "camp1", campaignReason: "BASE" }),
+    ]);
+  });
+
+  it("POS plan → 32%, pharmacy → 30%", async () => {
+    rep("A");
+    campaign(["A"]);
+    attribute("pos", "A");
+    attribute("rx", "A");
+    db.stores.set("store-pos", { planKey: "PLATINUM", businessType: null });
+    db.stores.set("store-rx", { planKey: "GOLD", businessType: "صيدلية" });
+    charge("pos", 70_000, "2026-11-10T10:00:00Z");
+    charge("rx", 50_000, "2026-11-11T10:00:00Z");
+    await syncSalesCommissionsForCustomer("pos");
+    await syncSalesCommissionsForCustomer("rx");
+    expect(commissionsOf("pos")[0]).toEqual(expect.objectContaining({ rateBps: 3200, amount: 22_400, campaignReason: "POS" }));
+    expect(commissionsOf("rx")[0]).toEqual(expect.objectContaining({ rateBps: 3000, amount: 15_000, campaignReason: "PHARMACY" }));
+  });
+
+  it("renewals inside the window stay at the normal renewal rate", async () => {
+    rep("A");
+    campaign(["A"]);
+    const a = attribute("u1", "A");
+    a.acquiredAt = new Date("2026-10-05T10:00:00Z");
+    a.cohortMonth = "2026-10";
+    a.eligibleUntil = new Date("2027-03-31T22:00:00Z");
+    db.ledger.push({ id: "old", storeId: "store-u1", userId: "u1", type: "SUBSCRIPTION_CHARGE", amount: -30_000, createdAt: new Date("2026-10-05T10:00:00Z") });
+    db.commissions.push({ id: "c-old", salesRepId: "A", attributionId: a.id, balanceTransactionId: "old", kind: "ACQUISITION", status: "APPROVED", rateBps: 1700, amount: 5_100, basisAmount: 30_000, tier: "STARTER", customerPosition: 1, paymentAt: new Date("2026-10-05T10:00:00Z") });
+    charge("u1", 30_000, "2026-11-20T10:00:00Z");
+    await syncSalesCommissionsForCustomer("u1");
+    expect(commissionsOf("u1").find((c) => c.kind === "RENEWAL")).toEqual(expect.objectContaining({ rateBps: 600, amount: 1_800, campaignId: null, campaignReason: null }));
+  });
+
+  it("a POS-plan renewal inside the window is still 6%", async () => {
+    rep("A");
+    campaign(["A"]);
+    attribute("pos", "A");
+    db.stores.set("store-pos", { planKey: "PLATINUM", businessType: "صيدلية" });
+    charge("pos", 70_000, "2026-11-10T10:00:00Z");
+    charge("pos", 70_000, "2026-11-25T10:00:00Z");
+    await syncSalesCommissionsForCustomer("pos");
+    const [first, renewal] = commissionsOf("pos");
+    expect(first).toEqual(expect.objectContaining({ kind: "ACQUISITION", rateBps: 3200, campaignReason: "POS" }));
+    expect(renewal).toEqual(expect.objectContaining({ kind: "RENEWAL", rateBps: 600, campaignReason: null }));
+  });
+
+  it("outside the window, or for a rep who isn't a member, the normal rules stand", async () => {
+    rep("A");
+    rep("B");
+    campaign(["A"]);
+    attribute("late", "A");
+    attribute("other", "B");
+    charge("late", 30_000, "2026-12-08T22:00:00Z"); // the exclusive end
+    charge("other", 30_000, "2026-11-15T10:00:00Z");
+    await syncSalesCommissionsForCustomer("late");
+    await syncSalesCommissionsForCustomer("other");
+    expect(commissionsOf("late")[0]).toEqual(expect.objectContaining({ rateBps: 1700, campaignId: null, campaignReason: null }));
+    expect(commissionsOf("other")[0]).toEqual(expect.objectContaining({ rateBps: 1700, campaignId: null }));
+  });
+
+  it("never lowers a higher tier rate", async () => {
+    rep("A");
+    campaign(["A"]);
+    seedEligible("A", 20, new Date("2026-10-01Z"), new Date("2027-04-01Z"));
+    attribute("u21", "A");
+    charge("u21", 30_000, "2026-11-10T10:00:00Z");
+    await syncSalesCommissionsForCustomer("u21");
+    expect(commissionsOf("u21")[0]).toEqual(expect.objectContaining({ rateBps: 2200, tier: "PRO", campaignReason: null }));
+  });
+
+  it("the 10th new paying customer in the window adds one 1000 EGP bonus — never a second", async () => {
+    rep("A");
+    const c = campaign(["A"]);
+    for (let i = 1; i <= 11; i++) {
+      attribute(`n${i}`, "A");
+      charge(`n${i}`, 30_000, `2026-11-${String(10 + i).padStart(2, "0")}T10:00:00Z`);
+      await syncSalesCommissionsForCustomer(`n${i}`);
+      if (i === 9) expect(db.commissions.filter((x) => x.kind === "BONUS")).toHaveLength(0);
+    }
+    const bonuses = db.commissions.filter((x) => x.kind === "BONUS");
+    expect(bonuses).toEqual([
+      expect.objectContaining({ salesRepId: "A", amount: 100_000, rateBps: 0, basisAmount: 0, attributionId: "att-n10", campaignReason: "BONUS", status: "APPROVED" }),
+    ]);
+    expect(c.members[0].bonusAwardedAt?.toISOString()).toBe("2026-11-20T10:00:00.000Z");
+
+    // Re-syncing everything doesn't add anything.
+    for (let i = 1; i <= 11; i++) await syncSalesCommissionsForCustomer(`n${i}`);
+    expect(db.commissions.filter((x) => x.kind === "BONUS")).toHaveLength(1);
+  });
+
+  it("acquisitions before the window don't count toward the bonus", async () => {
+    rep("A");
+    campaign(["A"], { bonusTarget: 2 });
+    attribute("before", "A");
+    charge("before", 30_000, "2026-11-01T10:00:00Z");
+    attribute("inside", "A");
+    charge("inside", 30_000, "2026-11-12T10:00:00Z");
+    await syncSalesCommissionsForCustomer("before");
+    await syncSalesCommissionsForCustomer("inside");
+    expect(db.commissions.filter((x) => x.kind === "BONUS")).toHaveLength(0);
+  });
+
+  it("a refund claws back from the payment's commission, never from the bonus", async () => {
+    rep("A");
+    campaign(["A"], { bonusTarget: 1 });
+    attribute("u1", "A");
+    charge("u1", 30_000, "2026-11-10T10:00:00Z");
+    await syncSalesCommissionsForCustomer("u1");
+    refund("u1", 10_000, "2026-11-12T10:00:00Z");
+    await syncSalesCommissionsForCustomer("u1");
+    const acquisition = commissionsOf("u1").find((x) => x.kind === "ACQUISITION")!;
+    expect(db.adjustments).toEqual([expect.objectContaining({ commissionId: acquisition.id, amount: -2_000 })]);
   });
 });

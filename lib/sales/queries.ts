@@ -6,6 +6,7 @@ import {
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCommissionRuleAt } from "./engine";
+import { bucketByMonth, lastMonths, monthStart, sortFollowUps } from "./insights";
 import { allocateTiers, levelForEligibleCount, tierForPosition } from "./rules";
 
 /**
@@ -78,7 +79,7 @@ export async function getSalesSummary(scope: SalesScope, now = new Date()) {
     }),
   ]);
 
-  const byKind: Record<SalesCommissionKind, MoneyByStatus> = { ACQUISITION: emptyByStatus(), RENEWAL: emptyByStatus() };
+  const byKind: Record<SalesCommissionKind, MoneyByStatus> = { ACQUISITION: emptyByStatus(), RENEWAL: emptyByStatus(), BONUS: emptyByStatus() };
   const countByStatus = emptyByStatus();
   for (const g of commissionGroups) {
     byKind[g.kind][g.status] += g._sum.amount ?? 0;
@@ -113,6 +114,7 @@ export async function getSalesSummary(scope: SalesScope, now = new Date()) {
       countByStatus,
       acquisitionEarned: earned("ACQUISITION"),
       renewalEarned: earned("RENEWAL"),
+      bonusEarned: earned("BONUS"),
       adjustments: adjustmentSum._sum.amount ?? 0,
     },
     payouts: { total: payoutSum._sum.amount ?? 0, count: payoutSum._count._all },
@@ -126,6 +128,65 @@ export async function getSalesSummary(scope: SalesScope, now = new Date()) {
 }
 
 export type SalesSummary = Awaited<ReturnType<typeof getSalesSummary>>;
+
+/**
+ * One rep's last `months` Cairo months, oldest first: commissions earned (by
+ * payment month, rejected/reversed excluded, before adjustments), signups and
+ * first payments.
+ */
+export async function getRepMonthlyTrend(salesRepId: string, months = 6, now = new Date()) {
+  const keys = lastMonths(now, months);
+  const from = monthStart(keys[0]);
+  const [commissions, signups, acquired] = await Promise.all([
+    prisma.salesCommission.findMany({
+      where: {
+        salesRepId,
+        paymentAt: { gte: from },
+        status: { notIn: [SalesCommissionStatus.REJECTED, SalesCommissionStatus.REVERSED] },
+      },
+      select: { amount: true, paymentAt: true },
+    }),
+    prisma.salesAttribution.findMany({ where: { salesRepId, signedUpAt: { gte: from } }, select: { signedUpAt: true } }),
+    prisma.salesAttribution.findMany({ where: { salesRepId, acquiredAt: { gte: from } }, select: { acquiredAt: true } }),
+  ]);
+
+  const earned = bucketByMonth(keys, commissions, (c) => c.paymentAt, (c) => c.amount);
+  const signed = bucketByMonth(keys, signups, (a) => a.signedUpAt);
+  const paid = bucketByMonth(keys, acquired, (a) => a.acquiredAt);
+  return keys.map((month, i) => ({ month, commissions: earned[i], signups: signed[i], acquired: paid[i] }));
+}
+
+export type RepMonthlyTrend = Awaited<ReturnType<typeof getRepMonthlyTrend>>;
+
+/** Signed up through the rep but no subscription payment yet — running trials ending soonest first. */
+export async function listFollowUps(salesRepId: string, take = 5, now = new Date()) {
+  const [total, rows] = await Promise.all([
+    prisma.salesAttribution.count({ where: { salesRepId, acquiredAt: null } }),
+    prisma.salesAttribution.findMany({
+      where: { salesRepId, acquiredAt: null },
+      orderBy: { signedUpAt: "desc" },
+      take: 40,
+      select: {
+        id: true,
+        signedUpAt: true,
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone_number: true,
+            stores: { orderBy: { createdAt: "asc" }, take: 1, select: { name: true, trialEndDate: true } },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const items = rows.map((r) => ({ ...r, trialEndDate: r.customer.stores[0]?.trialEndDate ?? null }));
+  return { total, rows: sortFollowUps(items, now).slice(0, take) };
+}
+
+export type FollowUp = Awaited<ReturnType<typeof listFollowUps>>["rows"][number];
 
 /** Sales team table for admins. */
 export async function listSalesReps(now = new Date()) {
@@ -175,6 +236,7 @@ export async function listSalesReps(now = new Date()) {
       revenueNet: rev.charged - rev.refunded,
       acquisitionCommissions: sumOf(rep.id, "ACQUISITION"),
       renewalCommissions: sumOf(rep.id, "RENEWAL"),
+      bonusCommissions: sumOf(rep.id, "BONUS"),
     };
   });
 }
@@ -336,6 +398,7 @@ export async function getAttributedCustomer(scope: SalesScope, customerUserId: s
       paymentAt: true,
       balanceTransactionId: true,
       salesRepId: true,
+      campaignReason: true,
       adjustments: { select: { amount: true } },
     },
   });
@@ -401,6 +464,7 @@ export async function listCommissions(scope: SalesScope, filters: CommissionList
         paymentAt: true,
         balanceTransactionId: true,
         ruleId: true,
+        campaignReason: true,
         createdAt: true,
         payout: { select: { id: true, paidAt: true, reference: true } },
         adjustments: { orderBy: { createdAt: "asc" }, select: { id: true, amount: true, source: true, reason: true, createdAt: true } },

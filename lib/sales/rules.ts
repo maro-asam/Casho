@@ -95,7 +95,12 @@ function cairoOffsetMs(date: Date): number {
 
 /** The instant of 00:00 on the 1st of (year, month1) in Cairo. month1 may overflow (13 → next January). */
 export function cairoMonthStart(year: number, month1: number): Date {
-  const wall = Date.UTC(year, month1 - 1, 1, 0, 0, 0);
+  return cairoDayStart(year, month1, 1);
+}
+
+/** The instant of 00:00 on (year, month1, day) in Cairo. Month and day may overflow. */
+export function cairoDayStart(year: number, month1: number, day: number): Date {
+  const wall = Date.UTC(year, month1 - 1, day, 0, 0, 0);
   let guess = wall - 2 * 3_600_000;
   for (let i = 0; i < 3; i++) guess = wall - cairoOffsetMs(new Date(guess));
   return new Date(guess);

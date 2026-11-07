@@ -785,3 +785,22 @@ body:has(.apple-auto) :is([data-slot="select-content"], [data-slot="dropdown-men
 @media (prefers-reduced-motion: reduce) {
   .apple-gradient-text { animation: none; }
 }
+
+/* Chart marks settle in once on load (rings fill, bars grow from their baseline).
+   Pure CSS so server-rendered charts animate without client JS. */
+@keyframes apple-ring-fill {
+  from { stroke-dashoffset: var(--ring-from); }
+}
+.apple-ring-fill { animation: apple-ring-fill 1.1s var(--ease-apple) 0.15s both; }
+@keyframes apple-grow-y {
+  from { transform: scaleY(0); }
+}
+.apple-grow-y { transform-origin: bottom; animation: apple-grow-y 0.7s var(--ease-apple) both; }
+@keyframes apple-grow-x {
+  from { transform: scaleX(0); }
+}
+.apple-grow-x { transform-origin: left; animation: apple-grow-x 0.8s var(--ease-apple) both; }
+[dir="rtl"] .apple-grow-x { transform-origin: right; }
+@media (prefers-reduced-motion: reduce) {
+  .apple-ring-fill, .apple-grow-y, .apple-grow-x { animation: none; }
+}

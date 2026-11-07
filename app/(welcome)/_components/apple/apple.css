@@ -232,30 +232,38 @@
 }
 [dir="ltr"] .al-hero-xl { letter-spacing: -0.025em; line-height: 1.04; }
 
-/* Hero map (HeroMap.tsx): the canvas draws the map and the flights; these
-   are its DOM overlays. A chip pops over the city an order came from (or under
-   the shop for a sale at the till), holds, and fades. */
-.al-mapchip-up { --chip-y: calc(-100% - 12px); }
-.al-mapchip-down { --chip-y: 16px; }
-@keyframes al-mapchip {
-  0% { opacity: 0; transform: translate(-50%, var(--chip-y)) translateY(6px) scale(0.92); }
-  12%, 80% { opacity: 1; transform: translate(-50%, var(--chip-y)); }
-  100% { opacity: 0; transform: translate(-50%, var(--chip-y)) translateY(-4px); }
-}
-@keyframes al-live { 50% { opacity: 0.3; } }
-/* The latest sale, popping on the corner of its end of the beam. */
-@keyframes al-flash {
-  0% { opacity: 0; transform: translateY(4px) scale(0.7); }
-  14%, 72% { opacity: 1; transform: none; }
-  100% { opacity: 0; transform: translateY(-4px); }
-}
-.al-flash { animation: al-flash 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.al-mapchip { transform: translate(-50%, var(--chip-y)); animation: al-mapchip 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.al-live { animation: al-live 1.6s ease-in-out infinite; }
+/* Hero (AppleHero.tsx): split — the claim on one side, a photo card on the
+   other with live cards floating on each slide. */
+
+/* Each photo settles in slowly while it's on. */
+@keyframes hc-settle { from { transform: scale(1.08); } to { transform: scale(1); } }
+.hc-settle { animation: hc-settle 7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+/* The active slide's dash fills over its duration; its end advances the card. */
+@keyframes hc-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.hc-fill { transform-origin: left; animation: hc-fill var(--hc-dur, 6s) linear forwards; }
+[dir="rtl"] .hc-fill { transform-origin: right; }
+.hc-paused .hc-fill { animation-play-state: paused; }
+
+/* Headline lines rise into place (transform only, so the text paints at once). */
+@keyframes hc-rise { from { transform: translateY(0.32em); } to { transform: none; } }
+.hc-rise { animation: hc-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Payment logos drift on phones. */
+@keyframes hc-marquee { to { transform: translateX(-50%); } }
+@keyframes hc-marquee-rtl { to { transform: translateX(50%); } }
+.hc-marquee { animation: hc-marquee 26s linear infinite; }
+[dir="rtl"] .hc-marquee { animation-name: hc-marquee-rtl; }
+@media (min-width: 1024px) { .hc-marquee { animation: none; } }
+
+@keyframes hc-live { 50% { opacity: 0.3; } }
+.hc-live { animation: hc-live 1.6s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .al .al-mapchip,
-  .al .al-flash,
-  .al .al-live { animation: none !important; }
+  .al .hc-settle,
+  .al .hc-rise,
+  .al .hc-marquee,
+  .al .hc-live { animation: none !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

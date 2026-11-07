@@ -123,6 +123,7 @@ export function CommissionBreakdown({ summary }: { summary: SalesSummary }) {
               <th className="ps-3 font-medium">الحالة</th>
               <th className="font-medium">{KIND_LABELS.ACQUISITION}</th>
               <th className="font-medium">{KIND_LABELS.RENEWAL}</th>
+              <th className="font-medium">{KIND_LABELS.BONUS}</th>
               <th className="pe-3 text-left font-medium">الإجمالي</th>
             </tr>
           </thead>
@@ -135,12 +136,13 @@ export function CommissionBreakdown({ summary }: { summary: SalesSummary }) {
                 </td>
                 <td className="tabular-nums">{fmtMoney(byKind.ACQUISITION[status])}</td>
                 <td className="tabular-nums">{fmtMoney(byKind.RENEWAL[status])}</td>
+                <td className="tabular-nums">{fmtMoney(byKind.BONUS[status])}</td>
                 <td className="pe-3 text-left font-medium tabular-nums">{fmtMoney(byStatus[status])}</td>
               </tr>
             ))}
             <tr className="h-10">
               <td className="ps-3 text-muted-foreground">تسويات (+/−)</td>
-              <td colSpan={2} />
+              <td colSpan={3} />
               <td className="pe-3 text-left font-medium tabular-nums">{fmtMoney(adjustments)}</td>
             </tr>
           </tbody>

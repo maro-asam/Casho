@@ -7,9 +7,11 @@ import {
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { addDays } from "@/lib/subscriptions";
+import { applyCampaignRate, bonusDue, campaignRateFor, isPharmacyBusiness, type CampaignReason } from "./campaign";
 import {
   SALES_CURRENCY,
   cohortMonthOf,
+  commissionAmount,
   decideChargeCommission,
   eligibleUntilFor,
   refundClawback,
@@ -39,6 +41,31 @@ export async function getCommissionRuleAt(db: Db, at: Date = new Date()): Promis
   const fallback = rule ?? (await db.salesCommissionRule.findFirst({ orderBy: { effectiveFrom: "asc" } }));
   if (!fallback) throw new Error("No sales commission rule configured");
   return fallback;
+}
+
+/** The campaign a rep's payment at `at` falls in, if they're a member of one running then. */
+export async function campaignForPayment(db: Db, salesRepId: string, at: Date) {
+  const member = await db.salesCampaignMember.findFirst({
+    where: { salesRepId, campaign: { startsAt: { lte: at }, endsAt: { gt: at } } },
+    orderBy: { campaign: { startsAt: "desc" } },
+    select: {
+      id: true,
+      bonusAwardedAt: true,
+      campaign: {
+        select: {
+          id: true,
+          startsAt: true,
+          endsAt: true,
+          baseRateBps: true,
+          pharmacyRateBps: true,
+          posRateBps: true,
+          bonusTarget: true,
+          bonusAmount: true,
+        },
+      },
+    },
+  });
+  return member ? { ...member.campaign, memberId: member.id, bonusAwardedAt: member.bonusAwardedAt } : null;
 }
 
 function isUniqueViolation(error: unknown) {
@@ -95,6 +122,7 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
         where: { attributionId: attribution.id },
         select: {
           id: true,
+          kind: true,
           salesRepId: true,
           balanceTransactionId: true,
           status: true,
@@ -104,6 +132,25 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
           adjustments: { select: { amount: true, balanceTransactionId: true } },
         },
       });
+
+      // Plan and business type of the paying store — read once, right after the
+      // charge (the billing hook), so the plan is the one just paid for.
+      const storeFacts = new Map<string, { planKey: string | null; pharmacy: boolean }>();
+      async function factsFor(storeId: string) {
+        const cached = storeFacts.get(storeId);
+        if (cached) return cached;
+        const store = await tx.store.findUnique({
+          where: { id: storeId },
+          select: { businessCategory: true, plan: { select: { key: true } }, user: { select: { businessType: true } } },
+        });
+        const facts = {
+          planKey: store?.plan?.key ?? null,
+          pharmacy: isPharmacyBusiness(store?.user?.businessType, store?.businessCategory),
+        };
+        storeFacts.set(storeId, facts);
+        return facts;
+      }
+
       const doneCharges = new Set(commissions.map((c) => c.balanceTransactionId));
       const doneRefunds = new Set(commissions.flatMap((c) => c.adjustments.map((a) => a.balanceTransactionId)).filter(Boolean));
 
@@ -143,6 +190,18 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
           });
           if (decision.kind === "NONE") continue;
 
+          // A campaign member's new customer (first payment) inside the window earns the
+          // better of the two rates. Renewals always follow the normal rules (6%).
+          const campaign = decision.kind === "ACQUISITION" ? await campaignForPayment(tx, salesRepId, row.createdAt) : null;
+          let rateBps = decision.rateBps;
+          let campaignReason: CampaignReason | null = null;
+          if (campaign) {
+            const applied = applyCampaignRate(decision.rateBps, campaignRateFor(campaign, await factsFor(row.storeId)));
+            rateBps = applied.rateBps;
+            campaignReason = applied.reason;
+          }
+          const amount = rateBps === decision.rateBps ? decision.amount : commissionAmount(decision.basisAmount, rateBps);
+
           const rep = await tx.salesRep.findUniqueOrThrow({ where: { id: salesRepId }, select: { status: true } });
           // Auto-approve; a disabled rep's new commissions wait for an admin decision.
           const status = rep.status === SalesRepStatus.ACTIVE ? SalesCommissionStatus.APPROVED : SalesCommissionStatus.ON_HOLD;
@@ -157,8 +216,8 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
               kind: decision.kind === "ACQUISITION" ? SalesCommissionKind.ACQUISITION : SalesCommissionKind.RENEWAL,
               status,
               basisAmount: decision.basisAmount,
-              rateBps: decision.rateBps,
-              amount: decision.amount,
+              rateBps,
+              amount,
               currency: SALES_CURRENCY,
               tier: decision.kind === "ACQUISITION" ? decision.tier : null,
               customerPosition: decision.kind === "ACQUISITION" ? decision.customerPosition : null,
@@ -167,8 +226,10 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
               eligibleUntil,
               paymentAt: row.createdAt,
               statusReason: status === SalesCommissionStatus.ON_HOLD ? "المندوب موقوف وقت استحقاق العمولة" : null,
+              campaignId: campaignReason && campaign ? campaign.id : null,
+              campaignReason,
             },
-            select: { id: true, salesRepId: true, balanceTransactionId: true, status: true, rateBps: true, amount: true, paymentAt: true },
+            select: { id: true, kind: true, salesRepId: true, balanceTransactionId: true, status: true, rateBps: true, amount: true, paymentAt: true },
           });
           await tx.salesAuditLog.create({
             data: {
@@ -176,19 +237,76 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
               entityType: "SalesCommission",
               entityId: created.id,
               salesRepId,
-              after: { kind: decision.kind, status, amount: decision.amount, rateBps: decision.rateBps, balanceTransactionId: row.id },
+              after: { kind: decision.kind, status, amount, rateBps, balanceTransactionId: row.id, campaignReason },
             },
           });
           commissions.push({ ...created, adjustments: [] });
           doneCharges.add(row.id);
           result.commissions += 1;
+
+          // Campaign bonus: once, when this acquisition brings the window's new paying
+          // customers to the target. Acquisitions per rep are serialised (FOR UPDATE
+          // above) and the member row is claimed conditionally, so it can't double up.
+          if (decision.kind === "ACQUISITION" && campaign && !campaign.bonusAwardedAt) {
+            const acquiredInWindow = await tx.salesCommission.count({
+              where: {
+                salesRepId,
+                kind: SalesCommissionKind.ACQUISITION,
+                status: { notIn: VOID_STATUSES },
+                paymentAt: { gte: campaign.startsAt, lt: campaign.endsAt },
+              },
+            });
+            if (bonusDue({ acquiredInWindow, target: campaign.bonusTarget, alreadyAwarded: false })) {
+              const claimed = await tx.salesCampaignMember.updateMany({
+                where: { id: campaign.memberId, bonusAwardedAt: null },
+                data: { bonusAwardedAt: row.createdAt },
+              });
+              if (claimed.count === 1) {
+                const bonus = await tx.salesCommission.create({
+                  data: {
+                    salesRepId,
+                    attributionId: attribution.id,
+                    customerUserId,
+                    storeId: row.storeId,
+                    balanceTransactionId: row.id,
+                    kind: SalesCommissionKind.BONUS,
+                    status,
+                    basisAmount: 0,
+                    rateBps: 0,
+                    amount: campaign.bonusAmount,
+                    currency: SALES_CURRENCY,
+                    ruleId: rule.id,
+                    cohortMonth,
+                    eligibleUntil,
+                    paymentAt: row.createdAt,
+                    statusReason: status === SalesCommissionStatus.ON_HOLD ? "المندوب موقوف وقت استحقاق البونص" : null,
+                    campaignId: campaign.id,
+                    campaignReason: "BONUS",
+                  },
+                  select: { id: true, kind: true, salesRepId: true, balanceTransactionId: true, status: true, rateBps: true, amount: true, paymentAt: true },
+                });
+                await tx.salesAuditLog.create({
+                  data: {
+                    action: "campaign_bonus_created",
+                    entityType: "SalesCommission",
+                    entityId: bonus.id,
+                    salesRepId,
+                    after: { campaignId: campaign.id, amount: campaign.bonusAmount, acquiredInWindow, balanceTransactionId: row.id },
+                  },
+                });
+                commissions.push({ ...bonus, adjustments: [] });
+                result.commissions += 1;
+              }
+            }
+          }
           continue;
         }
 
         // REFUND credit (downgrade proration): claw back from the commission that funded the period.
         if (row.amount <= 0 || doneRefunds.has(row.id)) continue;
         const target = commissions
-          .filter((c) => c.paymentAt.getTime() <= row.createdAt.getTime())
+          // A bonus isn't funded by a payment, so a refund never claws it back.
+          .filter((c) => c.kind !== SalesCommissionKind.BONUS && c.paymentAt.getTime() <= row.createdAt.getTime())
           .sort((a, b) => b.paymentAt.getTime() - a.paymentAt.getTime())[0];
         if (!target || VOID_STATUSES.includes(target.status)) continue;
 

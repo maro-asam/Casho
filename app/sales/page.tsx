@@ -1,34 +1,48 @@
-import { PageHeader } from "@/components/saas-page";
-import { ReferralLinkBox } from "@/components/sales/copy-button";
-import { CommissionBreakdown, ExpiringCohorts, Panel, SalesKpis, TierPanel } from "@/components/sales/sales-summary";
 import { buildReferralLink } from "@/lib/sales/attribution";
-import { fmtNum, fmtPct } from "@/lib/sales/format";
 import { requireSalesRep } from "@/lib/sales/guard";
-import { getSalesSummary } from "@/lib/sales/queries";
+import { isWithinCampaign } from "@/lib/sales/campaign";
+import { getRepCampaign, listActiveAnnouncements } from "@/lib/sales/campaign-queries";
+import { getRepMonthlyTrend, getSalesSummary, listFollowUps } from "@/lib/sales/queries";
+import { AnnouncementsBoard } from "./_components/announcements-board";
+import { CampaignCard } from "./_components/campaign-card";
+import { EarningsCard, FollowUpsCard, FunnelCard, LevelCard, RepHero, TrendCard } from "./_components/overview";
+import { ReferralCard } from "./_components/referral-card";
 
 export default async function SalesOverviewPage() {
   const rep = await requireSalesRep();
-  const summary = await getSalesSummary({ salesRepId: rep.salesRepId });
+  const name = rep.name?.trim() || rep.email.split("@")[0];
+  const now = new Date();
+  const [summary, trend, followUps, campaign, announcements] = await Promise.all([
+    getSalesSummary({ salesRepId: rep.salesRepId }),
+    getRepMonthlyTrend(rep.salesRepId, 6),
+    listFollowUps(rep.salesRepId, 5),
+    getRepCampaign(rep.salesRepId, now),
+    listActiveAnnouncements(now),
+  ]);
+  const promo = campaign && isWithinCampaign(campaign, now) ? { rateBps: campaign.baseRateBps, name: campaign.name } : null;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={`أهلًا ${rep.name ?? ""}`.trim()} description="أرقامك من أول يوم — بتتحدث مع كل دفعة اشتراك من عملائك." />
+    <div className="space-y-4 md:space-y-5">
+      <RepHero name={name} summary={summary} trend={trend} />
 
-      <Panel
-        title="رابط الإحالة بتاعك — ابعته للتجار"
-        description={`أي تاجر يسجل من الرابط ده بيتنسب ليك. ${fmtNum(summary.signups)} تسجيل لحد دلوقتي، دفع منهم ${fmtNum(summary.acquired)} (${fmtPct(summary.conversionRate)}).`}
-      >
-        <ReferralLinkBox link={buildReferralLink(rep.referralCode)} code={rep.referralCode} />
-      </Panel>
+      <AnnouncementsBoard items={announcements} />
 
-      <SalesKpis summary={summary} scope="rep" />
+      {campaign && <CampaignCard campaign={campaign} renewalRateBps={summary.rule.renewalRateBps} now={now} />}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <TierPanel summary={summary} />
-        <ExpiringCohorts summary={summary} />
+      <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
+        <ReferralCard link={buildReferralLink(rep.referralCode)} code={rep.referralCode} repName={name} />
+        <EarningsCard summary={summary} />
       </div>
 
-      <CommissionBreakdown summary={summary} />
+      <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
+        <LevelCard summary={summary} promo={promo} />
+        <TrendCard trend={trend} />
+      </div>
+
+      <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
+        <FunnelCard summary={summary} />
+        <FollowUpsCard rows={followUps.rows} total={followUps.total} repName={name} />
+      </div>
     </div>
   );
 }
