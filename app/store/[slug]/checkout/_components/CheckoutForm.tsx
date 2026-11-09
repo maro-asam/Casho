@@ -28,11 +28,63 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import type { CheckoutLegal } from "../../_themes/types";
 
 type PaymentMethod = {
   key: string;
   label: string;
 };
+
+const NO_LEGAL: CheckoutLegal = { requireConsent: false, links: [] };
+
+/** "الشروط والأحكام" و"سياسة الاسترجاع" — each opens in a new tab so the form keeps what was typed. */
+function LegalLinks({ links }: { links: CheckoutLegal["links"] }) {
+  return links.map((link, i) => (
+    <span key={link.href} className="font-light">
+      {i > 0 && " و"}
+      <a
+        href={link.href}
+        target="_blank"
+        rel="noopener"
+        className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
+      >
+        {link.label}
+      </a>
+    </span>
+  ));
+}
+
+/**
+ * Before the order button: a required "I agree" box when the merchant asks
+ * for consent, otherwise a short line that ordering means agreeing.
+ */
+function LegalConsent({ legal }: { legal: CheckoutLegal }) {
+  if (legal.links.length === 0) return null;
+
+  if (!legal.requireConsent) {
+    return (
+      <p className="text-center text-xs leading-6 text-muted-foreground">
+        بتأكيدك للطلب، أنت موافق على <LegalLinks links={legal.links} />.
+      </p>
+    );
+  }
+
+  return (
+    <label className="flex cursor-pointer items-start gap-3 rounded-2xl border bg-background p-4 text-right">
+      <input
+        type="checkbox"
+        name="acceptTerms"
+        required
+        onInvalid={(e) => e.currentTarget.setCustomValidity("لازم توافق على الشروط عشان تكمّل الطلب")}
+        onChange={(e) => e.currentTarget.setCustomValidity("")}
+        className="mt-1 size-[1.125rem] shrink-0 accent-primary"
+      />
+      <span className="text-sm leading-6">
+        قرأت وأوافق على <LegalLinks links={legal.links} />
+      </span>
+    </label>
+  );
+}
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -95,9 +147,12 @@ export default function CheckoutForm({
   storeSlug,
   defaultGovernorate,
   digitalOnly = false,
+  legal = NO_LEGAL,
 }: {
   paymentMethods: PaymentMethod[];
   action: (formData: FormData) => void;
+  /** Terms / return policy consent (CheckoutViewProps.legal). */
+  legal?: CheckoutLegal;
   storeSlug: string;
   /** Last governorate picked (cart summary already prices shipping for it). */
   defaultGovernorate?: string | null;
@@ -360,6 +415,8 @@ export default function CheckoutForm({
           </div>
         </div>
       </div>
+
+      <LegalConsent legal={legal} />
 
       <SubmitButton />
     </form>

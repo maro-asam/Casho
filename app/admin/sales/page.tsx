@@ -1,99 +1,75 @@
-import Link from "next/link";
-import { ArrowUpRight, Users } from "lucide-react";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { Unavailable, StatusText } from "@/components/saas-page";
-import { CopyButton } from "@/components/sales/copy-button";
-import { CommissionBreakdown, ExpiringCohorts, Panel, SalesKpis } from "@/components/sales/sales-summary";
-import { buildReferralLink } from "@/lib/sales/attribution";
-import { fmtMoney, fmtNum, fmtPct } from "@/lib/sales/format";
+import { KpiStrip } from "@/app/admin/_components/admin-ui";
+import { CommissionBreakdown, ExpiringCohorts } from "@/components/sales/sales-summary";
+import { prisma } from "@/lib/prisma";
 import { getCampaignAdmin } from "@/lib/sales/campaign-queries";
-import { getSalesSummary, listSalesReps } from "@/lib/sales/queries";
-import { TIER_LABELS } from "@/lib/sales/rules";
-import { CreateRepDialog } from "./_components/sales-dialogs";
+import { fmtMoney, fmtNum } from "@/lib/sales/format";
+import { getMonthlyTrend, getPayableItems, getSalesSummary, listSalesReps } from "@/lib/sales/queries";
+import { RepsCard, TeamFunnelCard, TeamTrendCard } from "./_components/team";
+
+async function listRepsWithPayable() {
+  const reps = await listSalesReps();
+  const payables = await Promise.all(reps.map((r) => getPayableItems(prisma, r.id)));
+  return reps.map((rep, i) => ({ ...rep, payable: payables[i].total }));
+}
 
 export default async function AdminSalesPage() {
   await requireAdmin();
-  const [summary, reps, campaign] = await Promise.all([getSalesSummary({ all: true }), listSalesReps(), getCampaignAdmin()]);
+  const [summary, reps, campaign, trend] = await Promise.all([
+    getSalesSummary({ all: true }),
+    listRepsWithPayable(),
+    getCampaignAdmin(),
+    getMonthlyTrend({ all: true }, 6),
+  ]);
   const now = new Date();
   const campaignSeat =
     campaign && campaign.campaign.endsAt > now
       ? { name: campaign.campaign.name, seatsLeft: campaign.campaign.maxMembers - campaign.members.length }
       : null;
 
+  const payable = reps.reduce((s, r) => s + Math.max(0, r.payable), 0);
+  const owed = reps.filter((r) => r.payable > 0).length;
+  const current = trend[trend.length - 1];
+  const previous = trend[trend.length - 2];
+
   return (
     <div className="space-y-6">
-      <SalesKpis summary={summary} scope="program" />
+      <KpiStrip
+        items={[
+          {
+            label: "مستحق للصرف",
+            value: fmtMoney(payable),
+            hint: owed > 0 ? `لـ ${fmtNum(owed)} ${owed === 1 ? "مندوب" : "مندوبين"} — المعتمد ± التسويات` : "مفيش مستحقات دلوقتي",
+            href: "/admin/sales/payouts",
+          },
+          {
+            label: "عمولات الشهر ده",
+            value: fmtMoney(current.commissions),
+            hint: previous ? `الشهر اللي فات ${fmtMoney(previous.commissions)}` : undefined,
+            href: `/admin/sales/commissions?month=${current.month}`,
+          },
+          {
+            label: "عملاء مؤهلين",
+            value: fmtNum(summary.eligible),
+            hint: `${fmtNum(summary.acquired)} دفعوا من ${fmtNum(summary.signups)} سجّلوا`,
+            href: "/admin/sales/customers?state=eligible",
+          },
+          {
+            label: "إيراد اشتراكات العملاء",
+            value: fmtMoney(summary.revenue.net),
+            hint: "خصم الاشتراك ناقص المرتجع — من أول يوم",
+          },
+        ]}
+      />
 
-      <Panel
-        title="المندوبين"
-        description="المستوى بيتحسب من عدد العملاء المؤهلين حاليًا. الإيراد = اشتراكات العملاء المنسوبين حاليًا (خصم − مرتجع)."
-        actions={<CreateRepDialog campaign={campaignSeat} />}
-        flush
-      >
-        {reps.length === 0 ? (
-          <Unavailable icon={Users} title="مفيش مندوبين لسه" description="ضيف أول مندوب وابعتله رابط الدخول من صفحته." />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="h-9 border-b-[0.5px] border-border text-right text-[13px] text-muted-foreground">
-                  <th className="ps-4 font-medium">المندوب</th>
-                  <th className="font-medium">رابط إحالة التجار</th>
-                  <th className="font-medium">المستوى</th>
-                  <th className="font-medium">تسجيلات</th>
-                  <th className="font-medium">مكتسبين</th>
-                  <th className="font-medium">مؤهلين</th>
-                  <th className="hidden font-medium lg:table-cell">التحويل</th>
-                  <th className="hidden text-left font-medium xl:table-cell">الإيراد</th>
-                  <th className="text-left font-medium">اكتساب / تجديد</th>
-                  <th className="pe-4" />
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {reps.map((rep) => (
-                  <tr key={rep.id} className="transition hover:bg-muted/30">
-                    <td className="py-3 ps-4">
-                      <p className="font-medium">{rep.user.name ?? rep.user.email}</p>
-                      <p dir="ltr" className="text-right text-xs text-muted-foreground">
-                        {rep.user.email}
-                      </p>
-                      {rep.status === "DISABLED" && <StatusText tone="danger" className="mt-1">موقوف</StatusText>}
-                    </td>
-                    <td className="py-3">
-                      {rep.user.referralCode && (
-                        <div className="flex items-center gap-2">
-                          <code dir="ltr" className="font-mono text-xs">
-                            {rep.user.referralCode}
-                          </code>
-                          <CopyButton value={buildReferralLink(rep.user.referralCode)} label="رابط التجار" />
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-3 text-xs">{TIER_LABELS[rep.level]}</td>
-                    <td className="py-3 tabular-nums">{fmtNum(rep.signups)}</td>
-                    <td className="py-3 tabular-nums">{fmtNum(rep.acquired)}</td>
-                    <td className="py-3 tabular-nums">{fmtNum(rep.eligible)}</td>
-                    <td className="hidden py-3 tabular-nums lg:table-cell">{fmtPct(rep.conversionRate)}</td>
-                    <td className="hidden py-3 text-left tabular-nums xl:table-cell">{fmtMoney(rep.revenueNet)}</td>
-                    <td className="py-3 text-left text-xs tabular-nums">
-                      {fmtMoney(rep.acquisitionCommissions)}
-                      <span className="block text-muted-foreground">{fmtMoney(rep.renewalCommissions)}</span>
-                      {rep.bonusCommissions > 0 && <span className="block text-muted-foreground">+ بونص {fmtMoney(rep.bonusCommissions)}</span>}
-                    </td>
-                    <td className="py-3 pe-4 text-left">
-                      <Link href={`/admin/sales/reps/${rep.id}`} className="apple-press relative z-10 inline-flex h-8 items-center gap-1 rounded-full bg-muted px-3 text-[13px] text-primary hover:bg-muted/70">
-                        التفاصيل <ArrowUpRight className="size-3" />
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Panel>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <TeamTrendCard trend={trend} className="lg:col-span-2" />
+        <TeamFunnelCard summary={summary} />
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <RepsCard reps={reps} campaign={campaignSeat} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <CommissionBreakdown summary={summary} />
         <ExpiringCohorts summary={summary} />
       </div>

@@ -14,7 +14,8 @@ export type AppId =
   | "instagram"
   | "telegram"
   | "shopify-import"
-  | "api-keys";
+  | "api-keys"
+  | "domain";
 
 export type AppCategory = "design" | "orders" | "channels" | "tools";
 
@@ -87,6 +88,15 @@ export const APPS: AppDefinition[] = [
     kind: "tool",
     developer: "Casho",
     href: "/telegram",
+  },
+  {
+    id: "domain",
+    name: "الدومين الخاص",
+    tagline: "اشتري دومين باسم متجرك بالجنيه من رصيدك، أو اربط دومين عندك",
+    category: "tools",
+    kind: "tool",
+    developer: "Casho",
+    href: "/domain",
   },
   {
     id: "qr-code",

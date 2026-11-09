@@ -262,13 +262,14 @@ model Store {
   blockedPhones        BlockedPhone[]
   notifications        Notification[]
 
-  customDomain            String?            @unique
-  customDomainStatus      CustomDomainStatus @default(PENDING)
+  customDomain            String?              @unique
+  customDomainStatus      CustomDomainStatus   @default(PENDING)
   customDomainConnectedAt DateTime?
   /// false = the Casho subdomain (slug.casho.store) redirects to the custom
   /// domain. Only honoured while that domain is ACTIVE, so a store is never
   /// left without an address.
-  subdomainEnabled        Boolean            @default(true)
+  subdomainEnabled        Boolean              @default(true)
+  domainRegistrations     DomainRegistration[]
 
   instagramConnection InstagramConnection?
   suggestedOrders     SuggestedOrder[]
@@ -400,6 +401,13 @@ model StoreSettings {
   pauseMessage   String?
   /// Show a countdown to `pausedUntil` on the closed page.
   pauseCountdown Boolean   @default(true)
+
+  /// Storefront legal pages (lib/store-policies): per type ("returns" |
+  /// "shipping" | "privacy" | "terms") `{ body?, hidden?, updatedAt? }`.
+  /// No body = the ready-made template, filled with the store's details.
+  policies               Json?
+  /// Checkout asks the shopper to tick "I agree to the terms and return policy".
+  requireTermsAtCheckout Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -999,15 +1007,17 @@ model Order {
   couponCode String?
   notes      String?
 
-  fullName    String
-  phone       String
+  fullName        String
+  phone           String
   /// Optional at checkout — order confirmation and status emails go here (lib/notifications/email).
-  email       String?
-  address     String
+  email           String?
+  /// The shopper ticked "I agree to the terms" (stores with `requireTermsAtCheckout`).
+  termsAcceptedAt DateTime?
+  address         String
   /// Code from constants/egypt-governorates.ts (online checkout); its name is also prefixed to `address`.
-  governorate String?
+  governorate     String?
   /// Online checkout only — rate-limits order floods (lib/store/order-rate-limit).
-  ipAddress   String?
+  ipAddress       String?
 
   /// Fake-order protection (lib/fraud): number reputation at checkout time.
   riskLevel          OrderRiskLevel?
@@ -1254,6 +1264,12 @@ enum BalanceTransactionType {
   MANUAL_ADJUSTMENT
   REFUND
   REFERRAL_REWARD
+  /// A domain bought for the store, or its yearly renewal (lib/domains).
+  /// Kept apart from SUBSCRIPTION_CHARGE / REFUND so it never counts as
+  /// subscription revenue or sales commission.
+  DOMAIN_CHARGE
+  /// Money back for a domain purchase/renewal the registrar didn't complete.
+  DOMAIN_REFUND
 }
 
 enum TopupRequestStatus {
@@ -1535,6 +1551,78 @@ enum CustomDomainStatus {
   PENDING
   ACTIVE
   FAILED
+}
+
+/// A domain Casho registered for a store through Vercel's registrar
+/// (lib/domains). The registration sits on Casho's Vercel team; the store pays
+/// for the first year and every renewal from its balance (DOMAIN_CHARGE).
+/// Vercel's own auto-renew stays off — Casho renews only after charging.
+model DomainRegistration {
+  id      String @id @default(uuid())
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  /// One row per domain; a FAILED / EXPIRED row is reused if it's bought again.
+  domain String                   @unique
+  status DomainRegistrationStatus @default(PENDING)
+
+  /// Vercel registrar order of the purchase.
+  orderId String?
+
+  /// Vercel's price in US cents: first year, and each renewal (as quoted).
+  costUsdCents        Int
+  renewalCostUsdCents Int
+  /// What the store paid for the first year (piasters) and the rate used
+  /// (piasters per 1 USD).
+  pricePaid           Int
+  usdRate             Int
+
+  /// Renew from the balance before it expires (merchant's switch).
+  autoRenew       Boolean   @default(true)
+  expiresAt       DateTime?
+  renewedAt       DateTime?
+  /// Last "top up to renew" reminder, and last failed renewal at Vercel.
+  renewalNoticeAt DateTime?
+  renewalFailedAt DateTime?
+  lastError       String?
+
+  /// A renewal in flight: its registrar order ("unknown" when the call's
+  /// answer was lost), the piasters charged for it (refunded if it fails) and
+  /// when it started. All null when no renewal is running.
+  renewalOrderId   String?
+  renewalCharge    Int?
+  renewalStartedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
+  @@index([status, expiresAt])
+}
+
+enum DomainRegistrationStatus {
+  /// Paid; the registrar order is running.
+  PENDING
+  ACTIVE
+  /// The registrar didn't complete it — the store was refunded.
+  FAILED
+  /// Not renewed in time.
+  EXPIRED
+}
+
+/// Domain sales switch + pricing (singleton row "default", /admin/domains).
+model DomainSettings {
+  id          String   @id @default("default")
+  enabled     Boolean  @default(false)
+  /// Piasters per 1 USD, e.g. 5000 = 50.00 EGP.
+  usdRate     Int      @default(5000)
+  /// Markup on Vercel's price in basis points (2000 = 20%) — covers the
+  /// bank's FX fee and rate moves.
+  markupBps   Int      @default(2000)
+  /// Registrant contact sent with every registration (Casho's details).
+  registrant  Json?
+  updatedById String?
+  updatedAt   DateTime @updatedAt
 }
 
 // ─────────────────────────────────────────────────────────────

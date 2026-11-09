@@ -130,24 +130,25 @@ export async function getSalesSummary(scope: SalesScope, now = new Date()) {
 export type SalesSummary = Awaited<ReturnType<typeof getSalesSummary>>;
 
 /**
- * One rep's last `months` Cairo months, oldest first: commissions earned (by
- * payment month, rejected/reversed excluded, before adjustments), signups and
- * first payments.
+ * The last `months` Cairo months, oldest first, for one rep or the whole team:
+ * commissions earned (by payment month, rejected/reversed excluded, before
+ * adjustments), signups and first payments.
  */
-export async function getRepMonthlyTrend(salesRepId: string, months = 6, now = new Date()) {
+export async function getMonthlyTrend(scope: SalesScope, months = 6, now = new Date()) {
+  const where = repWhere(scope);
   const keys = lastMonths(now, months);
   const from = monthStart(keys[0]);
   const [commissions, signups, acquired] = await Promise.all([
     prisma.salesCommission.findMany({
       where: {
-        salesRepId,
+        ...where,
         paymentAt: { gte: from },
         status: { notIn: [SalesCommissionStatus.REJECTED, SalesCommissionStatus.REVERSED] },
       },
       select: { amount: true, paymentAt: true },
     }),
-    prisma.salesAttribution.findMany({ where: { salesRepId, signedUpAt: { gte: from } }, select: { signedUpAt: true } }),
-    prisma.salesAttribution.findMany({ where: { salesRepId, acquiredAt: { gte: from } }, select: { acquiredAt: true } }),
+    prisma.salesAttribution.findMany({ where: { ...where, signedUpAt: { gte: from } }, select: { signedUpAt: true } }),
+    prisma.salesAttribution.findMany({ where: { ...where, acquiredAt: { gte: from } }, select: { acquiredAt: true } }),
   ]);
 
   const earned = bucketByMonth(keys, commissions, (c) => c.paymentAt, (c) => c.amount);
@@ -156,7 +157,11 @@ export async function getRepMonthlyTrend(salesRepId: string, months = 6, now = n
   return keys.map((month, i) => ({ month, commissions: earned[i], signups: signed[i], acquired: paid[i] }));
 }
 
-export type RepMonthlyTrend = Awaited<ReturnType<typeof getRepMonthlyTrend>>;
+export type MonthlyTrend = Awaited<ReturnType<typeof getMonthlyTrend>>;
+
+export const getRepMonthlyTrend = (salesRepId: string, months = 6, now = new Date()) => getMonthlyTrend({ salesRepId }, months, now);
+
+export type RepMonthlyTrend = MonthlyTrend;
 
 /** Signed up through the rep but no subscription payment yet — running trials ending soonest first. */
 export async function listFollowUps(salesRepId: string, take = 5, now = new Date()) {

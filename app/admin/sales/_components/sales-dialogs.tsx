@@ -2,17 +2,18 @@
 
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, MoreHorizontal } from "lucide-react";
+import { ArrowLeftRight, Banknote, Loader2, MoreHorizontal, Pencil, Plus, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import type { SalesCommissionStatus } from "@prisma/client";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -37,8 +38,10 @@ import {
   updateSalesRepAction,
   type SalesActionResult,
 } from "@/actions/admin/sales.actions";
+import { appleButton, appleMenu } from "@/components/saas-page";
 import { COMMISSION_ACTIONS, availableCommissionActions, type CommissionAction } from "@/lib/sales/workflow";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
+import { cn } from "@/lib/utils";
 
 /** Runs an admin sales action from a form: toast, refresh, field errors. */
 export function useSalesForm(action: (input: unknown) => Promise<SalesActionResult>, onDone?: () => void) {
@@ -71,23 +74,36 @@ export function formValues(e: FormEvent<HTMLFormElement>) {
   return Object.fromEntries(new FormData(e.currentTarget).entries()) as Record<string, string>;
 }
 
+/** Label above a filled field; the error sits at the field, in red. */
 export function Field({ label, name, error, children }: { label: string; name: string; error?: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={name}>{label}</Label>
+      <Label htmlFor={name} className="text-[13px] font-medium text-muted-foreground">
+        {label}
+      </Label>
       {children}
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-[13px] text-(--sys-red)">{error}</p>}
     </div>
   );
 }
 
+/** Dialog footer: Cancel leading, the verb trailing. Destructive confirmations fill red. */
 export function SubmitRow({ pending, label, destructive }: { pending: boolean; label: string; destructive?: boolean }) {
   return (
-    <DialogFooter>
-      <Button type="submit" disabled={pending} variant={destructive ? "destructive" : "default"}>
+    <DialogFooter className="gap-2 pt-2">
+      <DialogClose asChild>
+        <button type="button" className={cn(appleButton.tinted, "h-11 px-5")}>
+          إلغاء
+        </button>
+      </DialogClose>
+      <button
+        type="submit"
+        disabled={pending}
+        className={destructive ? cn(appleButton.destructiveFilled, "h-11 px-5 text-[15px]") : cn(appleButton.filled, "h-11")}
+      >
         {pending && <Loader2 className="size-4 animate-spin" />}
-        {label}
-      </Button>
+        {pending ? `${label}…` : label}
+      </button>
     </DialogFooter>
   );
 }
@@ -97,11 +113,15 @@ export function SubmitRow({ pending, label, destructive }: { pending: boolean; l
 /** `campaign` = the running campaign when it still has seats — offers to seat the new rep. */
 export function CreateRepDialog({ campaign }: { campaign?: { name: string; seatsLeft: number } | null }) {
   const [open, setOpen] = useState(false);
+  const [join, setJoin] = useState(true);
   const { submit, pending, errors } = useSalesForm(createSalesRepAction, () => setOpen(false));
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>إضافة مندوب</Button>
+        <button type="button" className={cn(appleButton.filled, "h-9 px-4")}>
+          <Plus className="size-4" strokeWidth={2.4} />
+          إضافة مندوب
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -127,12 +147,15 @@ export function CreateRepDialog({ campaign }: { campaign?: { name: string; seats
             <Textarea id="notes" name="notes" rows={2} />
           </Field>
           {campaign && campaign.seatsLeft > 0 && (
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-(--fill-3) p-3">
-              <input type="checkbox" name="joinCampaign" defaultChecked className="mt-0.5 size-4 accent-primary" />
-              <span className="text-sm">
+            <label className="flex cursor-pointer items-center gap-3 rounded-[12px] bg-(--fill-3) px-3.5 py-3">
+              <span className="min-w-0 flex-1 text-[15px]">
                 <span className="block font-medium">ضمّه لـ{campaign.name}</span>
-                <span className="text-muted-foreground">فاضل {campaign.seatsLeft} {campaign.seatsLeft === 1 ? "مكان" : "أماكن"} في العرض.</span>
+                <span className="text-[13px] text-muted-foreground">
+                  فاضل {campaign.seatsLeft} {campaign.seatsLeft === 1 ? "مكان" : "أماكن"} في العرض.
+                </span>
               </span>
+              <Switch checked={join} onCheckedChange={setJoin} aria-label={`ضمّه لـ${campaign.name}`} className="apple-switch" />
+              {join && <input type="hidden" name="joinCampaign" value="on" />}
             </label>
           )}
           <SubmitRow pending={pending} label="إنشاء الحساب" />
@@ -148,9 +171,10 @@ export function EditRepDialog({ rep }: { rep: { id: string; name: string | null;
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <button type="button" className={cn(appleButton.tinted, "text-primary")}>
+          <Pencil className="size-4" />
           تعديل البيانات
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -181,9 +205,9 @@ export function RepStatusDialog({ salesRepId, status }: { salesRepId: string; st
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={next === "DISABLED" ? "destructive" : "outline"} size="sm">
+        <button type="button" className={next === "DISABLED" ? appleButton.destructive : cn(appleButton.tinted, "text-primary")}>
           {next === "DISABLED" ? "إيقاف الحساب" : "إعادة التفعيل"}
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -198,7 +222,7 @@ export function RepStatusDialog({ salesRepId, status }: { salesRepId: string; st
           <Field label="السبب" name="reason" error={errors.reason}>
             <Textarea id="reason" name="reason" rows={2} required minLength={5} />
           </Field>
-          <SubmitRow pending={pending} label="تأكيد" destructive={next === "DISABLED"} />
+          <SubmitRow pending={pending} label={next === "DISABLED" ? "إيقاف الحساب" : "إعادة التفعيل"} destructive={next === "DISABLED"} />
         </form>
       </DialogContent>
     </Dialog>
@@ -214,11 +238,14 @@ export function AssignCustomerDialog({
   customerUserId,
   currentRepId,
   triggerLabel,
+  trigger = "inline",
 }: {
   reps: RepOption[];
   customerUserId?: string;
   currentRepId?: string;
   triggerLabel: string;
+  /** `page`: a gray capsule on the grouped background; `row`: a compact capsule in a list row; `inline`: inside a card. */
+  trigger?: "page" | "row" | "inline";
 }) {
   const [open, setOpen] = useState(false);
   const [repId, setRepId] = useState("");
@@ -228,9 +255,19 @@ export function AssignCustomerDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <button
+          type="button"
+          className={
+            trigger === "page"
+              ? cn(appleButton.gray, "text-primary")
+              : trigger === "row"
+                ? cn(appleButton.tinted, "h-8 px-3 text-[13px] text-primary")
+                : cn(appleButton.tinted, "text-primary")
+          }
+        >
+          {trigger === "page" ? <UserPlus className="size-4" /> : <ArrowLeftRight className="size-3.5" />}
           {triggerLabel}
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -268,7 +305,7 @@ export function AssignCustomerDialog({
           <Field label="سبب القرار" name="reason" error={errors.reason}>
             <Textarea id="reason" name="reason" rows={3} required minLength={5} />
           </Field>
-          <SubmitRow pending={pending} label="تأكيد" />
+          <SubmitRow pending={pending} label={customerUserId ? "نقل العميل" : "نسب العميل"} />
         </form>
       </DialogContent>
     </Dialog>
@@ -283,6 +320,9 @@ export function CommissionActions({ commissionId, status, net }: { commissionId:
   const statusForm = useSalesForm(updateCommissionStatusAction, close);
   const adjustForm = useSalesForm(createCommissionAdjustmentAction, close);
   const actions = availableCommissionActions(status);
+  const isDestructive = (a: CommissionAction) => a === "reject" || a === "reverse";
+  const destructive = actions.filter(isDestructive);
+  const safe = actions.filter((a) => !isDestructive(a));
   const canAdjust = status !== "REJECTED" && status !== "REVERSED";
   if (!actions.length && !canAdjust) return null;
 
@@ -292,29 +332,31 @@ export function CommissionActions({ commissionId, status, net }: { commissionId:
     <>
       <DropdownMenu dir="rtl">
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label="إجراءات العمولة">
-            <MoreHorizontal className="size-4" />
-          </Button>
+          <button type="button" aria-label="إجراءات العمولة" className={appleButton.more}>
+            <MoreHorizontal className="size-[18px]" />
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {actions.map((a) => (
+        <DropdownMenuContent align="end" className={appleMenu}>
+          {/* Safe changes first, then the adjustment, destructive ones last behind a separator. */}
+          {safe.map((a) => (
             <DropdownMenuItem key={a} onSelect={() => setDialog(a)}>
               {COMMISSION_ACTIONS[a].label}
             </DropdownMenuItem>
           ))}
-          {canAdjust && (
-            <>
-              {actions.length > 0 && <DropdownMenuSeparator />}
-              <DropdownMenuItem onSelect={() => setDialog("adjust")}>تسوية (+/−)</DropdownMenuItem>
-            </>
-          )}
+          {canAdjust && <DropdownMenuItem onSelect={() => setDialog("adjust")}>تسوية (+/−)</DropdownMenuItem>}
+          {destructive.length > 0 && (safe.length > 0 || canAdjust) && <DropdownMenuSeparator />}
+          {destructive.map((a) => (
+            <DropdownMenuItem key={a} variant="destructive" onSelect={() => setDialog(a)}>
+              {a === "reverse" ? "إلغاء العمولة" : COMMISSION_ACTIONS[a].label}
+            </DropdownMenuItem>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Dialog open={!!current} onOpenChange={(o) => !o && close()}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{current?.label} العمولة</DialogTitle>
+            <DialogTitle>{dialog === "reverse" ? "إلغاء العمولة" : `${current?.label ?? ""} العمولة`}</DialogTitle>
             <DialogDescription>
               {dialog === "reverse"
                 ? "العمولة هتتلغي وتفضل في السجل. العمولة المدفوعة مينفعش تتلغي — استخدم تسوية بالسالب وهتتخصم من الصرف الجاي."
@@ -325,7 +367,11 @@ export function CommissionActions({ commissionId, status, net }: { commissionId:
             <Field label={current?.reasonRequired ? "السبب" : "ملاحظة (اختياري)"} name="reason" error={statusForm.errors.reason}>
               <Textarea id="reason" name="reason" rows={2} required={current?.reasonRequired} minLength={current?.reasonRequired ? 5 : undefined} />
             </Field>
-            <SubmitRow pending={statusForm.pending} label="تأكيد" destructive={dialog === "reject" || dialog === "reverse"} />
+            <SubmitRow
+              pending={statusForm.pending}
+              label={dialog === "reverse" ? "إلغاء العمولة" : current ? `${current.label} العمولة` : "تأكيد"}
+              destructive={dialog === "reject" || dialog === "reverse"}
+            />
           </form>
         </DialogContent>
       </Dialog>
@@ -362,9 +408,10 @@ export function RecordPayoutDialog({ salesRepId, repName, payable }: { salesRepI
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" disabled={payable <= 0}>
+        <button type="button" disabled={payable <= 0} className={cn(appleButton.tinted, "text-primary")}>
+          <Banknote className="size-4" />
           تسجيل صرف
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -4,6 +4,7 @@ import {
   BriefcaseBusiness,
   Camera,
   FileText,
+  Globe,
   Handshake,
   Headset,
   Layers,
@@ -54,6 +55,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
       { name: "الحركات المالية", href: "/admin/transactions", icon: ArrowLeftRight },
       { name: "الباقات", href: "/admin/plans", icon: Layers },
       { name: "الميزات", href: "/admin/features", icon: ListChecks },
+      { name: "الدومينات", href: "/admin/domains", icon: Globe },
     ],
   },
   {

@@ -3,8 +3,9 @@ import Link from "next/link";
 import { Mail, MessageCircle } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Empty, Kicker, Ornament, PageHead, TextLink, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -155,3 +156,23 @@ export function QiratTrack({ store, whatsapp, initialCode, order }: TrackViewPro
     </Wrap>
   );
 }
+
+export function QiratPolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="pb-20">
+      <PageHead kicker="سياسات المتجر" title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <div className="mx-auto max-w-5xl">
+        <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+      </div>
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "qr-h3",
+  text: "text-(--qr-ink)",
+  meta: "text-(--qr-ink-2)",
+  navItem: "rounded-full border border-(--qr-line) px-4 text-(--qr-ink-2) hover:text-(--qr-ink) lg:rounded-(--qr-r-sm) lg:border-transparent lg:px-3",
+  navActive: "border-(--qr-ink) text-(--qr-ink) font-semibold lg:border-transparent lg:bg-(--qr-fill)",
+  marker: "var(--qr-gold)",
+};

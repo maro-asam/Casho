@@ -1,17 +1,34 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
+import { Banknote, ChevronLeft, KeyRound, Link2 } from "lucide-react";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
-import { StatusText } from "@/components/saas-page";
-import { CopyButton, ReferralLinkBox } from "@/components/sales/copy-button";
+import { BackLink, KpiStrip } from "@/app/admin/_components/admin-ui";
+import { Card, StatusText, appleButton } from "@/components/saas-page";
+import { LinkField, ReferralLinkBox } from "@/components/sales/copy-button";
 import { CommissionsTable } from "@/components/sales/commissions-table";
 import { CustomersTable } from "@/components/sales/customers-table";
-import { CommissionBreakdown, ExpiringCohorts, Panel, SalesKpis, TierPanel } from "@/components/sales/sales-summary";
+import { AuditRows, CardEmpty, CommissionBreakdown, ExpiringCohorts, Monogram, TierLadder } from "@/components/sales/sales-summary";
+import { TIER, TierTag } from "@/components/sales/tier";
 import { prisma } from "@/lib/prisma";
 import { buildReferralLink, buildSalesLoginLink } from "@/lib/sales/attribution";
-import { fmtDate, fmtDateTime, fmtMoney } from "@/lib/sales/format";
-import { getSalesSummary, listAttributedCustomers, listCommissions, listPayouts, listSalesAuditLog } from "@/lib/sales/queries";
-import { CommissionActions, EditRepDialog, RecordPayoutDialog, RepStatusDialog } from "../../_components/sales-dialogs";
+import { fmtDate, fmtMoney, fmtNum, fmtPct } from "@/lib/sales/format";
+import { formatRateBps } from "@/lib/sales/rules";
+import { getRepMonthlyTrend, getSalesSummary, listAttributedCustomers, listCommissions, listPayouts, listSalesAuditLog } from "@/lib/sales/queries";
+import { cn } from "@/lib/utils";
 import { AUDIT_LABELS } from "../../_components/audit-labels";
+import { CommissionActions, EditRepDialog, RecordPayoutDialog, RepStatusDialog } from "../../_components/sales-dialogs";
+import { TeamTrendCard } from "../../_components/team";
+
+/** Card header action: "See All" in the tint, chevron trailing. */
+function SeeAll({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} className={appleButton.plain}>
+      {children}
+      <ChevronLeft className="size-4" strokeWidth={2.2} />
+    </Link>
+  );
+}
 
 export default async function AdminSalesRepPage({ params }: { params: Promise<{ repId: string }> }) {
   await requireAdmin();
@@ -31,162 +48,209 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
   if (!rep) notFound();
 
   const scope = { salesRepId: rep.id };
-  const [summary, customers, commissions, payouts, audit] = await Promise.all([
+  const [summary, trend, customers, commissions, payouts, audit] = await Promise.all([
     getSalesSummary(scope),
+    getRepMonthlyTrend(rep.id, 6),
     listAttributedCustomers(scope, { page: 1 }),
     listCommissions(scope, { page: 1 }),
     listPayouts(scope, 10),
     listSalesAuditLog({ salesRepId: rep.id }, 20),
   ]);
   const repName = rep.user.name ?? rep.user.email;
+  const active = rep.status === "ACTIVE";
+  const c = summary.commissions;
+  const earned = c.acquisitionEarned + c.renewalEarned + c.bonusEarned;
+  const payable = summary.payable ?? 0;
+  const loginLink = buildSalesLoginLink();
 
   return (
     <div className="space-y-6">
-      <section className="flex flex-col gap-4 apple-card p-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 space-y-1">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold">{repName}</h2>
-            <StatusText tone={rep.status === "ACTIVE" ? "success" : "danger"}>{rep.status === "ACTIVE" ? "نشط" : "موقوف"}</StatusText>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            <span dir="ltr">{rep.user.email}</span>
-            {rep.user.phone_number && (
-              <>
-                {" · "}
-                <span dir="ltr">{rep.user.phone_number}</span>
-              </>
-            )}
-            {" · "}انضم {fmtDate(rep.createdAt)}
-            {rep.disabledAt && ` · اتوقف ${fmtDate(rep.disabledAt)}`}
-          </p>
-          {rep.notes && <p className="text-sm">{rep.notes}</p>}
-          <div className="grid max-w-3xl gap-4 pt-3 md:grid-cols-2">
-            <div className="space-y-2 rounded-[12px] bg-(--fill-3) p-3">
-              <p className="text-sm font-medium">دخول المندوب — ابعتهوله هو</p>
-              <p className="text-xs text-muted-foreground">
-                يسجّل دخول بالبريد ده وكلمة المرور المؤقتة اللي عملتها، وهيتحوّل على لوحة المبيعات. مش محتاج يعمل متجر.
-              </p>
-              <div className="flex items-center gap-2">
-                <code dir="ltr" className="min-w-0 flex-1 truncate rounded-md bg-muted/40 px-2 py-1.5 text-left font-mono text-xs">
-                  {buildSalesLoginLink()}
-                </code>
-                <CopyButton value={buildSalesLoginLink()} label="نسخ" />
+      <BackLink href="/admin/sales">الفريق</BackLink>
+
+      {/* Hero: who the rep is, where they stand, and the two account actions. */}
+      <section aria-labelledby="rep-name" className="apple-card relative isolate -mt-3 overflow-hidden p-5 sm:p-6">
+        <div
+          aria-hidden
+          className={cn("pointer-events-none absolute -top-28 -start-20 -z-10 size-80 rounded-full bg-(--tier)/12 blur-3xl", TIER[summary.level].color)}
+        />
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 items-start gap-4">
+            <Monogram name={repName} muted={!active} size="lg" />
+            <div className="min-w-0 space-y-1.5">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h2 id="rep-name" className="truncate text-[28px] leading-[34px] font-bold">
+                  {repName}
+                </h2>
+                <StatusText tone={active ? "success" : "danger"}>{active ? "نشط" : "موقوف"}</StatusText>
               </div>
-              <p className="text-xs">
-                البريد:{" "}
-                <span dir="ltr" className="font-mono">
-                  {rep.user.email}
+              <p className="text-[15px] text-muted-foreground">
+                <span dir="ltr">{rep.user.email}</span>
+                {rep.user.phone_number && (
+                  <>
+                    {" · "}
+                    <span dir="ltr">{rep.user.phone_number}</span>
+                  </>
+                )}
+                {" · "}انضم {fmtDate(rep.createdAt)}
+                {rep.disabledAt && ` · اتوقف ${fmtDate(rep.disabledAt)}`}
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <TierTag tier={summary.level} />
+                <span className="inline-flex h-7 items-center rounded-full bg-(--fill-3) px-3 text-[13px] text-foreground/80 tabular-nums">
+                  {fmtNum(summary.eligible)} عميل مؤهل
                 </span>
-              </p>
-            </div>
-            {rep.user.referralCode && (
-              <div className="space-y-2 rounded-[12px] bg-(--fill-3) p-3">
-                <p className="text-sm font-medium">رابط الإحالة — للتجار مش للمندوب</p>
-                <p className="text-xs text-muted-foreground">ده فورم إنشاء متجر. المندوب بيبعته للتجار، وأي حد يسجل منه بيتنسب له.</p>
-                <ReferralLinkBox link={buildReferralLink(rep.user.referralCode)} code={rep.user.referralCode} />
               </div>
-            )}
+              {rep.notes && <p className="max-w-2xl pt-1 text-[15px] leading-[22px] text-foreground/85">{rep.notes}</p>}
+            </div>
           </div>
-        </div>
-        <div className="flex shrink-0 flex-wrap gap-2">
-          <EditRepDialog rep={{ id: rep.id, name: rep.user.name, phone: rep.user.phone_number, notes: rep.notes }} />
-          <RepStatusDialog salesRepId={rep.id} status={rep.status} />
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <EditRepDialog rep={{ id: rep.id, name: rep.user.name, phone: rep.user.phone_number, notes: rep.notes }} />
+            <RepStatusDialog salesRepId={rep.id} status={rep.status} />
+          </div>
         </div>
       </section>
 
-      <SalesKpis summary={summary} scope="rep" />
+      {/* The two links an admin hands out: one to the rep, one the rep hands to merchants. */}
+      <section aria-label="الدخول والإحالة" className="apple-card grid grid-cols-1 overflow-hidden md:grid-cols-2">
+        <div className="space-y-3 p-5">
+          <div className="flex items-start gap-3">
+            <span className="grid size-[29px] shrink-0 place-items-center rounded-[7px] bg-(--sys-gray) text-white">
+              <KeyRound className="size-4" strokeWidth={2} />
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-semibold">دخول المندوب — ابعتهوله هو</h3>
+              <p className="text-[13px] leading-[18px] text-muted-foreground">
+                يسجّل بالبريد <span dir="ltr" className="font-mono text-foreground/85">{rep.user.email}</span> وكلمة المرور المؤقتة، ويتحوّل على لوحة
+                المبيعات. مش محتاج متجر.
+              </p>
+            </div>
+          </div>
+          <LinkField link={loginLink} />
+        </div>
+        <div className="space-y-3 border-t-[0.5px] border-border p-5 md:border-s-[0.5px] md:border-t-0">
+          <div className="flex items-start gap-3">
+            <span className="grid size-[29px] shrink-0 place-items-center rounded-[7px] bg-primary text-white">
+              <Link2 className="size-4" strokeWidth={2} />
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-semibold">رابط الإحالة — للتجار</h3>
+              <p className="text-[13px] leading-[18px] text-muted-foreground">فورم إنشاء متجر. المندوب بيبعته للتجار، وأي حد يسجل منه بيتنسب له.</p>
+            </div>
+          </div>
+          {rep.user.referralCode ? (
+            <ReferralLinkBox link={buildReferralLink(rep.user.referralCode)} code={rep.user.referralCode} />
+          ) : (
+            <p className="text-[13px] text-muted-foreground">الحساب ده مالوش كود إحالة.</p>
+          )}
+        </div>
+      </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <TierPanel summary={summary} />
+      <KpiStrip
+        items={[
+          { label: "مستحق للصرف", value: fmtMoney(payable), hint: `اتصرف له ${fmtMoney(summary.payouts.total)} على ${fmtNum(summary.payouts.count)} تحويل` },
+          {
+            label: "العمولات من أول يوم",
+            value: fmtMoney(earned),
+            hint: `اكتساب ${fmtMoney(c.acquisitionEarned)} · تجديد ${fmtMoney(c.renewalEarned)}${c.bonusEarned ? ` · بونص ${fmtMoney(c.bonusEarned)}` : ""}`,
+            href: `/admin/sales/commissions?rep=${rep.id}`,
+          },
+          {
+            label: "عملاء مؤهلين",
+            value: fmtNum(summary.eligible),
+            hint: `${fmtNum(summary.acquired)} دفعوا · ${fmtNum(summary.expired)} خلصت أهليتهم`,
+            href: `/admin/sales/customers?rep=${rep.id}&state=eligible`,
+          },
+          { label: "نسبة التحويل", value: fmtPct(summary.conversionRate), hint: `${fmtNum(summary.acquired)} دفعوا من ${fmtNum(summary.signups)} سجّلوا` },
+        ]}
+      />
+
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5">
+        <TeamTrendCard trend={trend} title="عمولاته" className="lg:col-span-3" />
+        <TierLadder
+          rule={summary.rule}
+          allocation={summary.allocation}
+          current={summary.nextAcquisition.tier}
+          subtitle={`عميله الجاي بـ ${formatRateBps(summary.nextAcquisition.rateBps)} — العمولات اللي اتسجلت قبل كده مبتتغيرش`}
+          className="lg:col-span-2"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        <CommissionBreakdown summary={summary} />
         <ExpiringCohorts summary={summary} />
       </div>
 
-      <CommissionBreakdown summary={summary} />
-
-      <Panel
+      <Card
         title="الصرف"
-        description={`مستحق الآن ${fmtMoney(summary.payable ?? 0)} — العمولات المعتمدة غير المدفوعة ± التسويات.`}
-        actions={<RecordPayoutDialog salesRepId={rep.id} repName={repName} payable={summary.payable ?? 0} />}
+        subtitle={payable > 0 ? `مستحق دلوقتي ${fmtMoney(payable)} — المعتمد اللي لسه متصرفش ± التسويات` : "مفيش مستحقات دلوقتي"}
+        action={<RecordPayoutDialog salesRepId={rep.id} repName={repName} payable={payable} />}
       >
         {payouts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">مفيش صرف متسجل.</p>
+          <CardEmpty>مفيش صرف متسجل.</CardEmpty>
         ) : (
-          <ul className="divide-y text-sm">
+          <ul className="apple-rows pb-2 [--row-inset:72px]">
             {payouts.map((p) => (
-              <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span>
-                  {fmtDate(p.paidAt)} · {p.method}
-                  {p.reference && (
-                    <span dir="ltr" className="ms-2 font-mono text-xs text-muted-foreground">
-                      {p.reference}
-                    </span>
-                  )}
+              <li key={p.id} className="flex items-center gap-3 px-5 py-3">
+                <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-full bg-(--sys-green)/14 text-[#248a3d] dark:text-(--sys-green)">
+                  <Banknote className="size-[18px]" strokeWidth={2} />
                 </span>
-                <span className="font-medium tabular-nums">{fmtMoney(p.amount)}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px]">
+                    {fmtDate(p.paidAt)} · {p.method}
+                  </p>
+                  <p className="truncate text-[13px] text-muted-foreground">
+                    {fmtNum(p._count.commissions)} عمولة{p._count.adjustments ? ` · ${fmtNum(p._count.adjustments)} تسوية` : ""}
+                    {p.reference && (
+                      <>
+                        {" · "}
+                        <span dir="ltr" className="font-mono text-[12px]">
+                          {p.reference}
+                        </span>
+                      </>
+                    )}
+                  </p>
+                </div>
+                <span className="text-[17px] font-bold tabular-nums">{fmtMoney(p.amount)}</span>
               </li>
             ))}
           </ul>
         )}
-      </Panel>
+      </Card>
 
-      <Panel
+      <Card
         title="أحدث العملاء"
-        description={`${customers.total} عميل منسوب`}
-        actions={
-          <Link href={`/admin/sales/customers?rep=${rep.id}`} className="text-sm text-primary hover:underline">
-            كل العملاء
-          </Link>
-        }
-        flush
+        subtitle={`${fmtNum(customers.total)} عميل منسوب`}
+        action={customers.total > 0 && <SeeAll href={`/admin/sales/customers?rep=${rep.id}`}>الكل</SeeAll>}
       >
         {customers.rows.length ? (
-          <CustomersTable rows={customers.rows} detailBase="/admin/sales/customers" />
+          <CustomersTable rows={customers.rows} detailBase="/admin/sales/customers" className="pb-2" />
         ) : (
-          <p className="p-4 text-sm text-muted-foreground">مفيش عملاء منسوبين لسه.</p>
+          <CardEmpty>مفيش عملاء لسه — أول ما تاجر يسجل من رابطه هيظهر هنا.</CardEmpty>
         )}
-      </Panel>
+      </Card>
 
-      <Panel
+      <Card
         title="أحدث العمولات"
-        description={`${commissions.total} عمولة`}
-        actions={
-          <Link href={`/admin/sales/commissions?rep=${rep.id}`} className="text-sm text-primary hover:underline">
-            كل العمولات
-          </Link>
-        }
-        flush
+        subtitle={`${fmtNum(commissions.total)} عمولة`}
+        action={commissions.total > 0 && <SeeAll href={`/admin/sales/commissions?rep=${rep.id}`}>الكل</SeeAll>}
       >
         {commissions.rows.length ? (
-          <CommissionsTable
-            rows={commissions.rows}
-            actions={(row) => (
-              <CommissionActions commissionId={row.id} status={row.status} net={row.amount + row.adjustments.reduce((s, a) => s + a.amount, 0)} />
-            )}
-          />
+          <div className="pb-2">
+            <CommissionsTable
+              rows={commissions.rows}
+              actions={(row) => (
+                <CommissionActions commissionId={row.id} status={row.status} net={row.amount + row.adjustments.reduce((s, a) => s + a.amount, 0)} />
+              )}
+            />
+          </div>
         ) : (
-          <p className="p-4 text-sm text-muted-foreground">مفيش عمولات لسه.</p>
+          <CardEmpty>مفيش عمولات لسه — بتتسجل تلقائيًا مع أول دفعة اشتراك لعميل منسوب له.</CardEmpty>
         )}
-      </Panel>
+      </Card>
 
-      <Panel title="سجل الإجراءات">
-        {audit.length === 0 ? (
-          <p className="text-sm text-muted-foreground">مفيش إجراءات.</p>
-        ) : (
-          <ul className="divide-y text-sm">
-            {audit.map((log) => (
-              <li key={log.id} className="py-2">
-                <p>
-                  {AUDIT_LABELS[log.action] ?? log.action}
-                  <span className="ms-2 text-xs text-muted-foreground">
-                    {log.actor ? log.actor.name ?? log.actor.email : "النظام"} · {fmtDateTime(log.createdAt)}
-                  </span>
-                </p>
-                {log.reason && <p className="text-xs text-muted-foreground">السبب: {log.reason}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+      <Card title="سجل الإجراءات" subtitle="آخر ٢٠ إجراء على المندوب ده.">
+        <AuditRows logs={audit} labels={AUDIT_LABELS} />
+      </Card>
     </div>
   );
 }

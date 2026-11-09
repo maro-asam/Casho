@@ -3,8 +3,9 @@ import Link from "next/link";
 import { ChevronLeft, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../social";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
 import ContactForm from "./ContactForm";
@@ -175,3 +176,21 @@ export function ClassicTrack({ store, whatsapp, initialCode, order }: TrackViewP
     </Container>
   );
 }
+
+export function ClassicPolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Container className="pb-6">
+      <PageHeader breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} title={policy.title} />
+      <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+    </Container>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "text-lg font-bold sm:text-xl",
+  text: "text-foreground/85",
+  meta: "text-muted-foreground",
+  navItem: "rounded-full border border-border px-4 text-muted-foreground hover:text-foreground lg:rounded-(--c-radius-sm) lg:border-transparent lg:px-3",
+  navActive: "border-foreground text-foreground font-semibold lg:border-transparent lg:bg-(--c-subtle)",
+  marker: "var(--primary)",
+};

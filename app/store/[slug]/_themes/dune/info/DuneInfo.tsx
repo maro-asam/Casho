@@ -3,8 +3,9 @@ import Link from "next/link";
 import { Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Crumbs, Empty, PageTitle, Wrap, btn, delay, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -158,3 +159,21 @@ export function DuneTrack({ store, whatsapp, initialCode, order }: TrackViewProp
     </Wrap>
   );
 }
+
+export function DunePolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="pb-12">
+      <PageTitle title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "dn-h3",
+  text: "text-(--dn-ink)",
+  meta: "text-(--dn-quiet)",
+  navItem: "rounded-none border border-(--dn-line) px-4 text-(--dn-quiet) hover:text-(--dn-ink) lg:border-transparent lg:px-3",
+  navActive: "border-(--dn-ink) text-(--dn-ink) font-semibold lg:border-transparent lg:bg-(--dn-tile)",
+  marker: "var(--dn-ink)",
+};

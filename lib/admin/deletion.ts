@@ -21,6 +21,8 @@ const MONEY_TX: BalanceTransactionType[] = [
   BalanceTransactionType.TOPUP,
   BalanceTransactionType.SUBSCRIPTION_CHARGE,
   BalanceTransactionType.REFUND,
+  BalanceTransactionType.DOMAIN_CHARGE,
+  BalanceTransactionType.DOMAIN_REFUND,
 ];
 
 const nf = new Intl.NumberFormat("ar-EG");
@@ -35,7 +37,7 @@ export async function getStoreDeletionBlockers(storeId: string, db: Db | typeof 
   if (!store) return ["المتجر مش موجود"];
 
   const reasons: string[] = [];
-  if (moneyTx > 0) reasons.push(`عليه ${nf.format(moneyTx)} حركة مالية حقيقية (شحن / اشتراك / استرجاع)`);
+  if (moneyTx > 0) reasons.push(`عليه ${nf.format(moneyTx)} حركة مالية حقيقية (شحن / اشتراك / دومين / استرجاع)`);
   if (commissions > 0) reasons.push(`مرتبط بـ ${nf.format(commissions)} عمولة مبيعات`);
   if (store.balance > 0) reasons.push("رصيده أكبر من صفر");
   return reasons;

@@ -19,7 +19,8 @@ export type DomainCheckReport = {
 /**
  * Re-checks one store's domain and persists the result:
  * PENDING → ACTIVE once DNS (and Vercel, when configured) are right AND the
- * store proved ownership with its TXT record; ACTIVE → FAILED if it later
+ * store proved ownership with its TXT record (or Casho registered the domain
+ * for it); ACTIVE → FAILED if it later
  * breaks (the merchant gets notified). A domain this store already activated
  * once (customDomainConnectedAt) keeps working without the TXT record, so
  * domains connected before ownership checks existed don't break.
@@ -32,7 +33,13 @@ export async function runDomainCheck(store: {
   customDomainConnectedAt?: Date | null;
 }): Promise<DomainCheckReport> {
   const domain = store.customDomain;
-  const [dns, ownership] = await Promise.all([checkDomainDns(domain), checkDomainOwnership(domain, store.id)]);
+  const [dns, txtProof, registered] = await Promise.all([
+    checkDomainDns(domain),
+    checkDomainOwnership(domain, store.id),
+    // A domain Casho registered for this store (lib/domains) needs no TXT proof.
+    prisma.domainRegistration.count({ where: { domain, storeId: store.id, status: "ACTIVE" } }),
+  ]);
+  const ownership = txtProof || registered > 0;
   const provenBefore = Boolean(store.customDomainConnectedAt);
 
   let hosting: DomainCheckReport["hosting"] = null;

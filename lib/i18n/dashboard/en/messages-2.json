@@ -397,5 +397,10 @@
   "ميعاد الرجوع لازم يكون بعد دلوقتي": "The reopen time has to be in the future",
   "المتجر اتوقف مؤقتًا": "Store paused",
   "المتجر رجع يشتغل": "Store reopened",
-  "البيانات غير صحيحة": "Invalid data"
+  "البيانات غير صحيحة": "Invalid data",
+  "تم حفظ السياسة": "Policy saved",
+  "رجعت للنص الجاهز": "Restored the ready-made text",
+  "الصفحة ظاهرة في متجرك": "The page is now visible in your store",
+  "الصفحة مخفية من متجرك": "The page is now hidden from your store",
+  "النص طويل جدًا": "The text is too long"
 }

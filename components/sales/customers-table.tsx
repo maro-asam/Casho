@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { StatusPill } from "@/components/saas-page";
+import { ChevronLeft } from "lucide-react";
+import { StatusText, initialOf } from "@/components/saas-page";
 import type { listAttributedCustomers } from "@/lib/sales/queries";
 import {
   ELIGIBILITY_META,
@@ -9,116 +10,116 @@ import {
   fmtCohort,
   fmtDate,
   fmtEligibleThrough,
+  type EligibilityState,
 } from "@/lib/sales/format";
+import { cn } from "@/lib/utils";
 
 type Row = Awaited<ReturnType<typeof listAttributedCustomers>>["rows"][number];
 
-/** Attributed customers. `showRep` for admins; `actions` renders per-row controls (admin). */
+/** Avatar hue = where the customer stands; the label next to it says it in words. */
+const AVATAR: Record<EligibilityState, string> = {
+  signup: "from-[#a1a1a6] to-[#8e8e93]",
+  eligible: "from-(--sys-green)/80 to-(--sys-green)",
+  expired: "from-(--sys-orange)/80 to-(--sys-orange)",
+};
+
+const SHORT_STATE: Record<EligibilityState, string> = {
+  signup: "لسه مدفعش",
+  eligible: "مؤهل",
+  expired: "انتهت الأهلية",
+};
+
+/**
+ * Attributed customers as grouped rows; the whole row opens the customer.
+ * `showRep` adds the rep column (admins); `actions` renders a per-row control above the row link.
+ */
 export function CustomersTable({
   rows,
   detailBase,
   showRep = false,
   actions,
+  className,
 }: {
   rows: Row[];
   detailBase: string;
   showRep?: boolean;
   actions?: (row: Row) => ReactNode;
+  className?: string;
 }) {
   const now = new Date();
   return (
-    <>
-      <div className="hidden md:block">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="h-10 bg-muted/40 text-right text-xs text-muted-foreground">
-              <th className="ps-4 font-medium">العميل</th>
-              {showRep && <th className="font-medium">المندوب</th>}
-              <th className="font-medium">التسجيل</th>
-              <th className="font-medium">الاشتراك</th>
-              <th className="hidden font-medium lg:table-cell">أول دفعة</th>
-              <th className="font-medium">الأهلية</th>
-              {actions && <th className="pe-4 font-medium" />}
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {rows.map((row) => {
-              const store = row.customer.stores[0];
-              const state = eligibilityState(row, now);
-              return (
-                <tr key={row.id} className="relative transition hover:bg-muted/30">
-                  <td className="py-3 ps-4">
-                    <Link href={`${detailBase}/${row.customer.id}`} className="font-medium after:absolute after:inset-0 hover:underline">
-                      {store?.name ?? row.customer.name ?? row.customer.email}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">
-                      {row.customer.name ?? "—"} · <span dir="ltr">{row.customer.email}</span>
-                    </p>
-                  </td>
-                  {showRep && (
-                    <td className="py-3 text-xs">
-                      {row.salesRep.user.name ?? row.salesRep.user.email}
-                      {row._count.changes > 0 && <span className="block text-muted-foreground">اتنقل {row._count.changes} مرة</span>}
-                    </td>
-                  )}
-                  <td className="py-3 text-muted-foreground">{fmtDate(row.signedUpAt)}</td>
-                  <td className="py-3">
-                    {store ? (
-                      <div className="space-y-1">
-                        <StatusPill tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusPill>
-                        <p className="text-xs text-muted-foreground">
-                          {store.plan?.name ?? "بدون باقة"} · {store.billingCycle === "YEARLY" ? "سنوي" : "شهري"} · يتجدد {fmtDate(store.subscriptionEndsAt)}
-                        </p>
-                      </div>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="hidden py-3 text-muted-foreground lg:table-cell">
-                    {row.acquiredAt ? (
-                      <>
-                        {fmtDate(row.acquiredAt)}
-                        <span className="block text-xs">دفعة {fmtCohort(row.cohortMonth)}</span>
-                      </>
-                    ) : (
-                      "لم يدفع بعد"
-                    )}
-                  </td>
-                  <td className="py-3">
-                    <StatusPill tone={ELIGIBILITY_META[state].tone}>{ELIGIBILITY_META[state].label}</StatusPill>
-                    {state === "eligible" && <p className="mt-1 text-xs text-muted-foreground">لحد {fmtEligibleThrough(row.eligibleUntil)}</p>}
-                  </td>
-                  {actions && <td className="relative z-10 py-3 pe-4 text-left">{actions(row)}</td>}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <ul className={cn("apple-rows [--row-inset:72px]", className)}>
+      {rows.map((row) => {
+        const store = row.customer.stores[0];
+        const state = eligibilityState(row, now);
+        const title = store?.name ?? row.customer.name ?? row.customer.email;
+        const repName = row.salesRep.user.name ?? row.salesRep.user.email;
+        return (
+          <li key={row.id} className="relative flex items-center gap-3 px-5 py-3 transition-colors hover:bg-(--fill-3)/50">
+            <span
+              aria-hidden
+              className={cn("grid size-10 shrink-0 place-items-center rounded-full bg-linear-to-b text-[15px] font-semibold text-white", AVATAR[state])}
+            >
+              {initialOf(title)}
+            </span>
 
-      <ul className="divide-y md:hidden">
-        {rows.map((row) => {
-          const store = row.customer.stores[0];
-          const state = eligibilityState(row, now);
-          return (
-            <li key={row.id} className="space-y-2 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <Link href={`${detailBase}/${row.customer.id}`} className="min-w-0 font-medium hover:underline">
-                  {store?.name ?? row.customer.name ?? row.customer.email}
-                </Link>
-                <StatusPill tone={ELIGIBILITY_META[state].tone}>{ELIGIBILITY_META[state].label}</StatusPill>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                تسجيل {fmtDate(row.signedUpAt)}
-                {row.acquiredAt && ` · أول دفعة ${fmtDate(row.acquiredAt)}`}
-                {showRep && ` · ${row.salesRep.user.name ?? row.salesRep.user.email}`}
+            <div className="min-w-0 flex-1">
+              <Link
+                href={`${detailBase}/${row.customer.id}`}
+                className="block truncate text-[15px] font-semibold after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-[inherit] focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-ring"
+              >
+                {title}
+              </Link>
+              <p className="truncate text-[13px] text-muted-foreground">
+                {row.customer.name ?? "—"} · <span dir="ltr">{row.customer.email}</span>
               </p>
-              {store && <StatusPill tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusPill>}
-              {actions && <div>{actions(row)}</div>}
-            </li>
-          );
-        })}
-      </ul>
-    </>
+              {showRep && <p className="truncate text-[12px] text-muted-foreground md:hidden">مع {repName}</p>}
+            </div>
+
+            {showRep && (
+              <div className="hidden w-36 shrink-0 md:block">
+                <p className="truncate text-[15px]">{repName}</p>
+                <p className="truncate text-[12px] text-muted-foreground">
+                  {row._count.changes > 0 ? `اتنقل ${row._count.changes} مرة` : `سجّل ${fmtDate(row.signedUpAt)}`}
+                </p>
+              </div>
+            )}
+
+            <div className="hidden w-44 shrink-0 space-y-0.5 md:block">
+              <StatusText tone={ELIGIBILITY_META[state].tone}>{SHORT_STATE[state]}</StatusText>
+              <p className="truncate text-[12px] text-muted-foreground">
+                {state === "eligible"
+                  ? `لحد ${fmtEligibleThrough(row.eligibleUntil)}`
+                  : state === "expired"
+                    ? `خلصت ${fmtEligibleThrough(row.eligibleUntil)}`
+                    : `سجّل ${fmtDate(row.signedUpAt)}`}
+                {row.acquiredAt && state === "eligible" && ` · دفعة ${fmtCohort(row.cohortMonth)}`}
+              </p>
+            </div>
+
+            <div className="hidden w-44 shrink-0 xl:block">
+              {store ? (
+                <>
+                  <StatusText tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusText>
+                  <p className="truncate text-[12px] text-muted-foreground">
+                    {store.plan?.name ?? "بدون باقة"} · {store.billingCycle === "YEARLY" ? "سنوي" : "شهري"} · يتجدد {fmtDate(store.subscriptionEndsAt)}
+                  </p>
+                </>
+              ) : (
+                <span className="text-[13px] text-muted-foreground">لسه معملش متجر</span>
+              )}
+            </div>
+
+            {/* Phones: state as a dot + word. */}
+            <StatusText tone={ELIGIBILITY_META[state].tone} className="text-[12px] md:hidden">
+              {SHORT_STATE[state]}
+            </StatusText>
+
+            {actions && <div className="relative z-10 hidden shrink-0 sm:block">{actions(row)}</div>}
+            <ChevronLeft aria-hidden className="size-4 shrink-0 text-(--label-3)" strokeWidth={2.2} />
+          </li>
+        );
+      })}
+    </ul>
   );
 }

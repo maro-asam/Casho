@@ -24,7 +24,7 @@ const SCOPE = [
 ];
 // Server-side message sources: not rewritten, but their static strings are
 // looked up at runtime when shown in a toast/error (trv).
-const MESSAGE_SOURCES = ["actions", "validations", "lib/store", "lib/inventory", "lib/entitlements", "lib/shipping", "lib/offers", "lib/pos", "lib/crm", "lib/coupons", "lib/integrations", "lib/billing", "lib/balance-ui", "lib/custom-domain", "lib/notifications"];
+const MESSAGE_SOURCES = ["actions", "validations", "lib/store", "lib/inventory", "lib/entitlements", "lib/shipping", "lib/offers", "lib/pos", "lib/crm", "lib/coupons", "lib/integrations", "lib/billing", "lib/balance-ui", "lib/custom-domain", "lib/domains", "lib/notifications"];
 const MESSAGE_SKIP = ["actions/admin", "actions/sales", "lib/notifications/email"];
 
 const project = new Project({ tsConfigFilePath: path.join(ROOT, "tsconfig.json") });

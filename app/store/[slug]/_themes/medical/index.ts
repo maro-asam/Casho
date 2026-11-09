@@ -7,7 +7,7 @@ import { MedicalCategoriesIndex, MedicalCategory } from "./categories/MedicalCat
 import MedicalFooter from "./footer/MedicalFooter";
 import MedicalHeader from "./header/MedicalHeader";
 import MedicalHome from "./home/MedicalHome";
-import { MedicalAbout, MedicalContact, MedicalTrack } from "./info/MedicalInfo";
+import { MedicalAbout, MedicalContact, MedicalTrack, MedicalPolicy } from "./info/MedicalInfo";
 import MedicalListing from "./listing/MedicalListing";
 import MedicalProduct from "./pdp/MedicalProduct";
 import { MedicalStoreClosed } from "./states";
@@ -26,5 +26,6 @@ export const medicalTheme: StorefrontTheme = {
   About: MedicalAbout,
   Contact: MedicalContact,
   Track: MedicalTrack,
+  Policy: MedicalPolicy,
   StoreClosed: MedicalStoreClosed,
 };

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BadgeCheck, Camera, ChevronRight, Code2, ExternalLink, ImageDown, Palette, QrCode, Send, ShoppingBag, Type, type LucideIcon } from "lucide-react";
+import { BadgeCheck, Camera, ChevronRight, Code2, ExternalLink, Globe, ImageDown, Palette, QrCode, Send, ShoppingBag, Type, type LucideIcon } from "lucide-react";
 
 import { APP_CATEGORY_LABELS, type AppDefinition, type AppId } from "@/lib/apps/catalog";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ const APP_ICONS: Record<AppId, { icon: LucideIcon; tint: string }> = {
   "qr-code": { icon: QrCode, tint: "bg-linear-to-b from-zinc-700 to-zinc-900 text-white" },
   "shopify-import": { icon: ShoppingBag, tint: "bg-linear-to-b from-[#95BF47] to-[#5E8E3E] text-white" },
   "api-keys": { icon: Code2, tint: "bg-linear-to-b from-(--sys-gray)/80 to-(--sys-gray) text-white" },
+  domain: { icon: Globe, tint: "bg-linear-to-b from-sky-400 to-sky-600 text-white" },
 };
 
 /** The app's tile, iOS home-screen style. */

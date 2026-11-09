@@ -91,6 +91,8 @@ export const TX_TYPE_META: Record<BalanceTransactionType, Meta> = {
   MANUAL_ADJUSTMENT: { label: "تعديل يدوي", tone: "warning" },
   REFUND: { label: "استرجاع", tone: "danger" },
   REFERRAL_REWARD: { label: "مكافأة إحالة", tone: "accent" },
+  DOMAIN_CHARGE: { label: "دومين", tone: "info" },
+  DOMAIN_REFUND: { label: "استرجاع دومين", tone: "danger" },
 };
 
 export const ROLE_META: Record<UserRole, Meta> = {

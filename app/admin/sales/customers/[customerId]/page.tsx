@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { BackLink } from "@/app/admin/_components/admin-ui";
 import { CustomerDetail } from "@/components/sales/customer-detail";
 import { prisma } from "@/lib/prisma";
 import { getAttributedCustomer } from "@/lib/sales/queries";
@@ -24,12 +25,15 @@ export default async function AdminSalesCustomerPage({ params }: { params: Promi
   const activeReps = reps.filter((r) => r.status === "ACTIVE").map((r) => ({ id: r.id, label: r.user.name ?? r.user.email }));
 
   return (
-    <CustomerDetail
-      detail={detail}
-      repNames={names}
-      headerActions={
-        <AssignCustomerDialog reps={activeReps} customerUserId={customerId} currentRepId={detail.attribution.salesRepId} triggerLabel="نقل لمندوب تاني" />
-      }
-    />
+    <div className="space-y-3">
+      <BackLink href="/admin/sales/customers">العملاء</BackLink>
+      <CustomerDetail
+        detail={detail}
+        repNames={names}
+        headerActions={
+          <AssignCustomerDialog reps={activeReps} customerUserId={customerId} currentRepId={detail.attribution.salesRepId} triggerLabel="نقل لمندوب تاني" />
+        }
+      />
+    </div>
   );
 }

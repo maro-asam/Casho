@@ -6,6 +6,7 @@ import {
   ListCard,
   Unavailable,
   Segmented,
+  appleButton,
   Pager,
   SearchInput,
   SelectFilter,
@@ -68,11 +69,7 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
   const filtered = !!(q || status || kind || repId || month);
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        كل عمولة صورة ثابتة وقت الدفع: الأساس = مبلغ خصم الاشتراك، والنسبة والمستوى وقاعدة الحساب محفوظين. العمولات بتتعتمد تلقائيًا؛ التصحيح بيتم بتعليق أو إلغاء أو تسوية مسجلة.
-      </p>
-
+    <div className="space-y-5">
       <Segmented
         label="حالة العمولة"
         param="status"
@@ -102,9 +99,14 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
         }
         footer={
           <>
-            <p className="border-b px-4 py-2 text-xs text-muted-foreground">
-              إجمالي النتيجة: عمولات {fmtMoney(list.sumAmount)} على أساس {fmtMoney(list.sumBasis)} (قبل التسويات)
-            </p>
+            {list.total > 0 && (
+              <div className="flex items-baseline justify-between gap-3 border-b-[0.5px] border-border px-5 py-3">
+                <span className="text-[13px] text-muted-foreground">
+                  إجمالي النتيجة على أساس {fmtMoney(list.sumBasis)} — قبل التسويات
+                </span>
+                <span className="text-[17px] font-bold tabular-nums">{fmtMoney(list.sumAmount)}</span>
+              </div>
+            )}
             <Pager page={list.page} pageSize={PAGE_SIZE} total={list.total} basePath={BASE_PATH} searchParams={params} noun="عمولة" />
           </>
         }
@@ -115,7 +117,7 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
               icon={SearchX}
               title="مفيش عمولات بالفلاتر دي"
               action={
-                <Link href={BASE_PATH} className="text-sm text-primary hover:underline">
+                <Link href={BASE_PATH} className={appleButton.plain}>
                   مسح الفلاتر
                 </Link>
               }
@@ -124,15 +126,22 @@ export default async function AdminSalesCommissionsPage({ searchParams }: { sear
             <Unavailable icon={BadgeDollarSign} title="مفيش عمولات لسه" description="أول ما عميل منسوب يدفع اشتراكه هتتسجل العمولة هنا تلقائيًا." />
           )
         ) : (
-          <CommissionsTable
-            rows={list.rows}
-            showRep
-            actions={(row) => (
-              <CommissionActions commissionId={row.id} status={row.status} net={row.amount + row.adjustments.reduce((s, a) => s + a.amount, 0)} />
-            )}
-          />
+          <div className="border-t-[0.5px] border-border">
+            <CommissionsTable
+              rows={list.rows}
+              showRep
+              actions={(row) => (
+                <CommissionActions commissionId={row.id} status={row.status} net={row.amount + row.adjustments.reduce((s, a) => s + a.amount, 0)} />
+              )}
+            />
+          </div>
         )}
       </ListCard>
+
+      <p className="-mt-2 px-5 text-[13px] leading-[18px] text-muted-foreground">
+        كل عمولة صورة ثابتة وقت الدفع: الأساس مبلغ خصم الاشتراك، والنسبة والمستوى والقاعدة محفوظين معاها. العمولات بتتعتمد تلقائيًا، والتصحيح
+        بتعليق أو إلغاء أو تسوية مسجلة.
+      </p>
     </div>
   );
 }

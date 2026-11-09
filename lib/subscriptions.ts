@@ -134,6 +134,8 @@ export const BALANCE_TRANSACTION_LABELS: Record<
   MANUAL_ADJUSTMENT: "تعديل يدوي",
   REFUND: "استرجاع رصيد",
   REFERRAL_REWARD: "مكافأة إحالة",
+  DOMAIN_CHARGE: "شراء / تجديد دومين",
+  DOMAIN_REFUND: "استرجاع دومين",
 };
 
 /** GRACE_PERIOD is legacy (grace was removed); such stores stay open until the next renewal sweep closes them. */

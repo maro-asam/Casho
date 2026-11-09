@@ -7,6 +7,8 @@ export const TX_TYPES: { value: BalanceTransactionType; label: string; tone: "su
   { value: "BONUS", get label() { return tr("رصيد هدية"); }, tone: "accent" },
   { value: "REFERRAL_REWARD", get label() { return tr("مكافأة دعوة"); }, tone: "accent" },
   { value: "REFUND", get label() { return tr("استرجاع"); }, tone: "warning" },
+  { value: "DOMAIN_CHARGE", get label() { return tr("دومين"); }, tone: "danger" },
+  { value: "DOMAIN_REFUND", get label() { return tr("استرجاع دومين"); }, tone: "warning" },
   { value: "MANUAL_ADJUSTMENT", get label() { return tr("تعديل"); }, tone: "neutral" },
 ];
 

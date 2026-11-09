@@ -9,7 +9,7 @@ import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { Empty, PageTitle, Wrap, btn, num, PlateImage } from "../ui";
 import { Leader } from "./RiwaqCart";
 
-export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createOrder }: CheckoutViewProps) {
+export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
   const count = items.reduce((t, i) => t + i.quantity, 0);
 
@@ -50,7 +50,7 @@ export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createO
       ) : (
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="rq-checkout order-2 border-t border-(--rq-ink) pt-8 lg:order-1 lg:col-span-7">
-            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
+            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
 
           {/* The slip comes first on phones so the shopper sees what they're paying for */}

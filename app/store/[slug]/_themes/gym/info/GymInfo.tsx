@@ -3,8 +3,9 @@ import Link from "next/link";
 import { Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { COACH_MESSAGE, waWith } from "../lib/coach";
 import { Chevron, Empty, PageHead, Wrap, btn, num } from "../ui";
@@ -166,3 +167,23 @@ export function GymTrack({ store, whatsapp, initialCode, order }: TrackViewProps
     </Wrap>
   );
 }
+
+export function GymPolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="pb-12">
+      <PageHead title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <div className="mt-8">
+        <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+      </div>
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "gy-h3",
+  text: "text-(--gy-ink)",
+  meta: "text-(--gy-quiet)",
+  navItem: "rounded-(--gy-r-sm) border border-(--gy-line) px-4 text-(--gy-quiet) hover:text-(--gy-ink) lg:border-transparent lg:px-3",
+  navActive: "border-(--gy-ink) text-(--gy-ink) font-semibold lg:border-transparent lg:bg-(--gy-surface)",
+  marker: "var(--gy-btn)",
+};

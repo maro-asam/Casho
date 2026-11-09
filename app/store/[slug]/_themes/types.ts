@@ -10,6 +10,7 @@
 import type { ComponentType } from "react";
 import type { BannerLink } from "@/lib/banners/banner-link";
 import type { TrackedOrder } from "@/lib/orders/tracking";
+import type { PolicyBlock, PolicyType } from "@/lib/store-policies";
 import type { StorePause } from "@/lib/store/pause";
 import type { ProductsQuery } from "@/lib/products-query";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
@@ -78,7 +79,12 @@ export type StoreShell = {
   dir: "rtl" | "ltr";
   /** Newest active banner — for promo slots in menus. */
   banner: BannerData | null;
+  /** Legal pages the store shows — themes link them in the footer (shared/policies). */
+  policies: PolicyLink[];
 };
+
+/** A storefront legal page (`/policies/[type]`). */
+export type PolicyLink = { type: PolicyType; title: string; short: string };
 
 export type BannerData = {
   id: string;
@@ -210,6 +216,15 @@ export type CheckoutViewProps = {
   paymentMethods: { key: string; label: string }[];
   /** Server action that validates the form and places the order. */
   createOrder: (formData: FormData) => Promise<void>;
+  /** Terms / return policy links shown before the order button (forward to CheckoutForm). */
+  legal: CheckoutLegal;
+};
+
+export type CheckoutLegal = {
+  /** The shopper must tick the box before ordering (merchant setting). */
+  requireConsent: boolean;
+  /** Pages the shopper agrees to — empty when the store hides both. */
+  links: { label: string; href: string }[];
 };
 
 export type AboutViewProps = {
@@ -237,6 +252,19 @@ export type TrackViewProps = {
   order: TrackedOrder | null;
 };
 
+export type PolicyViewProps = {
+  store: { name: string; slug: string };
+  policy: {
+    type: PolicyType;
+    title: string;
+    blocks: PolicyBlock[];
+    /** When the merchant last edited it (ISO); null while it's the ready-made text. */
+    updatedAt: string | null;
+  };
+  /** Every policy the store shows (this one included), for switching between them. */
+  policies: PolicyLink[];
+};
+
 export type StorefrontTheme = {
   Header: ComponentType<{ shell: StoreShell }>;
   Footer: ComponentType<{ shell: StoreShell }>;
@@ -251,6 +279,8 @@ export type StorefrontTheme = {
   Contact: ComponentType<ContactViewProps>;
   /** Order tracking — page chrome around the shared `OrderTracker` (shared/track). */
   Track: ComponentType<TrackViewProps>;
+  /** A legal page — page chrome around the shared `PolicyDocument` (shared/policies). */
+  Policy: ComponentType<PolicyViewProps>;
   /** Closed storefront: lapsed subscription, or paused by the merchant (`pause`). */
   StoreClosed: ComponentType<StoreClosedProps>;
   /** className applied to the storefront root (scopes the theme's CSS). */

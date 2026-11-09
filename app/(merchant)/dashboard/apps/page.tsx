@@ -33,6 +33,8 @@ export default async function AppsPage() {
     where: { userId },
     select: {
       id: true,
+      customDomain: true,
+      customDomainStatus: true,
       settings: { select: { ...APPEARANCE_SELECT, telegramChatId: true } },
       apps: { select: { appId: true, isActive: true } },
       instagramConnection: { select: { id: true } },
@@ -50,6 +52,11 @@ export default async function AppsPage() {
         return { label: tr("مثبت"), tone: "success", detail: getStoreFont(appearance.fontId).name };
       case "telegram":
         return store?.settings?.telegramChatId ? { label: tr("متصل"), tone: "success" } : { label: tr("اربط") };
+      case "domain":
+        if (!store?.customDomain) return { label: tr("اشتري أو اربط") };
+        return store.customDomainStatus === "ACTIVE"
+          ? { label: tr("متصل"), tone: "success", detail: store.customDomain }
+          : { label: tr("بيتجهز"), tone: "warning", detail: store.customDomain };
       case "instagram":
         if (!INSTAGRAM_ORDERS_ENABLED) return { label: tr("قريباً"), tone: "neutral" };
         return store?.instagramConnection ? { label: tr("متصل"), tone: "success" } : { label: tr("اربط") };

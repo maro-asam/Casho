@@ -1,205 +1,227 @@
 import type { ReactNode } from "react";
-import type { LucideIcon } from "lucide-react";
-import { BadgeDollarSign, CalendarClock, Repeat, TrendingUp, UserCheck, UserPlus, Users, Wallet } from "lucide-react";
-import { SalesCommissionStatus } from "@prisma/client";
-import { StatusPill } from "@/components/saas-page";
+import { CalendarClock } from "lucide-react";
+import type { SalesCommissionKind, SalesCommissionStatus } from "@prisma/client";
+import { Card, initialOf, toneDotClass } from "@/components/saas-page";
 import type { SalesSummary } from "@/lib/sales/queries";
-import { TIER_LABELS, formatRateBps, type SalesTier } from "@/lib/sales/rules";
-import {
-  COMMISSION_STATUS_META,
-  KIND_LABELS,
-  fmtCohort,
-  fmtEligibleThrough,
-  fmtMoney,
-  fmtNum,
-  fmtPct,
-} from "@/lib/sales/format";
+import { formatRateBps, type CommissionRuleSet, type SalesTier } from "@/lib/sales/rules";
+import { COMMISSION_STATUS_META, KIND_LABELS, fmtCohort, fmtDateTime, fmtEligibleThrough, fmtMoney, fmtNum } from "@/lib/sales/format";
 import { cn } from "@/lib/utils";
+import { TIER, TIER_ORDER } from "./tier";
 
-export function StatCard({ label, value, hint, icon: Icon }: { label: string; value: ReactNode; hint?: ReactNode; icon: LucideIcon }) {
+/* ── Small marks shared by the admin sales pages ──────────────────────────── */
+
+/** Person monogram: brand-tinted circle; gray when the person is inactive. */
+export function Monogram({ name, muted = false, size = "md" }: { name: string; muted?: boolean; size?: "md" | "lg" }) {
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-        </div>
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Icon className="size-4" />
-        </div>
-      </div>
-      {hint && <p className="mt-2 text-xs text-muted-foreground">{hint}</p>}
-    </div>
+    <span
+      aria-hidden
+      className={cn(
+        "grid shrink-0 place-items-center rounded-full bg-linear-to-b font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)]",
+        size === "lg" ? "size-14 text-[22px]" : "size-10 text-[15px]",
+        muted ? "from-[#a1a1a6] to-[#8e8e93]" : "from-primary/80 to-primary text-primary-foreground",
+      )}
+    >
+      {initialOf(name)}
+    </span>
   );
 }
 
-export function Panel({
-  title,
-  description,
-  children,
-  actions,
-  flush = false,
+/** Empty line inside a card. */
+export function CardEmpty({ children }: { children: ReactNode }) {
+  return <p className="px-5 pt-1 pb-6 text-[15px] text-muted-foreground">{children}</p>;
+}
+
+/* ── Commissions by status: one total, a segmented bar, a row per status ─── */
+
+const STATUS_ORDER: SalesCommissionStatus[] = ["PENDING", "ON_HOLD", "APPROVED", "PAID", "REVERSED", "REJECTED"];
+const LIVE: SalesCommissionStatus[] = ["PENDING", "ON_HOLD", "APPROVED", "PAID"];
+const KINDS: SalesCommissionKind[] = ["ACQUISITION", "RENEWAL", "BONUS"];
+
+export function CommissionBreakdown({ summary, className }: { summary: SalesSummary; className?: string }) {
+  const { byKind, byStatus, countByStatus, adjustments } = summary.commissions;
+  const earned = LIVE.reduce((s, status) => s + byStatus[status], 0);
+  const rows = STATUS_ORDER.filter((status) => countByStatus[status] > 0);
+  const bar = LIVE.filter((status) => byStatus[status] > 0);
+
+  return (
+    <Card title="العمولات حسب الحالة" subtitle="من أول يوم. المرفوض والملغي مش داخلين في الإجمالي." className={className}>
+      {rows.length === 0 ? (
+        <CardEmpty>مفيش عمولات لسه.</CardEmpty>
+      ) : (
+        <>
+          <div className="px-5 pb-3">
+            <p className="text-[34px] leading-[41px] font-bold tabular-nums">{fmtMoney(earned)}</p>
+            <p className="text-[13px] text-muted-foreground">
+              {adjustments !== 0 ? `قبل التسويات (${fmtMoney(adjustments)})` : "مفيش تسويات"}
+            </p>
+
+            {/* Segmented bar: 2px surface gaps between parts. */}
+            <div role="img" aria-label={`إجمالي العمولات ${fmtMoney(earned)}`} className="mt-4 h-3 w-full overflow-hidden rounded-full bg-(--fill-3)">
+              {earned > 0 && (
+                <div className="apple-grow-x flex h-full w-full gap-[2px]">
+                  {bar.map((status) => (
+                    <span
+                      key={status}
+                      className={cn("h-full", toneDotClass(COMMISSION_STATUS_META[status].tone))}
+                      style={{ flexGrow: byStatus[status], flexBasis: 0 }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <dl className="apple-rows pb-2 [--row-inset:40px]">
+            {rows.map((status) => {
+              const split = KINDS.filter((k) => byKind[k][status] !== 0).map((k) => `${KIND_LABELS[k]} ${fmtMoney(byKind[k][status])}`);
+              const dead = !LIVE.includes(status);
+              return (
+                <div key={status} className="flex min-h-11 items-center gap-3 px-5 py-2.5">
+                  <span aria-hidden className={cn("size-2.5 shrink-0 rounded-full", toneDotClass(COMMISSION_STATUS_META[status].tone))} />
+                  <dt className="min-w-0 flex-1">
+                    <span className="text-[15px]">{COMMISSION_STATUS_META[status].label}</span>
+                    <span className="ms-1.5 text-[13px] text-muted-foreground tabular-nums">{fmtNum(countByStatus[status])}</span>
+                    {split.length > 1 && <span className="block truncate text-[12px] text-muted-foreground">{split.join(" · ")}</span>}
+                  </dt>
+                  <dd className={cn("text-[15px] font-semibold tabular-nums", dead && "font-normal text-muted-foreground")}>
+                    {fmtMoney(byStatus[status])}
+                  </dd>
+                </div>
+              );
+            })}
+            {adjustments !== 0 && (
+              <div className="flex min-h-11 items-center gap-3 px-5 py-2.5">
+                <span aria-hidden className="size-2.5 shrink-0 rounded-full border-[1.5px] border-(--sys-gray)" />
+                <dt className="min-w-0 flex-1 text-[15px]">تسويات (+/−)</dt>
+                <dd className="text-[15px] font-semibold tabular-nums">{fmtMoney(adjustments)}</dd>
+              </div>
+            )}
+          </dl>
+        </>
+      )}
+    </Card>
+  );
+}
+
+/* ── Tier ladder: range, rate and (for a rep) how many customers sit in each ─ */
+
+export function TierLadder({
+  rule,
+  allocation,
+  current,
+  title = "المستويات",
+  subtitle,
   className,
 }: {
-  title: string;
-  description?: ReactNode;
-  children: ReactNode;
-  actions?: ReactNode;
-  /** Edge-to-edge body for tables. */
-  flush?: boolean;
+  rule: CommissionRuleSet;
+  /** Per-tier customer counts (a rep's), shown under each range. */
+  allocation?: Record<SalesTier, number>;
+  /** Highlighted step — the tier the rep's next customer lands in. */
+  current?: SalesTier;
+  title?: string;
+  subtitle?: ReactNode;
   className?: string;
 }) {
-  return (
-    <section className={cn("rounded-xl border bg-card shadow-sm", className)}>
-      <div className="flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-semibold">{title}</h2>
-          {description && <p className="text-xs text-muted-foreground">{description}</p>}
-        </div>
-        {actions}
-      </div>
-      <div className={flush ? undefined : "p-4"}>{children}</div>
-    </section>
-  );
-}
-
-const TIER_ORDER: SalesTier[] = ["STARTER", "GROWTH", "PRO"];
-const STATUS_ORDER: SalesCommissionStatus[] = ["PENDING", "APPROVED", "ON_HOLD", "PAID", "REVERSED", "REJECTED"];
-
-/** KPI grid. `program` = whole team (no per-rep level). */
-export function SalesKpis({ summary, scope }: { summary: SalesSummary; scope: "rep" | "program" }) {
-  const s = summary;
-  return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      <StatCard icon={UserPlus} label="تسجيلات من الإحالة" value={fmtNum(s.signups)} hint="كل الحسابات المنسوبة — منذ البداية" />
-      <StatCard
-        icon={UserCheck}
-        label="عملاء دفعوا (مكتسبين)"
-        value={fmtNum(s.acquired)}
-        hint={`نسبة التحويل ${fmtPct(s.conversionRate)} — أول دفعة اشتراك موثّقة`}
-      />
-      <StatCard
-        icon={Users}
-        label="مؤهلين حاليًا"
-        value={fmtNum(s.eligible)}
-        hint={`${fmtNum(s.expired)} انتهت أهليتهم (6 شهور من شهر الاكتساب)`}
-      />
-      {scope === "rep" ? (
-        <StatCard
-          icon={TrendingUp}
-          label="المستوى الحالي"
-          value={<span className="text-lg">{TIER_LABELS[s.level]}</span>}
-          hint={`العميل الجاي هياخد ${formatRateBps(s.nextAcquisition.rateBps)}`}
-        />
-      ) : (
-        <StatCard icon={TrendingUp} label="نسبة التحويل" value={fmtPct(s.conversionRate)} hint="عملاء دفعوا ÷ تسجيلات" />
-      )}
-      <StatCard
-        icon={Wallet}
-        label="إيراد اشتراكات موثّق"
-        value={fmtMoney(s.revenue.net)}
-        hint={`خصومات اشتراك ${fmtMoney(s.revenue.charged)} − مرتجعات ${fmtMoney(s.revenue.refunded)} (العملاء المنسوبين حاليًا)`}
-      />
-      <StatCard icon={BadgeDollarSign} label="عمولات الاكتساب" value={fmtMoney(s.commissions.acquisitionEarned)} hint="غير الملغاة والمرفوضة" />
-      <StatCard icon={Repeat} label="عمولات التجديد (6%)" value={fmtMoney(s.commissions.renewalEarned)} hint="غير الملغاة والمرفوضة" />
-      <StatCard
-        icon={CalendarClock}
-        label={s.payable === null ? "إجمالي المصروف فعليًا" : "مستحق للصرف الآن"}
-        value={fmtMoney(s.payable ?? s.payouts.total)}
-        hint={s.payable === null ? `${fmtNum(s.payouts.count)} عملية صرف مسجلة` : `اتصرف فعليًا ${fmtMoney(s.payouts.total)}`}
-      />
-    </div>
-  );
-}
-
-export function CommissionBreakdown({ summary }: { summary: SalesSummary }) {
-  const { byKind, byStatus, countByStatus, adjustments } = summary.commissions;
-  return (
-    <Panel title="العمولات حسب الحالة" description="كل المبالغ بالجنيه المصري — منذ البداية. التسويات (استرداد / تعديل يدوي) محسوبة لوحدها.">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="h-9 bg-muted/40 text-right text-xs text-muted-foreground">
-              <th className="ps-3 font-medium">الحالة</th>
-              <th className="font-medium">{KIND_LABELS.ACQUISITION}</th>
-              <th className="font-medium">{KIND_LABELS.RENEWAL}</th>
-              <th className="font-medium">{KIND_LABELS.BONUS}</th>
-              <th className="pe-3 text-left font-medium">الإجمالي</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {STATUS_ORDER.map((status) => (
-              <tr key={status} className="h-10">
-                <td className="ps-3">
-                  <StatusPill tone={COMMISSION_STATUS_META[status].tone}>{COMMISSION_STATUS_META[status].label}</StatusPill>
-                  <span className="ms-2 text-xs text-muted-foreground tabular-nums">({fmtNum(countByStatus[status])})</span>
-                </td>
-                <td className="tabular-nums">{fmtMoney(byKind.ACQUISITION[status])}</td>
-                <td className="tabular-nums">{fmtMoney(byKind.RENEWAL[status])}</td>
-                <td className="tabular-nums">{fmtMoney(byKind.BONUS[status])}</td>
-                <td className="pe-3 text-left font-medium tabular-nums">{fmtMoney(byStatus[status])}</td>
-              </tr>
-            ))}
-            <tr className="h-10">
-              <td className="ps-3 text-muted-foreground">تسويات (+/−)</td>
-              <td colSpan={3} />
-              <td className="pe-3 text-left font-medium tabular-nums">{fmtMoney(adjustments)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </Panel>
-  );
-}
-
-export function TierPanel({ summary }: { summary: SalesSummary }) {
-  const { rule, allocation, eligible } = summary;
   const ranges: Record<SalesTier, string> = {
-    STARTER: `العملاء 1–${rule.starterMaxPosition}`,
-    GROWTH: `العملاء ${rule.starterMaxPosition + 1}–${rule.growthMaxPosition}`,
-    PRO: `العميل ${rule.growthMaxPosition + 1} وما بعده`,
+    STARTER: `العملاء ${fmtNum(1)}–${fmtNum(rule.starterMaxPosition)}`,
+    GROWTH: `العملاء ${fmtNum(rule.starterMaxPosition + 1)}–${fmtNum(rule.growthMaxPosition)}`,
+    PRO: `من العميل ${fmtNum(rule.growthMaxPosition + 1)}`,
   };
   const rates: Record<SalesTier, number> = { STARTER: rule.starterRateBps, GROWTH: rule.growthRateBps, PRO: rule.proRateBps };
+
   return (
-    <Panel
-      title="توزيع المستويات"
-      description={`نظام شرائح: كل عميل جديد بياخد نسبة ترتيبه وسط العملاء المؤهلين حاليًا (${fmtNum(eligible)}). العمولات المسجلة قبل كده مبتتغيرش.`}
-    >
-      <ul className="grid gap-3 sm:grid-cols-3">
-        {TIER_ORDER.map((tier) => (
-          <li key={tier} className={cn("rounded-lg border p-3", summary.level === tier && "border-primary bg-primary/5")}>
-            <p className="text-sm font-medium">{TIER_LABELS[tier]}</p>
-            <p className="text-xs text-muted-foreground">
-              {ranges[tier]} · {formatRateBps(rates[tier])}
-            </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums">{fmtNum(allocation[tier])}</p>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 text-xs text-muted-foreground">عمولة التجديد: {formatRateBps(rule.renewalRateBps)} على كل دفعة خلال فترة أهلية العميل ({fmtNum(rule.eligibilityMonths)} شهور تقويمية).</p>
-    </Panel>
+    <Card title={title} subtitle={subtitle} className={className}>
+      <ol className="space-y-1 px-3 pb-2">
+        {TIER_ORDER.map((tier) => {
+          const here = tier === current;
+          return (
+            <li
+              key={tier}
+              aria-current={here ? "step" : undefined}
+              className={cn("flex min-h-13 items-center gap-3 rounded-xl px-3 py-2", TIER[tier].color, here && "bg-(--fill-3)")}
+            >
+              <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-(--tier)" />
+              <div className="min-w-0 flex-1">
+                <p className={cn("text-[15px]", here && "font-semibold")}>
+                  {TIER[tier].number} <span className="text-muted-foreground">— {TIER[tier].name}</span>
+                  {here && <span className="ms-1.5 text-[12px] font-normal text-muted-foreground">العميل الجاي هنا</span>}
+                </p>
+                <p className="text-[12px] text-muted-foreground">
+                  {ranges[tier]}
+                  {allocation && ` · ${fmtNum(allocation[tier])} عنده`}
+                </p>
+              </div>
+              <span dir="ltr" className="text-[17px] font-semibold tabular-nums">
+                {formatRateBps(rates[tier])}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+      <p className="border-t-[0.5px] border-border px-5 py-3 text-[13px] text-muted-foreground">
+        التجديد <span dir="ltr" className="font-semibold text-foreground">{formatRateBps(rule.renewalRateBps)}</span> على كل دفعة لمدة{" "}
+        {fmtNum(rule.eligibilityMonths)} شهور تقويمية من شهر أول دفعة.
+      </p>
+    </Card>
   );
 }
 
-export function ExpiringCohorts({ summary }: { summary: SalesSummary }) {
+/* ── Who leaves the eligible count next ───────────────────────────────────── */
+
+export function ExpiringCohorts({ summary, className }: { summary: SalesSummary; className?: string }) {
   const cohorts = summary.expiringCohorts.slice(0, 6);
   return (
-    <Panel title="انتهاء الأهلية القادم" description="العملاء بيخرجوا من العدد المؤهل مع بعض في أول الشهر السابع من شهر اكتسابهم (توقيت القاهرة).">
+    <Card title="انتهاء الأهلية القادم" subtitle="كل دفعة بتخرج من العدد المؤهل مع بعض أول الشهر السابع (توقيت القاهرة)." className={className}>
       {cohorts.length === 0 ? (
-        <p className="text-sm text-muted-foreground">مفيش عملاء مؤهلين حاليًا.</p>
+        <CardEmpty>مفيش عملاء مؤهلين دلوقتي.</CardEmpty>
       ) : (
-        <ul className="divide-y text-sm">
+        <ul className="apple-rows pb-2 [--row-inset:61px]">
           {cohorts.map((c) => (
-            <li key={`${c.cohortMonth}`} className="flex items-center justify-between gap-3 py-2">
-              <span>
-                دفعة {fmtCohort(c.cohortMonth)}
-                <span className="ms-2 text-xs text-muted-foreground">مؤهلين لحد {fmtEligibleThrough(c.eligibleUntil)}</span>
+            <li key={`${c.cohortMonth}-${c.eligibleUntil?.toISOString()}`} className="flex min-h-13 items-center gap-3 px-5 py-2.5">
+              <span className="grid size-[29px] shrink-0 place-items-center rounded-[7px] bg-(--sys-orange) text-white">
+                <CalendarClock className="size-4" strokeWidth={2} />
               </span>
-              <span className="font-medium tabular-nums">{fmtNum(c.count)} عميل</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px]">دفعة {fmtCohort(c.cohortMonth)}</p>
+                <p className="text-[13px] text-muted-foreground">مؤهلين لحد {fmtEligibleThrough(c.eligibleUntil)}</p>
+              </div>
+              <span className="text-[15px] font-semibold tabular-nums">
+                {fmtNum(c.count)} <span className="font-normal text-muted-foreground">{c.count === 1 ? "عميل" : "عملاء"}</span>
+              </span>
             </li>
           ))}
         </ul>
       )}
-    </Panel>
+    </Card>
+  );
+}
+
+/* ── Audit trail rows ─────────────────────────────────────────────────────── */
+
+type AuditLog = {
+  id: string;
+  action: string;
+  reason: string | null;
+  createdAt: Date;
+  actor: { name: string | null; email: string } | null;
+};
+
+export function AuditRows({ logs, labels }: { logs: AuditLog[]; labels: Record<string, string> }) {
+  if (logs.length === 0) return <CardEmpty>مفيش إجراءات لسه.</CardEmpty>;
+  return (
+    <ul className="apple-rows pb-2 [--row-inset:20px]">
+      {logs.map((log) => (
+        <li key={log.id} className="flex items-start justify-between gap-4 px-5 py-2.5">
+          <div className="min-w-0">
+            <p className="text-[15px]">{labels[log.action] ?? log.action}</p>
+            <p className="text-[13px] text-muted-foreground">{log.actor ? (log.actor.name ?? log.actor.email) : "النظام"}</p>
+            {log.reason && <p className="text-[13px] text-foreground/75">{log.reason}</p>}
+          </div>
+          <time dateTime={log.createdAt.toISOString()} className="shrink-0 pt-0.5 text-[12px] text-muted-foreground tabular-nums">
+            {fmtDateTime(log.createdAt)}
+          </time>
+        </li>
+      ))}
+    </ul>
   );
 }

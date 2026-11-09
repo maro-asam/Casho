@@ -16,6 +16,12 @@ function getTransactionLabel(type: BalanceTransactionType) {
       return tr("تعديل يدوي");
     case BalanceTransactionType.REFUND:
       return tr("استرجاع رصيد");
+    case BalanceTransactionType.REFERRAL_REWARD:
+      return tr("مكافأة دعوة");
+    case BalanceTransactionType.DOMAIN_CHARGE:
+      return tr("شراء / تجديد دومين");
+    case BalanceTransactionType.DOMAIN_REFUND:
+      return tr("استرجاع دومين");
     default:
       return type;
   }

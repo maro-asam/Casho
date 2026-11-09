@@ -3,6 +3,7 @@ import Link from "next/link";
 import CashoLogo from "@/components/common/CashoLogo";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { StoreShell } from "../../types";
+import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, StarMark } from "../ui";
 
@@ -57,6 +58,7 @@ export default function RiwaqFooter({ shell }: { shell: StoreShell }) {
     { label: "عن المتجر", href: url("/about") },
     ...(wa ? [{ label: "واتساب", href: wa, external: true }] : []),
     ...(shell.contact.email ? [{ label: shell.contact.email, href: `mailto:${shell.contact.email}`, ltr: true }] : []),
+    ...policyFooterLinks(shell),
   ];
   const follow: LinkItem[] = socials.map((s) => ({ label: s.label, href: s.href, external: true }));
 

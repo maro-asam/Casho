@@ -37,6 +37,8 @@ type Props = {
   targets: { cname: string; a: string };
   /** This store's ownership token (TXT record). */
   verifyToken: string;
+  /** Casho registered it (lib/domains): DNS is on us, nothing for the merchant to set. */
+  managed?: boolean;
 };
 
 const POLL_MS = 30_000;
@@ -132,7 +134,7 @@ function ValueLine({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, subdomainEnabled, targets, verifyToken }: Props) {
+export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, subdomainEnabled, targets, verifyToken, managed = false }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>(initialStatus);
   const [report, setReport] = useState<DomainCheckReport | null>(null);
@@ -208,19 +210,22 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, sub
   const live = status === "ACTIVE";
   const dnsOk = report ? report.dns.ok : live;
   const sslOk = live;
-  const problem =
-    report && !report.dns.ok
+  const problem = managed
+    ? null
+    : report && !report.dns.ok
       ? PROBLEM_TEXT[report.dns.problem ?? "no-records"]
       : report && !live && !report.ownership && !connectedAt
         ? PROBLEM_TEXT["no-ownership"]
         : null;
   const hostingWaiting = report && report.dns.ok && !live;
+  /** A domain Casho bought: it's only ever "getting ready", never the merchant's DNS to fix. */
+  const preparing = managed && !live;
   const checkedAgo = report ? rtf.format(Math.round((new Date(report.checkedAt).getTime() - now) / 60000), "minute") : null;
   const failed = status === "FAILED";
 
   const steps = [
     { label: tr("ربطت الدومين بمتجرك"), done: true },
-    { label: tr("سجلات الـ DNS متظبطة"), done: dnsOk },
+    { label: managed ? tr("كاشو بتظبط الـ DNS") : tr("سجلات الـ DNS متظبطة"), done: dnsOk },
     { label: tr("شغّال بشهادة أمان SSL"), done: sslOk },
   ];
   const activeProvider = PROVIDERS.find((p) => p.id === provider) ?? PROVIDERS[0];
@@ -232,7 +237,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, sub
         <section className="apple-card flex flex-col items-center px-6 pt-10 pb-8 text-center" aria-live="polite">
           <BrowserBar host={domain} secure={live} />
           <div className="mt-6">
-            <StatusText tone={STATUS_META[status].tone}>{STATUS_META[status].label}</StatusText>
+            <StatusText tone={STATUS_META[status].tone}>{preparing ? tr("بيتجهز") : STATUS_META[status].label}</StatusText>
           </div>
           <h2 className="mt-1.5 max-w-full truncate text-[28px] leading-[34px] font-bold ltr:tracking-[-0.015em]" dir="ltr">
             {domain}
@@ -265,7 +270,19 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, sub
         </section>
 
         {/* ── Diagnosis ───────────────────────────────────────────── */}
-        {!live && (problem || hostingWaiting || failed) && (
+        {preparing && (
+          <section className="flex gap-3 rounded-[14px] bg-primary/8 px-4 py-3.5">
+            <Loader2 className="mt-0.5 size-[18px] shrink-0 animate-spin text-primary" />
+            <div className="min-w-0 space-y-1">
+              <p className="text-[15px] font-semibold">{tr("بنجهّز الدومين وشهادة الأمان")}</p>
+              <p className="text-[13px] leading-[19px] text-foreground/75">
+                {tr("الدومين متسجّل لمتجرك والـ DNS بنظبطه إحنا. أول مرة بتاخد من دقايق لحد ساعة لحد ما ينتشر — مش محتاج تعمل أي حاجة.")}
+              </p>
+            </div>
+          </section>
+        )}
+
+        {!live && !preparing && (problem || hostingWaiting || failed) && (
           <section className={cn("flex gap-3 rounded-[14px] px-4 py-3.5", failed ? "bg-(--sys-red)/10" : "bg-(--sys-orange)/12")}>
             <AlertTriangle className={cn("mt-0.5 size-[18px] shrink-0", failed ? "text-(--sys-red)" : "text-(--sys-orange)")} />
             <div className="min-w-0 space-y-1">
@@ -291,7 +308,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, sub
         )}
 
         {/* ── DNS records: one grouped card per record ─────────────── */}
-        {!live && (
+        {!live && !managed && (
           <section className="space-y-2" aria-labelledby="records-title">
             <div className="flex items-end justify-between gap-3 px-4">
               <div>
@@ -326,7 +343,7 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, sub
         )}
 
         {/* ── Provider guides ─────────────────────────────────────── */}
-        {!live && (
+        {!live && !managed && (
           <section className="apple-card space-y-4 p-5" aria-labelledby="providers-title">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 id="providers-title" className="text-[17px] font-semibold">
@@ -426,9 +443,11 @@ export function DomainStatus({ domain, initialStatus, connectedAt, storeUrl, sub
           <AlertDialogHeader className="items-center gap-1 px-5 pt-6 pb-5 text-center sm:text-center">
             <AlertDialogTitle className="text-[17px] font-semibold">{tr("تفصل {0}؟", domain)}</AlertDialogTitle>
             <AlertDialogDescription className="text-[13px] leading-[18px]">
-              {live
-                ? tr("اللي هيفتح الدومين ده مش هيلاقي متجرك. متجرك هيفضل شغّال على رابط كاشو.")
-                : tr("هتقدر تربط نفس الدومين أو دومين تاني بعدين.")}
+              {managed
+                ? tr("الدومين هيفضل متسجّل لمتجرك، وتقدر تربطه تاني من نفس الصفحة. متجرك هيفضل شغّال على رابط كاشو.")
+                : live
+                  ? tr("اللي هيفتح الدومين ده مش هيلاقي متجرك. متجرك هيفضل شغّال على رابط كاشو.")
+                  : tr("هتقدر تربط نفس الدومين أو دومين تاني بعدين.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="grid grid-cols-2 gap-0 border-t border-border/60 sm:space-x-0">

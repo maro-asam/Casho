@@ -7,7 +7,7 @@ import { GymCategoriesIndex, GymCategory } from "./categories/GymCategories";
 import GymFooter from "./footer/GymFooter";
 import GymHeader from "./header/GymHeader";
 import GymHome from "./home/GymHome";
-import { GymAbout, GymContact, GymTrack } from "./info/GymInfo";
+import { GymAbout, GymContact, GymTrack, GymPolicy } from "./info/GymInfo";
 import GymListing from "./listing/GymListing";
 import GymProduct from "./pdp/GymProduct";
 import { GymStoreClosed } from "./states";
@@ -26,5 +26,6 @@ export const gymTheme: StorefrontTheme = {
   About: GymAbout,
   Contact: GymContact,
   Track: GymTrack,
+  Policy: GymPolicy,
   StoreClosed: GymStoreClosed,
 };

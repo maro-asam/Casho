@@ -3,44 +3,77 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { appleButton } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 
-export function CopyButton({ value, label = "نسخ", className }: { value: string; label?: string; className?: string }) {
+/**
+ * Copies `value`. The glyph swaps to a checkmark for a moment (state change, no extra toast);
+ * `iconOnly` renders a 36pt circle for dense rows.
+ */
+export function CopyButton({
+  value,
+  label = "نسخ",
+  iconOnly = false,
+  className,
+}: {
+  value: string;
+  label?: string;
+  iconOnly?: boolean;
+  className?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
-      toast.success("اتنسخ");
       setTimeout(() => setCopied(false), 1500);
     } catch {
       toast.error("مقدرناش ننسخ — انسخه يدويًا");
     }
   }
 
+  const Icon = copied ? Check : Copy;
   return (
-    <Button type="button" variant="outline" size="sm" onClick={copy} className={cn("gap-1.5", className)}>
-      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      {label}
-    </Button>
+    <button
+      type="button"
+      onClick={copy}
+      aria-label={iconOnly ? label : undefined}
+      title={iconOnly ? label : undefined}
+      className={cn(iconOnly ? cn(appleButton.more, "size-9") : cn(appleButton.tinted, "text-primary"), className)}
+    >
+      <Icon className={cn("size-4", copied && "text-(--sys-green)")} strokeWidth={2} />
+      {!iconOnly && (copied ? "اتنسخ" : label)}
+      <span className="sr-only" aria-live="polite">
+        {copied ? "اتنسخ" : ""}
+      </span>
+    </button>
   );
 }
 
-/** Referral link with a copy action; the link itself is LTR. */
+/** A read-only link in a filled field with its copy action; the link itself is LTR. */
+export function LinkField({ link, label = "نسخ الرابط" }: { link: string; label?: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <code
+        dir="ltr"
+        className="flex h-11 min-w-0 flex-1 items-center truncate rounded-[12px] bg-(--fill-3) px-3.5 text-left font-mono text-[13px] text-foreground/85"
+      >
+        {link}
+      </code>
+      <CopyButton value={link} label={label} className="h-11 px-4" />
+    </div>
+  );
+}
+
+/** Referral link with a copy action, and the code under it. */
 export function ReferralLinkBox({ link, code }: { link: string; code: string }) {
   return (
-    <div className="space-y-2">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <code dir="ltr" className="min-w-0 flex-1 truncate rounded-lg border bg-muted/40 px-3 py-2 text-left font-mono text-xs">
-          {link}
-        </code>
-        <CopyButton value={link} label="نسخ الرابط" />
-      </div>
-      <p className="text-xs text-muted-foreground">
-        كود الإحالة:{" "}
-        <span dir="ltr" className="font-mono font-medium text-foreground">
+    <div className="space-y-1.5">
+      <LinkField link={link} />
+      <p className="text-[13px] text-muted-foreground">
+        كود الإحالة{" "}
+        <span dir="ltr" className="font-mono font-semibold text-foreground">
           {code}
         </span>
       </p>

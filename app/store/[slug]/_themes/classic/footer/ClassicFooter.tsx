@@ -4,6 +4,7 @@ import { ChevronDown, Mail, MessageCircle } from "lucide-react";
 import CashoLogo from "@/components/common/CashoLogo";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { StoreShell } from "../../types";
+import { policyFooterLinks } from "../../shared/policies/links";
 import StoreLogo from "../header/StoreLogo";
 import { SocialLinks, whatsappHref } from "../social";
 
@@ -46,6 +47,7 @@ function buildGroups(shell: StoreShell): Group[] {
       ...(shell.contact.email
         ? [{ label: shell.contact.email, href: `mailto:${shell.contact.email}`, dir: "ltr" as const }]
         : []),
+      ...policyFooterLinks(shell),
     ],
   });
 

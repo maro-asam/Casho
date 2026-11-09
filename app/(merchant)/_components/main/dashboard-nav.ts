@@ -45,7 +45,8 @@ export type NavItem = NavLeaf & {
   children?: NavLeaf[];
   /**
    * Pages that belong to this item but aren't listed in the sidebar (the
-   * tools inside Apps, the domain page under Settings): they light the item
+   * tools inside Apps — the domain page among them — and the policies page
+   * under Settings): they light the item
    * up, show as "item › page" in the topbar and stay in the ⌘K search.
    */
   related?: NavLeaf[];
@@ -101,6 +102,7 @@ export const NAV_SECTIONS: NavSection[] = [
           { get name() { return tr("الثيمات"); }, href: "/apps/themes" },
           { get name() { return tr("الخطوط"); }, href: "/apps/fonts" },
           { name: "Confirm It", href: "/apps/confirm-it" },
+          { get name() { return tr("الدومين الخاص"); }, href: "/domain" },
           { get name() { return tr("ضغط الصور"); }, href: "/image-compressor" },
           { get name() { return tr("QR Code المتجر"); }, href: "/qr-code" },
           { get name() { return tr("انستجرام"); }, href: "/instagram" },
@@ -171,7 +173,7 @@ export const NAV_FOOTER: NavItem[] = [
     get name() { return tr("الإعدادات"); },
     href: "/settings",
     icon: Settings,
-    related: [{ get name() { return tr("دومين مخصص"); }, href: "/domain" }],
+    related: [{ get name() { return tr("السياسات القانونية"); }, href: "/policies" }],
   },
 ];
 

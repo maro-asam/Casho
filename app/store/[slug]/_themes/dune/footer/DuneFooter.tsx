@@ -6,6 +6,7 @@ import CashoLogo from "@/components/common/CashoLogo";
 import { PAYMENT_METHODS_BY_KEY, type PaymentMethodKey } from "@/constants/payment-methods";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { StoreShell } from "../../types";
+import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import StoreMark from "../header/StoreMark";
 
@@ -67,6 +68,7 @@ export default async function DuneFooter({ shell }: { shell: StoreShell }) {
         { label: "تواصل معنا", href: url("/contact") },
         { label: "تتبّع طلبك", href: url("/track") },
         { label: "سلة المشتريات", href: url("/cart") },
+        ...policyFooterLinks(shell),
       ],
     },
   ];

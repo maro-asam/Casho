@@ -23,6 +23,7 @@ import { getStorefrontTheme } from "./_themes";
 import { StudioAnchor } from "./_themes/shared/studio-anchor";
 import type { StoreShell } from "./_themes/types";
 import { getStoreCategoryLinks, liveBannersQuery, toBannerData } from "./_lib/storefront";
+import { POLICY_LABELS, readStoredPolicies, visiblePolicyTypes } from "@/lib/store-policies";
 
 type LayoutProps = {
   children: ReactNode;
@@ -172,6 +173,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
             instagram: true,
             facebook: true,
             tiktok: true,
+            policies: true,
           },
         },
       },
@@ -246,6 +248,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
     showPoweredByCasho: store.poweredByRemovalEnabled ? store.showPoweredByCasho : true,
     dir: storeDir,
     banner: toBannerData(store.banners, settings?.whatsappNumber)[0] ?? null,
+    policies: visiblePolicyTypes(readStoredPolicies(settings?.policies)).map((type) => ({ type, ...POLICY_LABELS[type] })),
   };
 
   return (

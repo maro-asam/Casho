@@ -3,8 +3,9 @@ import Link from "next/link";
 import { ChevronLeft, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Crumbs, Empty, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -161,3 +162,24 @@ export function MadaTrack({ store, whatsapp, initialCode, order }: TrackViewProp
     </Wrap>
   );
 }
+
+export function MadaPolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="pb-10">
+      <header className="pb-8 pt-5 sm:pt-7">
+        <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+        <h1 className="md-h1 mt-4">{policy.title}</h1>
+      </header>
+      <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "md-h3",
+  text: "text-(--md-ink)",
+  meta: "text-(--md-quiet)",
+  navItem: "rounded-full border border-(--md-line) px-4 text-(--md-quiet) hover:text-(--md-ink) lg:rounded-(--md-radius-sm) lg:border-transparent lg:px-3",
+  navActive: "border-(--md-ink) text-(--md-ink) font-semibold lg:border-transparent lg:bg-[color-mix(in_srgb,var(--md-ink)_6%,transparent)]",
+  marker: "var(--md-brand)",
+};

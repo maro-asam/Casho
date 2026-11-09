@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { policyPath, readStoredPolicies, visiblePolicyTypes } from "@/lib/store-policies";
 import { absoluteUrl, isPlaceholderImage, storeBaseUrl, storeSlugFromHost } from "@/lib/seo/store-seo";
 
 const BASE_URL = process.env.APP_URL || "https://casho.store";
@@ -15,7 +16,7 @@ async function storeSitemap(slug: string): Promise<MetadataRoute.Sitemap | null>
         slug: true,
         customDomain: true,
         customDomainStatus: true,
-        settings: { select: { isIndexed: true, updatedAt: true } },
+        settings: { select: { isIndexed: true, updatedAt: true, policies: true } },
       },
     })
     .catch(() => null);
@@ -44,6 +45,11 @@ async function storeSitemap(slug: string): Promise<MetadataRoute.Sitemap | null>
     { url: `${base}/categories`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/about`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${base}/contact`, changeFrequency: "monthly", priority: 0.4 },
+    ...visiblePolicyTypes(readStoredPolicies(store.settings?.policies)).map((type) => ({
+      url: `${base}${policyPath(type)}`,
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+    })),
     ...categories.map((c) => ({
       url: `${base}/categories/${c.slug}`,
       lastModified: c.createdAt,

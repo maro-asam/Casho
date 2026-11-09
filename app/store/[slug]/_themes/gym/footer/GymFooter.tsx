@@ -6,6 +6,7 @@ import CashoLogo from "@/components/common/CashoLogo";
 import { PAYMENT_METHODS_BY_KEY, type PaymentMethodKey } from "@/constants/payment-methods";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { StoreShell } from "../../types";
+import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import StoreMark from "../header/StoreMark";
 
@@ -64,6 +65,7 @@ export default async function GymFooter({ shell }: { shell: StoreShell }) {
         { label: "عن المتجر", href: url("/about") },
         { label: "كل الأقسام", href: url("/categories") },
         { label: "سلة المشتريات", href: url("/cart") },
+        ...policyFooterLinks(shell),
       ],
     },
   ];

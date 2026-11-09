@@ -3,8 +3,9 @@ import Link from "next/link";
 import { ClipboardPlus, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { RX_MESSAGE, waWith } from "../lib/rx";
 import { Chevron, Empty, PageHead, Wrap, btn, num } from "../ui";
@@ -166,3 +167,23 @@ export function MedicalTrack({ store, whatsapp, initialCode, order }: TrackViewP
     </Wrap>
   );
 }
+
+export function MedicalPolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="pb-12">
+      <PageHead title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <div className="mt-8">
+        <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+      </div>
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "rx-h3",
+  text: "text-(--rx-ink)",
+  meta: "text-(--rx-quiet)",
+  navItem: "rounded-full border border-(--rx-line) px-4 text-(--rx-quiet) hover:text-(--rx-ink) lg:rounded-(--rx-r-sm) lg:border-transparent lg:px-3",
+  navActive: "border-(--rx-ink) text-(--rx-ink) font-semibold lg:border-transparent lg:bg-[color-mix(in_srgb,var(--rx-ink)_6%,transparent)]",
+  marker: "var(--rx-btn)",
+};

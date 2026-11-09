@@ -3,8 +3,9 @@ import Link from "next/link";
 import { Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Chevron, Empty, PageHead, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -149,3 +150,21 @@ export function StageTrack({ store, whatsapp, initialCode, order }: TrackViewPro
     </Wrap>
   );
 }
+
+export function StagePolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="sg-narrow pb-16">
+      <PageHead title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "sg-h3",
+  text: "text-(--sg-ink)",
+  meta: "text-(--sg-quiet)",
+  navItem: "rounded-full border border-(--sg-line) px-4 text-(--sg-quiet) hover:text-(--sg-ink) lg:rounded-(--sg-r-sm) lg:border-transparent lg:px-3",
+  navActive: "border-(--sg-ink) text-(--sg-ink) font-semibold lg:border-transparent lg:bg-(--sg-fill)",
+  marker: "var(--sg-link)",
+};

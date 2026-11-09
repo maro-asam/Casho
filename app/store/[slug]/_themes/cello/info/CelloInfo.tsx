@@ -3,8 +3,9 @@ import Link from "next/link";
 import { ChevronLeft, Mail, MessageCircle, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import type { AboutViewProps, ContactViewProps, StoreContact, TrackViewProps } from "../../types";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { CollectionBanner, Crumbs, Empty, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -147,3 +148,24 @@ export function CelloTrack({ store, whatsapp, initialCode, order }: TrackViewPro
     </Wrap>
   );
 }
+
+export function CelloPolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="pb-12">
+      <CollectionBanner title={policy.title} />
+      <Crumbs className="py-4" items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <div className="mt-4">
+        <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+      </div>
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "ce-h3",
+  text: "text-(--ce-ink)",
+  meta: "text-(--ce-quiet)",
+  navItem: "rounded-(--ce-r) border border-(--ce-line) px-4 text-(--ce-quiet) hover:text-(--ce-ink) lg:border-transparent lg:px-3",
+  navActive: "border-(--ce-ink) text-(--ce-ink) font-semibold lg:border-transparent lg:bg-[color-mix(in_srgb,var(--ce-ink)_6%,transparent)]",
+  marker: "var(--ce-btn)",
+};

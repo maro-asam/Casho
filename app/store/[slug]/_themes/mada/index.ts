@@ -8,7 +8,7 @@ import { madaDisplay } from "./fonts";
 import MadaFooter from "./footer/MadaFooter";
 import MadaHeader from "./header/MadaHeader";
 import MadaHome from "./home/MadaHome";
-import { MadaAbout, MadaContact, MadaTrack } from "./info/MadaInfo";
+import { MadaAbout, MadaContact, MadaTrack, MadaPolicy } from "./info/MadaInfo";
 import MadaListing from "./listing/MadaListing";
 import MadaProduct from "./pdp/MadaProduct";
 import { MadaStoreClosed } from "./states";
@@ -27,5 +27,6 @@ export const madaTheme: StorefrontTheme = {
   About: MadaAbout,
   Contact: MadaContact,
   Track: MadaTrack,
+  Policy: MadaPolicy,
   StoreClosed: MadaStoreClosed,
 };

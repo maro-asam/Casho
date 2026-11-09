@@ -126,5 +126,8 @@
  "الدفع الأونلاين مش متاح دلوقتي — حوّل يدوي بفودافون كاش أو InstaPay أو تحويل بنكي وهنضيف الرصيد بعد المراجعة.": "Online payment isn't available right now — transfer manually by Vodafone Cash, InstaPay or bank transfer and we'll add the balance after review.",
  "مش هنحفظ بيانات كارتك أو محفظتك — الدفع كله على Paymob.": "We never store your card or wallet details — payment happens entirely on Paymob.",
  "الدفع الأونلاين مش متاح دلوقتي — استخدم التحويل اليدوي.": "Online payment isn't available right now — use a manual transfer.",
- "مقدرناش نفتح صفحة الدفع. جرّب تاني أو استخدم التحويل اليدوي.": "Couldn't open the payment page. Try again or use a manual transfer."
+ "مقدرناش نفتح صفحة الدفع. جرّب تاني أو استخدم التحويل اليدوي.": "Couldn't open the payment page. Try again or use a manual transfer.",
+ "دومين": "Domain",
+ "استرجاع دومين": "Domain refund",
+ "شراء / تجديد دومين": "Domain purchase / renewal"
 }

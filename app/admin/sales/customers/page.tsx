@@ -5,6 +5,7 @@ import {
   ListCard,
   Unavailable,
   Segmented,
+  appleButton,
   Pager,
   SearchInput,
   SelectFilter,
@@ -45,24 +46,22 @@ export default async function AdminSalesCustomersPage({ searchParams }: { search
   const filtered = !!(q || state || repId);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">العميل = حساب التاجر. بيتحسب &quot;مكتسب&quot; مرة واحدة مع أول خصم اشتراك موثّق.</p>
-        <AssignCustomerDialog reps={activeReps} triggerLabel="نسب عميل بالبريد" />
+        <Segmented
+          label="حالة العملاء"
+          param="state"
+          basePath={BASE_PATH}
+          searchParams={params}
+          segments={[
+            { label: "الكل", count: counts.all },
+            { label: "سجّل ولم يدفع", value: "signup", count: counts.signup },
+            { label: "مؤهل حاليًا", value: "eligible", count: counts.eligible },
+            { label: "انتهت الأهلية", value: "expired", count: counts.expired },
+          ]}
+        />
+        <AssignCustomerDialog reps={activeReps} triggerLabel="نسب عميل بالبريد" trigger="page" />
       </div>
-
-      <Segmented
-        label="حالة العملاء"
-        param="state"
-        basePath={BASE_PATH}
-        searchParams={params}
-        segments={[
-          { label: "الكل", count: counts.all },
-          { label: "سجّل ولم يدفع", value: "signup", count: counts.signup },
-          { label: "مؤهل حاليًا", value: "eligible", count: counts.eligible },
-          { label: "انتهت الأهلية", value: "expired", count: counts.expired },
-        ]}
-      />
 
       <ListCard
         toolbar={
@@ -79,7 +78,7 @@ export default async function AdminSalesCustomersPage({ searchParams }: { search
               icon={SearchX}
               title="مفيش عملاء بالفلاتر دي"
               action={
-                <Link href={BASE_PATH} className="text-sm text-primary hover:underline">
+                <Link href={BASE_PATH} className={appleButton.plain}>
                   مسح الفلاتر
                 </Link>
               }
@@ -92,12 +91,16 @@ export default async function AdminSalesCustomersPage({ searchParams }: { search
             rows={list.rows}
             detailBase={BASE_PATH}
             showRep
+            className="border-t-[0.5px] border-border"
             actions={(row) => (
-              <AssignCustomerDialog reps={activeReps} customerUserId={row.customer.id} currentRepId={row.salesRepId} triggerLabel="نقل" />
+              <AssignCustomerDialog reps={activeReps} customerUserId={row.customer.id} currentRepId={row.salesRepId} triggerLabel="نقل" trigger="row" />
             )}
           />
         )}
       </ListCard>
+
+      {/* Group footer, Settings style: the rule that defines the list, under it. */}
+      <p className="-mt-2 px-5 text-[13px] text-muted-foreground">العميل = حساب التاجر، وبيتحسب «مكتسب» مرة واحدة مع أول خصم اشتراك موثّق.</p>
     </div>
   );
 }

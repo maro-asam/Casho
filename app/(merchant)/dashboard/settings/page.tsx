@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AtSign, ChevronLeft, ExternalLink, Globe, Languages, Mail, PauseCircle, ShieldCheck, Store, Truck, Users, UserX } from "lucide-react";
+import { AtSign, ChevronLeft, ExternalLink, Globe, Languages, Mail, PauseCircle, Scale, ShieldCheck, Store, Truck, Users, UserX } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 
@@ -96,6 +96,7 @@ export default async function SettingsRoute() {
   const nav = [
     { id: "store", label: tr("بيانات المتجر"), icon: Store, tint: "bg-primary" },
     { id: "domain", label: tr("دومين مخصص"), icon: Globe, tint: "bg-sky-500" },
+    { id: "policies", label: tr("السياسات القانونية"), icon: Scale, tint: "bg-(--sys-indigo)" },
     { id: "shipping", label: tr("الشحن"), icon: Truck, tint: "bg-(--sys-orange)" },
     { id: "contact", label: tr("روابط التواصل"), icon: AtSign, tint: "bg-(--sys-green)" },
     { id: "pause", label: tr("إيقاف المتجر مؤقتًا"), icon: PauseCircle, tint: "bg-(--sys-orange)" },
@@ -178,6 +179,14 @@ export default async function SettingsRoute() {
             {liveDomain && (
               <SubdomainSwitch subdomainHost={displayHost(subdomainUrl)} domain={liveDomain} initialEnabled={store.subdomainEnabled} />
             )}
+          </Group>
+          {/* Four long texts — their own page, linked from here like the domain. */}
+          <Group id="policies" title={tr("السياسات القانونية")} inset={58}>
+            <Link href="/policies" className="flex min-h-11 items-center gap-3 px-4 py-2.5 text-[15px] transition-colors hover:bg-(--fill-3)/60">
+              <IconTile icon={Scale} tint="bg-(--sys-indigo)" />
+              <span className="min-w-0 flex-1 truncate">{tr("الاسترجاع والشحن والخصوصية والشروط")}</span>
+              <ChevronLeft className="size-4 shrink-0 text-muted-foreground/60 ltr:-scale-x-100" />
+            </Link>
           </Group>
           <StorePauseSettings
             initial={{

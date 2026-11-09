@@ -8,7 +8,7 @@ import { duneDisplay } from "./fonts";
 import DuneFooter from "./footer/DuneFooter";
 import DuneHeader from "./header/DuneHeader";
 import DuneHome from "./home/DuneHome";
-import { DuneAbout, DuneContact, DuneTrack } from "./info/DuneInfo";
+import { DuneAbout, DuneContact, DuneTrack, DunePolicy } from "./info/DuneInfo";
 import DuneListing from "./listing/DuneListing";
 import DuneProduct from "./pdp/DuneProduct";
 import { DuneStoreClosed } from "./states";
@@ -27,5 +27,6 @@ export const duneTheme: StorefrontTheme = {
   About: DuneAbout,
   Contact: DuneContact,
   Track: DuneTrack,
+  Policy: DunePolicy,
   StoreClosed: DuneStoreClosed,
 };

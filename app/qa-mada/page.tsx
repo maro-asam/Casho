@@ -38,7 +38,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       <style>{buildThemeCSSString(theme, "'Cairo', sans-serif", theme.darkTokens)}</style>
       <div dir="rtl" className={`store-theme-root ${T.rootClassName} min-h-dvh`}>
         {v === "checkout" ? (
-          <T.Checkout storeSlug="shosho" cart={cart} paymentMethods={[{ key: "cash_on_delivery", label: "الدفع عند الاستلام" }, { key: "instapay", label: "إنستاباي" }]} createOrder={noop} />
+          <T.Checkout storeSlug="shosho" cart={cart} paymentMethods={[{ key: "cash_on_delivery", label: "الدفع عند الاستلام" }, { key: "instapay", label: "إنستاباي" }]} createOrder={noop} legal={{ requireConsent: false, links: [] }} />
         ) : (
           <T.Cart storeSlug="shosho" cart={cart} notice={{ stockChanged: false, couponStatus: "success", couponMessage: "اتطبق كوبون AUTUMN10" }} />
         )}

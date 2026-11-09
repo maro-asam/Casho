@@ -6,6 +6,7 @@ import CashoLogo from "@/components/common/CashoLogo";
 import { PAYMENT_METHODS_BY_KEY, type PaymentMethodKey } from "@/constants/payment-methods";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { StoreShell } from "../../types";
+import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { StoreMark } from "../header/parts";
 import { Arrow, btn } from "../ui";
@@ -71,6 +72,7 @@ export default async function MadaFooter({ shell }: { shell: StoreShell }) {
         { label: "سلة المشتريات", href: url("/cart") },
         ...(wa ? [{ label: "واتساب", href: wa, external: true }] : []),
         ...(shell.contact.email ? [{ label: shell.contact.email, href: `mailto:${shell.contact.email}`, ltr: true }] : []),
+        ...policyFooterLinks(shell),
       ],
     },
   ];

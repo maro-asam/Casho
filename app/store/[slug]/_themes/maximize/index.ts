@@ -7,7 +7,7 @@ import { MaxCategoriesIndex, MaxCategory } from "./categories/MaxCategories";
 import MaxFooter from "./footer/MaxFooter";
 import MaxHeader from "./header/MaxHeader";
 import MaxHome from "./home/MaxHome";
-import { MaxAbout, MaxContact, MaxTrack } from "./info/MaxInfo";
+import { MaxAbout, MaxContact, MaxTrack, MaxPolicy } from "./info/MaxInfo";
 import MaxListing from "./listing/MaxListing";
 import MaxProduct from "./pdp/MaxProduct";
 import { MaxStoreClosed } from "./states";
@@ -26,5 +26,6 @@ export const maximizeTheme: StorefrontTheme = {
   About: MaxAbout,
   Contact: MaxContact,
   Track: MaxTrack,
+  Policy: MaxPolicy,
   StoreClosed: MaxStoreClosed,
 };

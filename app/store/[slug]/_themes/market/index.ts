@@ -7,7 +7,7 @@ import { MarketCategoriesIndex, MarketCategory } from "./categories/MarketCatego
 import MarketFooter from "./footer/MarketFooter";
 import MarketHeader from "./header/MarketHeader";
 import MarketHome from "./home/MarketHome";
-import { MarketAbout, MarketContact, MarketTrack } from "./info/MarketInfo";
+import { MarketAbout, MarketContact, MarketTrack, MarketPolicy } from "./info/MarketInfo";
 import MarketListing from "./listing/MarketListing";
 import MarketProduct from "./pdp/MarketProduct";
 import { MarketStoreClosed } from "./states";
@@ -26,5 +26,6 @@ export const marketTheme: StorefrontTheme = {
   About: MarketAbout,
   Contact: MarketContact,
   Track: MarketTrack,
+  Policy: MarketPolicy,
   StoreClosed: MarketStoreClosed,
 };

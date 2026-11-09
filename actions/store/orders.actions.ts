@@ -189,6 +189,8 @@ export async function CreateOrderAction(
     address: string;
     governorate: string;
     paymentMethod: PaymentMethodKey;
+    /** Ticked "I agree to the terms" — only asked when the store requires it. */
+    termsAccepted?: boolean;
   },
 ) {
   const { guestSessionId } = await MustSession();
@@ -488,6 +490,7 @@ export async function CreateOrderAction(
         fullName: data.fullName,
         phone: data.phone,
         email: data.email || null,
+        termsAcceptedAt: data.termsAccepted ? new Date() : null,
         // Prefixed so every place that shows the address (notifications,
         // invoice, exports, couriers) carries the governorate too.
         address: digitalOnly ? DIGITAL_ADDRESS : `${governorateName(data.governorate)} - ${data.address}`,

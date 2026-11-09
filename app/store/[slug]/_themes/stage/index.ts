@@ -7,7 +7,7 @@ import { StageCategoriesIndex, StageCategory } from "./categories/StageCategorie
 import StageFooter from "./footer/StageFooter";
 import StageHeader from "./header/StageHeader";
 import StageHome from "./home/StageHome";
-import { StageAbout, StageContact, StageTrack } from "./info/StageInfo";
+import { StageAbout, StageContact, StageTrack, StagePolicy } from "./info/StageInfo";
 import StageListing from "./listing/StageListing";
 import StageProduct from "./pdp/StageProduct";
 import { StageStoreClosed } from "./states";
@@ -26,5 +26,6 @@ export const stageTheme: StorefrontTheme = {
   About: StageAbout,
   Contact: StageContact,
   Track: StageTrack,
+  Policy: StagePolicy,
   StoreClosed: StageStoreClosed,
 };

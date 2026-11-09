@@ -9,7 +9,7 @@ import { unitPriceFor } from "../../shared/commerce";
 import { Crumbs, Empty, featureLabel, PlateImage, Wrap, btn, num } from "../ui";
 import { Totals } from "./MarketCart";
 
-export default function MarketCheckout({ storeSlug, cart, paymentMethods, createOrder }: CheckoutViewProps) {
+export default function MarketCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
   const count = items.reduce((t, i) => t + i.quantity, 0);
 
@@ -47,7 +47,7 @@ export default function MarketCheckout({ storeSlug, cart, paymentMethods, create
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_26rem]">
           <div className="mk-checkout mk-panel order-2 min-w-0 p-4 sm:p-6 lg:order-1">
-            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
+            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
           <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
             <details className="mk-details mk-panel" open>

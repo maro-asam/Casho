@@ -8,7 +8,7 @@ import { qiratArabic, qiratLatin } from "./fonts";
 import QiratFooter from "./footer/QiratFooter";
 import QiratHeader from "./header/QiratHeader";
 import QiratHome from "./home/QiratHome";
-import { QiratAbout, QiratContact, QiratTrack } from "./info/QiratInfo";
+import { QiratAbout, QiratContact, QiratTrack, QiratPolicy } from "./info/QiratInfo";
 import QiratListing from "./listing/QiratListing";
 import QiratProduct from "./pdp/QiratProduct";
 import { QiratStoreClosed } from "./states";
@@ -27,5 +27,6 @@ export const qiratTheme: StorefrontTheme = {
   About: QiratAbout,
   Contact: QiratContact,
   Track: QiratTrack,
+  Policy: QiratPolicy,
   StoreClosed: QiratStoreClosed,
 };
