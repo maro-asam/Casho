@@ -23,6 +23,7 @@ pharmacy: search first, browse by department, ask before buying.
 | Motion | `--store-motion` durations; `[data-motion="none"]` stops reveals and the marquee |
 
 Colors, background, text and accent from the Colors panel and the store font from the Fonts panel flow through the store tokens (headings use the store font too). Home sections follow the merchant's order and switches.
+6. **Pharmacy features are optional.** Merchants who like the theme but don't sell medicine turn off the Studio's "مميزات الصيدلية" switch (Layout panel, `layout.pharmacy`, on in the preset; missing = on). Off: no prescription button / drawer card / footer pill / contact shortcut / home band; the hero and mega-menu cards become "عندك سؤال؟ كلّمنا واتساب" (`HANDOFF.ask`); the product page asks the store instead of the pharmacist and drops the care note; search reads "ابحث عن أي منتج…"; category icons skip the clinical rules and fall back to a tag instead of the shield; the logo placeholder shows the name's first letter instead of the plus; `.rx-pluses` turns into a dot grid (`[data-pharmacy="off"]` on the store root). Server components read it from `layout` (Home) or through `<PharmacyOnly>` / `usePharmacy()` (`lib/pharmacy.tsx`, the store theme context).
 
 ## Tokens (preset `medical` in constants/store-themes.ts)
 | Role | Light | Dark |

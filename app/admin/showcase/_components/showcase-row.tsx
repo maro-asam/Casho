@@ -49,7 +49,7 @@ export function ShowcaseRow({ site, first, last }: { site: ShowcaseAdminRow; fir
       : { tone: "success" as const, label: "ظاهر" };
 
   return (
-    <li className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-3 px-4 py-4 md:grid-cols-[auto_minmax(0,1fr)_auto_auto] md:items-center md:gap-x-6">
+    <li className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-3 px-4 py-4 md:grid-cols-[auto_minmax(0,1fr)_15rem_auto] md:items-center md:gap-x-6">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={site.thumbUrl} alt="" loading="lazy" className="aspect-[16/10] w-24 rounded-lg bg-muted object-cover object-top ring-1 ring-border sm:w-32" />
 

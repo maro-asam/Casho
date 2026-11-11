@@ -4,9 +4,11 @@ import Link from "next/link";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
+import { PharmacyOnly } from "../lib/pharmacy";
 
 /** Store logo and/or name. Without a logo the name sits beside a small
- *  plus mark in the store color. */
+ *  plus mark in the store color (the name's first letter when the pharmacy
+ *  features are off). */
 export default function StoreMark({ shell, className, onClick, tone }: { shell: StoreShell; className?: string; onClick?: () => void; tone?: "light" }) {
   const height = Math.max(32, Math.min(shell.logoSize, 52));
   const isSvg = !!shell.logo && (shell.logo.endsWith(".svg") || shell.logo.includes("/svg"));
@@ -24,9 +26,11 @@ export default function StoreMark({ shell, className, onClick, tone }: { shell: 
         </span>
       ) : (
         <span aria-hidden className={cn("grid size-9 shrink-0 place-items-center rounded-[0.625rem]", tone === "light" ? "bg-white/15 text-white" : "bg-(--rx-btn) text-(--rx-btn-ink)")}>
-          <svg viewBox="0 0 24 24" className="size-5" fill="currentColor">
-            <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z" />
-          </svg>
+          <PharmacyOnly otherwise={<span className="text-lg font-bold leading-none">{Array.from(shell.name.trim())[0]?.toLocaleUpperCase()}</span>}>
+            <svg viewBox="0 0 24 24" className="size-5" fill="currentColor">
+              <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z" />
+            </svg>
+          </PharmacyOnly>
         </span>
       )}
       {nameVisible && <span className={cn("rx-display truncate text-[1.25rem] leading-none sm:text-[1.4375rem]", tone === "light" && "!text-white")}>{shell.name}</span>}

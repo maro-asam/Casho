@@ -281,7 +281,7 @@ export default async function AdminUserPage({ params }: PageProps) {
             consequences={[
               "الحساب وجلساته وإشعاراته",
               deletion.stores.length
-                ? `متاجره (${deletion.stores.map((s) => s.name).join("، ")}) بكل بياناتها`
+                ? `متاجره (${deletion.stores.map((s) => s.name).join("، ")}) بكل بياناتها وصورها على Cloudinary`
                 : "مفيش متاجر مملوكة للحساب",
               "عضويته في فرق المتاجر التانية",
             ]}

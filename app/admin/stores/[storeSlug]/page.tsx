@@ -432,6 +432,7 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
               `${fmtNum(store._count.products)} منتج و${fmtNum(store._count.orders)} طلب و${fmtNum(store._count.customers)} عميل`,
               "الفروع والمخزون ونقطة البيع والكوبونات والبانرات",
               "ربط إنستجرام والدومين المخصص",
+              "صوره وملفاته على Cloudinary (إلا اللي مستخدم في مكان تاني)",
               "حساب المالك بيفضل موجود",
             ]}
             action={adminDeleteStoreAction.bind(null, store.id)}

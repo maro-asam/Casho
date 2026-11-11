@@ -278,12 +278,14 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         </Suspense>
         <StoreVisitTracker storeId={store.id} />
         {hasAnyPixel(pixelConfig) && <StorePixels config={pixelConfig} />}
-        {/* Studio layout choices that themes style globally (card style, spacing, motion). */}
+        {/* Studio layout choices that themes style globally (card style, spacing, motion,
+            Casho Medical's pharmacy features). */}
         <div
           dir={storeDir}
           data-card={resolvedTheme.layout.productCardStyle}
           data-density={resolvedTheme.layout.density}
           data-motion={resolvedTheme.layout.animations}
+          data-pharmacy={resolvedTheme.layout.pharmacy === false ? "off" : undefined}
           // `relative` makes the root the containing block of sr-only elements (the
           // skip link, hidden labels). Without it they hang off the page itself,
           // body's overflow-x-hidden can't clip them, and in an English (ltr) store

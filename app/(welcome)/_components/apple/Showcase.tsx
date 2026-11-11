@@ -42,15 +42,18 @@ export default function Showcase({ sites }: { sites: ShowcaseCard[] }) {
       </Reveal>
 
       {categories.length > 1 && (
-        <div role="group" aria-label={c.filterLabel} className="al-container-wide mt-10 flex flex-wrap justify-center gap-2">
-          <Chip active={category === null} onClick={() => pick(null)}>
-            {c.all}
-          </Chip>
-          {categories.map((key) => (
-            <Chip key={key} active={category === key} onClick={() => pick(key)}>
-              {SHOWCASE_CATEGORIES[key][lang]}
+        // One scrolling row on phones (centred while it fits), wrapped on wider screens.
+        <div className="mt-10 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div role="group" aria-label={c.filterLabel} className="mx-auto flex w-max gap-2 px-[22px] md:w-auto md:max-w-[1200px] md:flex-wrap md:justify-center">
+            <Chip active={category === null} onClick={() => pick(null)}>
+              {c.all}
             </Chip>
-          ))}
+            {categories.map((key) => (
+              <Chip key={key} active={category === key} onClick={() => pick(key)}>
+                {SHOWCASE_CATEGORIES[key][lang]}
+              </Chip>
+            ))}
+          </div>
         </div>
       )}
 
@@ -93,7 +96,7 @@ export default function Showcase({ sites }: { sites: ShowcaseCard[] }) {
 
       {filtered.length > limit && (
         <div className="mt-14 text-center">
-          <button type="button" onClick={() => setLimit((n) => n + PAGE)} className="al-btn al-btn-gray">
+          <button type="button" onClick={() => setLimit((n) => n + PAGE)} className="al-btn bg-(--al-card) text-(--al-link) shadow-[inset_0_0_0_0.5px_var(--al-hair)] hover:bg-(--al-bg)">
             {c.more}
           </button>
         </div>
@@ -109,7 +112,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "min-h-9 rounded-full px-4 text-[15px] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--al-tint)",
+        "min-h-9 shrink-0 rounded-full px-4 text-[15px] whitespace-nowrap transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--al-tint)",
         active ? "bg-(--al-text) font-medium text-(--al-bg)" : "bg-(--al-card) text-(--al-text) hover:bg-(--al-hair)",
       )}
     >

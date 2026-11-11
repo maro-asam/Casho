@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { deleteStoreTree, deleteUserTree, getStoreDeletionBlockers, getUserDeletionCheck } from "@/lib/admin/deletion";
 import { logSecurityEvent } from "@/lib/auth/security-log";
+import { collectStoreMedia, queueMediaPurge } from "@/lib/cloudinary/cleanup";
 import { removeProjectDomain, vercelConfigured } from "@/lib/custom-domain/vercel";
 
 type ActionResult = { success: boolean; message: string };
@@ -31,6 +32,9 @@ export async function adminDeleteStoreAction(storeId: string, confirmSlug: strin
   if (!store) return { success: false, message: "المتجر مش موجود" };
   if (confirmSlug.trim() !== store.slug) return { success: false, message: "رابط المتجر اللي كتبته مش مطابق" };
 
+  // Read before the rows go: the URLs are the only link from a file to its store.
+  const media = await collectStoreMedia([store.id]);
+
   try {
     await prisma.$transaction(async (tx) => {
       // Re-check inside the transaction: a top-up could have landed since the page loaded.
@@ -45,10 +49,11 @@ export async function adminDeleteStoreAction(storeId: string, confirmSlug: strin
   }
 
   await detachDomains([store.customDomain]);
+  queueMediaPurge(media);
   logSecurityEvent({
     event: "STORE_DELETED",
     userId: admin.id,
-    metadata: { storeId: store.id, slug: store.slug, name: store.name, ownerId: store.userId },
+    metadata: { storeId: store.id, slug: store.slug, name: store.name, ownerId: store.userId, mediaFiles: media.length },
   });
 
   revalidatePath("/admin", "layout");
@@ -65,6 +70,8 @@ export async function adminDeleteUserAction(userId: string, confirmEmail: string
 
   const check = await getUserDeletionCheck(user.id, admin.id);
   if (check.blockers.length) return { success: false, message: `مينفعش يتحذف: ${check.blockers.join("، ")}` };
+
+  const media = await collectStoreMedia(check.stores.map((s) => s.id));
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -85,10 +92,16 @@ export async function adminDeleteUserAction(userId: string, confirmEmail: string
   }
 
   await detachDomains(check.stores.map((s) => s.customDomain));
+  queueMediaPurge(media);
   logSecurityEvent({
     event: "ACCOUNT_DELETED",
     userId: admin.id,
-    metadata: { deletedUserId: user.id, email: user.email, stores: check.stores.map((s) => s.slug).join(",") || null },
+    metadata: {
+      deletedUserId: user.id,
+      email: user.email,
+      stores: check.stores.map((s) => s.slug).join(",") || null,
+      mediaFiles: media.length,
+    },
   });
 
   revalidatePath("/admin", "layout");
