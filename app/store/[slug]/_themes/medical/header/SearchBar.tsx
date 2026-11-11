@@ -14,6 +14,7 @@ import { useLocalList } from "../../shared/local-list";
 import { storeHref } from "../../shared/store-path";
 import { CategoryIcon } from "../lib/category-icon";
 import { searchesKey } from "../lib/events";
+import { usePharmacy } from "../lib/pharmacy";
 import { Chevron, PlateImage, Price } from "../ui";
 
 type Item = Pick<SearchSuggestion, "id" | "name" | "slug" | "image" | "price" | "compareAtPrice">;
@@ -63,6 +64,7 @@ export default function SearchBar({
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const recent = useLocalList(searchesKey(shell.slug), 6);
+  const pharmacy = usePharmacy();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [results, setResults] = useState<SearchSuggestion[]>([]);
@@ -171,7 +173,7 @@ export default function SearchBar({
           aria-controls={listId}
           aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
           aria-autocomplete="list"
-          placeholder="ابحث عن دواء، فيتامين أو أي منتج…"
+          placeholder={pharmacy ? "ابحث عن دواء، فيتامين أو أي منتج…" : "ابحث عن أي منتج…"}
           value={value}
           onFocus={() => setOpen(true)}
           onChange={(e) => {

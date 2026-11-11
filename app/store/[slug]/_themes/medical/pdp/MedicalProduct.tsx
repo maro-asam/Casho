@@ -6,6 +6,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn, formatPrice } from "@/lib/utils";
 import type { ProductViewProps, ReviewData } from "../../types";
 import { whatsappHref } from "../../shared/social";
+import { PharmacyOnly } from "../lib/pharmacy";
 import { askAboutMessage, waWith } from "../lib/rx";
 import BuyForm from "../product/BuyForm";
 import ProductCard from "../product/ProductCard";
@@ -179,7 +180,9 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-bold text-(--rx-ink)">عندك سؤال عن المنتج ده؟</span>
-                    <span className="block text-xs text-(--rx-quiet)">اسأل الصيدلي على واتساب قبل ما تطلب</span>
+                    <span className="block text-xs text-(--rx-quiet)">
+                      <PharmacyOnly otherwise="اسألنا على واتساب قبل ما تطلب">اسأل الصيدلي على واتساب قبل ما تطلب</PharmacyOnly>
+                    </span>
                   </span>
                   <span className="text-sm font-bold text-(--rx-wa) group-hover:underline">اسأل</span>
                 </a>
@@ -219,9 +222,11 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
               </ul>
             )}
 
-            <Note icon={<Info />} className="mt-(--rx-gap)">
-              المعلومات المعروضة للتوضيح بس ومش بديل عن استشارة الطبيب أو الصيدلي. اقرأ النشرة الداخلية قبل الاستخدام.
-            </Note>
+            <PharmacyOnly>
+              <Note icon={<Info />} className="mt-(--rx-gap)">
+                المعلومات المعروضة للتوضيح بس ومش بديل عن استشارة الطبيب أو الصيدلي. اقرأ النشرة الداخلية قبل الاستخدام.
+              </Note>
+            </PharmacyOnly>
           </div>
         </div>
 

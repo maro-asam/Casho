@@ -313,6 +313,7 @@ model Store {
   importRecords     ImportRecordMap[]
 
   sharksApplications SharksApplication[]
+  showcaseSites      ShowcaseSite[]
 
   apps StoreApp[]
 
@@ -3415,4 +3416,32 @@ model SharksStory {
   updatedAt   DateTime @updatedAt
 
   @@index([status, publishedAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Casho examples — stores shown on the landing page (/admin/showcase)
+// ─────────────────────────────────────────────────────────────
+
+model ShowcaseSite {
+  id        String  @id @default(uuid())
+  name      String
+  /// Key from SHOWCASE_CATEGORIES (lib/showcase/catalog.ts).
+  category  String
+  /// Where the card links. For a linked store it's refreshed from the store's
+  /// live address on save, and the landing recomputes it on every render.
+  url       String
+  /// Screenshot of the homepage (a tall full-page shot scrolls on hover).
+  imageUrl  String
+  /// Optional Casho store behind the example: the card follows its address and
+  /// hides itself while the storefront is closed.
+  storeId   String?
+  store     Store?  @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  published Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, sortOrder])
+  @@index([storeId])
 }

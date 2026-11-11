@@ -9,6 +9,7 @@ import {
   Headset,
   Layers,
   LayoutDashboard,
+  LayoutTemplate,
   ListChecks,
   ShieldAlert,
   ShoppingCart,
@@ -71,6 +72,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
     items: [
       { name: "فريق المبيعات", href: "/admin/sales", icon: Handshake },
       { name: "Casho Sharks", href: "/admin/sharks", icon: Telescope, badge: "sharks" },
+      { name: "أمثلة كاشو", href: "/admin/showcase", icon: LayoutTemplate },
       { name: "المدونة", href: "/admin/blog", icon: FileText },
       { name: "الإشعارات", href: "/admin/notifications", icon: Bell },
     ],

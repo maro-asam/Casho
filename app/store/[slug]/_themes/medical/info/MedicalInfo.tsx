@@ -7,6 +7,7 @@ import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, T
 import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
 import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
+import { PharmacyOnly } from "../lib/pharmacy";
 import { RX_MESSAGE, waWith } from "../lib/rx";
 import { Chevron, Empty, PageHead, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
@@ -96,7 +97,7 @@ export function MedicalAbout({ store, logo, coverImage, description, contact, pr
         <aside>
           <h2 className="rx-h4 mb-4">طرق التواصل</h2>
           <Channels contact={contact} />
-          {wa && <RxShortcut whatsapp={wa} />}
+          {wa && <PharmacyOnly><RxShortcut whatsapp={wa} /></PharmacyOnly>}
           {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="text-sm text-(--rx-quiet)">المتجر هيتواصل معاك على رقمك بعد ما تطلب.</p>}
         </aside>
       </div>
@@ -127,7 +128,7 @@ export function MedicalContact({ store, contact }: ContactViewProps) {
           <section>
             <h2 className="rx-h4 mb-4">كلّمنا مباشرة</h2>
             <Channels contact={contact} />
-            {wa && <RxShortcut whatsapp={wa} />}
+            {wa && <PharmacyOnly><RxShortcut whatsapp={wa} /></PharmacyOnly>}
           </section>
           {(wa || contact.email) && (
             <section className="rx-panel p-5 sm:p-8">

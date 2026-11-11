@@ -9,6 +9,7 @@ import type { StoreShell } from "../../types";
 import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import StoreMark from "../header/StoreMark";
+import { PharmacyOnly } from "../lib/pharmacy";
 import { RX_MESSAGE, waWith } from "../lib/rx";
 
 type LinkItem = { label: string; href: string };
@@ -37,7 +38,7 @@ async function paymentLogos(slug: string) {
 }
 
 /** Deep-teal footer: the store column (logo, about, real contact channels,
- *  socials, prescription shortcut), link columns (accordions on phones),
+ *  socials, prescription shortcut in a pharmacy), link columns (accordions on phones),
  *  accepted payment methods and the colophon with "Powered by Casho". */
 export default async function MedicalFooter({ shell }: { shell: StoreShell }) {
   const url = (p: string) => buildStoreUrl(shell.slug, p);
@@ -108,10 +109,12 @@ export default async function MedicalFooter({ shell }: { shell: StoreShell }) {
               </Link>
             )}
             {wa && (
-              <a href={waWith(wa, RX_MESSAGE)} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-4 text-sm font-bold transition-colors hover:bg-white/18">
-                <ClipboardPlus className="size-[1.125rem]" />
-                ابعت روشتة على واتساب
-              </a>
+              <PharmacyOnly>
+                <a href={waWith(wa, RX_MESSAGE)} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-4 text-sm font-bold transition-colors hover:bg-white/18">
+                  <ClipboardPlus className="size-[1.125rem]" />
+                  ابعت روشتة على واتساب
+                </a>
+              </PharmacyOnly>
             )}
             {socials.length > 0 && (
               <ul className="mt-4 flex gap-1">

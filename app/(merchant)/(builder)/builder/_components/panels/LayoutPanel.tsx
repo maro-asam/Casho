@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { ClipboardPlus } from "lucide-react";
 import { UpdateThemeLayoutAction } from "@/actions/settings/theme.actions";
 import { SegmentedButtons } from "@/components/saas-page";
 import type { ThemeLayout } from "@/types/store-theme.types";
 import { cn } from "@/lib/utils";
 import { useBuilder } from "../BuilderContext";
-import { ChoiceTiles, Group, PanelBody, Row } from "../studio-ui";
+import { ChoiceTiles, Group, PanelBody, Row, SwitchRow } from "../studio-ui";
 import { tr } from "@/lib/i18n/dashboard";
 
 // ─── Schematic previews ──────────────────────────────────────────────────────
@@ -156,6 +157,19 @@ export default function LayoutPanel() {
 
   return (
     <PanelBody>
+      {theme.presetId === "medical" && (
+        <Group title={tr("خاص بالثيم")} footer={tr("اقفلها لو متجرك مش صيدلية: الشكل زي ما هو، وزراير الروشتة بتبقى «كلّمنا واتساب».")}>
+          <SwitchRow
+            icon={ClipboardPlus}
+            tint="bg-(--sys-teal)"
+            label={tr("مميزات الصيدلية")}
+            description={tr("الروشتة على واتساب، اسأل الصيدلي، وتنبيه الاستشارة الطبية.")}
+            checked={layout.pharmacy !== false}
+            onCheckedChange={(v) => set("pharmacy", v)}
+          />
+        </Group>
+      )}
+
       <Group title={tr("القائمة العلوية")} plain>
         <ChoiceTiles
           label={tr("القائمة العلوية")}

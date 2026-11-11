@@ -13,6 +13,7 @@ import { isActivePath, useStorePath } from "../../shared/store-path";
 import { useCartCount } from "../../shared/use-cart-count";
 import CartDrawer from "../cart/CartDrawer";
 import { CategoryIcon } from "../lib/category-icon";
+import { usePharmacy } from "../lib/pharmacy";
 import { RX_MESSAGE, waWith } from "../lib/rx";
 import QuickView from "../product/QuickView";
 import { num } from "../ui";
@@ -86,7 +87,9 @@ export default function MedicalHeader({ shell }: { shell: StoreShell }) {
   const url = (p: string) => buildStoreUrl(shell.slug, p);
   const hasMega = shell.categories.length > 0;
   const wa = whatsappHref(shell.contact.whatsapp);
-  const rxHref = wa ? waWith(wa, RX_MESSAGE) : null;
+  const pharmacy = usePharmacy();
+  // Off: no prescription button — WhatsApp stays in the utility bar and footer.
+  const rxHref = wa && pharmacy ? waWith(wa, RX_MESSAGE) : null;
 
   // Sticky on scroll up: hide while scrolling down, return on the way up.
   useEffect(() => {

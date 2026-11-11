@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardPlus, PackageSearch } from "lucide-react";
+import { ClipboardPlus, MessageCircle, PackageSearch } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,7 @@ import { BannerImage, BannerLink } from "../../shared/banner";
 import { whatsappHref } from "../../shared/social";
 import SearchBar from "../header/SearchBar";
 import { CategoryIcon } from "../lib/category-icon";
-import { RX_MESSAGE, waWith } from "../lib/rx";
+import { HANDOFF, waWith } from "../lib/rx";
 import { Chevron, Wrap } from "../ui";
 import HeroSlider from "./HeroSlider";
 
@@ -19,6 +19,8 @@ type HeroProps = {
   banners: BannerData[];
   categories: CategoryLink[];
   whatsapp: string | null;
+  /** Studio "pharmacy features": the WhatsApp card asks for a prescription, or just a question. */
+  pharmacy: boolean;
 };
 
 /** The store's own name, description and a big search — used when there
@@ -51,20 +53,23 @@ function SearchHero({ store, categories, framed }: Pick<HeroProps, "store" | "ca
   );
 }
 
-/** Prescription card: hands off to the store's WhatsApp with a ready message. */
-export function RxCard({ href, className }: { href: string; className?: string }) {
+/** Prescription card (or "ask us" with the pharmacy features off): hands off
+ *  to the store's WhatsApp with a ready message. */
+export function RxCard({ href, pharmacy, className }: { href: string; pharmacy: boolean; className?: string }) {
+  const copy = HANDOFF[pharmacy ? "rx" : "ask"];
+  const Icon = pharmacy ? ClipboardPlus : MessageCircle;
   return (
     <a
-      href={waWith(href, RX_MESSAGE)}
+      href={waWith(href, copy.message)}
       target="_blank"
       rel="noopener noreferrer"
       className={cn("rx-pluses group flex flex-col justify-between gap-4 rounded-(--rx-r-lg) bg-(--rx-deep) p-6 text-white", className)}
     >
-      <ClipboardPlus className="size-9 opacity-90" strokeWidth={1.5} />
+      <Icon className="size-9 opacity-90" strokeWidth={1.5} />
       <span>
-        <span className="block text-xl font-bold">عندك روشتة؟</span>
-        <span className="mt-1 block text-sm leading-6 text-white/85">صوّرها وابعتها على واتساب المتجر، واسأل عن المتاح والسعر قبل ما تطلب.</span>
-        <span className="rx-btn rx-btn--wa rx-btn--sm mt-4">ابعت الروشتة</span>
+        <span className="block text-xl font-bold">{copy.title}</span>
+        <span className="mt-1 block text-sm leading-6 text-white/85">{copy.body}</span>
+        <span className="rx-btn rx-btn--wa rx-btn--sm mt-4">{copy.cta}</span>
       </span>
     </a>
   );
@@ -109,10 +114,10 @@ function BannerTile({ banner, storeSlug, className }: { banner: BannerData; stor
 
 /** Home hero, following the Studio "main banner" setting:
  *  fullscreen — full-width slideshow
- *  split      — slideshow beside a column (prescription, order tracking, second banner)
+ *  split      — slideshow beside a column (prescription / WhatsApp, order tracking, second banner)
  *  compact    — a shorter slideshow inside the page width
  *  minimal    — text only: store name, description and a big search */
-export default function Hero({ style, store, banners, categories, whatsapp }: HeroProps) {
+export default function Hero({ style, store, banners, categories, whatsapp, pharmacy }: HeroProps) {
   const wa = whatsappHref(whatsapp);
   const title = <h1 className="sr-only">{store.name}</h1>;
 
@@ -125,7 +130,7 @@ export default function Hero({ style, store, banners, categories, whatsapp }: He
           <SearchHero store={store} categories={categories} framed />
           {style === "split" && (
             <div className="grid gap-(--rx-gap)">
-              {wa && <RxCard href={wa} />}
+              {wa && <RxCard href={wa} pharmacy={pharmacy} />}
               <TrackCard storeSlug={store.slug} />
             </div>
           )}
@@ -157,7 +162,7 @@ export default function Hero({ style, store, banners, categories, whatsapp }: He
   const side = rest.length > 1 ? rest[rest.length - 1] : rest[0];
   const slides = rest.length > 1 ? [main, ...rest.slice(0, -1)] : [main];
   const tiles = [
-    wa && <RxCard key="rx" href={wa} />,
+    wa && <RxCard key="rx" href={wa} pharmacy={pharmacy} />,
     side && <BannerTile key="banner" banner={side} storeSlug={store.slug} />,
     <TrackCard key="track" storeSlug={store.slug} />,
   ]

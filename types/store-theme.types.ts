@@ -77,6 +77,11 @@ export type ThemeLayout = {
   animations: AnimationStyle;
   buttonStyle: ButtonStyle;
   imageAspectRatio: ImageAspectRatio;
+  /** Casho Medical only: the pharmacy features (prescription and
+   *  ask-the-pharmacist WhatsApp hand-offs, the medical care note, clinical
+   *  category icons). Off = the same theme for a store that isn't medical.
+   *  Missing = on. */
+  pharmacy?: boolean;
 };
 
 // ─── Section Content Types ────────────────────────────────────────────────────

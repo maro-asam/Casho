@@ -12,6 +12,7 @@ import { AboutBrand, MediaBanner, OfferStrip, PromoTiles, RichText, RxBand, Stat
 import Hero from "../sections/Hero";
 import ProductRow, { DealsPanel } from "../sections/ProductRow";
 import { ProductGrid } from "../product/ProductCard";
+import { pharmacyOn } from "../lib/rx";
 import { Empty, SectionHeader, Wrap, btn, discountPercent } from "../ui";
 
 type Ctx = HomeViewProps;
@@ -27,7 +28,7 @@ function deals(c: Ctx): ProductCardData[] {
 /** Casho Medical's section registry: every merchant section key → a
  *  Medical section. Order and visibility come from the Studio. */
 const REGISTRY: SectionRegistry<Ctx> = {
-  showHero: (c) => <Hero style={c.layout.heroStyle} store={c.store} banners={c.banners} categories={c.categories} whatsapp={c.whatsapp} />,
+  showHero: (c) => <Hero style={c.layout.heroStyle} store={c.store} banners={c.banners} categories={c.categories} whatsapp={c.whatsapp} pharmacy={pharmacyOn(c.layout)} />,
   showCategories: (c) => <CategoryShelf categories={c.categories} storeSlug={c.store.slug} style={c.layout.categoryCardStyle} />,
   showOfferStrip: (c) => <OfferStrip content={c.sectionContent.offerStrip} />,
   showBestSellers: (c) => (
@@ -106,8 +107,8 @@ const REGISTRY: SectionRegistry<Ctx> = {
 
 export default function MedicalHome(props: HomeViewProps) {
   const wa = whatsappHref(props.whatsapp);
-  // The split hero already carries the prescription card.
-  const rxBand = wa && !(props.sections.showHero && props.layout.heroStyle === "split");
+  // Pharmacy only — and the split hero already carries the prescription card.
+  const rxBand = wa && pharmacyOn(props.layout) && !(props.sections.showHero && props.layout.heroStyle === "split");
   return (
     <div className="pb-6">
       {renderSections({ sections: props.sections, registry: REGISTRY, ctx: props })}

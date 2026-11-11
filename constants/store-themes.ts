@@ -546,6 +546,8 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
       animations: "subtle",
       buttonStyle: "rounded",
       imageAspectRatio: "square",
+      // The Studio's "pharmacy features" switch (Layout panel) turns this off.
+      pharmacy: true,
     },
     sections: {
       home: {

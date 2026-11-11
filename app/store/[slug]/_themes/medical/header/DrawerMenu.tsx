@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { isActivePath } from "../../shared/store-path";
+import { usePharmacy } from "../lib/pharmacy";
 import { RX_MESSAGE, waWith } from "../lib/rx";
 import { CategoryArt, Chevron, RX_PORTAL, num, stagger } from "../ui";
 import StoreMark from "./StoreMark";
@@ -18,11 +19,13 @@ const ROW =
   "flex min-h-12 w-full items-center justify-between gap-3 rounded-(--rx-r-sm) px-3 text-[0.9375rem] font-semibold text-(--rx-ink) transition-colors hover:bg-(--rx-band) aria-[current=page]:bg-(--rx-tint) aria-[current=page]:text-(--rx-tint-ink)";
 
 /** Phone menu: opens from the reading start with the shop paths, every shelf
- *  with its icon and count, the prescription shortcut and contact. */
+ *  with its icon and count, the prescription shortcut (pharmacy features on)
+ *  and contact. */
 export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: string }) {
   const [open, setOpen] = useState(false);
   const url = (p: string) => buildStoreUrl(shell.slug, p === "/" ? "" : p);
   const wa = whatsappHref(shell.contact.whatsapp);
+  const pharmacy = usePharmacy();
   const socials = getSocialLinks(shell.contact);
   const close = () => setOpen(false);
 
@@ -59,7 +62,7 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-2 pb-6 pt-3">
-            {wa && (
+            {wa && pharmacy && (
               <a
                 href={waWith(wa, RX_MESSAGE)}
                 target="_blank"

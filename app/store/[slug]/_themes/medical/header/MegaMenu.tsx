@@ -2,23 +2,27 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ClipboardPlus } from "lucide-react";
+import { ClipboardPlus, MessageCircle } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { whatsappHref } from "../../shared/social";
-import { RX_MESSAGE, waWith } from "../lib/rx";
+import { usePharmacy } from "../lib/pharmacy";
+import { HANDOFF, waWith } from "../lib/rx";
 import { CategoryArt, Chevron, num } from "../ui";
 
 /** "All departments" panel under the header: every shelf as an icon tile
- *  with its product count, and the newest banner (or the prescription card)
- *  on the end side. Escape closes it and returns focus to the trigger. */
+ *  with its product count, and the newest banner (or the prescription card —
+ *  a plain WhatsApp card when the pharmacy features are off) on the end side. Escape closes it and returns focus to the trigger. */
 export default function MegaMenu({ id, shell, open, onClose }: { id: string; shell: StoreShell; open: boolean; onClose: (refocus?: boolean) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const url = (p: string) => buildStoreUrl(shell.slug, p);
   const wa = whatsappHref(shell.contact.whatsapp);
+  const pharmacy = usePharmacy();
+  const card = HANDOFF[pharmacy ? "rx" : "ask"];
+  const CardIcon = pharmacy ? ClipboardPlus : MessageCircle;
 
   useEffect(() => {
     if (!open) return;
@@ -75,11 +79,11 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
             </span>
           </BannerLink>
         ) : wa ? (
-          <a href={waWith(wa, RX_MESSAGE)} target="_blank" rel="noopener noreferrer" className="rx-pluses flex flex-col justify-end rounded-(--rx-r-lg) bg-(--rx-tint) p-6 text-(--rx-btn)">
-            <ClipboardPlus className="size-9" strokeWidth={1.5} />
-            <span className="mt-4 text-lg font-bold text-(--rx-tint-ink)">عندك روشتة؟</span>
-            <span className="mt-1 text-sm leading-6 text-(--rx-tint-ink) opacity-85">صوّرها وابعتها على واتساب المتجر، واسأل عن المتاح والسعر.</span>
-            <span className="rx-btn rx-btn--wa rx-btn--sm mt-4 self-start">ابعت الروشتة</span>
+          <a href={waWith(wa, card.message)} target="_blank" rel="noopener noreferrer" className="rx-pluses flex flex-col justify-end rounded-(--rx-r-lg) bg-(--rx-tint) p-6 text-(--rx-btn)">
+            <CardIcon className="size-9" strokeWidth={1.5} />
+            <span className="mt-4 text-lg font-bold text-(--rx-tint-ink)">{card.title}</span>
+            <span className="mt-1 text-sm leading-6 text-(--rx-tint-ink) opacity-85">{card.body}</span>
+            <span className="rx-btn rx-btn--wa rx-btn--sm mt-4 self-start">{card.cta}</span>
           </a>
         ) : null}
       </div>

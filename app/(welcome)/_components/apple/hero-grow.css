@@ -1,0 +1,243 @@
+/* Hero (HeroGrow.tsx + GrowthBoard.tsx): "your whole business in one place".
+   Tokens come from apple.css (.al); the board's dot colours are read by the
+   canvas from the --gb-* properties below. */
+
+/* ---------- Headline ---------- */
+
+.gh-title {
+  font-size: clamp(42px, 11.4vw, 62px);
+  font-weight: 700;
+  line-height: 1.24;
+}
+@media (min-width: 1024px) {
+  .gh-title { font-size: clamp(58px, min(5.6vw, 9.2svh), 84px); }
+}
+/* Latin optical tracking only — letter-spacing breaks Arabic joining. */
+[dir="ltr"] .gh-title {
+  font-size: clamp(40px, 10.6vw, 56px);
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+@media (min-width: 1024px) {
+  [dir="ltr"] .gh-title { font-size: clamp(52px, min(4.8vw, 8.2svh), 70px); }
+}
+
+/* Headline lines only move (they paint at once — they're the LCP); the rest
+   fades up after them. */
+@keyframes gh-rise { from { transform: translateY(0.34em); } }
+.gh-rise { animation: gh-rise 1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes gh-in { from { opacity: 0; transform: translateY(12px); } }
+.gh-in { animation: gh-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--gh-d, 0s) both; }
+
+/* A faint light behind today's end of the board (wide screens, where the
+   board sits behind the headline). */
+.gh::after {
+  display: none;
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-inline-end: -12%;
+  top: 4%;
+  width: min(62%, 820px);
+  aspect-ratio: 1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(20, 71, 230, 0.06), transparent);
+}
+.dark .gh::after { background: radial-gradient(closest-side, rgba(51, 102, 255, 0.17), transparent); }
+@media (min-width: 1024px) {
+  .gh::after { display: block; }
+}
+
+/* ---------- The board ---------- */
+
+.gb {
+  --gb-ghost: rgba(29, 29, 31, 0.09);
+  --gb-online-a: #0b2a8f;
+  --gb-online-b: #1447e6;
+  --gb-online-c: #4d7cff;
+  --gb-shop: #1d1d1f;
+  --gb-halo: transparent;
+  --gb-ring: #1447e6;
+  --gb-pole: rgba(29, 29, 31, 0.24);
+  --gb-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+.dark .gb {
+  --gb-ghost: rgba(245, 245, 247, 0.1);
+  --gb-online-a: #2a4fe0;
+  --gb-online-b: #3d6bff;
+  --gb-online-c: #9db7ff;
+  --gb-shop: #e8e8ed;
+  --gb-halo: rgba(61, 107, 255, 0.15);
+  --gb-ring: #6b95ff;
+  --gb-pole: rgba(245, 245, 247, 0.3);
+}
+
+@keyframes gb-fade { from { opacity: 0; } }
+.gb-canvas { animation: gb-fade 0.9s ease both; }
+
+/* Nothing in the overlay plays until the board starts building. */
+.gb:not(.is-on) .gb-flag,
+.gb:not(.is-on) .gb-flag * { animation-play-state: paused !important; }
+
+/* Flags: a hairline pole from a column's top, the text beside its top end,
+   running toward the shorter (older) columns. */
+.gb-flag {
+  position: absolute;
+  width: 0;
+}
+@keyframes gb-pole { from { transform: scaleY(0); } }
+.gb-pole {
+  position: absolute;
+  left: -0.5px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--gb-pole);
+  transform-origin: 50% 100%;
+  animation: gb-pole 0.5s var(--gb-ease) var(--d, 0s) both;
+}
+@keyframes gb-text { from { opacity: 0; transform: translateY(6px); } }
+.gb-text {
+  position: absolute;
+  top: -3px;
+  display: grid;
+  white-space: nowrap;
+  line-height: 1.45;
+  animation: gb-text 0.6s var(--gb-ease) calc(var(--d, 0s) + 0.18s) both;
+}
+.gb-flag[data-dir="r"] .gb-text { left: var(--gb-gap); justify-items: left; text-align: left; }
+.gb-flag[data-dir="l"] .gb-text { right: var(--gb-gap); justify-items: right; text-align: right; }
+.gb-name { font-size: var(--gb-name); font-weight: 600; color: var(--al-text); }
+.gb-note { font-size: var(--gb-note); color: var(--al-muted); }
+
+/* Today: the tallest column's card. */
+.gb-card .gb-pole { background: color-mix(in srgb, var(--gb-ring) 70%, transparent); }
+.gb-card-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--gb-card-name);
+  font-weight: 600;
+  color: var(--al-text);
+}
+@keyframes gb-live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gb-ring) 45%, transparent); } 100% { box-shadow: 0 0 0 7px transparent; } }
+.gb-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--gb-ring);
+  animation: gb-live 1.8s ease-out infinite;
+}
+.gb-money {
+  position: relative;
+  font-size: var(--gb-money);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--al-text);
+  font-variant-numeric: tabular-nums;
+}
+[dir="ltr"] .gb-money { letter-spacing: -0.02em; }
+.gb-small {
+  overflow: hidden;
+  font-size: var(--gb-small);
+  color: var(--al-muted);
+  font-variant-numeric: tabular-nums;
+}
+.gb-mask { display: inline-block; overflow: hidden; vertical-align: bottom; }
+@keyframes gb-roll { from { transform: translateY(75%); opacity: 0; } }
+.gb-roll { display: inline-block; animation: gb-roll 0.5s var(--gb-ease) both; }
+@keyframes gb-gain {
+  0% { opacity: 0; transform: translateY(6px); }
+  18%, 70% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+.gb-gain {
+  position: absolute;
+  bottom: 0.3em;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--gb-ring);
+  font-variant-numeric: tabular-nums;
+  animation: gb-gain 1.6s ease-out forwards;
+}
+.gb-gain[data-shop] { color: var(--al-text); }
+.gb-flag[data-dir="r"] .gb-gain { left: calc(100% + 0.55em); }
+.gb-flag[data-dir="l"] .gb-gain { right: calc(100% + 0.55em); }
+
+/* The axis under the board: where the story starts, the years, the legend. */
+.gb-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--al-hair);
+}
+.gb-tick,
+.gb-legend {
+  position: absolute;
+  top: 10px;
+  font-size: 11.5px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--al-faint);
+  font-variant-numeric: tabular-nums;
+}
+.gb-tick-start { translate: -7px 0; }
+.gb-tick-start[data-dir="l"] { translate: calc(-100% + 7px) 0; }
+.gb-tick-year { translate: -50% 0; }
+.gb-tick-year::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 1px;
+  height: 5px;
+  background: var(--al-hair);
+}
+.gb-legend { display: flex; gap: 14px; color: var(--al-muted); translate: -7px 0; }
+.gb-legend[data-dir="l"] { translate: calc(-100% + 7px) 0; }
+.gb-key { display: inline-flex; align-items: center; gap: 6px; }
+.gb-key::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--gb-online-b);
+}
+.gb-key[data-k="shop"]::before { background: var(--gb-shop); }
+
+/* Hover / tap: one column's numbers. */
+@keyframes gb-tip { from { opacity: 0; transform: translateY(4px); } }
+.gb-tip {
+  position: absolute;
+  translate: -50% -100%;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 7px 12px 8px;
+  border-radius: 11px;
+  background: var(--al-text);
+  color: var(--al-bg);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 8px 24px rgba(10, 20, 60, 0.16);
+  animation: gb-tip 0.18s ease-out;
+}
+.gb-tip-date { font-weight: 600; }
+.gb-tip-value { opacity: 0.72; }
+
+@media (prefers-reduced-motion: reduce) {
+  .al .gh-rise,
+  .al .gh-in,
+  .al .gb-canvas,
+  .al .gb-pole,
+  .al .gb-text,
+  .al .gb-roll,
+  .al .gb-gain,
+  .al .gb-live,
+  .al .gb-tip { animation: none !important; }
+}

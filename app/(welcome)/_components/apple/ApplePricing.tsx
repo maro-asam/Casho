@@ -8,6 +8,7 @@ import { useLang } from "../../_i18n/LanguageContext";
 import { featureNameLabel, planNameLabel } from "../pricing-labels";
 import type { WelcomePlan, WelcomePlanFeature } from "../Pricing";
 import { useLandingCopy } from "./copy";
+import { PlanCheckoutButton } from "./PlanCheckout";
 import Reveal from "./Reveal";
 
 type Cycle = "MONTHLY" | "YEARLY";
@@ -25,7 +26,14 @@ function yearlySavingsPercent(plan: WelcomePlan) {
   return Math.round((1 - plan.yearlyPrice / fullYear) * 100);
 }
 
-export default function ApplePricing({ plans }: { plans: WelcomePlan[] }) {
+export default function ApplePricing({
+  plans,
+  checkoutEnabled = false,
+}: {
+  plans: WelcomePlan[];
+  /** TEMP: cards pay straight on Paymob instead of going to /register (lib/payments/plan-checkout.ts). */
+  checkoutEnabled?: boolean;
+}) {
   const c = useLandingCopy().pricing;
   const [cycle, setCycle] = useState<Cycle>("MONTHLY");
 
@@ -76,18 +84,20 @@ export default function ApplePricing({ plans }: { plans: WelcomePlan[] }) {
         <div className="mx-auto mt-12 grid max-w-md gap-5 md:mt-16 lg:max-w-none lg:grid-cols-3">
           {plans.map((plan, i) => (
             <Reveal key={plan.id} delay={i * 80} className="h-full">
-              <PlanCard plan={plan} cycle={cycle} />
+              <PlanCard plan={plan} cycle={cycle} checkoutEnabled={checkoutEnabled} />
             </Reveal>
           ))}
         </div>
 
-        <p className="mt-10 text-center text-[13px] text-(--al-faint)">{c.footnote}</p>
+        <p className="mt-10 text-center text-[13px] text-(--al-faint)">
+          {checkoutEnabled ? c.footnotePay : c.footnote}
+        </p>
       </div>
     </section>
   );
 }
 
-function PlanCard({ plan, cycle }: { plan: WelcomePlan; cycle: Cycle }) {
+function PlanCard({ plan, cycle, checkoutEnabled }: { plan: WelcomePlan; cycle: Cycle; checkoutEnabled: boolean }) {
   const c = useLandingCopy().pricing;
   const { lang } = useLang();
   const highlighted = plan.key === HIGHLIGHTED_PLAN;
@@ -134,12 +144,22 @@ function PlanCard({ plan, cycle }: { plan: WelcomePlan; cycle: Cycle }) {
         </p>
       </div>
 
-      <Link
-        href="/register"
-        className={cn("al-btn mt-8 w-full", highlighted ? "al-btn-filled" : "al-btn-gray")}
-      >
-        {c.cta}
-      </Link>
+      {checkoutEnabled && price > 0 ? (
+        <PlanCheckoutButton
+          planId={plan.id}
+          planName={planNameLabel(plan.key, plan.name, lang)}
+          cycle={cycle}
+          priceLabel={formatPiasters(price)}
+          className={cn("al-btn mt-8 w-full", highlighted ? "al-btn-filled" : "al-btn-gray")}
+        />
+      ) : (
+        <Link
+          href="/register"
+          className={cn("al-btn mt-8 w-full", highlighted ? "al-btn-filled" : "al-btn-gray")}
+        >
+          {c.cta}
+        </Link>
+      )}
 
       <div className="mt-8 flex-1 border-t border-(--al-hair) pt-6">
         <p className="text-[13px] font-semibold text-(--al-muted)">{c.included}</p>

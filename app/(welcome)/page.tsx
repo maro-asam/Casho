@@ -17,22 +17,26 @@ import { ComingSoon } from "./_components/ComingSoon";
 /* ------------------------------------------------------------------ */
 
 import { getAllActivePlans } from "@/lib/entitlements";
+import { isDirectPlanCheckoutEnabled } from "@/lib/payments/plan-checkout";
+import { getPublishedShowcase } from "@/lib/showcase/public";
 import type { WelcomePlan } from "./_components/Pricing";
-import AppleHero from "./_components/apple/AppleHero";
+import HeroGrow from "./_components/apple/HeroGrow";
 import SyncSection from "./_components/apple/SyncSection";
 import Bento from "./_components/apple/Bento";
 import ThemesRail from "./_components/apple/ThemesRail";
+import Showcase from "./_components/apple/Showcase";
 import ApplePricing from "./_components/apple/ApplePricing";
 import AppleFAQ from "./_components/apple/AppleFAQ";
 import FinalCTA from "./_components/apple/FinalCTA";
 import SharksTeaser from "./_components/sharks/SharksTeaser";
 
-// Cached (ISR): plan edits revalidate "/" right away (actions/admin/admin-plans.actions.ts),
+// Cached (ISR): plan and example edits revalidate "/" right away
+// (actions/admin/admin-plans.actions.ts, actions/admin/showcase.actions.ts),
 // this window is only the safety net.
 export const revalidate = 300;
 
 export default async function Page() {
-  const allPlans = await getAllActivePlans();
+  const [allPlans, showcase] = await Promise.all([getAllActivePlans(), getPublishedShowcase()]);
   const plans: WelcomePlan[] = allPlans.map((plan) => ({
     id: plan.id,
     key: plan.key,
@@ -59,12 +63,13 @@ export default async function Page() {
   return (
     <div className="al">
       <LandingPageTracker />
-      <AppleHero />
+      <HeroGrow />
       <SyncSection />
       <Bento />
       <ThemesRail />
+      {showcase.length > 0 && <Showcase sites={showcase} />}
       <SharksTeaser />
-      <ApplePricing plans={plans} />
+      <ApplePricing plans={plans} checkoutEnabled={isDirectPlanCheckoutEnabled()} />
       <AppleFAQ />
       <FinalCTA />
     </div>
