@@ -38,7 +38,7 @@ type PlanWithFeatures = {
     limitValue: number | null;
     isUnlimited: boolean;
     configuration: unknown;
-    feature: { key: string; name: string; unit: string | null; isActive: boolean; sortOrder: number };
+    feature: { key: string; name: string; type: string; unit: string | null; isActive: boolean; sortOrder: number };
   }[];
 };
 

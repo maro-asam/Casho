@@ -14,6 +14,10 @@
   --al-link: #1447e6;
   --al-new: #b64400;
   --al-ease: cubic-bezier(0.28, 0.11, 0.32, 1);
+  /* One radius scale for the whole page: tiles, framed screens, wells. */
+  --al-r-lg: 28px;
+  --al-r-md: 18px;
+  --al-r-sm: 12px;
 
   font-family: var(--font-cairo), var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-feature-settings: "cv05", "cv11";
@@ -132,6 +136,9 @@
 .al-btn-filled:hover { background: var(--al-tint-hover); }
 .al-btn-gray { background: var(--al-surface); color: var(--al-link); }
 .al-btn-gray:hover { background: color-mix(in srgb, var(--al-surface) 85%, var(--al-text)); }
+/* At night a gray button is a lighter glass step on whatever it sits on. */
+.dark .al .al-btn-gray { background: rgba(255, 255, 255, 0.1); }
+.dark .al .al-btn-gray:hover { background: rgba(255, 255, 255, 0.16); }
 .al-btn-sm { min-height: 32px; padding: 7px 15px; font-size: 13px; }
 
 .al-link {
@@ -206,8 +213,66 @@
 
 .al-card {
   background: var(--al-card);
-  border-radius: 28px;
+  border-radius: var(--al-r-lg);
 }
+
+/* ---------- One system for every section ----------
+   Sections alternate white / gray (and black for brand moments). A tile is
+   always the *other* tone of its section — gray on white, white on gray — so
+   tiles need no borders or shadows. A well is a tray inside a tile. */
+.al-section { --al-tile: var(--al-surface); --al-well: var(--al-card); }
+.al-section-surface { --al-tile: var(--al-card); --al-well: var(--al-surface); }
+.dark .al .al-section { --al-tile: #1c1c1e; --al-well: #2c2c2e; }
+.dark .al .al-section-surface { --al-tile: #242426; --al-well: #323234; }
+
+.al-tile {
+  background: var(--al-tile);
+  border-radius: var(--al-r-lg);
+}
+.al-well {
+  background: var(--al-well);
+  border-radius: var(--al-r-sm);
+}
+
+/* The gap between a section's header and its content. */
+.al-body { margin-top: clamp(48px, 6vw, 80px); }
+
+/* Caption under a picture (themes, examples). */
+.al-item-title { font-size: 21px; font-weight: 700; line-height: 1.45; }
+.al-item-note { font-size: 15px; line-height: 1.6; color: var(--al-muted); }
+
+/* Round icon button (rail arrows). */
+.al-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--al-tile);
+  color: var(--al-text);
+  transition:
+    background-color 0.2s var(--al-ease),
+    transform 0.2s var(--al-ease);
+}
+.al-icon-btn:hover { background: color-mix(in srgb, var(--al-tile) 88%, var(--al-text)); }
+.al-icon-btn:active { transform: scale(0.94); }
+.al-icon-btn:focus-visible { outline: 2px solid var(--al-tint); outline-offset: 3px; }
+
+/* Filter chip. */
+.al-chip {
+  min-height: 36px;
+  flex-shrink: 0;
+  padding-inline: 16px;
+  border-radius: 999px;
+  background: var(--al-tile);
+  color: var(--al-text);
+  font-size: 15px;
+  white-space: nowrap;
+  transition: background-color 0.2s var(--al-ease);
+}
+.al-chip:hover { background: color-mix(in srgb, var(--al-tile) 88%, var(--al-text)); }
+.al-chip[aria-pressed="true"] { background: var(--al-text); color: var(--al-bg); font-weight: 500; }
+.al-chip:focus-visible { outline: 2px solid var(--al-tint); outline-offset: 2px; }
 
 /* Horizontal rail — edge-bleeding cards aligned to the text column */
 .al-rail {
@@ -461,7 +526,7 @@
 /* A live store in a quiet browser window; a tall full-page shot scrolls on hover. */
 .sc-frame {
   overflow: hidden;
-  border-radius: 22px;
+  border-radius: var(--al-r-md);
   background: var(--al-card);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
@@ -559,3 +624,370 @@
   .al .sc-card:hover .sc-shot img { object-position: 50% 0; }
   .al .sc-card:hover .sc-frame { transform: none; }
 }
+
+/* ---------- Section 2 (SyncSection.tsx): one number across two worlds ---------- */
+
+.ss-pin { --ss-h: clamp(500px, calc(100svh - 160px), 620px); }
+.ss-pin.is-pinned {
+  position: sticky;
+  top: max(84px, calc(50svh - var(--ss-h) / 2));
+}
+
+/* The panel: the shop (dark) and the online store (light) side by side —
+   stacked on phones, shop on top. */
+.ss {
+  --ss-dark: #1d1d1f;
+  --ss-on-dark: #f5f5f7;
+  --ss-on-dark-muted: #a1a1a6;
+  --ss-light: #ffffff;
+  --ss-on-light: #1d1d1f;
+  --ss-on-light-muted: #6e6e73;
+  --ss-blue: #1447e6;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  height: var(--ss-h, 560px);
+  overflow: hidden;
+  border-radius: var(--al-r-lg);
+}
+/* At night the light half dims a little and the panel gets a hairline. */
+.dark .ss { --ss-dark: #000000; --ss-light: #e8e8ed; }
+.dark .ss::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .ss { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
+}
+
+.ss-half {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 18px;
+  padding: clamp(22px, 3.2vw, 40px);
+  background: var(--ss-bg);
+  color: var(--ss-ink);
+}
+.ss-half[data-channel="pos"] {
+  --ss-bg: var(--ss-dark);
+  --ss-ink: var(--ss-on-dark);
+  --ss-muted: var(--ss-on-dark-muted);
+  --ss-mark: var(--ss-on-dark);
+}
+.ss-half[data-channel="online"] {
+  --ss-bg: var(--ss-light);
+  --ss-ink: var(--ss-on-light);
+  --ss-muted: var(--ss-on-light-muted);
+  --ss-mark: var(--ss-blue);
+  /* Phones: mirrored — the name on the bottom edge, the feed above it. */
+  flex-direction: column-reverse;
+}
+@media (min-width: 768px) {
+  /* Name in the outer top corner, feed in the outer bottom corner. */
+  .ss-half { justify-content: space-between; }
+  .ss-half[data-channel="online"] { flex-direction: column; align-items: flex-end; text-align: end; }
+}
+
+.ss-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(17px, 1.6vw, 21px);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.ss-place { margin-top: 2px; font-size: 15px; color: var(--ss-muted); }
+.ss-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 99px;
+  background: var(--ss-mark);
+}
+@keyframes ss-live {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ss-mark) 55%, transparent); }
+  100% { box-shadow: 0 0 0 9px transparent; }
+}
+.ss-dot.is-live { animation: ss-live 1.6s ease-out infinite; }
+
+.ss-feed { display: grid; gap: 14px; }
+/* Phones: the number's caption shares the online half, so each side keeps
+   only its latest sale. */
+@media (max-width: 767px) {
+  .ss-feed > .ss-event:nth-child(n + 2) { display: none; }
+}
+.ss-event { display: grid; gap: 2px; }
+.ss-event-title { font-size: 17px; font-weight: 600; line-height: 1.45; }
+.ss-event-meta { font-size: 14px; color: var(--ss-muted); font-variant-numeric: tabular-nums; }
+
+/* The shared number, drawn once per half and clipped to it. */
+.ss-count { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.ss-layer { position: absolute; inset: 0; display: grid; place-items: center; }
+.ss-layer[data-on="dark"] { color: var(--ss-on-dark); --ss-muted: var(--ss-on-dark-muted); clip-path: inset(0 0 50% 0); }
+.ss-layer[data-on="light"] { color: var(--ss-on-light); --ss-muted: var(--ss-on-light-muted); clip-path: inset(50% 0 0 0); }
+@media (min-width: 768px) {
+  /* Arabic: the shop is the right half. */
+  .ss-layer[data-on="dark"] { clip-path: inset(0 0 0 50%); }
+  .ss-layer[data-on="light"] { clip-path: inset(0 50% 0 0); }
+  [dir="ltr"] .ss-layer[data-on="dark"] { clip-path: inset(0 50% 0 0); }
+  [dir="ltr"] .ss-layer[data-on="light"] { clip-path: inset(0 0 0 50%); }
+}
+
+.ss-figure { position: relative; }
+.ss-num {
+  display: grid;
+  overflow: hidden;
+  font-size: clamp(136px, 22vw, 300px);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ss-num > span { grid-area: 1 / 1; text-align: center; }
+.ss-caption {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  margin-top: 2px;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.5;
+}
+.ss-caption-main { font-size: clamp(15px, 1.4vw, 19px); font-weight: 600; }
+.ss-caption-sub { font-size: clamp(13px, 1.1vw, 15px); color: var(--ss-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .al .ss-dot.is-live { animation: none !important; }
+}
+
+/* ---------- Pricing comparison (ApplePricing.tsx) ---------- */
+
+/* Phones: the feature name on its own line, the plans' values under it.
+   Wider: the name is the first column. */
+.pc-row {
+  display: grid;
+  grid-template-columns: repeat(var(--pc-n, 3), minmax(0, 1fr));
+  align-items: center;
+  column-gap: 12px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--al-hair);
+}
+.pc-name { grid-column: 1 / -1; margin-bottom: 8px; font-size: 15px; font-weight: 600; }
+.pc-cell {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.5;
+}
+@media (min-width: 768px) {
+  .pc-row {
+    grid-template-columns: minmax(0, 1.5fr) repeat(var(--pc-n, 3), minmax(0, 1fr));
+    padding-block: 16px;
+  }
+  .pc-name { grid-column: auto; margin-bottom: 0; font-size: 17px; font-weight: 400; }
+}
+
+/* The plan names stay on screen while the rows scroll (under the floating nav). */
+.pc-head {
+  position: sticky;
+  top: 72px;
+  z-index: 5;
+  background: color-mix(in srgb, var(--al-surface) 86%, transparent);
+  --al-blur: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: var(--al-blur);
+  backdrop-filter: var(--al-blur);
+}
+.pc-head .pc-name { color: var(--al-muted); font-size: 13px; font-weight: 600; }
+
+@keyframes pc-in { from { opacity: 0; transform: translateY(10px); } }
+.pc:not([hidden]) { animation: pc-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ---------- Pricing cards (ApplePricing.tsx): Apple One style ----------
+   The plans as roomy tiles (3 across from 1080px): a centred head (tier icon,
+   name, price, one button) over a list of app-icon feature rows. The most
+   popular plan is the brand-blue tile; Enterprise (soon) is a wide frosted
+   glass card under them. */
+
+.plans { display: grid; gap: 20px; max-width: 560px; margin-inline: auto; }
+@media (min-width: 1080px) {
+  .plans {
+    max-width: none;
+    grid-template-columns: repeat(var(--plans-n, 3), minmax(0, 1fr));
+    gap: 24px;
+  }
+  .plans-wide { grid-column: 1 / -1; }
+}
+
+.plan {
+  --plan-muted: var(--al-muted);
+  --plan-hair: var(--al-hair);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 36px 26px 30px;
+  border-radius: var(--al-r-lg);
+  background: var(--al-tile);
+  color: var(--al-text);
+}
+@media (min-width: 1080px) {
+  .plan { padding: 42px 36px 36px; }
+}
+
+/* The most popular plan: the brand colour, everything on it in white. */
+.plan[data-highlight] {
+  --plan-muted: rgba(255, 255, 255, 0.78);
+  --plan-hair: rgba(255, 255, 255, 0.24);
+  --al-new: #ffffff;
+  background: linear-gradient(170deg, #2457f5 0%, #1447e6 60%, #1240d4 100%);
+  color: #ffffff;
+  box-shadow: 0 30px 60px -32px rgba(20, 71, 230, 0.65);
+}
+.dark .plan[data-highlight] {
+  background: linear-gradient(170deg, #3366ff 0%, #1f50eb 60%, #1a45cf 100%);
+  box-shadow: 0 30px 70px -30px rgba(51, 102, 255, 0.55);
+}
+.plan[data-highlight] .plan-tier { background-image: none; background-color: #ffffff; color: #1447e6; }
+.plan[data-highlight] .al-btn-filled { background: #ffffff; color: #1447e6; }
+.plan[data-highlight] .al-btn-filled:hover { background: rgba(255, 255, 255, 0.9); }
+.plan[data-highlight] .al-btn-filled:focus-visible { outline-color: #ffffff; }
+.plan[data-highlight] .feat-icon {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
+}
+
+.plan-flag {
+  position: absolute;
+  top: 18px;
+  inset-inline-end: 18px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--al-new) 16%, transparent);
+  color: var(--al-new);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.plan-head { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.plan-name { margin-top: 18px; font-size: 30px; font-weight: 700; line-height: 1.25; }
+[dir="ltr"] .plan-name { letter-spacing: -0.015em; }
+.plan-tagline { margin-top: 2px; font-size: 17px; color: var(--plan-muted); }
+.plan-price { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin-top: 24px; }
+.plan-amount { font-size: 48px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+[dir="ltr"] .plan-amount { letter-spacing: -0.02em; }
+.plan-per { font-size: 15px; color: var(--plan-muted); }
+.plan-sub { min-height: 20px; margin-top: 10px; font-size: 13px; color: var(--plan-muted); }
+.plan-cta { width: 100%; margin-top: 24px; }
+
+.plan-body { flex: 1; margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--plan-hair); }
+.plan-rows { display: grid; gap: 16px; }
+.plan-row { display: flex; align-items: center; gap: 14px; }
+.plan-row-name { display: block; font-size: 15px; font-weight: 600; line-height: 1.4; }
+.plan-row-detail { display: block; font-size: 13px; line-height: 1.4; color: var(--plan-muted); font-variant-numeric: tabular-nums; }
+.plan-plus { margin: 24px 0 16px; font-size: 13px; font-weight: 600; color: var(--plan-muted); }
+
+/* App-icon glyph for a feature (colours set per feature in feature-icons.tsx). */
+.feat-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--fi-from), var(--fi-to));
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.feat-icon svg { width: 18px; height: 18px; }
+
+/* Enterprise (soon): frosted glass over soft brand light. Stacked and centred
+   on phones; one wide row under the plans from 1080px. */
+.plan-soon {
+  --soon-muted: color-mix(in srgb, var(--al-text) 68%, transparent);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  overflow: hidden;
+  padding: 36px 26px 30px;
+  border-radius: var(--al-r-lg);
+  background: var(--al-tile);
+  color: var(--al-text);
+  text-align: center;
+}
+.soon-id { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.soon-name { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.soon-name .plan-name { margin-top: 0; }
+.plan-soon .plan-tagline { color: var(--soon-muted); }
+.soon-badge {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--al-text) 8%, rgba(255, 255, 255, 0.6));
+  color: var(--al-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+.dark .soon-badge { background: rgba(255, 255, 255, 0.12); }
+.soon-body { max-width: 440px; font-size: 15px; line-height: 1.7; color: var(--soon-muted); }
+.soon-action { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+.soon-action .al-btn { width: 100%; }
+.soon-price { font-size: 17px; font-weight: 700; }
+.soon-price span { font-weight: 400; color: var(--soon-muted); }
+
+.plan-frost { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; }
+.plan-frost i { position: absolute; aspect-ratio: 1; border-radius: 999px; filter: blur(30px); opacity: 0.9; }
+.plan-frost i:nth-child(1) { width: 85%; top: -10%; inset-inline-start: -25%; background: #5c8aff; }
+.plan-frost i:nth-child(2) { width: 80%; top: 32%; inset-inline-end: -30%; background: #a29bff; }
+.plan-frost i:nth-child(3) { width: 75%; bottom: -12%; inset-inline-start: -5%; background: #6fd0ff; }
+.plan-frost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+}
+.dark .plan-frost i { opacity: 0.5; }
+.dark .plan-frost::after {
+  background: rgba(28, 28, 30, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 1080px) {
+  .plan-soon { flex-direction: row; gap: 40px; padding: 30px 36px; text-align: start; }
+  .soon-id { flex-direction: row; gap: 18px; flex-shrink: 0; }
+  .soon-name { justify-content: flex-start; }
+  .soon-body { flex: 1; max-width: none; }
+  .soon-action { width: auto; flex-direction: row; gap: 22px; flex-shrink: 0; }
+  .soon-action .al-btn { width: auto; min-width: 200px; }
+  /* Wide card: smaller lights spread along it. */
+  .plan-frost i:nth-child(1) { width: 38%; top: -150%; inset-inline-start: -6%; }
+  .plan-frost i:nth-child(2) { width: 32%; top: -40%; inset-inline-end: 22%; }
+  .plan-frost i:nth-child(3) { width: 30%; top: -90%; bottom: auto; inset-inline-start: auto; inset-inline-end: -8%; }
+}
+
+.al-btn-glass { background: rgba(255, 255, 255, 0.72); color: var(--al-link); box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.06); }
+.al-btn-glass:hover { background: rgba(255, 255, 255, 0.9); }
+.dark .al .al-btn-glass { background: rgba(255, 255, 255, 0.12); box-shadow: none; }
+.dark .al .al-btn-glass:hover { background: rgba(255, 255, 255, 0.18); }

@@ -61,7 +61,7 @@ export default async function AdminSalesCampaignPage() {
         items={[
           { icon: Sparkles, label: "أي عميل جديد", value: <span dir="ltr">{formatRateBps(c.baseRateBps)}</span>, hint: "على أول اشتراك للعميل جوه الشهر" },
           { icon: Pill, label: "صيدلية", value: <span dir="ltr">{formatRateBps(c.pharmacyRateBps)}</span>, hint: "التاجر اختار «صيدلية» وهو بيسجل" },
-          { icon: ShoppingCart, label: "باقة بلاتينيوم (الكاشير)", value: <span dir="ltr">{formatRateBps(c.posRateBps)}</span>, hint: "أعلى نسبة بتغلب لو أكتر من واحدة" },
+          { icon: ShoppingCart, label: "باقة Scale (الكاشير)", value: <span dir="ltr">{formatRateBps(c.posRateBps)}</span>, hint: "أعلى نسبة بتغلب لو أكتر من واحدة" },
           { icon: Gift, label: "البونص", value: fmtPounds(c.bonusAmount), hint: `مرة واحدة لما ${fmtNum(c.bonusTarget)} عملاء جداد يدفعوا جوه الشهر` },
         ]}
       />
@@ -122,7 +122,7 @@ export default async function AdminSalesCampaignPage() {
         <ul className="list-disc space-y-1.5 px-5 ps-10 pb-5 text-[15px] leading-6 text-muted-foreground">
           <li>أول اشتراك لأي عميل جديد بيجيبه المندوب جوه الشهر بياخد نسبة العرض بدل نسبة المستوى، لو أعلى منها.</li>
           <li>التجديد مش داخل في العرض: بيفضل بنسبة التجديد العادية (6%) لمدة الأهلية زي أي عميل.</li>
-          <li>لو أكتر من نسبة تنفع (مثلًا صيدلية على بلاتينيوم) بتتحسب الأعلى. ولو نسبة مستوى المندوب أعلى من العرض، بتفضل نسبته.</li>
+          <li>لو أكتر من نسبة تنفع (مثلًا صيدلية على Scale) بتتحسب الأعلى. ولو نسبة مستوى المندوب أعلى من العرض، بتفضل نسبته.</li>
           <li>البونص بيتضاف مرة واحدة كعمولة «بونص» مع دفعة العميل اللي بيكمّل العدد، وبيتصرف مع باقي المستحق.</li>
           <li>بعد آخر يوم العرض بيقفل لوحده. العمولات اللي اتحسبت بيه بتفضل زي ما هي، وتقدر تراجعها أو تلغيها من «العمولات».</li>
         </ul>

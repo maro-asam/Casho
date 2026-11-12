@@ -136,8 +136,8 @@ type PlanSeed = {
 const PLANS: PlanSeed[] = [
   {
     key: PLAN_KEYS.SILVER,
-    slug: "silver",
-    name: "سيلفر",
+    slug: "starter",
+    name: "Starter",
     description: "الباقة الأساسية لبدء متجرك الإلكتروني.",
     monthlyPrice: 30_000, // 300 EGP placeholder — still unconfirmed, see pricingConfigured
     yearlyPrice: 489_900, // 4899 EGP — confirmed by founder
@@ -171,8 +171,8 @@ const PLANS: PlanSeed[] = [
   },
   {
     key: PLAN_KEYS.GOLD,
-    slug: "gold",
-    name: "جولد",
+    slug: "growth",
+    name: "Growth",
     description: "للمتاجر النامية التي تحتاج مميزات وتكاملات أكثر.",
     monthlyPrice: 50_000, // 500 EGP placeholder — still unconfirmed, see pricingConfigured
     yearlyPrice: 679_900, // 6799 EGP — confirmed by founder
@@ -206,8 +206,8 @@ const PLANS: PlanSeed[] = [
   },
   {
     key: PLAN_KEYS.PLATINUM,
-    slug: "platinum",
-    name: "بلاتينيوم",
+    slug: "scale",
+    name: "Scale",
     description: "كل مميزات كاشو بدون حدود، مع دعم ذو أولوية.",
     monthlyPrice: 70_000, // 700 EGP placeholder — still unconfirmed, see pricingConfigured
     yearlyPrice: 909_900, // 9099 EGP — confirmed by founder

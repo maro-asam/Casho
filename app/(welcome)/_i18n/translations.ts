@@ -236,7 +236,7 @@ export const translations = {
         {
           question: "فيه كام باقة، وهي إيه؟",
           answer:
-            "عندنا 3 باقات: سيلفر للبداية، جولد للمتاجر النامية، وبلاتينيوم لكل المميزات من غير حدود. تقدر تشوف الفرق بينهم وتترقّي في أي وقت من لوحة التحكم.",
+            "عندنا 3 باقات: Starter عشان تبدأ، Growth للمتجر اللي بيكبر، و Scale لكل المميزات من غير حدود، ومعاها الكاشير. وباقة Enterprise للبراندات والسلاسل الكبيرة جاية قريب. تقدر تشوف الفرق بينهم وتترقّى في أي وقت من لوحة التحكم.",
         },
         {
           question: "هل كاشو مناسب لو أنا لسه ببدأ؟",
@@ -667,7 +667,7 @@ export const translations = {
         {
           question: "How many plans are there, and what's the difference?",
           answer:
-            "We have 3 plans: Silver to get started, Gold for growing stores, and Platinum for every feature with no limits. Compare them anytime and upgrade whenever you're ready, right from the dashboard.",
+            "We have 3 plans: Starter to get started, Growth for growing stores, and Scale for every feature with no limits, the shop till included. Enterprise, for big brands and chains, is coming soon. Compare them anytime and upgrade whenever you're ready, right from the dashboard.",
         },
         {
           question: "Is Casho good for beginners?",

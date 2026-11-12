@@ -82,7 +82,7 @@ export function EditCampaignDialog({ defaults }: { defaults: CampaignFormDefault
             <Field label="صيدلية %" name="pharmacyRate" error={errors.pharmacyRate}>
               <Input id="pharmacyRate" name="pharmacyRate" type="number" step="0.01" min={0} max={100} dir="ltr" defaultValue={defaults.pharmacyRate} required />
             </Field>
-            <Field label="بلاتينيوم %" name="posRate" error={errors.posRate}>
+            <Field label="Scale %" name="posRate" error={errors.posRate}>
               <Input id="posRate" name="posRate" type="number" step="0.01" min={0} max={100} dir="ltr" defaultValue={defaults.posRate} required />
             </Field>
           </div>

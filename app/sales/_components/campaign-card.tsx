@@ -30,7 +30,7 @@ export function CampaignCard({
   const rates = [
     { rate: c.baseRateBps, label: "أي عميل جديد يشترك" },
     { rate: c.pharmacyRateBps, label: "لو العميل صيدلية" },
-    { rate: c.posRateBps, label: "باقة بلاتينيوم (الكاشير)" },
+    { rate: c.posRateBps, label: "باقة Scale (الكاشير)" },
   ];
 
   return (

@@ -224,7 +224,7 @@ export function PixelsForm({ storeId, serverTracking, initial, tokenHints }: Pro
   const serverFooter = serverLocked ? (
     <span className="inline-flex flex-wrap items-center gap-1">
       <Lock className="size-3" />
-      {tr("متاح في باقة جولد وبلاتينيوم —")}{" "}
+      {tr("متاح في باقة Growth و Scale —")}{" "}
       <Link href="/change-plan" className="font-semibold text-primary">
         {tr("رقّي باقتك")}
       </Link>

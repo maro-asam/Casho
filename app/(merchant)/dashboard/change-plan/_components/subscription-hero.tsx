@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { AutoRenewSwitch } from "../../balance/_components/auto-renew-switch";
 import RenewSubscriptionModal from "../../balance/_components/RenewSubscriptionModal";
 import { nf } from "./plan-types";
-import { TierGlyph } from "./tier-glyph";
+import { TierGlyph } from "@/components/plans/tier-glyph";
 import { lazyIntl, tr, trv } from "@/lib/i18n/dashboard";
 
 const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });

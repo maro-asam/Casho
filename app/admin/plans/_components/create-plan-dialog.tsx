@@ -78,7 +78,7 @@ export function CreatePlanDialog({ nextSortOrder }: { nextSortOrder: number }) {
                 id="plan-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="الباقة الذهبية"
+                placeholder="Enterprise"
               />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -93,12 +93,12 @@ export function CreatePlanDialog({ nextSortOrder }: { nextSortOrder: number }) {
                     setKey(v);
                     if (!slug || slug === key.toLowerCase().replace(/_/g, "-")) setSlug(v.toLowerCase().replace(/_/g, "-"));
                   }}
-                  placeholder="GOLD"
+                  placeholder="ENTERPRISE"
                 />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="plan-slug">الرابط</Label>
-                <Input id="plan-slug" dir="ltr" value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase())} placeholder="gold" />
+                <Input id="plan-slug" dir="ltr" value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase())} placeholder="enterprise" />
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">

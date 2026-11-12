@@ -71,9 +71,14 @@ export function isEntitlementError(error: unknown): error is EntitlementError {
 // matching the API error shape in spec section 22. This maps it to an
 // Arabic label for human-facing messages only.
 const PLAN_DISPLAY_NAMES: Record<string, string> = {
-  get silver() { return tr("سيلفر"); },
-  get gold() { return tr("جولد"); },
-  get platinum() { return tr("بلاتينيوم"); },
+  // Plan names are English in both languages (Starter / Growth / Scale);
+  // the old slugs stay mapped for links made before the rename.
+  starter: "Starter",
+  growth: "Growth",
+  scale: "Scale",
+  silver: "Starter",
+  gold: "Growth",
+  platinum: "Scale",
 };
 
 function planLabel(slug: string | null): string {

@@ -6,9 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { tr } from "@/lib/i18n/dashboard";
 
 const PLAN_DISPLAY_NAMES: Record<string, string> = {
-  get silver() { return tr("سيلفر"); },
-  get gold() { return tr("جولد"); },
-  get platinum() { return tr("بلاتينيوم"); },
+  // Plan names are English in both languages (Starter / Growth / Scale);
+  // the old slugs stay mapped for links made before the rename.
+  starter: "Starter",
+  growth: "Growth",
+  scale: "Scale",
+  silver: "Starter",
+  gold: "Growth",
+  platinum: "Scale",
 };
 
 export function UpgradeRequiredCard({

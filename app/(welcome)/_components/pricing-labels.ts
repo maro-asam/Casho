@@ -5,9 +5,10 @@
 import { FEATURE_KEYS, type FeatureKey } from "@/lib/entitlements/feature-keys";
 
 export const PLAN_NAME_LABELS: Record<string, { ar: string; en: string }> = {
-  SILVER: { ar: "سيلفر", en: "Silver" },
-  GOLD: { ar: "جولد", en: "Gold" },
-  PLATINUM: { ar: "بلاتينيوم", en: "Platinum" },
+  // English in both languages. Keys stay SILVER / GOLD / PLATINUM internally.
+  SILVER: { ar: "Starter", en: "Starter" },
+  GOLD: { ar: "Growth", en: "Growth" },
+  PLATINUM: { ar: "Scale", en: "Scale" },
 };
 
 export const FEATURE_NAME_LABELS: Partial<Record<FeatureKey, { ar: string; en: string }>> = {

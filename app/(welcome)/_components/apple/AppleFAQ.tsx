@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useLang } from "../../_i18n/LanguageContext";
 import { useLandingCopy } from "./copy";
 import Reveal from "./Reveal";
+import SectionHead from "./SectionHead";
 
 export default function AppleFAQ() {
   const c = useLandingCopy().faq;
@@ -14,15 +15,11 @@ export default function AppleFAQ() {
   const baseId = useId();
 
   return (
-    <section id="faq" className="al-section scroll-mt-16">
-      <div className="al-container">
-        <Reveal className="text-center">
-          <h2 className="al-section-title">
-            {c.title} <span className="text-(--al-muted)">{c.titleMuted}</span>
-          </h2>
-        </Reveal>
+    <section id="faq" aria-labelledby="faq-title" className="al-section scroll-mt-16">
+      <SectionHead id="faq-title" eyebrow={c.eyebrow} title={c.title} accent={c.titleMuted} />
 
-        <Reveal delay={80} className="mx-auto mt-14 max-w-[820px] border-t border-(--al-hair)">
+      <div className="al-container al-body">
+        <Reveal delay={80} className="mx-auto max-w-[820px] border-t border-(--al-hair)">
           {t.faq.items.map((item, i) => {
             const isOpen = open === i;
             const panelId = `${baseId}-panel-${i}`;

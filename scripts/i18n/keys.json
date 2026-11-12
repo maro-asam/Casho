@@ -3219,6 +3219,9 @@
    "app/(merchant)/(builder)/builder/_components/BuilderShell.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/PopupsPanel.tsx"
   ],
+  "اقفلها لو متجرك مش صيدلية: الشكل زي ما هو، وزراير الروشتة بتبقى «كلّمنا واتساب».": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
+  ],
   "اكتب": [
    "app/(merchant)/dashboard/settings/_components/StoreMembers.tsx"
   ],
@@ -4379,6 +4382,9 @@
   ],
   "الرقم ناقص — اكتبه كامل بكود البلد أو 01…": [
    "app/(merchant)/(builder)/builder/_components/panels/WhatsAppPanel.tsx"
+  ],
+  "الروشتة على واتساب، اسأل الصيدلي، وتنبيه الاستشارة الطبية.": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
   "الزرار": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
@@ -6136,10 +6142,6 @@
   "بكرة": [
    "app/(merchant)/dashboard/reports/_components/tab-inventory.tsx"
   ],
-  "بلاتينيوم": [
-   "components/entitlements/UpgradeRequiredCard.tsx",
-   "lib/entitlements/errors.ts"
-  ],
   "بمعدل البيع الحالي، المخزون مكفي أكتر من أسبوعين.": [
    "app/(merchant)/dashboard/reports/_components/tab-inventory.tsx"
   ],
@@ -7782,10 +7784,6 @@
   "جهّز متجري": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
-  "جولد": [
-   "components/entitlements/UpgradeRequiredCard.tsx",
-   "lib/entitlements/errors.ts"
-  ],
   "جي آند تي إكسبريس": [
    "lib/shipping/carriers.ts"
   ],
@@ -8111,6 +8109,9 @@
    "app/(merchant)/dashboard/change-plan/_components/plan-picker.tsx"
   ],
   "حيوية": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
+  ],
+  "خاص بالثيم": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
   "خامل": [
@@ -9135,10 +9136,6 @@
   ],
   "سيظهر هنا العملاء الذين لديهم نقاط بعد أول طلب": [
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx"
-  ],
-  "سيلفر": [
-   "components/entitlements/UpgradeRequiredCard.tsx",
-   "lib/entitlements/errors.ts"
   ],
   "شارة المخزون المحدود": [
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx"
@@ -10681,6 +10678,9 @@
    "app/(merchant)/dashboard/integrations/tiktok/page.tsx",
    "app/(merchant)/dashboard/integrations/whatsapp/page.tsx"
   ],
+  "قريبًا": [
+   "app/(merchant)/dashboard/change-plan/_components/enterprise-soon.tsx"
+  ],
   "قريت الشروط وموافق عليها": [
    "app/(merchant)/dashboard/sharks/_components/ApplyFlow.tsx"
   ],
@@ -11075,6 +11075,9 @@
   "كلمة المرور": [
    "lib/shipping/carriers.ts"
   ],
+  "كلّمنا لو مهتم": [
+   "app/(merchant)/dashboard/change-plan/_components/enterprise-soon.tsx"
+  ],
   "كلّمنا واتساب": [
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
@@ -11461,6 +11464,9 @@
   "للانضمام إلى متجر": [
    "app/(merchant)/dashboard/invitation/[invitationId]/page.tsx"
   ],
+  "للبراندات والسلاسل الكبيرة. جاية قريب.": [
+   "app/(merchant)/dashboard/change-plan/_components/enterprise-soon.tsx"
+  ],
   "للبوت مباشرة": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
   ],
@@ -11542,6 +11548,9 @@
   ],
   "لو بتستخدم لينكات دفع — قول للعميل هيوصله إزاي.": [
    "app/(merchant)/dashboard/payment-methods/_components/method-meta.ts"
+  ],
+  "لو بيزنسك محتاج أكتر من Scale، قولنا محتاج إيه وهنجهزهالك.": [
+   "app/(merchant)/dashboard/change-plan/_components/enterprise-soon.tsx"
   ],
   "لو حابب تشيل عبارة \"يتم التشغيل بواسطة Casho\" من فوتر متجرك، ابعت طلب من هنا وهيظهر للإدارة للمراجعة والتفعيل.": [
    "app/(merchant)/_components/PoweredByCashoCard.tsx"
@@ -11759,7 +11768,7 @@
    "app/(merchant)/dashboard/change-plan/page.tsx",
    "app/(merchant)/dashboard/integrations/page.tsx"
   ],
-  "متاح في باقة جولد وبلاتينيوم —": [
+  "متاح في باقة Growth و Scale —": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
   "متاحة من باقة": [
@@ -12406,6 +12415,9 @@
    "app/(merchant)/dashboard/change-plan/_components/plan-change-dialog.tsx",
    "app/(merchant)/dashboard/domain/_components/domain-search.tsx"
   ],
+  "مش متاح للبيع من هنا": [
+   "app/(merchant)/dashboard/domain/_components/domain-search.tsx"
+  ],
   "مش متثبت": [
    "app/(merchant)/dashboard/apps/confirm-it/page.tsx"
   ],
@@ -13008,6 +13020,9 @@
   ],
   "ممكن تتواصلوا معايا بخصوص نشر حكايتي مستقبلًا (اختياري)": [
    "app/(merchant)/dashboard/sharks/_components/ApplyFlow.tsx"
+  ],
+  "مميزات الصيدلية": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
   "من": [
    "app/(merchant)/dashboard/apps/_components/app-ui.tsx",

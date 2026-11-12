@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { PlanPicker } from "./_components/plan-picker";
 import { featureValueLabel, nf, type PlanForUI } from "./_components/plan-types";
 import { SubscriptionHero } from "./_components/subscription-hero";
-import { TierGlyph } from "./_components/tier-glyph";
+import { TierGlyph } from "@/components/plans/tier-glyph";
 import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 

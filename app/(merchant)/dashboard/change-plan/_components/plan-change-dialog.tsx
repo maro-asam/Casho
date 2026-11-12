@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { formatMoney } from "@/lib/balance-ui/meta";
 import { cn } from "@/lib/utils";
 import { nf, priceOf, type Cycle, type PlanForUI } from "./plan-types";
-import { TierGlyph } from "./tier-glyph";
+import { TierGlyph } from "@/components/plans/tier-glyph";
 import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 
 const df = lazyIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });

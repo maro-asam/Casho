@@ -15,6 +15,9 @@ export type WelcomePlanFeature = {
   unit: string | null;
   isUnlimited: boolean;
   limitValue: number | null;
+  /** FeatureType — BOOLEAN features are on/off, whatever their limit fields say. */
+  type?: string;
+  sortOrder?: number;
 };
 
 export type WelcomePlan = {

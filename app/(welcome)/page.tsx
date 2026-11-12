@@ -55,6 +55,8 @@ export default async function Page() {
         unit: pf.feature.unit,
         isUnlimited: pf.isUnlimited,
         limitValue: pf.limitValue,
+        type: pf.feature.type,
+        sortOrder: pf.feature.sortOrder,
       })),
   }));
 

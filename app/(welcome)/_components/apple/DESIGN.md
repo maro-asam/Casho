@@ -26,6 +26,70 @@ Cairo (Arabic + Latin), weights 400 / 600 / 700. `globals.css` forces
 Arabic — tracking rules are `[dir="ltr"]` only. Numbers are Latin digits with
 `tabular-nums`.
 
+## One system for every section
+
+Every section below the hero uses the same parts — don't give a section its
+own header, card or spacing style.
+
+- **Header**: `SectionHead.tsx` — eyebrow, a two-tone headline (the claim in
+  ink, the second beat in gray via `accent`), one subhead (max 600px). The blue
+  gradient (`emphasis="gradient"`) is only for brand moments: the hero's last
+  line, the Sharks teaser and the final CTA.
+- **Rhythm**: sections alternate white (`.al-section`) and gray
+  (`.al-section-surface`), black (`.al-dark`) for brand moments. Current order:
+  hero (white) → sync (gray) → features (white) → themes (gray) → examples
+  (white) → Sharks (black) → pricing (gray) → FAQ (white) → CTA (black).
+- **Tiles**: `.al-tile` is always the other tone of its section (gray on
+  white, white on gray), so it needs no border or shadow. `.al-well` is a tray
+  inside a tile. Only depicted screens (theme previews, example browser frames)
+  get a hairline / soft shadow.
+- **Radii**: `--al-r-lg` 28 (tiles, panels), `--al-r-md` 18 (framed screens),
+  `--al-r-sm` 12 (wells).
+- **Spacing**: `.al-section` padding everywhere; `.al-body` is the one gap
+  between a header and its content.
+- **Captions under a picture**: `.al-item-title` / `.al-item-note`.
+- **Controls**: `.al-btn-filled` (one per view), `.al-btn-gray`, `.al-link`,
+  `.al-icon-btn`, `.al-chip`.
+- **Promo colour**: `--al-new` (orange) for "most popular", "save x%" — no green.
+
+## Section 2 — "one number across two worlds" (SyncSection.tsx)
+
+A panel split into the shop (dark) and the online store (light) — side by
+side, stacked on phones — with one stock number on the seam. The number is
+drawn twice (`.ss-layer`) and each copy is clipped to its half, so it reads
+white on the shop and ink on the store. The panel pins (`.ss-pin`) while the
+visitor scrolls 240svh; four sales land at `THRESHOLDS` and the number counts
+48 → 44. Phones keep only the latest sale per side (the caption shares the
+online half). Reduced motion: not pinned, final state.
+
+## Pricing (ApplePricing.tsx) — Apple One cards
+
+Plans are **Starter / Growth / Scale** (English in both languages; the DB keys
+stay SILVER / GOLD / PLATINUM — internal, wired into the trial, sales
+commissions and checkout) plus **Enterprise (soon)**, which has no DB row.
+
+- The plans as separate, roomy tiles (`.plans` / `.plan`): one column (max
+  560px) below 1080px, side by side from 1080px (3 plans ≈ 370px each — 4 in
+  a row was too narrow). Each: a centred head (the plan's tier icon from
+  `components/plans/tier-glyph.tsx` — the same icon as the dashboard — name,
+  tagline, price, one full-width button) over a list of app-icon feature rows
+  (`feature-icons.tsx`, keyed by feature key, display only).
+- The most popular plan (`HIGHLIGHTED_PLAN`, Growth) is the brand-blue tile:
+  white text, white tier icon, white button with blue label, feature icons as
+  white glass (the colourful icons clash on blue).
+- Rows: the limits that differ between plans first ("لحد 3", "غير محدود"),
+  then only what's new against the previous plan ("كل اللي في Starter، وكمان"),
+  falling back to the full list if a plan doesn't include everything before it.
+  All from the DB; BOOLEAN features never show a limit.
+- Enterprise: a wide frosted-glass card under the plans (`.plan-soon`, stacked
+  on phones; `.plan-frost`: blurred brand-light blobs under a white glass
+  layer) with sharp text — name, "قريبًا", one sentence, "سعر خاص", one button
+  to /contact-us. No promised features.
+- "قارن الباقات بالتفصيل" opens Apple's compare table (real plans only).
+- Taglines (`pricing.taglines` by plan key) must stay claim-free.
+- Rejected (2026-11-12, "سئ جدا ومش احترافي"): one board with plan columns and
+  no cards, a dot band across the top, Enterprise with blurred text.
+
 ## Motion
 
 Entrances are CSS (they run before hydration): headline lines only translate
@@ -59,4 +123,4 @@ Split hero with a product-UI mockup and floating glass cards; glossy CG
 (prism, liquid drops); cute literal objects (receipt printer); a thin line
 drawing with lots of white ("تقليدي / فاضي").
 
-_Last updated: 2026-11-12 — growth board hero._
+_Last updated: 2026-11-12 — Apple One pricing cards (Starter / Growth / Scale + Enterprise soon)._

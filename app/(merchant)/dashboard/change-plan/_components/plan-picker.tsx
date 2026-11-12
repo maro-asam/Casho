@@ -6,9 +6,10 @@ import { Check } from "lucide-react";
 import { SegmentedButtons, appleButton } from "@/components/saas-page";
 import { formatMoney } from "@/lib/balance-ui/meta";
 import { cn } from "@/lib/utils";
+import { EnterpriseSoon } from "./enterprise-soon";
 import { PlanChangeDialog } from "./plan-change-dialog";
 import { featureValueLabel, priceOf, yearlySaving, type Cycle, type PlanForUI } from "./plan-types";
-import { TierGlyph } from "./tier-glyph";
+import { TierGlyph } from "@/components/plans/tier-glyph";
 import { tr } from "@/lib/i18n/dashboard";
 
 type Props = {
@@ -174,6 +175,8 @@ export function PlanPicker({ plans, currentPlanId, currentCycle, recommendedPlan
           );
         })}
       </div>
+
+      <EnterpriseSoon />
 
       {selected && !(covered && selected.id === currentPlanId && cycle === currentCycle) && (
         <PlanChangeDialog

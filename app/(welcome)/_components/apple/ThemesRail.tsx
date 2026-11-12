@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLang } from "../../_i18n/LanguageContext";
 import { useLandingCopy } from "./copy";
-import Reveal from "./Reveal";
+import SectionHead from "./SectionHead";
 
 // Swatches approximate each preset in constants/store-themes.ts.
 const THEME_TOKENS: Record<string, { bg: string; fg: string; primary: string; accent: string; serif?: boolean; arch?: boolean }> = {
@@ -38,31 +38,27 @@ export default function ThemesRail() {
   const Next = lang === "ar" ? ChevronLeft : ChevronRight;
 
   return (
-    <section id="themes" className="al-section scroll-mt-16 overflow-hidden">
-      <Reveal className="al-container text-center">
-        <p className="al-eyebrow">{c.eyebrow}</p>
-        <h2 className="al-section-title mt-3">{c.title}</h2>
-        <p className="al-subhead mx-auto mt-5 max-w-[600px] text-pretty">{c.subtitle}</p>
-      </Reveal>
+    <section id="themes" aria-labelledby="themes-title" className="al-section al-section-surface scroll-mt-16 overflow-hidden">
+      <SectionHead id="themes-title" eyebrow={c.eyebrow} title={c.title} accent={c.accent} subtitle={c.subtitle} />
 
-      <div ref={railRef} className="al-rail mt-14 md:mt-16">
+      <div ref={railRef} className="al-rail al-body">
         {c.items.map((item) => {
           const t = THEME_TOKENS[item.id];
           return (
             <article key={item.id} className="w-[78vw] max-w-[340px] sm:w-[340px]">
               <ThemePreview tokens={t} name={item.name} />
-              <h3 className="mt-5 text-[21px] font-bold">{item.name}</h3>
-              <p className="mt-1 text-[15px] text-(--al-muted)">{item.note}</p>
+              <h3 className="al-item-title mt-5">{item.name}</h3>
+              <p className="al-item-note">{item.note}</p>
             </article>
           );
         })}
       </div>
 
       <div className="al-container mt-4 flex justify-end gap-3">
-        <button type="button" onClick={() => scrollBy(-1)} aria-label={c.prev} className="grid size-11 place-items-center rounded-full bg-(--al-surface) text-(--al-text) transition-opacity hover:opacity-80 active:scale-95">
+        <button type="button" onClick={() => scrollBy(-1)} aria-label={c.prev} className="al-icon-btn">
           <Prev className="size-5" strokeWidth={2} />
         </button>
-        <button type="button" onClick={() => scrollBy(1)} aria-label={c.next} className="grid size-11 place-items-center rounded-full bg-(--al-surface) text-(--al-text) transition-opacity hover:opacity-80 active:scale-95">
+        <button type="button" onClick={() => scrollBy(1)} aria-label={c.next} className="al-icon-btn">
           <Next className="size-5" strokeWidth={2} />
         </button>
       </div>
@@ -74,7 +70,7 @@ function ThemePreview({ tokens: t, name }: { tokens: (typeof THEME_TOKENS)[strin
   return (
     <div
       aria-hidden
-      className="aspect-[4/5] overflow-hidden rounded-[28px] p-4 ring-1 ring-black/5 dark:ring-white/10"
+      className="aspect-[4/5] overflow-hidden rounded-(--al-r-lg) p-4 shadow-[inset_0_0_0_0.5px_var(--al-hair)]"
       style={{ background: t.bg, color: t.fg }}
     >
       <div className="flex items-center justify-between text-[11px]">

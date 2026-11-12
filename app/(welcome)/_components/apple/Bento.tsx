@@ -5,6 +5,7 @@ import { Bell, ShoppingCart, TicketPercent, Truck, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLandingCopy } from "./copy";
 import Reveal from "./Reveal";
+import SectionHead from "./SectionHead";
 
 const PAYMENT_LOGOS = [
   { src: "/payment-logos/vodafone-cash.svg", alt: "Vodafone Cash" },
@@ -21,22 +22,17 @@ export default function Bento() {
   const c = useLandingCopy().bento;
 
   return (
-    <section id="features" className="al-section al-section-surface scroll-mt-16">
-      <div className="al-container-wide">
-        <Reveal className="mx-auto max-w-[860px] text-center">
-          <h2 className="al-section-title text-balance">
-            <span className="block">{c.title1}</span>
-            <span className="block text-(--al-muted)">{c.title2}</span>
-          </h2>
-        </Reveal>
+    <section id="features" aria-labelledby="features-title" className="al-section scroll-mt-16">
+      <SectionHead id="features-title" eyebrow={c.eyebrow} title={c.title1} accent={c.title2} />
 
-        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-20 md:gap-5 lg:grid-cols-6">
+      <div className="al-container-wide al-body">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-6">
           {/* Payments — the wide hero tile */}
-          <Reveal className="al-card flex flex-col justify-between gap-8 p-7 sm:col-span-2 md:p-10 lg:col-span-4">
+          <Reveal className="al-tile flex flex-col justify-between gap-8 p-7 sm:col-span-2 md:p-10 lg:col-span-4">
             <TileText card={c.payments} large />
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-3">
               {PAYMENT_LOGOS.map((logo) => (
-                <div key={logo.src} className="grid h-16 place-items-center rounded-2xl bg-(--al-surface) p-3">
+                <div key={logo.src} className="al-well grid h-16 place-items-center p-3">
                   <Image src={logo.src} alt={logo.alt} width={88} height={36} className="h-9 w-full max-w-[96px] object-contain" />
                 </div>
               ))}
@@ -44,7 +40,7 @@ export default function Bento() {
           </Reveal>
 
           {/* Launch time — one big number */}
-          <Reveal delay={80} className="al-card flex flex-col justify-end p-7 sm:col-span-2 md:p-10 lg:col-span-2">
+          <Reveal delay={80} className="al-tile flex flex-col justify-end p-7 sm:col-span-2 md:p-10 lg:col-span-2">
             <p className="flex items-baseline gap-3">
               <span className="text-[96px] font-bold leading-none tabular-nums md:text-[120px]">{c.launch.value}</span>
               <span className="text-[28px] font-semibold">{c.launch.unit}</span>
@@ -87,7 +83,7 @@ function IconTile({
   delay?: number;
 }) {
   return (
-    <Reveal delay={delay} className={cn("al-card flex flex-col gap-10 p-7 md:p-9", className)}>
+    <Reveal delay={delay} className={cn("al-tile flex flex-col gap-10 p-7 md:p-9", className)}>
       <Icon className="size-8 text-(--al-text)" strokeWidth={1.6} />
       <TileText card={card} />
     </Reveal>
