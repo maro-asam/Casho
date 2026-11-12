@@ -85,9 +85,11 @@ export function buildColumns(n: number, maxRows: number, reserve = 0, seed = 202
 
     let shop = 0;
     if (t >= SHOP_OPENS && i < n - 1) {
+      // The shop follows the smooth curve (no noise), so the ink under the
+      // blue reads as one rising ground rather than a ragged edge.
       const grown = Math.min(1, (t - SHOP_OPENS) / 0.28) ** 0.7;
-      const share = 0.14 + 0.2 * grown + (rand() - 0.5) * 0.06;
-      shop = Math.max(1, Math.round(total * share));
+      const share = 0.14 + 0.2 * grown;
+      shop = Math.max(1, Math.round(cap * envelope(t) * (1 + seasonal) * share));
     } else if (i === n - 1) {
       shop = Math.round(total * 0.32);
     }

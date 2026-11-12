@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, Sparkles } from "lucide-react";
@@ -67,7 +67,16 @@ const STRENGTH = [
   { label: "قوية", tone: "bg-(--sys-green)" },
 ];
 
-export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDays: number }) {
+export function RegisterForm({
+  refCode,
+  initialStoreName,
+  trialDays,
+}: {
+  refCode?: string;
+  /** A store name typed on the landing page; fills step 1 and checks its address. */
+  initialStoreName?: string;
+  trialDays: number;
+}) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [done, setDone] = useState(false);
@@ -131,6 +140,15 @@ export function RegisterForm({ refCode, trialDays }: { refCode?: string; trialDa
       }
     }, 400);
   }
+
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (seeded.current || !initialStoreName) return;
+    seeded.current = true;
+    onStoreNameChange(initialStoreName);
+    // Once, on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const errors = state?.fieldErrors ?? {};
   const phoneError =

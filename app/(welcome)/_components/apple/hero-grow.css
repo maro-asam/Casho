@@ -7,7 +7,7 @@
 .gh-title {
   font-size: clamp(42px, 11.4vw, 62px);
   font-weight: 700;
-  line-height: 1.24;
+  line-height: 1.17;
 }
 @media (min-width: 1024px) {
   .gh-title { font-size: clamp(58px, min(5.6vw, 9.2svh), 84px); }
@@ -67,7 +67,8 @@
   --gb-online-a: #2a4fe0;
   --gb-online-b: #3d6bff;
   --gb-online-c: #9db7ff;
-  --gb-shop: #e8e8ed;
+  /* Softer than the headline's white, so the shop's ink stays under the blue. */
+  --gb-shop: #a9acb8;
   --gb-halo: rgba(61, 107, 255, 0.15);
   --gb-ring: #6b95ff;
   --gb-pole: rgba(245, 245, 247, 0.3);

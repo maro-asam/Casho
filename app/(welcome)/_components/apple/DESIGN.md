@@ -3,7 +3,19 @@
 The marketing page at `/` (app/(welcome)/page.tsx). Apple-style: full-bleed
 sections alternating light / dark, one idea per section. Tokens and glass
 recipes live in `apple.css` (scoped under `.al`); the hero has its own
-`hero-grow.css`.
+`hero-claim.css`.
+
+## Hero — the headline is the drawing (HeroClaim.tsx, `hero-claim.css`)
+
+Centered. "Grow" has a chart climbing beside it (ink pill); the brand line carries the Casho
+mark (blue disc) and the gradient. Objects are sized in `em`. Under it the call to action
+is the "claim your store name" bar: the visitor types a name, the existing
+`checkStoreSlugAvailability` action says whether `name.casho.store` is free,
+and submitting goes to `/register?store=…`, which fills step 1 of sign-up.
+The bar is LTR in both languages (address from the left edge, then button);
+a hidden ghost span sizes the input so `.casho.store` follows the name. A soft blue light
+rises from the foot of the section. `HeroNumber` (giant sales number) and
+`HeroGrow` / `GrowthBoard` (dot-matrix board) are earlier heroes, kept unused.
 
 ## Tokens
 

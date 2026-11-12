@@ -1,0 +1,183 @@
+/* Hero (HeroNumber.tsx): the headline, then today's sales as one giant live
+   number. Tokens come from apple.css (.al). */
+
+.hn {
+  --hn-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --hn-online: #1447e6;
+  --hn-shop: #1d1d1f;
+  --hn-num-a: #1447e6;
+  --hn-num-b: #4d7cff;
+  --hn-num-c: rgba(77, 124, 255, 0.1);
+  --hn-row: rgba(255, 255, 255, 0.74);
+  --hn-row-edge: rgba(0, 0, 0, 0.08);
+  --hn-row-shadow: 0 14px 44px rgba(10, 30, 90, 0.12);
+}
+.dark .hn {
+  --hn-online: #3d6bff;
+  --hn-shop: #d6d8e0;
+  --hn-num-a: #7fa2ff;
+  --hn-num-b: #3d6bff;
+  --hn-num-c: rgba(61, 107, 255, 0.08);
+  --hn-row: rgba(28, 28, 32, 0.66);
+  --hn-row-edge: rgba(255, 255, 255, 0.14);
+  --hn-row-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Headline + aside ---------- */
+
+.hn-top { display: grid; gap: 18px; }
+.hn-aside { max-width: 520px; }
+
+.hn-title {
+  font-size: clamp(40px, 11vw, 60px);
+  font-weight: 700;
+  line-height: 1.17;
+}
+[dir="ltr"] .hn-title {
+  font-size: clamp(38px, 10.2vw, 56px);
+  letter-spacing: -0.035em; /* Latin only — tracking breaks Arabic joining */
+  line-height: 1.05;
+}
+@media (min-width: 1024px) {
+  .hn-top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+    align-items: end;
+    gap: 48px;
+  }
+  .hn-aside { padding-bottom: 8px; }
+  .hn-title { font-size: clamp(54px, min(5.3vw, 9svh), 76px); white-space: nowrap; }
+  /* The first two beats share a line; the brand line stays on its own. */
+  .hn-line:not(:last-child) { display: inline-block; }
+  .hn-line:first-child { margin-inline-end: 0.26em; }
+  [dir="ltr"] .hn-title { font-size: clamp(50px, min(5vw, 8.6svh), 72px); }
+}
+
+/* Headline lines only move (they paint at once — they're the LCP). */
+@keyframes hn-rise { from { transform: translateY(0.3em); } }
+/* Lines are blocks; see the wide rule for the shared first line. */
+.hn-line { display: block; }
+.hn-rise { animation: hn-rise 1s var(--hn-ease) both; }
+@keyframes hn-in { from { opacity: 0; transform: translateY(14px); } }
+.hn-in { animation: hn-in 0.9s var(--hn-ease) var(--hn-d, 0s) both; }
+
+/* ---------- The board: meter, number, feed ---------- */
+
+.hn-board { margin-top: 36px; }
+@media (min-width: 1024px) {
+  .hn-board { margin-top: clamp(44px, 8svh, 84px); }
+}
+
+.hn-meter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 24px;
+  font-size: 13.5px;
+  color: var(--al-muted);
+}
+.hn-live { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; color: var(--al-text); }
+@keyframes hn-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--hn-online) 45%, transparent); }
+  100% { box-shadow: 0 0 0 8px transparent; }
+}
+.hn-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--hn-online);
+  animation: hn-pulse 1.8s ease-out infinite;
+}
+.hn-bar {
+  order: 3;
+  flex: 1 0 100%;
+  display: flex;
+  gap: 3px;
+  height: 6px;
+  transform-origin: 100% 50%;
+}
+[dir="ltr"] .hn-bar { transform-origin: 0 50%; }
+@keyframes hn-bar { from { transform: scaleX(0); } }
+.hn.is-on .hn-bar { animation: hn-bar 1.4s var(--hn-ease) 0.2s both; }
+.hn-bar > span { flex: 1 1 0; min-width: 6px; border-radius: 99px; transition: flex-grow 0.9s var(--hn-ease); }
+.hn-bar-online { background: var(--hn-online); }
+.hn-bar-shop { background: var(--hn-shop); }
+.hn-keys { display: inline-flex; gap: 16px; margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+.hn-key { display: inline-flex; align-items: center; gap: 6px; }
+.hn-key::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: var(--hn-online); }
+.hn-key[data-k="shop"]::before { background: var(--hn-shop); }
+@media (min-width: 768px) {
+  .hn-bar { order: 0; flex: 1 1 0; }
+  .hn-keys { margin-inline-start: 0; }
+}
+
+.hn-stage { position: relative; margin-top: 10px; }
+.hn-number {
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  font-size: clamp(88px, 29.6vw, 432px);
+  font-weight: 800;
+  /* Hugs the digits: Cairo's line box is far taller than its numerals. */
+  line-height: 0.76;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, var(--hn-num-a) 4%, var(--hn-num-b) 48%, var(--hn-num-c) 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  user-select: none;
+}
+@media (min-width: 1024px) {
+  /* The number's foot runs off the bottom of the hero. */
+  .hn { --hn-fs: clamp(240px, min(29.6vw, calc((100svh - 500px) / 0.66)), 432px); }
+  .hn-stage { margin-top: 8px; }
+  .hn-number { font-size: var(--hn-fs); }
+}
+
+.hn-feed-wrap { position: relative; margin-top: 4px; padding-bottom: 22px; }
+.hn-feed { display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.hn-row {
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--hn-row);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  backdrop-filter: saturate(180%) blur(22px);
+  box-shadow: 0 0 0 0.5px var(--hn-row-edge), var(--hn-row-shadow);
+}
+.hn-row:nth-child(3) { display: none; }
+@keyframes hn-row { from { opacity: 0; transform: translateY(70%); } }
+.hn-row-in {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 18px;
+  animation: hn-row 0.6s var(--hn-ease) both;
+}
+.hn-row-dot { flex: none; width: 8px; height: 8px; border-radius: 99px; background: var(--hn-online); }
+.hn-row[data-shop] .hn-row-dot { background: var(--hn-shop); }
+.hn-row-text { flex: 1; display: grid; min-width: 0; line-height: 1.5; }
+.hn-row-title { font-size: 14.5px; font-weight: 600; color: var(--al-text); }
+.hn-row-meta { font-size: 12.5px; color: var(--al-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hn-row-amount {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--al-text);
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 768px) {
+  .hn-feed { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .hn-row:nth-child(3) { display: block; }
+}
+@media (min-width: 1024px) {
+  /* The orders sit on the number's foot. */
+  .hn-feed-wrap { margin-top: calc(var(--hn-fs) * -0.1); padding-bottom: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al .hn-rise,
+  .al .hn-in,
+  .al .hn-bar,
+  .al .hn-live-dot,
+  .al .hn-row-in { animation: none !important; }
+  .al .hn-bar > span { transition: none !important; }
+}

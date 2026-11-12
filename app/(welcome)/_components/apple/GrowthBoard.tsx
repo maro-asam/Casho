@@ -72,9 +72,9 @@ type Overlay = {
 type Colors = { ghost: string; a: string; b: string; c: string; shop: string; halo: string; ring: string };
 
 const TYPE = {
-  wide: { name: 14, note: 12.5, cardName: 13, money: 26, small: 12.5, gap: 10, pole: 34, clear: 12, ceiling: 92, top: 206 },
-  mid: { name: 13.5, note: 12, cardName: 12.5, money: 23, small: 12, gap: 9, pole: 28, clear: 10, ceiling: 8, top: 150 },
-  narrow: { name: 12.5, note: 11, cardName: 12, money: 20, small: 11, gap: 8, pole: 22, clear: 8, ceiling: 8, top: 100 },
+  wide: { name: 14, note: 12.5, cardName: 14, money: 34, small: 13, gap: 12, pole: 30, clear: 14, ceiling: 92, top: 214 },
+  mid: { name: 13.5, note: 12, cardName: 13, money: 28, small: 12.5, gap: 10, pole: 26, clear: 12, ceiling: 8, top: 160 },
+  narrow: { name: 12.5, note: 11, cardName: 12.5, money: 24, small: 11.5, gap: 9, pole: 20, clear: 10, ceiling: 8, top: 112 },
 } as const;
 
 const fmt = (n: number) => n.toLocaleString("en-US");
@@ -91,10 +91,10 @@ function geometry(W: number, H: number, rtl: boolean): Geo | null {
   const base = H - axis;
   const gridCols = Math.floor(W / p);
   const offset = (W - gridCols * p) / 2;
-  // The data starts under the headline's edge and, on wide screens, runs past
-  // the page container toward the screen edge; the matrix fills the rest.
+  // The data spans the page container (the headline's edge to the nav's far
+  // edge), so today's column lines up with the header; the matrix fills the rest.
   const startEdge = Math.max(16, (W - 1200) / 2 + 22);
-  const endEdge = size === "wide" ? Math.max(28, (W - 1360) / 2) : startEdge;
+  const endEdge = startEdge;
   const c0 = Math.ceil((startEdge - offset) / p - 0.5);
   const c1 = Math.floor((W - endEdge - offset) / p - 0.5);
   const n = c1 - c0 + 1;
@@ -319,6 +319,25 @@ export default function GrowthBoard({
       ctx.globalAlpha = 1;
     }
 
+    // Today's orders still to come: empty rings on top of its column, so the
+    // flag never stands over a gap. Each drop fills one as it lands.
+    if (a.built) {
+      const d = g.data[g.n - 1];
+      const xl = xAt(g, g.n - 1);
+      const rr = g.r * 0.8;
+      const rings = new Path2D();
+      for (let row = d.total - g.live + a.landed; row < d.total; row++) {
+        const y = yOf(g, row);
+        rings.moveTo(xl + rr, y);
+        rings.arc(xl, y, rr, 0, Math.PI * 2);
+      }
+      ctx.globalAlpha = hov !== null && hov !== g.n - 1 ? 0.16 : 0.5;
+      ctx.strokeStyle = col.ring;
+      ctx.lineWidth = 1.25;
+      ctx.stroke(rings);
+      ctx.globalAlpha = 1;
+    }
+
     // Orders dropping into today's column, from the foot of its flag.
     const xLast = xAt(g, g.n - 1);
     const from = topOf(g, g.maxRows) - 18;
@@ -356,8 +375,9 @@ export default function GrowthBoard({
     if (building && t >= buildEnd(g)) {
       a.built = true;
       window.setTimeout(() => onBuilt.current(), 0);
+      return true; // one more frame, to draw today's empty rings
     }
-    return (building && !a.built) || a.drops.length > 0 || a.ripples.length > 0;
+    return building || a.drops.length > 0 || a.ripples.length > 0;
   }, []);
 
   const requestFrame = useCallback(() => {

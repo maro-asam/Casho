@@ -20,7 +20,7 @@ import { getAllActivePlans } from "@/lib/entitlements";
 import { isDirectPlanCheckoutEnabled } from "@/lib/payments/plan-checkout";
 import { getPublishedShowcase } from "@/lib/showcase/public";
 import type { WelcomePlan } from "./_components/Pricing";
-import HeroGrow from "./_components/apple/HeroGrow";
+import HeroClaim from "./_components/apple/HeroClaim";
 import SyncSection from "./_components/apple/SyncSection";
 import Bento from "./_components/apple/Bento";
 import ThemesRail from "./_components/apple/ThemesRail";
@@ -65,7 +65,7 @@ export default async function Page() {
   return (
     <div className="al">
       <LandingPageTracker />
-      <HeroGrow />
+      <HeroClaim />
       <SyncSection />
       <Bento />
       <ThemesRail />
