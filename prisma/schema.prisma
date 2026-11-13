@@ -2904,10 +2904,11 @@ model SalesRep {
   createdById String?
   disabledAt  DateTime?
 
-  attributions SalesAttribution[]
-  commissions  SalesCommission[]
-  payouts      SalesPayout[]
-  campaigns    SalesCampaignMember[]
+  attributions   SalesAttribution[]
+  commissions    SalesCommission[]
+  payouts        SalesPayout[]
+  campaigns      SalesCampaignMember[]
+  repAdjustments SalesRepAdjustment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -3065,12 +3066,45 @@ model SalesPayout {
   note         String?
   recordedById String
 
-  commissions SalesCommission[]
-  adjustments SalesCommissionAdjustment[]
+  commissions    SalesCommission[]
+  adjustments    SalesCommissionAdjustment[]
+  repAdjustments SalesRepAdjustment[]
 
   createdAt DateTime @default(now())
 
   @@index([salesRepId, paidAt])
+}
+
+enum SalesRepAdjustmentKind {
+  BONUS // مكافأة / بونص — added to the next payout
+  DEDUCTION // خصم — taken off the next payout
+}
+
+/// A bonus or deduction an admin puts on a rep's account, not tied to any
+/// commission. Payable from the moment it's created; the next payout settles
+/// it (a deduction bigger than what's owed carries over). Cancelable only
+/// before a payout settles it — after that, correct it with an opposite entry.
+model SalesRepAdjustment {
+  id          String                 @id @default(uuid())
+  salesRepId  String
+  salesRep    SalesRep               @relation(fields: [salesRepId], references: [id])
+  kind        SalesRepAdjustmentKind
+  amount      Int // signed piasters: + bonus, − deduction
+  currency    String                 @default("EGP")
+  reason      String // shown to the rep
+  actorUserId String
+
+  canceledAt   DateTime?
+  canceledById String?
+  cancelReason String?
+
+  payoutId String?
+  payout   SalesPayout? @relation(fields: [payoutId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([salesRepId, createdAt])
+  @@index([payoutId])
 }
 
 model SalesAuditLog {

@@ -1,6 +1,7 @@
 export const AUDIT_LABELS: Record<string, string> = {
   sales_rep_created: "إنشاء حساب مندوب",
   sales_rep_updated: "تعديل بيانات مندوب",
+  sales_rep_email_changed: "تغيير بريد المندوب",
   sales_rep_disabled: "إيقاف مندوب",
   sales_rep_enabled: "إعادة تفعيل مندوب",
   attribution_assigned: "نسب عميل لمندوب",
@@ -11,6 +12,9 @@ export const AUDIT_LABELS: Record<string, string> = {
   commission_reject: "رفض عمولة",
   commission_reverse: "إلغاء عمولة",
   adjustment_created: "تسوية على عمولة",
+  rep_bonus_added: "إضافة مكافأة",
+  rep_deduction_added: "تسجيل خصم",
+  rep_adjustment_canceled: "إلغاء مكافأة/خصم",
   payout_recorded: "تسجيل صرف",
   commission_rules_updated: "تحديث قواعد العمولات",
 };

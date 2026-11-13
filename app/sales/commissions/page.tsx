@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeDollarSign, Banknote, Clock, SearchX, Wallet, type LucideIcon } from "lucide-react";
+import { BadgeDollarSign, Banknote, Clock, Gift, SearchX, Wallet, type LucideIcon } from "lucide-react";
 import { SalesCommissionKind, SalesCommissionStatus } from "@prisma/client";
 import {
   Card,
@@ -17,7 +17,8 @@ import {
 import { prisma } from "@/lib/prisma";
 import { COMMISSION_STATUS_META, KIND_LABELS, fmtDate, fmtMoney, fmtNum } from "@/lib/sales/format";
 import { requireSalesRep } from "@/lib/sales/guard";
-import { PAGE_SIZE, getSalesSummary, listCommissions, listPayouts } from "@/lib/sales/queries";
+import { PAGE_SIZE, getSalesSummary, listCommissions, listPayouts, listRepAdjustments } from "@/lib/sales/queries";
+import { RepAdjustmentRows } from "@/components/sales/rep-adjustments";
 import { cn } from "@/lib/utils";
 import { CommissionRows } from "../_components/commission-rows";
 
@@ -46,7 +47,7 @@ export default async function SalesCommissionsPage({ searchParams }: { searchPar
   const kind = KINDS.find((k) => k === readParam(params, "kind"));
 
   const scope = { salesRepId: rep.salesRepId };
-  const [summary, list, statusCounts, payouts] = await Promise.all([
+  const [summary, list, statusCounts, payouts, adjustments] = await Promise.all([
     getSalesSummary(scope),
     listCommissions(scope, { q, status, kind, page: readPage(params) }),
     prisma.salesCommission.groupBy({
@@ -55,6 +56,7 @@ export default async function SalesCommissionsPage({ searchParams }: { searchPar
       _count: { _all: true },
     }),
     listPayouts(scope, 50),
+    listRepAdjustments(scope, 50),
   ]);
   const countOf = (s?: SalesCommissionStatus) =>
     statusCounts.filter((g) => !s || g.status === s).reduce((sum, g) => sum + g._count._all, 0);
@@ -138,6 +140,12 @@ export default async function SalesCommissionsPage({ searchParams }: { searchPar
             )}
           </section>
         </div>
+      )}
+
+      {adjustments.length > 0 && (
+        <Card title="المكافآت والخصومات" subtitle="مبالغ الإدارة ضافتها أو خصمتها من حسابك — بتدخل في التحويل الجاي" icon={Gift}>
+          <RepAdjustmentRows rows={adjustments} empty={null} />
+        </Card>
       )}
 
       <Card title="التحويلات" subtitle="كل مرة الإدارة صرفتلك فيها" icon={Banknote}>

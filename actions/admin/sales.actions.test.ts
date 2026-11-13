@@ -12,12 +12,16 @@ const tx = {
   salesPayout: { create: vi.fn(async () => ({ id: "payout1" })) },
   salesAuditLog: { create: vi.fn() },
   salesCommissionRule: { create: vi.fn(async () => ({ id: "rule2" })) },
+  salesRepAdjustment: { create: vi.fn(async () => ({ id: "radj1" })), updateMany: vi.fn(async () => ({ count: 1 })) },
+  passwordResetToken: { deleteMany: vi.fn() },
+  emailVerificationCode: { deleteMany: vi.fn() },
 };
 const prismaMock = {
   ...tx,
   user: { ...tx.user, findFirst: vi.fn() },
   salesRep: { ...tx.salesRep, findUnique: vi.fn() },
   salesCommission: { ...tx.salesCommission, findUnique: vi.fn() },
+  salesRepAdjustment: { ...tx.salesRepAdjustment, findUnique: vi.fn() },
   $transaction: vi.fn(async (fn: (t: typeof tx) => unknown) => fn(tx)),
 };
 
@@ -50,6 +54,8 @@ describe("every admin sales action requires an admin", () => {
     ["assignCustomerToSalesRepAction", () => actions.assignCustomerToSalesRepAction({ customerUserId: CUSTOMER, toSalesRepId: REP_A, reason: "dispute ok" })],
     ["updateCommissionStatusAction", () => actions.updateCommissionStatusAction({ commissionId: COMMISSION, action: "approve" })],
     ["createCommissionAdjustmentAction", () => actions.createCommissionAdjustmentAction({ commissionId: COMMISSION, amountEgp: -5, reason: "clawback x" })],
+    ["createRepAdjustmentAction", () => actions.createRepAdjustmentAction({ salesRepId: REP_A, kind: "BONUS", amountEgp: 100, reason: "best month" })],
+    ["cancelRepAdjustmentAction", () => actions.cancelRepAdjustmentAction({ adjustmentId: COMMISSION, reason: "entered twice" })],
     ["recordSalesPayoutAction", () => actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 100, paidAt: "2026-10-01", method: "bank" })],
     ["updateCommissionRulesAction", () => actions.updateCommissionRulesAction({})],
   ];
@@ -80,6 +86,110 @@ describe("createSalesRepAction — the only path to the SALES role", () => {
     const res = await actions.createSalesRepAction({ name: "Rep", email: "rep@x.com", password: "password1" });
     expect(res.success).toBe(false);
     expect(tx.user.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("updateSalesRepAction — email change", () => {
+  const repRow = { id: REP_A, notes: null, user: { id: "repUser", name: "Rep", email: "old@x.com", phone_number: null } };
+
+  it("changes the login email, unlinks Google, kills old reset links, and audits old → new", async () => {
+    prismaMock.salesRep.findUnique.mockResolvedValue(repRow);
+    prismaMock.user.findFirst.mockResolvedValue(null);
+    const res = await actions.updateSalesRepAction({ salesRepId: REP_A, name: "Rep", email: " New@X.com " });
+    expect(res.success).toBe(true);
+    expect(tx.user.update).toHaveBeenCalledWith({
+      where: { id: "repUser" },
+      data: expect.objectContaining({ email: "new@x.com", emailVerified: false, googleId: null }),
+    });
+    expect(tx.passwordResetToken.deleteMany).toHaveBeenCalledWith({ where: { userId: "repUser" } });
+    expect(tx.emailVerificationCode.deleteMany).toHaveBeenCalledWith({ where: { userId: "repUser" } });
+    expect(tx.salesAuditLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ action: "sales_rep_email_changed", before: expect.objectContaining({ email: "old@x.com" }), after: expect.objectContaining({ email: "new@x.com" }) }),
+    });
+  });
+
+  it("refuses an email another account already uses", async () => {
+    prismaMock.salesRep.findUnique.mockResolvedValue(repRow);
+    prismaMock.user.findFirst.mockResolvedValue({ id: "someoneElse" });
+    const res = await actions.updateSalesRepAction({ salesRepId: REP_A, name: "Rep", email: "taken@x.com" });
+    expect(res.success).toBe(false);
+    expect(res.fieldErrors?.email).toBeDefined();
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("leaves email, Google link and reset tokens alone when the email didn't change", async () => {
+    prismaMock.salesRep.findUnique.mockResolvedValue(repRow);
+    const res = await actions.updateSalesRepAction({ salesRepId: REP_A, name: "Rep 2", email: "OLD@x.com" });
+    expect(res.success).toBe(true);
+    expect(tx.user.update).toHaveBeenCalledWith({ where: { id: "repUser" }, data: { name: "Rep 2", phone_number: null } });
+    expect(tx.passwordResetToken.deleteMany).not.toHaveBeenCalled();
+    expect(tx.salesAuditLog.create).toHaveBeenCalledWith({ data: expect.objectContaining({ action: "sales_rep_updated" }) });
+  });
+});
+
+describe("createRepAdjustmentAction — bonuses and deductions", () => {
+  it("stores a bonus as positive piasters and audits it", async () => {
+    const res = await actions.createRepAdjustmentAction({ salesRepId: REP_A, kind: "BONUS", amountEgp: "150.5", reason: "best rep of October" });
+    expect(res.success).toBe(true);
+    expect(tx.salesRepAdjustment.create).toHaveBeenCalledWith({
+      data: { salesRepId: REP_A, kind: "BONUS", amount: 15_050, currency: "EGP", reason: "best rep of October", actorUserId: "admin1" },
+      select: { id: true },
+    });
+    expect(tx.salesAuditLog.create).toHaveBeenCalledWith({ data: expect.objectContaining({ action: "rep_bonus_added", salesRepId: REP_A }) });
+  });
+
+  it("stores a deduction as negative piasters", async () => {
+    const res = await actions.createRepAdjustmentAction({ salesRepId: REP_A, kind: "DEDUCTION", amountEgp: 200, reason: "advance paid early" });
+    expect(res.success).toBe(true);
+    expect(tx.salesRepAdjustment.create).toHaveBeenCalledWith({ data: expect.objectContaining({ kind: "DEDUCTION", amount: -20_000 }), select: { id: true } });
+  });
+
+  it("rejects zero/negative amounts and a missing reason", async () => {
+    for (const input of [
+      { salesRepId: REP_A, kind: "BONUS", amountEgp: 0, reason: "valid reason" },
+      { salesRepId: REP_A, kind: "DEDUCTION", amountEgp: -5, reason: "valid reason" },
+      { salesRepId: REP_A, kind: "BONUS", amountEgp: 10, reason: "x" },
+    ]) {
+      expect((await actions.createRepAdjustmentAction(input)).success).toBe(false);
+    }
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("refuses an unknown rep", async () => {
+    tx.$queryRaw.mockResolvedValueOnce([]);
+    const res = await actions.createRepAdjustmentAction({ salesRepId: REP_A, kind: "BONUS", amountEgp: 10, reason: "valid reason" });
+    expect(res.success).toBe(false);
+    expect(tx.salesRepAdjustment.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("cancelRepAdjustmentAction", () => {
+  const ADJ = "55555555-5555-4555-8555-555555555555";
+
+  it("cancels an unsettled entry conditionally and audits it", async () => {
+    prismaMock.salesRepAdjustment.findUnique.mockResolvedValue({ id: ADJ, salesRepId: REP_A, kind: "DEDUCTION", amount: -500, canceledAt: null, payoutId: null });
+    const res = await actions.cancelRepAdjustmentAction({ adjustmentId: ADJ, reason: "entered twice" });
+    expect(res.success).toBe(true);
+    expect(tx.salesRepAdjustment.updateMany).toHaveBeenCalledWith({
+      where: { id: ADJ, canceledAt: null, payoutId: null },
+      data: expect.objectContaining({ canceledById: "admin1", cancelReason: "entered twice" }),
+    });
+    expect(tx.salesAuditLog.create).toHaveBeenCalledWith({ data: expect.objectContaining({ action: "rep_adjustment_canceled" }) });
+  });
+
+  it("refuses an entry a payout already settled", async () => {
+    prismaMock.salesRepAdjustment.findUnique.mockResolvedValue({ id: ADJ, salesRepId: REP_A, kind: "BONUS", amount: 500, canceledAt: null, payoutId: "payout1" });
+    const res = await actions.cancelRepAdjustmentAction({ adjustmentId: ADJ, reason: "changed my mind" });
+    expect(res.success).toBe(false);
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("reports a race with a payout instead of canceling", async () => {
+    prismaMock.salesRepAdjustment.findUnique.mockResolvedValue({ id: ADJ, salesRepId: REP_A, kind: "BONUS", amount: 500, canceledAt: null, payoutId: null });
+    tx.salesRepAdjustment.updateMany.mockResolvedValueOnce({ count: 0 });
+    const res = await actions.cancelRepAdjustmentAction({ adjustmentId: ADJ, reason: "changed my mind" });
+    expect(res.success).toBe(false);
+    expect(tx.salesAuditLog.create).not.toHaveBeenCalled();
   });
 });
 
@@ -175,7 +285,7 @@ describe("createCommissionAdjustmentAction", () => {
 
 describe("recordSalesPayoutAction — actual payouts only", () => {
   it("refuses when the payable total changed since the admin looked", async () => {
-    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1"], adjustmentIds: [], total: 5_000 });
+    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1"], adjustmentIds: [], repAdjustmentIds: [], total: 5_000 });
     const res = await actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 4_000, paidAt: "2026-10-01", method: "bank" });
     expect(res.success).toBe(false);
     expect(tx.salesPayout.create).not.toHaveBeenCalled();
@@ -187,7 +297,7 @@ describe("recordSalesPayoutAction — actual payouts only", () => {
   });
 
   it("settles exactly the payable items and records who/when/how", async () => {
-    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1", "c2"], adjustmentIds: ["a1"], total: 5_000 });
+    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1", "c2"], adjustmentIds: ["a1"], repAdjustmentIds: [], total: 5_000 });
     tx.salesCommission.updateMany.mockResolvedValue({ count: 2 });
     const res = await actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 5_000, paidAt: "2026-10-01", method: "bank", reference: "TRX-1" });
     expect(res.success).toBe(true);
@@ -202,8 +312,27 @@ describe("recordSalesPayoutAction — actual payouts only", () => {
     expect(tx.salesCommissionAdjustment.updateMany).toHaveBeenCalledWith({ where: { id: { in: ["a1"] }, payoutId: null }, data: { payoutId: "payout1" } });
   });
 
+  it("settles open bonuses and deductions with the payout", async () => {
+    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1"], adjustmentIds: [], repAdjustmentIds: ["r1", "r2"], total: 3_000 });
+    tx.salesCommission.updateMany.mockResolvedValue({ count: 1 });
+    tx.salesRepAdjustment.updateMany.mockResolvedValue({ count: 2 });
+    const res = await actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 3_000, paidAt: "2026-10-01", method: "bank" });
+    expect(res.success).toBe(true);
+    expect(tx.salesRepAdjustment.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ["r1", "r2"] }, payoutId: null, canceledAt: null },
+      data: { payoutId: "payout1" },
+    });
+  });
+
+  it("aborts the payout if a bonus/deduction was canceled mid-transaction", async () => {
+    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: [], adjustmentIds: [], repAdjustmentIds: ["r1", "r2"], total: 3_000 });
+    tx.salesCommission.updateMany.mockResolvedValue({ count: 0 });
+    tx.salesRepAdjustment.updateMany.mockResolvedValue({ count: 1 });
+    await expect(actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 3_000, paidAt: "2026-10-01", method: "bank" })).rejects.toThrow();
+  });
+
   it("aborts the whole payout if a commission changed mid-transaction", async () => {
-    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1", "c2"], adjustmentIds: [], total: 5_000 });
+    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1", "c2"], adjustmentIds: [], repAdjustmentIds: [], total: 5_000 });
     tx.salesCommission.updateMany.mockResolvedValue({ count: 1 });
     await expect(actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 5_000, paidAt: "2026-10-01", method: "bank" })).rejects.toThrow();
   });

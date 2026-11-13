@@ -14,6 +14,7 @@ Engine and rules: `lib/sales/`. Admin mutations: `actions/admin/sales.actions.ts
 | Qualifying payment | A `BalanceTransaction` of type `SUBSCRIPTION_CHARGE`. Subscriptions are paid from the store balance, and the balance is funded only by HMAC-verified Paymob callbacks or admin-approved top-ups. Browser redirects are never trusted. |
 | Commission | `SalesCommission`: an immutable snapshot (basis, rate, tier, position, rule id, cohort, eligibility end, payment ref). Unique on `(balanceTransactionId, kind)`. |
 | Correction | `SalesCommissionAdjustment` (signed piasters, reason, actor). Refund-credit clawbacks are unique per ledger row. |
+| Bonus / deduction | `SalesRepAdjustment` (kind `BONUS`/`DEDUCTION`, signed piasters, reason the rep sees, actor). On the rep, not on a commission. |
 | Payout | `SalesPayout`: a transfer that already happened outside Casho, recorded by an admin. |
 | Audit | `SalesAuditLog`: every admin action, plus automatic commission and adjustment creation. |
 
@@ -33,6 +34,8 @@ Engine and rules: `lib/sales/`. Admin mutations: `actions/admin/sales.actions.ts
 - **Admin actions**:
   - Review: hold, release, reject, reverse. A reason is required, except for release (approve), where it's optional.
   - `PAID` is terminal for status changes. A paid commission is corrected with an adjustment, which is deducted from the next payout.
+- **Bonuses and deductions** (rep page → المكافآت والخصومات): a fixed amount an admin adds to or takes off a rep's account, with a reason the rep sees on `/sales/commissions`. Payable at once and settled by the next payout. A deduction bigger than what's owed carries over (the payable goes negative and no payout can be recorded until commissions cover it). Cancelable with a reason until a payout settles it; after that, enter the opposite kind.
+- **Rep email**: admins can change it (تعديل البيانات). The new address is the login from that moment (same password, sessions stay); it starts unverified, the Google account linked to the old address is unlinked, and reset links/codes sent to the old inbox stop working. Audited as `sales_rep_email_changed` with old → new. The referral code never changes.
 - **Reassignment**: earned commissions stay with the rep who earned them. A charge goes to the rep who owned the customer *at the time of the charge* (the history is replayed). An attribution an admin creates for a customer who already paid gets no retroactive commissions.
 - **Rule changes**: each change appends a new `SalesCommissionRule` version, effective from the moment it's saved. Existing snapshots and customers' `eligibleUntil` never change.
 - **Disabled rep**:

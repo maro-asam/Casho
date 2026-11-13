@@ -2,7 +2,7 @@
 
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftRight, Banknote, Loader2, MoreHorizontal, Pencil, Plus, UserPlus } from "lucide-react";
+import { ArrowLeftRight, Banknote, Gift, Loader2, Minus, MoreHorizontal, Pencil, Plus, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import type { SalesCommissionStatus } from "@prisma/client";
 
@@ -30,7 +30,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   assignCustomerToSalesRepAction,
+  cancelRepAdjustmentAction,
   createCommissionAdjustmentAction,
+  createRepAdjustmentAction,
   createSalesRepAction,
   recordSalesPayoutAction,
   setSalesRepStatusAction,
@@ -165,7 +167,11 @@ export function CreateRepDialog({ campaign }: { campaign?: { name: string; seats
   );
 }
 
-export function EditRepDialog({ rep }: { rep: { id: string; name: string | null; phone: string | null; notes: string | null } }) {
+export function EditRepDialog({
+  rep,
+}: {
+  rep: { id: string; name: string | null; email: string; phone: string | null; notes: string | null };
+}) {
   const [open, setOpen] = useState(false);
   const { submit, pending, errors } = useSalesForm(updateSalesRepAction, () => setOpen(false));
   return (
@@ -179,11 +185,16 @@ export function EditRepDialog({ rep }: { rep: { id: string; name: string | null;
       <DialogContent>
         <DialogHeader>
           <DialogTitle>تعديل بيانات المندوب</DialogTitle>
-          <DialogDescription>البريد وكود الإحالة ثابتين ومينفعش يتغيروا.</DialogDescription>
+          <DialogDescription>
+            لو غيّرت البريد، المندوب هيدخل بالبريد الجديد بنفس كلمة المرور من دلوقتي. كود الإحالة ثابت ومبيتغيرش.
+          </DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={(e) => submit({ ...formValues(e), salesRepId: rep.id })}>
           <Field label="الاسم" name="name" error={errors.name}>
             <Input id="name" name="name" defaultValue={rep.name ?? ""} required />
+          </Field>
+          <Field label="البريد الإلكتروني (بيدخل بيه)" name="email" error={errors.email}>
+            <Input id="email" name="email" type="email" dir="ltr" defaultValue={rep.email} required autoComplete="off" />
           </Field>
           <Field label="الموبايل" name="phone" error={errors.phone}>
             <Input id="phone" name="phone" dir="ltr" defaultValue={rep.phone ?? ""} />
@@ -399,6 +410,94 @@ export function CommissionActions({ commissionId, status, net }: { commissionId:
   );
 }
 
+// ─── Bonuses & deductions ───────────────────────────────────────────────────
+
+const REP_ADJUSTMENT_COPY = {
+  BONUS: {
+    trigger: "مكافأة",
+    title: "مكافأة لـ",
+    description: "هتتضاف على المستحق وتتصرف مع التحويل الجاي. المندوب هيشوفها في صفحة عمولاته بالسبب اللي هتكتبه.",
+    submit: "إضافة المكافأة",
+  },
+  DEDUCTION: {
+    trigger: "خصم",
+    title: "خصم من ",
+    description: "هيتخصم من المستحق في التحويل الجاي — ولو أكبر من المستحق دلوقتي، الباقي بيتخصم من اللي بعده. المندوب هيشوف الخصم والسبب.",
+    submit: "تسجيل الخصم",
+  },
+} as const;
+
+/** Adds a bonus or a deduction to the rep's account — one trigger per kind. */
+export function RepAdjustmentDialog({ salesRepId, repName, kind }: { salesRepId: string; repName: string; kind: "BONUS" | "DEDUCTION" }) {
+  const [open, setOpen] = useState(false);
+  const { submit, pending, errors } = useSalesForm(createRepAdjustmentAction, () => setOpen(false));
+  const copy = REP_ADJUSTMENT_COPY[kind];
+  const bonus = kind === "BONUS";
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button type="button" className={bonus ? cn(appleButton.tinted, "text-primary") : appleButton.destructive}>
+          {bonus ? <Gift className="size-4" /> : <Minus className="size-4" strokeWidth={2.4} />}
+          {copy.trigger}
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {copy.title}
+            {repName}
+          </DialogTitle>
+          <DialogDescription>{copy.description}</DialogDescription>
+        </DialogHeader>
+        <form className="space-y-4" onSubmit={(e) => submit({ ...formValues(e), salesRepId, kind })}>
+          <Field label="المبلغ بالجنيه" name="amountEgp" error={errors.amountEgp}>
+            <Input id="amountEgp" name="amountEgp" type="number" min="0.01" step="0.01" inputMode="decimal" dir="ltr" required />
+          </Field>
+          <Field label="السبب (المندوب هيشوفه)" name="reason" error={errors.reason}>
+            <Textarea
+              id="reason"
+              name="reason"
+              rows={2}
+              required
+              minLength={5}
+              placeholder={bonus ? "مثلاً: أفضل مندوب في الشهر" : "مثلاً: سلفة اتصرفت مقدمًا"}
+            />
+          </Field>
+          <SubmitRow pending={pending} label={copy.submit} destructive={!bonus} />
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** Cancels a bonus/deduction no payout has settled yet. */
+export function CancelRepAdjustmentButton({ adjustmentId, kind }: { adjustmentId: string; kind: "BONUS" | "DEDUCTION" }) {
+  const [open, setOpen] = useState(false);
+  const { submit, pending, errors } = useSalesForm(cancelRepAdjustmentAction, () => setOpen(false));
+  const label = kind === "BONUS" ? "إلغاء المكافأة" : "إلغاء الخصم";
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button type="button" className={cn(appleButton.tinted, "h-8 shrink-0 px-3 text-[13px]")}>
+          إلغاء
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{label}</DialogTitle>
+          <DialogDescription>هيطلع من المستحق ويفضل في السجل كملغي. المندوب هيشوفه ملغي بالسبب.</DialogDescription>
+        </DialogHeader>
+        <form className="space-y-4" onSubmit={(e) => submit({ ...formValues(e), adjustmentId })}>
+          <Field label="السبب" name="reason" error={errors.reason}>
+            <Textarea id="reason" name="reason" rows={2} required minLength={5} />
+          </Field>
+          <SubmitRow pending={pending} label={label} destructive />
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Payouts ────────────────────────────────────────────────────────────────
 
 export function RecordPayoutDialog({ salesRepId, repName, payable }: { salesRepId: string; repName: string; payable: number }) {
@@ -417,7 +516,7 @@ export function RecordPayoutDialog({ salesRepId, repName, payable }: { salesRepI
         <DialogHeader>
           <DialogTitle>تسجيل صرف لـ {repName}</DialogTitle>
           <DialogDescription>
-            سجّل التحويل بعد ما يتم فعلًا. هيتسوّى كل المستحق ({formatMoneyFromPiasters(payable)}) وكل العمولات المعتمدة هتتحول لـ &quot;مدفوعة&quot;.
+            سجّل التحويل بعد ما يتم فعلًا. هيتسوّى كل المستحق ({formatMoneyFromPiasters(payable)}) — العمولات المعتمدة هتتحول لـ &quot;مدفوعة&quot;، والمكافآت والخصومات المفتوحة هتتقفل معاه.
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={(e) => submit({ ...formValues(e), salesRepId, expectedTotal: payable })}>

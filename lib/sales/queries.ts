@@ -3,6 +3,7 @@ import {
   Prisma,
   SalesCommissionKind,
   SalesCommissionStatus,
+  type SalesRepAdjustmentKind,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCommissionRuleAt } from "./engine";
@@ -40,9 +41,12 @@ export async function getAttributedRevenueByRep(scope: SalesScope): Promise<Map<
   return new Map(rows.map((r) => [r.salesRepId, { charged: Number(r.charged ?? 0), refunded: Number(r.refunded ?? 0) }]));
 }
 
-/** Items a payout would settle: approved unpaid commissions + unpaid adjustments on approved/paid commissions. */
+/**
+ * Items a payout would settle: approved unpaid commissions + unpaid adjustments
+ * on approved/paid commissions + the rep's unsettled bonuses and deductions.
+ */
 export async function getPayableItems(db: Prisma.TransactionClient | typeof prisma, salesRepId: string) {
-  const [commissions, adjustments] = await Promise.all([
+  const [commissions, adjustments, repAdjustments] = await Promise.all([
     db.salesCommission.findMany({
       where: { salesRepId, status: SalesCommissionStatus.APPROVED, payoutId: null },
       select: { id: true, amount: true },
@@ -55,19 +59,26 @@ export async function getPayableItems(db: Prisma.TransactionClient | typeof pris
       },
       select: { id: true, amount: true },
     }),
+    db.salesRepAdjustment.findMany({ where: { salesRepId, payoutId: null, canceledAt: null }, select: { id: true, amount: true } }),
   ]);
-  const total = commissions.reduce((s, c) => s + c.amount, 0) + adjustments.reduce((s, a) => s + a.amount, 0);
-  return { commissionIds: commissions.map((c) => c.id), adjustmentIds: adjustments.map((a) => a.id), total };
+  const sum = (rows: { amount: number }[]) => rows.reduce((s, r) => s + r.amount, 0);
+  return {
+    commissionIds: commissions.map((c) => c.id),
+    adjustmentIds: adjustments.map((a) => a.id),
+    repAdjustmentIds: repAdjustments.map((a) => a.id),
+    total: sum(commissions) + sum(adjustments) + sum(repAdjustments),
+  };
 }
 
 export async function getSalesSummary(scope: SalesScope, now = new Date()) {
   const where = repWhere(scope);
-  const [signups, acquired, eligible, commissionGroups, adjustmentSum, payoutSum, revenueMap, rule, cohorts] = await Promise.all([
+  const [signups, acquired, eligible, commissionGroups, adjustmentSum, repAdjustmentGroups, payoutSum, revenueMap, rule, cohorts] = await Promise.all([
     prisma.salesAttribution.count({ where }),
     prisma.salesAttribution.count({ where: { ...where, acquiredAt: { not: null } } }),
     prisma.salesAttribution.count({ where: { ...where, acquiredAt: { not: null }, eligibleUntil: { gt: now } } }),
     prisma.salesCommission.groupBy({ by: ["kind", "status"], where, _sum: { amount: true }, _count: { _all: true } }),
     prisma.salesCommissionAdjustment.aggregate({ where, _sum: { amount: true } }),
+    prisma.salesRepAdjustment.groupBy({ by: ["kind"], where: { ...where, canceledAt: null }, _sum: { amount: true }, _count: { _all: true } }),
     prisma.salesPayout.aggregate({ where, _sum: { amount: true }, _count: { _all: true } }),
     getAttributedRevenueByRep(scope),
     getCommissionRuleAt(prisma, now),
@@ -100,6 +111,7 @@ export async function getSalesSummary(scope: SalesScope, now = new Date()) {
   }
 
   const payable = "all" in scope ? null : (await getPayableItems(prisma, scope.salesRepId)).total;
+  const repAdj = (kind: SalesRepAdjustmentKind) => repAdjustmentGroups.find((g) => g.kind === kind);
 
   return {
     signups,
@@ -116,6 +128,13 @@ export async function getSalesSummary(scope: SalesScope, now = new Date()) {
       renewalEarned: earned("RENEWAL"),
       bonusEarned: earned("BONUS"),
       adjustments: adjustmentSum._sum.amount ?? 0,
+    },
+    /** Bonuses and deductions an admin entered (canceled ones excluded). Deductions are negative. */
+    repAdjustments: {
+      bonuses: repAdj("BONUS")?._sum.amount ?? 0,
+      bonusCount: repAdj("BONUS")?._count._all ?? 0,
+      deductions: repAdj("DEDUCTION")?._sum.amount ?? 0,
+      deductionCount: repAdj("DEDUCTION")?._count._all ?? 0,
     },
     payouts: { total: payoutSum._sum.amount ?? 0, count: payoutSum._count._all },
     payable,
@@ -508,10 +527,31 @@ export async function listPayouts(scope: SalesScope, take = 50) {
       note: true,
       createdAt: true,
       salesRep: { select: { id: true, user: { select: { name: true, email: true } } } },
-      _count: { select: { commissions: true, adjustments: true } },
+      _count: { select: { commissions: true, adjustments: true, repAdjustments: true } },
     },
   });
 }
+
+/** A rep's bonuses and deductions, newest first — canceled ones included (they show as canceled). */
+export async function listRepAdjustments(scope: SalesScope, take = 50) {
+  return prisma.salesRepAdjustment.findMany({
+    where: repWhere(scope),
+    orderBy: { createdAt: "desc" },
+    take,
+    select: {
+      id: true,
+      kind: true,
+      amount: true,
+      reason: true,
+      createdAt: true,
+      canceledAt: true,
+      cancelReason: true,
+      payout: { select: { id: true, paidAt: true } },
+    },
+  });
+}
+
+export type RepAdjustmentRow = Awaited<ReturnType<typeof listRepAdjustments>>[number];
 
 export async function listSalesAuditLog(where: { salesRepId?: string; entityId?: string }, take = 50) {
   const logs = await prisma.salesAuditLog.findMany({ where, orderBy: { createdAt: "desc" }, take });

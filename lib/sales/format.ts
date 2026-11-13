@@ -1,9 +1,20 @@
 import { SalesCommissionStatus, SubscriptionStatus } from "@prisma/client";
 import type { PillTone } from "@/components/saas-page";
 import { toWhatsAppDigits } from "@/lib/conversion/conversion-config";
+import { intlLocale } from "@/lib/i18n/dashboard/runtime";
 import { SALES_TIMEZONE, cairoMonthStart } from "./rules";
 
 export { formatMoneyFromPiasters as fmtMoney } from "@/lib/subscriptions";
+
+/** Piasters with an explicit sign ("+٥٠ ج.م." / "-٥٠ ج.م."), bidi-safe. */
+export function fmtSignedMoney(piasters: number) {
+  return new Intl.NumberFormat(intlLocale(), {
+    style: "currency",
+    currency: "EGP",
+    maximumFractionDigits: 2,
+    signDisplay: "exceptZero",
+  }).format(piasters / 100);
+}
 
 const dateFmt = new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeZone: SALES_TIMEZONE });
 const dateTimeFmt = new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short", timeZone: SALES_TIMEZONE });

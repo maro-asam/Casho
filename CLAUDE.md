@@ -97,7 +97,7 @@ Merchants migrate from Shopify at `/integrations/shopify`. Provider-agnostic eng
 
 ### Sales Team (referrals & commissions)
 
-Sales reps are `User.role = SALES` + `SalesRep`, created only by admins (`/admin/sales`); reps use `/sales` (guard: `requireSalesRep()` in [lib/sales/guard.ts](lib/sales/guard.ts), scope always from the session). Signup attribution (`SalesAttribution`) comes from `?ref=` on `/register` (Google OAuth carries it in the `signupRef` cookie). Commissions are driven by `SUBSCRIPTION_CHARGE` / `REFUND` ledger rows: every billing path that writes one must call `recordSalesCommissionsForStore(storeId)` afterwards (idempotent; the renew-subscriptions cron also sweeps). Pure rules in [lib/sales/rules.ts](lib/sales/rules.ts); full policy in [docs/sales/commissions.md](docs/sales/commissions.md).
+Sales reps are `User.role = SALES` + `SalesRep`, created only by admins (`/admin/sales`); reps use `/sales` (guard: `requireSalesRep()` in [lib/sales/guard.ts](lib/sales/guard.ts), scope always from the session). Signup attribution (`SalesAttribution`) comes from `?ref=` on `/register` (Google OAuth carries it in the `signupRef` cookie). Commissions are driven by `SUBSCRIPTION_CHARGE` / `REFUND` ledger rows: every billing path that writes one must call `recordSalesCommissionsForStore(storeId)` afterwards (idempotent; the renew-subscriptions cron also sweeps). Admins can also add a bonus or deduction to a rep (`SalesRepAdjustment`, not tied to a commission — counted in the payable and settled by the next payout) and change a rep's login email. Pure rules in [lib/sales/rules.ts](lib/sales/rules.ts); full policy in [docs/sales/commissions.md](docs/sales/commissions.md).
 
 ### Casho Sharks (support program)
 

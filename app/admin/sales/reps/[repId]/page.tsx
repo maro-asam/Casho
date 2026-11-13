@@ -14,10 +14,27 @@ import { prisma } from "@/lib/prisma";
 import { buildReferralLink, buildSalesLoginLink } from "@/lib/sales/attribution";
 import { fmtDate, fmtMoney, fmtNum, fmtPct } from "@/lib/sales/format";
 import { formatRateBps } from "@/lib/sales/rules";
-import { getRepMonthlyTrend, getSalesSummary, listAttributedCustomers, listCommissions, listPayouts, listSalesAuditLog } from "@/lib/sales/queries";
+import {
+  getRepMonthlyTrend,
+  getSalesSummary,
+  listAttributedCustomers,
+  listCommissions,
+  listPayouts,
+  listRepAdjustments,
+  listSalesAuditLog,
+} from "@/lib/sales/queries";
+import { canCancelRepAdjustment } from "@/lib/sales/workflow";
+import { RepAdjustmentRows } from "@/components/sales/rep-adjustments";
 import { cn } from "@/lib/utils";
 import { AUDIT_LABELS } from "../../_components/audit-labels";
-import { CommissionActions, EditRepDialog, RecordPayoutDialog, RepStatusDialog } from "../../_components/sales-dialogs";
+import {
+  CancelRepAdjustmentButton,
+  CommissionActions,
+  EditRepDialog,
+  RecordPayoutDialog,
+  RepAdjustmentDialog,
+  RepStatusDialog,
+} from "../../_components/sales-dialogs";
 import { TeamTrendCard } from "../../_components/team";
 
 /** Card header action: "See All" in the tint, chevron trailing. */
@@ -48,12 +65,13 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
   if (!rep) notFound();
 
   const scope = { salesRepId: rep.id };
-  const [summary, trend, customers, commissions, payouts, audit] = await Promise.all([
+  const [summary, trend, customers, commissions, payouts, adjustments, audit] = await Promise.all([
     getSalesSummary(scope),
     getRepMonthlyTrend(rep.id, 6),
     listAttributedCustomers(scope, { page: 1 }),
     listCommissions(scope, { page: 1 }),
     listPayouts(scope, 10),
+    listRepAdjustments(scope, 30),
     listSalesAuditLog({ salesRepId: rep.id }, 20),
   ]);
   const repName = rep.user.name ?? rep.user.email;
@@ -62,6 +80,11 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
   const earned = c.acquisitionEarned + c.renewalEarned + c.bonusEarned;
   const payable = summary.payable ?? 0;
   const loginLink = buildSalesLoginLink();
+  const ra = summary.repAdjustments;
+  const adjustmentsSubtitle =
+    ra.bonusCount || ra.deductionCount
+      ? `مكافآت ${fmtMoney(ra.bonuses)} · خصومات ${fmtMoney(Math.abs(ra.deductions))} — من أول يوم، من غير الملغي`
+      : "مبلغ ثابت تضيفه أو تخصمه من حسابه — بيدخل في الصرف الجاي";
 
   return (
     <div className="space-y-6">
@@ -104,7 +127,7 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <EditRepDialog rep={{ id: rep.id, name: rep.user.name, phone: rep.user.phone_number, notes: rep.notes }} />
+            <EditRepDialog rep={{ id: rep.id, name: rep.user.name, email: rep.user.email, phone: rep.user.phone_number, notes: rep.notes }} />
             <RepStatusDialog salesRepId={rep.id} status={rep.status} />
           </div>
         </div>
@@ -182,7 +205,13 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
 
       <Card
         title="الصرف"
-        subtitle={payable > 0 ? `مستحق دلوقتي ${fmtMoney(payable)} — المعتمد اللي لسه متصرفش ± التسويات` : "مفيش مستحقات دلوقتي"}
+        subtitle={
+          payable > 0
+            ? `مستحق دلوقتي ${fmtMoney(payable)} — المعتمد اللي لسه متصرفش ± التسويات والمكافآت والخصومات`
+            : payable < 0
+              ? `عليه ${fmtMoney(-payable)} خصومات أكبر من المستحق — هتتخصم من عمولاته الجاية`
+              : "مفيش مستحقات دلوقتي"
+        }
         action={<RecordPayoutDialog salesRepId={rep.id} repName={repName} payable={payable} />}
       >
         {payouts.length === 0 ? (
@@ -200,6 +229,7 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
                   </p>
                   <p className="truncate text-[13px] text-muted-foreground">
                     {fmtNum(p._count.commissions)} عمولة{p._count.adjustments ? ` · ${fmtNum(p._count.adjustments)} تسوية` : ""}
+                    {p._count.repAdjustments ? ` · ${fmtNum(p._count.repAdjustments)} مكافأة/خصم` : ""}
                     {p.reference && (
                       <>
                         {" · "}
@@ -215,6 +245,23 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
             ))}
           </ul>
         )}
+      </Card>
+
+      <Card
+        title="المكافآت والخصومات"
+        subtitle={adjustmentsSubtitle}
+        action={
+          <div className="flex shrink-0 gap-2">
+            <RepAdjustmentDialog salesRepId={rep.id} repName={repName} kind="BONUS" />
+            <RepAdjustmentDialog salesRepId={rep.id} repName={repName} kind="DEDUCTION" />
+          </div>
+        }
+      >
+        <RepAdjustmentRows
+          rows={adjustments}
+          empty="مفيش مكافآت أو خصومات لسه."
+          action={(row) => (canCancelRepAdjustment({ canceledAt: row.canceledAt, payoutId: row.payout?.id ?? null }) ? <CancelRepAdjustmentButton adjustmentId={row.id} kind={row.kind} /> : null)}
+        />
       </Card>
 
       <Card

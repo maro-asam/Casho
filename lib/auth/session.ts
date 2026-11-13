@@ -61,11 +61,8 @@ async function _setSessionCookie(token: string) {
   const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
   const isProduction = process.env.NODE_ENV === "production";
 
-  if (isProduction) {
-    cookieStore.delete({ name: SESSION_COOKIE_NAME, path: "/" });
-    cookieStore.delete({ name: SESSION_COOKIE_NAME, path: "/", domain: rootDomain });
-  }
-
+  // Next sends one Set-Cookie per name (the last write wins), so deleting other
+  // copies first never reached the browser — this just replaces the shared one.
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: isProduction,
@@ -88,12 +85,15 @@ export async function deleteCurrentSession() {
   const rootDomain = process.env.ROOT_DOMAIN || "casho.store";
   const isProduction = process.env.NODE_ENV === "production";
 
-  if (isProduction) {
-    cookieStore.delete({ name: SESSION_COOKIE_NAME, domain: `.${rootDomain}`, path: "/" });
-    cookieStore.delete({ name: SESSION_COOKIE_NAME, domain: rootDomain, path: "/" });
-  }
-
-  cookieStore.delete(SESSION_COOKIE_NAME);
+  // Clear the cookie _setSessionCookie wrote: the shared `.casho.store` one in
+  // production (a delete has to name the same domain), host-only in dev. Only
+  // the last write per name is sent, so it has to be this one delete — the old
+  // chain only sent the host-only delete and left the shared cookie behind.
+  cookieStore.delete({
+    name: SESSION_COOKIE_NAME,
+    path: "/",
+    ...(isProduction ? { domain: `.${rootDomain}` } : {}),
+  });
 }
 
 export async function deleteAllUserSessions(userId: string) {
@@ -154,14 +154,23 @@ async function readCurrentSession() {
   const remainingMs = session.expiresAt.getTime() - now;
   const shouldRenew = remainingMs < SESSION_RENEW_THRESHOLD * 1000;
 
-  if (shouldRenew) {
-    const newExpiresAt = getSessionExpiryDate();
+  // Cookies can only be written from a Server Action or Route Handler — in a
+  // page render cookies().set throws — so renew only where the cookie can be
+  // reissued too. (Renewing the row first, then throwing, crashed that render
+  // and left the browser cookie on its old expiry.) On the dashboard the 30s
+  // notifications poll, a Server Action, renews it right after.
+  const renewed =
+    shouldRenew &&
+    (await _setSessionCookie(token).then(
+      () => true,
+      () => false,
+    ));
+
+  if (renewed) {
     await prisma.session.update({
       where: { tokenHash },
-      data: { expiresAt: newExpiresAt, lastUsedAt: new Date() },
+      data: { expiresAt: getSessionExpiryDate(), lastUsedAt: new Date() },
     });
-    // Reissue cookie with fresh maxAge
-    await _setSessionCookie(token);
   } else {
     // Always update lastUsedAt (throttled: only if stale by > 1 minute)
     const lastUsedMs = session.lastUsedAt.getTime();

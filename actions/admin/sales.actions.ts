@@ -14,15 +14,23 @@ import { hashPassword } from "@/lib/auth/password";
 import { generateReferralCode } from "@/lib/referral";
 import { syncSalesCommissionsForCustomer } from "@/lib/sales/engine";
 import { getPayableItems } from "@/lib/sales/queries";
-import { COMMISSION_ACTIONS, canApplyCommissionAction, validateAdjustment } from "@/lib/sales/workflow";
+import {
+  COMMISSION_ACTIONS,
+  canApplyCommissionAction,
+  canCancelRepAdjustment,
+  signedRepAdjustment,
+  validateAdjustment,
+} from "@/lib/sales/workflow";
 import { SALES_CURRENCY } from "@/lib/sales/rules";
 import {
   assignCustomerSchema,
+  cancelRepAdjustmentSchema,
   commissionActionSchema,
   commissionAdjustmentSchema,
   commissionRuleSchema,
   createSalesRepSchema,
   recordPayoutSchema,
+  repAdjustmentSchema,
   setSalesRepStatusSchema,
   updateSalesRepSchema,
 } from "@/validations/sales.schema";
@@ -142,39 +150,76 @@ export async function createSalesRepAction(input: unknown): Promise<SalesActionR
   return { success: true, message: joined ? `تم إنشاء الحساب وانضم لـ${joined}` : "تم إنشاء حساب المندوب" };
 }
 
+/**
+ * Name, email, phone and notes. A new email becomes the rep's login right away:
+ * it starts unverified, the Google account linked to the old address is
+ * unlinked, and reset links / codes sent to the old inbox stop working.
+ * Sessions stay open; the referral code never changes.
+ */
 export async function updateSalesRepAction(input: unknown): Promise<SalesActionResult> {
   const admin = await requireAdmin();
   const parsed = updateSalesRepSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
-  const { salesRepId, name, phone, notes } = parsed.data;
+  const { salesRepId, name, email, phone, notes } = parsed.data;
 
   const rep = await prisma.salesRep.findUnique({
     where: { id: salesRepId },
-    select: { id: true, notes: true, user: { select: { id: true, name: true, phone_number: true } } },
+    select: { id: true, notes: true, user: { select: { id: true, name: true, email: true, phone_number: true } } },
   });
   if (!rep) return { success: false, message: "المندوب مش موجود" };
 
+  const emailChanged = email !== rep.user.email.toLowerCase();
+  if (emailChanged) {
+    const taken = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" }, id: { not: rep.user.id } },
+      select: { id: true },
+    });
+    if (taken) return { success: false, message: "البريد مستخدم لحساب تاني", fieldErrors: { email: "البريد مستخدم بالفعل" } };
+  }
   if (phone && phone !== rep.user.phone_number) {
     const taken = await prisma.user.findFirst({ where: { phone_number: phone, id: { not: rep.user.id } }, select: { id: true } });
     if (taken) return { success: false, message: "رقم الموبايل مستخدم لحساب تاني", fieldErrors: { phone: "الرقم مستخدم بالفعل" } };
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.user.update({ where: { id: rep.user.id }, data: { name, phone_number: phone || null } });
-    await tx.salesRep.update({ where: { id: rep.id }, data: { notes: notes || null } });
-    await audit(tx, {
-      actorUserId: admin.id,
-      action: "sales_rep_updated",
-      entityType: "SalesRep",
-      entityId: rep.id,
-      salesRepId: rep.id,
-      before: { name: rep.user.name, phone: rep.user.phone_number, notes: rep.notes },
-      after: { name, phone: phone || null, notes: notes || null },
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: rep.user.id },
+        data: {
+          name,
+          phone_number: phone || null,
+          ...(emailChanged && { email, emailVerified: false, googleId: null }),
+        },
+      });
+      if (emailChanged) {
+        await tx.passwordResetToken.deleteMany({ where: { userId: rep.user.id } });
+        await tx.emailVerificationCode.deleteMany({ where: { userId: rep.user.id } });
+      }
+      await tx.salesRep.update({ where: { id: rep.id }, data: { notes: notes || null } });
+      await audit(tx, {
+        actorUserId: admin.id,
+        action: emailChanged ? "sales_rep_email_changed" : "sales_rep_updated",
+        entityType: "SalesRep",
+        entityId: rep.id,
+        salesRepId: rep.id,
+        before: { name: rep.user.name, email: rep.user.email, phone: rep.user.phone_number, notes: rep.notes },
+        after: { name, email, phone: phone || null, notes: notes || null },
+        reason: emailChanged ? `من ${rep.user.email} إلى ${email}` : null,
+      });
     });
-  });
+  } catch (error) {
+    // Two admins (or a signup) grabbed the same email/phone between the check and the write.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const target = String(error.meta?.target ?? "");
+      return target.includes("phone")
+        ? { success: false, message: "رقم الموبايل مستخدم لحساب تاني", fieldErrors: { phone: "الرقم مستخدم بالفعل" } }
+        : { success: false, message: "البريد مستخدم لحساب تاني", fieldErrors: { email: "البريد مستخدم بالفعل" } };
+    }
+    throw error;
+  }
 
   revalidateSales();
-  return { success: true, message: "تم حفظ البيانات" };
+  return { success: true, message: emailChanged ? "تم حفظ البيانات — المندوب يدخل بالبريد الجديد من دلوقتي" : "تم حفظ البيانات" };
 }
 
 /** Disabling ends every session at once; history and attributions are kept. */
@@ -383,6 +428,84 @@ export async function createCommissionAdjustmentAction(input: unknown): Promise<
   return { success: true, message: "تم تسجيل التعديل" };
 }
 
+// ─── Bonuses & deductions ───────────────────────────────────────────────────
+
+/** A bonus or deduction on the rep's account (not tied to a commission). Payable at once; the next payout settles it. */
+export async function createRepAdjustmentAction(input: unknown): Promise<SalesActionResult> {
+  const admin = await requireAdmin();
+  const parsed = repAdjustmentSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { salesRepId, kind, amountEgp, reason } = parsed.data;
+  const amount = signedRepAdjustment(kind, Math.round(amountEgp * 100));
+
+  const result = await prisma.$transaction(async (tx) => {
+    // Same lock as payouts: the entry lands either before a payout's snapshot or after it, never half-way.
+    const locked = await tx.$queryRaw<{ id: string }[]>`SELECT "id" FROM "SalesRep" WHERE "id" = ${salesRepId} FOR UPDATE`;
+    if (!locked.length) return "المندوب مش موجود";
+
+    const row = await tx.salesRepAdjustment.create({
+      data: { salesRepId, kind, amount, currency: SALES_CURRENCY, reason, actorUserId: admin.id },
+      select: { id: true },
+    });
+    await audit(tx, {
+      actorUserId: admin.id,
+      action: kind === "BONUS" ? "rep_bonus_added" : "rep_deduction_added",
+      entityType: "SalesRepAdjustment",
+      entityId: row.id,
+      salesRepId,
+      after: { kind, amount, currency: SALES_CURRENCY },
+      reason,
+    });
+    return null;
+  });
+
+  if (result) return { success: false, message: result };
+  revalidateSales();
+  return { success: true, message: kind === "BONUS" ? "تمت إضافة المكافأة" : "تم تسجيل الخصم" };
+}
+
+/** Cancels a bonus/deduction that no payout has settled yet. A settled one is corrected with an opposite entry. */
+export async function cancelRepAdjustmentAction(input: unknown): Promise<SalesActionResult> {
+  const admin = await requireAdmin();
+  const parsed = cancelRepAdjustmentSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { adjustmentId, reason } = parsed.data;
+
+  const row = await prisma.salesRepAdjustment.findUnique({
+    where: { id: adjustmentId },
+    select: { id: true, salesRepId: true, kind: true, amount: true, canceledAt: true, payoutId: true },
+  });
+  if (!row) return { success: false, message: "البند مش موجود" };
+  if (!canCancelRepAdjustment(row)) {
+    return { success: false, message: row.canceledAt ? "البند ده ملغي بالفعل" : "البند اتصرف خلاص — سجّل بند عكسي بدل الإلغاء" };
+  }
+
+  const done = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "SalesRep" WHERE "id" = ${row.salesRepId} FOR UPDATE`;
+    // Conditional: a payout (or another cancel) that got there first makes this a no-op.
+    const res = await tx.salesRepAdjustment.updateMany({
+      where: { id: row.id, canceledAt: null, payoutId: null },
+      data: { canceledAt: new Date(), canceledById: admin.id, cancelReason: reason },
+    });
+    if (res.count !== 1) return false;
+    await audit(tx, {
+      actorUserId: admin.id,
+      action: "rep_adjustment_canceled",
+      entityType: "SalesRepAdjustment",
+      entityId: row.id,
+      salesRepId: row.salesRepId,
+      before: { kind: row.kind, amount: row.amount },
+      after: { canceled: true },
+      reason,
+    });
+    return true;
+  });
+
+  if (!done) return { success: false, message: "البند اتغيّر — حدّث الصفحة" };
+  revalidateSales();
+  return { success: true, message: row.kind === "BONUS" ? "تم إلغاء المكافأة" : "تم إلغاء الخصم" };
+}
+
 // ─── Payouts ────────────────────────────────────────────────────────────────
 
 /**
@@ -430,6 +553,13 @@ export async function recordSalesPayoutAction(input: unknown): Promise<SalesActi
     if (payable.adjustmentIds.length) {
       await tx.salesCommissionAdjustment.updateMany({ where: { id: { in: payable.adjustmentIds }, payoutId: null }, data: { payoutId: payout.id } });
     }
+    if (payable.repAdjustmentIds.length) {
+      const res = await tx.salesRepAdjustment.updateMany({
+        where: { id: { in: payable.repAdjustmentIds }, payoutId: null, canceledAt: null },
+        data: { payoutId: payout.id },
+      });
+      if (res.count !== payable.repAdjustmentIds.length) throw new Error("Bonuses/deductions changed during payout");
+    }
 
     await audit(tx, {
       actorUserId: admin.id,
@@ -445,6 +575,7 @@ export async function recordSalesPayoutAction(input: unknown): Promise<SalesActi
         reference: reference || null,
         commissions: payable.commissionIds.length,
         adjustments: payable.adjustmentIds.length,
+        repAdjustments: payable.repAdjustmentIds.length,
       },
       reason: note || null,
     });

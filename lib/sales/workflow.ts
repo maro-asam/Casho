@@ -33,3 +33,14 @@ export function validateAdjustment(input: { status: S; amount: number; currentNe
   if (input.currentNet + input.amount < 0) return "التعديل هيخلي صافي العمولة بالسالب";
   return null;
 }
+
+/** Rep-level bonus (+) / deduction (−): the stored signed amount for a positive input in piasters. */
+export function signedRepAdjustment(kind: "BONUS" | "DEDUCTION", piasters: number): number {
+  const abs = Math.abs(piasters);
+  return kind === "DEDUCTION" ? -abs : abs;
+}
+
+/** A bonus/deduction can be canceled only while no payout has settled it. */
+export function canCancelRepAdjustment(row: { canceledAt: Date | null; payoutId: string | null }): boolean {
+  return !row.canceledAt && !row.payoutId;
+}

@@ -25,6 +25,7 @@ export const createSalesRepSchema = z.object({
 export const updateSalesRepSchema = z.object({
   salesRepId: z.string().uuid(),
   name: z.string().trim().min(2, "الاسم قصير جدًا").max(100),
+  email: z.string().trim().toLowerCase().email("البريد الإلكتروني غير صحيح"),
   phone: z
     .string()
     .trim()
@@ -64,6 +65,23 @@ export const commissionAdjustmentSchema = z.object({
     .refine((n) => Math.abs(Math.round(n * 100) - n * 100) < 1e-6, "أقصى حد قرشين بعد العلامة العشرية"),
   reason,
 });
+
+export const REP_ADJUSTMENT_KINDS = ["BONUS", "DEDUCTION"] as const;
+
+/** A bonus or deduction on the rep's account. The amount is always positive — the kind sets the sign. */
+export const repAdjustmentSchema = z.object({
+  salesRepId: z.string().uuid(),
+  kind: z.enum(REP_ADJUSTMENT_KINDS, { message: "اختار مكافأة أو خصم" }),
+  /** EGP, up to 2 decimals. */
+  amountEgp: z.coerce
+    .number({ message: "اكتب المبلغ" })
+    .refine((n) => Number.isFinite(n) && n > 0, "اكتب مبلغ أكبر من صفر")
+    .refine((n) => n <= 1_000_000, "المبلغ كبير جدًا")
+    .refine((n) => Math.abs(Math.round(n * 100) - n * 100) < 1e-6, "أقصى حد قرشين بعد العلامة العشرية"),
+  reason,
+});
+
+export const cancelRepAdjustmentSchema = z.object({ adjustmentId: z.string().uuid(), reason });
 
 export const recordPayoutSchema = z.object({
   salesRepId: z.string().uuid(),

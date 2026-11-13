@@ -52,7 +52,7 @@ export default async function AdminSalesPayoutsPage() {
 
       <Card
         title="المستحق لكل مندوب"
-        subtitle="العمولات المعتمدة اللي لسه متصرفتش ± التسويات. سجّل الصرف بعد التحويل الفعلي — تغيير الحالة لوحده مش معناه إن الفلوس وصلت."
+        subtitle="العمولات المعتمدة اللي لسه متصرفتش ± التسويات والمكافآت والخصومات. سجّل الصرف بعد التحويل الفعلي — تغيير الحالة لوحده مش معناه إن الفلوس وصلت."
       >
         {rows.length === 0 ? (
           <CardEmpty>مفيش مندوبين لسه.</CardEmpty>
@@ -80,8 +80,10 @@ export default async function AdminSalesPayoutsPage() {
                     </div>
                     <p className="text-[13px] text-muted-foreground tabular-nums">
                       {owed
-                        ? `${fmtNum(payable.commissionIds.length)} عمولة${payable.adjustmentIds.length ? ` · ${fmtNum(payable.adjustmentIds.length)} تسوية` : ""}`
-                        : "مفيش مستحقات"}
+                        ? `${fmtNum(payable.commissionIds.length)} عمولة${payable.adjustmentIds.length ? ` · ${fmtNum(payable.adjustmentIds.length)} تسوية` : ""}${payable.repAdjustmentIds.length ? ` · ${fmtNum(payable.repAdjustmentIds.length)} مكافأة/خصم` : ""}`
+                        : payable.total < 0
+                          ? "خصومات أكبر من المستحق — بتترحّل"
+                          : "مفيش مستحقات"}
                     </p>
                   </div>
                   <span className={owed ? "text-[17px] font-bold tabular-nums" : "text-[15px] text-muted-foreground tabular-nums"}>
@@ -123,6 +125,7 @@ export default async function AdminSalesPayoutsPage() {
                 <div className="hidden w-44 shrink-0 md:block">
                   <p className="text-[13px] text-foreground/80 tabular-nums">
                     {fmtNum(p._count.commissions)} عمولة{p._count.adjustments ? ` · ${fmtNum(p._count.adjustments)} تسوية` : ""}
+                    {p._count.repAdjustments ? ` · ${fmtNum(p._count.repAdjustments)} مكافأة/خصم` : ""}
                   </p>
                   <p className="text-[12px] text-muted-foreground">سُجّل {fmtDateTime(p.createdAt)}</p>
                 </div>

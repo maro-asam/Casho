@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -63,7 +63,6 @@ type Props = {
 };
 
 export function CompleteGoogleForm({ email, name }: Props) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const refCode = searchParams.get("ref") ?? "";
   const [state, formAction, isPending] = useActionState(
@@ -77,10 +76,11 @@ export function CompleteGoogleForm({ email, name }: Props) {
     if (state?.error) toast.error(state.error);
     if (state?.success) {
       toast.success("تم إنشاء الحساب بنجاح 🎉");
-      router.push("/onboarding");
-      router.refresh();
+      // Full page load: the action just set the session cookie (see login-form).
+      window.location.replace("/onboarding");
     }
-  }, [state, router]);
+  }, [state]);
+  const busy = isPending || !!state?.success;
 
   return (
     <form action={formAction} className="space-y-5">
@@ -158,10 +158,10 @@ export function CompleteGoogleForm({ email, name }: Props) {
 
       <Button
         type="submit"
-        disabled={isPending || !country || !businessType}
+        disabled={busy || !country || !businessType}
         className={cn(PRIMARY_BUTTON_CLASS, "w-full")}
       >
-        {isPending ? (
+        {busy ? (
           <>
             <Loader2 className="me-2 size-4 animate-spin" />
             جاري الإنشاء...

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { availableCommissionActions, canApplyCommissionAction, validateAdjustment } from "./workflow";
+import {
+  availableCommissionActions,
+  canApplyCommissionAction,
+  canCancelRepAdjustment,
+  signedRepAdjustment,
+  validateAdjustment,
+} from "./workflow";
 
 describe("commission review transitions", () => {
   it("approved (auto) commissions can be held or reversed, not re-approved", () => {
@@ -32,5 +38,20 @@ describe("validateAdjustment", () => {
   it("refuses voided commissions", () => {
     expect(validateAdjustment({ status: "REVERSED", amount: 100, currentNet: 0 })).not.toBeNull();
     expect(validateAdjustment({ status: "REJECTED", amount: 100, currentNet: 0 })).not.toBeNull();
+  });
+});
+
+describe("rep bonuses and deductions", () => {
+  it("a bonus is positive and a deduction negative, whatever sign came in", () => {
+    expect(signedRepAdjustment("BONUS", 500)).toBe(500);
+    expect(signedRepAdjustment("BONUS", -500)).toBe(500);
+    expect(signedRepAdjustment("DEDUCTION", 500)).toBe(-500);
+    expect(signedRepAdjustment("DEDUCTION", -500)).toBe(-500);
+  });
+
+  it("only an open entry (not canceled, not settled) can be canceled", () => {
+    expect(canCancelRepAdjustment({ canceledAt: null, payoutId: null })).toBe(true);
+    expect(canCancelRepAdjustment({ canceledAt: new Date(), payoutId: null })).toBe(false);
+    expect(canCancelRepAdjustment({ canceledAt: null, payoutId: "p1" })).toBe(false);
   });
 });

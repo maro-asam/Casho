@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -15,17 +14,26 @@ import { cn } from "@/lib/utils";
 import { FIELD_CLASS, FormAlert, FormField, PRIMARY_BUTTON_CLASS } from "./form-field";
 
 export function LoginForm({ notice }: { notice?: string }) {
-  const router = useRouter();
+  // Stays true until the dashboard replaces this page, so the button keeps
+  // spinning instead of looking like the sign-in did nothing.
+  const [redirecting, setRedirecting] = useState(false);
 
   const [state, formAction, isPending] = useActionState(async (prev: LoginState | null, formData: FormData) => {
     const result = await LoginAction(prev, formData);
     if (result.success) {
       toast.success("أهلًا بيك تاني");
-      router.push("/dashboard");
-      router.refresh();
+      setRedirecting(true);
+      // A full page load, not router.push() + router.refresh(): this action just
+      // set the session cookie, so Next is already refreshing /login on its own,
+      // and a client-side push racing that refresh sometimes left the merchant (or
+      // rep) on the login page until they signed in again. The browser's own
+      // request always carries the new cookie, and the server sends it on to the
+      // dashboard, /sales, /verify-email or onboarding.
+      window.location.replace("/dashboard");
     }
     return result;
   }, null);
+  const busy = isPending || redirecting;
 
   // Field errors show under the field; anything else (wrong password, rate limit) up top.
   const formError = state?.error && !state.fieldErrors ? state.error : notice;
@@ -78,9 +86,9 @@ export function LoginForm({ notice }: { notice?: string }) {
           />
         </FormField>
 
-        <Button type="submit" disabled={isPending} className={cn(PRIMARY_BUTTON_CLASS, "mt-2 w-full gap-2")}>
-          {isPending && <Loader2 className="size-4 animate-spin" />}
-          {isPending ? "جاري الدخول..." : "دخول"}
+        <Button type="submit" disabled={busy} className={cn(PRIMARY_BUTTON_CLASS, "mt-2 w-full gap-2")}>
+          {busy && <Loader2 className="size-4 animate-spin" />}
+          {busy ? "جاري الدخول..." : "دخول"}
         </Button>
       </form>
 
