@@ -16,35 +16,37 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { StatusText } from "@/components/saas-page";
-import { DisconnectShopifyAction } from "@/actions/integrations/shopify-import.actions";
+import type { ImportProvider } from "@prisma/client";
+import { DisconnectImportAction } from "@/actions/integrations/store-import.actions";
 import type { ConnectionView } from "@/lib/integrations/import/views";
 import { tdir, tr, trv } from "@/lib/i18n/dashboard";
-import { ShopifyMark } from "./import-ui";
+import { ProviderMark, providerCopy } from "./provider-ui";
 
-/** The connected Shopify store, as a Settings group (sidebar). */
-export function ShopCard({ connection, busy }: { connection: ConnectionView; busy?: boolean }) {
+/** The connected source store, as a Settings group (sidebar). */
+export function ShopCard({ provider, connection, busy }: { provider: ImportProvider; connection: ConnectionView; busy?: boolean }) {
   const router = useRouter();
+  const copy = providerCopy(provider);
   const [pending, startTransition] = useTransition();
   const healthy = connection.status === "ACTIVE";
 
   function disconnect() {
     startTransition(async () => {
-      const result = await DisconnectShopifyAction();
+      const result = await DisconnectImportAction(provider);
       if (!result.ok) {
         toast.error(trv(result.error));
         return;
       }
-      toast.success(tr("تم إلغاء الربط مع Shopify"));
+      toast.success(copy.disconnected);
       router.refresh();
     });
   }
 
   return (
-    <section className="space-y-2" aria-label={tr("متجرك على Shopify")}>
-      <h2 className="px-4 text-[13px] font-semibold text-muted-foreground">{tr("متجرك على Shopify")}</h2>
+    <section className="space-y-2" aria-label={copy.shopCardTitle}>
+      <h2 className="px-4 text-[13px] font-semibold text-muted-foreground">{copy.shopCardTitle}</h2>
       <div className="apple-card apple-rows overflow-hidden rounded-[14px] [--row-inset:16px]">
         <div className="flex items-center gap-3 px-4 py-3.5">
-          <ShopifyMark />
+          <ProviderMark provider={provider} />
           <div className="min-w-0">
             <p className="truncate text-[17px] font-semibold">{connection.shopName}</p>
             <StatusText tone={healthy ? "success" : "warning"}>{healthy ? tr("متصل") : tr("محتاج إعادة ربط")}</StatusText>
@@ -75,10 +77,10 @@ export function ShopCard({ connection, busy }: { connection: ConnectionView; bus
           </AlertDialogTrigger>
           <AlertDialogContent dir={tdir()} className="max-w-[20rem] gap-0 p-0 text-center">
             <AlertDialogHeader className="items-center gap-1 px-5 pt-6 pb-5 text-center sm:text-center">
-              <AlertDialogTitle className="text-[17px] font-semibold">{tr("إلغاء الربط مع Shopify؟")}</AlertDialogTitle>
+              <AlertDialogTitle className="text-[17px] font-semibold">{copy.disconnectTitle}</AlertDialogTitle>
               <AlertDialogDescription className="text-[13px] leading-[18px]">
                 {busy ? tr("الاستيراد الشغال هيتلغي. ") : ""}
-                {tr("البيانات اللي اتنقلت بالفعل هتفضل في متجرك على Casho. هنمسح مفاتيح الوصول لـ Shopify من عندنا.")}
+                {copy.disconnectDescription}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="grid grid-cols-2 gap-0 border-t border-border/60 sm:space-x-0">

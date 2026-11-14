@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Globe } from "lucide-react";
 import { checkStoreSlugAvailability, type StoreSlugAvailabilityState } from "@/actions/auth/check-store-slug.actions";
 import { cn } from "@/lib/utils";
 import { useLang } from "../../_i18n/LanguageContext";
@@ -19,7 +19,8 @@ import "./hero-claim.css";
  * starts before hydration.
  */
 
-const BARS = [18, 27, 36, 50, 64, 81, 100];
+/** Bar heights (%) of the chart beside "grow": a steady climb, brighter as it rises. */
+const BARS = [34, 46, 58, 72, 86, 100];
 const ROOT = "casho.store";
 
 type Check = { state: "idle" } | { state: "checking" } | { state: "done"; result: StoreSlugAvailabilityState };
@@ -76,28 +77,31 @@ export default function HeroClaim() {
 
   return (
     <section aria-labelledby="hero-title" className="hc relative isolate overflow-hidden bg-(--al-bg)">
-      <div aria-hidden className="hc-aurora">
-        <i />
-        <i />
-        <i />
-      </div>
+      <div aria-hidden className="hc-bg" />
 
       <div className="al-container-wide hc-inner">
-        <p className="hc-in inline-flex items-center gap-2 text-[13px] text-(--al-muted)" style={delay(0)}>
-          <span className="font-semibold text-(--al-new)">{c.badgeNew}</span>
-          <span aria-hidden className="h-3 w-px bg-(--al-hair)" />
+        <p className="hc-in hc-badge" style={delay(0)}>
+          <span className="hc-badge-new">{c.badgeNew}</span>
           {c.badge}
         </p>
 
         <h1 id="hero-title" className="hc-title text-(--al-text)">
           {c.title.map((line, i) => (
-            <span key={line.a} className="hc-line hc-rise" style={{ animationDelay: `${0.05 + i * 0.09}s` }}>
-              <span className={cn(i === 2 && "al-gradient-text hc-brand")}>{line.a}</span>
+            <span
+              key={line.a}
+              // The brand line carries one gradient across both words (and past the mark).
+              className={cn("hc-line hc-rise", i === 2 && "hc-brand al-gradient-text")}
+              style={{ animationDelay: `${0.05 + i * 0.09}s` }}
+            >
+              <span>{line.a}</span>
               {/* A plain space keeps the words apart for screen readers and copy-paste. */}{" "}
               {i === 0 ? null : i === 1 ? (
                 <span aria-hidden className="hc-obj hc-chart">
                   {BARS.map((h, k) => (
-                    <span key={h} style={{ height: `${h}%`, animationDelay: `${0.7 + k * 0.07}s` }} />
+                    <span
+                      key={h}
+                      style={{ height: `${h}%`, opacity: 0.4 + (0.6 * k) / (BARS.length - 1), animationDelay: `${0.7 + k * 0.07}s` }}
+                    />
                   ))}
                 </span>
               ) : (
@@ -108,7 +112,7 @@ export default function HeroClaim() {
                   </svg>
                 </span>
               )}
-              <span className={cn(i === 2 && "al-gradient-text hc-brand")}>{line.b}</span>
+              <span>{line.b}</span>
             </span>
           ))}
         </h1>
@@ -120,6 +124,7 @@ export default function HeroClaim() {
         <form className="hc-in hc-claim" style={delay(0.42)} onSubmit={onSubmit}>
           <label className="hc-field" dir="ltr">
             <span className="sr-only">{c.label}</span>
+            <Globe aria-hidden className="hc-globe" strokeWidth={1.75} />
             <span className="hc-input-wrap">
               {/* Sizes the field to its text, so ".casho.store" follows the name. */}
               <span aria-hidden className="hc-ghost">
@@ -175,7 +180,12 @@ export default function HeroClaim() {
 
         <ul className="hc-in hc-facts" style={delay(0.6)}>
           {c.facts.map((f) => (
-            <li key={f}>{f}</li>
+            <li key={f}>
+              <span aria-hidden className="hc-check">
+                <Check strokeWidth={3} />
+              </span>
+              {f}
+            </li>
           ))}
         </ul>
       </div>

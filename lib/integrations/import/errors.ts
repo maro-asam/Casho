@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import { ImportItemFailure } from "./types";
+import { Prisma, type ImportProvider } from "@prisma/client";
+import { ImportItemFailure, PROVIDER_LABELS } from "./types";
 
 /**
  * Error raised by a provider client. `kind` drives the engine's reaction:
@@ -8,7 +8,8 @@ import { ImportItemFailure } from "./types";
  */
 export class SourceApiError extends Error {
   constructor(
-    readonly kind: "unauthorized" | "throttled" | "network" | "server" | "graphql" | "client",
+    /** blocked = a firewall / security plugin answered instead of the store API. */
+    readonly kind: "unauthorized" | "throttled" | "network" | "server" | "graphql" | "client" | "blocked",
     message: string,
     readonly status?: number,
   ) {
@@ -23,6 +24,10 @@ const REDACTIONS: [RegExp, string][] = [
   [/\b(access_token|refresh_token|client_secret|code)=[^&\s"]+/gi, "$1=[REDACTED]"],
   [/("(?:access_token|refresh_token|accessToken|refreshToken|client_secret)"\s*:\s*")[^"]*/g, "$1[REDACTED]"],
   [/(X-Shopify-Access-Token:?\s*)\S+/gi, "$1[REDACTED]"],
+  // WooCommerce REST key pairs (query string or JSON)
+  [/\b(ck|cs)_[A-Za-z0-9]{16,}/g, "[REDACTED]"],
+  [/\b(consumer_key|consumer_secret)=[^&\s"]+/gi, "$1=[REDACTED]"],
+  [/("(?:consumer_key|consumer_secret|consumerKey|consumerSecret)"\s*:\s*")[^"]*/g, "$1[REDACTED]"],
 ];
 
 /** Strips anything token-shaped from a string before it is logged or stored. */
@@ -56,19 +61,36 @@ export function itemFailureMessage(err: unknown): string {
 }
 
 /** Merchant-facing reason for a paused job. */
-export function jobFailureMessage(err: unknown): string {
+export function jobFailureMessage(err: unknown, provider: ImportProvider = "SHOPIFY"): string {
   if (err instanceof SourceApiError) {
+    if (provider === "SHOPIFY") {
+      switch (err.kind) {
+        case "unauthorized":
+          return "انتهت صلاحية الربط مع Shopify — أعد ربط المتجر ثم استكمل الاستيراد";
+        case "throttled":
+          return "Shopify طلب إبطاء الطلبات — هنكمل تلقائياً";
+        case "network":
+          return "تعذّر الوصول إلى Shopify — مشكلة في الشبكة";
+        case "server":
+          return "Shopify غير متاح مؤقتاً";
+        default:
+          return "Shopify رفض الطلب";
+      }
+    }
+    const label = PROVIDER_LABELS[provider];
     switch (err.kind) {
       case "unauthorized":
-        return "انتهت صلاحية الربط مع Shopify — أعد ربط المتجر ثم استكمل الاستيراد";
+        return `مفتاح الربط مع ${label} اتلغى أو اتغيرت صلاحياته — أعد ربط الموقع ثم استكمل الاستيراد`;
       case "throttled":
-        return "Shopify طلب إبطاء الطلبات — هنكمل تلقائياً";
+        return `موقعك على ${label} طلب إبطاء الطلبات — هنكمل تلقائياً`;
       case "network":
-        return "تعذّر الوصول إلى Shopify — مشكلة في الشبكة";
+        return `تعذّر الوصول إلى موقعك على ${label} — اتأكد إنه شغال`;
       case "server":
-        return "Shopify غير متاح مؤقتاً";
+        return `موقعك على ${label} مش بيرد دلوقتي — غالباً ضغط على السيرفر`;
+      case "blocked":
+        return "موقعك رافض طلبات الاستيراد — غالباً إضافة حماية أو جدار حماية (Firewall). اسمح بالـ REST API وكمّل";
       default:
-        return "Shopify رفض الطلب";
+        return `موقعك على ${label} رفض الطلب`;
     }
   }
   return "حدث خطأ غير متوقع أثناء الاستيراد";

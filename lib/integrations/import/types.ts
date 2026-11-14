@@ -1,9 +1,10 @@
 /**
  * Provider-agnostic store-import contract.
  *
- * A provider (Shopify today) turns its API data into the Normalized* records
- * below; the engine (./engine.ts) and the Prisma sink (./sink.ts) never see
- * provider-specific shapes. Adding WooCommerce/Magento = a new ImportSource.
+ * A provider (Shopify, WooCommerce) turns its API data into the Normalized*
+ * records below; the engine (./engine.ts) and the Prisma sink (./sink.ts) never
+ * see provider-specific shapes. Adding Magento = a new ImportSource registered
+ * in ./registry.ts.
  */
 import type { ImportProvider } from "@prisma/client";
 
@@ -20,8 +21,32 @@ export function orderEntities(entities: readonly string[]): ImportableEntity[] {
   return IMPORTABLE_ENTITIES.filter((e) => entities.includes(e));
 }
 
+export const IMPORT_PROVIDERS = ["SHOPIFY", "WOOCOMMERCE"] as const satisfies readonly ImportProvider[];
+
+export function isImportProvider(value: unknown): value is ImportProvider {
+  return typeof value === "string" && (IMPORT_PROVIDERS as readonly string[]).includes(value);
+}
+
 export const PROVIDER_LABELS: Record<ImportProvider, string> = {
   SHOPIFY: "Shopify",
+  WOOCOMMERCE: "WooCommerce",
+};
+
+/** Clean app-subdomain path of each provider's import page (proxy maps it under /dashboard). */
+export const PROVIDER_PAGE_PATHS: Record<ImportProvider, string> = {
+  SHOPIFY: "/integrations/shopify",
+  WOOCOMMERCE: "/integrations/woocommerce",
+};
+
+/** What the preview found in the source store. `variants` is null when the source can't count them cheaply. */
+export type PreviewCounts = {
+  products: number;
+  variants: number | null;
+  collections: number;
+  customers: number;
+  orders: number;
+  /** Shop currency when the count call also learned it (saved on the connection). */
+  currencyCode?: string | null;
 };
 
 // ─── Normalized records ──────────────────────────────────────────────────────
@@ -67,6 +92,8 @@ export type NormalizedProduct = {
   collectionExternalIds: string[];
   /** Real options only (Shopify's single "Title / Default Title" is dropped). */
   options: { name: string; values: string[] }[];
+  /** Descriptive attributes that aren't variant options (e.g. WooCommerce "Material: Cotton"). */
+  specs?: { key: string; value: string }[];
   variants: NormalizedVariant[];
   weight: number | null;
   createdAt: Date | null;

@@ -25,7 +25,7 @@ import { SourceApiError, errorLogContext, jobFailureMessage } from "./errors";
 import { parseProgress, totalFailed } from "./progress";
 import { createImportSource } from "./registry";
 import { createPrismaSink } from "./sink";
-import { orderEntities, PROVIDER_LABELS, type ImportableEntity } from "./types";
+import { orderEntities, PROVIDER_LABELS, PROVIDER_PAGE_PATHS, type ImportableEntity } from "./types";
 
 const LOCK_MS = 2 * 60 * 1000;
 export const DEFAULT_BUDGET_MS = 25_000;
@@ -126,7 +126,7 @@ async function finish(job: ImportJob, lockToken: string, state: SliceState) {
     type: "SYSTEM",
     title: failed > 0 ? `اكتمل الاستيراد من ${label} مع بعض المشاكل` : `اكتمل الاستيراد من ${label} ✅`,
     message: failed > 0 ? `${failed} عنصر لم يتم استيراده — راجع التفاصيل وأعد المحاولة` : "كل البيانات المختارة اتنقلت لمتجرك",
-    href: "/integrations/shopify",
+    href: PROVIDER_PAGE_PATHS[job.provider],
   });
   logger.info("[Import] Job finished", { jobId: job.id, storeId: job.storeId, status, failed });
 }
@@ -153,7 +153,7 @@ export async function runImportJob(jobId: string, { budgetMs = DEFAULT_BUDGET_MS
     return "paused";
   }
   if (job.connection.status !== "ACTIVE") {
-    await release(jobId, lockToken, { status: "PAUSED", lastError: jobFailureMessage(new SourceApiError("unauthorized", "inactive")) });
+    await release(jobId, lockToken, { status: "PAUSED", lastError: jobFailureMessage(new SourceApiError("unauthorized", "inactive"), job.provider) });
     return "paused";
   }
   if (!job.startedAt) await prisma.importJob.update({ where: { id: jobId }, data: { startedAt: new Date() } });
@@ -206,7 +206,7 @@ export async function runImportJob(jobId: string, { budgetMs = DEFAULT_BUDGET_MS
     await release(jobId, lockToken, {
       status: pause ? "PAUSED" : "RUNNING",
       attempts,
-      lastError: jobFailureMessage(err),
+      lastError: jobFailureMessage(err, job.provider),
       nextRunAt: new Date(Date.now() + (pause ? 0 : retryDelayMs(attempts))),
     });
     return pause ? "paused" : "retrying";

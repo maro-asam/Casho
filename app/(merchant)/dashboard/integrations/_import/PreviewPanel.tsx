@@ -4,23 +4,24 @@ import { AlertTriangle, Loader2, X } from "lucide-react";
 import { appleButton } from "@/components/saas-page";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import type { ImportableEntity } from "@/lib/integrations/import/types";
+import type { ImportProvider } from "@prisma/client";
+import type { ImportableEntity, PreviewCounts } from "@/lib/integrations/import/types";
 import type { ConnectionView } from "@/lib/integrations/import/views";
-import type { ShopifyPreviewCounts } from "@/lib/integrations/shopify/source";
 import { cn } from "@/lib/utils";
 import { tr } from "@/lib/i18n/dashboard";
-import { Group, IconTile } from "../../../settings/_components/settings-ui";
-import { ENTITY_META, NOT_IMPORTED, nf } from "./import-meta";
-import { ENTITY_TILE, ShopifyMark } from "./import-ui";
+import { Group, IconTile } from "../../settings/_components/settings-ui";
+import { ENTITY_META, nf } from "./import-meta";
+import { ENTITY_TILE } from "./import-ui";
+import { ProviderMark, providerCopy } from "./provider-ui";
 
 const ENTITY_ORDER: ImportableEntity[] = ["COLLECTION", "PRODUCT", "CUSTOMER", "ORDER"];
 
-export function PreviewSkeleton() {
+export function PreviewSkeleton({ provider }: { provider: ImportProvider }) {
   return (
     <section className="apple-card p-6" aria-busy="true" aria-label={tr("جاري تجهيز المعاينة")}>
       <p className="flex items-center gap-2 text-[15px] text-muted-foreground">
         <Loader2 className="size-4 animate-spin" />
-        {tr("بنعدّ البيانات في متجرك على Shopify…")}
+        {providerCopy(provider).counting}
       </p>
       <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -36,12 +37,12 @@ export function PreviewSkeleton() {
 }
 
 /** What the importer leaves behind — sidebar list, so nothing is promised that isn't done. */
-export function NotImportedCard() {
+export function NotImportedCard({ provider }: { provider: ImportProvider }) {
   return (
     <section className="space-y-2">
       <h2 className="px-4 text-[13px] font-semibold text-muted-foreground">{tr("مش هيتنقل حالياً")}</h2>
       <ul className="apple-card space-y-2.5 rounded-[14px] px-4 py-3.5">
-        {NOT_IMPORTED.map((item) => (
+        {providerCopy(provider).notImported.map((item) => (
           <li key={item} className="flex items-start gap-2.5 text-[13px] leading-[18px] text-muted-foreground">
             <span className="mt-px grid size-4 shrink-0 place-items-center rounded-full bg-(--fill-3)">
               <X className="size-2.5" strokeWidth={3} />
@@ -55,7 +56,8 @@ export function NotImportedCard() {
 }
 
 type Props = {
-  counts: ShopifyPreviewCounts;
+  provider: ImportProvider;
+  counts: PreviewCounts;
   connection: ConnectionView;
   selected: ImportableEntity[];
   onToggle: (entity: ImportableEntity, checked: boolean) => void;
@@ -63,12 +65,17 @@ type Props = {
   starting: boolean;
 };
 
-export function PreviewPanel({ counts, connection, selected, onToggle, onStart, starting }: Props) {
+export function PreviewPanel({ provider, counts, connection, selected, onToggle, onStart, starting }: Props) {
+  const copy = providerCopy(provider);
   const found = [
     { label: tr("منتج"), value: counts.products },
-    { label: tr("نوع منتج (Variant)"), value: counts.variants },
-    { label: tr("عنصر مخزون"), value: counts.variants },
-    { label: tr("تصنيف (Collection)"), value: counts.collections },
+    ...(counts.variants !== null
+      ? [
+          { label: tr("نوع منتج (Variant)"), value: counts.variants },
+          { label: tr("عنصر مخزون"), value: counts.variants },
+        ]
+      : []),
+    { label: provider === "SHOPIFY" ? tr("تصنيف (Collection)") : tr("تصنيف"), value: counts.collections },
     { label: tr("عميل"), value: counts.customers },
     { label: tr("طلب"), value: counts.orders },
   ];
@@ -78,30 +85,14 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
     CUSTOMER: counts.customers,
     ORDER: counts.orders,
   };
-
-  const notes: string[] = [];
-  if (connection.currencyCode && connection.currencyCode !== "EGP") {
-    notes.push(tr("عملة متجرك على Shopify {0}. الأسعار هتتنقل بنفس الأرقام من غير تحويل لعملة الجنيه — راجعها بعد الاستيراد.", connection.currencyCode));
-  }
-  if (!connection.hasAllOrders && selected.includes("ORDER")) {
-    notes.push(tr("Shopify بيسمح لنا بقراءة طلبات آخر 60 يوم بس. الرقم اللي فوق هو عدد الطلبات اللي هتتنقل."));
-  }
-  if (selected.includes("ORDER") && !selected.includes("PRODUCT")) {
-    notes.push(tr("الطلبات من غير المنتجات هتترتبط بمنتج «غير متاح» عام. الأفضل تنقل المنتجات معاها."));
-  }
-  if (selected.includes("CUSTOMER")) {
-    notes.push(tr("العملاء اللي مالهمش رقم موبايل مش هيتنقلوا، لأن Casho بيعرّف العميل برقمه. هتلاقي عددهم في النتيجة."));
-  }
-  if (selected.includes("PRODUCT")) {
-    notes.push(tr("المنتجات اللي مش متتبع مخزونها في Shopify هتتنقل بمخزون 999. والصور هتفضل على سيرفرات Shopify، يعني لو قفلت متجر Shopify نهائياً لازم ترفعها تاني."));
-  }
+  const notes = copy.previewNotes(connection, selected);
 
   return (
     <div className="space-y-6 pb-24">
       {/* Found in the store — big numbers, hairline grid. */}
       <section className="apple-card overflow-hidden" aria-labelledby="found-title">
         <div className="flex items-center gap-3 px-5 pt-5 pb-4">
-          <ShopifyMark size="sm" />
+          <ProviderMark provider={provider} size="sm" />
           <div className="min-w-0">
             <h2 id="found-title" className="text-[17px] leading-[22px] font-semibold">
               {tr("لقينا في متجرك")}
@@ -109,7 +100,7 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
             <p className="truncate text-[13px] text-muted-foreground">{connection.shopName}</p>
           </div>
         </div>
-        <dl className="grid grid-cols-2 gap-px border-t border-border/60 bg-border/60 sm:grid-cols-3">
+        <dl className={cn("grid grid-cols-2 gap-px border-t border-border/60 bg-border/60", found.length % 3 === 0 ? "sm:grid-cols-3" : "sm:grid-cols-4")}>
           {found.map((item) => (
             <div key={item.label} className="flex flex-col-reverse bg-card px-5 py-4">
               <dt className="text-[13px] text-muted-foreground">{item.label}</dt>
@@ -137,7 +128,7 @@ export function PreviewPanel({ counts, connection, selected, onToggle, onStart, 
                   <span className="font-medium">{meta.label}</span>
                   <span className="text-[13px] tabular-nums text-muted-foreground">{nf.format(countFor[entity])}</span>
                 </span>
-                <span className="mt-0.5 block text-[13px] leading-[18px] text-muted-foreground">{meta.includes}</span>
+                <span className="mt-0.5 block text-[13px] leading-[18px] text-muted-foreground">{copy.entityIncludes[entity]}</span>
               </span>
               <Switch id={id} className="apple-switch" checked={on} onCheckedChange={(v) => onToggle(entity, v)} disabled={starting} />
             </label>

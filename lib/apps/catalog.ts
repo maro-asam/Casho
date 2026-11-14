@@ -14,6 +14,7 @@ export type AppId =
   | "instagram"
   | "telegram"
   | "shopify-import"
+  | "woocommerce-import"
   | "api-keys"
   | "domain";
 
@@ -115,6 +116,15 @@ export const APPS: AppDefinition[] = [
     kind: "tool",
     developer: "Casho",
     href: "/integrations/shopify",
+  },
+  {
+    id: "woocommerce-import",
+    name: "استيراد من WooCommerce",
+    tagline: "انقل منتجاتك وعملاءك وطلباتك من موقعك على WooCommerce لـ Casho",
+    category: "tools",
+    kind: "tool",
+    developer: "Casho",
+    href: "/integrations/woocommerce",
   },
   {
     id: "api-keys",

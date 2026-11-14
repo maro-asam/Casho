@@ -17,6 +17,9 @@ import type {
   NormalizedProduct,
   NormalizedVariant,
 } from "@/lib/integrations/import/types";
+import { clean, formatAddress as formatAddressParts, htmlToText, normalizePhone } from "@/lib/integrations/import/normalize";
+
+export { htmlToText, normalizePhone };
 
 type Money = { shopMoney: { amount: string } } | null | undefined;
 type Image = { image?: { url: string } | null } | Record<string, never>;
@@ -124,49 +127,8 @@ function optionalMoney(value: string | null | undefined): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function clean(value: string | null | undefined): string | null {
-  const v = value?.trim();
-  return v ? v : null;
-}
-
-const ENTITIES: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&nbsp;": " " };
-
-/** Shopify descriptions are HTML; Casho stores plain text with line breaks. */
-export function htmlToText(html: string | null | undefined): string | null {
-  if (!html) return null;
-  const text = html
-    .replace(/<\s*(script|style)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
-    .replace(/<\s*br\s*\/?>/gi, "\n")
-    .replace(/<\s*\/\s*(p|div|h[1-6]|li|tr)\s*>/gi, "\n")
-    .replace(/<\s*li[^>]*>/gi, "• ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&(amp|lt|gt|quot|#39|nbsp);/g, (m) => ENTITIES[m] ?? m)
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-  return text || null;
-}
-
-/**
- * Casho stores Egyptian numbers in local form (01xxxxxxxxx). Shopify stores
- * E.164 (+201xxxxxxxxx). Other countries keep their international form.
- */
-export function normalizePhone(raw: string | null | undefined): string | null {
-  if (!raw) return null;
-  let phone = raw.replace(/[\s\-().]/g, "");
-  if (phone.startsWith("00")) phone = `+${phone.slice(2)}`;
-  if (phone.startsWith("+20")) phone = `0${phone.slice(3)}`;
-  else if (/^20(1\d{9})$/.test(phone)) phone = `0${phone.slice(2)}`;
-  if (!/^\+?\d{6,15}$/.test(phone)) return null;
-  return phone;
-}
-
 export function formatAddress(address: Address): string | null {
-  if (!address) return null;
-  const parts = [address.address1, address.address2, address.city, address.province, address.country, address.zip]
-    .map(clean)
-    .filter(Boolean);
-  return parts.length > 0 ? parts.join("، ") : null;
+  return formatAddressParts(address);
 }
 
 function firstImage(nodes: Image[] | undefined) {

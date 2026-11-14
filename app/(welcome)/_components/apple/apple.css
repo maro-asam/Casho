@@ -650,9 +650,10 @@
   height: var(--ss-h, 560px);
   overflow: hidden;
   border-radius: var(--al-r-lg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 60px -24px rgba(0, 0, 0, 0.18);
 }
 /* At night the light half dims a little and the panel gets a hairline. */
-.dark .ss { --ss-dark: #000000; --ss-light: #e8e8ed; }
+.dark .ss { --ss-dark: #000000; --ss-light: #e8e8ed; box-shadow: none; }
 .dark .ss::after {
   content: "";
   position: absolute;
@@ -672,7 +673,7 @@
   flex-direction: column;
   justify-content: flex-start;
   gap: 18px;
-  padding: clamp(22px, 3.2vw, 40px);
+  padding: clamp(20px, 3vw, 36px);
   background: var(--ss-bg);
   color: var(--ss-ink);
 }
@@ -680,59 +681,131 @@
   --ss-bg: var(--ss-dark);
   --ss-ink: var(--ss-on-dark);
   --ss-muted: var(--ss-on-dark-muted);
-  --ss-mark: var(--ss-on-dark);
+  --ss-mark: #30d158;
+  --ss-row: rgba(255, 255, 255, 0.06);
+  --ss-edge: rgba(255, 255, 255, 0.09);
+  --ss-icon-bg: rgba(255, 255, 255, 0.1);
+  --ss-icon: var(--ss-on-dark);
 }
 .ss-half[data-channel="online"] {
   --ss-bg: var(--ss-light);
   --ss-ink: var(--ss-on-light);
   --ss-muted: var(--ss-on-light-muted);
-  --ss-mark: var(--ss-blue);
+  --ss-mark: #30d158;
+  --ss-row: #f5f5f7;
+  --ss-edge: rgba(0, 0, 0, 0.06);
+  --ss-icon-bg: rgba(20, 71, 230, 0.1);
+  --ss-icon: var(--ss-blue);
   /* Phones: mirrored — the name on the bottom edge, the feed above it. */
   flex-direction: column-reverse;
 }
+.dark .ss-half[data-channel="online"] { --ss-row: rgba(255, 255, 255, 0.6); --ss-edge: rgba(0, 0, 0, 0.07); }
 @media (min-width: 768px) {
   /* Name in the outer top corner, feed in the outer bottom corner. */
   .ss-half { justify-content: space-between; }
   .ss-half[data-channel="online"] { flex-direction: column; align-items: flex-end; text-align: end; }
+  .ss-half[data-channel="online"] .ss-head,
+  .ss-half[data-channel="online"] .ss-event { flex-direction: row-reverse; }
 }
 
-.ss-name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: clamp(17px, 1.6vw, 21px);
-  font-weight: 700;
-  line-height: 1.4;
+/* Header: the channel's icon (with a live light) and its name. */
+.ss-head { display: flex; align-items: center; gap: 12px; }
+.ss-badge {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--ss-icon-bg);
+  color: var(--ss-icon);
 }
-.ss-place { margin-top: 2px; font-size: 15px; color: var(--ss-muted); }
+.ss-badge svg { width: 20px; height: 20px; }
+.ss-name { font-size: clamp(16px, 1.4vw, 18px); font-weight: 700; line-height: 1.35; }
+.ss-place { font-size: 13.5px; line-height: 1.5; color: var(--ss-muted); }
 .ss-dot {
-  width: 8px;
-  height: 8px;
-  flex-shrink: 0;
+  position: absolute;
+  top: -3px;
+  inset-inline-end: -3px;
+  width: 11px;
+  height: 11px;
   border-radius: 99px;
+  border: 2px solid var(--ss-bg);
   background: var(--ss-mark);
 }
 @keyframes ss-live {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ss-mark) 55%, transparent); }
-  100% { box-shadow: 0 0 0 9px transparent; }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ss-mark) 60%, transparent); }
+  100% { box-shadow: 0 0 0 8px transparent; }
 }
 .ss-dot.is-live { animation: ss-live 1.6s ease-out infinite; }
 
-.ss-feed { display: grid; gap: 14px; }
-/* Phones: the number's caption shares the online half, so each side keeps
+/* The feed: each sale is a small notification row. */
+.ss-feed { display: grid; gap: 8px; width: 100%; }
+@media (min-width: 768px) {
+  .ss-feed { width: min(100%, 330px); }
+}
+/* Phones: the number's chip shares the online half, so each side keeps
    only its latest sale. */
 @media (max-width: 767px) {
   .ss-feed > .ss-event:nth-child(n + 2) { display: none; }
 }
-.ss-event { display: grid; gap: 2px; }
-.ss-event-title { font-size: 17px; font-weight: 600; line-height: 1.45; }
-.ss-event-meta { font-size: 14px; color: var(--ss-muted); font-variant-numeric: tabular-nums; }
+.ss-event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--ss-row);
+  box-shadow: inset 0 0 0 1px var(--ss-edge);
+}
+.ss-event-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--ss-icon-bg);
+  color: var(--ss-icon);
+}
+.ss-event-icon svg { width: 17px; height: 17px; }
+.ss-event-body { flex: 1; min-width: 0; display: grid; }
+.ss-event-title { font-size: 14.5px; font-weight: 600; line-height: 1.45; }
+.ss-event-meta {
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ss-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.ss-event-delta {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 99px;
+  box-shadow: inset 0 0 0 1px var(--ss-edge);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--ss-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ss-waiting {
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px dashed color-mix(in srgb, var(--ss-muted) 45%, transparent);
+  font-size: 13.5px;
+  color: var(--ss-muted);
+}
 
 /* The shared number, drawn once per half and clipped to it. */
 .ss-count { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .ss-layer { position: absolute; inset: 0; display: grid; place-items: center; }
-.ss-layer[data-on="dark"] { color: var(--ss-on-dark); --ss-muted: var(--ss-on-dark-muted); clip-path: inset(0 0 50% 0); }
-.ss-layer[data-on="light"] { color: var(--ss-on-light); --ss-muted: var(--ss-on-light-muted); clip-path: inset(50% 0 0 0); }
+.ss-layer[data-on="dark"] { color: var(--ss-on-dark); clip-path: inset(0 0 50% 0); }
+.ss-layer[data-on="light"] { color: var(--ss-on-light); clip-path: inset(50% 0 0 0); }
 @media (min-width: 768px) {
   /* Arabic: the shop is the right half. */
   .ss-layer[data-on="dark"] { clip-path: inset(0 0 0 50%); }
@@ -750,21 +823,50 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
+[dir="ltr"] .ss-num { letter-spacing: -0.03em; }
 .ss-num > span { grid-area: 1 / 1; text-align: center; }
-.ss-caption {
+
+/* The number's label: one chip across the seam, so no text is cut in half. */
+.ss-tag {
   position: absolute;
   top: 100%;
   left: 50%;
   translate: -50% 0;
-  display: grid;
-  justify-items: center;
-  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  padding-block: 6px;
+  padding-inline: 6px 16px; /* the icon hugs the start edge */
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.07), 0 10px 30px -8px rgba(0, 0, 0, 0.28);
+  color: #1d1d1f;
   white-space: nowrap;
-  text-align: center;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.4;
 }
-.ss-caption-main { font-size: clamp(15px, 1.4vw, 19px); font-weight: 600; }
-.ss-caption-sub { font-size: clamp(13px, 1.1vw, 15px); color: var(--ss-muted); }
+.dark .ss-tag { background: rgba(28, 28, 30, 0.9); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 30px -8px rgba(0, 0, 0, 0.6); color: #f5f5f7; }
+.ss-tag-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 99px;
+  background: rgba(20, 71, 230, 0.1);
+  color: #1447e6;
+}
+.dark .ss-tag-icon { background: rgba(51, 102, 255, 0.2); color: #9db7ff; }
+.ss-tag-icon svg { width: 15px; height: 15px; }
+.ss-tag-main { font-weight: 600; }
+.ss-tag-sub { display: inline-flex; align-items: center; gap: 10px; color: #6e6e73; }
+.ss-tag-sub::before { content: ""; width: 1px; height: 14px; background: currentColor; opacity: 0.35; }
+.dark .ss-tag-sub { color: #a1a1a6; }
+@media (max-width: 767px) {
+  .ss-tag { font-size: 13px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .al .ss-dot.is-live { animation: none !important; }

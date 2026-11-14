@@ -2,21 +2,25 @@
 
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
-import { Prisma, type ImportEntityType } from "@prisma/client";
+import { Prisma, type ImportEntityType, type ImportProvider } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { decryptSecret } from "@/lib/secrets";
 import { ImportAccessError, requireImportAccess } from "@/lib/integrations/import/access";
 import { isRunnable, runImportJob } from "@/lib/integrations/import/engine";
 import { errorLogContext, isUniqueViolation, jobFailureMessage, SourceApiError } from "@/lib/integrations/import/errors";
 import { initialProgress } from "@/lib/integrations/import/progress";
-import { isImportableEntity, orderEntities, type ImportableEntity } from "@/lib/integrations/import/types";
+import { fetchPreviewCounts, isProviderConfigured, revokeRemoteAccess } from "@/lib/integrations/import/registry";
+import {
+  isImportableEntity,
+  isImportProvider,
+  orderEntities,
+  PROVIDER_LABELS,
+  PROVIDER_PAGE_PATHS,
+  type ImportableEntity,
+  type PreviewCounts,
+} from "@/lib/integrations/import/types";
 import { toConnectionView, toFailureView, toJobView, type ConnectionView, type JobView } from "@/lib/integrations/import/views";
-import { isShopifyConfigured } from "@/lib/integrations/shopify/config";
-import { fetchPreviewCounts, type ShopifyPreviewCounts } from "@/lib/integrations/shopify/source";
 
-const PROVIDER = "SHOPIFY" as const;
-const PAGE_PATH = "/dashboard/integrations/shopify";
 const FAILURES_SHOWN = 50;
 const HISTORY_SIZE = 10;
 
@@ -30,6 +34,21 @@ async function guard(): Promise<{ storeId: string; userId: string } | Fail> {
     if (err instanceof ImportAccessError) return { ok: false, error: err.message };
     throw err;
   }
+}
+
+/** The provider comes from the client — only known values pass. */
+function providerOf(value: unknown): ImportProvider | null {
+  return isImportProvider(value) ? value : null;
+}
+
+const pagePath = (provider: ImportProvider) => `/dashboard${PROVIDER_PAGE_PATHS[provider]}`;
+
+function connectFirst(provider: ImportProvider) {
+  return provider === "SHOPIFY" ? "اربط متجر Shopify الأول" : `اربط موقعك على ${PROVIDER_LABELS[provider]} الأول`;
+}
+
+function reconnectFirst(provider: ImportProvider) {
+  return provider === "SHOPIFY" ? "أعد ربط متجر Shopify الأول ثم استكمل" : `أعد ربط موقعك على ${PROVIDER_LABELS[provider]} الأول ثم استكمل`;
 }
 
 /** Every job lookup is scoped by the caller's store — ids from the client are never trusted alone. */
@@ -62,12 +81,16 @@ function kick(jobId: string) {
   });
 }
 
-/** The "one unfinished import per store" index rejected a second job. */
+/** The "one unfinished import per store and provider" index rejected a second job. */
 const isActiveJobConflict = isUniqueViolation;
+
+function findConnection(storeId: string, provider: ImportProvider) {
+  return prisma.importConnection.findUnique({ where: { storeId_provider: { storeId, provider } } });
+}
 
 // ─── Page state ──────────────────────────────────────────────────────────────
 
-export type ShopifyImportPageState =
+export type ImportPageState =
   | Fail
   | {
       ok: true;
@@ -77,14 +100,16 @@ export type ShopifyImportPageState =
       history: JobView[];
     };
 
-export async function GetShopifyImportStateAction(): Promise<ShopifyImportPageState> {
+export async function GetImportPageStateAction(providerInput: ImportProvider): Promise<ImportPageState> {
+  const provider = providerOf(providerInput);
+  if (!provider) return { ok: false, error: "مصدر استيراد غير معروف" };
   const access = await guard();
   if ("ok" in access) return access;
 
   const [connection, jobs] = await Promise.all([
-    prisma.importConnection.findUnique({ where: { storeId_provider: { storeId: access.storeId, provider: PROVIDER } } }),
+    findConnection(access.storeId, provider),
     prisma.importJob.findMany({
-      where: { storeId: access.storeId, provider: PROVIDER },
+      where: { storeId: access.storeId, provider },
       orderBy: { createdAt: "desc" },
       take: HISTORY_SIZE,
     }),
@@ -95,7 +120,7 @@ export async function GetShopifyImportStateAction(): Promise<ShopifyImportPageSt
 
   return {
     ok: true,
-    configured: isShopifyConfigured(),
+    configured: isProviderConfigured(provider),
     connection: connection && connection.status !== "DISCONNECTED" ? toConnectionView(connection) : null,
     job: latest,
     history: jobs.map((j) => toJobView(j)),
@@ -104,24 +129,30 @@ export async function GetShopifyImportStateAction(): Promise<ShopifyImportPageSt
 
 // ─── Preview ─────────────────────────────────────────────────────────────────
 
-export type PreviewResult = Fail | { ok: true; counts: ShopifyPreviewCounts; connection: ConnectionView };
+export type PreviewResult = Fail | { ok: true; counts: PreviewCounts; connection: ConnectionView };
 
-export async function LoadShopifyPreviewAction(): Promise<PreviewResult> {
+export async function LoadImportPreviewAction(providerInput: ImportProvider): Promise<PreviewResult> {
+  const provider = providerOf(providerInput);
+  if (!provider) return { ok: false, error: "مصدر استيراد غير معروف" };
   const access = await guard();
   if ("ok" in access) return access;
 
-  const connection = await prisma.importConnection.findUnique({
-    where: { storeId_provider: { storeId: access.storeId, provider: PROVIDER } },
-  });
-  if (!connection || connection.status !== "ACTIVE") return { ok: false, error: "اربط متجر Shopify الأول" };
+  let connection = await findConnection(access.storeId, provider);
+  if (!connection || connection.status !== "ACTIVE") return { ok: false, error: connectFirst(provider) };
 
   try {
     const counts = await fetchPreviewCounts(connection);
+    if (counts.currencyCode && counts.currencyCode !== connection.currencyCode) {
+      connection = await prisma.importConnection.update({ where: { id: connection.id }, data: { currencyCode: counts.currencyCode } });
+    }
     return { ok: true, counts, connection: toConnectionView(connection) };
   } catch (err) {
-    logger.warn("[Shopify] Preview failed", { storeId: access.storeId, ...errorLogContext(err) });
-    if (err instanceof SourceApiError && err.kind === "unauthorized") revalidatePath(PAGE_PATH);
-    return { ok: false, error: jobFailureMessage(err) };
+    logger.warn("[Import] Preview failed", { provider, storeId: access.storeId, ...errorLogContext(err) });
+    if (err instanceof SourceApiError && err.kind === "unauthorized") {
+      await prisma.importConnection.update({ where: { id: connection.id }, data: { status: "NEEDS_RECONNECT" } });
+      revalidatePath(pagePath(provider));
+    }
+    return { ok: false, error: jobFailureMessage(err, provider) };
   }
 }
 
@@ -129,26 +160,26 @@ export async function LoadShopifyPreviewAction(): Promise<PreviewResult> {
 
 export type JobResult = Fail | { ok: true; job: JobView };
 
-export async function StartShopifyImportAction(selected: string[]): Promise<JobResult> {
+export async function StartImportAction(providerInput: ImportProvider, selected: string[]): Promise<JobResult> {
+  const provider = providerOf(providerInput);
+  if (!provider) return { ok: false, error: "مصدر استيراد غير معروف" };
   const access = await guard();
   if ("ok" in access) return access;
 
-  const entities = orderEntities(selected.filter(isImportableEntity));
+  const entities = orderEntities((Array.isArray(selected) ? selected : []).filter(isImportableEntity));
   if (entities.length === 0) return { ok: false, error: "اختار نوع بيانات واحد على الأقل" };
 
-  const connection = await prisma.importConnection.findUnique({
-    where: { storeId_provider: { storeId: access.storeId, provider: PROVIDER } },
-  });
-  if (!connection || connection.status !== "ACTIVE") return { ok: false, error: "اربط متجر Shopify الأول" };
+  const connection = await findConnection(access.storeId, provider);
+  if (!connection || connection.status !== "ACTIVE") return { ok: false, error: connectFirst(provider) };
 
   // Totals make the progress bars meaningful from the first second; the engine
-  // counts lazily if Shopify can't answer now.
+  // counts lazily if the source can't answer now.
   let totals: Partial<Record<ImportableEntity, number | null>> = {};
   try {
     const c = await fetchPreviewCounts(connection);
     totals = { COLLECTION: c.collections, PRODUCT: c.products, CUSTOMER: c.customers, ORDER: c.orders };
   } catch (err) {
-    if (err instanceof SourceApiError && err.kind === "unauthorized") return { ok: false, error: jobFailureMessage(err) };
+    if (err instanceof SourceApiError && err.kind === "unauthorized") return { ok: false, error: jobFailureMessage(err, provider) };
   }
 
   try {
@@ -156,16 +187,16 @@ export async function StartShopifyImportAction(selected: string[]): Promise<JobR
       data: {
         storeId: access.storeId,
         connectionId: connection.id,
-        provider: PROVIDER,
+        provider,
         externalShopId: connection.externalShopId,
         entities,
         progress: initialProgress(entities, totals) as Prisma.InputJsonValue,
         startedByUserId: access.userId,
       },
     });
-    logger.info("[Import] Job created", { jobId: job.id, storeId: access.storeId, entities });
+    logger.info("[Import] Job created", { jobId: job.id, provider, storeId: access.storeId, entities });
     kick(job.id);
-    revalidatePath(PAGE_PATH);
+    revalidatePath(pagePath(provider));
     return { ok: true, job: toJobView(job) };
   } catch (err) {
     if (isActiveJobConflict(err)) return { ok: false, error: "فيه استيراد شغال بالفعل — تابعه من نفس الصفحة" };
@@ -195,7 +226,7 @@ export async function ResumeImportJobAction(jobId: string): Promise<JobResult> {
 
   const connection = await prisma.importConnection.findUnique({ where: { id: job.connectionId }, select: { status: true, storeId: true } });
   if (!connection || connection.storeId !== access.storeId || connection.status !== "ACTIVE") {
-    return { ok: false, error: "أعد ربط متجر Shopify الأول ثم استكمل" };
+    return { ok: false, error: reconnectFirst(job.provider) };
   }
 
   await prisma.importJob.updateMany({
@@ -217,8 +248,11 @@ export async function CancelImportJobAction(jobId: string): Promise<JobResult> {
   });
   if (updated.count === 0) return { ok: false, error: "الاستيراد ده خلص بالفعل" };
 
-  revalidatePath(PAGE_PATH);
   const view = await jobView(access.storeId, jobId);
+  if (view) {
+    const job = await findStoreJob(access.storeId, jobId);
+    if (job) revalidatePath(pagePath(job.provider));
+  }
   return view ? { ok: true, job: view } : { ok: false, error: "الاستيراد غير موجود" };
 }
 
@@ -233,7 +267,7 @@ export async function RetryFailedItemsAction(jobId: string): Promise<JobResult> 
 
   const connection = await prisma.importConnection.findUnique({ where: { id: source.connectionId } });
   if (!connection || connection.storeId !== access.storeId || connection.status !== "ACTIVE") {
-    return { ok: false, error: "أعد ربط متجر Shopify الأول" };
+    return { ok: false, error: source.provider === "SHOPIFY" ? "أعد ربط متجر Shopify الأول" : `أعد ربط موقعك على ${PROVIDER_LABELS[source.provider]} الأول` };
   }
   if (connection.externalShopId !== source.externalShopId) {
     return { ok: false, error: "المتجر المربوط حالياً مختلف عن متجر الاستيراد ده" };
@@ -254,7 +288,7 @@ export async function RetryFailedItemsAction(jobId: string): Promise<JobResult> 
       data: {
         storeId: access.storeId,
         connectionId: connection.id,
-        provider: PROVIDER,
+        provider: source.provider,
         externalShopId: source.externalShopId,
         kind: "RETRY",
         retryOfJobId: source.id,
@@ -264,7 +298,7 @@ export async function RetryFailedItemsAction(jobId: string): Promise<JobResult> 
       },
     });
     kick(job.id);
-    revalidatePath(PAGE_PATH);
+    revalidatePath(pagePath(source.provider));
     return { ok: true, job: toJobView(job) };
   } catch (err) {
     if (isActiveJobConflict(err)) return { ok: false, error: "فيه استيراد شغال بالفعل" };
@@ -274,27 +308,16 @@ export async function RetryFailedItemsAction(jobId: string): Promise<JobResult> 
 
 // ─── Disconnect ──────────────────────────────────────────────────────────────
 
-export async function DisconnectShopifyAction(): Promise<{ ok: true } | Fail> {
+export async function DisconnectImportAction(providerInput: ImportProvider): Promise<{ ok: true } | Fail> {
+  const provider = providerOf(providerInput);
+  if (!provider) return { ok: false, error: "مصدر استيراد غير معروف" };
   const access = await guard();
   if ("ok" in access) return access;
 
-  const connection = await prisma.importConnection.findUnique({
-    where: { storeId_provider: { storeId: access.storeId, provider: PROVIDER } },
-  });
-  if (!connection) return { ok: false, error: "مفيش متجر Shopify مربوط" };
+  const connection = await findConnection(access.storeId, provider);
+  if (!connection) return { ok: false, error: provider === "SHOPIFY" ? "مفيش متجر Shopify مربوط" : `مفيش موقع ${PROVIDER_LABELS[provider]} مربوط` };
 
-  // Best effort: uninstall the app from the merchant's Shopify store too.
-  if (connection.accessTokenEnc && isShopifyConfigured()) {
-    try {
-      await fetch(`https://${connection.shopDomain}/admin/api_permissions/current.json`, {
-        method: "DELETE",
-        headers: { "X-Shopify-Access-Token": decryptSecret(connection.accessTokenEnc) },
-        signal: AbortSignal.timeout(10_000),
-      });
-    } catch (err) {
-      logger.warn("[Shopify] Revoke on disconnect failed", { storeId: access.storeId, ...errorLogContext(err) });
-    }
-  }
+  await revokeRemoteAccess(connection);
 
   await prisma.$transaction([
     prisma.importJob.updateMany({
@@ -313,6 +336,6 @@ export async function DisconnectShopifyAction(): Promise<{ ok: true } | Fail> {
     }),
   ]);
 
-  revalidatePath(PAGE_PATH);
+  revalidatePath(pagePath(provider));
   return { ok: true };
 }

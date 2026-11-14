@@ -15,22 +15,25 @@ import {
 import { StatusText, appleButton } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { entityPercent, overallPercent, totalFailed, totalRemaining } from "@/lib/integrations/import/progress";
+import type { ImportProvider } from "@prisma/client";
 import type { JobView } from "@/lib/integrations/import/views";
 import { tdir, tr } from "@/lib/i18n/dashboard";
-import { IconTile } from "../../../settings/_components/settings-ui";
+import { IconTile } from "../../settings/_components/settings-ui";
 import { ENTITY_META, JOB_STATUS_META, nf } from "./import-meta";
 import { Bar, ENTITY_TILE, Ring } from "./import-ui";
+import { providerCopy } from "./provider-ui";
 
 type Props = {
+  provider: ImportProvider;
   job: JobView;
   onResume: () => void;
   onCancel: () => void;
   busy: boolean;
-  /** Paused because the Shopify connection must be renewed (resume is disabled). */
+  /** Paused because the source connection must be renewed (resume is disabled). */
   needsReconnect: boolean;
 };
 
-export function ProgressPanel({ job, onResume, onCancel, busy, needsReconnect }: Props) {
+export function ProgressPanel({ provider, job, onResume, onCancel, busy, needsReconnect }: Props) {
   const paused = job.status === "PAUSED";
   const percent = overallPercent(job.progress);
   const failed = totalFailed(job.progress);
@@ -45,7 +48,7 @@ export function ProgressPanel({ job, onResume, onCancel, busy, needsReconnect }:
           <div className="min-w-0 flex-1 space-y-1.5">
             {status && <StatusText tone={status.tone}>{status.label}</StatusText>}
             <h2 className="text-[22px] leading-7 font-bold">
-              {paused ? tr("الاستيراد متوقف") : job.kind === "RETRY" ? tr("بنعيد محاولة العناصر الفاشلة…") : tr("بننقل بيانات متجرك من Shopify…")}
+              {paused ? tr("الاستيراد متوقف") : job.kind === "RETRY" ? tr("بنعيد محاولة العناصر الفاشلة…") : providerCopy(provider).moving}
             </h2>
             <p className="text-[15px] leading-[21px] text-muted-foreground">
               {paused

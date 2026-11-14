@@ -4,10 +4,11 @@ import Link from "next/link";
 import { AlertTriangle, ChevronLeft, Loader2 } from "lucide-react";
 import { appleButton } from "@/components/saas-page";
 import type { ImportableEntity, SkipReason } from "@/lib/integrations/import/types";
+import type { ImportProvider } from "@prisma/client";
 import type { JobView } from "@/lib/integrations/import/views";
 import { cn } from "@/lib/utils";
 import { tr, trv } from "@/lib/i18n/dashboard";
-import { Group, IconTile } from "../../../settings/_components/settings-ui";
+import { Group, IconTile } from "../../settings/_components/settings-ui";
 import { ENTITY_META, ITEM_ENTITY_LABEL, SKIP_REASON_LABEL, dateTime, nf } from "./import-meta";
 import { ENTITY_TILE, MigrationGlyph } from "./import-ui";
 
@@ -19,19 +20,20 @@ const LINKS: Record<ImportableEntity, string> = {
 };
 
 type Props = {
+  provider: ImportProvider;
   job: JobView;
   onRetry: () => void;
   onNewImport: () => void;
   busy: boolean;
 };
 
-export function ResultPanel({ job, onRetry, onNewImport, busy }: Props) {
+export function ResultPanel({ provider, job, onRetry, onNewImport, busy }: Props) {
   const warnings = job.status === "COMPLETED_WITH_ERRORS";
 
   return (
     <div className="space-y-6">
       <section className="apple-card flex flex-col items-center px-6 pt-10 pb-8 text-center">
-        <MigrationGlyph done={!warnings} />
+        <MigrationGlyph provider={provider} done={!warnings} />
         <h2 className="mt-6 text-[28px] leading-[34px] font-bold ltr:tracking-[-0.015em]">
           {warnings ? tr("الاستيراد اكتمل مع بعض المشاكل") : tr("الاستيراد اكتمل بنجاح")}
         </h2>

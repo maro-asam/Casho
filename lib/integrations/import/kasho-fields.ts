@@ -16,7 +16,7 @@ export function toPiasters(amount: number) {
   return Math.round((Number.isFinite(amount) ? amount : 0) * 100);
 }
 
-/** Last path segment of a gid ("gid://shopify/Product/123" → "123"). */
+/** Last path segment of a gid ("gid://shopify/Product/123" → "123"; plain ids stay as they are). */
 export function shortId(externalId: string) {
   return externalId.split("/").pop() || externalId;
 }
@@ -46,6 +46,9 @@ export function buildProductFields(r: NormalizedProduct) {
     if (SIZE_OPTION.test(option.name.trim())) sizes.push(...option.values);
     else if (COLOR_OPTION.test(option.name.trim())) colors.push(...option.values);
     else attributes.push({ key: option.name, value: option.values.join("، ") });
+  }
+  for (const spec of r.specs ?? []) {
+    if (spec.key.trim() && spec.value.trim()) attributes.push({ key: spec.key.trim(), value: spec.value.trim() });
   }
 
   const single = variants.length === 1 ? variants[0] : null;

@@ -97,8 +97,9 @@ The state cookie is scoped to `.${ROOT_DOMAIN}` in production and to the host on
 ## 8. Architecture
 
 ```
-app/(merchant)/dashboard/integrations/shopify/   UI (state machine: lib/integrations/import/progress.ts)
-actions/integrations/shopify-import.actions.ts   server actions: state, preview, start, poll, resume, cancel, retry, disconnect
+app/(merchant)/dashboard/integrations/_import/   shared import UI for every provider (state machine: lib/integrations/import/progress.ts; per-platform copy: provider-ui.tsx)
+app/(merchant)/dashboard/integrations/shopify/   page.tsx → <ImportPage provider="SHOPIFY" />
+actions/integrations/store-import.actions.ts     server actions (any provider): state, preview, start, poll, resume, cancel, retry, disconnect
 app/api/integrations/shopify/oauth/initiate      POST: sealed state cookie → redirect to Shopify
 app/api/integrations/shopify/oauth/callback      GET: HMAC + state + session checks → encrypted tokens
 app/api/integrations/shopify/webhooks            uninstall + privacy webhooks
@@ -111,14 +112,14 @@ lib/integrations/import/      provider-agnostic engine
   sink.ts       Prisma writes into Casho models + idempotency map
   kasho-fields.ts  pure Normalized → Casho field conversion
   access.ts     owner-only guard;  views.ts  browser-safe DTOs;  errors.ts  safe messages + redaction
-  registry.ts   provider → ImportSource
+  registry.ts   provider → ImportSource, preview counts, "configured" check, remote revoke
 
 lib/integrations/shopify/     Shopify provider
   config.ts  oauth.ts  callback.ts  connection.ts (token refresh)  client.ts (GraphQL + rate limits)
   queries.ts  mappers.ts  source.ts (pagination)  webhooks.ts
 ```
 
-To add WooCommerce or Magento, write `lib/integrations/<provider>/` with an `ImportSource` that returns `Normalized*` records, add an enum value to `ImportProvider`, register it in `registry.ts` and build its connect UI. The engine, sink, progress, history and retry work as they are.
+WooCommerce is the second provider ([woocommerce-import.md](./woocommerce-import.md)). To add Magento, write `lib/integrations/<provider>/` with an `ImportSource` that returns `Normalized*` records, add an enum value to `ImportProvider` (and to `IMPORT_PROVIDERS`, `PROVIDER_LABELS`, `PROVIDER_PAGE_PATHS` in `types.ts`), register it in `registry.ts`, add its copy to `_import/provider-ui.tsx` and a page that renders `<ImportPage provider=… />`. The engine, sink, progress, history and retry work as they are.
 
 ### Import order
 

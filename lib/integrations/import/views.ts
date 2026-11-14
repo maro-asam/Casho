@@ -14,7 +14,7 @@ export type ConnectionView = {
   shopDomain: string;
   currencyCode: string | null;
   status: ImportConnection["status"];
-  /** Orders older than 60 days are readable (read_all_orders granted). */
+  /** Orders older than 60 days are readable (Shopify: read_all_orders granted; other sources: always). */
   hasAllOrders: boolean;
   connectedAt: string;
 };
@@ -49,7 +49,7 @@ export function toConnectionView(c: ImportConnection): ConnectionView {
     shopDomain: c.shopDomain,
     currencyCode: c.currencyCode,
     status: c.status,
-    hasAllOrders: c.scopes.includes(ALL_ORDERS_SCOPE),
+    hasAllOrders: c.provider !== "SHOPIFY" || c.scopes.includes(ALL_ORDERS_SCOPE),
     connectedAt: c.updatedAt.toISOString(),
   };
 }

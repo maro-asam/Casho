@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
+import { Globe, Receipt, Shirt, ShoppingBag, Store, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLandingCopy } from "./copy";
 import SectionHead from "./SectionHead";
@@ -14,10 +15,16 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 type Channel = "pos" | "online";
 type SyncEvent = { channel: string; title: string; meta: string };
 
+const ICONS: Record<Channel, { channel: LucideIcon; event: LucideIcon }> = {
+  pos: { channel: Store, event: Receipt },
+  online: { channel: Globe, event: ShoppingBag },
+};
+
 /**
  * "One number across two worlds." A panel split into the shop (dark) and the
  * online store (light), with one stock number sitting on the seam between
- * them — drawn twice and clipped, so each half shows it in its own ink. While
+ * them — drawn twice and clipped, so each half shows it in its own ink. Its
+ * label is one chip on the seam (drawn once, so no text is cut in half). While
  * the panel is pinned, scrolling rings up sales on both sides and the same
  * number counts down.
  */
@@ -64,10 +71,23 @@ export default function SyncSection() {
                 live={last === "online"}
               />
 
-              {/* The shared number: one copy per half, each clipped to its side. */}
+              {/* The shared number: one copy per half, each clipped to its side, and its label once on top. */}
               <div className="ss-count" aria-hidden>
-                <Figure on="dark" stock={stock} available={c.available} product={c.product} />
-                <Figure on="light" stock={stock} available={c.available} product={c.product} />
+                <Figure on="dark" stock={stock} />
+                <Figure on="light" stock={stock} />
+                <div className="ss-layer">
+                  <div className="ss-figure">
+                    {/* Invisible copy of the number: puts the chip right under it. */}
+                    <span className="ss-num invisible">{stock}</span>
+                    <span className="ss-tag">
+                      <span className="ss-tag-icon">
+                        <Shirt strokeWidth={1.75} />
+                      </span>
+                      <span className="ss-tag-main">{c.available}</span>
+                      <span className="ss-tag-sub">{c.product}</span>
+                    </span>
+                  </div>
+                </div>
               </div>
               <p className="sr-only" aria-live="polite">
                 {stock} {c.available} · {c.product}
@@ -97,16 +117,20 @@ function Half({
   events: SyncEvent[];
   live: boolean;
 }) {
+  const { channel: ChannelIcon, event: EventIcon } = ICONS[channel];
   return (
     <div className="ss-half" data-channel={channel}>
-      <div>
-        <p className="ss-name">
-          <span className={cn("ss-dot", live && "is-live")} aria-hidden />
-          {name}
-        </p>
-        <p className="ss-place">
-          <bdi>{place}</bdi>
-        </p>
+      <div className="ss-head">
+        <span className="ss-badge" aria-hidden>
+          <ChannelIcon strokeWidth={1.75} />
+          <span className={cn("ss-dot", live && "is-live")} />
+        </span>
+        <div>
+          <p className="ss-name">{name}</p>
+          <p className="ss-place">
+            <bdi>{place}</bdi>
+          </p>
+        </div>
       </div>
 
       <ul className="ss-feed">
@@ -121,20 +145,24 @@ function Half({
               transition={{ duration: 0.45, ease: EASE }}
               className="ss-event"
             >
-              <span className="ss-event-title">{e.title}</span>
-              <span className="ss-event-meta">
-                {e.meta} · {piece}
+              <span className="ss-event-icon" aria-hidden>
+                <EventIcon strokeWidth={1.75} />
               </span>
+              <span className="ss-event-body">
+                <span className="ss-event-title">{e.title}</span>
+                <span className="ss-event-meta">{e.meta}</span>
+              </span>
+              <span className="ss-event-delta">{piece}</span>
             </motion.li>
           ))}
         </AnimatePresence>
-        {events.length === 0 ? <li className="ss-event ss-event-meta">{waiting}</li> : null}
+        {events.length === 0 ? <li className="ss-waiting">{waiting}</li> : null}
       </ul>
     </div>
   );
 }
 
-function Figure({ on, stock, available, product }: { on: "dark" | "light"; stock: number; available: string; product: string }) {
+function Figure({ on, stock }: { on: "dark" | "light"; stock: number }) {
   return (
     <div className="ss-layer" data-on={on}>
       <div className="ss-figure">
@@ -150,10 +178,6 @@ function Figure({ on, stock, available, product }: { on: "dark" | "light"; stock
               {stock}
             </motion.span>
           </AnimatePresence>
-        </span>
-        <span className="ss-caption">
-          <span className="ss-caption-main">{available}</span>
-          <span className="ss-caption-sub">{product}</span>
         </span>
       </div>
     </div>

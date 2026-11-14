@@ -1,8 +1,10 @@
-import { ArrowLeft, Check, FolderTree, Package, ShoppingBag, ShoppingCart, Store, Users, type LucideIcon } from "lucide-react";
+import { ArrowLeft, Check, FolderTree, Package, ShoppingCart, Store, Users, type LucideIcon } from "lucide-react";
+import type { ImportProvider } from "@prisma/client";
 import type { ImportableEntity } from "@/lib/integrations/import/types";
 import { cn } from "@/lib/utils";
 import { tr } from "@/lib/i18n/dashboard";
 import { nf } from "./import-meta";
+import { ProviderMark, providerCopy } from "./provider-ui";
 
 /** App-icon tile per importable entity (Settings-style colored squircle). */
 export const ENTITY_TILE: Record<ImportableEntity, { icon: LucideIcon; tint: string }> = {
@@ -12,28 +14,11 @@ export const ENTITY_TILE: Record<ImportableEntity, { icon: LucideIcon; tint: str
   ORDER: { icon: ShoppingCart, tint: "bg-(--sys-green)" },
 };
 
-/** Shopify's brand green squircle — the source of the migration. */
-export function ShopifyMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        "grid shrink-0 place-items-center bg-linear-to-br from-[#95bf47] to-[#5e8e3e] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]",
-        size === "sm" && "size-[29px] rounded-[7px]",
-        size === "md" && "size-11 rounded-[12px]",
-        size === "lg" && "size-16 rounded-[18px]",
-      )}
-    >
-      <ShoppingBag className={size === "sm" ? "size-[17px]" : size === "md" ? "size-5.5" : "size-8"} strokeWidth={2} />
-    </span>
-  );
-}
-
-/** Shopify → your store, the page's hero glyph. */
-export function MigrationGlyph({ done }: { done?: boolean }) {
+/** Source platform → your store, the page's hero glyph. */
+export function MigrationGlyph({ provider, done }: { provider: ImportProvider; done?: boolean }) {
   return (
     <div aria-hidden className="flex items-center justify-center gap-3">
-      <ShopifyMark size="lg" />
+      <ProviderMark provider={provider} size="lg" />
       <span className="flex items-center gap-1 text-(--label-3)">
         <span className="size-1 rounded-full bg-current" />
         <span className="size-1 rounded-full bg-current" />
@@ -104,15 +89,15 @@ export function Ring({ value, warn }: { value: number; warn?: boolean }) {
 
 export type StepId = "connect" | "preview" | "import" | "done";
 
-const STEPS: { id: StepId; label: () => string; hint: () => string }[] = [
-  { id: "connect", label: () => tr("اربط متجرك"), hint: () => tr("من صفحة Shopify الرسمية") },
+const STEPS: { id: StepId; label: () => string; hint: (provider: ImportProvider) => string }[] = [
+  { id: "connect", label: () => tr("اربط متجرك"), hint: (provider) => providerCopy(provider).stepConnectHint },
   { id: "preview", label: () => tr("راجع البيانات"), hint: () => tr("واختار هتنقل إيه") },
   { id: "import", label: () => tr("الاستيراد"), hint: () => tr("بيشتغل في الخلفية") },
   { id: "done", label: () => tr("راجع النتيجة"), hint: () => tr("وكمّل شغلك على متجرك") },
 ];
 
 /** Vertical stepper: where the merchant is in the migration. */
-export function Steps({ current }: { current: StepId }) {
+export function Steps({ current, provider }: { current: StepId; provider: ImportProvider }) {
   const index = STEPS.findIndex((s) => s.id === current);
   return (
     <ol className="apple-card space-y-0 px-5 py-4">
@@ -134,7 +119,7 @@ export function Steps({ current }: { current: StepId }) {
             </span>
             <div className="min-w-0 pt-0.5">
               <p className={cn("text-[15px] leading-5", active ? "font-semibold" : done ? "font-medium" : "text-muted-foreground")}>{step.label()}</p>
-              <p className="text-[13px] leading-[18px] text-muted-foreground">{step.hint()}</p>
+              <p className="text-[13px] leading-[18px] text-muted-foreground">{step.hint(provider)}</p>
             </div>
           </li>
         );

@@ -409,9 +409,10 @@ export const translations = {
       },
       links: {
         product: [
-          { name: "المميزات", href: "#features" },
-          { name: "الأسعار", href: "#pricing" },
-          { name: "الأسئلة الشائعة", href: "#faq" },
+          { name: "المميزات", href: "/#features" },
+          { name: "الأسعار", href: "/#pricing" },
+          { name: "الأسئلة الشائعة", href: "/#faq" },
+          { name: "كاشو ولا شوبيفاي؟", href: "/compare/shopify" },
         ],
         company: [
           { name: "عن كاشو", href: "/about" },
@@ -840,9 +841,10 @@ export const translations = {
       },
       links: {
         product: [
-          { name: "Features", href: "#features" },
-          { name: "Pricing", href: "#pricing" },
-          { name: "FAQ", href: "#faq" },
+          { name: "Features", href: "/#features" },
+          { name: "Pricing", href: "/#pricing" },
+          { name: "FAQ", href: "/#faq" },
+          { name: "Casho vs Shopify", href: "/compare/shopify" },
         ],
         company: [
           { name: "About Casho", href: "/about" },

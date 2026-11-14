@@ -2703,14 +2703,16 @@ model PlanAuditLog {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Store migration imports (Shopify today; WooCommerce/Magento later)
+// Store migration imports (Shopify, WooCommerce; Magento later)
 // ─────────────────────────────────────────────────────────────
 //
 // Provider-agnostic. Engine: lib/integrations/import, provider code:
-// lib/integrations/<provider>. See docs/integrations/shopify-import.md.
+// lib/integrations/<provider>. See docs/integrations/shopify-import.md and
+// docs/integrations/woocommerce-import.md.
 
 enum ImportProvider {
   SHOPIFY
+  WOOCOMMERCE
 }
 
 enum ImportConnectionStatus {
@@ -2748,6 +2750,8 @@ enum ImportEntityType {
 
 /// OAuth connection of a Kasho store to an external shop.
 /// Tokens are AES-256-GCM encrypted (lib/secrets.ts) and never leave the server.
+/// WooCommerce: `accessTokenEnc` holds the encrypted REST key pair (+ API style),
+/// `shopDomain` the site's home URL without the scheme (always https).
 model ImportConnection {
   id       String         @id @default(uuid())
   storeId  String

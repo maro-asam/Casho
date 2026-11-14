@@ -40,7 +40,7 @@ const PRODUCT_COPY = {
       { title: "الثيمات", text: "٦ ثيمات للسوق العربي", href: "/#themes", icon: Palette },
       { title: "طرق الدفع", text: "فودافون كاش، إنستاباي، فوري، كروت", href: "/#features", icon: CreditCard },
       { title: "الشحن", text: "بوسطة وأرامكس من صفحة الطلب", href: "/#features", icon: Truck },
-      { title: "النقل من شوبيفاي", text: "انقل متجرك في دقايق", href: "/#features", icon: Upload },
+      { title: "النقل من شوبيفاي", text: "انقل متجرك في دقايق", href: "/compare/shopify", icon: Upload },
     ],
     promoTitle: "جرّب كاشو مجانًا",
     promoText: "٣ أيام تجربة · من غير بطاقة ائتمان",
@@ -54,7 +54,7 @@ const PRODUCT_COPY = {
       { title: "Themes", text: "6 themes for Arabic shoppers", href: "/#themes", icon: Palette },
       { title: "Payments", text: "Vodafone Cash, InstaPay, Fawry, cards", href: "/#features", icon: CreditCard },
       { title: "Shipping", text: "Bosta and Aramex from the order page", href: "/#features", icon: Truck },
-      { title: "Move from Shopify", text: "Bring your store over in minutes", href: "/#features", icon: Upload },
+      { title: "Move from Shopify", text: "Bring your store over in minutes", href: "/compare/shopify", icon: Upload },
     ],
     promoTitle: "Try Casho free",
     promoText: "3-day trial · No credit card",
@@ -97,5 +97,7 @@ export function useActiveNavKey(): string | null {
   if (pathname === "/") return section && PRODUCT_SECTIONS.includes(section) ? "product" : section;
   if (pathname.startsWith("/blog")) return "blog";
   if (pathname.startsWith("/sharks")) return "sharks";
+  // "Move from Shopify" in the Product flyout opens the comparison.
+  if (pathname.startsWith("/compare")) return "product";
   return null;
 }

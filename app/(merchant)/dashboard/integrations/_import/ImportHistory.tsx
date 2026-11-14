@@ -1,9 +1,10 @@
 import { History, RotateCcw } from "lucide-react";
 import { StatusText, Unavailable } from "@/components/saas-page";
+import type { ImportProvider } from "@prisma/client";
 import type { JobView } from "@/lib/integrations/import/views";
 import { tr } from "@/lib/i18n/dashboard";
 import { ENTITY_META, JOB_STATUS_META, dateTime, nf } from "./import-meta";
-import { ShopifyMark } from "./import-ui";
+import { ProviderMark, providerCopy } from "./provider-ui";
 
 function summary(job: JobView) {
   return job.entities
@@ -22,7 +23,8 @@ function failedCount(job: JobView) {
 }
 
 /** Every import of this store, newest first. */
-export function ImportHistory({ history }: { history: JobView[] }) {
+export function ImportHistory({ provider, history }: { provider: ImportProvider; history: JobView[] }) {
+  const copy = providerCopy(provider);
   return (
     <section className="space-y-2">
       <h2 className="px-4 text-[13px] font-semibold text-muted-foreground">{tr("سجل الاستيراد")}</h2>
@@ -47,11 +49,11 @@ export function ImportHistory({ history }: { history: JobView[] }) {
                       <RotateCcw className="size-[17px]" />
                     </span>
                   ) : (
-                    <ShopifyMark size="sm" />
+                    <ProviderMark provider={provider} size="sm" />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-3">
-                      <p className="truncate text-[15px] font-medium">{retry ? tr("إعادة محاولة العناصر الفاشلة") : tr("استيراد من Shopify")}</p>
+                      <p className="truncate text-[15px] font-medium">{retry ? tr("إعادة محاولة العناصر الفاشلة") : copy.historyTitle}</p>
                       <time className="shrink-0 text-[13px] text-muted-foreground" dateTime={job.startedAt ?? job.createdAt}>
                         {dateTime.format(new Date(job.startedAt ?? job.createdAt))}
                       </time>

@@ -5,22 +5,22 @@ import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { appleButton } from "@/components/saas-page";
+import type { ImportProvider } from "@prisma/client";
 import {
   CancelImportJobAction,
   GetImportJobStatusAction,
-  LoadShopifyPreviewAction,
+  LoadImportPreviewAction,
   ResumeImportJobAction,
   RetryFailedItemsAction,
-  StartShopifyImportAction,
-} from "@/actions/integrations/shopify-import.actions";
+  StartImportAction,
+} from "@/actions/integrations/store-import.actions";
 import { deriveViewState } from "@/lib/integrations/import/progress";
-import { IMPORTABLE_ENTITIES, type ImportableEntity } from "@/lib/integrations/import/types";
+import { IMPORTABLE_ENTITIES, type ImportableEntity, type PreviewCounts } from "@/lib/integrations/import/types";
 import type { ConnectionView, JobView } from "@/lib/integrations/import/views";
-import type { ShopifyPreviewCounts } from "@/lib/integrations/shopify/source";
 import { cn } from "@/lib/utils";
 import { ConnectPanel } from "./ConnectPanel";
-import { CONNECT_ERRORS } from "./import-meta";
 import { MigrationGlyph, Steps, type StepId } from "./import-ui";
+import { providerCopy } from "./provider-ui";
 import { NotImportedCard, PreviewPanel, PreviewSkeleton } from "./PreviewPanel";
 import { ProgressPanel } from "./ProgressPanel";
 import { ResultPanel } from "./ResultPanel";
@@ -31,10 +31,11 @@ const POLL_MS = 3000;
 
 type Preview =
   | { status: "idle" | "loading" }
-  | { status: "ready"; counts: ShopifyPreviewCounts }
+  | { status: "ready"; counts: PreviewCounts }
   | { status: "error"; error: string };
 
 type Props = {
+  provider: ImportProvider;
   configured: boolean;
   connection: ConnectionView | null;
   job: JobView | null;
@@ -43,11 +44,12 @@ type Props = {
   history: ReactNode;
 };
 
-export function ShopifyImportClient({ configured, connection: initialConnection, job: initialJob, flash, history }: Props) {
+export function ImportClient({ provider, configured, connection: initialConnection, job: initialJob, flash, history }: Props) {
   const router = useRouter();
+  const copy = providerCopy(provider);
   const [connection, setConnection] = useState(initialConnection);
   const [job, setJob] = useState(initialJob);
-  // Just came back from Shopify → go straight to the preview.
+  // Just came back from the source's approval screen → go straight to the preview.
   const justConnected = flash.connected && initialConnection?.status === "ACTIVE";
   const [preview, setPreview] = useState<Preview>({ status: justConnected ? "loading" : "idle" });
   const [selected, setSelected] = useState<ImportableEntity[]>([...IMPORTABLE_ENTITIES]);
@@ -73,7 +75,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
   });
 
   const fetchPreview = useCallback(() => {
-    LoadShopifyPreviewAction()
+    LoadImportPreviewAction(provider)
       .then((result) => {
         if (result.ok) {
           setConnection(result.connection);
@@ -84,7 +86,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
         }
       })
       .catch(() => setPreview({ status: "error", error: tr("تعذّر تحميل المعاينة — جرّب تاني") }));
-  }, [router]);
+  }, [router, provider]);
 
   function loadPreview() {
     setPreview({ status: "loading" });
@@ -94,9 +96,9 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
   useEffect(() => {
     if (autoPreviewed.current || !justConnected) return;
     autoPreviewed.current = true;
-    toast.success(tr("تم الربط مع {0}", initialConnection?.shopName ?? "Shopify"));
+    toast.success(tr("تم الربط مع {0}", initialConnection?.shopName ?? copy.label));
     fetchPreview();
-  }, [justConnected, initialConnection, fetchPreview]);
+  }, [justConnected, initialConnection, fetchPreview, copy.label]);
 
   // Keep the progress live while importing (the poll also nudges the job forward).
   const jobId = job?.id;
@@ -136,7 +138,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
     });
   }
 
-  const flashError = flash.error ? (CONNECT_ERRORS[flash.error] ?? CONNECT_ERRORS.server_error) : null;
+  const flashError = flash.error ? (copy.connectErrors[flash.error] ?? copy.connectErrors.server_error) : null;
 
   const step: StepId =
     view === "importing" || view === "paused"
@@ -159,11 +161,12 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
         )}
 
         {(view === "not_connected" || view === "connecting") && (
-          <ConnectPanel configured={configured} connecting={connecting} onConnecting={() => setConnecting(true)} />
+          <ConnectPanel provider={provider} configured={configured} connecting={connecting} onConnecting={() => setConnecting(true)} />
         )}
 
         {view === "needs_reconnect" && (
           <ConnectPanel
+            provider={provider}
             configured={configured}
             reconnect
             shopDomain={connection?.shopDomain}
@@ -174,12 +177,12 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
 
         {view === "connected" && (
           <section className="apple-card flex flex-col items-center px-6 pt-10 pb-8 text-center">
-            <MigrationGlyph />
+            <MigrationGlyph provider={provider} />
             <h2 className="mt-6 text-[28px] leading-[34px] font-bold ltr:tracking-[-0.015em]">{tr("جاهز ننقل بياناتك")}</h2>
             <p className={cn("mt-2 max-w-md text-[15px] leading-[22px]", preview.status === "error" ? "text-(--sys-red)" : "text-muted-foreground")}>
               {preview.status === "error"
                 ? trv(preview.error)
-                : tr("هنعدّ اللي في متجرك على Shopify ونوريك هينقل إيه قبل ما نبدأ أي حاجة.")}
+                : copy.connectedHint}
             </p>
             <button type="button" onClick={loadPreview} className={cn(appleButton.filled, "mt-7 h-[50px] w-full max-w-xs text-[17px]")}>
               {preview.status === "error" ? tr("جرّب تاني") : tr("معاينة البيانات")}
@@ -187,10 +190,11 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
           </section>
         )}
 
-        {view === "loading_preview" && <PreviewSkeleton />}
+        {view === "loading_preview" && <PreviewSkeleton provider={provider} />}
 
         {view === "preview_ready" && preview.status === "ready" && connection && (
           <PreviewPanel
+            provider={provider}
             counts={preview.counts}
             connection={connection}
             selected={selected}
@@ -198,7 +202,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
             onToggle={(entity, checked) =>
               setSelected((current) => (checked ? [...new Set([...current, entity])] : current.filter((e) => e !== entity)))
             }
-            onStart={() => run(() => StartShopifyImportAction(selected), tr("بدأ الاستيراد"))}
+            onStart={() => run(() => StartImportAction(provider, selected), tr("بدأ الاستيراد"))}
           />
         )}
 
@@ -206,6 +210,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
           <>
             {view === "paused" && connection?.status !== "ACTIVE" && (
               <ConnectPanel
+                provider={provider}
                 configured={configured}
                 reconnect
                 shopDomain={connection?.shopDomain}
@@ -214,6 +219,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
               />
             )}
             <ProgressPanel
+              provider={provider}
               job={job}
               busy={busy}
               needsReconnect={connection?.status !== "ACTIVE"}
@@ -225,6 +231,7 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
 
         {(view === "completed" || view === "completed_with_warnings") && job && (
           <ResultPanel
+            provider={provider}
             job={job}
             busy={busy}
             onRetry={() => run(() => RetryFailedItemsAction(job.id), tr("بدأنا نعيد محاولة العناصر الفاشلة"))}
@@ -239,9 +246,9 @@ export function ShopifyImportClient({ configured, connection: initialConnection,
       </div>
 
       <aside className="space-y-6 xl:sticky xl:top-6">
-        <Steps current={step} />
-        {showShop && <ShopCard connection={connection} busy={view === "importing" || view === "paused"} />}
-        {step !== "done" && step !== "import" && <NotImportedCard />}
+        <Steps current={step} provider={provider} />
+        {showShop && <ShopCard provider={provider} connection={connection} busy={view === "importing" || view === "paused"} />}
+        {step !== "done" && step !== "import" && <NotImportedCard provider={provider} />}
       </aside>
     </div>
   );

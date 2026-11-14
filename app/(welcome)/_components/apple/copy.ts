@@ -128,7 +128,8 @@ const ar = {
     onlinePlace: "casho.store",
     waitingPos: "مستني أول بيعة…",
     waitingOnline: "مستني أول طلب…",
-    piece: "−1 من المخزون",
+    // ⁦…⁩ isolates "−1" as LTR, or the minus lands on the far side of the 1.
+    piece: "⁦−1⁩ من المخزون",
     events: [
       { channel: "pos", title: "بيعة من الكاشير", meta: "كاش · 7:12 م" },
       { channel: "online", title: "طلب أونلاين", meta: "الإسكندرية · فودافون كاش" },

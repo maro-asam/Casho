@@ -1,5 +1,5 @@
 /**
- * Advances store imports (Shopify…) while nobody has the import page open.
+ * Advances store imports (Shopify, WooCommerce) while nobody has the import page open.
  * Trigger from an external scheduler (e.g. cron-job.org, every minute) with
  * `Authorization: Bearer <CRON_SECRET>`.
  */

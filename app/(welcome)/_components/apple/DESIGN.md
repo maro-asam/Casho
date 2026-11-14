@@ -7,14 +7,18 @@ recipes live in `apple.css` (scoped under `.al`); the hero has its own
 
 ## Hero — the headline is the drawing (HeroClaim.tsx, `hero-claim.css`)
 
-Centered. "Grow" has a chart climbing beside it (ink pill); the brand line carries the Casho
-mark (blue disc) and the gradient. Objects are sized in `em`. Under it the call to action
+Centered, under an announcement pill. "Grow" has a bar chart climbing beside it (ink
+rounded tile, six bars brightening as they rise, in reading order); the brand line carries
+the Casho mark (blue disc) and one gradient that spans the whole line (it's on the line,
+which hugs its words). Objects are sized in `em`. Under it the call to action
 is the "claim your store name" bar: the visitor types a name, the existing
 `checkStoreSlugAvailability` action says whether `name.casho.store` is free,
 and submitting goes to `/register?store=…`, which fills step 1 of sign-up.
 The bar is LTR in both languages (address from the left edge, then button);
-a hidden ghost span sizes the input so `.casho.store` follows the name. A soft blue light
-rises from the foot of the section. `HeroNumber` (giant sales number) and
+a hidden ghost span sizes the input so `.casho.store` follows the name. The backdrop
+(`.hc-bg`) is a hairline grid that fades out around the headline, one soft blue light under
+the bar, and a fade into `--al-surface` so the hero meets the gray section below with no
+edge — no blurred blobs. Facts sit at the foot with check marks. `HeroNumber` (giant sales number) and
 `HeroGrow` / `GrowthBoard` (dot-matrix board) are earlier heroes, kept unused.
 
 ## Tokens
@@ -69,9 +73,14 @@ own header, card or spacing style.
 A panel split into the shop (dark) and the online store (light) — side by
 side, stacked on phones — with one stock number on the seam. The number is
 drawn twice (`.ss-layer`) and each copy is clipped to its half, so it reads
-white on the shop and ink on the store. The panel pins (`.ss-pin`) while the
+white on the shop and ink on the store. Its label ("in stock · product") is
+one chip (`.ss-tag`) drawn once on top, never clipped — small text cut in
+half by the seam reads as a bug. Each half opens with its channel's icon tile
+(green light, pulsing on the latest sale) and lists sales as notification
+rows (icon, title, meta, a "−1" pill), mirrored on the online half so both
+sit in the outer corners. The panel pins (`.ss-pin`) while the
 visitor scrolls 240svh; four sales land at `THRESHOLDS` and the number counts
-48 → 44. Phones keep only the latest sale per side (the caption shares the
+48 → 44. Phones keep only the latest sale per side (the chip shares the
 online half). Reduced motion: not pinned, final state.
 
 ## Pricing (ApplePricing.tsx) — Apple One cards

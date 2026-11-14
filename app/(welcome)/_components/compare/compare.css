@@ -1,0 +1,209 @@
+/* /compare/shopify — only what the shared landing system (apple.css) doesn't
+   already have. apple.css is unlayered, so its classes beat Tailwind
+   utilities: overrides here use `.al …` for the extra specificity. */
+
+/* ---------- Hero ---------- */
+
+.al .cmp-hero {
+  padding-top: clamp(128px, 15vw, 190px);
+}
+/* A notch under the home hero so each Arabic claim keeps to one line on
+   desktop; English (longer) wraps with text-balance. */
+.al .cmp-hero .al-hero-title {
+  font-size: clamp(44px, 6.2vw, 88px);
+}
+@media (min-width: 768px) {
+  [dir="rtl"] .cmp-hero .cmp-line { white-space: nowrap; }
+}
+
+.cmp-rise {
+  animation: cmp-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+.cmp-fade {
+  animation: cmp-fade 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+/* Headline lines only translate: they are the LCP and must paint at once. */
+@keyframes cmp-rise {
+  from { transform: translateY(24px); }
+}
+@keyframes cmp-fade {
+  from { opacity: 0; transform: translateY(16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cmp-rise,
+  .cmp-fade { animation: none; }
+}
+
+/* ---------- Fee calculator ---------- */
+
+/* Chips and result panels sit inside a tile, so they take the well tone. */
+.al .cmp-calc .al-chip { --al-tile: var(--al-well); }
+.cmp-result {
+  background: var(--al-well);
+  border-radius: var(--al-r-md);
+}
+
+.cmp-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+.cmp-range:focus-visible { outline: none; }
+
+/* Track filled up to the thumb (--p), from the start edge. */
+.cmp-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--al-tint) var(--p), var(--al-well) var(--p));
+}
+[dir="rtl"] .cmp-range::-webkit-slider-runnable-track {
+  background: linear-gradient(to left, var(--al-tint) var(--p), var(--al-well) var(--p));
+}
+.cmp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.5px 4px rgba(0, 0, 0, 0.12), 0 6px 13px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+.cmp-range:active::-webkit-slider-thumb { transform: scale(1.08); }
+.cmp-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--al-tint); outline-offset: 3px; }
+
+.cmp-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--al-well);
+}
+.cmp-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--al-tint);
+}
+.cmp-range::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.5px 4px rgba(0, 0, 0, 0.12), 0 6px 13px rgba(0, 0, 0, 0.12);
+}
+.cmp-range:focus-visible::-moz-range-thumb { outline: 2px solid var(--al-tint); outline-offset: 3px; }
+
+/* ---------- Compare table ---------- */
+
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.cmp-col-feature { width: 34%; }
+.cmp-table th,
+.cmp-table td {
+  text-align: start;
+  vertical-align: top;
+}
+
+/* Column header: sticks under the floating nav (12px + 52px) while the rows
+   scroll. The rule is a shadow, not a border: collapsed table borders stay
+   behind when a cell sticks. */
+.cmp-table thead th {
+  position: sticky;
+  top: 64px;
+  z-index: 1;
+  padding-block: 14px;
+  padding-inline: 0 24px;
+  background: var(--al-bg);
+  box-shadow: inset 0 -1px 0 var(--al-text);
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.cmp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--al-tint);
+}
+
+.cmp-group th {
+  padding: 44px 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--al-muted);
+}
+.cmp-group { border-bottom: 1px solid var(--al-hair); }
+
+.cmp-row { border-bottom: 1px solid var(--al-hair); }
+.cmp-row th,
+.cmp-row td {
+  padding-block: 22px;
+  padding-inline: 0 24px;
+}
+.cmp-row th {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.cmp-value {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.cmp-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--al-muted);
+}
+/* Casho's notes line up under the value, past the check. */
+.cmp-row td:nth-of-type(1) .cmp-note { padding-inline-start: 24px; }
+
+/* Phones: two columns, the feature name lifted above them. */
+@media (max-width: 767px) {
+  .cmp-table,
+  .cmp-table tbody,
+  .cmp-table tr,
+  .cmp-table th,
+  .cmp-table td { display: block; }
+  .cmp-table colgroup { display: none; }
+
+  /* The thead sticks as one block and carries the rule; its cells go
+     transparent so they don't paint over it. */
+  .cmp-table thead {
+    display: block;
+    position: sticky;
+    top: 62px;
+    z-index: 1;
+    background: var(--al-bg);
+    box-shadow: inset 0 -1px 0 var(--al-text);
+  }
+  .cmp-table thead th { position: static; font-size: 17px; background: transparent; box-shadow: none; }
+  .cmp-table thead tr,
+  .cmp-table tr.cmp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+  }
+  .cmp-feature-head { display: none !important; }
+
+  .cmp-group th { padding-top: 36px; }
+  .cmp-row { padding-block: 18px; }
+  .cmp-row th { grid-column: 1 / -1; padding: 0 0 10px; }
+  .cmp-row td { padding: 0; }
+  .cmp-value { font-size: 16px; }
+  .cmp-note { font-size: 14px; }
+  .cmp-row td:nth-of-type(1) .cmp-note { padding-inline-start: 0; }
+}

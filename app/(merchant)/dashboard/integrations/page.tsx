@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Sparkles,
   ShoppingBag,
+  ShoppingBasket,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +50,17 @@ const PLATFORMS = [
     get badge() { return tr("متاح"); },
     badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     gradient: "from-emerald-500/10 to-lime-500/10 text-emerald-600",
+  },
+  {
+    id: "woocommerce",
+    get name() { return tr("استيراد من WooCommerce"); },
+    get description() { return tr("انقل منتجاتك وعملاءك وطلباتك من موقعك على WooCommerce لـ Casho"); },
+    icon: ShoppingBasket,
+    href: "/integrations/woocommerce",
+    available: true,
+    get badge() { return tr("متاح"); },
+    badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+    gradient: "from-violet-500/10 to-purple-500/10 text-violet-600",
   },
   {
     id: "facebook",

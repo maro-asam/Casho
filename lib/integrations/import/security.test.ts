@@ -5,7 +5,7 @@ vi.mock("next/server", () => ({ after: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/store/store-guard", () => ({ requireStoreContext: vi.fn() }));
 vi.mock("@/lib/integrations/import/engine", () => ({ isRunnable: vi.fn(() => false), runImportJob: vi.fn() }));
-vi.mock("@/lib/integrations/shopify/source", () => ({ fetchPreviewCounts: vi.fn() }));
+vi.mock("@/lib/integrations/import/registry", () => ({ fetchPreviewCounts: vi.fn(), isProviderConfigured: vi.fn(() => true), revokeRemoteAccess: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     importJob: { findFirst: vi.fn(), findMany: vi.fn(), updateMany: vi.fn(), create: vi.fn() },
@@ -21,7 +21,7 @@ const { prisma } = await import("@/lib/prisma");
 const { canManageImports, userCanManageImports } = await import("./access");
 const { redactSecrets } = await import("./errors");
 const { toConnectionView } = await import("./views");
-const actions = await import("@/actions/integrations/shopify-import.actions");
+const actions = await import("@/actions/integrations/store-import.actions");
 
 const OWNER_A = { userId: "owner-a", storeId: "store-A", role: "STORE_OWNER" as const, isOwner: true };
 
@@ -125,7 +125,7 @@ describe("tokens are never exposed", () => {
     vi.mocked(prisma.importJob.findMany).mockResolvedValue([JOB]);
     vi.mocked(prisma.importJob.findFirst).mockResolvedValue(JOB);
 
-    const state = await actions.GetShopifyImportStateAction();
+    const state = await actions.GetImportPageStateAction("SHOPIFY");
     const serialized = JSON.stringify(state);
     expect(state.ok).toBe(true);
     for (const secret of ["ENCRYPTED_ACCESS", "ENCRYPTED_REFRESH", "lease-token", "secret-cursor", "accessTokenEnc", "refreshTokenEnc"]) {
@@ -142,5 +142,22 @@ describe("tokens are never exposed", () => {
   it("log redaction strips Shopify tokens and secrets", () => {
     const line = redactSecrets('POST code=abc&client_secret=xyz {"access_token":"shpat_123"} X-Shopify-Access-Token: shpat_456 shprt_789');
     for (const leaked of ["abc", "xyz", "shpat_123", "shpat_456", "shprt_789"]) expect(line).not.toContain(leaked);
+  });
+
+  it("log redaction strips WooCommerce key pairs", () => {
+    const ck = "ck_0123456789abcdef0123456789abcdef01234567";
+    const cs = "cs_fedcba9876543210fedcba9876543210fedcba98";
+    const line = redactSecrets(`GET /wp-json/wc/v3/products?consumer_key=${ck}&consumer_secret=${cs} {"consumer_secret":"${cs}"} ${ck}`);
+    for (const leaked of [ck, cs]) expect(line).not.toContain(leaked);
+  });
+});
+
+describe("provider input", () => {
+  it("rejects an unknown provider before touching the database", async () => {
+    const state = await actions.GetImportPageStateAction("MAGENTO" as never);
+    expect(state.ok).toBe(false);
+    expect(prisma.importConnection.findUnique).not.toHaveBeenCalled();
+    expect((await actions.StartImportAction("../SHOPIFY" as never, ["PRODUCT"])).ok).toBe(false);
+    expect((await actions.DisconnectImportAction("" as never)).ok).toBe(false);
   });
 });

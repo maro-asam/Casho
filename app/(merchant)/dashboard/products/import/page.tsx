@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag, ShoppingBasket } from "lucide-react";
 import { LargeTitle } from "@/components/saas-page";
 import ImportProductsForm from "../_components/ImportProductsForm";
 import { tdir, tr } from "@/lib/i18n/dashboard";
@@ -32,19 +32,34 @@ export default async function ImportProductsPage() {
         subtitle={tr("ارفع ملف CSV أو Excel لإضافة منتجات بالجملة دفعة واحدة")}
       />
 
-      <Link
-        href="/integrations/shopify"
-        className="apple-card flex min-h-16 items-center gap-3.5 px-4 py-3 transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-5"
-      >
-        <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-(--sys-green) text-white">
-          <ShoppingBag className="size-5" strokeWidth={1.8} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[15px] leading-5 font-semibold">{tr("عندك متجر على Shopify؟")}</span>
-          <span className="block text-[13px] text-muted-foreground">{tr("انقل المنتجات والعملاء والطلبات مباشرةً من غير ملفات")}</span>
-        </span>
-        <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
-      </Link>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/integrations/shopify"
+          className="apple-card flex min-h-16 items-center gap-3.5 px-4 py-3 transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-5"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-(--sys-green) text-white">
+            <ShoppingBag className="size-5" strokeWidth={1.8} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] leading-5 font-semibold">{tr("عندك متجر على Shopify؟")}</span>
+            <span className="block text-[13px] text-muted-foreground">{tr("انقل المنتجات والعملاء والطلبات مباشرةً من غير ملفات")}</span>
+          </span>
+          <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
+        </Link>
+        <Link
+          href="/integrations/woocommerce"
+          className="apple-card flex min-h-16 items-center gap-3.5 px-4 py-3 transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-5"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-linear-to-br from-[#9b6dd1] to-[#6b3fa0] text-white">
+            <ShoppingBasket className="size-5" strokeWidth={1.8} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] leading-5 font-semibold">{tr("عندك موقع على WooCommerce؟")}</span>
+            <span className="block text-[13px] text-muted-foreground">{tr("انقل المنتجات والعملاء والطلبات مباشرةً من غير ملفات")}</span>
+          </span>
+          <ChevronLeft className="size-4 shrink-0 text-(--label-3) ltr:-scale-x-100" strokeWidth={2.4} />
+        </Link>
+      </div>
 
       <ImportProductsForm />
     </div>

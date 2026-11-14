@@ -108,6 +108,7 @@ export const NAV_SECTIONS: NavSection[] = [
           { get name() { return tr("انستجرام"); }, href: "/instagram" },
           { get name() { return tr("ربط تيليجرام"); }, href: "/telegram" },
           { get name() { return tr("استيراد من Shopify"); }, href: "/integrations/shopify" },
+          { get name() { return tr("استيراد من WooCommerce"); }, href: "/integrations/woocommerce" },
           { get name() { return tr("التكاملات"); }, href: "/integrations" },
           { get name() { return tr("مفاتيح API"); }, href: "/api-keys" },
         ],
