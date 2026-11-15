@@ -36,6 +36,10 @@ type NotificationsBellProps = {
   initialNotifications: NotificationDTO[];
   initialUnreadCount: number;
   pollEveryMs?: number;
+  /** The full list page; null hides the link (the sales panel has none). */
+  viewAllHref?: string | null;
+  /** The empty state's line, for surfaces that aren't about orders. */
+  emptyHint?: string;
 };
 
 const notificationIcons: Partial<
@@ -88,6 +92,8 @@ export default function NotificationsBell({
   // New orders land here, so keep it within a minute; opening the menu or
   // coming back to the tab refreshes right away anyway.
   pollEveryMs = 60_000,
+  viewAllHref = "/notifications",
+  emptyHint,
 }: NotificationsBellProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -294,7 +300,7 @@ export default function NotificationsBell({
             </div>
             <p className="text-sm font-semibold">{tr("مفيش إشعارات حاليًا")}</p>
             <p className="max-w-xs text-xs leading-6 text-muted-foreground">
-              {tr("أول ما يوصلك أوردر جديد أو تحديث مهم، هيظهر هنا فورًا.")}
+              {emptyHint ?? tr("أول ما يوصلك أوردر جديد أو تحديث مهم، هيظهر هنا فورًا.")}
             </p>
           </div>
         ) : (
@@ -346,21 +352,25 @@ export default function NotificationsBell({
           </div>
         )}
 
-        <Separator />
+        {viewAllHref && (
+          <>
+            <Separator />
 
-        <div className="p-2">
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full justify-center text-sm"
-            onClick={() => {
-              setOpen(false);
-              router.push("/notifications");
-            }}
-          >
-            {tr("عرض كل الإشعارات")}
-          </Button>
-        </div>
+            <div className="p-2">
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full justify-center text-sm"
+                onClick={() => {
+                  setOpen(false);
+                  router.push(viewAllHref);
+                }}
+              >
+                {tr("عرض كل الإشعارات")}
+              </Button>
+            </div>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

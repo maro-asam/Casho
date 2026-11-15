@@ -184,6 +184,7 @@ const fake = {
 };
 
 vi.mock("@/lib/prisma", () => ({ prisma: fake }));
+vi.mock("./notify", () => ({ queueCommissionNotices: vi.fn() }));
 
 const { syncSalesCommissionsForCustomer, recordSalesCommissionsForStore } = await import("./engine");
 

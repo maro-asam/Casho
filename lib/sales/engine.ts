@@ -6,6 +6,7 @@ import {
   SalesRepStatus,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { queueCommissionNotices } from "./notify";
 import { addDays } from "@/lib/subscriptions";
 import { applyCampaignRate, bonusDue, campaignRateFor, isPharmacyBusiness, type CampaignReason } from "./campaign";
 import {
@@ -78,7 +79,9 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
   const found = await prisma.salesAttribution.findUnique({ where: { customerUserId }, select: { id: true } });
   if (!found) return { commissions: 0, adjustments: 0 };
 
-  return prisma.$transaction(
+  // New commission ids, announced to the rep once the transaction commits.
+  const createdIds: string[] = [];
+  const result = await prisma.$transaction(
     async (tx) => {
       // One sync per customer at a time.
       await tx.$queryRaw`SELECT "id" FROM "SalesAttribution" WHERE "id" = ${found.id} FOR UPDATE`;
@@ -241,6 +244,7 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
             },
           });
           commissions.push({ ...created, adjustments: [] });
+          createdIds.push(created.id);
           doneCharges.add(row.id);
           result.commissions += 1;
 
@@ -295,6 +299,7 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
                   },
                 });
                 commissions.push({ ...bonus, adjustments: [] });
+                createdIds.push(bonus.id);
                 result.commissions += 1;
               }
             }
@@ -344,6 +349,8 @@ export async function syncSalesCommissionsForCustomer(customerUserId: string): P
     },
     { timeout: 20_000 },
   );
+  queueCommissionNotices(createdIds);
+  return result;
 }
 
 /**

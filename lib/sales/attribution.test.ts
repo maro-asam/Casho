@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/prisma", () => ({ prisma: { user: { findUnique: vi.fn() } } }));
 
 const { prisma } = await import("@/lib/prisma");
-const { resolveSignupReferral, createSignupAttribution } = await import("./attribution");
+const { resolveSignupReferral, createSignupAttribution, resolveFirstReferral, readSignupFormReferral } = await import("./attribution");
 
 function referrer(value: unknown) {
   vi.mocked(prisma.user.findUnique).mockResolvedValue(value as never);
@@ -71,5 +71,36 @@ describe("createSignupAttribution", () => {
       signedUpAt: new Date(),
     });
     expect(tx.salesAttribution.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("remembered referral codes", () => {
+  const rep = { id: "repUser", role: "SALES", salesRep: { id: "rep1", status: "ACTIVE" } };
+  const form = (fields: Record<string, string>) => {
+    const fd = new FormData();
+    for (const [k, v] of Object.entries(fields)) fd.set(k, v);
+    return fd;
+  };
+
+  it("resolveFirstReferral falls through a dead link code to the remembered one", async () => {
+    vi.mocked(prisma.user.findUnique).mockImplementation((async (args: { where: { referralCode: string } }) =>
+      args.where.referralCode === "GOOD1234" ? rep : null) as never);
+    await expect(resolveFirstReferral("DEAD1234", "good1234")).resolves.toMatchObject({ code: "GOOD1234", salesRepId: "rep1" });
+    await expect(resolveFirstReferral(undefined, "")).resolves.toBeNull();
+  });
+
+  it("a form without the code field falls back to the cookie", async () => {
+    referrer(rep);
+    await expect(readSignupFormReferral(form({}), "ABCD1234")).resolves.toMatchObject({ ok: true, referral: { salesRepId: "rep1" } });
+  });
+
+  it("an emptied field means no referral, even with a remembered cookie", async () => {
+    await expect(readSignupFormReferral(form({ refCode: " " }), "ABCD1234")).resolves.toEqual({ ok: true, referral: null });
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("a typed code that doesn't resolve is an error, not a silent loss", async () => {
+    referrer(null);
+    await expect(readSignupFormReferral(form({ refCode: "TYPO1234" }), undefined)).resolves.toMatchObject({ ok: false });
   });
 });

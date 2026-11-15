@@ -11,6 +11,7 @@ Engine and rules: `lib/sales/`. Admin mutations: `actions/admin/sales.actions.ts
 | Referral link | `${APP_URL}/register?ref=<User.referralCode>` (the existing referral code column). |
 | Customer | The merchant `User`. Counted once, even with several stores. |
 | Attribution | `SalesAttribution` (one per customer, unique). Created in the signup transaction. Admin changes are append-only `SalesAttributionChange` rows. |
+| Remembered code | `signupRef` cookie, 30 days, last link wins. The proxy writes it for any `?ref=` on casho.store / app.casho.store (never storefronts). Signup shows it as "هتسجّل بكود الإحالة X" (change/clear allowed) or offers a "معاك كود إحالة؟" field. A typed code that doesn't resolve is a field error. See `lib/sales/ref-cookie.ts`, `readSignupFormReferral`. |
 | Qualifying payment | A `BalanceTransaction` of type `SUBSCRIPTION_CHARGE`. Subscriptions are paid from the store balance, and the balance is funded only by HMAC-verified Paymob callbacks or admin-approved top-ups. Browser redirects are never trusted. |
 | Commission | `SalesCommission`: an immutable snapshot (basis, rate, tier, position, rule id, cohort, eligibility end, payment ref). Unique on `(balanceTransactionId, kind)`. |
 | Correction | `SalesCommissionAdjustment` (signed piasters, reason, actor). Refund-credit clawbacks are unique per ledger row. |
@@ -52,6 +53,32 @@ A `SalesCampaign` is a time-boxed offer for a set of reps (`SalesCampaignMember`
 - **Bonus**: once per member, when `bonusTarget` customers make their *first* payment inside the window → one `BONUS` commission (`amount = bonusAmount`, basis 0, rate 0) tied to the charge that completed the count. It's payable like any commission and can be reviewed/reversed. Refund clawbacks never target it.
 - Raised and bonus commissions carry `campaignId` + `campaignReason` (`BASE | PHARMACY | POS | BONUS`). After `endsAt` nothing changes — snapshots stay, new payments follow the normal rules.
 - Rules: `lib/sales/campaign.ts` (pure, tested); engine hook in `lib/sales/engine.ts`; reads in `lib/sales/campaign-queries.ts`.
+
+## Call list (`/sales/calls`)
+
+"Who to call today", also the top 5 on `/sales`. Rules in `lib/sales/call-list.ts` (pure, tested), loading in `lib/sales/call-list-queries.ts`. Most urgent first:
+
+1. **TRIAL_ENDING**: never paid, trial ends within 48h, and the balance won't pay the first period by itself.
+2. **STORE_CLOSED**: paid and still eligible, store `PAST_DUE` (closed in the last 60 days).
+3. **NEW_SIGNUP**: signed up in the last 24h, a welcome call.
+4. **RENEWAL_AT_RISK**: paid and eligible, period ends within 7 days, balance short or auto-renew off.
+5. **TRIAL_ENDED**: never paid, trial ended in the last 30 days.
+6. **STALLED**: longer (admin-extended) trial with setup steps left.
+7. **NO_STORE**: signed up in the last 30 days with no store.
+
+Ties go to the moment closest to now. Each row has a WhatsApp opener written for its reason, a call button, and (unpaid) the store's setup progress: products, payment, shipping, first order. The demo catalog and demo orders don't count. The same four steps show on the customer page.
+
+## Rep notifications
+
+`lib/sales/notify.ts`. In-app notices (the bell on `/sales`, `type = SYSTEM`, `data.salesKey`) and, where marked, an email (`EmailLog.kind = SALES_ALERT`). Each key goes out once. Only ACTIVE reps get them.
+
+| Moment | Trigger | Email |
+|---|---|---|
+| A merchant signed up from the rep's code | signup actions (`queueSignupNotice`) | yes |
+| Acquisition / campaign bonus commission | engine, after its transaction commits (`queueCommissionNotices`) | yes |
+| Renewal commission | same | no (in-app only) |
+| Trial ends within 24h, unpaid, balance short | hourly cron (`sweepRepAlerts`) | yes |
+| Paid, eligible customer's store closed (last 48h) | hourly cron | yes |
 
 ## Announcements board
 

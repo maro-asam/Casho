@@ -6,8 +6,9 @@ import {
   type SalesRepAdjustmentKind,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getCustomerActivation } from "./call-list-queries";
 import { getCommissionRuleAt } from "./engine";
-import { bucketByMonth, lastMonths, monthStart, sortFollowUps } from "./insights";
+import { bucketByMonth, lastMonths, monthStart } from "./insights";
 import { allocateTiers, levelForEligibleCount, tierForPosition } from "./rules";
 
 /**
@@ -181,36 +182,6 @@ export type MonthlyTrend = Awaited<ReturnType<typeof getMonthlyTrend>>;
 export const getRepMonthlyTrend = (salesRepId: string, months = 6, now = new Date()) => getMonthlyTrend({ salesRepId }, months, now);
 
 export type RepMonthlyTrend = MonthlyTrend;
-
-/** Signed up through the rep but no subscription payment yet — running trials ending soonest first. */
-export async function listFollowUps(salesRepId: string, take = 5, now = new Date()) {
-  const [total, rows] = await Promise.all([
-    prisma.salesAttribution.count({ where: { salesRepId, acquiredAt: null } }),
-    prisma.salesAttribution.findMany({
-      where: { salesRepId, acquiredAt: null },
-      orderBy: { signedUpAt: "desc" },
-      take: 40,
-      select: {
-        id: true,
-        signedUpAt: true,
-        customer: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone_number: true,
-            stores: { orderBy: { createdAt: "asc" }, take: 1, select: { name: true, trialEndDate: true } },
-          },
-        },
-      },
-    }),
-  ]);
-
-  const items = rows.map((r) => ({ ...r, trialEndDate: r.customer.stores[0]?.trialEndDate ?? null }));
-  return { total, rows: sortFollowUps(items, now).slice(0, take) };
-}
-
-export type FollowUp = Awaited<ReturnType<typeof listFollowUps>>["rows"][number];
 
 /** Sales team table for admins. */
 export async function listSalesReps(now = new Date()) {
@@ -409,6 +380,8 @@ export async function getAttributedCustomer(scope: SalesScope, customerUserId: s
     select: { id: true, type: true, amount: true, createdAt: true, note: true, store: { select: { name: true } } },
   });
 
+  const activation = await getCustomerActivation(customerUserId);
+
   const commissions = await prisma.salesCommission.findMany({
     where: { attributionId: attribution.id, ...repWhere(scope) },
     orderBy: { paymentAt: "desc" },
@@ -427,7 +400,7 @@ export async function getAttributedCustomer(scope: SalesScope, customerUserId: s
     },
   });
 
-  return { attribution, payments, commissions };
+  return { attribution, payments, commissions, activation };
 }
 
 export type CommissionListFilters = {

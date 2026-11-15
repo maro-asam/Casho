@@ -83,24 +83,6 @@ export function bucketByMonth<T>(
   return totals;
 }
 
-// ─── Follow-ups ─────────────────────────────────────────────────────────────
-
-/**
- * Order for "signed up, hasn't paid yet": trials still running come first,
- * ending soonest first (the call that matters today); then everyone else,
- * newest signup first.
- */
-export function sortFollowUps<T extends { signedUpAt: Date; trialEndDate: Date | null }>(rows: T[], now = new Date()): T[] {
-  const running = (r: T) => r.trialEndDate !== null && r.trialEndDate.getTime() > now.getTime();
-  return [...rows].sort((a, b) => {
-    const ra = running(a);
-    const rb = running(b);
-    if (ra !== rb) return ra ? -1 : 1;
-    if (ra && rb) return a.trialEndDate!.getTime() - b.trialEndDate!.getTime();
-    return b.signedUpAt.getTime() - a.signedUpAt.getTime();
-  });
-}
-
 // ─── Greeting & daily line ──────────────────────────────────────────────────
 
 const TIME_ZONE = "Africa/Cairo";

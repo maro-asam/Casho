@@ -4,6 +4,7 @@ const prismaMock = {
   salesAttribution: { findFirst: vi.fn(), findMany: vi.fn(async () => []), count: vi.fn(async () => 0) },
   salesCommission: { findMany: vi.fn(async () => []), count: vi.fn(async () => 0), aggregate: vi.fn(async () => ({ _sum: {} })) },
   balanceTransaction: { findMany: vi.fn(async () => []) },
+  store: { findMany: vi.fn(async () => []) },
 };
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 
@@ -19,6 +20,7 @@ describe("data scoping (IDOR)", () => {
       expect.objectContaining({ where: { customerUserId: "customer-of-repB", salesRepId: "repA" } }),
     );
     expect(prismaMock.balanceTransaction.findMany).not.toHaveBeenCalled();
+    expect(prismaMock.store.findMany).not.toHaveBeenCalled();
   });
 
   it("the customer's commissions are filtered to the rep as well", async () => {

@@ -16,6 +16,7 @@ export type RegisterState = ActionState<{
   phoneNumber?: string;
   password?: string;
   confirmPassword?: string;
+  refCode?: string;
 }>;
 
 export type LoginState = ActionState<{

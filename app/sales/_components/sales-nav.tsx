@@ -3,11 +3,13 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, LayoutGrid, Link2, LogOut, Moon, Sun, Users, Wallet, type LucideIcon } from "lucide-react";
+import { ChevronDown, LayoutGrid, Link2, LogOut, Moon, PhoneCall, Sun, Users, Wallet, type LucideIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 
 import { LogoutAction } from "@/actions/auth/logout.actions";
+import type { NotificationDTO } from "@/actions/notifications/notifications.actions";
+import NotificationsBell from "@/app/(merchant)/_components/notifications/NotificationsBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 const TABS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/sales", label: "الرئيسية", icon: LayoutGrid },
+  { href: "/sales/calls", label: "المتابعة", icon: PhoneCall },
   { href: "/sales/customers", label: "عملائي", icon: Users },
   { href: "/sales/commissions", label: "عمولاتي", icon: Wallet },
 ];
@@ -121,7 +124,17 @@ function AccountMenu({ name, email, referralLink }: { name: string; email: strin
 }
 
 /** Floating glass bar: who you are (leading), where you are (center, desktop), appearance (trailing). */
-export function SalesTopbar({ name, email, referralLink }: { name: string; email: string; referralLink: string }) {
+export function SalesTopbar({
+  name,
+  email,
+  referralLink,
+  notifications,
+}: {
+  name: string;
+  email: string;
+  referralLink: string;
+  notifications: { notifications: NotificationDTO[]; unreadCount: number };
+}) {
   const isActive = useActiveTab();
   return (
     <div className="sticky top-0 z-30 px-3 pt-3 sm:px-5">
@@ -160,6 +173,12 @@ export function SalesTopbar({ name, email, referralLink }: { name: string; email
         </nav>
 
         <div className="flex shrink-0 items-center justify-end">
+          <NotificationsBell
+            initialNotifications={notifications.notifications}
+            initialUnreadCount={notifications.unreadCount}
+            viewAllHref={null}
+            emptyHint="أول ما تاجر يسجّل من رابطك، أو عميل يدفع، أو تجربة تقرب تخلص — هيظهر هنا."
+          />
           <ThemeToggle />
         </div>
       </header>
@@ -190,7 +209,7 @@ export function SalesTabBar() {
                   href={tab.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "apple-press flex h-[52px] w-[84px] flex-col items-center justify-center gap-0.5 rounded-full text-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "apple-press flex h-[52px] w-[76px] flex-col items-center justify-center gap-0.5 rounded-full text-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     active ? "bg-(--fill-3) font-semibold text-primary" : "text-foreground/70",
                   )}
                 >

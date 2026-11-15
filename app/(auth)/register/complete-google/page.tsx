@@ -4,9 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { verifyPendingGoogleAuth } from "@/lib/auth/pending-google-auth";
+import { SIGNUP_REF_COOKIE, resolveFirstReferral } from "@/lib/sales/attribution";
 import { CompleteGoogleForm } from "../../_components/forms/complete-google-form";
 
-export default async function CompleteGooglePage() {
+export default async function CompleteGooglePage({ searchParams }: { searchParams: Promise<{ ref?: string }> }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("pendingGoogleAuth")?.value;
 
@@ -14,6 +15,9 @@ export default async function CompleteGooglePage() {
 
   const googleData = verifyPendingGoogleAuth(token);
   if (!googleData) redirect("/register");
+
+  // Carried across the Google round trip in the remembered referral cookie.
+  const referral = await resolveFirstReferral((await searchParams).ref, cookieStore.get(SIGNUP_REF_COOKIE)?.value);
 
   return (
     <div
@@ -43,7 +47,7 @@ export default async function CompleteGooglePage() {
           </p>
         </div>
 
-        <CompleteGoogleForm email={googleData.email} name={googleData.name} />
+        <CompleteGoogleForm email={googleData.email} name={googleData.name} refCode={referral?.code} />
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
           باستخدامك كاشو، أنت توافق على الشروط وسياسة الخصوصية

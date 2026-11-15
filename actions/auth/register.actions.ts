@@ -13,7 +13,10 @@ import { hashPassword } from "@/lib/auth/password";
 import { TrackStoreRegistrationAction } from "@/actions/tracking/tracking.actions";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { generateReferralCode } from "@/lib/referral";
-import { createSignupAttribution, resolveSignupReferral } from "@/lib/sales/attribution";
+import { cookies } from "next/headers";
+import { SIGNUP_REF_COOKIE, createSignupAttribution, readSignupFormReferral } from "@/lib/sales/attribution";
+import { queueSignupNotice } from "@/lib/sales/notify";
+import { signupRefCookieDelete } from "@/lib/sales/ref-cookie";
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
 import { sendVerificationCode } from "@/lib/auth/email-verification";
 import { isMailConfigured } from "@/lib/mail";
@@ -50,7 +53,7 @@ export async function RegisterAction(
   _prevState: RegisterState | null,
   formData: FormData,
 ): Promise<RegisterState> {
-  const refCode = formData.get("refCode")?.toString() ?? "";
+  const cookieStore = await cookies();
 
   const rawData = {
     storeName: formData.get("storeName")?.toString() ?? "",
@@ -119,7 +122,9 @@ export async function RegisterAction(
     }
 
     // Resolve referrer (merchant referral or sales rep) — validated server-side
-    const referral = await resolveSignupReferral(refCode);
+    const ref = await readSignupFormReferral(formData, cookieStore.get(SIGNUP_REF_COOKIE)?.value);
+    if (!ref.ok) return { error: ref.error, fieldErrors: { refCode: ref.error } };
+    const { referral } = ref;
     const referredById = referral?.referrerUserId ?? null;
 
     const hashedPassword = await hashPassword(password);
@@ -189,6 +194,8 @@ export async function RegisterAction(
       return user;
     });
 
+    cookieStore.delete(signupRefCookieDelete());
+    if (referral?.salesRepId) queueSignupNotice(created.id);
     await createUserSession(created.id);
 
     // A failed send is fine: the verify page offers "send again".

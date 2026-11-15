@@ -2,7 +2,8 @@
  * Renews due subscriptions from the store balance, moves unpaid ones through
  * grace → past due, and warns stores whose balance won't cover the next
  * renewal, then re-syncs sales commissions for recent ledger activity (a safety
- * net for any missed billing hook — lib/sales/engine), and releases stock held
+ * net for any missed billing hook — lib/sales/engine), alerts reps about trials
+ * ending unpaid and paid stores that closed (lib/sales/notify), releases stock held
  * by unpaid online (Paymob) orders, and renews domains Casho registered for stores
  * (lib/domains). Trigger from an external scheduler (e.g. cron-job.org, every hour)
  * with `Authorization: Bearer <CRON_SECRET>`.
@@ -10,6 +11,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sweepSubscriptions } from "@/lib/billing/renewal";
 import { sweepSalesCommissions } from "@/lib/sales/engine";
+import { sweepRepAlerts } from "@/lib/sales/notify";
 import { releaseUnpaidOnlineOrders } from "@/lib/inventory/order-stock";
 import { sweepDomainRegistrations } from "@/lib/domains/purchase";
 
@@ -24,6 +26,11 @@ async function handler(req: NextRequest) {
     console.error("[cron] sales commissions", error);
     return { error: "sales sweep failed" };
   });
+  // After renewals ran: tell reps about trials ending unpaid and paid stores that just closed.
+  const salesAlerts = await sweepRepAlerts().catch((error) => {
+    console.error("[cron] sales alerts", error);
+    return { error: "sales alerts sweep failed" };
+  });
   // Same hourly run: give back stock held by card orders nobody paid and
   // cash orders nobody confirmed.
   const unpaidOrders = await releaseUnpaidOnlineOrders().catch((error) => {
@@ -34,7 +41,7 @@ async function handler(req: NextRequest) {
     console.error("[cron] domains", error);
     return { error: "domains sweep failed" };
   });
-  return NextResponse.json({ ...subscriptions, sales, unpaidOrders, domains });
+  return NextResponse.json({ ...subscriptions, sales, salesAlerts, unpaidOrders, domains });
 }
 
 export const GET = handler;

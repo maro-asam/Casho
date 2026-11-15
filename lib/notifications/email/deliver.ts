@@ -23,7 +23,7 @@ export function dashboardUrl(path: string) {
   return `${appUrl.replace(/\/$/, "")}/dashboard${path}`;
 }
 
-export type EmailKind = "ORDER_NEW" | "ORDER_CONFIRMATION" | "ORDER_STATUS" | "LOW_STOCK" | "OUT_OF_STOCK" | "PAYMENT_FAILED" | "SHARKS_APPLICATION";
+export type EmailKind = "ORDER_NEW" | "ORDER_CONFIRMATION" | "ORDER_STATUS" | "LOW_STOCK" | "OUT_OF_STOCK" | "PAYMENT_FAILED" | "SHARKS_APPLICATION" | "SALES_ALERT";
 
 /** Waits before the 2nd and 3rd tries. */
 export const RETRY_DELAYS_MS = [1_000, 4_000];

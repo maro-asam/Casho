@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
-import { BadgeDollarSign, CalendarDays, History, Receipt, Store } from "lucide-react";
+import { BadgeDollarSign, CalendarDays, Check, History, Receipt, Store } from "lucide-react";
 import { Card, Row, Rows, StatusText, Tag, initialOf } from "@/components/saas-page";
 import type { getAttributedCustomer } from "@/lib/sales/queries";
 import { CAMPAIGN_REASON_LABELS, type CampaignReason } from "@/lib/sales/campaign";
+import { ACTIVATION_LABELS, ACTIVATION_STEPS } from "@/lib/sales/call-list";
+import type { StoreActivation } from "@/lib/sales/call-list-queries";
 import { formatRateBps } from "@/lib/sales/rules";
 import {
   COMMISSION_STATUS_META,
@@ -15,7 +17,9 @@ import {
   fmtDateTime,
   fmtEligibleThrough,
   fmtMoney,
+  fmtNum,
 } from "@/lib/sales/format";
+import { cn } from "@/lib/utils";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof getAttributedCustomer>>>;
 
@@ -30,7 +34,7 @@ export function CustomerDetail({
   repNames?: Map<string, string>;
   headerActions?: ReactNode;
 }) {
-  const { attribution, payments, commissions } = detail;
+  const { attribution, payments, commissions, activation } = detail;
   const { customer } = attribution;
   const state = eligibilityState(attribution);
   const title = customer.stores[0]?.name ?? customer.name ?? customer.email;
@@ -92,14 +96,17 @@ export function CustomerDetail({
           ) : (
             <ul className="apple-rows pb-2 [--row-inset:20px]">
               {customer.stores.map((store) => (
-                <li key={store.id} className="flex min-h-11 flex-wrap items-center justify-between gap-2 px-5 py-2.5">
-                  <div className="min-w-0">
-                    <p className="text-[15px] font-semibold">{store.name}</p>
-                    <p className="text-[13px] text-muted-foreground">
-                      {store.plan?.name ?? "بدون باقة"} · {store.billingCycle === "YEARLY" ? "سنوي" : "شهري"} · يتجدد {fmtDate(store.subscriptionEndsAt)}
-                    </p>
+                <li key={store.id} className="space-y-2.5 px-5 py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[15px] font-semibold">{store.name}</p>
+                      <p className="text-[13px] text-muted-foreground">
+                        {store.plan?.name ?? "بدون باقة"} · {store.billingCycle === "YEARLY" ? "سنوي" : "شهري"} · يتجدد {fmtDate(store.subscriptionEndsAt)}
+                      </p>
+                    </div>
+                    <StatusText tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusText>
                   </div>
-                  <StatusText tone={SUBSCRIPTION_META[store.subscriptionStatus].tone}>{SUBSCRIPTION_META[store.subscriptionStatus].label}</StatusText>
+                  <StoreSetup activation={activation.get(store.id)} />
                 </li>
               ))}
             </ul>
@@ -187,6 +194,35 @@ export function CustomerDetail({
           </ul>
         </Card>
       )}
+    </div>
+  );
+}
+
+/** Where the merchant is in setting the store up — tells the rep what to help with. */
+function StoreSetup({ activation }: { activation: StoreActivation | undefined }) {
+  if (!activation) return null;
+  return (
+    <div className="space-y-1.5">
+      <ul aria-label="تجهيز المتجر" className="flex flex-wrap gap-1.5">
+        {ACTIVATION_STEPS.map((step) => {
+          const done = activation.steps[step];
+          return (
+            <li
+              key={step}
+              className={cn(
+                "inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-[12px] font-medium",
+                done ? "bg-(--sys-green)/12 text-[#248a3d] dark:text-(--sys-green)" : "bg-(--fill-3) text-muted-foreground",
+              )}
+            >
+              {done ? <Check className="size-3" strokeWidth={3} /> : <span aria-hidden className="size-1.5 rounded-full bg-current opacity-50" />}
+              {done ? ACTIVATION_LABELS[step].done : ACTIVATION_LABELS[step].missing}
+            </li>
+          );
+        })}
+      </ul>
+      <p className="text-[12px] text-muted-foreground">
+        {fmtNum(activation.products)} منتج · {fmtNum(activation.orders)} طلب
+      </p>
     </div>
   );
 }

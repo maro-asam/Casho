@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { CalendarClock, ChevronLeft, MessageCircle, PartyPopper } from "lucide-react";
+import { CalendarClock, ChevronLeft, PartyPopper } from "lucide-react";
 import { SalesCommissionStatus } from "@prisma/client";
-import { Card, StatusText, Unavailable, appleButton, initialOf, toneDotClass } from "@/components/saas-page";
+import { Card, Unavailable, appleButton, toneDotClass } from "@/components/saas-page";
 import { MonthBars } from "@/components/sales/month-bars";
 import { TIER, TIER_ORDER, TierTag } from "@/components/sales/tier";
 import { levelProgress, salesGreeting, salesQuote } from "@/lib/sales/insights";
-import type { FollowUp, RepMonthlyTrend, SalesSummary } from "@/lib/sales/queries";
+import type { CallListItem } from "@/lib/sales/call-list-queries";
+import type { RepMonthlyTrend, SalesSummary } from "@/lib/sales/queries";
 import { formatRateBps, type SalesTier } from "@/lib/sales/rules";
 import {
   COMMISSION_STATUS_META,
@@ -15,10 +16,9 @@ import {
   fmtMonthName,
   fmtNum,
   fmtPct,
-  fmtRelativeDays,
-  whatsappLink,
 } from "@/lib/sales/format";
 import { cn } from "@/lib/utils";
+import { CallRows } from "./call-rows";
 
 /* ── Hero: the rep's name is the page title ──────────────────────────────── */
 
@@ -370,87 +370,31 @@ export function FunnelCard({ summary }: { summary: SalesSummary }) {
   );
 }
 
-/* ── Follow-ups: signed up, not paid — the calls worth making today ──────── */
+/* ── Calls: who needs a call today, most urgent first ──────────────────── */
 
-function trialLine(row: FollowUp, now: Date) {
-  const store = row.customer.stores[0];
-  if (!store) return { tone: "neutral" as const, text: "لسه معملش متجر" };
-  if (!row.trialEndDate) return { tone: "neutral" as const, text: "مبدأش تجربة" };
-  const msLeft = row.trialEndDate.getTime() - now.getTime();
-  if (msLeft <= 0) return { tone: "danger" as const, text: "التجربة خلصت ومدفعش" };
-  return { tone: msLeft < 36 * 3_600_000 ? ("warning" as const) : ("info" as const), text: `التجربة بتخلص ${fmtRelativeDays(row.trialEndDate, now)}` };
-}
-
-export function FollowUpsCard({ rows, total, repName }: { rows: FollowUp[]; total: number; repName: string }) {
-  const now = new Date();
+export function CallListCard({ list, repName }: { list: { rows: CallListItem[]; total: number }; repName: string }) {
   return (
     <Card
-      title="محتاجين متابعة"
-      subtitle="سجّلوا ومدفعوش — الأولوية للي تجربتهم قربت تخلص"
+      title="اتصالات النهارده"
+      subtitle="تجارب بتخلص، متاجر اتقفلت، وتسجيلات جديدة — الأهم الأول"
       action={
-        total > rows.length && (
-          <Link href="/sales/customers?state=signup" className={appleButton.plain}>
-            الكل {fmtNum(total)}
+        list.total > list.rows.length && (
+          <Link href="/sales/calls" className={appleButton.plain}>
+            الكل {fmtNum(list.total)}
             <ChevronLeft className="size-4" strokeWidth={2.2} />
           </Link>
         )
       }
     >
-      {rows.length === 0 ? (
+      {list.rows.length === 0 ? (
         <Unavailable
           icon={PartyPopper}
-          title="مفيش حد مستني متابعة"
-          description="كل اللي سجّلوا من رابطك دفعوا. ابعت الرابط لتجار جداد."
+          title="مفيش حد محتاج مكالمة دلوقتي"
+          description="كل عملائك تمام. ابعت رابطك لتجار جداد."
           className="py-10"
         />
       ) : (
-        <ul className="apple-rows pb-2 [--row-inset:72px]">
-          {rows.map((row) => {
-            const store = row.customer.stores[0];
-            const title = store?.name ?? row.customer.name ?? row.customer.email;
-            const line = trialLine(row, now);
-            const firstName = row.customer.name?.trim().split(/\s+/)[0];
-            const message = `أهلًا${firstName ? ` ${firstName}` : ""}، معاك ${repName} من كاشو. حبيت أطمن عليك${store ? ` وعلى متجر ${store.name}` : ""} — لو محتاج أي مساعدة في التفعيل أو الباقات أنا موجود.`;
-            return (
-              <li key={row.id} className="relative flex items-center gap-3 px-5 py-3">
-                <span
-                  aria-hidden
-                  className="grid size-10 shrink-0 place-items-center rounded-full bg-linear-to-b from-[#a1a1a6] to-[#8e8e93] text-[15px] font-semibold text-white"
-                >
-                  {initialOf(title)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={`/sales/customers/${row.customer.id}`}
-                    className="block truncate text-[15px] font-semibold after:absolute after:inset-0 hover:underline"
-                  >
-                    {title}
-                  </Link>
-                  <div className="flex flex-wrap items-center gap-x-2 text-[13px] text-muted-foreground">
-                    <StatusText tone={line.tone} className="text-[13px]">
-                      {line.text}
-                    </StatusText>
-                    <span>· سجّل {fmtRelativeDays(row.signedUpAt, now)}</span>
-                  </div>
-                </div>
-                {row.customer.phone_number ? (
-                  <a
-                    href={whatsappLink(row.customer.phone_number, message)}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`كلّم ${title} على واتساب`}
-                    className="apple-press relative z-10 inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-(--sys-green)/12 px-3.5 text-[14px] font-semibold text-[#248a3d] hover:bg-(--sys-green)/18 dark:text-(--sys-green)"
-                  >
-                    <MessageCircle className="size-4" />
-                    <span className="hidden sm:inline">واتساب</span>
-                  </a>
-                ) : (
-                  <ChevronLeft aria-hidden className="size-4 shrink-0 text-(--label-3)" strokeWidth={2.2} />
-                )}
-              </li>
-            );
-          })}
-        </ul>
+        <CallRows rows={list.rows} repName={repName} />
       )}
     </Card>
   );

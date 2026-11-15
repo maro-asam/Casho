@@ -2,7 +2,7 @@ import { Prisma, SalesAttributionSource, SalesRepStatus, UserRole } from "@prism
 import { prisma } from "@/lib/prisma";
 import { normalizeReferralCode } from "./rules";
 
-export const SIGNUP_REF_COOKIE = "signupRef";
+export { SIGNUP_REF_COOKIE } from "./ref-cookie";
 
 export type SignupReferral = {
   code: string;
@@ -31,6 +31,38 @@ export async function resolveSignupReferral(raw: string | null | undefined): Pro
     return { code, referrerUserId: referrer.id, salesRepId: referrer.salesRep.id };
   }
   return { code, referrerUserId: referrer.id, salesRepId: null };
+}
+
+/**
+ * The first candidate that resolves — e.g. the page's `?ref=` before the
+ * remembered cookie, so a stale or mistyped link doesn't hide a valid code.
+ */
+export async function resolveFirstReferral(...candidates: (string | null | undefined)[]): Promise<SignupReferral | null> {
+  const seen = new Set<string>();
+  for (const raw of candidates) {
+    const code = normalizeReferralCode(raw);
+    if (!code || seen.has(code)) continue;
+    seen.add(code);
+    const referral = await resolveSignupReferral(code);
+    if (referral) return referral;
+  }
+  return null;
+}
+
+export type SignupFormReferral = { ok: true; referral: SignupReferral | null } | { ok: false; error: string };
+
+/**
+ * The referral a signup form submitted. A form with the code field sends it
+ * even when empty (the merchant cleared it on purpose), and a typed code that
+ * doesn't resolve is an error the merchant can fix — never a silent loss. An
+ * older form without the field falls back to the remembered cookie.
+ */
+export async function readSignupFormReferral(formData: FormData, rememberedCode: string | undefined): Promise<SignupFormReferral> {
+  if (!formData.has("refCode")) return { ok: true, referral: await resolveSignupReferral(rememberedCode) };
+  const typed = formData.get("refCode")?.toString().trim() ?? "";
+  if (!typed) return { ok: true, referral: null };
+  const referral = await resolveSignupReferral(typed);
+  return referral ? { ok: true, referral } : { ok: false, error: "الكود ده مش شغّال — راجعه أو سيبه فاضي" };
 }
 
 /** Call inside the signup transaction, right after the user is created. */

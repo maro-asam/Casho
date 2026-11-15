@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -16,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { ReferralCodeField } from "../referral-code-field";
 import { FIELD_CLASS, FormField, PRIMARY_BUTTON_CLASS } from "./form-field";
 
 const COUNTRIES = [
@@ -60,11 +60,12 @@ const BUSINESS_TYPES = [
 type Props = {
   email: string;
   name: string;
+  /** A referral code the page already verified (carried across the Google round trip). */
+  refCode?: string;
 };
 
-export function CompleteGoogleForm({ email, name }: Props) {
-  const searchParams = useSearchParams();
-  const refCode = searchParams.get("ref") ?? "";
+export function CompleteGoogleForm({ email, name, refCode }: Props) {
+  const [referralCode, setReferralCode] = useState(refCode ?? "");
   const [state, formAction, isPending] = useActionState(
     RegisterGoogleAction,
     null,
@@ -84,7 +85,6 @@ export function CompleteGoogleForm({ email, name }: Props) {
 
   return (
     <form action={formAction} className="space-y-5">
-      {refCode && <input type="hidden" name="refCode" value={refCode} />}
       {/* Read-only Google info */}
       <div className="rounded-[14px] bg-card px-4 py-3 text-[15px]">
         <p className="text-muted-foreground">سجّلت بواسطة Google</p>
@@ -155,6 +155,14 @@ export function CompleteGoogleForm({ email, name }: Props) {
         </Select>
         <input type="hidden" name="businessType" value={businessType} />
       </FormField>
+
+      <ReferralCodeField
+        name="refCode"
+        value={referralCode}
+        onChange={setReferralCode}
+        knownCode={refCode}
+        error={state?.fieldErrors?.refCode}
+      />
 
       <Button
         type="submit"

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
+import { GetNotificationsAction } from "@/actions/notifications/notifications.actions";
 import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
 import { buildReferralLink } from "@/lib/sales/attribution";
 import { getSalesRepContext } from "@/lib/sales/guard";
@@ -30,10 +31,12 @@ export default async function SalesLayout({ children }: { children: ReactNode })
   }
 
   const name = rep.name?.trim() || rep.email.split("@")[0];
+  // The rep's own notifications (signups, commissions, alerts — lib/sales/notify), scoped by the session user.
+  const notifications = await GetNotificationsAction(10);
 
   return (
     <div dir="rtl" className="apple-ui min-h-screen bg-background text-foreground">
-      <SalesTopbar name={name} email={rep.email} referralLink={buildReferralLink(rep.referralCode)} />
+      <SalesTopbar name={name} email={rep.email} referralLink={buildReferralLink(rep.referralCode)} notifications={notifications} />
       <main id="main-content" className="apple-form mx-auto w-full max-w-screen-xl px-4 pt-5 pb-32 sm:px-6 md:pt-7 md:pb-14">
         {children}
       </main>

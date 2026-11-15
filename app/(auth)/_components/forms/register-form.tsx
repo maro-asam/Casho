@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { AuthSplit } from "../auth-split";
 import { GoogleButton, OrDivider, PasswordInput } from "../auth-controls";
+import { ReferralCodeField } from "../referral-code-field";
 import { StorePreview } from "../store-preview";
 import { FIELD_CLASS, FormAlert, FormField, PRIMARY_BUTTON_CLASS, SECONDARY_BUTTON_CLASS } from "./form-field";
 
@@ -50,7 +51,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const STEP_FIELDS: Record<Step, string[]> = {
   1: ["storeName"],
   2: ["name", "country", "businessType"],
-  3: ["email", "phoneNumber", "password", "confirmPassword"],
+  3: ["email", "phoneNumber", "password", "confirmPassword", "refCode"],
 };
 
 function passwordStrength(password: string) {
@@ -72,6 +73,7 @@ export function RegisterForm({
   initialStoreName,
   trialDays,
 }: {
+  /** A referral code the page already verified (from the link or a remembered visit). */
   refCode?: string;
   /** A store name typed on the landing page; fills step 1 and checks its address. */
   initialStoreName?: string;
@@ -97,6 +99,7 @@ export function RegisterForm({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState(refCode ?? "");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const [state, formAction, isPending] = useActionState(async (prev: RegisterState | null, formData: FormData) => {
@@ -220,7 +223,7 @@ export function RegisterForm({
 
         {step === 1 && (
           <>
-            <GoogleButton label="ابدأ بحساب Google" refCode={refCode} />
+            <GoogleButton label="ابدأ بحساب Google" refCode={referralCode || undefined} />
             <OrDivider label="أو بالإيميل" />
           </>
         )}
@@ -247,7 +250,8 @@ export function RegisterForm({
           <input type="hidden" name="phoneNumber" value={phone} />
           <input type="hidden" name="password" value={password} />
           <input type="hidden" name="confirmPassword" value={password} />
-          {refCode && <input type="hidden" name="refCode" value={refCode} />}
+          {/* Always sent: empty means the merchant cleared it (see readSignupFormReferral). */}
+          <input type="hidden" name="refCode" value={referralCode} />
 
           <div key={step} className="space-y-5 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1">
             {step === 1 && (
@@ -387,6 +391,8 @@ export function RegisterForm({
                     </ul>
                   </div>
                 </FormField>
+
+                <ReferralCodeField value={referralCode} onChange={setReferralCode} knownCode={refCode} error={errors.refCode} />
               </>
             )}
           </div>

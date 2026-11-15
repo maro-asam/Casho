@@ -55,6 +55,19 @@ export function fmtRelativeDays(date: Date, now = new Date()) {
   return relativeFmt.format(Math.round((date.getTime() - now.getTime()) / 86_400_000), "day");
 }
 
+/** Like fmtRelativeDays, but within a day in hours — "بعد ٥ ساعات" says more than "اليوم" when a trial is about to end. */
+export function fmtWhen(date: Date, now = new Date()) {
+  const diff = date.getTime() - now.getTime();
+  const hours = Math.round(Math.abs(diff) / 3_600_000);
+  if (hours < 1) return diff >= 0 ? "خلال ساعة" : "من أقل من ساعة";
+  if (hours < 24) {
+    // Arabic counts: 3–10 take the plural, 11+ the singular.
+    const n = hours === 1 ? "ساعة" : hours === 2 ? "ساعتين" : `${numFmt.format(hours)} ${hours <= 10 ? "ساعات" : "ساعة"}`;
+    return diff >= 0 ? `بعد ${n}` : `من ${n}`;
+  }
+  return fmtRelativeDays(date, now);
+}
+
 /** wa.me chat with a prefilled message; Egyptian 01… numbers get the country code. */
 export function whatsappLink(phone: string, text: string) {
   return `https://wa.me/${toWhatsAppDigits(phone)}?text=${encodeURIComponent(text)}`;

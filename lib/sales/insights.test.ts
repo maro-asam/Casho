@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bucketByMonth, lastMonths, levelProgress, monthStart, sortFollowUps } from "./insights";
+import { bucketByMonth, lastMonths, levelProgress, monthStart } from "./insights";
 import type { CommissionRuleSet } from "./rules";
 
 const RULE: CommissionRuleSet = {
@@ -76,31 +76,5 @@ describe("bucketByMonth", () => {
     ];
     expect(bucketByMonth(months, items, (i) => i.at)).toEqual([1, 0, 2]);
     expect(bucketByMonth(months, items, (i) => i.at, (i) => i.v)).toEqual([100, 0, 75]);
-  });
-});
-
-describe("sortFollowUps", () => {
-  const now = new Date("2026-11-07T12:00:00Z");
-  const row = (id: string, signedUpAt: string, trialEndDate: string | null) => ({
-    id,
-    signedUpAt: new Date(signedUpAt),
-    trialEndDate: trialEndDate ? new Date(trialEndDate) : null,
-  });
-
-  it("puts running trials first, ending soonest, then the newest signups", () => {
-    const rows = [
-      row("old-no-trial", "2026-10-01T00:00:00Z", null),
-      row("trial-later", "2026-11-06T00:00:00Z", "2026-11-09T00:00:00Z"),
-      row("trial-ended", "2026-11-01T00:00:00Z", "2026-11-04T00:00:00Z"),
-      row("trial-soon", "2026-11-05T00:00:00Z", "2026-11-08T00:00:00Z"),
-      row("new-no-trial", "2026-11-07T00:00:00Z", null),
-    ];
-    expect(sortFollowUps(rows, now).map((r) => r.id)).toEqual([
-      "trial-soon",
-      "trial-later",
-      "new-no-trial",
-      "trial-ended",
-      "old-no-trial",
-    ]);
   });
 });

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SIGNUP_REF_COOKIE, signupRefCookieOptions } from "@/lib/sales/ref-cookie";
+import { normalizeReferralCode } from "@/lib/sales/rules";
 
 const ROOT_DOMAIN = process.env.ROOT_DOMAIN || "casho.store";
 const APP_URL = process.env.APP_URL || `https://app.${ROOT_DOMAIN}`;
@@ -131,7 +133,27 @@ function withPathname(res: NextResponse, pathname: string): NextResponse {
   return res;
 }
 
+/**
+ * A `?ref=` on any Casho page (landing, pricing, signup — not storefronts) is
+ * remembered for 30 days, so a rep's merchant who signs up later, from
+ * another page or after Google, stays attributed. Signup validates the code.
+ */
+function rememberReferral(req: NextRequest, res: NextResponse): NextResponse {
+  if (req.method !== "GET") return res;
+  const code = normalizeReferralCode(req.nextUrl.searchParams.get("ref"));
+  if (!code) return res;
+  const host = getHost(req);
+  const subdomain = getSubdomain(host);
+  if (isCustomDomain(host) || (subdomain !== null && subdomain !== "app")) return res;
+  res.cookies.set(SIGNUP_REF_COOKIE, code, signupRefCookieOptions());
+  return res;
+}
+
 export async function proxy(req: NextRequest) {
+  return rememberReferral(req, await route(req));
+}
+
+async function route(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("sessionToken");
   const host = getHost(req);

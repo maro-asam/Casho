@@ -14,7 +14,9 @@ import { getFieldErrors } from "@/lib/zod";
 import { z } from "zod";
 import type { ActionState } from "./auth.types";
 import { generateReferralCode } from "@/lib/referral";
-import { SIGNUP_REF_COOKIE, createSignupAttribution, resolveSignupReferral } from "@/lib/sales/attribution";
+import { SIGNUP_REF_COOKIE, createSignupAttribution, readSignupFormReferral } from "@/lib/sales/attribution";
+import { queueSignupNotice } from "@/lib/sales/notify";
+import { signupRefCookieDelete } from "@/lib/sales/ref-cookie";
 
 const PENDING_COOKIE = "pendingGoogleAuth";
 
@@ -28,6 +30,7 @@ export type CompleteGoogleState = ActionState<{
   storeName?: string;
   country?: string;
   businessType?: string;
+  refCode?: string;
 }>;
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
@@ -60,9 +63,6 @@ export async function RegisterGoogleAction(
     return { error: "بيانات Google غير صالحة، ابدأ من جديد" };
   }
 
-  // The form field survives a same-page reload; the cookie survives the Google OAuth round trip.
-  const refCode = formData.get("refCode")?.toString() || cookieStore.get(SIGNUP_REF_COOKIE)?.value || "";
-
   const rawData = {
     storeName: formData.get("storeName")?.toString() ?? "",
     country: formData.get("country")?.toString() ?? "",
@@ -93,8 +93,11 @@ export async function RegisterGoogleAction(
       return { success: true, message: "تم تسجيل الدخول" };
     }
 
-    // Resolve referrer (merchant referral or sales rep) — validated server-side
-    const referral = await resolveSignupReferral(refCode);
+    // Resolve referrer (merchant referral or sales rep) — validated server-side.
+    // The cookie carried the code across the Google round trip; the form's field wins.
+    const ref = await readSignupFormReferral(formData, cookieStore.get(SIGNUP_REF_COOKIE)?.value);
+    if (!ref.ok) return { error: ref.error, fieldErrors: { refCode: ref.error } };
+    const { referral } = ref;
     const referredById = referral?.referrerUserId ?? null;
 
     const baseSlug = normalizeStoreSlug(storeName);
@@ -147,7 +150,8 @@ export async function RegisterGoogleAction(
     });
 
     cookieStore.delete(PENDING_COOKIE);
-    cookieStore.delete(SIGNUP_REF_COOKIE);
+    cookieStore.delete(signupRefCookieDelete());
+    if (referral?.salesRepId) queueSignupNotice(created.id);
     await createUserSession(created.id);
 
     return { success: true, message: "تم إنشاء الحساب بنجاح" };
