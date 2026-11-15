@@ -1,6 +1,9 @@
 import nodemailer, { type Transporter } from "nodemailer";
 
+import { isFreeMailSender } from "./mail-auth";
+
 let transporter: Transporter | null | undefined;
+let warnedFreeMail = false;
 
 /** Brevo SMTP, built on first use; null when its env vars are missing. */
 function getTransporter() {
@@ -30,12 +33,19 @@ export async function sendMail(input: {
   text: string;
   /** Shown as the sender; the address is always MAIL_FROM_EMAIL. */
   fromName?: string;
+  /** Falls back to MAIL_REPLY_TO, then none (replies go to the sender). */
   replyTo?: string | null;
 }) {
   const smtp = getTransporter();
   const fromEmail = process.env.MAIL_FROM_EMAIL;
   if (!smtp) throw new Error("Brevo SMTP environment variables are missing");
   if (!fromEmail) throw new Error("MAIL_FROM_EMAIL is missing");
+  if (!warnedFreeMail && isFreeMailSender(fromEmail)) {
+    warnedFreeMail = true;
+    console.warn(
+      `[mail] MAIL_FROM_EMAIL (${fromEmail}) is a free-mail address: Brevo can't sign for it, so receivers fail DMARC and send it to spam. Use noreply@ on an authenticated domain — docs/email/deliverability.md`,
+    );
+  }
 
   // Quotes would end the display name early.
   const fromName = (input.fromName || process.env.MAIL_FROM_NAME || "Casho").replace(/["\\\r\n]/g, "");
@@ -43,7 +53,7 @@ export async function sendMail(input: {
   const info = await smtp.sendMail({
     from: `"${fromName}" <${fromEmail}>`,
     to: input.to,
-    replyTo: input.replyTo || undefined,
+    replyTo: input.replyTo || process.env.MAIL_REPLY_TO || undefined,
     subject: input.subject,
     html: input.html,
     text: input.text,

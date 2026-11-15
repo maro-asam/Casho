@@ -125,7 +125,7 @@ Required vars (see [lib/secrets.ts](lib/secrets.ts) and [lib/paymob.ts](lib/paym
 - `APP_URL` — full app URL for callback redirects
 - `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS` (comma-separated card/wallet ids) — Casho's own account for top-ups; online top-ups are hidden until set
 - `PAYMENT_ENCRYPTION_KEY` — encrypts merchants' gateway secrets
-- `BREVO_SMTP_HOST`, `BREVO_SMTP_PORT`, `BREVO_SMTP_USER`, `BREVO_SMTP_PASS`, `MAIL_FROM_EMAIL` (+ optional `MAIL_FROM_NAME`) — password reset and order emails; order emails are skipped until set
+- `BREVO_SMTP_HOST`, `BREVO_SMTP_PORT`, `BREVO_SMTP_USER`, `BREVO_SMTP_PASS`, `MAIL_FROM_EMAIL` (+ optional `MAIL_FROM_NAME`, `MAIL_REPLY_TO`) — verification codes, password reset and order emails; order emails are skipped until set. `MAIL_FROM_EMAIL` must be on a domain authenticated in Brevo (`noreply@casho.store`), never free-mail: signup is locked behind the emailed code, so mail in spam stops signups. DNS (Vercel) + Brevo steps in [docs/email/deliverability.md](docs/email/deliverability.md); `npm run check:mail -- <sender> [--send <to>]` checks the records and sends a test.
 
 ## Key Conventions
 

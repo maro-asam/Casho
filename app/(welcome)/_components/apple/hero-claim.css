@@ -59,14 +59,14 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, transparent 72%, var(--al-surface)),
+    linear-gradient(to bottom, transparent 72%, var(--al-bg)),
     radial-gradient(ellipse 52% 34% at 50% 80%, var(--hc-glow), transparent 70%);
 }
 @media (max-width: 639.98px) {
   .hc-bg::before { background-size: 44px 44px; }
   .hc-bg::after {
     background:
-      linear-gradient(to bottom, transparent 80%, var(--al-surface)),
+      linear-gradient(to bottom, transparent 80%, var(--al-bg)),
       radial-gradient(ellipse 90% 30% at 50% 70%, var(--hc-glow), transparent 70%);
   }
 }

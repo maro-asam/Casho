@@ -195,5 +195,18 @@
   "وما فوق.": "and above.",
   "أكّد إيميلك": "Confirm your email",
   "أكّد": "Confirm",
-  "علشان إشعارات الطلبات وإعادة تعيين كلمة المرور توصل لـ {0}.": "so order notifications and password resets reach {0}."
+  "علشان إشعارات الطلبات وإعادة تعيين كلمة المرور توصل لـ {0}.": "so order notifications and password resets reach {0}.",
+  "متاحة من باقة {0} وما فوق": "Available on {0} and above",
+  "مش ضمن باقتك الحالية": "Not on your current plan",
+  "باقة {0}": "{0} plan",
+  "بتتخصم من رصيدك": "Paid from your balance",
+  "قارن الباقات": "Compare plans",
+  "الترقية لـ {0}": "Upgrade to {0}",
+  "صاحب المتجر بس هو اللي يقدر يرقّي الباقة — كلّمه عشان يفعّل الميزة دي.": "Only the store owner can upgrade the plan — ask them to turn this feature on.",
+  "نظام نقطة البيع": "Point of sale",
+  "كاش وكارت وانستاباي، وتقسيم الدفع على أكتر من طريقة": "Cash, card and InstaPay, with split payments",
+  "ورديات وتسوية للدرج النقدي في آخر اليوم": "Shifts and end-of-day cash drawer reconciliation",
+  "مرتجعات واستبدال، وفاتورة تتطبع أو تتبعت واتساب": "Returns and exchanges, with receipts printed or sent on WhatsApp",
+  "بيع في المحل بالباركود، بنفس منتجات متجرك ومخزون كل فرع.": "Sell in-store by barcode, with your store's products and each branch's stock.",
+  "شغّل أي لابتوب أو تابلت ككاشير لمحلك، وكل بيعة بتتسجل طلب في متجرك.": "Turn any laptop or tablet into your shop's register — every sale is recorded as an order in your store."
 }

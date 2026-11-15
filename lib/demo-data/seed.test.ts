@@ -55,6 +55,27 @@ describe("seedDemoData", () => {
     }
   });
 
+  it("stores product prices in pounds and order amounts in piasters", async () => {
+    await seedDemoData("store-1", "ملابس وأزياء");
+    const kit = demoKitFor("ملابس وأزياء");
+    const products = calls.product as Row[];
+    const items = calls.orderItem as Row[];
+
+    // Product.price is EGP (the storefront shows it as-is): a 350 tee must not become 35,000.
+    kit.products.forEach((p, i) => {
+      expect(products[i].price).toBe(p.price);
+      expect(products[i].compareAtPrice).toBe(p.compareAt ?? null);
+      expect(Number(products[i].costPrice)).toBeLessThan(p.price);
+    });
+
+    // OrderItem.price / Order totals are piasters, like a real checkout.
+    for (const item of items) {
+      const product = products.find((p) => p.id === item.productId)!;
+      expect(item.price).toBe(Number(product.price) * 100);
+      expect(item.costPrice).toBe(Number(product.costPrice) * 100);
+    }
+  });
+
   it("never offers cash on delivery for a digital-only order", async () => {
     await seedDemoData("store-1", "خدمات رقمية");
     for (const order of calls.order as Row[]) {

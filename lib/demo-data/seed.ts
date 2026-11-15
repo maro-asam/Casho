@@ -19,6 +19,9 @@ import {
 const DAY = 24 * 60 * 60 * 1000;
 const DEMO_SHIPPING = 5000; // piasters
 
+/** Orders and order lines are stored in piasters; products in pounds. */
+const toPiasters = (egp: number) => Math.round(egp * 100);
+
 /** Spread over the last ~10 days so the overview chart and KPIs have a shape. */
 const ORDER_PLAN: { daysAgo: number; hour: number; status: OrderStatus; lines: [number, number][] }[] = [
   { daysAgo: 9, hour: 13, status: OrderStatus.DELIVERED, lines: [[0, 1], [2, 1]] },
@@ -80,9 +83,10 @@ export async function seedDemoData(storeId: string, businessType: string | null 
     slug: `${kit.id}-${i + 1}-${tag}`,
     sku: `${DEMO_SKU_PREFIX}${String(i + 1).padStart(3, "0")}`,
     description: p.description,
-    price: p.price * 100,
-    compareAtPrice: p.compareAt ? p.compareAt * 100 : null,
-    costPrice: Math.round(p.price * 0.55) * 100,
+    // Product prices are pounds (650 = 650 EGP), unlike order amounts below.
+    price: p.price,
+    compareAtPrice: p.compareAt ?? null,
+    costPrice: Math.round(p.price * 0.55),
     stock: p.digital ? 0 : p.stock,
     isDigital: Boolean(p.digital),
     image: p.image,
@@ -117,8 +121,8 @@ export async function seedDemoData(storeId: string, businessType: string | null 
     const createdAt = atTime(plan.daysAgo, plan.hour, now);
     const orderId = randomUUID();
 
-    const subtotal = merged.reduce((sum, l) => sum + l.product.price * l.quantity, 0);
-    const costTotal = merged.reduce((sum, l) => sum + (l.product.costPrice ?? 0) * l.quantity, 0);
+    const subtotal = merged.reduce((sum, l) => sum + toPiasters(l.product.price) * l.quantity, 0);
+    const costTotal = merged.reduce((sum, l) => sum + toPiasters(l.product.costPrice) * l.quantity, 0);
     const shipping = digitalOnly ? 0 : DEMO_SHIPPING;
     const settled = plan.status === OrderStatus.DELIVERED || (digitalOnly && plan.status !== OrderStatus.CANCELED && plan.status !== OrderStatus.PENDING);
 
@@ -149,9 +153,9 @@ export async function seedDemoData(storeId: string, businessType: string | null 
       items.push({
         orderId,
         productId: line.product.id,
-        price: line.product.price,
-        costPrice: line.product.costPrice,
-        profitAmount: (line.product.price - (line.product.costPrice ?? 0)) * line.quantity,
+        price: toPiasters(line.product.price),
+        costPrice: toPiasters(line.product.costPrice),
+        profitAmount: (toPiasters(line.product.price) - toPiasters(line.product.costPrice)) * line.quantity,
         quantity: line.quantity,
         createdAt,
       });

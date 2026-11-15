@@ -29,7 +29,9 @@
 }
 
 :root {
-  font-family: var(--font-alyamama);
+  /* Cairo comes from next/font in app/layout.tsx (same stack as the landing).
+     Storefronts override it with the merchant's font on .store-theme-root. */
+  font-family: var(--font-cairo), var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 
   --radius: 0.625rem;
 

@@ -17,8 +17,8 @@ and submitting goes to `/register?store=…`, which fills step 1 of sign-up.
 The bar is LTR in both languages (address from the left edge, then button);
 a hidden ghost span sizes the input so `.casho.store` follows the name. The backdrop
 (`.hc-bg`) is a hairline grid that fades out around the headline, one soft blue light under
-the bar, and a fade into `--al-surface` so the hero meets the gray section below with no
-edge — no blurred blobs. Facts sit at the foot with check marks. `HeroNumber` (giant sales number) and
+the bar, and a fade into `--al-bg` so the hero ends clean on its own white before the black
+POS section (and runs straight into it at night) — no blurred blobs. Facts sit at the foot with check marks. `HeroNumber` (giant sales number) and
 `HeroGrow` / `GrowthBoard` (dot-matrix board) are earlier heroes, kept unused.
 
 ## Tokens
@@ -50,11 +50,11 @@ own header, card or spacing style.
 - **Header**: `SectionHead.tsx` — eyebrow, a two-tone headline (the claim in
   ink, the second beat in gray via `accent`), one subhead (max 600px). The blue
   gradient (`emphasis="gradient"`) is only for brand moments: the hero's last
-  line, the Sharks teaser and the final CTA.
+  line, the POS stage, the Sharks teaser and the final CTA.
 - **Rhythm**: sections alternate white (`.al-section`) and gray
   (`.al-section-surface`), black (`.al-dark`) for brand moments. Current order:
-  hero (white) → sync (gray) → features (white) → themes (gray) → examples
-  (white) → Sharks (black) → pricing (gray) → FAQ (white) → CTA (black).
+  hero (white) → POS stage (black) → features (white) → themes (gray) →
+  examples (white) → Sharks (black) → pricing (gray) → FAQ (white) → CTA (black).
 - **Tiles**: `.al-tile` is always the other tone of its section (gray on
   white, white on gray), so it needs no border or shadow. `.al-well` is a tray
   inside a tile. Only depicted screens (theme previews, example browser frames)
@@ -68,20 +68,35 @@ own header, card or spacing style.
   `.al-icon-btn`, `.al-chip`.
 - **Promo colour**: `--al-new` (orange) for "most popular", "save x%" — no green.
 
-## Section 2 — "one number across two worlds" (SyncSection.tsx)
+## Section 2 — the POS stage (PosStage.tsx, `pos-stage.css`)
 
-A panel split into the shop (dark) and the online store (light) — side by
-side, stacked on phones — with one stock number on the seam. The number is
-drawn twice (`.ss-layer`) and each copy is clipped to its half, so it reads
-white on the shop and ink on the store. Its label ("in stock · product") is
-one chip (`.ss-tag`) drawn once on top, never clipped — small text cut in
-half by the seam reads as a bug. Each half opens with its channel's icon tile
-(green light, pulsing on the latest sale) and lists sales as notification
-rows (icon, title, meta, a "−1" pill), mirrored on the online half so both
-sit in the outer corners. The panel pins (`.ss-pin`) while the
-visitor scrolls 240svh; four sales land at `THRESHOLDS` and the number counts
-48 → 44. Phones keep only the latest sale per side (the chip shares the
-online half). Reduced motion: not pinned, final state.
+"كاشير لمحلك. متجر لعملائك. / والاتنين سيستم واحد." on black, Apple product-page
+style: the Casho POS on a tablet and the online store on a phone, both showing the
+same product (the black tee) from the same stock, over a soft blue floor light.
+Picked 2026-11-15 from three rendered directions (split-flap board / this stage /
+a 48-piece shelf) after the split dark/light panel with one number was rejected.
+
+- **The drawing**: the devices are `aria-hidden` (the canvas carries one
+  `aria-label`). Everything is drawn in design pixels — `--p` is one pixel of a
+  1240-wide frame (container query units), each device draws with `--u` — so the
+  stage scales like a picture. Phones (container < 700px): a 1000-wide frame, the
+  tablet across the top and the phone drawn ×1.45 over its start corner; the live
+  chip moves above the stage.
+- **The till** mirrors the real POS: barcode search, open shift, category chips,
+  product cards with "متاح N", a receipt with discount, cash / Visa / Vodafone Cash
+  and "ادفع واطبع الفاتورة". **The phone** is a storefront product page (sizes,
+  "متاح N قطعة", add to bag).
+- **Live**: once 30% on screen, six events run 3.4s apart (`EVENTS`): a till sale
+  presses Pay, shows "اتدفعت واتطبعت · فاتورة #…" and the receipt number moves
+  on; an online order drops a frosted notice on the till and the phone's button
+  turns to "اتطلب". Each one ticks the tee's stock on both screens (44 → 38) with a
+  brief blue highlight, and the chip says what happened ("بيعة من الكاشير · اتحدّث
+  المتجر"; chip icon ink = shop, blue = online). Paused off screen and in hidden
+  tabs; reduced motion gets the still stage.
+- **Specs** under the stage (barcode and receipts, shifts and drawer, one stock,
+  returns and discounts) — all real POS features; keep them that way.
+- `SyncSection.tsx` (and its `ss-*` CSS / `sync` copy) is the earlier section 2,
+  kept unused for rollback.
 
 ## Pricing (ApplePricing.tsx) — Apple One cards
 
@@ -144,4 +159,4 @@ Split hero with a product-UI mockup and floating glass cards; glossy CG
 (prism, liquid drops); cute literal objects (receipt printer); a thin line
 drawing with lots of white ("تقليدي / فاضي").
 
-_Last updated: 2026-11-12 — Apple One pricing cards (Starter / Growth / Scale + Enterprise soon)._
+_Last updated: 2026-11-15 — section 2 is the POS stage (till on a tablet + store on a phone)._

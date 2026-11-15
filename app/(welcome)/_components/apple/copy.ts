@@ -112,8 +112,49 @@ const ar = {
       tipOnline: "{n} طلب · كله أونلاين",
     },
   },
-  // Section 2 (SyncSection.tsx): the shop and the online store share one stock
-  // number that sits across both of them.
+  // Section 2 (PosStage.tsx): the till on a tablet and the online store on a
+  // phone, selling the same product from the same stock.
+  pos: {
+    eyebrow: "كاشير + متجر أونلاين",
+    title: "كاشير لمحلك. متجر لعملائك.",
+    accent: "والاتنين سيستم واحد.",
+    figure:
+      "تابلت عليه كاشير كاشو وموبايل عليه المتجر الأونلاين، بيعرضوا نفس المنتج ونفس المخزون. البيعة في المحل بتتخصم من المتجر، والطلب الأونلاين بيتخصم من المحل.",
+    price: "{n} ج.م",
+    products: ["تيشيرت أوفرسايز أسود", "هودي رمادي", "جينز واسع فاتح", "شنطة كروس جلد", "نظارة شمس", "ساعة كلاسيك"],
+    till: {
+      branch: "كاشير · فرع مدينة نصر",
+      search: "امسح الباركود أو دوّر على منتج",
+      shift: "وردية مفتوحة · أحمد",
+      categories: ["الكل", "تيشيرتات", "هوديز", "جينز", "إكسسوارات"],
+      stock: "متاح {n}",
+      invoice: "الفاتورة",
+      subtotal: "الإجمالي",
+      discount: "خصم",
+      due: "المطلوب",
+      methods: ["كاش", "فيزا", "فودافون كاش"],
+      pay: "ادفع واطبع الفاتورة",
+      paid: "اتدفعت واتطبعت",
+      receipt: "فاتورة #{n}",
+      newOrder: "طلب أونلاين جديد",
+    },
+    shop: { name: "نور ستور", stock: "متاح {n} قطعة", add: "أضف للسلة", ordered: "اتطلب" },
+    sync: {
+      idle: "المخزون متزامن لحظيًا",
+      pos: "بيعة من الكاشير · اتحدّث المتجر",
+      online: "طلب أونلاين · اتحدّث الكاشير",
+    },
+    cities: ["الإسكندرية", "المنصورة", "أسيوط"],
+    // ⁦…⁩ isolates "−1" as LTR, or the minus lands on the far side of the 1.
+    minusOne: "⁦−1⁩",
+    specs: [
+      { title: "باركود وفاتورة", body: "امسح المنتج، اقبض كاش أو فيزا أو محفظة، واطبع الفاتورة." },
+      { title: "ورديات ودرج", body: "كل كاشير بورديته، وفي آخرها تعرف الدرج المفروض فيه كام." },
+      { title: "مخزون واحد", body: "بيعة المحل بتنقص من المتجر الأونلاين في نفس اللحظة، والعكس." },
+      { title: "مرتجعات وخصومات", body: "رجّع من الفاتورة، والقطعة ترجع للمخزون لوحدها." },
+    ],
+  },
+  // Earlier section 2 (SyncSection.tsx, unused): one stock number across both halves.
   sync: {
     eyebrow: "مخزون واحد",
     title: "بيعة في المحل. طلب أونلاين.",
@@ -397,6 +438,45 @@ const en: LandingCopy = {
       tip: "{n} orders · {p}% in store",
       tipOnline: "{n} orders · all online",
     },
+  },
+  pos: {
+    eyebrow: "POS + online store",
+    title: "A till for your shop. A store for your customers.",
+    accent: "One system for both.",
+    figure:
+      "A tablet running the Casho POS and a phone showing the online store, both selling the same product from the same stock. A sale in the shop comes off the store, an online order comes off the shop.",
+    price: "EGP {n}",
+    products: ["Black oversized tee", "Gray hoodie", "Light wide jeans", "Leather crossbody", "Sunglasses", "Classic watch"],
+    till: {
+      branch: "POS · Nasr City branch",
+      search: "Scan a barcode or search",
+      shift: "Shift open · Ahmed",
+      categories: ["All", "Tees", "Hoodies", "Jeans", "Accessories"],
+      stock: "{n} left",
+      invoice: "Receipt",
+      subtotal: "Subtotal",
+      discount: "Discount",
+      due: "Total",
+      methods: ["Cash", "Visa", "Vodafone Cash"],
+      pay: "Charge and print",
+      paid: "Paid and printed",
+      receipt: "Receipt #{n}",
+      newOrder: "New online order",
+    },
+    shop: { name: "Noor Store", stock: "{n} in stock", add: "Add to bag", ordered: "Ordered" },
+    sync: {
+      idle: "Stock in sync, live",
+      pos: "Sale at the till · store updated",
+      online: "Online order · till updated",
+    },
+    cities: ["Alexandria", "Mansoura", "Assiut"],
+    minusOne: "−1",
+    specs: [
+      { title: "Barcode and receipts", body: "Scan it, take cash, card or wallet, and print the receipt." },
+      { title: "Shifts and drawer", body: "Every cashier on their own shift, and the drawer total waiting at close." },
+      { title: "One stock", body: "A sale in the shop comes off the online store instantly, and back." },
+      { title: "Returns and discounts", body: "Return from the receipt and the piece goes back into stock." },
+    ],
   },
   sync: {
     eyebrow: "One inventory",

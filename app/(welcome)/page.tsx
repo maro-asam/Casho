@@ -21,7 +21,7 @@ import { isDirectPlanCheckoutEnabled } from "@/lib/payments/plan-checkout";
 import { getPublishedShowcase } from "@/lib/showcase/public";
 import type { WelcomePlan } from "./_components/Pricing";
 import HeroClaim from "./_components/apple/HeroClaim";
-import SyncSection from "./_components/apple/SyncSection";
+import PosStage from "./_components/apple/PosStage";
 import Bento from "./_components/apple/Bento";
 import ThemesRail from "./_components/apple/ThemesRail";
 import Showcase from "./_components/apple/Showcase";
@@ -66,7 +66,7 @@ export default async function Page() {
     <div className="al">
       <LandingPageTracker />
       <HeroClaim />
-      <SyncSection />
+      <PosStage />
       <Bento />
       <ThemesRail />
       {showcase.length > 0 && <Showcase sites={showcase} />}
