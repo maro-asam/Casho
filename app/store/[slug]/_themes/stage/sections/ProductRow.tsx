@@ -7,6 +7,7 @@ import BuyButton from "../product/BuyButton";
 import ProductCard, { CardEyebrow } from "../product/ProductCard";
 import Rail from "../product/Rail";
 import { Band, PlateImage, Price, SectionHeader, Wrap, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** apple.com/store's "The latest" shelf: tall cards, the name and price on
  *  top, the product filling the rest. */
@@ -59,7 +60,7 @@ export function TopCharts({ products, storeSlug, title, max = 9, href }: { produ
   return (
     <Band className="sg-section">
       <Wrap>
-        <SectionHeader title={title} tagline="اللي الكل بيشتريه." href={href} />
+        <SectionHeader title={title} tagline={st("اللي الكل بيشتريه.")} href={href} />
         <ol aria-label={title} className="sg-charts">
           {list.map((p, i) => (
             <li key={p.id} className="sg-reveal min-w-0" style={{ ["--d" as string]: Math.min(i, 5) }}>
@@ -72,7 +73,7 @@ export function TopCharts({ products, storeSlug, title, max = 9, href }: { produ
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <Link href={buildStoreUrl(storeSlug, `/products/${p.slug}`)} className="line-clamp-2 text-[0.9375rem] leading-snug font-semibold text-(--sg-ink) after:absolute after:inset-0 after:z-[1] after:content-['']">
-                    <span className="sr-only">رقم {num(i + 1)}: </span>
+                    <span className="sr-only">{st("رقم {0}:", num(i + 1))}{" "}</span>
                     {p.name}
                   </Link>
                   <Price price={p.price} compareAt={p.compareAtPrice} size="sm" />
@@ -94,7 +95,7 @@ export function DealsBand({ products, storeSlug, title, lowStock, timer }: { pro
   return (
     <Band tone="night" aria-label={title} className="sg-section sg-deals">
       <Wrap className="text-center">
-        <p className="sg-eyebrow sg-gradient-text sg-reveal">لفترة محدودة</p>
+        <p className="sg-eyebrow sg-gradient-text sg-reveal">{st("لفترة محدودة")}</p>
         <h2 className="sg-display sg-reveal mx-auto mt-2 max-w-[18ch] text-balance">{title}</h2>
         {timer && <div className="sg-reveal mt-8 flex justify-center">{timer}</div>}
       </Wrap>
@@ -102,7 +103,7 @@ export function DealsBand({ products, storeSlug, title, lowStock, timer }: { pro
         {list.map((p) => (
           <li key={p.id} className="min-w-0">
             <ProductCard product={p} storeSlug={storeSlug} sizes="(max-width: 768px) 60vw, 18rem" />
-            {lowStock && p.stock <= 5 && <p className="mt-2 text-center text-xs font-semibold text-(--sg-low)">باقي {num(p.stock)} بس</p>}
+            {lowStock && p.stock <= 5 && <p className="mt-2 text-center text-xs font-semibold text-(--sg-low)">{st("باقي {0} بس", num(p.stock))}</p>}
           </li>
         ))}
       </Rail>

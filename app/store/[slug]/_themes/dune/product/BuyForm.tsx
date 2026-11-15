@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Minus, Plus } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { WholesaleTier } from "../../types";
 import { openCart } from "../../shared/cart-events";
 import { swatchColor } from "../../shared/colors";
@@ -13,6 +13,7 @@ import { storeHref } from "../../shared/store-path";
 import { useAddToCart } from "../../shared/use-add-to-cart";
 import { dnToast } from "../toast";
 import { PlateImage, btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type BuyProduct = {
   id: string;
@@ -27,7 +28,7 @@ export type BuyProduct = {
 };
 
 type OptionKey = "size" | "color";
-const LABEL: Record<OptionKey, string> = { size: "المقاس", color: "اللون" };
+const LABEL: Record<OptionKey, string> = { get size() { return st("المقاس"); }, get color() { return st("اللون"); } };
 
 function OptionGroup({
   id,
@@ -53,7 +54,7 @@ function OptionGroup({
         </span>
         {!selected && (
           <span role={error ? "alert" : undefined} className={cn("text-xs", error ? "font-semibold text-(--dn-error)" : "text-(--dn-quiet)")}>
-            {error ? `اختار ${LABEL[kind]} الأول` : `اختار ${LABEL[kind]}`}
+            {error ? st("اختار {0} الأول", LABEL[kind]) : st("اختار {0}", LABEL[kind])}
           </span>
         )}
       </legend>
@@ -80,13 +81,13 @@ export function Qty({ value, max, onChange, disabled, size = "lg" }: { value: nu
   const cell = size === "lg" ? "size-[3.25rem]" : "size-10";
   return (
     <div className="flex items-center rounded-full border border-(--dn-line-ink)">
-      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label="تقليل الكمية" className={cn(cell, "grid place-items-center rounded-full transition-opacity disabled:opacity-30 [&_svg]:size-3.5")}>
+      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label={st("تقليل الكمية")} className={cn(cell, "grid place-items-center rounded-full transition-opacity disabled:opacity-30 [&_svg]:size-3.5")}>
         <Minus />
       </button>
-      <output aria-live="polite" aria-label="الكمية" className="dn-num w-7 text-center text-lg">
+      <output aria-live="polite" aria-label={st("الكمية")} className="dn-num w-7 text-center text-lg">
         {num(value)}
       </output>
-      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label="زيادة الكمية" className={cn(cell, "grid place-items-center rounded-full transition-opacity disabled:opacity-30 [&_svg]:size-3.5")}>
+      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label={st("زيادة الكمية")} className={cn(cell, "grid place-items-center rounded-full transition-opacity disabled:opacity-30 [&_svg]:size-3.5")}>
         <Plus />
       </button>
     </div>
@@ -172,8 +173,8 @@ export default function BuyForm({
   if (!inStock) {
     return (
       <div className="border border-(--dn-line) p-5">
-        <p className="dn-h4">الكمية خلصت حاليًا</p>
-        <p className="mt-1 text-sm text-(--dn-quiet)">ارجع للمنتج ده قريب، أو شوف منتجات قريبة منه تحت.</p>
+        <p className="dn-h4">{st("الكمية خلصت حاليًا")}</p>
+        <p className="mt-1 text-sm text-(--dn-quiet)">{st("ارجع للمنتج ده قريب، أو شوف منتجات قريبة منه تحت.")}</p>
       </div>
     );
   }
@@ -194,7 +195,7 @@ export default function BuyForm({
 
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <div>
-          <p className="dn-label mb-3">اشتري كمية ووفّر</p>
+          <p className="dn-label mb-3">{st("اشتري كمية ووفّر")}</p>
           <div className="divide-y divide-(--dn-line) border border-(--dn-line)">
             {product.wholesaleOptions.map((t) => {
               const on = tier === t;
@@ -206,8 +207,8 @@ export default function BuyForm({
                   onClick={() => setQty(Math.min(product.stock, t.minQty))}
                   className={cn("flex min-h-12 w-full items-center justify-between gap-3 px-4 text-sm transition-colors", on ? "bg-(--dn-ink) text-(--dn-bg)" : "hover:bg-(--dn-plate)")}
                 >
-                  <span>{t.maxQty ? `${num(t.minQty)}–${num(t.maxQty)} قطعة` : `${num(t.minQty)}+ قطعة`}</span>
-                  <span className="dn-num text-base">{formatPrice(t.price)} للقطعة</span>
+                  <span>{t.maxQty ? st("{0}–{1} قطعة", num(t.minQty), num(t.maxQty)) : st("{0}+ قطعة", num(t.minQty))}</span>
+                  <span className="dn-num text-base">{st("{0} للقطعة", formatPrice(t.price))}</span>
                 </button>
               );
             })}
@@ -220,7 +221,7 @@ export default function BuyForm({
           <Qty value={qty} max={product.stock} onChange={setQty} disabled={pending} />
           <button type="button" onClick={addToCart} disabled={pending} className={btn({ size: "lg", className: "min-w-0 flex-1 px-5" })}>
             {pending && !buying ? <Loader2 className="animate-spin" /> : null}
-            <span className="truncate">أضف للسلة</span>
+            <span className="truncate">{st("أضف للسلة")}</span>
             <span aria-hidden className="opacity-50">
               ·
             </span>
@@ -229,7 +230,7 @@ export default function BuyForm({
         </div>
         <button type="button" onClick={buyNow} disabled={pending} className={btn({ variant: "outline", size: "lg", full: true })}>
           {buying ? <Loader2 className="animate-spin" /> : null}
-          اشتري الآن
+          {st("اشتري الآن")}
         </button>
       </div>
 
@@ -253,7 +254,7 @@ export default function BuyForm({
             </div>
             <button type="button" onClick={addToCart} disabled={pending} className={btn({ className: "px-5" })}>
               {pending ? <Loader2 className="animate-spin" /> : null}
-              أضف للسلة
+              {st("أضف للسلة")}
             </button>
           </div>
         </div>

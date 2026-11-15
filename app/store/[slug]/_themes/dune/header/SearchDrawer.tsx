@@ -15,6 +15,7 @@ import { useLocalList } from "../../shared/local-list";
 import { storeHref } from "../../shared/store-path";
 import { searchesKey } from "../lib/events";
 import { Arrow, DN_PORTAL, PlateImage, Price, stagger } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Item = Pick<SearchSuggestion, "id" | "name" | "slug" | "image" | "price" | "compareAtPrice">;
 
@@ -99,7 +100,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
           }}
           className={cn(DN_PORTAL, "dn-drop fixed inset-x-0 top-0 z-50 flex h-dvh flex-col bg-(--dn-drawer) outline-none lg:h-auto lg:max-h-[88dvh]")}
         >
-          <Dialog.Title className="sr-only">البحث في {shell.name}</Dialog.Title>
+          <Dialog.Title className="sr-only">{st("البحث في {0}", shell.name)}</Dialog.Title>
           <div className="border-b border-(--dn-line)">
             <div className="dn-wrap flex h-20 items-center gap-3 lg:h-24">
               <form
@@ -113,7 +114,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
               >
                 <Search aria-hidden className="size-6 shrink-0 text-(--dn-quiet)" strokeWidth={1.25} />
                 <label htmlFor={`${id}-q`} className="sr-only">
-                  ابحث في المتجر
+                  {st("ابحث في المتجر")}
                 </label>
                 <input
                   ref={inputRef}
@@ -127,7 +128,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
                   aria-controls={`${id}-list`}
                   aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
                   aria-autocomplete="list"
-                  placeholder="ابحث في المتجر…"
+                  placeholder={st("ابحث في المتجر…")}
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                   onKeyDown={(e) => {
@@ -143,7 +144,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
                 />
                 {loading && <Loader2 aria-hidden className="size-5 shrink-0 animate-spin text-(--dn-quiet)" />}
               </form>
-              <Dialog.Close className="dn-icon -me-2.5 shrink-0" aria-label="إغلاق البحث">
+              <Dialog.Close className="dn-icon -me-2.5 shrink-0" aria-label={st("إغلاق البحث")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -154,7 +155,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
               {showResults ? (
                 <div className="grid gap-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14">
                   <section>
-                    <h2 className="dn-label mb-3 text-(--dn-quiet)">تصنيفات</h2>
+                    <h2 className="dn-label mb-3 text-(--dn-quiet)">{st("تصنيفات")}</h2>
                     {matchedCats.length > 0 ? (
                       <ul className="space-y-1">
                         {matchedCats.map((c) => (
@@ -168,18 +169,18 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-(--dn-quiet)">مفيش تصنيف بالاسم ده.</p>
+                      <p className="text-sm text-(--dn-quiet)">{st("مفيش تصنيف بالاسم ده.")}</p>
                     )}
                   </section>
                   <section>
-                    <h2 className="dn-label mb-4 text-(--dn-quiet)">منتجات</h2>
+                    <h2 className="dn-label mb-4 text-(--dn-quiet)">{st("منتجات")}</h2>
                     {noResults ? (
                       <div>
-                        <p className="dn-h3">مفيش نتائج لـ «{term}»</p>
-                        <p className="mt-2 text-sm text-(--dn-quiet)">جرّب كلمة أبسط أو تصفح التصنيفات.</p>
+                        <p className="dn-h3">{st("مفيش نتائج لـ «{0}»", term)}</p>
+                        <p className="mt-2 text-sm text-(--dn-quiet)">{st("جرّب كلمة أبسط أو تصفح التصنيفات.")}</p>
                       </div>
                     ) : (
-                      <ul id={`${id}-list`} role="listbox" aria-label="نتائج البحث" className="dn-stagger grid grid-cols-2 gap-x-(--dn-gap) gap-y-7 sm:grid-cols-3 xl:grid-cols-6">
+                      <ul id={`${id}-list`} role="listbox" aria-label={st("نتائج البحث")} className="dn-stagger grid grid-cols-2 gap-x-(--dn-gap) gap-y-7 sm:grid-cols-3 xl:grid-cols-6">
                         {results.map((r, i) => (
                           <li key={r.id} role="presentation" style={stagger(i)} onMouseEnter={() => setActive(i)}>
                             <ResultTile item={r} id={`${id}-opt-${i}`} active={active === i} onPick={() => go(`/products/${r.slug}`, term)} />
@@ -188,7 +189,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
                       </ul>
                     )}
                     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => searchAll(term)} className={cn("dn-btn dn-btn--outline dn-btn--sm mt-8")}>
-                      كل النتائج لـ «{term}»
+                      {st("كل النتائج لـ «{0}»", term)}
                       <Arrow />
                     </button>
                   </section>
@@ -199,9 +200,9 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
                     {recent.list.length > 0 && (
                       <section>
                         <div className="mb-3 flex items-center justify-between">
-                          <h2 className="dn-label text-(--dn-quiet)">بحثت عن</h2>
+                          <h2 className="dn-label text-(--dn-quiet)">{st("بحثت عن")}</h2>
                           <button type="button" onClick={() => recent.list.forEach((q) => recent.remove(q))} className="min-h-9 text-xs text-(--dn-quiet) underline-offset-4 hover:text-(--dn-ink) hover:underline">
-                            مسح
+                            {st("مسح")}
                           </button>
                         </div>
                         <ul className="space-y-1">
@@ -217,7 +218,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
                     )}
                     {shell.categories.length > 0 && (
                       <section>
-                        <h2 className="dn-label mb-3 text-(--dn-quiet)">التصنيفات</h2>
+                        <h2 className="dn-label mb-3 text-(--dn-quiet)">{st("التصنيفات")}</h2>
                         <ul className="space-y-1">
                           {shell.categories.slice(0, 8).map((c) => (
                             <li key={c.id}>
@@ -233,7 +234,7 @@ export default function SearchDrawer({ shell, open, onOpenChange }: { shell: Sto
                     )}
                   </div>
                   <section>
-                    <h2 className="dn-label mb-4 text-(--dn-quiet)">مختارات من المتجر</h2>
+                    <h2 className="dn-label mb-4 text-(--dn-quiet)">{st("مختارات من المتجر")}</h2>
                     <ul className="grid grid-cols-2 gap-x-(--dn-gap) gap-y-7 sm:grid-cols-4">
                       {(picks ?? Array.from({ length: 4 }, () => null)).map((p, i) => (
                         <li key={p?.id ?? i}>

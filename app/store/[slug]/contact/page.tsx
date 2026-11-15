@@ -5,6 +5,8 @@ import { storePageMetadata } from "@/lib/seo/page-meta";
 import { prisma } from "@/lib/prisma";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
+import { st } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 type StoreContactRouteProps = {
   params: Promise<{ slug: string }>;
@@ -12,10 +14,11 @@ type StoreContactRouteProps = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  await loadStoreLocale(slug);
   const store = await prisma.store.findUnique({ where: { slug }, select: { name: true } });
   return storePageMetadata({
-    title: "تواصل معنا",
-    description: store ? `تواصل مع ${store.name} — واتساب وسوشيال ميديا.` : undefined,
+    title: st("تواصل معنا"),
+    description: store ? st("تواصل مع {0} — واتساب وسوشيال ميديا.", store.name) : undefined,
     path: "/contact",
     storeName: store?.name,
   });
@@ -23,6 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function StoreContactRoute({ params }: StoreContactRouteProps) {
   const { slug } = await params;
+  await loadStoreLocale(slug);
   if (!slug) return notFound();
 
   const store = await prisma.store.findUnique({

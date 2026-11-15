@@ -20,6 +20,7 @@ import MegaMenu from "./MegaMenu";
 import MobileDrawer from "./MobileDrawer";
 import SearchPanel from "./SearchPanel";
 import { StoreMark, ThemeToggle } from "./parts";
+import { st } from "@/lib/i18n/storefront";
 
 const noop = () => () => {};
 
@@ -50,7 +51,7 @@ function Announcement({ text, storeSlug }: { text: string; storeSlug: string }) 
               sessionStorage.setItem(key, text);
             } catch {}
           }}
-          aria-label="إخفاء الإعلان"
+          aria-label={st("إخفاء الإعلان")}
           className="absolute end-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full opacity-75 hover:opacity-100 sm:end-[calc(var(--md-gutter)-0.5rem)]"
         >
           <X className="size-4" />
@@ -101,10 +102,10 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
   }
 
   const links = [
-    { href: "/products", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
-    { href: "/about", label: "عن المتجر" },
-    { href: "/contact", label: "تواصل معنا" },
+    { href: "/products", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
+    { href: "/about", label: st("عن المتجر") },
+    { href: "/contact", label: st("تواصل معنا") },
   ];
   const pinned = mega || search;
   // Studio navbar: `default` (Mada's own) logo · links · actions; `centered`
@@ -123,7 +124,7 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
       )}
     >
       <Search className="size-[1.125rem] shrink-0 text-(--md-ink)" />
-      <span className="truncate">ابحث في {shell.name}…</span>
+      <span className="truncate">{st("ابحث في {0}…", shell.name)}</span>
     </button>
   );
 
@@ -157,7 +158,7 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
 
           {/* Desktop navigation (compact: only the shop menu, beside the search field) */}
           <nav
-            aria-label="القائمة الرئيسية"
+            aria-label={st("القائمة الرئيسية")}
             className={cn("hidden min-w-0 lg:flex lg:items-center lg:gap-4", variant === "centered" && "lg:order-1")}
           >
             <ul className="flex items-center gap-1">
@@ -170,7 +171,7 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
                   onMouseEnter={() => setMega(true)}
                   className={cn("md-btn md-btn--ghost md-btn--sm gap-1.5 text-[0.9375rem]", mega && "bg-(--md-studio)")}
                 >
-                  تسوّق
+                  {st("تسوّق")}
                   <ChevronDown className={cn("size-4 transition-transform duration-300", mega && "rotate-180")} />
                 </button>
               </li>
@@ -194,13 +195,13 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
             <button
               type="button"
               onClick={() => setSearch(true)}
-              aria-label="بحث"
+              aria-label={st("بحث")}
               aria-haspopup="dialog"
               className={cn("md-btn md-btn--ghost md-btn--icon", variant === "compact" && "lg:hidden")}
             >
               <Search />
             </button>
-            <button type="button" onClick={openWishlist} aria-label={saved.length ? `المفضلة، فيها ${saved.length}` : "المفضلة"} className="md-btn md-btn--ghost md-btn--icon relative max-sm:hidden">
+            <button type="button" onClick={openWishlist} aria-label={saved.length ? st("المفضلة، فيها {0}", saved.length) : st("المفضلة")} className="md-btn md-btn--ghost md-btn--icon relative max-sm:hidden">
               <Heart />
               {saved.length > 0 && (
                 <span aria-hidden className="absolute end-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-(--md-sale) px-1 text-[0.625rem] font-bold text-white">
@@ -214,11 +215,11 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
             <button
               type="button"
               onClick={openCart}
-              aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
+              aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")}
               className="md-btn md-btn--brand md-btn--sm ms-1 gap-2 px-3.5 max-sm:size-11 max-sm:px-0"
             >
               <ShoppingBag />
-              <span className="max-sm:hidden">السلة</span>
+              <span className="max-sm:hidden">{st("السلة")}</span>
               <span key={count} className={cn("md-price grid h-5 min-w-5 place-items-center rounded-full bg-(--md-signal) px-1 text-[0.6875rem] text-(--md-signal-ink) max-sm:absolute max-sm:-end-0.5 max-sm:-top-0.5", count > 0 && "md-bump", count === 0 && "max-sm:hidden")}>
                 {num(Math.min(count, 99))}
               </span>

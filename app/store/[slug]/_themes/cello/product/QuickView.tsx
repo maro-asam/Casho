@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { QUICK_VIEW_EVENT } from "../lib/events";
 import { Chevron, CE_PORTAL, PlateImage, Price, Rating, StockLine, discountPercent, num } from "../ui";
 import BuyForm from "./BuyForm";
+import { st } from "@/lib/i18n/storefront";
 
 /** Global quick-view host: a centered popup on desktop, a bottom sheet on phones. */
 export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: "rtl" | "ltr" }) {
@@ -49,14 +50,14 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
             "lg:inset-0 lg:m-auto lg:h-fit lg:max-h-[88dvh] lg:w-[min(62rem,calc(100vw-4rem))] lg:rounded-(--ce-r-lg)",
           )}
         >
-          <Dialog.Title className="sr-only">{product?.name ?? "نظرة سريعة"}</Dialog.Title>
-          <Dialog.Close className="ce-fab absolute end-3 top-3 z-10" aria-label="إغلاق">
+          <Dialog.Title className="sr-only">{product?.name ?? st("نظرة سريعة")}</Dialog.Title>
+          <Dialog.Close className="ce-fab absolute end-3 top-3 z-10" aria-label={st("إغلاق")}>
             <X />
           </Dialog.Close>
 
           <div className="overflow-y-auto overscroll-contain">
             {failed ? (
-              <p className="p-12 text-center text-(--ce-quiet)">المنتج ده مش متاح دلوقتي.</p>
+              <p className="p-12 text-center text-(--ce-quiet)">{st("المنتج ده مش متاح دلوقتي.")}</p>
             ) : !product ? (
               <div className="grid gap-6 p-5 lg:grid-cols-2 lg:p-8" aria-busy>
                 <div className="ce-skel aspect-square rounded-(--ce-r)" />
@@ -72,7 +73,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                 <div className="min-w-0">
                   <div className="ce-media aspect-square">
                     <PlateImage key={active} src={product.gallery[active]} sizes="(max-width: 1024px) 92vw, 30rem" alt={product.name} className="ce-pop" />
-                    {off > 0 && <span className="ce-badge ce-badge--drop absolute start-3 top-3">خصم {num(off)}٪</span>}
+                    {off > 0 && <span className="ce-badge ce-badge--drop absolute start-3 top-3">{st("خصم {0}٪", num(off))}</span>}
                   </div>
                   {product.gallery.length > 1 && (
                     <div className="ce-rail mt-2.5 gap-2">
@@ -81,7 +82,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                           key={src}
                           type="button"
                           onClick={() => setActive(i)}
-                          aria-label={`الصورة ${i + 1}`}
+                          aria-label={st("الصورة {0}", i + 1)}
                           aria-current={i === active}
                           className={cn("ce-media aspect-square w-16 shrink-0 rounded-(--ce-r-sm) border-2 transition-colors", i === active ? "border-(--ce-ink)" : "border-transparent opacity-70 hover:opacity-100")}
                         >
@@ -103,7 +104,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                     <BuyForm storeSlug={storeSlug} product={{ ...product, image: product.gallery[0] ?? null }} onAdded={() => setOpen(false)} />
                   </div>
                   <Link href={buildStoreUrl(storeSlug, `/products/${product.slug}`)} onClick={() => setOpen(false)} className="ce-link mt-6">
-                    التفاصيل الكاملة
+                    {st("التفاصيل الكاملة")}
                     <Chevron />
                   </Link>
                 </div>

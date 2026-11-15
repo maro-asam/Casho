@@ -5,6 +5,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { PharmacyOnly } from "../lib/pharmacy";
+import { st } from "@/lib/i18n/storefront";
 
 /** Store logo and/or name. Without a logo the name sits beside a small
  *  plus mark in the store color (the name's first letter when the pharmacy
@@ -14,7 +15,7 @@ export default function StoreMark({ shell, className, onClick, tone }: { shell: 
   const isSvg = !!shell.logo && (shell.logo.endsWith(".svg") || shell.logo.includes("/svg"));
   const nameVisible = shell.showStoreName || !shell.logo;
   return (
-    <Link href={buildStoreUrl(shell.slug)} onClick={onClick} aria-label={`${shell.name} — الصفحة الرئيسية`} className={cn("flex min-w-0 items-center gap-2.5", className)}>
+    <Link href={buildStoreUrl(shell.slug)} onClick={onClick} aria-label={st("{0} — الصفحة الرئيسية", shell.name)} className={cn("flex min-w-0 items-center gap-2.5", className)}>
       {shell.logo ? (
         <span className="relative block shrink-0 overflow-hidden" style={{ height, width: height, borderRadius: Math.min(shell.logoRadius, height / 2) }}>
           {isSvg ? (

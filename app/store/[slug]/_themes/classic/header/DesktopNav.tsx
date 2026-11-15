@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { CLASSIC_PORTAL } from "../ui";
 import { isActivePath, useStorePath } from "../../shared/store-path";
+import { st } from "@/lib/i18n/storefront";
 
 /** Inline categories: 4 on laptop widths, 6 from xl. The rest go in "المزيد". */
 const INLINE_LG = 4;
@@ -34,16 +35,16 @@ export default function DesktopNav({ shell, className }: { shell: StoreShell; cl
   const overflow = categories.slice(INLINE_LG);
 
   return (
-    <nav aria-label="القائمة الرئيسية" className={cn("flex min-w-0 items-center", className)}>
+    <nav aria-label={st("القائمة الرئيسية")} className={cn("flex min-w-0 items-center", className)}>
       <ul className="-ms-3 flex min-w-0 items-center">
         <li>
           <Link href={href("/")} aria-current={current("/")} className={ITEM}>
-            الرئيسية
+            {st("الرئيسية")}
           </Link>
         </li>
         <li>
           <Link href={href("/products")} aria-current={current("/products")} className={ITEM}>
-            كل المنتجات
+            {st("كل المنتجات")}
           </Link>
         </li>
 
@@ -63,7 +64,7 @@ export default function DesktopNav({ shell, className }: { shell: StoreShell; cl
           <li className={cn(categories.length <= INLINE_XL && "xl:hidden")}>
             <DropdownMenu dir={shell.dir} modal={false}>
               <DropdownMenuTrigger className={cn(ITEM, "gap-1 data-[state=open]:text-foreground")}>
-                المزيد
+                {st("المزيد")}
                 <ChevronDown className="size-4 transition-transform duration-(--c-motion) [[data-state=open]>&]:rotate-180" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -85,7 +86,7 @@ export default function DesktopNav({ shell, className }: { shell: StoreShell; cl
                 ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="min-h-10 cursor-pointer rounded-(--c-radius-sm) px-3 font-semibold">
-                  <Link href={href("/categories")}>كل التصنيفات</Link>
+                  <Link href={href("/categories")}>{st("كل التصنيفات")}</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -96,12 +97,12 @@ export default function DesktopNav({ shell, className }: { shell: StoreShell; cl
       <ul className="ms-auto flex shrink-0 items-center ps-4">
         <li>
           <Link href={href("/about")} aria-current={current("/about")} className={ITEM}>
-            عن المتجر
+            {st("عن المتجر")}
           </Link>
         </li>
         <li>
           <Link href={href("/contact")} aria-current={current("/contact")} className={cn(ITEM, "-me-3")}>
-            تواصل معنا
+            {st("تواصل معنا")}
           </Link>
         </li>
       </ul>

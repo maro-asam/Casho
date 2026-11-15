@@ -5,18 +5,19 @@ import { Mail, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { NewsletterContent } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   content?: NewsletterContent;
 };
 
 export default function NewsletterSection({ content }: Props) {
-  const headline = content?.headline ?? "اشترك واحصل على خصم 15% على أول طلب 🎁";
+  const headline = content?.headline ?? st("اشترك واحصل على خصم 15% على أول طلب 🎁");
   const subheadline =
     content?.subheadline ??
-    "كن أول من يعرف عن العروض الحصرية والمنتجات الجديدة";
-  const placeholder = content?.placeholder ?? "أدخل بريدك الإلكتروني";
-  const ctaText = content?.ctaText ?? "اشترك الآن";
+    st("كن أول من يعرف عن العروض الحصرية والمنتجات الجديدة");
+  const placeholder = content?.placeholder ?? st("أدخل بريدك الإلكتروني");
+  const ctaText = content?.ctaText ?? st("اشترك الآن");
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
@@ -60,7 +61,7 @@ export default function NewsletterSection({ content }: Props) {
         {status === "success" ? (
           <div className="flex items-center gap-2 rounded-2xl bg-white/15 px-6 py-3 text-sm font-medium">
             <CheckCircle className="size-5" />
-            <span>تم الاشتراك! 🎉 ستصلك رسالة قريبًا</span>
+            <span>{st("تم الاشتراك! 🎉 ستصلك رسالة قريبًا")}</span>
           </div>
         ) : (
           <form
@@ -91,7 +92,7 @@ export default function NewsletterSection({ content }: Props) {
         )}
 
         <p className="text-xs opacity-60">
-          لن نرسل لك أي بريد مزعج • يمكنك إلغاء الاشتراك في أي وقت
+          {st("لن نرسل لك أي بريد مزعج • يمكنك إلغاء الاشتراك في أي وقت")}
         </p>
       </div>
     </section>

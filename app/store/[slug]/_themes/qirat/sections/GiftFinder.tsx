@@ -9,8 +9,9 @@ import { productsQueryString } from "@/lib/products-query";
 import type { CategoryLink, ProductCardData } from "../../types";
 import { budgetTiers, giftHelpMessage, inBudget, waWith, type Budget } from "../lib/qirat";
 import { Kicker, Ornament, PlateImage, Price, TextLink, Wrap, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
-const budgetLabel = (b: Budget) => (b.min === 0 ? `أقل من ${num(b.max)} ج.م` : b.max === 0 ? `أكتر من ${num(b.min)} ج.م` : `${num(b.min)} – ${num(b.max)} ج.م`);
+const budgetLabel = (b: Budget) => (b.min === 0 ? st("أقل من {0} ج.م", num(b.max)) : b.max === 0 ? st("أكتر من {0} ج.م", num(b.min)) : st("{0} – {1} ج.م", num(b.min), num(b.max)));
 
 /** Casho Qirat's own section: a gift in two steps. The budgets split the
  *  store's real prices into thirds, the kinds are its real collections; the
@@ -42,17 +43,17 @@ export default function GiftFinder({
   const help = whatsappHref ? waWith(whatsappHref, giftHelpMessage(storeName, b ? budgetLabel(b) : undefined, k?.name)) : null;
 
   return (
-    <section data-tone="velvet" aria-label="مساعد الهدايا" className="qr-band qr-section qr-gift">
+    <section data-tone="velvet" aria-label={st("مساعد الهدايا")} className="qr-band qr-section qr-gift">
       <Wrap className="qr-gift-grid">
         <div className="min-w-0">
-          <Kicker className="qr-reveal">مساعد الهدايا</Kicker>
-          <h2 className="qr-display qr-reveal mt-3 text-balance">الهدية المناسبة، في خطوتين</h2>
+          <Kicker className="qr-reveal">{st("مساعد الهدايا")}</Kicker>
+          <h2 className="qr-display qr-reveal mt-3 text-balance">{st("الهدية المناسبة، في خطوتين")}</h2>
           <Ornament className="qr-reveal qr-orn--start mt-6" />
 
           {tiers.length > 0 && (
             <fieldset className="qr-gift-step qr-reveal">
               <legend>
-                <span className="qr-gift-n">١</span> الميزانية
+                <span className="qr-gift-n">١</span>{" "}{st("الميزانية")}
               </legend>
               <div className="flex flex-wrap gap-2">
                 {tiers.map((t, i) => (
@@ -67,7 +68,7 @@ export default function GiftFinder({
           {kinds.length > 0 && (
             <fieldset className="qr-gift-step qr-reveal">
               <legend>
-                <span className="qr-gift-n">{tiers.length > 0 ? "٢" : "١"}</span> نوع القطعة
+                <span className="qr-gift-n">{tiers.length > 0 ? "٢" : "١"}</span>{" "}{st("نوع القطعة")}
               </legend>
               <div className="flex flex-wrap gap-2">
                 {kinds.map((c) => (
@@ -82,7 +83,7 @@ export default function GiftFinder({
           {help && (
             <a href={help} target="_blank" rel="noopener noreferrer" className="qr-link qr-reveal mt-10 text-[0.9375rem]">
               <MessageCircle aria-hidden className="size-4" />
-              <span className="qr-underline">محتار؟ نختار معاك على واتساب</span>
+              <span className="qr-underline">{st("محتار؟ نختار معاك على واتساب")}</span>
             </a>
           )}
         </div>
@@ -105,12 +106,12 @@ export default function GiftFinder({
             </ul>
           ) : (
             <div className="qr-gift-none">
-              <p className="qr-h3">مفيش قطع هنا بالاختيار ده</p>
-              <p className="mt-2 text-sm text-(--qr-ink-2)">شوف كل المتاح في الكتالوج بنفس الاختيار، أو غيّر الميزانية.</p>
+              <p className="qr-h3">{st("مفيش قطع هنا بالاختيار ده")}</p>
+              <p className="mt-2 text-sm text-(--qr-ink-2)">{st("شوف كل المتاح في الكتالوج بنفس الاختيار، أو غيّر الميزانية.")}</p>
             </div>
           )}
           <div className="mt-8 flex justify-center">
-            <TextLink href={listing}>{b || k ? "شوف كل الاختيارات" : "شوف كل القطع"}</TextLink>
+            <TextLink href={listing}>{b || k ? st("شوف كل الاختيارات") : st("شوف كل القطع")}</TextLink>
           </div>
         </div>
       </Wrap>

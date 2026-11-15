@@ -7,6 +7,7 @@ import type { HeroStyle } from "@/types/store-theme.types";
 import type { BannerData, CategoryLink, HomeViewProps, ProductCardData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Chevron, PlateImage, Price, btn, discountPercent, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Tile =
   | { kind: "banner"; key: string; banner: BannerData }
@@ -63,7 +64,7 @@ function TileLink({ href, label }: { href: string; label: string }) {
   return <Link href={href} aria-label={label} className="absolute inset-0 z-[3] rounded-(--mx-r-lg) focus-visible:outline-offset-[-3px]" />;
 }
 
-function Cta({ label = "تسوّق الآن" }: { label?: string }) {
+function Cta({ label = st("تسوّق الآن") }: { label?: string }) {
   return (
     <span aria-hidden className="mt-3 inline-flex items-center gap-1 border-b border-white/80 pb-0.5 text-sm font-semibold">
       {label}
@@ -113,11 +114,11 @@ function TileView({ tile, slot, storeSlug, storeName }: { tile: Tile; slot: Slot
     const c = tile.category;
     return (
       <div className="group relative flex h-full overflow-hidden rounded-(--mx-r-lg) bg-(--mx-tint)">
-        <TileLink href={url(`/categories/${c.slug}`)} label={`تسوّق ${c.name}`} />
+        <TileLink href={url(`/categories/${c.slug}`)} label={st("تسوّق {0}", c.name)} />
         <Image src={c.image!} alt="" fill sizes={sizes} className="mx-zoom-img object-cover" />
         <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(16_15_15/0.66),rgb(16_15_15/0)_60%)]" />
         <div className="relative mt-auto p-5 text-white sm:p-7">
-          <p className="text-[0.8125rem] font-semibold opacity-90">{num(c.productCount)} منتج</p>
+          <p className="text-[0.8125rem] font-semibold opacity-90">{st("{0} منتج", num(c.productCount))}</p>
           <h2 className="mx-display mt-0.5 text-xl text-white sm:text-2xl">{c.name}</h2>
           <Cta />
         </div>
@@ -136,12 +137,12 @@ function TileView({ tile, slot, storeSlug, storeName }: { tile: Tile; slot: Slot
       {off > 0 &&
         (big ? (
           <span className="mx-seal mx-seal--tab absolute end-6 top-0 z-[2]">
-            <span className="text-sm">وفّر</span>
+            <span className="text-sm">{st("وفّر")}</span>
             <span className="text-2xl">{num(off)}٪</span>
           </span>
         ) : (
           <span className="mx-seal mx-seal--circle absolute end-3 top-3 z-[2] size-20 sm:size-22">
-            <span className="text-xs">وفّر</span>
+            <span className="text-xs">{st("وفّر")}</span>
             <span className="text-xl">{num(off)}٪</span>
           </span>
         ))}
@@ -150,7 +151,7 @@ function TileView({ tile, slot, storeSlug, storeName }: { tile: Tile; slot: Slot
         <h2 className={cn("mx-display mt-0.5 line-clamp-2 text-balance", big ? "mx-hero" : "text-lg sm:text-xl")}>{p.name}</h2>
         <Price price={p.price} compareAt={p.compareAtPrice} chip={false} size={big ? "lg" : "md"} className="mt-2" />
         <span aria-hidden className="mx-link mt-3">
-          تسوّق الآن
+          {st("تسوّق الآن")}
         </span>
       </div>
     </div>
@@ -161,19 +162,19 @@ function TileView({ tile, slot, storeSlug, storeName }: { tile: Tile; slot: Slot
 function HeroBand({ store, hasCategories }: { store: HomeViewProps["store"]; hasCategories: boolean }) {
   const url = (p: string) => buildStoreUrl(store.slug, p);
   return (
-    <section aria-label="المتجر" className="mx-wrap mx-section">
+    <section aria-label={st("المتجر")} className="mx-wrap mx-section">
       <div className="flex flex-col items-center rounded-(--mx-r-lg) bg-(--mx-band) px-6 py-12 text-center sm:py-16 lg:py-20">
         <h1 className="mx-display mx-hero text-balance text-(--mx-ink)">{store.name}</h1>
         <p className="mt-4 max-w-[52ch] text-base text-(--mx-text) sm:text-lg">
-          {store.description?.trim() || "منتجات مختارة بعناية، وطلب سهل في دقيقة."}
+          {store.description?.trim() || st("منتجات مختارة بعناية، وطلب سهل في دقيقة.")}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-2.5">
           <Link href={url("/products")} className={btn({ size: "lg" })}>
-            تسوّق الآن
+            {st("تسوّق الآن")}
           </Link>
           {hasCategories && (
             <Link href={url("/categories")} className={btn({ variant: "outline", size: "lg" })}>
-              كل التصنيفات
+              {st("كل التصنيفات")}
             </Link>
           )}
         </div>
@@ -195,7 +196,7 @@ export default function PromotionGrid({ style = "split", ...props }: HomeViewPro
   const one = (slot: Slot) => tiles[slot] && <TileView tile={tiles[slot]!} slot={slot} storeSlug={props.store.slug} storeName={props.store.name} />;
   if (style === "fullscreen") {
     return (
-      <section aria-label="العروض" className="mx-wrap mx-section">
+      <section aria-label={st("العروض")} className="mx-wrap mx-section">
         <div className="h-[30rem] sm:h-[34rem] lg:h-[min(76svh,44rem)]">{one("a")}</div>
       </section>
     );
@@ -203,7 +204,7 @@ export default function PromotionGrid({ style = "split", ...props }: HomeViewPro
   if (style === "compact") {
     const side = (["c", "b"] as const).filter((k) => tiles[k]);
     return (
-      <section aria-label="العروض" className="mx-wrap mx-section">
+      <section aria-label={st("العروض")} className="mx-wrap mx-section">
         <div className={cn("grid grid-cols-2 gap-(--mx-gap)", side.length === 2 ? "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]" : side.length === 1 && "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]")}>
           <div className="col-span-2 h-64 sm:h-72 lg:col-span-1">{one("a")}</div>
           {side.map((k) => (
@@ -220,7 +221,7 @@ export default function PromotionGrid({ style = "split", ...props }: HomeViewPro
   const view = (slot: Slot) => tiles[slot] && <TileView tile={tiles[slot]!} slot={slot} storeSlug={props.store.slug} storeName={props.store.name} />;
 
   return (
-    <section aria-label="العروض" className="mx-wrap mx-section">
+    <section aria-label={st("العروض")} className="mx-wrap mx-section">
       <div
         className={cn(
           "grid grid-cols-2 gap-(--mx-gap)",

@@ -18,6 +18,7 @@ import MegaMenu from "./MegaMenu";
 import MobileNav from "./MobileNav";
 import SearchDrawer from "./SearchDrawer";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const MEGA_ID = "dn-mega";
 
@@ -71,10 +72,10 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
   const variant = shell.navbarVariant === "centered" || shell.navbarVariant === "allaia" ? "centered" : shell.navbarVariant === "compact" ? "compact" : "default";
 
   const links = [
-    { href: "/products?sort=newest", match: "", label: "وصل حديثًا" },
-    { href: "/products?featured=true", match: "", label: "اختيارات المتجر" },
-    { href: "/about", match: "/about", label: "عن المتجر" },
-    { href: "/contact", match: "/contact", label: "تواصل معنا" },
+    { href: "/products?sort=newest", match: "", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", match: "", label: st("اختيارات المتجر") },
+    { href: "/about", match: "/about", label: st("عن المتجر") },
+    { href: "/contact", match: "/contact", label: st("تواصل معنا") },
   ];
   // Beside a centered mark only half the bar is free: the shop menu + two links.
   const navLinks = variant === "compact" ? [] : variant === "centered" ? links.slice(0, 2) : links;
@@ -100,7 +101,7 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
           {/* Start: menu + search (phones) / logo (desktop) */}
           <div className="flex items-center gap-0.5 lg:hidden">
             <MobileNav shell={shell} path={path} />
-            <button type="button" onClick={() => setSearch(true)} aria-label="بحث" aria-haspopup="dialog" className="dn-icon">
+            <button type="button" onClick={() => setSearch(true)} aria-label={st("بحث")} aria-haspopup="dialog" className="dn-icon">
               <Search />
             </button>
           </div>
@@ -108,7 +109,7 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
 
           {/* Desktop navigation */}
           <nav
-            aria-label="القائمة الرئيسية"
+            aria-label={st("القائمة الرئيسية")}
             className={cn("hidden h-full lg:flex lg:items-center lg:gap-8", variant === "centered" && "lg:order-1 lg:justify-self-start")}
           >
             <ul className="flex h-full items-stretch gap-7 xl:gap-9">
@@ -122,11 +123,11 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
                     onClick={() => setMega((v) => !v)}
                     className="dn-link dn-label"
                   >
-                    تسوّق
+                    {st("تسوّق")}
                   </button>
                 ) : (
                   <Link href={url("/products")} className="dn-link dn-label">
-                    تسوّق
+                    {st("تسوّق")}
                   </Link>
                 )}
               </li>
@@ -146,7 +147,7 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
                 className="flex h-11 w-full max-w-2xl items-center gap-3 rounded-(--dn-btn-r) border border-current/25 px-5 text-start text-sm opacity-90 transition-[border-color,opacity] duration-(--dn-dur) hover:border-current/60 hover:opacity-100"
               >
                 <Search className="size-4 shrink-0" />
-                <span className="truncate">ابحث في {shell.name}…</span>
+                <span className="truncate">{st("ابحث في {0}…", shell.name)}</span>
               </button>
             )}
           </nav>
@@ -156,13 +157,13 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
             <button
               type="button"
               onClick={() => setSearch(true)}
-              aria-label="بحث"
+              aria-label={st("بحث")}
               aria-haspopup="dialog"
               className={cn("dn-icon max-lg:hidden", variant === "compact" && "lg:hidden")}
             >
               <Search />
             </button>
-            <button type="button" onClick={openCart} aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"} aria-haspopup="dialog" className="dn-icon -me-2.5">
+            <button type="button" onClick={openCart} aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")} aria-haspopup="dialog" className="dn-icon -me-2.5">
               <ShoppingBag />
               {count > 0 && (
                 <span key={count} className="dn-cart-dot dn-bump absolute end-0.5 top-0.5 grid h-[1.125rem] min-w-[1.125rem] place-items-center rounded-full px-1 text-[0.625rem] font-bold tabular-nums">

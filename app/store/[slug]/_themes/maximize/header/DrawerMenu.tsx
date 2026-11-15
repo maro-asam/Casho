@@ -14,6 +14,7 @@ import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { isActivePath } from "../../shared/store-path";
 import { Chevron, MX_PORTAL, num, stagger } from "../ui";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const ROW = "flex min-h-12 w-full items-center justify-between gap-3 rounded-(--mx-r-sm) px-3 text-[0.9375rem] font-semibold text-(--mx-ink) transition-colors hover:bg-(--mx-band) aria-[current=page]:text-(--mx-link)";
 
@@ -28,12 +29,12 @@ export default function DrawerMenu({ shell, path, variant }: { shell: StoreShell
   const close = () => setOpen(false);
 
   const links = [
-    { href: "/", label: "الرئيسية" },
-    { href: "/products", label: "كل المنتجات" },
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
-    { href: "/about", label: "عن المتجر" },
-    { href: "/contact", label: "تواصل معنا" },
+    { href: "/", label: st("الرئيسية") },
+    { href: "/products", label: st("كل المنتجات") },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
+    { href: "/about", label: st("عن المتجر") },
+    { href: "/contact", label: st("تواصل معنا") },
   ];
 
   return (
@@ -41,10 +42,10 @@ export default function DrawerMenu({ shell, path, variant }: { shell: StoreShell
       {variant === "button" ? (
         <Dialog.Trigger className={cn("mx-btn mx-btn--solid h-11 gap-2.5 px-4 text-[0.9375rem]")}>
           <Menu />
-          القائمة
+          {st("القائمة")}
         </Dialog.Trigger>
       ) : (
-        <Dialog.Trigger className="mx-icon -ms-2" aria-label="فتح القائمة">
+        <Dialog.Trigger className="mx-icon -ms-2" aria-label={st("فتح القائمة")}>
           <Menu />
         </Dialog.Trigger>
       )}
@@ -61,13 +62,13 @@ export default function DrawerMenu({ shell, path, variant }: { shell: StoreShell
                 <StoreMark shell={shell} onClick={close} />
               </div>
             </Dialog.Title>
-            <Dialog.Close className="mx-icon -me-2" aria-label="إغلاق القائمة">
+            <Dialog.Close className="mx-icon -me-2" aria-label={st("إغلاق القائمة")}>
               <X />
             </Dialog.Close>
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-2 pb-6 pt-3">
-            <nav aria-label="القائمة الرئيسية">
+            <nav aria-label={st("القائمة الرئيسية")}>
               <ul className="mx-stagger">
                 {links.map((l, i) => (
                   <li key={l.href} style={stagger(i)}>
@@ -83,7 +84,7 @@ export default function DrawerMenu({ shell, path, variant }: { shell: StoreShell
               <section className="mt-4 border-t border-(--mx-line) pt-4">
                 <h2 className="flex items-center gap-2 px-3 pb-2 text-xs font-semibold text-(--mx-quiet)">
                   <LayoutGrid className="size-3.5" />
-                  التصنيفات
+                  {st("التصنيفات")}
                 </h2>
                 <ul>
                   {shell.categories.map((c) => (
@@ -129,7 +130,7 @@ export default function DrawerMenu({ shell, path, variant }: { shell: StoreShell
               {wa && (
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-3 text-sm text-(--mx-ink)">
                   <MessageCircle className="size-[1.125rem] text-(--mx-link)" />
-                  كلّمنا على واتساب
+                  {st("كلّمنا على واتساب")}
                 </a>
               )}
               {shell.contact.email && (

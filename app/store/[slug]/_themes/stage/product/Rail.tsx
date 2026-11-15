@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { SectionHeader } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** apple.com store shelf: the headline sits in the content column, the cards
  *  start under it and run off the end of the screen, and two round paddles
@@ -16,7 +17,7 @@ export default function Rail({
   title,
   tagline,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   actions,
   className,
   listClassName,
@@ -72,10 +73,10 @@ export default function Rail({
       </ul>
       {scrollable && (
         <div className="sg-wrap flex justify-end gap-3 pt-4 max-sm:hidden">
-          <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label="السابق" className="sg-paddle">
+          <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label={st("السابق")} className="sg-paddle">
             <ChevronRight className="ltr:rotate-180" />
           </button>
-          <button type="button" onClick={() => page(1)} disabled={state.end} aria-label="التالي" className="sg-paddle">
+          <button type="button" onClick={() => page(1)} disabled={state.end} aria-label={st("التالي")} className="sg-paddle">
             <ChevronLeft className="ltr:rotate-180" />
           </button>
         </div>

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { HeroBannerSettings, OfferStripContent, RichTextSettings, SocialProofContent, TestimonialsContent, WhyChooseUsContent } from "@/types/store-theme.types";
 import Rail from "../product/Rail";
 import { Rating, SectionHeader, Wrap, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured sections in Cello's language. Each renders only the
 // merchant's own content — no placeholder claims.
@@ -17,7 +18,7 @@ export function TrustRow({ content }: { content?: WhyChooseUsContent }) {
   const cards = content?.cards?.filter((c) => c.title?.trim()).slice(0, 4) ?? [];
   if (cards.length === 0) return null;
   return (
-    <section aria-label={content?.headline || "مميزات المتجر"} className="mt-[calc(var(--ce-section)/2)] bg-(--ce-navy) text-white">
+    <section aria-label={content?.headline || st("مميزات المتجر")} className="mt-[calc(var(--ce-section)/2)] bg-(--ce-navy) text-white">
       <ul className={cn("ce-wrap grid gap-x-6 gap-y-5 py-7 sm:grid-cols-2", cards.length >= 4 ? "lg:grid-cols-4" : cards.length === 3 ? "lg:grid-cols-3" : "")}>
         {cards.map((c, i) => (
           <li key={i} className="flex items-start gap-4">
@@ -53,7 +54,7 @@ export function MediaBanner({ content, storeSlug }: { content?: HeroBannerSettin
         {content.subheadline && <p className="text-sm text-white/90">{content.subheadline}</p>}
         {content.headline && <h2 className="ce-hero mt-3 max-w-[16ch] text-balance text-white">{content.headline}</h2>}
         <Link href={href} className="ce-btn ce-btn--white mt-7">
-          {content.buttonText || "تسوّق الآن"}
+          {content.buttonText || st("تسوّق الآن")}
           <ArrowLeft className="ltr:rotate-180" />
         </Link>
       </div>
@@ -68,7 +69,7 @@ export function OfferBand({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   const run = Array.from({ length: Math.max(2, Math.ceil(6 / items.length)) }, () => items).flat();
   return (
-    <div className="ce-marquee ce-band-blue my-[calc(var(--ce-section)/4)] overflow-hidden py-3 sm:py-3.5" role="region" aria-label="عروض">
+    <div className="ce-marquee ce-band-blue my-[calc(var(--ce-section)/4)] overflow-hidden py-3 sm:py-3.5" role="region" aria-label={st("عروض")}>
       <p className="sr-only">{items.join(" — ")}</p>
       <div className="ce-marquee-track" aria-hidden style={{ ["--ce-marquee-dur" as string]: `${run.length * 7}s` }}>
         {[0, 1].map((copy) => (
@@ -115,7 +116,7 @@ export function Stats({ content }: { content?: SocialProofContent }) {
 export function Testimonials({ content }: { content?: TestimonialsContent }) {
   const items = content?.items?.filter((t) => t.text?.trim()).slice(0, 8) ?? [];
   if (items.length === 0) return null;
-  const title = content?.headline || "آراء عملائنا";
+  const title = content?.headline || st("آراء عملائنا");
   return (
     <section className="ce-section bg-(--ce-card)">
       <Wrap>

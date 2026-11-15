@@ -4,6 +4,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { ProductCardData } from "../../types";
 import BuyButton from "../product/BuyButton";
 import { MoreLink, PlateImage, Price } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Casho Stage's own section: one product on night, the way Apple opens a
  *  launch. With motion on, the section pins while you scroll: the name steps
@@ -14,10 +15,10 @@ import { MoreLink, PlateImage, Price } from "../ui";
 export default function Spotlight({ product, storeSlug }: { product: ProductCardData; storeSlug: string }) {
   const href = buildStoreUrl(storeSlug, `/products/${product.slug}`);
   return (
-    <section data-tone="night" aria-label={`تحت الأضواء: ${product.name}`} className="sg-band sg-spot">
+    <section data-tone="night" aria-label={st("تحت الأضواء: {0}", product.name)} className="sg-band sg-spot">
       <div className="sg-spot-stage">
         <div className="sg-spot-head">
-          <p className="sg-eyebrow sg-gradient-text">{product.isNew ? "جديد. تحت الأضواء." : "تحت الأضواء."}</p>
+          <p className="sg-eyebrow sg-gradient-text">{product.isNew ? st("جديد. تحت الأضواء.") : st("تحت الأضواء.")}</p>
           <h2 className="sg-spot-title text-balance">{product.name}</h2>
           {product.categoryName && <p className="sg-spot-kicker">{product.categoryName}</p>}
         </div>
@@ -29,7 +30,7 @@ export default function Spotlight({ product, storeSlug }: { product: ProductCard
           <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
             <BuyButton storeSlug={storeSlug} product={product} className="sg-btn--md-force" />
             <MoreLink href={href} className="text-[1.0625rem]">
-              اعرف أكتر
+              {st("اعرف أكتر")}
             </MoreLink>
           </div>
         </div>

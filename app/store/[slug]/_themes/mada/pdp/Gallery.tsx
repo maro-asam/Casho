@@ -7,6 +7,7 @@ import { Dialog } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { MD_PORTAL, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Desktop: vertical thumbnails + main image with hover pan-zoom; click opens
  *  a fullscreen lightbox. Phones: swipe strip with dots; tap opens the lightbox. */
@@ -20,7 +21,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const [light, setLight] = useState(false);
   const multiple = images.length > 1;
-  const alt = (i: number) => (i === 0 ? name : `${name} — صورة ${i + 1}`);
+  const alt = (i: number) => (i === 0 ? name : st("{0} — صورة {1}", name, i + 1));
 
   const onScroll = useCallback(() => {
     const el = railRef.current;
@@ -46,7 +47,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
     <>
       {/* Phones */}
       <div className="relative -mx-(--md-gutter) lg:hidden">
-        <div ref={railRef} onScroll={onScroll} className="md-rail" aria-roledescription="carousel" aria-label={`صور ${name}`}>
+        <div ref={railRef} onScroll={onScroll} className="md-rail" aria-roledescription="carousel" aria-label={st("صور {0}", name)}>
           {images.map((src, i) => (
             <button
               key={src + i}
@@ -55,7 +56,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                 setActive(i);
                 setLight(true);
               }}
-              aria-label={`تكبير الصورة ${i + 1}`}
+              aria-label={st("تكبير الصورة {0}", i + 1)}
               className="relative w-full shrink-0 basis-full bg-(--md-studio)"
               style={{ aspectRatio: "var(--store-img-ratio, 4 / 5)" }}
             >
@@ -82,7 +83,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                 key={src + i}
                 type="button"
                 onClick={() => setActive(i)}
-                aria-label={`عرض الصورة ${i + 1}`}
+                aria-label={st("عرض الصورة {0}", i + 1)}
                 aria-current={i === active}
                 className={cn("md-media aspect-[4/5] w-full shrink-0 rounded-xl ring-offset-2 ring-offset-(--md-bg) transition", i === active ? "ring-2 ring-(--md-ink)" : "opacity-65 hover:opacity-100")}
               >
@@ -116,10 +117,10 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
           </span>
           {multiple && (
             <>
-              <button type="button" onClick={(e) => { e.stopPropagation(); go(active - 1); }} aria-label="الصورة السابقة" className="md-fab absolute start-4 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100">
+              <button type="button" onClick={(e) => { e.stopPropagation(); go(active - 1); }} aria-label={st("الصورة السابقة")} className="md-fab absolute start-4 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100">
                 <ArrowRight className="ltr:rotate-180" />
               </button>
-              <button type="button" onClick={(e) => { e.stopPropagation(); go(active + 1); }} aria-label="الصورة التالية" className="md-fab absolute end-4 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100">
+              <button type="button" onClick={(e) => { e.stopPropagation(); go(active + 1); }} aria-label={st("الصورة التالية")} className="md-fab absolute end-4 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100">
                 <ArrowLeft className="ltr:rotate-180" />
               </button>
             </>
@@ -131,12 +132,12 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
       <Dialog.Root open={light} onOpenChange={setLight}>
         <Dialog.Portal>
           <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(MD_PORTAL, "md-scrim fixed inset-0 z-50 flex flex-col bg-[#0c110f] text-white outline-none")}>
-            <Dialog.Title className="sr-only">صور {name}</Dialog.Title>
+            <Dialog.Title className="sr-only">{st("صور {0}", name)}</Dialog.Title>
             <div className="flex h-14 shrink-0 items-center justify-between px-4">
               <span className="md-price text-sm opacity-80">
                 {num(active + 1)} / {num(images.length)}
               </span>
-              <Dialog.Close className="grid size-11 place-items-center rounded-full bg-white/10 hover:bg-white/20" aria-label="إغلاق">
+              <Dialog.Close className="grid size-11 place-items-center rounded-full bg-white/10 hover:bg-white/20" aria-label={st("إغلاق")}>
                 <X className="size-5" />
               </Dialog.Close>
             </div>
@@ -144,10 +145,10 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
               <Image src={images[active]} alt={alt(active)} fill sizes="100vw" className="object-contain" />
               {multiple && (
                 <>
-                  <button type="button" onClick={() => go(active - 1)} aria-label="الصورة السابقة" className="absolute start-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/20">
+                  <button type="button" onClick={() => go(active - 1)} aria-label={st("الصورة السابقة")} className="absolute start-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/20">
                     <ArrowRight className="size-5 ltr:rotate-180" />
                   </button>
-                  <button type="button" onClick={() => go(active + 1)} aria-label="الصورة التالية" className="absolute end-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/20">
+                  <button type="button" onClick={() => go(active + 1)} aria-label={st("الصورة التالية")} className="absolute end-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/20">
                     <ArrowLeft className="size-5 ltr:rotate-180" />
                   </button>
                 </>
@@ -156,7 +157,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
             {multiple && (
               <div className="md-rail shrink-0 justify-center gap-2 p-4">
                 {images.map((src, i) => (
-                  <button key={src + i} type="button" onClick={() => setActive(i)} aria-label={`الصورة ${i + 1}`} aria-current={i === active} className={cn("relative size-14 shrink-0 overflow-hidden rounded-lg", i === active ? "ring-2 ring-white" : "opacity-50")}>
+                  <button key={src + i} type="button" onClick={() => setActive(i)} aria-label={st("الصورة {0}", i + 1)} aria-current={i === active} className={cn("relative size-14 shrink-0 overflow-hidden rounded-lg", i === active ? "ring-2 ring-white" : "opacity-50")}>
                     <Image src={src} alt="" fill sizes="56px" className="object-cover" />
                   </button>
                 ))}

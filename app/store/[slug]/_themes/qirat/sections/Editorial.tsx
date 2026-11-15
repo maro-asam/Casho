@@ -20,6 +20,7 @@ import type { CategoryLink } from "../../types";
 import { joinMessage, waWith } from "../lib/qirat";
 import { Band, CategoryArt, Kicker, Ornament, SectionHead, TextLink, Wrap, btn, delay } from "../ui";
 import Quotes from "./Quotes";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured sections in Qirat's language. Each renders only the
 // merchant's own content (or real store data), never placeholder claims.
@@ -41,7 +42,7 @@ export function OfferStrip({ content }: { content?: OfferStripContent }) {
     </ul>
   );
   return (
-    <section data-tone="velvet" aria-label="عروض المتجر" className="qr-ribbon">
+    <section data-tone="velvet" aria-label={st("عروض المتجر")} className="qr-ribbon">
       <div className="qr-ribbon-track">
         {row()}
         {row(true)}
@@ -58,7 +59,7 @@ export function Promises({ content, storeName }: { content?: WhyChooseUsContent;
   return (
     <Band tone="alt" className="qr-section">
       <Wrap>
-        <SectionHead kicker={`وعد ${storeName}`} title={content?.headline || "ليه تختارنا؟"} />
+        <SectionHead kicker={st("وعد {0}", storeName)} title={content?.headline || st("ليه تختارنا؟")} />
         <ul className="qr-promises" style={{ ["--n" as string]: cards.length }}>
           {cards.map((c, i) => (
             <li key={i} className="qr-reveal" style={delay(i)}>
@@ -106,7 +107,7 @@ export function Testimonials({ content }: { content?: TestimonialsContent }) {
   return (
     <Band className="qr-section">
       <Wrap>
-        <SectionHead kicker="آراء عملائنا" title={content?.headline || "بيقولوا عننا"} />
+        <SectionHead kicker={st("آراء عملائنا")} title={content?.headline || st("بيقولوا عننا")} />
         <Quotes items={items} />
       </Wrap>
     </Band>
@@ -164,7 +165,7 @@ export function MediaBanner({ content, storeSlug, dir }: { content?: HeroBannerS
         )}
         <div className="qr-reveal mt-4" style={delay(2)}>
           <Link href={href} className={btn({ variant: "light", size: "lg" })}>
-            {content.buttonText || "تسوّق دلوقتي"}
+            {content.buttonText || st("تسوّق دلوقتي")}
           </Link>
         </div>
       </div>
@@ -195,7 +196,7 @@ export function Collections({ content, categories, storeSlug }: { content?: Coll
   return (
     <Band className="qr-section">
       <Wrap>
-        <SectionHead kicker="الكوليكشن" title={content?.headline || "اكتشف المجموعات"} />
+        <SectionHead kicker={st("الكوليكشن")} title={content?.headline || st("اكتشف المجموعات")} />
         <ul className="qr-collections" data-n={items.length}>
           {items.map((c, i) => (
             <li key={i} className="qr-reveal min-w-0" style={delay(i)}>
@@ -205,7 +206,7 @@ export function Collections({ content, categories, storeSlug }: { content?: Coll
                 <span className="qr-collection-copy">
                   <span className="qr-collection-name">{c.name}</span>
                   <span className="qr-collection-more">
-                    <span className="qr-underline">اكتشف</span> ›
+                    <span className="qr-underline">{st("اكتشف")}</span> ›
                   </span>
                 </span>
               </Link>
@@ -239,9 +240,9 @@ export function AboutBrand({ content, storeName, storeSlug, description }: { con
           )}
         </div>
         <div className="qr-story-copy">
-          <Kicker className="qr-reveal">حكايتنا</Kicker>
+          <Kicker className="qr-reveal">{st("حكايتنا")}</Kicker>
           <h2 className="qr-h1 qr-reveal mt-3 text-balance" style={delay(1)}>
-            {content?.headline || `عن ${storeName}`}
+            {content?.headline || st("عن {0}", storeName)}
           </h2>
           <Ornament className="qr-reveal qr-orn--start mt-6" />
           {text && (
@@ -250,7 +251,7 @@ export function AboutBrand({ content, storeName, storeSlug, description }: { con
             </p>
           )}
           <div className="qr-reveal mt-8" style={delay(3)}>
-            <TextLink href={href}>{content?.ctaText || "اعرف حكايتنا"}</TextLink>
+            <TextLink href={href}>{content?.ctaText || st("اعرف حكايتنا")}</TextLink>
           </div>
         </div>
       </Wrap>
@@ -266,19 +267,19 @@ export function JoinBand({ content, storeName, storeSlug, whatsappHref }: { cont
   const body = (
     <>
       {whatsappHref && <MessageCircle />}
-      {content?.ctaText || (whatsappHref ? "تابع الجديد على واتساب" : "تواصل معانا")}
+      {content?.ctaText || (whatsappHref ? st("تابع الجديد على واتساب") : st("تواصل معانا"))}
     </>
   );
   return (
     <Band tone="alt" className="qr-section">
       <Wrap className="qr-join">
-        <Kicker className="qr-reveal">أول من يعرف</Kicker>
+        <Kicker className="qr-reveal">{st("أول من يعرف")}</Kicker>
         <h2 className="qr-h1 qr-reveal mt-3 text-balance" style={delay(1)}>
-          {content?.headline || "الكوليكشن الجديد يوصلك الأول"}
+          {content?.headline || st("الكوليكشن الجديد يوصلك الأول")}
         </h2>
         <Ornament className="qr-reveal mt-5" />
         <p className="qr-lead qr-reveal mx-auto mt-5 max-w-xl text-balance" style={delay(2)}>
-          {content?.subheadline || "أول ما تنزل قطع جديدة أو عرض خاص، هنبعتلك."}
+          {content?.subheadline || st("أول ما تنزل قطع جديدة أو عرض خاص، هنبعتلك.")}
         </p>
         <div className="qr-reveal mt-8" style={delay(3)}>
           {whatsappHref ? (

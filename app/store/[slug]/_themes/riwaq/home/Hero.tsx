@@ -2,21 +2,22 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { HeroStyle } from "@/types/store-theme.types";
 import type { BannerData, HomeViewProps, ProductCardData } from "../../types";
 import { BannerLink } from "../../shared/banner";
 import { Arrow, StarMark, btn, monogram } from "../ui";
+import { formatPrice, st, stList, storeIntlLocale } from "@/lib/i18n/storefront";
 
-const SEASONS = ["شتاء", "شتاء", "ربيع", "ربيع", "ربيع", "صيف", "صيف", "صيف", "خريف", "خريف", "خريف", "شتاء"];
+const SEASONS = stList(["شتاء", "شتاء", "ربيع", "ربيع", "ربيع", "صيف", "صيف", "صيف", "خريف", "خريف", "خريف", "شتاء"]);
 
 function seasonLabel(date = new Date()) {
-  return `مختارات ${SEASONS[date.getMonth()]} ${new Intl.NumberFormat("ar-EG", { useGrouping: false }).format(date.getFullYear())}`;
+  return st("مختارات {0} {1}", SEASONS[date.getMonth()], new Intl.NumberFormat(storeIntlLocale(), { useGrouping: false }).format(date.getFullYear()));
 }
 
 /** Slowly turning stamp that overlaps the arch. */
 function Stamp({ className }: { className?: string }) {
-  const text = "وصل حديثًا  ✦  وصل حديثًا  ✦  ";
+  const text = st("وصل حديثًا  ✦  وصل حديثًا  ✦  ");
   return (
     <div
       aria-hidden
@@ -59,7 +60,7 @@ export default function Hero({
   const lead = banners[0];
   const headline = lead?.title?.trim() || store.name;
   const long = [...headline].length > 22;
-  const pitch = lead?.subtitle || store.description?.trim() || `منتجات مختارة بعناية من ${store.name}، واطلب في دقيقة.`;
+  const pitch = lead?.subtitle || store.description?.trim() || st("منتجات مختارة بعناية من {0}، واطلب في دقيقة.", store.name);
 
   const season = (
     <p className="rq-label flex items-center gap-2 text-(--rq-accent)">
@@ -78,13 +79,13 @@ export default function Hero({
         </BannerLink>
       ) : (
         <Link href={url("/products")} className={btn({ size: "lg", className: "group max-sm:w-full" })}>
-          تسوّق المجموعة
+          {st("تسوّق المجموعة")}
           <Arrow />
         </Link>
       )}
       {hasCategories && (
         <Link href={url("/categories")} className="group inline-flex min-h-11 items-center gap-2 font-semibold">
-          <span className="rq-link">تصفّح التصنيفات</span>
+          <span className="rq-link">{st("تصفّح التصنيفات")}</span>
           <Arrow />
         </Link>
       )}
@@ -164,7 +165,7 @@ export default function Hero({
           {pictured && !compact && (
             <figcaption className="mt-4 flex items-baseline justify-between gap-4 ps-20 text-sm sm:ps-24">
               <span className="min-w-0 truncate text-(--rq-quiet)">
-                في الصورة:{" "}
+                {st("في الصورة:")}{" "}
                 <Link href={url(`/products/${pictured.slug}`)} className="rq-link font-semibold text-(--rq-ink)">
                   {pictured.name}
                 </Link>

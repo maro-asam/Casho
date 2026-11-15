@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { QUICK_VIEW_EVENT } from "../lib/events";
 import { Kicker, PlateImage, Price, QR_PORTAL, Rating, StockLine, TextLink } from "../ui";
 import BuyForm from "./BuyForm";
+import { st } from "@/lib/i18n/storefront";
 
 /** Global quick view: a centered panel on desktop, a bottom sheet on phones. */
 export default function QuickView({ storeSlug, storeName, dir }: { storeSlug: string; storeName: string; dir: "rtl" | "ltr" }) {
@@ -46,14 +47,14 @@ export default function QuickView({ storeSlug, storeName, dir }: { storeSlug: st
             "lg:inset-0 lg:m-auto lg:h-fit lg:max-h-[88dvh] lg:w-[min(64rem,calc(100vw-4rem))]",
           )}
         >
-          <Dialog.Title className="sr-only">{product?.name ?? "نظرة سريعة"}</Dialog.Title>
-          <Dialog.Close className="qr-fab absolute end-3 top-3 z-10" aria-label="إغلاق">
+          <Dialog.Title className="sr-only">{product?.name ?? st("نظرة سريعة")}</Dialog.Title>
+          <Dialog.Close className="qr-fab absolute end-3 top-3 z-10" aria-label={st("إغلاق")}>
             <X />
           </Dialog.Close>
 
           <div className="overflow-y-auto overscroll-contain">
             {failed ? (
-              <p className="p-12 text-center text-(--qr-ink-2)">القطعة دي مش متاحة دلوقتي.</p>
+              <p className="p-12 text-center text-(--qr-ink-2)">{st("القطعة دي مش متاحة دلوقتي.")}</p>
             ) : !product ? (
               <div className="grid gap-6 p-5 lg:grid-cols-2 lg:p-8" aria-busy>
                 <div className="qr-skel aspect-[3/4]" />
@@ -73,7 +74,7 @@ export default function QuickView({ storeSlug, storeName, dir }: { storeSlug: st
                   {product.gallery.length > 1 && (
                     <div className="qr-rail mt-3 gap-2">
                       {product.gallery.slice(0, 8).map((src, i) => (
-                        <button key={src} type="button" onClick={() => setActive(i)} aria-label={`الصورة ${i + 1}`} aria-current={i === active} className="qr-thumb w-16 shrink-0">
+                        <button key={src} type="button" onClick={() => setActive(i)} aria-label={st("الصورة {0}", i + 1)} aria-current={i === active} className="qr-thumb w-16 shrink-0">
                           <PlateImage src={src} sizes="64px" />
                         </button>
                       ))}
@@ -98,7 +99,7 @@ export default function QuickView({ storeSlug, storeName, dir }: { storeSlug: st
                   </div>
                   {/* Closes the sheet as the link navigates. */}
                   <div className="mt-7" onClickCapture={() => setOpen(false)}>
-                    <TextLink href={buildStoreUrl(storeSlug, `/products/${product.slug}`)}>كل تفاصيل القطعة</TextLink>
+                    <TextLink href={buildStoreUrl(storeSlug, `/products/${product.slug}`)}>{st("كل تفاصيل القطعة")}</TextLink>
                   </div>
                 </div>
               </div>

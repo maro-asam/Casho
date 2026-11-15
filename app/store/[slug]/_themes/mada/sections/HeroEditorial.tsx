@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { BannerData, HomeViewProps, ProductCardData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Arrow, PlateImage, btn, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Hero for stores without banners: a pine panel with the pitch beside a
  *  collage of real product photos (each links to its product).
@@ -48,7 +49,7 @@ export default function HeroEditorial({
       ))}
       {products.length > 3 && (
         <span className="absolute end-6 top-6 rounded-full bg-(--md-signal) px-3 py-1 text-xs font-bold text-(--md-signal-ink)">
-          +{num(products.length - shots.length)} منتج
+          {st("+{0} منتج", num(products.length - shots.length))}
         </span>
       )}
     </div>
@@ -58,10 +59,10 @@ export default function HeroEditorial({
     <section className="md-wrap pt-3 sm:pt-4">
       <div className="grid grid-cols-1 overflow-hidden rounded-[1.75rem] bg-(--md-brand) text-(--md-brand-ink) lg:grid-cols-2">
         <div className={cn("flex flex-col justify-center", compact ? "p-6 sm:p-10 lg:p-12" : "p-7 sm:p-12 lg:p-16")}>
-          <span className="md-eyebrow self-start">{banner ? `جديد في ${store.name}` : `أهلًا بيك في ${store.name}`}</span>
+          <span className="md-eyebrow self-start">{banner ? st("جديد في {0}", store.name) : st("أهلًا بيك في {0}", store.name)}</span>
           <h1 className={cn("mt-5 text-balance", compact ? "md-h1" : "md-hero-title")}>{banner?.title || store.name}</h1>
           <p className={cn("max-w-[46ch] text-base leading-8 opacity-80", compact ? "mt-3 line-clamp-2" : "mt-5")}>
-            {banner?.subtitle || store.description?.trim() || "منتجات مختارة بعناية، وطلب سهل في دقيقة."}
+            {banner?.subtitle || store.description?.trim() || st("منتجات مختارة بعناية، وطلب سهل في دقيقة.")}
           </p>
           <div className={cn("flex flex-wrap gap-2.5", compact ? "mt-6" : "mt-8")}>
             {banner?.link ? (
@@ -71,13 +72,13 @@ export default function HeroEditorial({
               </BannerLink>
             ) : (
               <Link href={url("/products")} className={btn({ variant: "signal", size: "lg" })}>
-                تسوّق الآن
+                {st("تسوّق الآن")}
                 <Arrow />
               </Link>
             )}
             {hasCategories && (
               <Link href={url("/categories")} className={btn({ size: "lg", className: "border-white/25 bg-transparent text-inherit hover:bg-white/10" })}>
-                التصنيفات
+                {st("التصنيفات")}
               </Link>
             )}
           </div>
@@ -102,10 +103,10 @@ export function HeroMinimal({
   return (
     <section className="md-wrap pb-4 pt-12 sm:pt-16 lg:pt-24">
       <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-        <span className="md-eyebrow">{banner ? `جديد في ${store.name}` : `أهلًا بيك في ${store.name}`}</span>
+        <span className="md-eyebrow">{banner ? st("جديد في {0}", store.name) : st("أهلًا بيك في {0}", store.name)}</span>
         <h1 className="md-hero-title mt-6 text-balance">{banner?.title || store.name}</h1>
         <p className="mt-5 max-w-[52ch] text-base leading-8 text-(--md-quiet) sm:text-lg">
-          {banner?.subtitle || store.description?.trim() || "منتجات مختارة بعناية، وطلب سهل في دقيقة."}
+          {banner?.subtitle || store.description?.trim() || st("منتجات مختارة بعناية، وطلب سهل في دقيقة.")}
         </p>
         <div className="mt-9 flex flex-wrap justify-center gap-2.5">
           {banner?.link ? (
@@ -115,13 +116,13 @@ export function HeroMinimal({
             </BannerLink>
           ) : (
             <Link href={url("/products")} className={btn({ size: "lg" })}>
-              تسوّق الآن
+              {st("تسوّق الآن")}
               <Arrow />
             </Link>
           )}
           {hasCategories && (
             <Link href={url("/categories")} className={btn({ variant: "outline", size: "lg" })}>
-              التصنيفات
+              {st("التصنيفات")}
             </Link>
           )}
         </div>

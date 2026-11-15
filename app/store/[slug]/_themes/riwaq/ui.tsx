@@ -9,15 +9,16 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { ArrowLeft, Star } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { riwaqDisplay } from "./fonts";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** Classes for content rendered in a portal (sheets, dialogs, popovers):
  *  re-applies the store tokens + Riwaq scope + display font outside the root. */
 export const RQ_PORTAL = `store-theme-root theme-riwaq rq-portal ${riwaqDisplay.variable}`;
 
-const nf = new Intl.NumberFormat("ar-EG");
-const nf2 = new Intl.NumberFormat("ar-EG", { minimumIntegerDigits: 2 });
+const nf = lazyStoreIntl.number();
+const nf2 = lazyStoreIntl.number({ minimumIntegerDigits: 2 });
 
 /** "١٢" */
 export const num = (n: number) => nf.format(n);
@@ -73,7 +74,7 @@ export function SectionHead({
   title,
   subtitle,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   className,
 }: {
   index?: number;
@@ -109,7 +110,7 @@ export function SectionHead({
 /** Slash-separated trail: الرئيسية / المنتجات / … */
 export function Crumbs({ items, className }: { items: { label: string; href?: string }[]; className?: string }) {
   return (
-    <nav aria-label="مسار التصفح" className={cn("min-w-0", className)}>
+    <nav aria-label={st("مسار التصفح")} className={cn("min-w-0", className)}>
       <ol className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[0.8125rem] text-(--rq-quiet)">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -197,12 +198,12 @@ export function Price({
           size === "xl" && "text-[2rem] sm:text-[2.5rem]",
         )}
       >
-        {onSale && <span className="sr-only">السعر بعد الخصم: </span>}
+        {onSale && <span className="sr-only">{st("السعر بعد الخصم:")}{" "}</span>}
         {formatPrice(price)}
       </span>
       {onSale && (
         <s className={cn("tabular-nums text-(--rq-quiet) decoration-1", size === "xl" || size === "lg" ? "text-base" : "text-[0.8125rem]")}>
-          <span className="sr-only">السعر قبل الخصم: </span>
+          <span className="sr-only">{st("السعر قبل الخصم:")}{" "}</span>
           {formatPrice(compareAt!)}
         </s>
       )}
@@ -214,7 +215,7 @@ export function Stars({ value, count, className }: { value: number; count?: numb
   const rounded = Math.round(value);
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
-      <span className="sr-only">التقييم {value.toFixed(1)} من ٥</span>
+      <span className="sr-only">{st("التقييم {0} من ٥", value.toFixed(1))}</span>
       <span aria-hidden className="flex items-center gap-px">
         {[1, 2, 3, 4, 5].map((i) => (
           <Star

@@ -8,10 +8,11 @@ import { Dialog } from "radix-ui";
 
 import { SearchStoreProductsAction, type SearchSuggestion } from "@/actions/store/storefront-search.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { storeHref } from "../../shared/store-path";
 import { Arrow, RQ_PORTAL, idx, PlateImage } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 const RECENT_MAX = 6;
 
@@ -132,13 +133,13 @@ export default function SearchOverlay({
             "data-[state=open]:animate-[rq-rise_320ms_cubic-bezier(.16,1,.3,1)]",
           )}
         >
-          <Dialog.Title className="sr-only">البحث في {shell.name}</Dialog.Title>
+          <Dialog.Title className="sr-only">{st("البحث في {0}", shell.name)}</Dialog.Title>
 
           <div className="rq-wrap shrink-0 pt-3 lg:pt-8">
             <div className="flex items-center gap-3">
               <form role="search" onSubmit={submit} className="relative min-w-0 flex-1">
                 <label htmlFor={`${listId}-q`} className="sr-only">
-                  ابحث في المتجر
+                  {st("ابحث في المتجر")}
                 </label>
                 <Search aria-hidden className="pointer-events-none absolute start-0 top-1/2 size-5 -translate-y-1/2 text-(--rq-quiet) lg:size-7" />
                 <input
@@ -153,7 +154,7 @@ export default function SearchOverlay({
                   aria-controls={`${listId}-list`}
                   aria-activedescendant={active >= 0 ? `${listId}-opt-${active}` : undefined}
                   aria-autocomplete="list"
-                  placeholder="بتدوّر على إيه؟"
+                  placeholder={st("بتدوّر على إيه؟")}
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                   onKeyDown={onKeyDown}
@@ -166,7 +167,7 @@ export default function SearchOverlay({
                       setValue("");
                       inputRef.current?.focus();
                     }}
-                    aria-label="مسح البحث"
+                    aria-label={st("مسح البحث")}
                     className="absolute end-0 top-1/2 grid size-11 -translate-y-1/2 place-items-center text-(--rq-quiet) hover:text-(--rq-ink)"
                   >
                     {loading ? <Loader2 className="size-5 animate-spin" /> : <X className="size-5" />}
@@ -174,7 +175,7 @@ export default function SearchOverlay({
                 )}
               </form>
               <Dialog.Close className="-me-2 inline-flex min-h-11 shrink-0 items-center px-2 text-sm font-semibold hover:text-(--rq-accent)">
-                إغلاق
+                {st("إغلاق")}
               </Dialog.Close>
             </div>
           </div>
@@ -183,7 +184,7 @@ export default function SearchOverlay({
             <div className="rq-wrap pb-10 pt-6 lg:pt-8">
               {showResults ? (
                 <>
-                  <ul id={`${listId}-list`} role="listbox" aria-label="اقتراحات البحث" className="rq-stagger">
+                  <ul id={`${listId}-list`} role="listbox" aria-label={st("اقتراحات البحث")} className="rq-stagger">
                     {results.map((item, i) => {
                       const onSale = !!item.compareAtPrice && item.compareAtPrice > item.price;
                       return (
@@ -217,8 +218,8 @@ export default function SearchOverlay({
 
                   {noResults && (
                     <div className="py-8">
-                      <p className="rq-h3">مفيش منتجات باسم «{term}»</p>
-                      <p className="rq-small mt-2 text-(--rq-quiet)">جرب كلمة أبسط، أو تصفّح التصنيفات تحت.</p>
+                      <p className="rq-h3">{st("مفيش منتجات باسم «{0}»", term)}</p>
+                      <p className="rq-small mt-2 text-(--rq-quiet)">{st("جرب كلمة أبسط، أو تصفّح التصنيفات تحت.")}</p>
                     </div>
                   )}
 
@@ -228,7 +229,7 @@ export default function SearchOverlay({
                     onClick={() => searchFor(term)}
                     className="group mt-2 flex min-h-14 w-full items-center justify-between gap-3 text-start text-[0.9375rem] font-semibold"
                   >
-                    <span className="rq-link truncate">عرض كل النتائج لـ «{term}»</span>
+                    <span className="rq-link truncate">{st("عرض كل النتائج لـ «{0}»", term)}</span>
                     <Arrow />
                   </button>
                 </>
@@ -239,7 +240,7 @@ export default function SearchOverlay({
                   {recent.length > 0 && !showResults && (
                     <section>
                       <div className="mb-2 flex items-center justify-between">
-                        <h2 className="rq-label">عمليات بحث سابقة</h2>
+                        <h2 className="rq-label">{st("عمليات بحث سابقة")}</h2>
                         <button
                           type="button"
                           onClick={() => {
@@ -248,7 +249,7 @@ export default function SearchOverlay({
                           }}
                           className="rq-btn rq-btn--text rq-btn--sm text-xs text-(--rq-quiet)"
                         >
-                          مسح
+                          {st("مسح")}
                         </button>
                       </div>
                       <ul>
@@ -270,7 +271,7 @@ export default function SearchOverlay({
 
                   {shell.categories.length > 0 && (
                     <section>
-                      <h2 className="rq-label mb-3">تصفّح التصنيفات</h2>
+                      <h2 className="rq-label mb-3">{st("تصفّح التصنيفات")}</h2>
                       <ul className="flex flex-wrap gap-2">
                         {shell.categories.map((c) => (
                           <li key={c.id}>

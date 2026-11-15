@@ -6,24 +6,25 @@ import type { CategoriesIndexViewProps, CategoryViewProps } from "../../types";
 import { CategoryPills } from "../listing/StageListing";
 import { ProductGrid } from "../product/ProductCard";
 import { CategoryArt, Empty, MoreLink, PageHead, Wrap, btn, delay, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 export function StageCategoriesIndex({ store, categories }: CategoriesIndexViewProps) {
   return (
     <Wrap className="pb-16">
       <PageHead
-        title="كل الأقسام."
-        tagline="اختار من فين تبدأ."
-        note={categories.length > 0 ? `${num(categories.length)} قسم في ${store.name}` : undefined}
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "الأقسام" }]}
+        title={st("كل الأقسام.")}
+        tagline={st("اختار من فين تبدأ.")}
+        note={categories.length > 0 ? st("{0} قسم في {1}", num(categories.length), store.name) : undefined}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("الأقسام") }]}
       />
       {categories.length === 0 ? (
         <Empty
           icon={<LayoutGrid />}
-          title="مفيش أقسام لسه"
-          description="تقدر تتصفح كل المنتجات مباشرةً."
+          title={st("مفيش أقسام لسه")}
+          description={st("تقدر تتصفح كل المنتجات مباشرةً.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
@@ -37,7 +38,7 @@ export function StageCategoriesIndex({ store, categories }: CategoriesIndexViewP
                 </span>
                 <span className="sg-cattile-copy">
                   <span className="block truncate text-[1.0625rem] font-semibold text-(--sg-ink)">{c.name}</span>
-                  <span className="text-[0.8125rem] text-(--sg-label-2)">{num(c.productCount)} منتج</span>
+                  <span className="text-[0.8125rem] text-(--sg-label-2)">{st("{0} منتج", num(c.productCount))}</span>
                 </span>
               </Link>
             </li>
@@ -53,17 +54,17 @@ export function StageCategory({ store, category, products, otherCategories }: Ca
     <Wrap className="pb-16">
       <PageHead
         title={`${category.name}.`}
-        tagline="اختار اللي يناسبك."
-        note={`${num(products.length)} منتج`}
+        tagline={st("اختار اللي يناسبك.")}
+        note={st("{0} منتج", num(products.length))}
         crumbs={[
-          { label: "الرئيسية", href: buildStoreUrl(store.slug) },
-          { label: "الأقسام", href: buildStoreUrl(store.slug, "/categories") },
+          { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
+          { label: st("الأقسام"), href: buildStoreUrl(store.slug, "/categories") },
           { label: category.name },
         ]}
       >
         {products.length > 1 && (
           <MoreLink href={buildStoreUrl(store.slug, `/products?category=${encodeURIComponent(category.slug)}`)} className="mt-4 text-[0.9375rem]">
-            فلترة وترتيب
+            {st("فلترة وترتيب")}
           </MoreLink>
         )}
       </PageHead>
@@ -72,11 +73,11 @@ export function StageCategory({ store, category, products, otherCategories }: Ca
       {products.length === 0 ? (
         <Empty
           icon={<PackageOpen />}
-          title="القسم ده فاضي دلوقتي"
-          description="لسه مفيش منتجات هنا. شوف باقي منتجات المتجر."
+          title={st("القسم ده فاضي دلوقتي")}
+          description={st("لسه مفيش منتجات هنا. شوف باقي منتجات المتجر.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح كل المنتجات
+              {st("تصفح كل المنتجات")}
             </Link>
           }
         />

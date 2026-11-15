@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { CategoryCardStyle } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { Arrow, PlateImage, SectionHeader, Wrap, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Categories as image tiles: a bento on desktop (lead tile larger),
  *  a swipeable row on phones. The Studio's category shape: `square` (Mada's
@@ -21,7 +22,7 @@ export default function CategoryTiles({
   if (shape !== "square") {
     return (
       <Wrap className="md-section md-reveal">
-        <SectionHeader eyebrow="تصفّح" title="تسوّق حسب التصنيف" href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+        <SectionHeader eyebrow={st("تصفّح")} title={st("تسوّق حسب التصنيف")} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل التصنيفات")} />
         {shape === "circle" ? <Circles categories={categories.slice(0, 12)} storeSlug={storeSlug} /> : <Chips categories={categories} storeSlug={storeSlug} />}
       </Wrap>
     );
@@ -30,7 +31,7 @@ export default function CategoryTiles({
   const bento = tiles.length >= 3;
   return (
     <Wrap className="md-section md-reveal">
-      <SectionHeader eyebrow="تصفّح" title="تسوّق حسب التصنيف" href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+      <SectionHeader eyebrow={st("تصفّح")} title={st("تسوّق حسب التصنيف")} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل التصنيفات")} />
       <ul
         className={cn(
           "md-rail md-bleed gap-3 sm:gap-4 lg:mx-0 lg:grid lg:overflow-visible lg:px-0",
@@ -48,7 +49,7 @@ export default function CategoryTiles({
               <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 text-white sm:p-5">
                 <span className="min-w-0">
                   <span className={cn("md-face block truncate font-bold", i === 0 && bento ? "text-xl sm:text-2xl lg:text-3xl" : "text-base sm:text-lg")}>{c.name}</span>
-                  <span className="text-xs opacity-80">{num(c.productCount)} منتج</span>
+                  <span className="text-xs opacity-80">{st("{0} منتج", num(c.productCount))}</span>
                 </span>
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-[#121714] transition-transform duration-300 group-hover:scale-110">
                   <Arrow />
@@ -72,7 +73,7 @@ function Circles({ categories, storeSlug }: { categories: CategoryLink[]; storeS
               <PlateImage src={c.image} sizes="(max-width: 640px) 28vw, 9rem" className="transition-transform duration-700 group-hover:scale-105" />
             </span>
             <span className="md-face mt-3 block truncate text-[0.9375rem] font-bold">{c.name}</span>
-            <span className="text-xs text-(--md-quiet)">{num(c.productCount)} منتج</span>
+            <span className="text-xs text-(--md-quiet)">{st("{0} منتج", num(c.productCount))}</span>
           </Link>
         </li>
       ))}

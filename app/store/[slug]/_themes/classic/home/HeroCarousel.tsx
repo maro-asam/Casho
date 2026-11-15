@@ -13,6 +13,7 @@ import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { btn } from "../ui";
 import { motionOff } from "../../shared/motion";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   banners: BannerData[];
@@ -47,7 +48,7 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
   const compact = heroStyle === "compact";
 
   return (
-    <section aria-roledescription="carousel" aria-label="العروض" className="relative">
+    <section aria-roledescription="carousel" aria-label={st("العروض")} className="relative">
       <div ref={emblaRef} className="overflow-hidden rounded-(--c-radius-lg)">
         <div className="flex touch-pan-y">
           {banners.map((banner, i) => (
@@ -55,7 +56,7 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
               key={banner.id}
               role="group"
               aria-roledescription="slide"
-              aria-label={`${i + 1} من ${banners.length}`}
+              aria-label={st("{0} من {1}", i + 1, banners.length)}
               className="min-w-0 shrink-0 grow-0 basis-full"
             >
               <div
@@ -132,7 +133,7 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
                           className: cn(!split && "lg:border-white/50 lg:bg-transparent lg:text-white lg:hover:border-white"),
                         })}
                       >
-                        التصنيفات
+                        {st("التصنيفات")}
                       </Link>
                     )}
                   </div>
@@ -148,7 +149,7 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
           <button
             type="button"
             onClick={() => embla?.scrollPrev()}
-            aria-label="العرض السابق"
+            aria-label={st("العرض السابق")}
             className="hidden size-9 place-items-center rounded-full text-white transition-colors hover:bg-white/15 lg:grid"
           >
             <ChevronRight className="size-5 ltr:rotate-180" />
@@ -158,7 +159,7 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
               key={b.id}
               type="button"
               onClick={() => embla?.scrollTo(i)}
-              aria-label={`عرض ${i + 1}`}
+              aria-label={st("عرض {0}", i + 1)}
               aria-current={i === selected}
               className="grid h-6 place-items-center px-0.5"
             >
@@ -173,7 +174,7 @@ export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCa
           <button
             type="button"
             onClick={() => embla?.scrollNext()}
-            aria-label="العرض التالي"
+            aria-label={st("العرض التالي")}
             className="hidden size-9 place-items-center rounded-full text-white transition-colors hover:bg-white/15 lg:grid"
           >
             <ChevronLeft className="size-5 ltr:rotate-180" />

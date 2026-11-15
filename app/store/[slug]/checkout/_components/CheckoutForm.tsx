@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { CheckoutLegal } from "../../_themes/types";
+import { st, storeDir, storeLocale } from "@/lib/i18n/storefront";
 
 type PaymentMethod = {
   key: string;
@@ -41,7 +42,7 @@ const NO_LEGAL: CheckoutLegal = { requireConsent: false, links: [] };
 function LegalLinks({ links }: { links: CheckoutLegal["links"] }) {
   return links.map((link, i) => (
     <span key={link.href} className="font-light">
-      {i > 0 && " و"}
+      {i > 0 && st(" و")}
       <a
         href={link.href}
         target="_blank"
@@ -64,23 +65,23 @@ function LegalConsent({ legal }: { legal: CheckoutLegal }) {
   if (!legal.requireConsent) {
     return (
       <p className="text-center text-xs leading-6 text-muted-foreground">
-        بتأكيدك للطلب، أنت موافق على <LegalLinks links={legal.links} />.
+        {st("بتأكيدك للطلب، أنت موافق على")}{" "}<LegalLinks links={legal.links} />.
       </p>
     );
   }
 
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-2xl border bg-background p-4 text-right">
+    <label className="flex cursor-pointer items-start gap-3 rounded-2xl border bg-background p-4 text-start">
       <input
         type="checkbox"
         name="acceptTerms"
         required
-        onInvalid={(e) => e.currentTarget.setCustomValidity("لازم توافق على الشروط عشان تكمّل الطلب")}
+        onInvalid={(e) => e.currentTarget.setCustomValidity(st("لازم توافق على الشروط عشان تكمّل الطلب"))}
         onChange={(e) => e.currentTarget.setCustomValidity("")}
         className="mt-1 size-[1.125rem] shrink-0 accent-primary"
       />
       <span className="text-sm leading-6">
-        قرأت وأوافق على <LegalLinks links={legal.links} />
+        {st("قرأت وأوافق على")}{" "}<LegalLinks links={legal.links} />
       </span>
     </label>
   );
@@ -98,11 +99,11 @@ function SubmitButton() {
     >
       {pending ? (
         <>
-          جاري تأكيد الطلب...
+          {st("جاري تأكيد الطلب...")}
           <Loader2 className="size-4 animate-spin" />
         </>
       ) : (
-        "تأكيد الطلب الآن"
+        st("تأكيد الطلب الآن")
       )}
     </Button>
   );
@@ -200,42 +201,42 @@ export default function CheckoutForm({
 
   return (
     <form ref={formRef} action={action} onBlur={captureContact} className="space-y-6" dir="rtl">
-      <div className="space-y-2 text-right">
-        <h2 className="text-2xl font-semibold">بيانات الطلب</h2>
+      <div className="space-y-2 text-start">
+        <h2 className="text-2xl font-semibold">{st("بيانات الطلب")}</h2>
 
         <p className="text-sm leading-6 text-muted-foreground">
           {digitalOnly
-            ? "طلبك كله منتجات رقمية — مفيش شحن. هتلاقي روابط التحميل في صفحة الطلب أول ما الدفع يتأكد."
-            : "املأ البيانات التالية بدقة عشان نقدر نأكد الطلب ونسلمه بدون أي تأخير."}
+            ? st("طلبك كله منتجات رقمية — مفيش شحن. هتلاقي روابط التحميل في صفحة الطلب أول ما الدفع يتأكد.")
+            : st("املأ البيانات التالية بدقة عشان نقدر نأكد الطلب ونسلمه بدون أي تأخير.")}
         </p>
       </div>
 
       <div className="grid gap-4">
         <div className="space-y-2">
           <Label htmlFor="fullName" className="text-sm font-medium">
-            الاسم بالكامل
+            {st("الاسم بالكامل")}
           </Label>
 
           <div className="relative">
-            <UserRound className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <UserRound className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
             <Input
               id="fullName"
               name="fullName"
-              placeholder="مثال: محمد أحمد علي"
+              placeholder={st("مثال: محمد أحمد علي")}
               required
-              className="h-12 rounded-xl pr-10 text-right"
+              className="h-12 rounded-xl ps-10 text-start"
             />
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="phone" className="text-sm font-medium">
-            رقم الموبايل
+            {st("رقم الموبايل")}
           </Label>
 
           <div className="relative">
-            <Phone className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Phone className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
             <Input
               id="phone"
@@ -244,20 +245,20 @@ export default function CheckoutForm({
               onChange={(e) => {
                 if (e.target.value.replace(/\D/g, "").length >= 11) captureContact();
               }}
-              placeholder="مثال: 01012345678"
+              placeholder={st("مثال: 01012345678")}
               required
-              className="h-12 rounded-xl pr-10 text-right"
+              className="h-12 rounded-xl ps-10 text-start"
             />
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium">
-            الإيميل <span className="font-normal text-muted-foreground">(اختياري)</span>
+            {st("الإيميل")}{" "}<span className="font-normal text-muted-foreground">{st("(اختياري)")}</span>
           </Label>
 
           <div className="relative">
-            <Mail className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Mail className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
             <Input
               id="email"
@@ -267,22 +268,22 @@ export default function CheckoutForm({
               autoComplete="email"
               dir="ltr"
               placeholder="name@example.com"
-              className="h-12 rounded-xl pr-10 text-right placeholder:text-right"
+              className={cn("h-12 rounded-xl", storeDir() === "rtl" ? "pr-10 text-right placeholder:text-right" : "pl-10 text-left")}
             />
           </div>
 
-          <p className="text-xs text-muted-foreground">هيوصلك عليه تأكيد الطلب وتحديثات الشحن.</p>
+          <p className="text-xs text-muted-foreground">{st("هيوصلك عليه تأكيد الطلب وتحديثات الشحن.")}</p>
         </div>
 
         {!digitalOnly && (
         <>
         <div className="space-y-2">
           <Label htmlFor="governorate" className="text-sm font-medium">
-            المحافظة
+            {st("المحافظة")}
           </Label>
 
           <div className="relative">
-            <MapPin className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <MapPin className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
             <select
               id="governorate"
@@ -290,39 +291,39 @@ export default function CheckoutForm({
               required
               defaultValue={defaultGovernorate ?? ""}
               onChange={(e) => onGovernorateChange(e.target.value)}
-              className="h-12 w-full appearance-none rounded-xl border border-input bg-transparent pr-10 pl-10 text-right text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="h-12 w-full appearance-none rounded-xl border border-input bg-transparent ps-10 pe-10 text-start text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               <option value="" disabled>
-                اختر المحافظة
+                {st("اختر المحافظة")}
               </option>
               {EGYPT_GOVERNORATES.map((g) => (
                 <option key={g.code} value={g.code}>
-                  {g.name}
+                  {storeLocale() === "en" ? g.nameEn : g.name}
                 </option>
               ))}
             </select>
 
             {isPricingShipping && (
-              <Loader2 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+              <Loader2 className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
             )}
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="address" className="text-sm font-medium">
-            العنوان بالكامل
+            {st("العنوان بالكامل")}
           </Label>
 
           <div className="relative">
-            <MapPinHouse className="pointer-events-none absolute right-3 top-4 size-4 text-muted-foreground" />
+            <MapPinHouse className="pointer-events-none absolute start-3 top-4 size-4 text-muted-foreground" />
 
             <Textarea
               id="address"
               name="address"
-              placeholder="المنطقة - الشارع - رقم العمارة - الدور - الشقة - علامة مميزة"
+              placeholder={st("المنطقة - الشارع - رقم العمارة - الدور - الشقة - علامة مميزة")}
               rows={5}
               required
-              className="rounded-xl pr-10 text-right leading-7"
+              className="rounded-xl ps-10 text-start leading-7"
             />
           </div>
         </div>
@@ -333,7 +334,7 @@ export default function CheckoutForm({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Wallet className="size-4 text-primary" />
-          <Label className="text-sm font-medium">طريقة الدفع</Label>
+          <Label className="text-sm font-medium">{st("طريقة الدفع")}</Label>
         </div>
 
         <input type="hidden" name="paymentMethod" value={paymentMethod} />
@@ -350,7 +351,7 @@ export default function CheckoutForm({
                 type="button"
                 onClick={() => setPaymentMethod(method.key)}
                 className={cn(
-                  "flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-right transition-all",
+                  "flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-start transition-all",
                   "hover:border-primary/50 hover:bg-primary/5",
                   isActive
                     ? "border-primary bg-primary/5 ring-1 ring-primary/20"
@@ -364,19 +365,19 @@ export default function CheckoutForm({
                     isActive={isActive}
                   />
 
-                  <div className="min-w-0 space-y-1 text-right">
+                  <div className="min-w-0 space-y-1 text-start">
                     <p className="font-semibold">
                       {config?.label ?? method.label}
                     </p>
 
                     <p className="text-xs leading-5 text-muted-foreground">
                       {config?.description ??
-                        "اختر الوسيلة المناسبة لإتمام الطلب"}
+                        st("اختر الوسيلة المناسبة لإتمام الطلب")}
                     </p>
 
                     {manual ? (
                       <p className="text-xs font-medium text-primary">
-                        سيتم عرض بيانات التحويل بعد تأكيد الطلب
+                        {st("سيتم عرض بيانات التحويل بعد تأكيد الطلب")}
                       </p>
                     ) : null}
                   </div>
@@ -404,13 +405,13 @@ export default function CheckoutForm({
             <CheckCircle2 className="size-4" />
           </div>
 
-          <div className="space-y-1 text-right">
-            <p className="font-medium">راجع بياناتك قبل التأكيد</p>
+          <div className="space-y-1 text-start">
+            <p className="font-medium">{st("راجع بياناتك قبل التأكيد")}</p>
 
             <p className="text-sm leading-6 text-muted-foreground">
               {digitalOnly
-                ? "تأكد إن الاسم ورقم الموبايل صح عشان نقدر نتواصل معاك لو احتجنا."
-                : "تأكد إن الاسم، رقم الموبايل، والعنوان مكتوبين بشكل صحيح لتجنب أي تأخير في التواصل أو الشحن."}
+                ? st("تأكد إن الاسم ورقم الموبايل صح عشان نقدر نتواصل معاك لو احتجنا.")
+                : st("تأكد إن الاسم، رقم الموبايل، والعنوان مكتوبين بشكل صحيح لتجنب أي تأخير في التواصل أو الشحن.")}
             </p>
           </div>
         </div>

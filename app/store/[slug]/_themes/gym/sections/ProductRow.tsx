@@ -10,6 +10,7 @@ import ProductCard, { CardBadges } from "../product/ProductCard";
 import Rail from "../product/Rail";
 import { Chevron, PlateImage, Price, Rating, SectionHeader, Wrap, num } from "../ui";
 import WeightPlate from "./WeightPlate";
+import { st } from "@/lib/i18n/storefront";
 
 /** Titled product carousel ("store picks"…). */
 export default function ProductRow({
@@ -94,7 +95,7 @@ export function Podium({ products, storeSlug, title, href, max }: { products: Pr
   const eyebrow = (
     <>
       <Flame />
-      الأكثر طلبًا
+      {st("الأكثر طلبًا")}
     </>
   );
   // Too few for a podium: a plain rail reads better.
@@ -113,7 +114,7 @@ export function Podium({ products, storeSlug, title, href, max }: { products: Pr
           <h2 className="gy-h2 text-balance">{title}</h2>
         </div>
         <Link href={href} className="gy-link text-sm">
-          عرض الكل
+          {st("عرض الكل")}
           <Chevron />
         </Link>
       </header>
@@ -126,7 +127,7 @@ export function Podium({ products, storeSlug, title, href, max }: { products: Pr
                 <span aria-hidden className="grid size-9 place-items-center bg-(--gy-btn) text-(--gy-btn-ink)">
                   <Trophy className="size-5" />
                 </span>
-                رقم {num(1)} في المبيعات
+                {st("رقم {0} في المبيعات", num(1))}
               </p>
               {(champ.brand || champ.categoryName) && <p className="mt-3 text-sm font-bold text-(--gy-quiet)">{champ.brand || champ.categoryName}</p>}
               <h3 className="gy-h3 mt-1 !text-[clamp(1.375rem,2.3vw,2rem)] !font-black text-balance">
@@ -147,7 +148,7 @@ export function Podium({ products, storeSlug, title, href, max }: { products: Pr
           </Link>
         </article>
 
-        <ol className="gy-ranks gy-panel" aria-label={`باقي ${title}`}>
+        <ol className="gy-ranks gy-panel" aria-label={st("باقي {0}", title)}>
           {ranked.map((p, i) => (
             <li key={p.id} className="gy-reveal" style={{ ["--d" as string]: i }}>
               <RankRow product={p} rank={i + 2} storeSlug={storeSlug} />
@@ -157,7 +158,7 @@ export function Podium({ products, storeSlug, title, href, max }: { products: Pr
       </div>
 
       {rest.length > 0 && (
-        <ol className="gy-ranks-more" aria-label={`${title} — المزيد`}>
+        <ol className="gy-ranks-more" aria-label={st("{0} — المزيد", title)}>
           {rest.map((p, i) => (
             <li key={p.id} className="gy-reveal min-w-0">
               <RankRow product={p} rank={i + 6} storeSlug={storeSlug} />
@@ -182,7 +183,7 @@ export function DealsPanel({ products, storeSlug, title, timer, ghost, lowStock 
       <Wrap>
         <header className="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8">
           <div>
-            <p className="mb-1 text-sm font-extrabold opacity-90">خصومات حقيقية</p>
+            <p className="mb-1 text-sm font-extrabold opacity-90">{st("خصومات حقيقية")}</p>
             <h2 className="gy-hero max-w-[18ch] !text-current text-balance">{title}</h2>
           </div>
           {timer}
@@ -190,7 +191,7 @@ export function DealsPanel({ products, storeSlug, title, timer, ghost, lowStock 
         <ul className="grid gap-(--gy-gap) sm:grid-cols-2 xl:grid-cols-3">
           {products.slice(0, 6).map((p) => (
             <li key={p.id} className="gy-reveal min-w-0">
-              <MiniCard product={p} storeSlug={storeSlug} note={lowStock && p.stock <= 5 ? `باقي ${num(p.stock)} بس` : undefined} />
+              <MiniCard product={p} storeSlug={storeSlug} note={lowStock && p.stock <= 5 ? st("باقي {0} بس", num(p.stock)) : undefined} />
             </li>
           ))}
         </ul>

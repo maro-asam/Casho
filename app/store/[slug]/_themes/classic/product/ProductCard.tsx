@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { Price, Stars, discountPercent } from "../ui";
 import QuickAddButton from "./QuickAddButton";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   product: ProductCardData;
@@ -47,15 +48,15 @@ export default function ProductCard({
         <div className="pointer-events-none absolute inset-x-2 top-2 flex flex-wrap items-start gap-1.5">
           {soldOut ? (
             <span className="rounded-(--c-radius-sm) bg-foreground px-2 py-1 text-[0.6875rem] font-semibold leading-none text-background">
-              نفد المخزون
+              {st("نفد المخزون")}
             </span>
           ) : discount > 0 ? (
             <span className="rounded-(--c-radius-sm) bg-(--c-sale-solid) px-2 py-1 text-[0.6875rem] font-bold leading-none text-white tabular-nums">
-              خصم {discount}%
+              {st("خصم {0}%", discount)}
             </span>
           ) : product.isFeatured ? (
             <span className="rounded-(--c-radius-sm) bg-background/95 px-2 py-1 text-[0.6875rem] font-semibold leading-none text-foreground shadow-sm">
-              مميز
+              {st("مميز")}
             </span>
           ) : null}
         </div>

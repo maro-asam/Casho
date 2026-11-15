@@ -9,6 +9,7 @@ import type { StoreShell } from "../../types";
 import { SEARCH_EVENT } from "../lib/events";
 import { SG_PORTAL } from "../ui";
 import SearchBar from "./SearchBar";
+import { st } from "@/lib/i18n/storefront";
 
 /** apple.com's search: a panel that drops over the bar with the page blurred
  *  behind it. Every search button in the theme (and ⌘K) opens this one. */
@@ -36,10 +37,10 @@ export default function SearchSheet({ shell }: { shell: StoreShell }) {
       <Dialog.Portal>
         <Dialog.Overlay className={cn(SG_PORTAL, "sg-blur-scrim fixed inset-0 z-50")} />
         <Dialog.Content dir={shell.dir} aria-describedby={undefined} className={cn(SG_PORTAL, "sg-searchsheet fixed inset-x-0 top-0 z-50 outline-none")}>
-          <Dialog.Title className="sr-only">البحث في المتجر</Dialog.Title>
+          <Dialog.Title className="sr-only">{st("البحث في المتجر")}</Dialog.Title>
           <div className="sg-searchsheet-inner">
             <SearchBar shell={shell} autoFocus onDone={() => setOpen(false)} className="min-w-0 flex-1" />
-            <Dialog.Close aria-label="إغلاق البحث" className="sg-gicon absolute end-(--sg-gutter) top-2">
+            <Dialog.Close aria-label={st("إغلاق البحث")} className="sg-gicon absolute end-(--sg-gutter) top-2">
               <X />
             </Dialog.Close>
           </div>

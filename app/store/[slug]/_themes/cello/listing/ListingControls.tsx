@@ -12,6 +12,7 @@ import { clearedQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { CE_PORTAL, btn, num } from "../ui";
 import FilterPanel, { type FilterProps } from "./FilterPanel";
+import { st } from "@/lib/i18n/storefront";
 
 // Per-viewer layout preferences, remembered in this browser.
 const PREF_EVENT = "cello:pref";
@@ -46,7 +47,7 @@ function SortSelect({ storeSlug, query }: Pick<Props, "storeSlug" | "query">) {
   return (
     <div className="flex items-center gap-2">
       <label htmlFor={id} className="shrink-0 text-sm text-(--ce-text) max-sm:sr-only">
-        ترتيب حسب:
+        {st("ترتيب حسب:")}
       </label>
       <select
         id={id}
@@ -100,8 +101,8 @@ export default function ListingLayout({ children, ...props }: Props & { children
     <div data-sidebar={sidebar} data-view={view}>
       <div className="lg:flex lg:items-start lg:gap-8">
         {sidebar && (
-          <aside aria-label="الفلاتر" className="hidden w-72 shrink-0 lg:sticky lg:top-4 lg:block">
-            <h2 className="mb-1 flex min-h-14 items-center text-2xl font-medium text-(--ce-ink)">فلترة:</h2>
+          <aside aria-label={st("الفلاتر")} className="hidden w-72 shrink-0 lg:sticky lg:top-4 lg:block">
+            <h2 className="mb-1 flex min-h-14 items-center text-2xl font-medium text-(--ce-ink)">{st("فلترة:")}</h2>
             <FilterPanel {...props} mode="sidebar" />
           </aside>
         )}
@@ -110,7 +111,7 @@ export default function ListingLayout({ children, ...props }: Props & { children
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => setDrawer(true)} aria-haspopup="dialog" className={btn({ variant: "outline", size: "sm", className: "h-10 bg-(--ce-card) lg:hidden" })}>
                 <SlidersHorizontal />
-                فلترة
+                {st("فلترة")}
                 {badge}
               </button>
               <button
@@ -120,18 +121,18 @@ export default function ListingLayout({ children, ...props }: Props & { children
                 className={btn({ variant: "outline", size: "sm", className: "hidden h-10 bg-(--ce-card) lg:inline-flex" })}
               >
                 <SlidersHorizontal />
-                {sidebar ? "إخفاء الفلاتر" : "فلترة"}
+                {sidebar ? st("إخفاء الفلاتر") : st("فلترة")}
                 {badge}
               </button>
               <div className="flex items-center gap-1">
-                {viewBtn("grid", "عرض كشبكة", LayoutGrid)}
-                {viewBtn("list", "عرض كقائمة", List)}
+                {viewBtn("grid", st("عرض كشبكة"), LayoutGrid)}
+                {viewBtn("list", st("عرض كقائمة"), List)}
               </div>
             </div>
             <div className="flex items-center gap-3">
               <SortSelect storeSlug={storeSlug} query={query} />
               <p className="text-sm whitespace-nowrap text-(--ce-text) max-sm:hidden" aria-live="polite">
-                {total > 0 ? `${num(total)} منتج` : "مفيش نتائج"}
+                {total > 0 ? st("{0} منتج", num(total)) : st("مفيش نتائج")}
               </p>
             </div>
           </div>
@@ -148,8 +149,8 @@ export default function ListingLayout({ children, ...props }: Props & { children
             className={cn(CE_PORTAL, "ce-drawer ce-drawer--start fixed inset-y-0 start-0 z-50 flex w-[min(90vw,23rem)] flex-col bg-(--ce-surface) outline-none")}
           >
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-(--ce-line) px-5">
-              <Dialog.Title className="ce-h3">فلترة المنتجات</Dialog.Title>
-              <Dialog.Close className="ce-icon -me-2" aria-label="إغلاق">
+              <Dialog.Title className="ce-h3">{st("فلترة المنتجات")}</Dialog.Title>
+              <Dialog.Close className="ce-icon -me-2" aria-label={st("إغلاق")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -167,10 +168,10 @@ export default function ListingLayout({ children, ...props }: Props & { children
                     }}
                     className={btn({ variant: "outline" })}
                   >
-                    مسح الكل
+                    {st("مسح الكل")}
                   </button>
                   <button type="submit" className={btn({ full: true })}>
-                    عرض النتائج
+                    {st("عرض النتائج")}
                   </button>
                 </div>
               }

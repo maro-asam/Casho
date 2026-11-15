@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, Clock, HeartPulse, MessageCircle, PackageCheck, ShieldCheck, Truck } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { ProductViewProps, ReviewData } from "../../types";
 import { whatsappHref } from "../../shared/social";
 import { askAboutMessage, isSupplement, waWith } from "../lib/coach";
@@ -14,6 +14,7 @@ import RecentlyViewed, { TrackView } from "../sections/RecentlyViewed";
 import { Crumbs, Note, OPTION_LABEL, Price, Rating, SectionHeader, StockLine, Wrap, days, discountPercent, isFlavor, num } from "../ui";
 import DetailTabs from "./DetailTabs";
 import Gallery from "./Gallery";
+import { formatPrice, st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 function Reviews({ reviews }: { reviews: ReviewData[] }) {
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
@@ -23,7 +24,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
       <div className="h-fit rounded-(--gy-r) bg-(--gy-btn) p-6 text-(--gy-btn-ink)">
         <p className="text-6xl leading-none font-black">{avg.toFixed(1)}</p>
         <Rating value={avg} size="md" className="mt-3 [&_svg]:fill-current [&_svg]:text-current" />
-        <p className="mt-1 text-sm opacity-90">من {num(reviews.length)} تقييم</p>
+        <p className="mt-1 text-sm opacity-90">{st("من {0} تقييم", num(reviews.length))}</p>
         <ul className="mt-5 space-y-2">
           {dist.map(({ star, count }) => (
             <li key={star} className="flex items-center gap-3 text-xs">
@@ -47,7 +48,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
                 <div>
                   <p className="text-sm font-extrabold text-(--gy-ink)">{r.customerName}</p>
                   <time className="text-xs text-(--gy-quiet)" dateTime={new Date(r.reviewDate).toISOString()}>
-                    {new Date(r.reviewDate).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                    {new Date(r.reviewDate).toLocaleDateString(storeIntlLocale(), { year: "numeric", month: "long", day: "numeric" })}
                   </time>
                 </div>
               </div>
@@ -56,7 +57,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
             {r.verifiedPurchase && (
               <p className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold text-(--gy-ok)">
                 <BadgeCheck className="size-3.5" />
-                مشتري مؤكد
+                {st("مشتري مؤكد")}
               </p>
             )}
             {r.title && <p className="gy-h4 mt-2">{r.title}</p>}
@@ -80,34 +81,34 @@ export default function GymProduct({ store, product, reviews, related, shipping,
   const supplement = isSupplement(product.category.name, product.name);
 
   const specs = [
-    { label: "القسم", value: product.category.name, href: categoryHref },
-    product.brand ? { label: "البراند", value: product.brand } : null,
-    product.sku ? { label: "كود المنتج", value: product.sku, ltr: true } : null,
-    product.weight !== null ? { label: "الوزن", value: `${num(product.weight)} كجم` } : null,
+    { label: st("القسم"), value: product.category.name, href: categoryHref },
+    product.brand ? { label: st("البراند"), value: product.brand } : null,
+    product.sku ? { label: st("كود المنتج"), value: product.sku, ltr: true } : null,
+    product.weight !== null ? { label: st("الوزن"), value: st("{0} كجم", num(product.weight)) } : null,
     product.sizes.length ? { label: OPTION_LABEL.size, value: product.sizes.join("، ") } : null,
-    product.colors.length ? { label: isFlavor(product.colors) ? "النكهة" : OPTION_LABEL.color, value: product.colors.join("، ") } : null,
+    product.colors.length ? { label: isFlavor(product.colors) ? st("النكهة") : OPTION_LABEL.color, value: product.colors.join("، ") } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   // Service facts from the store's real shipping methods only.
   const delivery = [
-    cheapest && { Icon: Truck, title: cheapest.price === 0 ? "توصيل مجاني متاح" : `توصيل من ${formatPrice(cheapest.price / 100)}`, note: cheapest.name },
-    fastest?.estimatedDays && { Icon: Clock, title: `يوصلك خلال ${days(fastest.estimatedDays)}`, note: fastest.name },
-    inStock && { Icon: PackageCheck, title: "جاهز للطلب", note: "المتجر هيأكد معاك قبل الشحن" },
+    cheapest && { Icon: Truck, title: cheapest.price === 0 ? st("توصيل مجاني متاح") : st("توصيل من {0}", formatPrice(cheapest.price / 100)), note: cheapest.name },
+    fastest?.estimatedDays && { Icon: Clock, title: st("يوصلك خلال {0}", days(fastest.estimatedDays)), note: fastest.name },
+    inStock && { Icon: PackageCheck, title: st("جاهز للطلب"), note: st("المتجر هيأكد معاك قبل الشحن") },
   ].filter(Boolean) as { Icon: typeof Truck; title: string; note: string }[];
 
   const badges = !inStock ? (
-    <span className="gy-badge gy-badge--out">غير متوفر</span>
+    <span className="gy-badge gy-badge--out">{st("غير متوفر")}</span>
   ) : (
     <>
-      {off > 0 && <span className="gy-badge gy-badge--sale">خصم {num(off)}٪</span>}
-      {product.isFeatured && <span className="gy-badge gy-badge--pick">اختيار المتجر</span>}
+      {off > 0 && <span className="gy-badge gy-badge--sale">{st("خصم {0}٪", num(off))}</span>}
+      {product.isFeatured && <span className="gy-badge gy-badge--pick">{st("اختيار المتجر")}</span>}
     </>
   );
 
   const tabs = [
-    description && { id: "description", label: "الوصف", content: <p className="gy-prose max-w-none text-[0.9375rem]">{description}</p> },
-    { id: "specs", label: "التفاصيل", content: <Specs specs={specs} /> },
-    shipping.length > 0 && { id: "shipping", label: "التوصيل", content: <ShippingList shipping={shipping} /> },
+    description && { id: "description", label: st("الوصف"), content: <p className="gy-prose max-w-none text-[0.9375rem]">{description}</p> },
+    { id: "specs", label: st("التفاصيل"), content: <Specs specs={specs} /> },
+    shipping.length > 0 && { id: "shipping", label: st("التوصيل"), content: <ShippingList shipping={shipping} /> },
   ].filter(Boolean) as { id: string; label: string; content: React.ReactNode }[];
 
   return (
@@ -117,7 +118,7 @@ export default function GymProduct({ store, product, reviews, related, shipping,
         <Crumbs
           className="py-4"
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
             { label: product.category.name, href: categoryHref },
             { label: product.name },
           ]}
@@ -144,7 +145,7 @@ export default function GymProduct({ store, product, reviews, related, shipping,
               )}
               {product.sku && (
                 <span className="text-xs text-(--gy-quiet)">
-                  كود: <span dir="ltr">{product.sku}</span>
+                  {st("كود:")}{" "}<span dir="ltr">{product.sku}</span>
                 </span>
               )}
             </div>
@@ -169,7 +170,7 @@ export default function GymProduct({ store, product, reviews, related, shipping,
 
             {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
               <div className="gy-panel mt-5 p-4">
-                <p className="gy-h4 mb-3">الستاك ده فيه</p>
+                <p className="gy-h4 mb-3">{st("الستاك ده فيه")}</p>
                 <ul className="space-y-2.5">
                   {product.bundleItems.map((item, i) => (
                     <li key={i} className="flex items-center gap-3">
@@ -207,40 +208,40 @@ export default function GymProduct({ store, product, reviews, related, shipping,
               >
                 <MessageCircle className="size-6 shrink-0 text-(--gy-ok)" />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-extrabold text-(--gy-ink)">محتار في المنتج ده؟</span>
-                  <span className="block text-xs text-(--gy-quiet)">اسأل المتجر على واتساب قبل ما تطلب</span>
+                  <span className="block text-sm font-extrabold text-(--gy-ink)">{st("محتار في المنتج ده؟")}</span>
+                  <span className="block text-xs text-(--gy-quiet)">{st("اسأل المتجر على واتساب قبل ما تطلب")}</span>
                 </span>
-                <span className="text-sm font-extrabold text-(--gy-ok) group-hover:underline">اسأل</span>
+                <span className="text-sm font-extrabold text-(--gy-ok) group-hover:underline">{st("اسأل")}</span>
               </a>
             )}
 
             {supplement && (
               <Note icon={<HeartPulse />} className="mt-3">
-                المكملات مكمّلة لأكل متوازن ومش بديل عنه. لو عندك حالة صحية أو بتاخد دوا، اسأل دكتورك الأول، واقرا الجرعة المكتوبة على العبوة.
+                {st("المكملات مكمّلة لأكل متوازن ومش بديل عنه. لو عندك حالة صحية أو بتاخد دوا، اسأل دكتورك الأول، واقرا الجرعة المكتوبة على العبوة.")}
               </Note>
             )}
           </div>
         </div>
 
-        <section id="details" aria-label="تفاصيل المنتج" className="mt-10 scroll-mt-28 border-t border-(--gy-line) pt-8">
+        <section id="details" aria-label={st("تفاصيل المنتج")} className="mt-10 scroll-mt-28 border-t border-(--gy-line) pt-8">
           <DetailTabs tabs={tabs} />
         </section>
 
         <section id="reviews" className="gy-section mt-4 scroll-mt-28">
-          <SectionHeader title="تقييمات العملاء" />
+          <SectionHeader title={st("تقييمات العملاء")} />
           {reviews.length > 0 ? (
             <Reviews reviews={reviews} />
           ) : (
             <p className="gy-panel flex items-center justify-center gap-2 px-5 py-8 text-center text-[0.9375rem]">
               <ShieldCheck className="size-5 text-(--gy-quiet)" />
-              لسه مفيش تقييمات للمنتج ده.
+              {st("لسه مفيش تقييمات للمنتج ده.")}
             </p>
           )}
         </section>
 
         {related.length > 0 && (
           <section className="gy-section">
-            <Rail label="منتجات مشابهة" eyebrow={product.category.name} title="كمّل عدّتك" href={categoryHref} linkLabel="كل القسم">
+            <Rail label={st("منتجات مشابهة")} eyebrow={product.category.name} title={st("كمّل عدّتك")} href={categoryHref} linkLabel={st("كل القسم")}>
               {related.slice(0, 12).map((p, i) => (
                 <li key={p.id} className="min-w-0">
                   <ProductCard product={p} storeSlug={store.slug} index={i} sizes="(max-width: 768px) 46vw, 22vw" />
@@ -283,9 +284,9 @@ function ShippingList({ shipping }: { shipping: ProductViewProps["shipping"] }) 
         <li key={s.id} className="flex justify-between gap-4 border-b border-(--gy-line) py-3 last:border-0">
           <span className="text-(--gy-ink)">
             {s.name}
-            {s.estimatedDays ? <span className="text-(--gy-quiet)"> · خلال {days(s.estimatedDays)}</span> : null}
+            {s.estimatedDays ? <span className="text-(--gy-quiet)">{" "}{st("· خلال {0}", days(s.estimatedDays))}</span> : null}
           </span>
-          <span className="gy-num shrink-0 font-extrabold text-(--gy-ink)">{s.price === 0 ? "مجاني" : formatPrice(s.price / 100)}</span>
+          <span className="gy-num shrink-0 font-extrabold text-(--gy-ink)">{s.price === 0 ? st("مجاني") : formatPrice(s.price / 100)}</span>
         </li>
       ))}
     </ul>

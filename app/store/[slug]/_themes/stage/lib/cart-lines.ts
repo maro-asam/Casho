@@ -9,6 +9,7 @@ import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 import { AddToCartAction, GetCartItemsAction, RemoveCartItemAction, UpdateCartItemQtyAction } from "@/actions/store/cart.actions";
 import { CART_UPDATED_EVENT, notifyCartUpdated } from "../../shared/cart-events";
+import { st } from "@/lib/i18n/storefront";
 
 type Line = { itemId: string | null; qty: number };
 type Summary = { count: number; subtotal: number };
@@ -85,13 +86,13 @@ function enqueue(run: () => Promise<{ ok: boolean; message?: string; added?: Par
       const res = await run();
       if (!res.ok) {
         undo();
-        onError(res.message ?? "حصلت مشكلة، حاول تاني");
+        onError(res.message ?? st("حصلت مشكلة، حاول تاني"));
       } else if (res.added) {
         notifyCartUpdated(res.added);
       }
     } catch {
       undo();
-      onError("حصلت مشكلة، حاول تاني");
+      onError(st("حصلت مشكلة، حاول تاني"));
     } finally {
       inFlight--;
       if (inFlight === 0) await refreshCart();

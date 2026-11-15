@@ -12,6 +12,7 @@ import { clearedQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { MK_PORTAL, btn, num } from "../ui";
 import FilterPanel, { type FilterProps } from "./FilterPanel";
+import { st } from "@/lib/i18n/storefront";
 
 // Per-viewer layout preferences, remembered in this browser.
 const PREF_EVENT = "market:pref";
@@ -46,7 +47,7 @@ function SortSelect({ storeSlug, query }: Pick<Props, "storeSlug" | "query">) {
   return (
     <div className="flex items-center gap-2">
       <label htmlFor={id} className="shrink-0 text-sm text-(--mk-ink) max-sm:sr-only">
-        ترتيب حسب:
+        {st("ترتيب حسب:")}
       </label>
       <select
         id={id}
@@ -100,8 +101,8 @@ export default function ListingLayout({ children, ...props }: Props & { children
     <div data-sidebar={sidebar} data-view={view}>
       <div className="lg:flex lg:items-start lg:gap-8">
         {sidebar && (
-          <aside aria-label="الفلاتر" className="mk-panel hidden w-72 shrink-0 px-5 pb-5 lg:sticky lg:top-24 lg:block">
-            <h2 className="flex min-h-14 items-center border-b border-(--mk-sep) text-lg font-bold text-(--mk-ink)">فلترة النتائج</h2>
+          <aside aria-label={st("الفلاتر")} className="mk-panel hidden w-72 shrink-0 px-5 pb-5 lg:sticky lg:top-24 lg:block">
+            <h2 className="flex min-h-14 items-center border-b border-(--mk-sep) text-lg font-bold text-(--mk-ink)">{st("فلترة النتائج")}</h2>
             <FilterPanel {...props} mode="sidebar" />
           </aside>
         )}
@@ -110,7 +111,7 @@ export default function ListingLayout({ children, ...props }: Props & { children
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => setDrawer(true)} aria-haspopup="dialog" className={btn({ variant: "outline", size: "sm", className: "h-10 lg:hidden" })}>
                 <SlidersHorizontal />
-                فلترة
+                {st("فلترة")}
                 {badge}
               </button>
               <button
@@ -120,18 +121,18 @@ export default function ListingLayout({ children, ...props }: Props & { children
                 className={btn({ variant: "outline", size: "sm", className: "hidden h-10 lg:inline-flex" })}
               >
                 <SlidersHorizontal />
-                {sidebar ? "إخفاء الفلاتر" : "فلترة"}
+                {sidebar ? st("إخفاء الفلاتر") : st("فلترة")}
                 {badge}
               </button>
               <div className="flex items-center gap-1">
-                {viewBtn("grid", "عرض كشبكة", LayoutGrid)}
-                {viewBtn("list", "عرض كقائمة", List)}
+                {viewBtn("grid", st("عرض كشبكة"), LayoutGrid)}
+                {viewBtn("list", st("عرض كقائمة"), List)}
               </div>
             </div>
             <div className="flex items-center gap-3">
               <SortSelect storeSlug={storeSlug} query={query} />
               <p className="text-sm whitespace-nowrap text-(--mk-ink) max-sm:hidden" aria-live="polite">
-                {total > 0 ? `${num(total)} منتج` : "مفيش نتائج"}
+                {total > 0 ? st("{0} منتج", num(total)) : st("مفيش نتائج")}
               </p>
             </div>
           </div>
@@ -148,8 +149,8 @@ export default function ListingLayout({ children, ...props }: Props & { children
             className={cn(MK_PORTAL, "mk-drawer mk-drawer--start fixed inset-y-0 start-0 z-50 flex w-[min(90vw,23rem)] flex-col bg-(--mk-sheet) outline-none")}
           >
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-(--mk-sep) px-5">
-              <Dialog.Title className="mk-h3">فلترة المنتجات</Dialog.Title>
-              <Dialog.Close className="mk-icon -me-2" aria-label="إغلاق">
+              <Dialog.Title className="mk-h3">{st("فلترة المنتجات")}</Dialog.Title>
+              <Dialog.Close className="mk-icon -me-2" aria-label={st("إغلاق")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -167,10 +168,10 @@ export default function ListingLayout({ children, ...props }: Props & { children
                     }}
                     className={btn({ variant: "outline" })}
                   >
-                    مسح الكل
+                    {st("مسح الكل")}
                   </button>
                   <button type="submit" className={btn({ full: true })}>
-                    عرض النتائج
+                    {st("عرض النتائج")}
                   </button>
                 </div>
               }

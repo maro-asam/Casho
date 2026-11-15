@@ -9,6 +9,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import BuyForm from "../product/BuyForm";
 import { PlateImage, Price, Rating, StockLine, Wrap, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Cello's "featured product" block: a white panel with the gallery (main
  *  image + thumbnails) beside the full buy box, for the store's first
@@ -57,7 +58,7 @@ export default function Spotlight({ storeSlug, slug }: { storeSlug: string; slug
                         key={src}
                         type="button"
                         onClick={() => setActive(i)}
-                        aria-label={`الصورة ${num(i + 1)}`}
+                        aria-label={st("الصورة {0}", num(i + 1))}
                         aria-current={i === active}
                         className={cn("relative aspect-square w-20 shrink-0 rounded-(--ce-r-sm) border sm:w-28", i === active ? "border-(--ce-ink)" : "border-(--ce-line) hover:border-(--ce-quiet)")}
                       >
@@ -80,7 +81,7 @@ export default function Spotlight({ storeSlug, slug }: { storeSlug: string; slug
                 <StockLine stock={product.stock} count className="mb-5" />
                 <BuyForm storeSlug={storeSlug} product={{ ...product, image: product.gallery[0] ?? null }} />
                 <Link href={href} className="mt-6 inline-flex min-h-10 items-center gap-1.5 text-sm text-(--ce-ink) hover:text-(--ce-btn)">
-                  عرض تفاصيل المنتج
+                  {st("عرض تفاصيل المنتج")}
                   <ArrowLeft aria-hidden className="size-4 ltr:rotate-180" />
                 </Link>
               </div>

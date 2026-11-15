@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AboutBrandContent } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeName: string;
@@ -10,11 +11,11 @@ type Props = {
 };
 
 export default function AboutBrandSection({ storeName, content }: Props) {
-  const headline = content?.headline ?? `قصتنا مع ${storeName}`;
+  const headline = content?.headline ?? st("قصتنا مع {0}", storeName);
   const text =
     content?.text ??
-    "نحن نؤمن بأن التسوق تجربة وليست مجرد عملية شراء. لهذا نحرص على تقديم أفضل المنتجات بأعلى معايير الجودة وأسرع خدمة توصيل.";
-  const ctaText = content?.ctaText ?? "اعرف أكثر عنّا";
+    st("نحن نؤمن بأن التسوق تجربة وليست مجرد عملية شراء. لهذا نحرص على تقديم أفضل المنتجات بأعلى معايير الجودة وأسرع خدمة توصيل.");
+  const ctaText = content?.ctaText ?? st("اعرف أكثر عنّا");
   const ctaLink = content?.ctaLink ?? "/about";
   const hasImage = !!content?.image;
 
@@ -56,7 +57,7 @@ export default function AboutBrandSection({ storeName, content }: Props) {
             className="text-xs font-bold uppercase tracking-widest"
             style={{ color: "var(--store-primary)" }}
           >
-            عن المتجر
+            {st("عن المتجر")}
           </span>
 
           {/* Headline */}

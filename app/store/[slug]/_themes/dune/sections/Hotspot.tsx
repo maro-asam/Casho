@@ -6,6 +6,7 @@ import { Popover } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { Arrow, DN_PORTAL, Price } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** "Shop the look" dot on a product photo; opens a small card for that product. */
 export default function Hotspot({
@@ -25,7 +26,7 @@ export default function Hotspot({
 }) {
   return (
     <Popover.Root>
-      <Popover.Trigger aria-label={`تفاصيل ${name}`} className={cn("dn-hotspot", className)}>
+      <Popover.Trigger aria-label={st("تفاصيل {0}", name)} className={cn("dn-hotspot", className)}>
         <Plus className="size-4" />
       </Popover.Trigger>
       <Popover.Portal>
@@ -39,7 +40,7 @@ export default function Hotspot({
           <p className="line-clamp-2 text-[0.9375rem] leading-6">{name}</p>
           <Price price={price} compareAt={compareAt} size="sm" className="mt-1" />
           <Link href={href} className="dn-link dn-label mt-3">
-            عرض المنتج
+            {st("عرض المنتج")}
             <Arrow />
           </Link>
           <Popover.Arrow className="fill-(--dn-drawer)" />

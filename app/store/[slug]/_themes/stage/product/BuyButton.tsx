@@ -9,6 +9,7 @@ import { useCartLine } from "../lib/cart-lines";
 import { openQuickView } from "../lib/events";
 import { sgToast } from "../toast";
 import { btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type BuyProduct = { id: string; name: string; slug: string; price: number; stock: number; hasOptions: boolean };
 
@@ -28,22 +29,22 @@ export default function BuyButton({ storeSlug, product, variant = "solid", class
     setDone(true);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setDone(false), 1600);
-    sgToast.success(`اتضاف للحقيبة: ${product.name}`, { action: { label: "الحقيبة", onClick: openCart } });
+    sgToast.success(st("اتضاف للحقيبة: {0}", product.name), { action: { label: st("الحقيبة"), onClick: openCart } });
   }, [add, product.name]);
 
   if (product.stock <= 0) return null;
 
   if (product.hasOptions) {
     return (
-      <button type="button" onClick={() => openQuickView(product.slug)} aria-label={`اختار المقاس أو اللون لـ ${product.name}`} className={cn(btn({ variant, size: "sm" }), "sg-buy", className)}>
-        اختار
+      <button type="button" onClick={() => openQuickView(product.slug)} aria-label={st("اختار المقاس أو اللون لـ {0}", product.name)} className={cn(btn({ variant, size: "sm" }), "sg-buy", className)}>
+        {st("اختار")}
       </button>
     );
   }
 
   return (
-    <button type="button" onClick={onAdd} aria-label={`اشترِ ${product.name}`} className={cn(btn({ variant, size: "sm" }), "sg-buy", className)} data-done={done}>
-      <span aria-hidden={done}>اشترِ</span>
+    <button type="button" onClick={onAdd} aria-label={st("اشترِ {0}", product.name)} className={cn(btn({ variant, size: "sm" }), "sg-buy", className)} data-done={done}>
+      <span aria-hidden={done}>{st("اشترِ")}</span>
       <Check aria-hidden className="sg-buy-check" />
     </button>
   );

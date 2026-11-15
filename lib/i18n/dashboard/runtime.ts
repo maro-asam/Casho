@@ -15,10 +15,11 @@
  */
 import * as React from "react";
 import { LocaleContext } from "./context";
+import { createCatalog, interpolate, type Dictionary } from "../catalog";
 
 export type Locale = "ar" | "en";
 export const LOCALES: Locale[] = ["ar", "en"];
-export type Dictionary = Record<string, string>;
+export type { Dictionary };
 
 export function isLocale(value: unknown): value is Locale {
   return value === "ar" || value === "en";
@@ -80,72 +81,17 @@ export function tdir(): "rtl" | "ltr" {
 // Dictionary + translation
 // ---------------------------------------------------------------------------
 
-let english: Dictionary | null = null;
-let patterns: { re: RegExp; template: string; slots: number[] }[] | null = null;
+const catalog = createCatalog();
 
 export function registerEnglish(dict: Dictionary) {
-  if (english === dict) return;
-  english = dict;
-  patterns = null;
+  catalog.register(dict);
 }
 
 export function hasEnglish() {
-  return english !== null;
+  return catalog.has();
 }
 
-const normalize = (s: string) => s.replace(/\s+/g, " ").trim();
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-/** Keys like "{0} منتج" also match fully-formed runtime strings ("12 منتج"). */
-function buildPatterns(dict: Dictionary) {
-  const out: NonNullable<typeof patterns> = [];
-  for (const [key, template] of Object.entries(dict)) {
-    if (!/\{\d+\}/.test(key)) continue;
-    // Require real fixed text, so "{0}" alone never swallows arbitrary data.
-    const fixed = key.replace(/\{\d+\}/g, "");
-    if (fixed.replace(/[\s\p{P}]/gu, "").length < 2) continue;
-    const slots: number[] = [];
-    const source = key
-      .split(/(\{\d+\})/)
-      .map((part) => {
-        const m = part.match(/^\{(\d+)\}$/);
-        if (m) {
-          slots.push(Number(m[1]));
-          return "(.+?)";
-        }
-        return escapeRe(part);
-      })
-      .join("");
-    out.push({ re: new RegExp(`^${source}$`, "s"), template, slots });
-  }
-  return out;
-}
-
-function interpolate(template: string, args: readonly unknown[]) {
-  if (args.length === 0) return template;
-  return template.replace(/\{(\d+)\}/g, (match, i) => {
-    const value = args[Number(i)];
-    return value === undefined || value === null ? match : String(value);
-  });
-}
-
-function lookup(source: string, depth = 0): string | null {
-  if (!english) return null;
-  const direct = english[source];
-  if (direct !== undefined) return direct;
-  const normalized = normalize(source);
-  if (normalized !== source && english[normalized] !== undefined) return english[normalized];
-  patterns ??= buildPatterns(english);
-  for (const p of patterns) {
-    const m = normalized.match(p.re);
-    if (!m) continue;
-    const values: string[] = [];
-    // Captured values can themselves be known text ("باقة سيلفر (شهري)").
-    p.slots.forEach((slot, idx) => (values[slot] = (depth < 2 && lookup(m[idx + 1], depth + 1)) || m[idx + 1]));
-    return interpolate(p.template, values);
-  }
-  return null;
-}
+const lookup = catalog.lookup;
 
 /**
  * Translate Arabic source text. Placeholders are positional: `tr("{0} منتج", n)`.

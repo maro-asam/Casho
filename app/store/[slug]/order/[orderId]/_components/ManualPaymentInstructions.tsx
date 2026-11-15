@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { st } from "@/lib/i18n/storefront";
 
 type ManualPaymentSettings = {
   vodafoneCashNumber?: string | null;
@@ -24,8 +25,8 @@ function instructionFor(method?: string | null, settings?: ManualPaymentSettings
     case "vodafone_cash":
       return settings?.vodafoneCashNumber
         ? {
-            title: "حول على فودافون كاش",
-            description: "بعد التحويل احتفظ بصورة الإيصال للتواصل مع المتجر.",
+            title: st("حول على فودافون كاش"),
+            description: st("بعد التحويل احتفظ بصورة الإيصال للتواصل مع المتجر."),
             value: settings.vodafoneCashNumber,
             icon: Smartphone,
           }
@@ -34,8 +35,8 @@ function instructionFor(method?: string | null, settings?: ManualPaymentSettings
     case "instapay":
       return settings?.instapayAddress
         ? {
-            title: "حول عن طريق InstaPay",
-            description: "استخدم بيانات InstaPay التالية لإتمام التحويل.",
+            title: st("حول عن طريق InstaPay"),
+            description: st("استخدم بيانات InstaPay التالية لإتمام التحويل."),
             value: settings.instapayAddress,
             icon: Building2,
           }
@@ -44,8 +45,8 @@ function instructionFor(method?: string | null, settings?: ManualPaymentSettings
     case "bank_transfer":
       return settings?.bankTransferDetails
         ? {
-            title: "بيانات التحويل البنكي",
-            description: "استخدم بيانات الحساب التالية، ثم تواصل مع المتجر بصورة التحويل.",
+            title: st("بيانات التحويل البنكي"),
+            description: st("استخدم بيانات الحساب التالية، ثم تواصل مع المتجر بصورة التحويل."),
             value: settings.bankTransferDetails,
             icon: Landmark,
           }
@@ -53,8 +54,8 @@ function instructionFor(method?: string | null, settings?: ManualPaymentSettings
 
     case "cash_on_delivery":
       return {
-        title: "الدفع عند الاستلام",
-        description: "هتدفع قيمة الطلب لمندوب الشحن عند الاستلام.",
+        title: st("الدفع عند الاستلام"),
+        description: st("هتدفع قيمة الطلب لمندوب الشحن عند الاستلام."),
         value: null,
         icon: Banknote,
       };
@@ -75,7 +76,7 @@ export function ManualPaymentInstructions({
   const Icon = instruction.icon;
 
   return (
-    <Card className="border-primary/20 bg-primary/5 text-right">
+    <Card className="border-primary/20 bg-primary/5 text-start">
       <CardHeader>
         <CardTitle className="flex items-center justify-end gap-2">
           {instruction.title}

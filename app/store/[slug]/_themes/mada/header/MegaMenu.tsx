@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { BannerLink } from "../../shared/banner";
 import { Arrow, PlateImage, btn, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Desktop mega menu: categories as visual links, quick shopping paths, and a
  *  promo card from the newest banner. Opens on hover/click, closes on Escape. */
@@ -34,7 +35,7 @@ export default function MegaMenu({ shell, open, onClose }: { shell: StoreShell; 
     >
       <div className="md-wrap grid grid-cols-12 gap-10 py-9">
         <div className="col-span-7">
-          <p className="mb-4 text-xs font-semibold text-(--md-quiet)">تسوّق حسب التصنيف</p>
+          <p className="mb-4 text-xs font-semibold text-(--md-quiet)">{st("تسوّق حسب التصنيف")}</p>
           {cats.length > 0 ? (
             <ul className="grid grid-cols-3 gap-x-6 gap-y-2">
               {cats.map((c) => (
@@ -45,26 +46,26 @@ export default function MegaMenu({ shell, open, onClose }: { shell: StoreShell; 
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate text-[0.9375rem] font-medium">{c.name}</span>
-                      <span className="block text-xs text-(--md-quiet)">{num(c.productCount)} منتج</span>
+                      <span className="block text-xs text-(--md-quiet)">{st("{0} منتج", num(c.productCount))}</span>
                     </span>
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-(--md-quiet)">لسه مفيش تصنيفات — تقدر تتصفح كل المنتجات.</p>
+            <p className="text-sm text-(--md-quiet)">{st("لسه مفيش تصنيفات — تقدر تتصفح كل المنتجات.")}</p>
           )}
         </div>
 
         <div className="col-span-2 border-s border-(--md-line) ps-8">
-          <p className="mb-4 text-xs font-semibold text-(--md-quiet)">روابط سريعة</p>
+          <p className="mb-4 text-xs font-semibold text-(--md-quiet)">{st("روابط سريعة")}</p>
           <ul className="space-y-1">
             {[
-              { href: "/products", label: "كل المنتجات" },
-              { href: "/products", label: "وصل حديثًا" },
-              { href: "/products?featured=true", label: "اختيارات المتجر" },
-              { href: "/products?inStock=true", label: "المتوفر حالًا" },
-              { href: "/categories", label: "كل التصنيفات" },
+              { href: "/products", label: st("كل المنتجات") },
+              { href: "/products", label: st("وصل حديثًا") },
+              { href: "/products?featured=true", label: st("اختيارات المتجر") },
+              { href: "/products?inStock=true", label: st("المتوفر حالًا") },
+              { href: "/categories", label: st("كل التصنيفات") },
             ].map((l) => (
               <li key={l.label}>
                 <Link href={url(l.href)} onClick={onClose} className="inline-flex min-h-10 items-center text-[0.9375rem] transition-colors hover:text-(--md-brand)">
@@ -92,10 +93,10 @@ export default function MegaMenu({ shell, open, onClose }: { shell: StoreShell; 
             </BannerLink>
           ) : (
             <div className="flex h-full min-h-56 flex-col justify-end rounded-(--md-radius) bg-(--md-brand) p-6 text-(--md-brand-ink)">
-              <span className="md-eyebrow self-start">جديد</span>
-              <p className="md-face mt-3 text-xl font-bold leading-snug">آخر المنتجات وصلت</p>
+              <span className="md-eyebrow self-start">{st("جديد")}</span>
+              <p className="md-face mt-3 text-xl font-bold leading-snug">{st("آخر المنتجات وصلت")}</p>
               <Link href={url("/products")} onClick={onClose} className={btn({ variant: "signal", size: "sm", className: "mt-4 self-start" })}>
-                تصفّح
+                {st("تصفّح")}
                 <Arrow />
               </Link>
             </div>

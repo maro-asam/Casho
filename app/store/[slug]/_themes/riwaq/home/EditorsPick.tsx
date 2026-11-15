@@ -4,6 +4,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { ProductCardData } from "../../types";
 import QuickAdd from "../product/QuickAdd";
 import { Arrow, Price, discountPercent, idx, num, PlateImage } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Featured products as a magazine spread: one hero product told large,
  *  the rest as a numbered index beside it. */
@@ -39,7 +40,7 @@ export default function EditorsPick({ products, storeSlug }: { products: Product
           </div>
           <div className="relative z-[2] flex items-center gap-3">
             <span className="inline-flex min-h-11 items-center gap-2 font-semibold">
-              <span className="rq-link">شوف التفاصيل</span>
+              <span className="rq-link">{st("شوف التفاصيل")}</span>
               <Arrow />
             </span>
             {lead.stock > 0 && (

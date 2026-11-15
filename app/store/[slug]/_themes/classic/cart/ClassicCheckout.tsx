@@ -4,12 +4,13 @@ import { CreditCard, ShoppingBag } from "lucide-react";
 
 import CheckoutForm from "../../../checkout/_components/CheckoutForm";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { CheckoutViewProps } from "../../types";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
 import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 
 export default function ClassicCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
@@ -19,33 +20,33 @@ export default function ClassicCheckout({ storeSlug, cart, paymentMethods, creat
     <Container className="pb-6">
       <PageHeader
         breadcrumbs={[
-          { label: "الرئيسية", href: buildStoreUrl(storeSlug) },
-          { label: "السلة", href: buildStoreUrl(storeSlug, "/cart") },
-          { label: "إتمام الطلب" },
+          { label: st("الرئيسية"), href: buildStoreUrl(storeSlug) },
+          { label: st("السلة"), href: buildStoreUrl(storeSlug, "/cart") },
+          { label: st("إتمام الطلب") },
         ]}
-        title="إتمام الطلب"
-        meta="اكتب بياناتك والمتجر هيتواصل معاك لتأكيد الطلب."
+        title={st("إتمام الطلب")}
+        meta={st("اكتب بياناتك والمتجر هيتواصل معاك لتأكيد الطلب.")}
       />
 
       {items.length === 0 ? (
         <EmptyState
           icon={<ShoppingBag />}
-          title="سلتك فاضية"
-          description="ضيف منتجات للسلة الأول وبعدين كمّل طلبك."
+          title={st("سلتك فاضية")}
+          description={st("ضيف منتجات للسلة الأول وبعدين كمّل طلبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : paymentMethods.length === 0 ? (
         <EmptyState
           icon={<CreditCard />}
-          title="مفيش طرق دفع متاحة دلوقتي"
-          description="المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو تواصل مع المتجر."
+          title={st("مفيش طرق دفع متاحة دلوقتي")}
+          description={st("المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو تواصل مع المتجر.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
@@ -56,11 +57,11 @@ export default function ClassicCheckout({ storeSlug, cart, paymentMethods, creat
           </div>
 
           {/* Summary first on phones so the shopper sees what they're paying for */}
-          <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-[calc(var(--c-header-h)+3.75rem)] lg:order-2 lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-[calc(var(--c-header-h)+3.75rem)] lg:order-2 lg:self-start">
             <details className="c-accordion group rounded-(--c-radius-lg) bg-(--c-subtle) lg:pointer-events-none" open>
               <summary className="flex min-h-14 items-center justify-between gap-3 px-5 sm:px-6">
                 <span className="text-base font-bold">
-                  ملخص الطلب <span className="font-normal text-muted-foreground">({nf.format(count)})</span>
+                  {st("ملخص الطلب")}{" "}<span className="font-normal text-muted-foreground">({nf.format(count)})</span>
                 </span>
                 <span className="text-base font-bold tabular-nums">{formatPrice(summary.total)}</span>
               </summary>
@@ -99,21 +100,21 @@ export default function ClassicCheckout({ storeSlug, cart, paymentMethods, creat
 
                 <dl className="mt-5 space-y-2.5 border-t border-border pt-4 text-sm">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted-foreground">المجموع الفرعي</dt>
+                    <dt className="text-muted-foreground">{st("المجموع الفرعي")}</dt>
                     <dd className="tabular-nums">{formatPrice(summary.subtotal)}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted-foreground">الشحن</dt>
-                    <dd className="tabular-nums">{summary.shipping === 0 ? "مجاني" : formatPrice(summary.shipping)}</dd>
+                    <dt className="text-muted-foreground">{st("الشحن")}</dt>
+                    <dd className="tabular-nums">{summary.shipping === 0 ? st("مجاني") : formatPrice(summary.shipping)}</dd>
                   </div>
                   {summary.discount > 0 && (
                     <div className="flex justify-between gap-4 text-(--c-success)">
-                      <dt>الخصم</dt>
+                      <dt>{st("الخصم")}</dt>
                       <dd className="font-semibold tabular-nums">− {formatPrice(summary.discount)}</dd>
                     </div>
                   )}
                   <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3.5">
-                    <dt className="text-base font-bold">الإجمالي</dt>
+                    <dt className="text-base font-bold">{st("الإجمالي")}</dt>
                     <dd className="text-xl font-bold tabular-nums">{formatPrice(summary.total)}</dd>
                   </div>
                 </dl>
@@ -122,7 +123,7 @@ export default function ClassicCheckout({ storeSlug, cart, paymentMethods, creat
                   href={buildStoreUrl(storeSlug, "/cart")}
                   className="pointer-events-auto mt-4 inline-flex min-h-10 items-center text-sm font-semibold underline-offset-4 hover:underline"
                 >
-                  تعديل السلة
+                  {st("تعديل السلة")}
                 </Link>
               </div>
             </details>

@@ -6,14 +6,15 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Swatches, delay, discountPercent, num } from "../ui";
 import CardActions from "./CardActions";
+import { st } from "@/lib/i18n/storefront";
 
 function Tags({ product }: { product: ProductCardData }) {
   const discount = discountPercent(product.price, product.compareAtPrice);
-  if (product.stock <= 0) return <span className="dn-tag dn-tag--ink">نفدت الكمية</span>;
+  if (product.stock <= 0) return <span className="dn-tag dn-tag--ink">{st("نفدت الكمية")}</span>;
   return (
     <>
-      {discount > 0 && <span className="dn-tag dn-tag--sale">خصم {num(discount)}٪</span>}
-      {product.isNew && <span className="dn-tag">جديد</span>}
+      {discount > 0 && <span className="dn-tag dn-tag--sale">{st("خصم {0}٪", num(discount))}</span>}
+      {product.isNew && <span className="dn-tag">{st("جديد")}</span>}
     </>
   );
 }
@@ -67,7 +68,7 @@ export default function ProductCard({
         </h3>
         {(product.brand || product.categoryName) && <p className="dn-card-meta mt-0.5 truncate text-[0.8125rem] text-(--dn-quiet)">{product.brand || product.categoryName}</p>}
         <Price price={product.price} compareAt={product.compareAtPrice} size="sm" className={cn("dn-card-price mt-1.5", align === "center" && "justify-center")} />
-        {low && <p className="dn-card-low mt-1 text-xs text-(--dn-warn)">فاضل {num(product.stock)} بس</p>}
+        {low && <p className="dn-card-low mt-1 text-xs text-(--dn-warn)">{st("فاضل {0} بس", num(product.stock))}</p>}
         {product.colors.length > 0 && <Swatches colors={product.colors} className="dn-card-swatches mt-2.5" />}
       </div>
     </article>

@@ -7,15 +7,16 @@ import { Dialog } from "radix-ui";
 import { cn } from "@/lib/utils";
 import { isNumericSizes, nearestSize, ringSizeFromCircumference, sizeScale, toLatinDigits } from "../lib/qirat";
 import { Ornament, QR_PORTAL, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Tab = "ring" | "bracelet" | "necklace";
 
 // Typical necklace lengths and where they sit — the jeweler's standard names.
 const NECKLACES = [
-  { cm: 40, name: "على الرقبة", note: "قريبة من الرقبة، تحت الذقن بشوية" },
-  { cm: 45, name: "عند الترقوة", note: "الطول الأشهر للسلاسل الرفيعة والدلّايات" },
-  { cm: 50, name: "تحت الترقوة", note: "مناسبة مع الياقات المفتوحة" },
-  { cm: 60, name: "على الصدر", note: "للدلّايات الكبيرة وطبقات السلاسل" },
+  { cm: 40, get name() { return st("على الرقبة"); }, get note() { return st("قريبة من الرقبة، تحت الذقن بشوية"); } },
+  { cm: 45, get name() { return st("عند الترقوة"); }, get note() { return st("الطول الأشهر للسلاسل الرفيعة والدلّايات"); } },
+  { cm: 50, get name() { return st("تحت الترقوة"); }, get note() { return st("مناسبة مع الياقات المفتوحة"); } },
+  { cm: 60, get name() { return st("على الصدر"); }, get note() { return st("للدلّايات الكبيرة وطبقات السلاسل"); } },
 ];
 
 function RingSizer({ sizes }: { sizes: string[] }) {
@@ -29,46 +30,46 @@ function RingSizer({ sizes }: { sizes: string[] }) {
   return (
     <div className="space-y-6">
       <ol className="qr-steps">
-        <li>لفّ خيط أو شريط ورق رفيع حوالين صباعك عند العُقلة الأخيرة، مش مشدود ومش واسع.</li>
-        <li>علّم مكان ما الطرفين بيتقابلوا، وافرده على مسطرة.</li>
-        <li>اكتب الطول بالمليمتر هنا، ونقولك مقاسك.</li>
+        <li>{st("لفّ خيط أو شريط ورق رفيع حوالين صباعك عند العُقلة الأخيرة، مش مشدود ومش واسع.")}</li>
+        <li>{st("علّم مكان ما الطرفين بيتقابلوا، وافرده على مسطرة.")}</li>
+        <li>{st("اكتب الطول بالمليمتر هنا، ونقولك مقاسك.")}</li>
       </ol>
       <div>
         <label htmlFor={id} className="mb-2 block text-sm font-semibold text-(--qr-ink)">
-          محيط صباعك (مم)
+          {st("محيط صباعك (مم)")}
         </label>
         <div className="flex items-center gap-3">
-          <input id={id} inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} placeholder="مثلًا ٥٤" className="qr-field max-w-40 text-center text-lg" />
-          <span className="text-sm text-(--qr-ink-2)">مم</span>
+          <input id={id} inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} placeholder={st("مثلًا ٥٤")} className="qr-field max-w-40 text-center text-lg" />
+          <span className="text-sm text-(--qr-ink-2)">{st("مم")}</span>
         </div>
-        {value && !result && <p className="mt-2 text-sm text-(--qr-error)">اكتب رقم بين ٣٨ و٨٠ مم.</p>}
+        {value && !result && <p className="mt-2 text-sm text-(--qr-error)">{st("اكتب رقم بين ٣٨ و٨٠ مم.")}</p>}
       </div>
       {result && (
         <div className="qr-sizer-result" aria-live="polite">
           <dl className="grid grid-cols-3 gap-px">
             <div>
-              <dt>المقاس الأوروبي</dt>
+              <dt>{st("المقاس الأوروبي")}</dt>
               <dd>{num(result.iso)}</dd>
             </div>
             <div>
-              <dt>المقاس الأمريكي</dt>
+              <dt>{st("المقاس الأمريكي")}</dt>
               <dd>{num(result.us)}</dd>
             </div>
             <div>
-              <dt>القُطر</dt>
+              <dt>{st("القُطر")}</dt>
               <dd>
-                {num(result.diameter)} <small>مم</small>
+                {num(result.diameter)} <small>{st("مم")}</small>
               </dd>
             </div>
           </dl>
           {match && (
             <p className="mt-4 text-center text-sm text-(--qr-ink)">
-              الأقرب ليك من مقاسات القطعة دي: <strong className="qr-serif text-lg">{match}</strong>
+              {st("الأقرب ليك من مقاسات القطعة دي:")}{" "}<strong className="qr-serif text-lg">{match}</strong>
             </p>
           )}
         </div>
       )}
-      <p className="text-xs leading-6 text-(--qr-ink-2)">لو بين مقاسين خد الأكبر، ولو مش متأكد اسأل المتجر قبل ما تطلب.</p>
+      <p className="text-xs leading-6 text-(--qr-ink-2)">{st("لو بين مقاسين خد الأكبر، ولو مش متأكد اسأل المتجر قبل ما تطلب.")}</p>
     </div>
   );
 }
@@ -77,11 +78,11 @@ function BraceletGuide() {
   return (
     <div className="space-y-5">
       <ol className="qr-steps">
-        <li>لفّ شريط قماش أو خيط حوالين رسغك فوق عضمة الإيد مباشرة.</li>
-        <li>قيس الطول بالسنتيمتر.</li>
-        <li>زوّد حوالي ١٫٥ لـ ٢ سم عشان الإسورة تتحرك براحة، أو ١ سم لو بتحبها قريبة.</li>
+        <li>{st("لفّ شريط قماش أو خيط حوالين رسغك فوق عضمة الإيد مباشرة.")}</li>
+        <li>{st("قيس الطول بالسنتيمتر.")}</li>
+        <li>{st("زوّد حوالي ١٫٥ لـ ٢ سم عشان الإسورة تتحرك براحة، أو ١ سم لو بتحبها قريبة.")}</li>
       </ol>
-      <p className="text-xs leading-6 text-(--qr-ink-2)">مقاسات الأساور بتختلف من موديل للتاني، فقارن بالأطوال المكتوبة في المنتج.</p>
+      <p className="text-xs leading-6 text-(--qr-ink-2)">{st("مقاسات الأساور بتختلف من موديل للتاني، فقارن بالأطوال المكتوبة في المنتج.")}</p>
     </div>
   );
 }
@@ -97,7 +98,7 @@ function NecklaceGuide() {
             <span className="block text-xs text-(--qr-ink-2)">{n.note}</span>
           </span>
           <span className="qr-serif shrink-0 text-xl text-(--qr-ink)">
-            {num(n.cm)} <small className="text-xs">سم</small>
+            {num(n.cm)} <small className="text-xs">{st("سم")}</small>
           </span>
         </li>
       ))}
@@ -114,28 +115,28 @@ export default function SizeGuide({ sizes }: { sizes: string[] }) {
   const rings = isNumericSizes(sizes);
   const [tab, setTab] = useState<Tab>(rings ? "ring" : "bracelet");
   const tabs: { id: Tab; label: string }[] = [
-    { id: "ring", label: "الخواتم" },
-    { id: "bracelet", label: "الأساور" },
-    { id: "necklace", label: "السلاسل" },
+    { id: "ring", label: st("الخواتم") },
+    { id: "bracelet", label: st("الأساور") },
+    { id: "necklace", label: st("السلاسل") },
   ];
 
   return (
     <Dialog.Root>
       <Dialog.Trigger className="qr-sizelink">
         <Ruler aria-hidden />
-        <span className="qr-underline">دليل المقاسات</span>
+        <span className="qr-underline">{st("دليل المقاسات")}</span>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className={cn(QR_PORTAL, "qr-scrim fixed inset-0 z-50")} />
         <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(QR_PORTAL, "qr-drawer fixed inset-y-0 end-0 z-50 flex w-[min(100vw,28rem)] flex-col bg-(--qr-sheet) outline-none")}>
           <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-(--qr-line) px-6">
-            <Dialog.Title className="qr-h3">دليل المقاسات</Dialog.Title>
-            <Dialog.Close className="qr-icon -me-2" aria-label="إغلاق">
+            <Dialog.Title className="qr-h3">{st("دليل المقاسات")}</Dialog.Title>
+            <Dialog.Close className="qr-icon -me-2" aria-label={st("إغلاق")}>
               <X />
             </Dialog.Close>
           </div>
           <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6">
-            <div role="tablist" aria-label="نوع القطعة" className="qr-tabs">
+            <div role="tablist" aria-label={st("نوع القطعة")} className="qr-tabs">
               {tabs.map((t) => (
                 <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className="qr-tab">
                   {t.label}

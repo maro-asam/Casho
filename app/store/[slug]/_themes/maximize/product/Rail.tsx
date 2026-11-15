@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 /** Horizontal scroller with prev/next arrows and a thin progress line
  *  (Maximize's carousel controls). Swipe works natively; arrows page by the
@@ -61,17 +62,17 @@ export default function Rail({
       </ul>
       {scrollable && controls === "overlay" && (
         <>
-          <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label="السابق" className={cn(arrow, "absolute -start-4 top-[30%] z-[3] hidden lg:grid")}>
+          <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label={st("السابق")} className={cn(arrow, "absolute -start-4 top-[30%] z-[3] hidden lg:grid")}>
             <ChevronRight className="ltr:rotate-180" />
           </button>
-          <button type="button" onClick={() => page(1)} disabled={state.end} aria-label="التالي" className={cn(arrow, "absolute -end-4 top-[30%] z-[3] hidden lg:grid")}>
+          <button type="button" onClick={() => page(1)} disabled={state.end} aria-label={st("التالي")} className={cn(arrow, "absolute -end-4 top-[30%] z-[3] hidden lg:grid")}>
             <ChevronLeft className="ltr:rotate-180" />
           </button>
         </>
       )}
       {scrollable && (
         <div className={cn("mt-5 flex items-center justify-center gap-4", controls === "overlay" && "lg:hidden")}>
-          <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label="السابق" className="mx-icon size-9 disabled:opacity-30 [&_svg]:size-5">
+          <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label={st("السابق")} className="mx-icon size-9 disabled:opacity-30 [&_svg]:size-5">
             <ChevronRight className="ltr:rotate-180" />
           </button>
           <span aria-hidden className="relative h-0.5 w-32 overflow-hidden rounded-full bg-(--mx-line)">
@@ -80,7 +81,7 @@ export default function Rail({
               style={{ width: `${bar * 100}%`, transform: `translateX(calc(${state.progress * (1 / bar - 1) * 100}% * var(--mx-dir) * -1))` }}
             />
           </span>
-          <button type="button" onClick={() => page(1)} disabled={state.end} aria-label="التالي" className="mx-icon size-9 disabled:opacity-30 [&_svg]:size-5">
+          <button type="button" onClick={() => page(1)} disabled={state.end} aria-label={st("التالي")} className="mx-icon size-9 disabled:opacity-30 [&_svg]:size-5">
             <ChevronLeft className="ltr:rotate-180" />
           </button>
         </div>

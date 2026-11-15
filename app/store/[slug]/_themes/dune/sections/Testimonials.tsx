@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TestimonialsContent } from "@/types/store-theme.types";
 import { Rating, Wrap, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Customer words, one at a time: a large centered serif quote with a
  *  crossfade between them. */
@@ -18,8 +19,8 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
 
   return (
     <Wrap data-reveal className="dn-section">
-      <section aria-roledescription="carousel" aria-label={content?.headline || "آراء العملاء"} className="dn-appear mx-auto flex max-w-4xl flex-col items-center text-center">
-        <p className="dn-label text-(--dn-quiet)">{content?.headline || "العملاء بيقولوا إيه"}</p>
+      <section aria-roledescription="carousel" aria-label={content?.headline || st("آراء العملاء")} className="dn-appear mx-auto flex max-w-4xl flex-col items-center text-center">
+        <p className="dn-label text-(--dn-quiet)">{content?.headline || st("العملاء بيقولوا إيه")}</p>
         <div className="mt-8 grid w-full">
           {items.map((t, n) => (
             <figure
@@ -45,13 +46,13 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
         </div>
         {items.length > 1 && (
           <div className="mt-10 flex items-center gap-4">
-            <button type="button" onClick={() => go(i - 1)} aria-label="الرأي السابق" className="dn-icon border border-(--dn-line-ink) [&_svg]:size-4">
+            <button type="button" onClick={() => go(i - 1)} aria-label={st("الرأي السابق")} className="dn-icon border border-(--dn-line-ink) [&_svg]:size-4">
               <ArrowRight className="ltr:rotate-180" />
             </button>
             <span className="dn-num min-w-14 text-lg tabular-nums" aria-live="polite">
               {num(i + 1)} / {num(items.length)}
             </span>
-            <button type="button" onClick={() => go(i + 1)} aria-label="الرأي التالي" className="dn-icon border border-(--dn-line-ink) [&_svg]:size-4">
+            <button type="button" onClick={() => go(i + 1)} aria-label={st("الرأي التالي")} className="dn-icon border border-(--dn-line-ink) [&_svg]:size-4">
               <ArrowLeft className="ltr:rotate-180" />
             </button>
           </div>

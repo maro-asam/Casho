@@ -9,6 +9,7 @@ import { BANNER_DEFAULT_CTA, BANNER_LINK_SELECT, liveBannerWhere, resolveBannerL
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import type { BannerData, ProductCardData } from "../_themes/types";
 import { stockOf } from "@/lib/products/digital";
+import { st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Storefront data helpers
@@ -67,7 +68,8 @@ export function toBannerData(rows: BannerRow[], whatsapp: string | null | undefi
     subtitle: b.subtitle,
     image: b.image,
     mobileImage: b.mobileImage,
-    cta: b.ctaLabel || BANNER_DEFAULT_CTA,
+    // The saved default ("تسوق الآن") follows the store language; the merchant's own text passes through.
+    cta: st(b.ctaLabel || BANNER_DEFAULT_CTA),
     link: resolveBannerLink(b, { whatsapp }),
   }));
 }
@@ -179,6 +181,6 @@ export async function getStoreFacets(storeId: string) {
     r.sizes.forEach((v) => v.trim() && sizes.add(v.trim()));
     r.colors.forEach((v) => v.trim() && colors.add(v.trim()));
   }
-  const sort = (set: Set<string>) => [...set].sort((a, b) => a.localeCompare(b, "ar"));
+  const sort = (set: Set<string>) => [...set].sort((a, b) => a.localeCompare(b, storeIntlLocale()));
   return { brands: sort(brands), sizes: [...sizes], colors: sort(colors) };
 }

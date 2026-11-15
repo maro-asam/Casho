@@ -7,6 +7,7 @@ import type { StoreShell } from "../../types";
 import { policyFooterLinks } from "../../shared/policies/links";
 import StoreLogo from "../header/StoreLogo";
 import { SocialLinks, whatsappHref } from "../social";
+import { st } from "@/lib/i18n/storefront";
 
 type LinkItem = { label: string; href: string; external?: boolean; dir?: "ltr" };
 type Group = { title: string; links: LinkItem[] };
@@ -17,33 +18,33 @@ function buildGroups(shell: StoreShell): Group[] {
 
   const groups: Group[] = [
     {
-      title: "تسوق",
+      title: st("تسوق"),
       links: [
-        { label: "الرئيسية", href: url("") },
-        { label: "كل المنتجات", href: url("/products") },
-        { label: "التصنيفات", href: url("/categories") },
-        { label: "سلة المشتريات", href: url("/cart") },
+        { label: st("الرئيسية"), href: url("") },
+        { label: st("كل المنتجات"), href: url("/products") },
+        { label: st("التصنيفات"), href: url("/categories") },
+        { label: st("سلة المشتريات"), href: url("/cart") },
       ],
     },
   ];
 
   if (shell.categories.length > 0) {
     groups.push({
-      title: "التصنيفات",
+      title: st("التصنيفات"),
       links: [
         ...shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })),
-        ...(shell.categories.length > 6 ? [{ label: "كل التصنيفات", href: url("/categories") }] : []),
+        ...(shell.categories.length > 6 ? [{ label: st("كل التصنيفات"), href: url("/categories") }] : []),
       ],
     });
   }
 
   groups.push({
-    title: "المساعدة",
+    title: st("المساعدة"),
     links: [
-      { label: "تتبّع طلبك", href: url("/track") },
-      { label: "تواصل معنا", href: url("/contact") },
-      { label: "عن المتجر", href: url("/about") },
-      ...(wa ? [{ label: "واتساب", href: wa, external: true }] : []),
+      { label: st("تتبّع طلبك"), href: url("/track") },
+      { label: st("تواصل معنا"), href: url("/contact") },
+      { label: st("عن المتجر"), href: url("/about") },
+      ...(wa ? [{ label: st("واتساب"), href: wa, external: true }] : []),
       ...(shell.contact.email
         ? [{ label: shell.contact.email, href: `mailto:${shell.contact.email}`, dir: "ltr" as const }]
         : []),
@@ -103,7 +104,7 @@ export default function ClassicFooter({ shell }: { shell: StoreShell }) {
                     className="inline-flex h-11 items-center gap-2 rounded-(--c-btn-radius) border border-border bg-background px-4 text-sm font-semibold"
                   >
                     <MessageCircle className="size-[1.125rem]" />
-                    واتساب
+                    {st("واتساب")}
                   </a>
                 )}
                 {shell.contact.email && (
@@ -112,7 +113,7 @@ export default function ClassicFooter({ shell }: { shell: StoreShell }) {
                     className="inline-flex h-11 items-center gap-2 rounded-(--c-btn-radius) border border-border bg-background px-4 text-sm font-semibold"
                   >
                     <Mail className="size-[1.125rem]" />
-                    راسلنا
+                    {st("راسلنا")}
                   </a>
                 )}
               </div>
@@ -159,7 +160,7 @@ export default function ClassicFooter({ shell }: { shell: StoreShell }) {
 
         <div className="mt-8 flex flex-col-reverse items-center gap-4 border-border text-center sm:flex-row sm:justify-between sm:text-start lg:mt-12 lg:border-t lg:pt-6">
           <p className="text-xs text-muted-foreground">
-            © {year} {shell.name}. جميع الحقوق محفوظة.
+            {st("© {0} {1}. جميع الحقوق محفوظة.", year, shell.name)}
           </p>
           {shell.showPoweredByCasho && (
             <a
@@ -168,7 +169,7 @@ export default function ClassicFooter({ shell }: { shell: StoreShell }) {
               rel="noopener"
               className="inline-flex min-h-10 items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
-              متجر مبني على
+              {st("متجر مبني على")}
               <CashoLogo withSubTitle={false} />
             </a>
           )}

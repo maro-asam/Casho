@@ -6,6 +6,7 @@ import MiniCard from "../product/MiniCard";
 import ProductCard from "../product/ProductCard";
 import Rail from "../product/Rail";
 import { Wrap } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Titled product carousel ("best sellers", "store picks"…). */
 export default function ProductRow({
@@ -50,7 +51,7 @@ export function DealsPanel({ products, storeSlug, title, timer }: { products: Pr
           <div className="text-(--rx-tint-ink)">
             <p className="rx-eyebrow mb-1.5 !text-(--rx-sale)">
               <BadgePercent className="size-4" />
-              خصومات حقيقية
+              {st("خصومات حقيقية")}
             </p>
             <h2 className="rx-h2 !text-current">{title}</h2>
           </div>

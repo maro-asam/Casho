@@ -24,6 +24,9 @@ import { StudioAnchor } from "./_themes/shared/studio-anchor";
 import type { StoreShell } from "./_themes/types";
 import { getStoreCategoryLinks, liveBannersQuery, toBannerData } from "./_lib/storefront";
 import { POLICY_LABELS, readStoredPolicies, visiblePolicyTypes } from "@/lib/store-policies";
+import StorefrontI18nProvider from "@/lib/i18n/storefront/provider";
+import { applyStoreLocale, loadStoreLocale } from "@/lib/i18n/storefront/server";
+import { st, toStoreLocale } from "@/lib/i18n/storefront";
 
 type LayoutProps = {
   children: ReactNode;
@@ -62,6 +65,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   if (!slug) return {};
+  const locale = await loadStoreLocale(slug);
 
   const store = await prisma.store.findUnique({
     where: { slug },
@@ -91,7 +95,7 @@ export async function generateMetadata({
   const title = store.settings?.seoTitle || store.name;
   const description =
     store.settings?.seoDescription ||
-    `تصفح منتجات ${store.name} واطلب بسهولة من خلال المتجر الإلكتروني.`;
+    st("تصفح منتجات {0} واطلب بسهولة من خلال المتجر الإلكتروني.", store.name);
 
   // A live custom domain is the store's real address — tell search engines so.
   const url =
@@ -124,7 +128,7 @@ export async function generateMetadata({
       url,
       siteName: store.name,
       type: "website",
-      locale: "ar_EG",
+      locale: locale === "en" ? "en_US" : "ar_EG",
       images: image ? [{ url: image, width: 1200, height: 630, alt: store.name }] : [],
     },
     twitter: {
@@ -208,7 +212,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
   ) as StoreNavbarVariant;
 
   // ── Language & Font ────────────────────────────────────────────────────
-  const storeLanguage = store.settings?.storeLanguage ?? "ar";
+  const storeLanguage = await applyStoreLocale(toStoreLocale(store.settings?.storeLanguage));
   const storeDir = storeLanguage === "en" ? "ltr" : "rtl";
   const font = getStoreFont(store.settings?.fontId);
 
@@ -248,7 +252,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
     showPoweredByCasho: store.poweredByRemovalEnabled ? store.showPoweredByCasho : true,
     dir: storeDir,
     banner: toBannerData(store.banners, settings?.whatsappNumber)[0] ?? null,
-    policies: visiblePolicyTypes(readStoredPolicies(settings?.policies)).map((type) => ({ type, ...POLICY_LABELS[type] })),
+    policies: visiblePolicyTypes(readStoredPolicies(settings?.policies)).map((type) => ({ type, title: st(POLICY_LABELS[type].title), short: st(POLICY_LABELS[type].short) })),
   };
 
   return (
@@ -270,6 +274,13 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         ResolvedTheme object from this Server Component — this is valid in Next.js.
         CSS vars are injected via the <style> block above; the class wires it up.
       */}
+      {storeLanguage === "en" && (
+        // The root <html> is rendered rtl/ar for the whole app. Flip it before the
+        // first paint so [dir=rtl] rules and portals don't flash right-to-left
+        // (the provider keeps it in sync after hydration).
+        <script dangerouslySetInnerHTML={{ __html: 'document.documentElement.dir="ltr";document.documentElement.lang="en"' }} />
+      )}
+      <StorefrontI18nProvider locale={storeLanguage}>
       <StoreThemeProvider theme={resolvedTheme}>
         <StoreBuilderBridge />
         <CustomDomainLinks storeSlug={store.slug} />
@@ -296,7 +307,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
             href="#store-main"
             className="sr-only z-50 rounded-md bg-background px-4 py-2 font-semibold focus:not-sr-only focus:fixed focus:start-3 focus:top-3"
           >
-            انتقل للمحتوى
+            {st("انتقل للمحتوى")}
           </a>
           <StudioAnchor id="header" />
           <theme.Header shell={shell} />
@@ -316,6 +327,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
           />
         </div>
       </StoreThemeProvider>
+      </StorefrontI18nProvider>
     </>
   );
 }

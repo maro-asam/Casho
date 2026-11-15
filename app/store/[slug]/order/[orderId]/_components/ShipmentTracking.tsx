@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SHIPMENT_STATUS_META, SHIPMENT_TRACK, readShipmentEvents } from "@/lib/shipping/shipment-status";
 import { cn } from "@/lib/utils";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const when = new Intl.DateTimeFormat("ar-EG", {
+const when = lazyStoreIntl.date({
   timeZone: "Africa/Cairo",
   weekday: "short",
   day: "numeric",
@@ -14,7 +15,7 @@ const when = new Intl.DateTimeFormat("ar-EG", {
   hour: "numeric",
   minute: "2-digit",
 });
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const money = lazyStoreIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
 
 /**
  * Customer-facing shipment tracking, hosted by Casho for every carrier. Shows
@@ -46,13 +47,13 @@ export function ShipmentTracking({
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Truck className="size-5 text-primary" />
-          تتبّع الشحنة
+          {st("تتبّع الشحنة")}
         </CardTitle>
         <CardDescription>
-          {shipment.courierName ? `طلبك مع ${shipment.courierName}` : "طلبك اتشحن"}
+          {shipment.courierName ? st("طلبك مع {0}", shipment.courierName) : st("طلبك اتشحن")}
           {shipment.trackingNumber && (
             <>
-              {" · رقم الشحنة "}
+              {st(" · رقم الشحنة ")}
               <span className="font-mono" dir="ltr">
                 {shipment.trackingNumber}
               </span>
@@ -64,28 +65,28 @@ export function ShipmentTracking({
       <CardContent className="space-y-5">
         <div className="flex flex-col gap-3 rounded-xl border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-semibold">{meta.customerLabel}</p>
+            <p className="font-semibold">{st(meta.customerLabel)}</p>
             {shipment.estimatedDelivery && shipment.status !== "DELIVERED" && (
-              <p className="text-sm text-muted-foreground">متوقع يوصل {when.format(shipment.estimatedDelivery)}</p>
+              <p className="text-sm text-muted-foreground">{st("متوقع يوصل {0}", when.format(shipment.estimatedDelivery))}</p>
             )}
           </div>
           {shipment.trackingUrl && (
             <Button asChild variant="outline" className="rounded-xl">
               <a href={shipment.trackingUrl} target="_blank" rel="noreferrer">
                 <ExternalLink className="size-4" />
-                تتبّع على موقع الشركة
+                {st("تتبّع على موقع الشركة")}
               </a>
             </Button>
           )}
         </div>
 
         {current !== -1 && (
-          <ol className="grid grid-cols-5 gap-2" aria-label="مراحل الشحنة">
+          <ol className="grid grid-cols-5 gap-2" aria-label={st("مراحل الشحنة")}>
             {SHIPMENT_TRACK.map((step, i) => (
               <li key={step} className="space-y-2">
                 <span className={cn("block h-1.5 rounded-full", i <= current ? "bg-primary" : "bg-muted")} />
                 <span className={cn("block text-[0.6875rem] leading-4 sm:text-xs", i === current ? "font-semibold" : "text-muted-foreground")}>
-                  {SHIPMENT_STATUS_META[step].label}
+                  {st(SHIPMENT_STATUS_META[step].label)}
                 </span>
               </li>
             ))}
@@ -95,7 +96,7 @@ export function ShipmentTracking({
         {codDue && (
           <p className="flex items-center gap-2 rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
             <Banknote className="size-4 shrink-0" />
-            جهّز {money.format(shipment.codAmount! / 100)} للمندوب عند الاستلام.
+            {st("جهّز {0} للمندوب عند الاستلام.", money.format(shipment.codAmount! / 100))}
           </p>
         )}
 
@@ -110,7 +111,7 @@ export function ShipmentTracking({
                     i === 0 ? "bg-primary" : "bg-muted-foreground/30",
                   )}
                 />
-                <p className="text-sm font-medium">{e.note || SHIPMENT_STATUS_META[e.status]?.customerLabel}</p>
+                <p className="text-sm font-medium">{e.note || st(SHIPMENT_STATUS_META[e.status]?.customerLabel)}</p>
                 <p className="text-xs text-muted-foreground">
                   {when.format(new Date(e.at))}
                   {e.location && ` · ${e.location}`}

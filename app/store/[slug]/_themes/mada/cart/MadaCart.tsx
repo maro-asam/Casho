@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AlertTriangle, CheckCircle2, ChevronDown, Gift, Lock, Minus, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2, XCircle } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   applyCouponAction,
   applyLoyaltyAction,
@@ -20,6 +20,7 @@ import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import SubmitButton from "../../shared/SubmitButton";
 import RecentlyViewed from "../sections/RecentlyViewed";
 import { Arrow, Crumbs, Empty, PlateImage, Wrap, btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export function Notice({ tone, children }: { tone: "success" | "error" | "warning"; children: React.ReactNode }) {
   const Icon = tone === "success" ? CheckCircle2 : tone === "error" ? XCircle : AlertTriangle;
@@ -43,21 +44,21 @@ export function Totals({ summary }: { summary: CartViewProps["cart"]["summary"] 
   return (
     <dl className="space-y-2.5 text-sm">
       <div className="flex justify-between gap-4">
-        <dt className="text-(--md-quiet)">المجموع الفرعي</dt>
+        <dt className="text-(--md-quiet)">{st("المجموع الفرعي")}</dt>
         <dd className="md-price">{formatPrice(summary.subtotal)}</dd>
       </div>
       <div className="flex justify-between gap-4">
-        <dt className="text-(--md-quiet)">الشحن</dt>
-        <dd className="md-price">{summary.shipping === 0 ? "مجاني" : formatPrice(summary.shipping)}</dd>
+        <dt className="text-(--md-quiet)">{st("الشحن")}</dt>
+        <dd className="md-price">{summary.shipping === 0 ? st("مجاني") : formatPrice(summary.shipping)}</dd>
       </div>
       {summary.discount > 0 && (
         <div className="flex justify-between gap-4 text-(--md-success)">
-          <dt>الخصم</dt>
+          <dt>{st("الخصم")}</dt>
           <dd className="md-price">− {formatPrice(summary.discount)}</dd>
         </div>
       )}
       <div className="flex items-baseline justify-between gap-4 border-t border-(--md-line) pt-4">
-        <dt className="text-base font-semibold">الإجمالي</dt>
+        <dt className="text-base font-semibold">{st("الإجمالي")}</dt>
         <dd className="md-price text-2xl">{formatPrice(summary.total)}</dd>
       </div>
     </dl>
@@ -78,17 +79,17 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
       </Suspense>
       <Wrap>
         <header className="pb-6 pt-5 sm:pt-7">
-          <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "السلة" }]} />
+          <Crumbs items={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("السلة") }]} />
           <h1 className="md-h1 mt-4">
-            سلة المشتريات {count > 0 && <span className="text-(--md-quiet)">({num(count)})</span>}
+            {st("سلة المشتريات")}{" "}{count > 0 && <span className="text-(--md-quiet)">({num(count)})</span>}
           </h1>
         </header>
 
         {notice.stockChanged && (
           <div className="mb-6">
             <Notice tone="warning">
-              <p className="font-semibold">عدّلنا سلتك على حسب المتاح</p>
-              <p className="mt-0.5">في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية.</p>
+              <p className="font-semibold">{st("عدّلنا سلتك على حسب المتاح")}</p>
+              <p className="mt-0.5">{st("في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية.")}</p>
             </Notice>
           </div>
         )}
@@ -96,23 +97,23 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
         {items.length === 0 ? (
           <Empty
             icon={<ShoppingBag />}
-            title="سلتك فاضية"
-            description="لسه ما ضفتش أي منتجات. لفّ في المتجر واختار اللي يعجبك."
+            title={st("سلتك فاضية")}
+            description={st("لسه ما ضفتش أي منتجات. لفّ في المتجر واختار اللي يعجبك.")}
             action={
               <>
                 <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-                  ابدأ التسوق
+                  {st("ابدأ التسوق")}
                   <Arrow />
                 </Link>
                 <Link href={buildStoreUrl(storeSlug, "/categories")} className={btn({ variant: "outline", size: "lg" })}>
-                  التصنيفات
+                  {st("التصنيفات")}
                 </Link>
               </>
             }
           />
         ) : (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_26rem]">
-            <section aria-label="المنتجات في السلة">
+            <section aria-label={st("المنتجات في السلة")}>
               <ul className="space-y-3">
                 {items.map((item) => {
                   const unit = unitPriceFor(item.product.price, item.product.wholesaleOptions, item.quantity);
@@ -140,12 +141,12 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
                               </p>
                             )}
                             <p className="mt-1.5 text-xs text-(--md-quiet)">
-                              {formatPrice(unit)} للقطعة
-                              {wholesale && <span className="ms-1.5 font-semibold text-(--md-success)">· سعر الجملة</span>}
+                              {st("{0} للقطعة", formatPrice(unit))}
+                              {wholesale && <span className="ms-1.5 font-semibold text-(--md-success)">{st("· سعر الجملة")}</span>}
                             </p>
                           </div>
                           <form action={removeItemAction.bind(null, storeSlug, item.id)} className="-me-1 -mt-1">
-                            <SubmitButton aria-label={`حذف ${item.product.name}`} className="grid size-10 place-items-center rounded-full text-(--md-quiet) transition-colors hover:bg-(--md-studio) hover:text-(--md-sale) [&_svg]:size-4">
+                            <SubmitButton aria-label={st("حذف {0}", item.product.name)} className="grid size-10 place-items-center rounded-full text-(--md-quiet) transition-colors hover:bg-(--md-studio) hover:text-(--md-sale) [&_svg]:size-4">
                               <Trash2 />
                             </SubmitButton>
                           </form>
@@ -153,15 +154,15 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
                         <div className="mt-auto flex items-end justify-between gap-3 pt-3">
                           <div className="flex items-center rounded-full border border-(--md-line)">
                             <form action={changeQtyAction.bind(null, storeSlug, item.id, "decrement")}>
-                              <SubmitButton aria-label={item.quantity <= 1 ? `حذف ${item.product.name}` : "تقليل الكمية"} className={STEP}>
+                              <SubmitButton aria-label={item.quantity <= 1 ? st("حذف {0}", item.product.name) : st("تقليل الكمية")} className={STEP}>
                                 <Minus />
                               </SubmitButton>
                             </form>
-                            <span className="md-price w-8 text-center text-sm" aria-label={`الكمية ${item.quantity}`}>
+                            <span className="md-price w-8 text-center text-sm" aria-label={st("الكمية {0}", item.quantity)}>
                               {num(item.quantity)}
                             </span>
                             <form action={changeQtyAction.bind(null, storeSlug, item.id, "increment")}>
-                              <SubmitButton aria-label="زيادة الكمية" disabled={item.quantity >= item.product.stock} className={STEP}>
+                              <SubmitButton aria-label={st("زيادة الكمية")} disabled={item.quantity >= item.product.stock} className={STEP}>
                                 <Plus />
                               </SubmitButton>
                             </form>
@@ -174,18 +175,18 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
                 })}
               </ul>
               <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ variant: "ghost", size: "sm", className: "mt-4 -ms-3" })}>
-                كمّل تسوق
+                {st("كمّل تسوق")}
                 <Arrow />
               </Link>
             </section>
 
-            <aside aria-label="ملخص الطلب" className="lg:sticky lg:top-[calc(var(--md-header-h)+1.5rem)] lg:self-start">
+            <aside aria-label={st("ملخص الطلب")} className="lg:sticky lg:top-[calc(var(--md-header-h)+1.5rem)] lg:self-start">
               <div className="md-panel space-y-6 p-5 sm:p-6">
-                <h2 className="md-h3">ملخص الطلب</h2>
+                <h2 className="md-h3">{st("ملخص الطلب")}</h2>
 
                 {shippingMethods.length > 0 && (
                   <fieldset>
-                    <legend className="mb-2.5 text-sm font-semibold">طريقة الشحن</legend>
+                    <legend className="mb-2.5 text-sm font-semibold">{st("طريقة الشحن")}</legend>
                     <div className="space-y-2">
                       {shippingMethods.map((m) => {
                         const on = selectedShippingMethodId === m.id;
@@ -201,9 +202,9 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
                               </span>
                               <span className="min-w-0 flex-1">
                                 <span className="block font-medium">{m.name}</span>
-                                {m.estimatedDays ? <span className="block text-xs text-(--md-quiet)">خلال {num(m.estimatedDays)} أيام</span> : null}
+                                {m.estimatedDays ? <span className="block text-xs text-(--md-quiet)">{st("خلال {0} أيام", num(m.estimatedDays))}</span> : null}
                               </span>
-                              <span className="md-price shrink-0">{m.price === 0 ? "مجاني" : formatPrice(m.price / 100)}</span>
+                              <span className="md-price shrink-0">{m.price === 0 ? st("مجاني") : formatPrice(m.price / 100)}</span>
                             </button>
                           </form>
                         );
@@ -222,19 +223,19 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
                         <div className="min-w-0">
                           <p className="md-face truncate text-sm font-bold" dir="ltr">{appliedCoupon.coupon.code}</p>
                           <p className="text-xs opacity-80">
-                            {appliedCoupon.coupon.type === "PERCENTAGE" ? `خصم ${num(appliedCoupon.coupon.value)}٪` : `خصم ${formatPrice(appliedCoupon.coupon.value)}`}
+                            {appliedCoupon.coupon.type === "PERCENTAGE" ? st("خصم {0}٪", num(appliedCoupon.coupon.value)) : st("خصم {0}", formatPrice(appliedCoupon.coupon.value))}
                           </p>
                         </div>
                       </div>
                       <form action={removeCouponAction.bind(null, storeSlug)}>
-                        <SubmitButton className="min-h-10 px-2 text-xs font-semibold underline-offset-4 hover:underline">إزالة</SubmitButton>
+                        <SubmitButton className="min-h-10 px-2 text-xs font-semibold underline-offset-4 hover:underline">{st("إزالة")}</SubmitButton>
                       </form>
                     </div>
                   ) : (
                     <form action={applyCouponAction.bind(null, storeSlug)} className="flex gap-2">
-                      <label className="sr-only" htmlFor="md-coupon">كود الخصم</label>
-                      <input id="md-coupon" name="code" required placeholder="كود الخصم" autoComplete="off" className="md-field h-12 rounded-full uppercase" />
-                      <SubmitButton className={btn({ variant: "outline" })}>تطبيق</SubmitButton>
+                      <label className="sr-only" htmlFor="md-coupon">{st("كود الخصم")}</label>
+                      <input id="md-coupon" name="code" required placeholder={st("كود الخصم")} autoComplete="off" className="md-field h-12 rounded-full uppercase" />
+                      <SubmitButton className={btn({ variant: "outline" })}>{st("تطبيق")}</SubmitButton>
                     </form>
                   )}
                 </div>
@@ -245,12 +246,12 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
                       <div className="flex items-center gap-2.5">
                         <Gift className="size-5 text-(--md-brand)" />
                         <div>
-                          <p className="text-sm font-semibold">استخدمت {num(appliedLoyalty.points)} نقطة</p>
-                          <p className="text-xs text-(--md-quiet)">خصم {formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100)}</p>
+                          <p className="text-sm font-semibold">{st("استخدمت {0} نقطة", num(appliedLoyalty.points))}</p>
+                          <p className="text-xs text-(--md-quiet)">{st("خصم {0}", formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100))}</p>
                         </div>
                       </div>
                       <form action={removeLoyaltyAction.bind(null, storeSlug)}>
-                        <SubmitButton className="min-h-10 px-2 text-xs font-semibold text-(--md-quiet) hover:text-(--md-ink)">إزالة</SubmitButton>
+                        <SubmitButton className="min-h-10 px-2 text-xs font-semibold text-(--md-quiet) hover:text-(--md-ink)">{st("إزالة")}</SubmitButton>
                       </form>
                     </div>
                   ) : (
@@ -258,15 +259,15 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
                       <summary className="flex min-h-11 items-center justify-between gap-2 text-sm font-semibold">
                         <span className="flex items-center gap-2">
                           <Gift className="size-[1.125rem] text-(--md-quiet)" />
-                          استخدم نقاط المكافآت
+                          {st("استخدم نقاط المكافآت")}
                         </span>
                         <ChevronDown aria-hidden className="md-details-icon size-4 text-(--md-quiet)" />
                       </summary>
                       <form action={applyLoyaltyAction.bind(null, storeSlug)} className="mt-2 space-y-2">
-                        <input name="loyaltyPhone" type="tel" inputMode="tel" autoComplete="tel" required placeholder="رقم الموبايل" aria-label="رقم الموبايل" className="md-field h-12" />
+                        <input name="loyaltyPhone" type="tel" inputMode="tel" autoComplete="tel" required placeholder={st("رقم الموبايل")} aria-label={st("رقم الموبايل")} className="md-field h-12" />
                         <div className="flex gap-2">
-                          <input name="loyaltyPoints" type="number" inputMode="numeric" min={loyaltyMinRedemption} step={1} required placeholder={`عدد النقاط (أقل حاجة ${num(loyaltyMinRedemption)})`} aria-label="عدد النقاط" className="md-field h-12" />
-                          <SubmitButton className={btn({ variant: "outline" })}>استخدام</SubmitButton>
+                          <input name="loyaltyPoints" type="number" inputMode="numeric" min={loyaltyMinRedemption} step={1} required placeholder={st("عدد النقاط (أقل حاجة {0})", num(loyaltyMinRedemption))} aria-label={st("عدد النقاط")} className="md-field h-12" />
+                          <SubmitButton className={btn({ variant: "outline" })}>{st("استخدام")}</SubmitButton>
                         </div>
                       </form>
                     </details>
@@ -276,11 +277,11 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
 
                 <Link href={checkoutHref} className={btn({ size: "lg", full: true, className: "hidden lg:inline-flex" })}>
                   <Lock />
-                  إتمام الطلب
+                  {st("إتمام الطلب")}
                 </Link>
                 <p className="flex items-start gap-2 text-xs leading-6 text-(--md-quiet)">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-(--md-brand)" />
-                  بعد ما تبعت الطلب، المتجر هيتواصل معاك يأكد البيانات وميعاد التوصيل.
+                  {st("بعد ما تبعت الطلب، المتجر هيتواصل معاك يأكد البيانات وميعاد التوصيل.")}
                 </p>
               </div>
             </aside>
@@ -288,12 +289,12 @@ export default function MadaCart({ storeSlug, cart, notice }: CartViewProps) {
             <div className="fixed inset-x-0 bottom-0 z-40 border-t border-(--md-line) bg-(--md-surface)/95 backdrop-blur-md lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
               <div className="md-wrap flex items-center gap-4 py-3">
                 <div className="shrink-0">
-                  <p className="text-xs text-(--md-quiet)">الإجمالي</p>
+                  <p className="text-xs text-(--md-quiet)">{st("الإجمالي")}</p>
                   <p className="md-price text-lg">{formatPrice(summary.total)}</p>
                 </div>
                 <Link href={checkoutHref} className={btn({ size: "lg", className: "flex-1" })}>
                   <Lock />
-                  إتمام الطلب
+                  {st("إتمام الطلب")}
                 </Link>
               </div>
             </div>

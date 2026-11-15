@@ -6,6 +6,7 @@ import type { CategoryCardStyle } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { CategoryIcon } from "../lib/category-icon";
 import { CategoryArt, Chevron, SectionHeader, Wrap, delay, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** How wide each wall tile sits on desktop so the wall has no holes. */
 function wallSpan(i: number, n: number) {
@@ -25,7 +26,7 @@ export default function CategoryShelf({ categories, storeSlug, style }: { catego
   const shelves = categories.filter((c) => c.productCount > 0).slice(0, style === "square" ? 9 : 16);
   if (shelves.length === 0) return null;
   const url = (c: CategoryLink) => buildStoreUrl(storeSlug, `/categories/${c.slug}`);
-  const header = <SectionHeader eyebrow="تسوّق بالقسم" title="جهّز عدّتك" href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل الأقسام" />;
+  const header = <SectionHeader eyebrow={st("تسوّق بالقسم")} title={st("جهّز عدّتك")} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل الأقسام")} />;
 
   if (style === "pill") {
     return (
@@ -62,7 +63,7 @@ export default function CategoryShelf({ categories, storeSlug, style }: { catego
                   </span>
                 </span>
                 <span className="mt-3 line-clamp-2 text-sm leading-snug font-extrabold text-(--gy-ink) group-hover:text-(--gy-link)">{c.name}</span>
-                <span className="text-xs text-(--gy-quiet)">{num(c.productCount)} منتج</span>
+                <span className="text-xs text-(--gy-quiet)">{st("{0} منتج", num(c.productCount))}</span>
               </Link>
             </li>
           ))}
@@ -89,7 +90,7 @@ export default function CategoryShelf({ categories, storeSlug, style }: { catego
               <span className="gy-wall-copy">
                 <span className="min-w-0">
                   <span className={i === 0 ? "gy-h2 block !text-current" : "gy-h3 line-clamp-2 !leading-tight !text-current"}>{c.name}</span>
-                  <span className="text-[0.8125rem] font-semibold opacity-80">{num(c.productCount)} منتج</span>
+                  <span className="text-[0.8125rem] font-semibold opacity-80">{st("{0} منتج", num(c.productCount))}</span>
                 </span>
                 <Chevron className="size-5" />
               </span>

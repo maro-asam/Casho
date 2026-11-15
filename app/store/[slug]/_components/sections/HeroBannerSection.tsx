@@ -1,5 +1,6 @@
 import type { HeroBannerSettings } from "@/types/store-theme.types";
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 interface Props {
   content?: HeroBannerSettings;
@@ -8,9 +9,9 @@ interface Props {
 export default function HeroBannerSection({ content }: Props) {
   const {
     backgroundImage,
-    headline = "مرحباً بك في متجرنا",
-    subheadline = "اكتشف أفضل المنتجات بأسعار تنافسية",
-    buttonText = "تسوق الآن",
+    headline = st("مرحباً بك في متجرنا"),
+    subheadline = st("اكتشف أفضل المنتجات بأسعار تنافسية"),
+    buttonText = st("تسوق الآن"),
     buttonLink = "/products",
     textAlign = "center",
     overlayOpacity = 50,

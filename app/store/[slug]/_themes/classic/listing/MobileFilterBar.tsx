@@ -11,6 +11,7 @@ import type { CategoryLink } from "../../types";
 import { CLASSIC_PORTAL, btn } from "../ui";
 import FilterForm from "./FilterForm";
 import SortSelect from "./SortSelect";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -32,7 +33,7 @@ export default function MobileFilterBar({ storeSlug, query, categories, priceBou
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger className={btn({ variant: "outline", size: "md", className: "w-full px-3" })}>
             <SlidersHorizontal />
-            فلترة
+            {st("فلترة")}
             {activeCount > 0 && (
               <span className="grid size-5 place-items-center rounded-full bg-primary text-[0.6875rem] font-bold text-primary-foreground tabular-nums">
                 {activeCount}
@@ -47,9 +48,9 @@ export default function MobileFilterBar({ storeSlug, query, categories, priceBou
           >
             <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-border" aria-hidden />
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-border pe-2 ps-4">
-              <SheetTitle className="text-base font-bold">فلترة المنتجات</SheetTitle>
-              <SheetDescription className="sr-only">اختر التصنيف ونطاق السعر</SheetDescription>
-              <SheetPrimitive.Close className={btn({ variant: "ghost", size: "icon" })} aria-label="إغلاق">
+              <SheetTitle className="text-base font-bold">{st("فلترة المنتجات")}</SheetTitle>
+              <SheetDescription className="sr-only">{st("اختر التصنيف ونطاق السعر")}</SheetDescription>
+              <SheetPrimitive.Close className={btn({ variant: "ghost", size: "icon" })} aria-label={st("إغلاق")}>
                 <X />
               </SheetPrimitive.Close>
             </div>
@@ -66,10 +67,10 @@ export default function MobileFilterBar({ storeSlug, query, categories, priceBou
                   style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
                 >
                   <button type="reset" className={btn({ variant: "ghost", size: "lg", className: "px-4" })}>
-                    مسح الكل
+                    {st("مسح الكل")}
                   </button>
                   <button type="submit" className={btn({ size: "lg", full: true })}>
-                    عرض النتائج
+                    {st("عرض النتائج")}
                   </button>
                 </div>
               }
@@ -80,7 +81,7 @@ export default function MobileFilterBar({ storeSlug, query, categories, priceBou
         <SortSelect storeSlug={storeSlug} query={query} className="w-full" />
       </div>
       <p className="sr-only" aria-live="polite">
-        {total} منتج
+        {st("{0} منتج", total)}
       </p>
     </div>
   );

@@ -9,13 +9,14 @@ import { cn } from "@/lib/utils";
 import type { BannerData, StoreShell } from "../../types";
 import { BannerLink } from "../../shared/banner";
 import { num, stagger } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 const QUICK = [
-  { href: "/products", label: "كل المنتجات" },
-  { href: "/products?sort=newest", label: "وصل حديثًا" },
-  { href: "/products?featured=true", label: "اختيارات المتجر" },
-  { href: "/products?inStock=true", label: "المتوفر حالًا" },
-  { href: "/products?sort=price-asc", label: "الأقل سعرًا" },
+  { href: "/products", get label() { return st("كل المنتجات"); } },
+  { href: "/products?sort=newest", get label() { return st("وصل حديثًا"); } },
+  { href: "/products?featured=true", get label() { return st("اختيارات المتجر"); } },
+  { href: "/products?inStock=true", get label() { return st("المتوفر حالًا"); } },
+  { href: "/products?sort=price-asc", get label() { return st("الأقل سعرًا"); } },
 ];
 
 /** Cello's multi-column mega menu: shopping paths in the first column, the
@@ -37,7 +38,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
   const heading = "mb-3 text-base font-semibold text-(--ce-ink)";
   const cards = [
     shell.banner && { key: "banner", href: "", image: shell.banner.image, title: shell.banner.title, cta: shell.banner.link ? shell.banner.cta : "", banner: shell.banner },
-    featuredCat && { key: featuredCat.id, href: url(`/categories/${featuredCat.slug}`), image: featuredCat.image!, title: featuredCat.name, cta: `${num(featuredCat.productCount)} منتج` },
+    featuredCat && { key: featuredCat.id, href: url(`/categories/${featuredCat.slug}`), image: featuredCat.image!, title: featuredCat.name, cta: st("{0} منتج", num(featuredCat.productCount)) },
   ].filter(Boolean) as { key: string; href: string; image: string; title: string; cta: string; banner?: BannerData }[];
 
   return (
@@ -52,7 +53,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
     >
       <div className="ce-wrap grid grid-cols-[12rem_minmax(0,1fr)_auto] gap-10 py-8 xl:grid-cols-[14rem_minmax(0,1fr)_auto]">
         <div>
-          <p className={heading}>تسوّق</p>
+          <p className={heading}>{st("تسوّق")}</p>
           <ul className={cn(open && "ce-stagger")}>
             {QUICK.map((l, i) => (
               <li key={l.label} style={stagger(i)}>
@@ -65,7 +66,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
         </div>
 
         <div className="min-w-0">
-          <p className={heading}>التصنيفات</p>
+          <p className={heading}>{st("التصنيفات")}</p>
           <ul className={cn("grid grid-cols-2 gap-x-6 gap-y-1 xl:grid-cols-3", open && "ce-stagger")}>
             {cats.map((c, i) => (
               <li key={c.id} style={stagger(Math.min(i, 10))}>
@@ -85,7 +86,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
           </ul>
           {shell.categories.length > cats.length && (
             <Link href={url("/categories")} onClick={() => onClose()} className="ce-link mt-4 text-sm text-(--ce-ink)">
-              كل التصنيفات ({num(shell.categories.length)})
+              {st("كل التصنيفات ({0})", num(shell.categories.length))}
             </Link>
           )}
         </div>

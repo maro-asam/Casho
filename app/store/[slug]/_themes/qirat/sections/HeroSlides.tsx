@@ -8,6 +8,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Kicker, btn, delay, num2 } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 const INTERVAL = 6500;
 const REDUCED = "(prefers-reduced-motion: reduce)";
@@ -47,7 +48,7 @@ export default function HeroSlides({ banners, storeSlug, storeName }: { banners:
       className="qr-hero"
       data-under
       aria-roledescription={many ? "carousel" : undefined}
-      aria-label="عروض المتجر"
+      aria-label={st("عروض المتجر")}
       onMouseEnter={() => setHeld(true)}
       onMouseLeave={() => setHeld(false)}
       onFocus={() => setHeld(true)}
@@ -76,7 +77,7 @@ export default function HeroSlides({ banners, storeSlug, storeName }: { banners:
                   </BannerLink>
                 )}
                 <Link href={buildStoreUrl(storeSlug, "/products")} className={b.link ? "qr-link qr-link--light" : btn({ variant: "light", size: "lg" })}>
-                  {b.link ? <span className="qr-underline">تسوّق كل القطع</span> : "تسوّق كل القطع"}
+                  {b.link ? <span className="qr-underline">{st("تسوّق كل القطع")}</span> : st("تسوّق كل القطع")}
                 </Link>
               </div>
             </div>
@@ -89,14 +90,14 @@ export default function HeroSlides({ banners, storeSlug, storeName }: { banners:
           <ol className="flex items-center gap-2">
             {banners.map((b, i) => (
               <li key={b.id}>
-                <button type="button" onClick={() => go(i)} aria-label={`العرض ${i + 1}: ${b.title}`} aria-current={i === index} className="qr-dot">
+                <button type="button" onClick={() => go(i)} aria-label={st("العرض {0}: {1}", i + 1, b.title)} aria-current={i === index} className="qr-dot">
                   <span className="qr-num">{num2(i + 1)}</span>
                   <i key={`${index}-${running}`} data-run={i === index && running} />
                 </button>
               </li>
             ))}
           </ol>
-          <button type="button" onClick={() => setPaused((p) => !p)} aria-label={paused ? "تشغيل العروض" : "إيقاف العروض"} className="qr-icon text-white">
+          <button type="button" onClick={() => setPaused((p) => !p)} aria-label={paused ? st("تشغيل العروض") : st("إيقاف العروض")} className="qr-icon text-white">
             {paused ? <Play /> : <Pause />}
           </button>
         </div>

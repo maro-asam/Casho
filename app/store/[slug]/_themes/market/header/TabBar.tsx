@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { House, LayoutGrid, PackageSearch, Search, ShoppingBasket } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import { openCart } from "../../shared/cart-events";
 import { isActivePath } from "../../shared/store-path";
 import { useCartSummary } from "../lib/cart-lines";
 import { openSearch } from "../lib/events";
 import { num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 /** Pages with their own bottom action hide the tab bar, as a pushed screen would. */
 const hasOwnBar = (path: string) => path === "/cart" || path === "/checkout" || path.startsWith("/products/");
@@ -37,8 +38,8 @@ export default function TabBar({ storeSlug, path }: { storeSlug: string; path: s
   if (hasOwnBar(path)) return null;
 
   const tabs = [
-    { href: "/", label: "الرئيسية", Icon: House },
-    { href: "/categories", label: "الأقسام", Icon: LayoutGrid },
+    { href: "/", label: st("الرئيسية"), Icon: House },
+    { href: "/categories", label: st("الأقسام"), Icon: LayoutGrid },
   ];
 
   return (
@@ -46,11 +47,11 @@ export default function TabBar({ storeSlug, path }: { storeSlug: string; path: s
       {count > 0 && (
         <button type="button" onClick={openCart} className="mk-basket">
           <span className="mk-basket-count">{num(count)}</span>
-          <span className="flex-1 text-start">عرض السلة</span>
+          <span className="flex-1 text-start">{st("عرض السلة")}</span>
           <span className="mk-num">{formatPrice(subtotal)}</span>
         </button>
       )}
-      <nav aria-label="التنقل" className="mk-tabbar mk-glass">
+      <nav aria-label={st("التنقل")} className="mk-tabbar mk-glass">
         {tabs.map(({ href, label, Icon }) => (
           <Link key={href} href={url(href)} aria-current={isActivePath(path, href) ? "page" : undefined} className="mk-tab">
             <Icon />
@@ -59,18 +60,18 @@ export default function TabBar({ storeSlug, path }: { storeSlug: string; path: s
         ))}
         <button type="button" onClick={openSearch} className="mk-tab">
           <Search />
-          <span>بحث</span>
+          <span>{st("بحث")}</span>
         </button>
-        <button type="button" onClick={openCart} aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"} className="mk-tab">
+        <button type="button" onClick={openCart} aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")} className="mk-tab">
           <span className="relative">
             <ShoppingBasket />
             {count > 0 && <span className="mk-badge-dot">{num(Math.min(count, 99))}</span>}
           </span>
-          <span>السلة</span>
+          <span>{st("السلة")}</span>
         </button>
         <Link href={url("/track")} aria-current={isActivePath(path, "/track") ? "page" : undefined} className="mk-tab">
           <PackageSearch />
-          <span>طلبي</span>
+          <span>{st("طلبي")}</span>
         </Link>
       </nav>
     </div>

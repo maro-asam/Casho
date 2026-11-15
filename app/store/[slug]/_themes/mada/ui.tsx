@@ -7,14 +7,15 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { ArrowLeft, ChevronLeft, ImageIcon, Star } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { madaDisplay } from "./fonts";
 import { swatchColor } from "./lib/colors";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** Classes for portal content (drawers, dialogs, popovers). */
 export const MD_PORTAL = `store-theme-root theme-mada md-portal ${madaDisplay.variable}`;
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 export const num = (n: number) => nf.format(n);
 
 export { discountPercent } from "../shared/commerce";
@@ -51,7 +52,7 @@ export function SectionHeader({
   title,
   subtitle,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   actions,
   className,
 }: {
@@ -87,7 +88,7 @@ export function SectionHeader({
 
 export function Crumbs({ items, className }: { items: { label: string; href?: string }[]; className?: string }) {
   return (
-    <nav aria-label="مسار التصفح" className={cn("min-w-0", className)}>
+    <nav aria-label={st("مسار التصفح")} className={cn("min-w-0", className)}>
       <ol className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.8125rem] text-(--md-quiet)">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -137,12 +138,12 @@ export function Price({
           onSale && "text-(--md-sale)",
         )}
       >
-        {onSale && <span className="sr-only">السعر بعد الخصم: </span>}
+        {onSale && <span className="sr-only">{st("السعر بعد الخصم:")}{" "}</span>}
         {formatPrice(price)}
       </span>
       {onSale && (
         <s className={cn("tabular-nums text-(--md-quiet) decoration-1", size === "xl" || size === "lg" ? "text-base" : "text-[0.8125rem]")}>
-          <span className="sr-only">السعر قبل الخصم: </span>
+          <span className="sr-only">{st("السعر قبل الخصم:")}{" "}</span>
           {formatPrice(compareAt!)}
         </s>
       )}
@@ -154,7 +155,7 @@ export function Rating({ value, count, size = "sm", className }: { value: number
   const full = Math.round(value);
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
-      <span className="sr-only">التقييم {value.toFixed(1)} من ٥</span>
+      <span className="sr-only">{st("التقييم {0} من ٥", value.toFixed(1))}</span>
       <span aria-hidden className="flex items-center gap-0.5">
         {[1, 2, 3, 4, 5].map((i) => (
           <Star
@@ -180,13 +181,13 @@ export function Swatches({ colors, max = 4, className }: { colors: string[]; max
   const rest = colors.length - shown.length;
   return (
     <span className={cn("flex items-center gap-1.5", className)}>
-      <span className="sr-only">الألوان المتاحة: {colors.join("، ")}</span>
+      <span className="sr-only">{st("الألوان المتاحة: {0}", colors.join("، "))}</span>
       {shown.map((c) => (
         <span key={c.label} aria-hidden title={c.label} className="md-swatch size-3.5" style={{ background: c.color! }} />
       ))}
       {rest > 0 && (
         <span aria-hidden className="text-xs tabular-nums text-(--md-quiet)">
-          {shown.length ? `+${num(rest)}` : `${num(colors.length)} ألوان`}
+          {shown.length ? `+${num(rest)}` : st("{0} ألوان", num(colors.length))}
         </span>
       )}
     </span>

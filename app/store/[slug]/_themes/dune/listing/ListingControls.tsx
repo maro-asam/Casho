@@ -12,6 +12,7 @@ import { clearedQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { DN_PORTAL, btn, num } from "../ui";
 import FilterPanel, { type FilterProps } from "./FilterPanel";
+import { st } from "@/lib/i18n/storefront";
 
 const PREF_EVENT = "dune:pref";
 
@@ -45,7 +46,7 @@ function SortSelect({ storeSlug, query, className }: Pick<Props, "storeSlug" | "
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <label htmlFor={id} className="dn-label shrink-0 text-(--dn-quiet) max-sm:sr-only">
-        ترتيب
+        {st("ترتيب")}
       </label>
       <select
         id={id}
@@ -83,16 +84,16 @@ export default function ListingLayout({ children, ...props }: Props & { children
           <div className="flex items-center gap-4">
             <button type="button" onClick={() => setDrawer(true)} aria-haspopup="dialog" className="dn-label inline-flex min-h-11 items-center gap-2 lg:hidden">
               <SlidersHorizontal className="size-4" />
-              فلترة
+              {st("فلترة")}
               {badge}
             </button>
             <button type="button" onClick={() => setPref("dune:filters", sidebar ? "0" : "1")} aria-expanded={sidebar} className="dn-label hidden min-h-11 items-center gap-2 lg:inline-flex">
               <SlidersHorizontal className="size-4" />
-              {sidebar ? "إخفاء الفلاتر" : "إظهار الفلاتر"}
+              {sidebar ? st("إخفاء الفلاتر") : st("إظهار الفلاتر")}
               {badge}
             </button>
             <p className="text-sm text-(--dn-quiet) max-sm:hidden" aria-live="polite">
-              {total > 0 ? `${num(total)} منتج` : "مفيش نتائج"}
+              {total > 0 ? st("{0} منتج", num(total)) : st("مفيش نتائج")}
             </p>
           </div>
           <div className="flex items-center gap-1">
@@ -100,7 +101,7 @@ export default function ListingLayout({ children, ...props }: Props & { children
             <button
               type="button"
               onClick={() => setPref("dune:mcols", mcols === "2" ? "1" : "2")}
-              aria-label={mcols === "2" ? "منتج واحد في الصف" : "منتجين في الصف"}
+              aria-label={mcols === "2" ? st("منتج واحد في الصف") : st("منتجين في الصف")}
               className="dn-icon md:hidden [&_svg]:size-[1.125rem]"
             >
               {mcols === "2" ? <Rows3 /> : <Columns2 />}
@@ -111,7 +112,7 @@ export default function ListingLayout({ children, ...props }: Props & { children
 
       <div className="lg:flex lg:items-start lg:gap-12">
         {sidebar && (
-          <aside aria-label="الفلاتر" className="hidden w-60 shrink-0 lg:sticky lg:top-[calc(var(--dn-header-h)+1.5rem)] lg:block xl:w-64">
+          <aside aria-label={st("الفلاتر")} className="hidden w-60 shrink-0 lg:sticky lg:top-[calc(var(--dn-header-h)+1.5rem)] lg:block xl:w-64">
             <FilterPanel {...props} mode="sidebar" />
           </aside>
         )}
@@ -127,8 +128,8 @@ export default function ListingLayout({ children, ...props }: Props & { children
             className={cn(DN_PORTAL, "dn-drawer dn-drawer--start fixed inset-y-0 start-0 z-50 flex w-[min(92vw,24rem)] flex-col bg-(--dn-drawer) outline-none")}
           >
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-(--dn-line) px-6">
-              <Dialog.Title className="dn-h3">فلترة</Dialog.Title>
-              <Dialog.Close className="dn-icon -me-2.5" aria-label="إغلاق">
+              <Dialog.Title className="dn-h3">{st("فلترة")}</Dialog.Title>
+              <Dialog.Close className="dn-icon -me-2.5" aria-label={st("إغلاق")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -146,10 +147,10 @@ export default function ListingLayout({ children, ...props }: Props & { children
                     }}
                     className={btn({ variant: "outline" })}
                   >
-                    مسح
+                    {st("مسح")}
                   </button>
                   <button type="submit" className={btn({ full: true })}>
-                    عرض النتائج
+                    {st("عرض النتائج")}
                   </button>
                 </div>
               }

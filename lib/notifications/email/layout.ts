@@ -1,8 +1,10 @@
 // Email HTML building blocks: table layout + inline styles (what Gmail and
-// Outlook render), RTL, branded with the store's logo and primary color.
+// Outlook render), RTL (or LTR for an English store's customer emails),
+// branded with the store's logo and primary color.
 // Pure — every value a customer or merchant typed goes through esc().
 
 import { formatPiastersAsEgp } from "@/lib/notifications/in-app";
+import { stIn, storeNumberFormat, type StoreLocale } from "@/lib/i18n/storefront";
 
 export type EmailBrand = {
   name: string;
@@ -34,24 +36,36 @@ function accentOf(brand: EmailBrand) {
   return brand.accent && /^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i.test(brand.accent) ? brand.accent : "#111827";
 }
 
-const money = formatPiastersAsEgp;
+/** Piasters as EGP in the email's language ("١٬٢٥٠ ج.م.‏" / "EGP 1,250"). */
+export function emailMoney(amountInPiasters: number, lang: StoreLocale = "ar") {
+  if (lang === "ar") return formatPiastersAsEgp(amountInPiasters);
+  const digits = amountInPiasters % 100 === 0 ? 0 : 2;
+  return storeNumberFormat({ style: "currency", currency: "EGP", minimumFractionDigits: digits, maximumFractionDigits: digits }, "en").format(
+    amountInPiasters / 100,
+  );
+}
+
+/** The side the text ends on — where amounts line up. */
+const endSide = (lang: StoreLocale) => (lang === "en" ? "right" : "left");
 
 /** Label/value rows (customer, address, payment…). Empty values are dropped. */
-export function infoRows(rows: { label: string; value: string | null | undefined; ltr?: boolean }[]) {
+export function infoRows(rows: { label: string; value: string | null | undefined; ltr?: boolean }[], lang: StoreLocale = "ar") {
   const shown = rows.filter((r) => r.value && r.value.trim());
   if (shown.length === 0) return "";
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 20px;">${shown
     .map(
       (r) => `<tr>
         <td style="padding:8px 0;border-bottom:1px solid ${BORDER};color:${MUTED};font-size:14px;width:34%;vertical-align:top;">${esc(r.label)}</td>
-        <td style="padding:8px 0;border-bottom:1px solid ${BORDER};font-size:14px;white-space:pre-line;"${r.ltr ? ' dir="ltr" align="right"' : ""}>${esc(r.value)}</td>
+        <td style="padding:8px 0;border-bottom:1px solid ${BORDER};font-size:14px;white-space:pre-line;"${r.ltr ? ` dir="ltr" align="${lang === "en" ? "left" : "right"}"` : ""}>${esc(r.value)}</td>
       </tr>`,
     )
     .join("")}</table>`;
 }
 
 /** What was ordered, with the bill under it. */
-export function itemsTable(lines: EmailLine[], totals: EmailTotals) {
+export function itemsTable(lines: EmailLine[], totals: EmailTotals, lang: StoreLocale = "ar") {
+  const money = (piasters: number) => emailMoney(piasters, lang);
+  const t = (source: string) => stIn(lang, source);
   const rows = lines
     .map(
       (l) => `<tr>
@@ -59,22 +73,22 @@ export function itemsTable(lines: EmailLine[], totals: EmailTotals) {
           ${esc(l.name)} <span style="color:${MUTED};">× ${esc(l.quantity)}</span>
           ${l.detail ? `<div style="color:${MUTED};font-size:12px;margin-top:2px;">${esc(l.detail)}</div>` : ""}
         </td>
-        <td style="padding:10px 0;border-bottom:1px solid ${BORDER};font-size:14px;text-align:left;white-space:nowrap;">${money(l.total)}</td>
+        <td style="padding:10px 0;border-bottom:1px solid ${BORDER};font-size:14px;text-align:${endSide(lang)};white-space:nowrap;">${money(l.total)}</td>
       </tr>`,
     )
     .join("");
 
   const sum = (label: string, value: string, strong = false) => `<tr>
       <td style="padding:4px 0;font-size:${strong ? 16 : 14}px;${strong ? "font-weight:bold;" : `color:${MUTED};`}">${esc(label)}</td>
-      <td style="padding:4px 0;font-size:${strong ? 16 : 14}px;text-align:left;white-space:nowrap;${strong ? "font-weight:bold;" : ""}">${value}</td>
+      <td style="padding:4px 0;font-size:${strong ? 16 : 14}px;text-align:${endSide(lang)};white-space:nowrap;${strong ? "font-weight:bold;" : ""}">${value}</td>
     </tr>`;
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 8px;">${rows}</table>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 24px;">
-      ${sum("المجموع الفرعي", money(totals.subtotal))}
-      ${sum("الشحن", totals.shipping === 0 ? "مجاني" : money(totals.shipping))}
-      ${totals.discount > 0 ? sum("الخصم", `− ${money(totals.discount)}`) : ""}
-      ${sum("الإجمالي", money(totals.total), true)}
+      ${sum(t("المجموع الفرعي"), money(totals.subtotal))}
+      ${sum(t("الشحن"), totals.shipping === 0 ? t("مجاني") : money(totals.shipping))}
+      ${totals.discount > 0 ? sum(t("الخصم"), `− ${money(totals.discount)}`) : ""}
+      ${sum(t("الإجمالي"), money(totals.total), true)}
     </table>`;
 }
 
@@ -103,21 +117,25 @@ export function renderEmail(input: {
   body?: string;
   cta?: { label: string; href: string };
   footer: string;
+  /** The reader's language — an English store's customer emails read left to right. */
+  lang?: StoreLocale;
 }) {
   const { brand } = input;
+  const lang = input.lang ?? "ar";
+  const dir = lang === "en" ? "ltr" : "rtl";
   const accent = accentOf(brand);
   const header = brand.logo
     ? `<img src="${esc(brand.logo)}" alt="${esc(brand.name)}" height="48" style="height:48px;max-width:180px;object-fit:contain;border:0;">`
     : `<span style="font-size:20px;font-weight:bold;color:#111827;">${esc(brand.name)}</span>`;
 
   return `<!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="${lang}" dir="${dir}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(input.heading)}</title></head>
 <body style="margin:0;padding:0;background:#f5f5f4;">
 <div style="display:none;max-height:0;overflow:hidden;">${esc(input.preheader)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;">
   <tr><td align="center" style="padding:24px 12px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="rtl" style="max-width:560px;background:#ffffff;border-radius:16px;border-top:4px solid ${accent};font-family:${FONT};color:#111827;text-align:right;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${dir}" style="max-width:560px;background:#ffffff;border-radius:16px;border-top:4px solid ${accent};font-family:${FONT};color:#111827;text-align:${lang === "en" ? "left" : "right"};">
       <tr><td style="padding:24px 24px 8px;"><a href="${esc(brand.url)}" style="text-decoration:none;">${header}</a></td></tr>
       <tr><td style="padding:8px 24px 24px;line-height:1.8;">
         <h1 style="margin:0 0 8px;font-size:22px;">${esc(input.heading)}</h1>

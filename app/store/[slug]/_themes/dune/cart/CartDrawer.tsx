@@ -8,13 +8,14 @@ import { Dialog } from "radix-ui";
 import { GetCartItemsAction, RemoveCartItemAction, UpdateCartItemQtyAction } from "@/actions/store/cart.actions";
 import { GetStorefrontCardsAction } from "@/actions/store/storefront-products.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { CART_OPEN_EVENT, notifyCartUpdated } from "../../shared/cart-events";
 import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { openQuickView } from "../lib/events";
 import { dnToast } from "../toast";
 import { DN_PORTAL, PlateImage, btn, num, stagger } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 type Cart = Awaited<ReturnType<typeof GetCartItemsAction>>;
 
@@ -77,10 +78,10 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
         >
           <div className="flex h-18 shrink-0 items-center justify-between gap-3 border-b border-(--dn-line) px-6">
             <Dialog.Title className="dn-h3 flex items-baseline gap-2">
-              السلة
+              {st("السلة")}
               {count > 0 && <span className="dn-num text-lg text-(--dn-quiet)">({num(count)})</span>}
             </Dialog.Title>
-            <Dialog.Close className="dn-icon -me-2.5" aria-label="إغلاق السلة">
+            <Dialog.Close className="dn-icon -me-2.5" aria-label={st("إغلاق السلة")}>
               <X />
             </Dialog.Close>
           </div>
@@ -100,11 +101,11 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
               </div>
             ) : items.length === 0 ? (
               <div className="flex flex-col items-center px-6 py-20 text-center">
-                <p className="dn-h2">سلتك فاضية</p>
-                <p className="mt-3 text-sm text-(--dn-quiet)">لفّ في المتجر واختار اللي يعجبك.</p>
+                <p className="dn-h2">{st("سلتك فاضية")}</p>
+                <p className="mt-3 text-sm text-(--dn-quiet)">{st("لفّ في المتجر واختار اللي يعجبك.")}</p>
                 <Dialog.Close asChild>
                   <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ className: "mt-8" })}>
-                    تسوّق المنتجات
+                    {st("تسوّق المنتجات")}
                   </Link>
                 </Dialog.Close>
               </div>
@@ -134,7 +135,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                               type="button"
                               disabled={busy}
                               onClick={() => mutate(item.id, () => UpdateCartItemQtyAction(item.id, storeSlug, "decrement"))}
-                              aria-label={item.quantity <= 1 ? `إزالة ${item.product.name}` : "تقليل الكمية"}
+                              aria-label={item.quantity <= 1 ? st("إزالة {0}", item.product.name) : st("تقليل الكمية")}
                               className="grid size-9 place-items-center rounded-full disabled:opacity-40 [&_svg]:size-3"
                             >
                               <Minus />
@@ -144,7 +145,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                               type="button"
                               disabled={busy || item.quantity >= item.product.stock}
                               onClick={() => mutate(item.id, () => UpdateCartItemQtyAction(item.id, storeSlug, "increment"))}
-                              aria-label="زيادة الكمية"
+                              aria-label={st("زيادة الكمية")}
                               className="grid size-9 place-items-center rounded-full disabled:opacity-40 [&_svg]:size-3"
                             >
                               <Plus />
@@ -156,7 +157,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                             disabled={busy}
                             className="min-h-9 text-xs text-(--dn-quiet) underline underline-offset-4 hover:text-(--dn-ink)"
                           >
-                            إزالة<span className="sr-only"> {item.product.name}</span>
+                            {st("إزالة")}<span className="sr-only"> {item.product.name}</span>
                           </button>
                         </div>
                       </div>
@@ -168,7 +169,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
 
             {cart && suggest.length > 0 && (
               <section className="border-t border-(--dn-line) px-6 py-6">
-                <h3 className="dn-label mb-4 text-(--dn-quiet)">{items.length ? "ممكن يعجبك كمان" : "مقترحات ليك"}</h3>
+                <h3 className="dn-label mb-4 text-(--dn-quiet)">{items.length ? st("ممكن يعجبك كمان") : st("مقترحات ليك")}</h3>
                 <ul className="grid grid-cols-2 gap-4">
                   {suggest.slice(0, items.length ? 2 : 4).map((p) => (
                     <li key={p.id}>
@@ -189,18 +190,18 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
           {items.length > 0 && cart && (
             <div className="shrink-0 space-y-4 border-t border-(--dn-line) px-6 pb-6 pt-5" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
               <div className="flex items-baseline justify-between">
-                <span className="dn-label">المجموع الفرعي</span>
+                <span className="dn-label">{st("المجموع الفرعي")}</span>
                 <span className="dn-price text-[1.625rem]">{formatPrice(cart.summary.subtotal)}</span>
               </div>
-              <p className="text-xs text-(--dn-quiet)">الشحن والخصومات بتتحسب في الخطوة الجاية.</p>
+              <p className="text-xs text-(--dn-quiet)">{st("الشحن والخصومات بتتحسب في الخطوة الجاية.")}</p>
               <Dialog.Close asChild>
                 <Link href={buildStoreUrl(storeSlug, "/checkout")} className={btn({ size: "lg", full: true })}>
-                  إتمام الطلب
+                  {st("إتمام الطلب")}
                 </Link>
               </Dialog.Close>
               <Dialog.Close asChild>
                 <Link href={buildStoreUrl(storeSlug, "/cart")} className="dn-link dn-label mx-auto flex w-fit">
-                  عرض السلة وكود الخصم
+                  {st("عرض السلة وكود الخصم")}
                 </Link>
               </Dialog.Close>
             </div>

@@ -4,9 +4,10 @@ import Link from "next/link";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Swatches, Wrap, btn, delay, discountPercent, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** One product told large: photo on one half, its story on the other. */
-export default function Spotlight({ product, storeSlug, eyebrow = "من اختيارات المتجر" }: { product: ProductCardData; storeSlug: string; eyebrow?: string }) {
+export default function Spotlight({ product, storeSlug, eyebrow = st("من اختيارات المتجر") }: { product: ProductCardData; storeSlug: string; eyebrow?: string }) {
   const href = buildStoreUrl(storeSlug, `/products/${product.slug}`);
   const discount = discountPercent(product.price, product.compareAtPrice);
   return (
@@ -16,7 +17,7 @@ export default function Spotlight({ product, storeSlug, eyebrow = "من اختي
           <span className="dn-media relative block aspect-square">
             <PlateImage src={product.image} sizes="(max-width: 768px) 100vw, 50vw" className={product.hoverImage ? "dn-card-img-1 has-swap" : "dn-zoom-img"} />
             {product.hoverImage && <Image src={product.hoverImage} alt="" fill sizes="(max-width: 768px) 100vw, 50vw" className="dn-card-img-2 object-cover" />}
-            {discount > 0 && <span className="dn-tag dn-tag--sale absolute start-0 top-0">خصم {num(discount)}٪</span>}
+            {discount > 0 && <span className="dn-tag dn-tag--sale absolute start-0 top-0">{st("خصم {0}٪", num(discount))}</span>}
           </span>
         </Link>
         <div className="flex flex-col items-center px-2 text-center md:px-10 lg:px-20">
@@ -34,7 +35,7 @@ export default function Spotlight({ product, storeSlug, eyebrow = "من اختي
             <Swatches colors={product.colors} />
           </div>
           <Link href={href} className={btn({ variant: "outline", className: "dn-appear mt-8" })} style={delay(3)}>
-            عرض المنتج
+            {st("عرض المنتج")}
           </Link>
         </div>
       </div>

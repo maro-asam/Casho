@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { TestimonialItem } from "@/types/store-theme.types";
 import { Rating } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** One customer at a time, their words set large in serif between gold
  *  quote marks; arrows and dots move through the rest. */
@@ -34,17 +35,17 @@ export default function Quotes({ items }: { items: TestimonialItem[] }) {
       </figure>
       {many && (
         <div className="mt-10 flex items-center justify-center gap-5">
-          <button type="button" onClick={() => go(i - 1)} aria-label="الرأي السابق" className="qr-paddle">
+          <button type="button" onClick={() => go(i - 1)} aria-label={st("الرأي السابق")} className="qr-paddle">
             <ChevronRight className="ltr:rotate-180" />
           </button>
           <ol className="flex items-center gap-2">
             {items.map((_, n) => (
               <li key={n}>
-                <button type="button" onClick={() => setI(n)} aria-label={`الرأي ${n + 1}`} aria-current={n === i} className="qr-pip" />
+                <button type="button" onClick={() => setI(n)} aria-label={st("الرأي {0}", n + 1)} aria-current={n === i} className="qr-pip" />
               </li>
             ))}
           </ol>
-          <button type="button" onClick={() => go(i + 1)} aria-label="الرأي التالي" className="qr-paddle">
+          <button type="button" onClick={() => go(i + 1)} aria-label={st("الرأي التالي")} className="qr-paddle">
             <ChevronLeft className="ltr:rotate-180" />
           </button>
         </div>

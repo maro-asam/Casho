@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { ReopenExpiredPauseAction } from "@/actions/store/store-pause.actions";
 import { countdownParts } from "@/lib/store/pause";
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 const UNITS = [
-  { key: "days", label: "يوم" },
-  { key: "hours", label: "ساعة" },
-  { key: "minutes", label: "دقيقة" },
-  { key: "seconds", label: "ثانية" },
+  { key: "days", get label() { return st("يوم"); } },
+  { key: "hours", get label() { return st("ساعة"); } },
+  { key: "minutes", get label() { return st("دقيقة"); } },
+  { key: "seconds", get label() { return st("ثانية"); } },
 ] as const;
 
 const RETRY_MS = 15_000;
@@ -70,12 +71,12 @@ export function PauseCountdown({ storeSlug, until, show, className }: { storeSlu
   if (!show) return null;
 
   if (done) {
-    return <p className={cn("text-[0.9375rem] font-semibold text-foreground", className)}>المتجر بيفتح دلوقتي…</p>;
+    return <p className={cn("text-[0.9375rem] font-semibold text-foreground", className)}>{st("المتجر بيفتح دلوقتي…")}</p>;
   }
 
   const units = parts && parts.days === 0 ? UNITS.slice(1) : UNITS;
   return (
-    <div role="timer" aria-label="الوقت الباقي على فتح المتجر" className={cn("flex gap-2 sm:gap-3", className)}>
+    <div role="timer" aria-label={st("الوقت الباقي على فتح المتجر")} className={cn("flex gap-2 sm:gap-3", className)}>
       {units.map(({ key, label }) => (
         <div
           key={key}

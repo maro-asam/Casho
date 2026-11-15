@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { MessageCircle, PackageSearch } from "lucide-react";
+import { st } from "@/lib/i18n/storefront";
 
 const RM = "(prefers-reduced-motion: reduce)";
 const subscribeRM = (cb: () => void) => {
@@ -34,7 +35,7 @@ export default function UtilityBar({ text, trackHref, whatsapp, whatsappHref }: 
   const current = messages[index % Math.max(messages.length, 1)];
 
   return (
-    <div className="rx-utility text-[0.8125rem]" role="region" aria-label="إعلانات المتجر" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
+    <div className="rx-utility text-[0.8125rem]" role="region" aria-label={st("إعلانات المتجر")} onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
       <div className="rx-wrap flex h-9 items-center justify-between gap-4">
         <div className="min-w-0 flex-1 max-lg:text-center">
           {messages.length > 0 && <p className="sr-only">{messages.join(" — ")}</p>}
@@ -46,7 +47,7 @@ export default function UtilityBar({ text, trackHref, whatsapp, whatsappHref }: 
           {!current && whatsappHref && (
             <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold lg:hidden">
               <MessageCircle className="size-4" />
-              اطلب على واتساب
+              {st("اطلب على واتساب")}
             </a>
           )}
         </div>
@@ -54,14 +55,14 @@ export default function UtilityBar({ text, trackHref, whatsapp, whatsappHref }: 
           <li>
             <Link href={trackHref} className="inline-flex min-h-8 items-center gap-1.5 hover:text-white">
               <PackageSearch className="size-4" />
-              تتبّع طلبك
+              {st("تتبّع طلبك")}
             </Link>
           </li>
           {whatsappHref && whatsapp && (
             <li>
               <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-8 items-center gap-1.5 hover:text-white">
                 <span aria-hidden className="rx-live-dot size-2 rounded-full bg-[#3fcf7f]" />
-                واتساب
+                {st("واتساب")}
                 <span dir="ltr" className="font-semibold text-white">
                   {whatsapp}
                 </span>

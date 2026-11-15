@@ -8,9 +8,10 @@ import { recentKey, useLocalList } from "../lib/local-list";
 import ProductCard from "../product/ProductCard";
 import { Carousel, SLIDE } from "../product/ProductCarousel";
 import { SectionHeader, Wrap } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Products this shopper opened before (kept in this browser). */
-export default function RecentlyViewed({ storeSlug, excludeId, title = "شفتهم مؤخرًا" }: { storeSlug: string; excludeId?: string; title?: string }) {
+export default function RecentlyViewed({ storeSlug, excludeId, title = st("شفتهم مؤخرًا") }: { storeSlug: string; excludeId?: string; title?: string }) {
   const { list, remove } = useLocalList(recentKey(storeSlug), 12);
   const ids = list.filter((id) => id !== excludeId).slice(0, 10).join(",");
   const [cards, setCards] = useState<ProductCardData[]>([]);
@@ -35,7 +36,7 @@ export default function RecentlyViewed({ storeSlug, excludeId, title = "شفته
         title={title}
         actions={
           <button type="button" onClick={() => list.forEach(remove)} className="md-btn md-btn--ghost md-btn--sm text-(--md-quiet)">
-            مسح
+            {st("مسح")}
           </button>
         }
       />

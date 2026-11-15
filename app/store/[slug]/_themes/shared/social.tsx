@@ -5,6 +5,7 @@ import type { SVGProps } from "react";
 
 import { toWhatsAppDigits } from "@/lib/conversion/conversion-config";
 import type { StoreContact } from "../types";
+import { st } from "@/lib/i18n/storefront";
 
 /** wa.me link from a stored phone number. */
 export function whatsappHref(phone: string | null) {
@@ -47,8 +48,8 @@ export type SocialLink = { label: string; href: string; Icon: typeof InstagramIc
 
 export function getSocialLinks(contact: StoreContact): SocialLink[] {
   return [
-    { label: "إنستجرام", href: socialHref(contact.instagram, "https://instagram.com/"), Icon: InstagramIcon },
-    { label: "فيسبوك", href: socialHref(contact.facebook, "https://facebook.com/"), Icon: FacebookIcon },
-    { label: "تيك توك", href: socialHref(contact.tiktok, "https://tiktok.com/@"), Icon: TikTokIcon },
+    { label: st("إنستجرام"), href: socialHref(contact.instagram, "https://instagram.com/"), Icon: InstagramIcon },
+    { label: st("فيسبوك"), href: socialHref(contact.facebook, "https://facebook.com/"), Icon: FacebookIcon },
+    { label: st("تيك توك"), href: socialHref(contact.tiktok, "https://tiktok.com/@"), Icon: TikTokIcon },
   ].filter((l): l is SocialLink => !!l.href);
 }

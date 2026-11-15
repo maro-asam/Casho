@@ -7,14 +7,15 @@ import Link from "next/link";
 import type { CSSProperties, ComponentProps, ReactNode } from "react";
 import { ChevronLeft, ChevronsLeft, ImageIcon, Star } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { swatchColor } from "../shared/colors";
 import { discountPercent } from "../shared/commerce";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** Classes for portal content (drawers, dialogs, popovers). */
 export const MX_PORTAL = "store-theme-root theme-maximize mx-portal";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 export const num = (n: number) => nf.format(n);
 
 export { discountPercent };
@@ -57,7 +58,7 @@ export function SectionHeader({
   eyebrow,
   title,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   center,
   actions,
   className,
@@ -99,7 +100,7 @@ export function SectionHeader({
 
 export function Crumbs({ items, className }: { items: { label: string; href?: string }[]; className?: string }) {
   return (
-    <nav aria-label="مسار التصفح" className={cn("min-w-0", className)}>
+    <nav aria-label={st("مسار التصفح")} className={cn("min-w-0", className)}>
       <ol className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.8125rem]">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -172,13 +173,13 @@ export function Price({
           off > 0 && "text-(--mx-sale)",
         )}
       >
-        {off > 0 && <span className="sr-only">السعر بعد الخصم: </span>}
+        {off > 0 && <span className="sr-only">{st("السعر بعد الخصم:")}{" "}</span>}
         {formatPrice(price)}
       </span>
       {off > 0 && (
         <>
           <s className={cn("mx-num font-semibold text-(--mx-text) decoration-1", size === "xl" || size === "lg" ? "text-base" : "text-[0.8125rem]")}>
-            <span className="sr-only">السعر قبل الخصم: </span>
+            <span className="sr-only">{st("السعر قبل الخصم:")}{" "}</span>
             {formatPrice(compareAt!)}
           </s>
           {chip && <span className="mx-chip-off">−{num(off)}٪</span>}
@@ -192,7 +193,7 @@ export function Rating({ value, count, size = "sm", className }: { value: number
   const full = Math.round(value);
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>
-      <span className="sr-only">التقييم {value.toFixed(1)} من ٥</span>
+      <span className="sr-only">{st("التقييم {0} من ٥", value.toFixed(1))}</span>
       <span aria-hidden className="flex items-center gap-px">
         {[1, 2, 3, 4, 5].map((i) => (
           <Star
@@ -218,7 +219,7 @@ export function Swatches({ colors, max = 5, className }: { colors: string[]; max
   const rest = colors.length - shown.length;
   return (
     <span className={cn("flex items-center gap-1.5", className)}>
-      <span className="sr-only">الألوان المتاحة: {colors.join("، ")}</span>
+      <span className="sr-only">{st("الألوان المتاحة: {0}", colors.join("، "))}</span>
       {shown.map((c) => (
         <span key={c.label} aria-hidden title={c.label} className="grid size-6 place-items-center rounded-full border border-(--mx-line)">
           <span className="mx-swatch size-4" style={{ background: c.color! }} />
@@ -226,7 +227,7 @@ export function Swatches({ colors, max = 5, className }: { colors: string[]; max
       ))}
       {rest > 0 && (
         <span aria-hidden className="text-xs tabular-nums text-(--mx-quiet)">
-          {shown.length ? `+${num(rest)}` : `${num(colors.length)} ألوان`}
+          {shown.length ? `+${num(rest)}` : st("{0} ألوان", num(colors.length))}
         </span>
       )}
     </span>
@@ -235,9 +236,9 @@ export function Swatches({ colors, max = 5, className }: { colors: string[]; max
 
 /** "● In stock" / "● Low stock" / "● Out of stock" from real stock. */
 export function StockLine({ stock, className }: { stock: number; className?: string }) {
-  if (stock <= 0) return <span className={cn("mx-stock text-(--mx-quiet)", className)}>نفدت الكمية</span>;
-  if (stock <= 5) return <span className={cn("mx-stock text-(--mx-low)", className)}>كمية قليلة</span>;
-  return <span className={cn("mx-stock text-(--mx-stock)", className)}>متوفر</span>;
+  if (stock <= 0) return <span className={cn("mx-stock text-(--mx-quiet)", className)}>{st("نفدت الكمية")}</span>;
+  if (stock <= 5) return <span className={cn("mx-stock text-(--mx-low)", className)}>{st("كمية قليلة")}</span>;
+  return <span className={cn("mx-stock text-(--mx-stock)", className)}>{st("متوفر")}</span>;
 }
 
 /** Image that fills its media box; without a src it shows a quiet glyph.

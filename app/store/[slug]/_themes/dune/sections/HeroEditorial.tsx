@@ -6,6 +6,7 @@ import type { BannerData, HomeViewProps, ProductCardData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { PlateImage, btn, delay } from "../ui";
 import Hotspot from "./Hotspot";
+import { st } from "@/lib/i18n/storefront";
 
 /** Hero for stores without banners: the store's name set large beside its
  *  lead product photo, with a shoppable hotspot on that photo.
@@ -40,13 +41,13 @@ export default function HeroEditorial({
       >
         <div className="flex flex-col items-start">
           <p className="dn-label dn-appear text-(--dn-quiet)" style={delay(0)}>
-            {banner ? store.name : "أهلًا بيك في"}
+            {banner ? store.name : st("أهلًا بيك في")}
           </p>
           <h1 className={cn("dn-appear mt-4 text-balance", compact ? "dn-h1" : "dn-hero")} style={delay(1)}>
             {banner?.title || store.name}
           </h1>
           <p className={cn("dn-appear max-w-[44ch] text-base leading-8 text-(--dn-quiet)", compact ? "mt-4 line-clamp-2" : "mt-6")} style={delay(2)}>
-            {banner?.subtitle || store.description?.trim() || "منتجات مختارة بعناية، وطلب سهل في دقيقة."}
+            {banner?.subtitle || store.description?.trim() || st("منتجات مختارة بعناية، وطلب سهل في دقيقة.")}
           </p>
           <div className={cn("dn-appear flex flex-wrap gap-3", compact ? "mt-7" : "mt-9")} style={delay(3)}>
             {banner?.link ? (
@@ -55,12 +56,12 @@ export default function HeroEditorial({
               </BannerLink>
             ) : (
               <Link href={url("/products")} className={btn({ size: "lg" })}>
-                تسوّق الآن
+                {st("تسوّق الآن")}
               </Link>
             )}
             {hasCategories && (
               <Link href={url("/categories")} className={btn({ variant: "outline", size: "lg" })}>
-                التصنيفات
+                {st("التصنيفات")}
               </Link>
             )}
           </div>
@@ -118,13 +119,13 @@ export function HeroMinimal({
     <section data-reveal className="dn-wrap">
       <div className="mx-auto flex max-w-4xl flex-col items-center border-b border-(--dn-line) pb-14 pt-14 text-center sm:pb-20 sm:pt-20">
         <p className="dn-label dn-appear text-(--dn-quiet)" style={delay(0)}>
-          {banner ? store.name : "أهلًا بيك في"}
+          {banner ? store.name : st("أهلًا بيك في")}
         </p>
         <h1 className="dn-hero dn-appear mt-5 text-balance" style={delay(1)}>
           {banner?.title || store.name}
         </h1>
         <p className="dn-appear mt-6 max-w-[48ch] text-base leading-8 text-(--dn-quiet)" style={delay(2)}>
-          {banner?.subtitle || store.description?.trim() || "منتجات مختارة بعناية، وطلب سهل في دقيقة."}
+          {banner?.subtitle || store.description?.trim() || st("منتجات مختارة بعناية، وطلب سهل في دقيقة.")}
         </p>
         <div className="dn-appear mt-9 flex flex-wrap justify-center gap-3" style={delay(3)}>
           {banner?.link ? (
@@ -133,12 +134,12 @@ export function HeroMinimal({
             </BannerLink>
           ) : (
             <Link href={url("/products")} className={btn({ size: "lg" })}>
-              تسوّق الآن
+              {st("تسوّق الآن")}
             </Link>
           )}
           {hasCategories && (
             <Link href={url("/categories")} className={btn({ variant: "outline", size: "lg" })}>
-              التصنيفات
+              {st("التصنيفات")}
             </Link>
           )}
         </div>

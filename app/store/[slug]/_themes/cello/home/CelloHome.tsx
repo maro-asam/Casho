@@ -13,6 +13,7 @@ import HeroSlider from "../sections/HeroSlider";
 import ProductRow, { MiniPanel } from "../sections/ProductRow";
 import Spotlight from "../sections/Spotlight";
 import { Empty, Wrap, btn, discountPercent } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Ctx = HomeViewProps;
 
@@ -41,7 +42,7 @@ function PlainHero({ c, compact }: { c: Ctx; compact?: boolean }) {
           </BannerLink>
         ) : (
           <Link href={buildStoreUrl(c.store.slug, "/products")} className="ce-btn ce-btn--cta mt-7">
-            تسوّق الآن
+            {st("تسوّق الآن")}
           </Link>
         )}
       </div>
@@ -66,7 +67,7 @@ function SplitHero({ c }: { c: Ctx }) {
             </BannerLink>
           ) : (
             <Link href={buildStoreUrl(c.store.slug, "/products")} className="ce-btn ce-btn--cta mt-7">
-              تسوّق الآن
+              {st("تسوّق الآن")}
             </Link>
           )}
         </div>
@@ -101,8 +102,8 @@ const REGISTRY: SectionRegistry<Ctx> = {
     <ProductRow
       products={c.bestSellers}
       storeSlug={c.store.slug}
-      title={c.sectionContent.bestSellers?.headline || "الأكثر مبيعًا"}
-      sub="المنتجات اللي عملاء المتجر بيطلبوها أكتر"
+      title={c.sectionContent.bestSellers?.headline || st("الأكثر مبيعًا")}
+      sub={st("المنتجات اللي عملاء المتجر بيطلبوها أكتر")}
       max={c.sectionContent.bestSellers?.maxProducts ?? 12}
       href={buildStoreUrl(c.store.slug, "/products")}
     />
@@ -115,8 +116,8 @@ const REGISTRY: SectionRegistry<Ctx> = {
       <MiniPanel
         products={list}
         storeSlug={c.store.slug}
-        title={u?.headline || "أقوى العروض"}
-        sub="خصومات حقيقية على منتجات المتجر"
+        title={u?.headline || st("أقوى العروض")}
+        sub={st("خصومات حقيقية على منتجات المتجر")}
         timer={u?.timerEndDate ? <Countdown endDate={u.timerEndDate} label={u.timerLabel} /> : undefined}
       />
     );
@@ -131,8 +132,8 @@ const REGISTRY: SectionRegistry<Ctx> = {
         <ProductRow
           products={rest.length >= 3 ? rest : c.featured}
           storeSlug={c.store.slug}
-          title="اختيارات المتجر"
-          sub="منتجات مختارة بعناية من المتجر"
+          title={st("اختيارات المتجر")}
+          sub={st("منتجات مختارة بعناية من المتجر")}
           href={buildStoreUrl(c.store.slug, "/products?featured=true")}
           lead={c.banners[1] ?? null}
         />
@@ -142,16 +143,16 @@ const REGISTRY: SectionRegistry<Ctx> = {
   showHeroBanner: (c) => <MediaBanner content={c.sectionContent.heroBanner} storeSlug={c.store.slug} />,
   showLatestProducts: (c) =>
     c.latest.length > 0 ? (
-      <MiniPanel products={c.latest} storeSlug={c.store.slug} title="وصل حديثًا" sub="أحدث المنتجات اللي نزلت المتجر" grid max={6} />
+      <MiniPanel products={c.latest} storeSlug={c.store.slug} title={st("وصل حديثًا")} sub={st("أحدث المنتجات اللي نزلت المتجر")} grid max={6} />
     ) : (
       <Wrap className="ce-section">
         <Empty
           icon={<ShoppingBag />}
-          title="المنتجات جاية قريب"
-          description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+          title={st("المنتجات جاية قريب")}
+          description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
           action={
             <Link href={buildStoreUrl(c.store.slug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />

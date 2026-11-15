@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Arrow, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Merchant banners as numbered "plates": an uncropped-feeling wide image
  *  with a caption line under it. Swipe on touch, arrows on desktop; the next
@@ -35,14 +36,14 @@ export default function Plates({ banners, storeSlug }: { banners: BannerData[]; 
   };
 
   return (
-    <section aria-roledescription="carousel" aria-label="العروض" className="rq-wrap rq-section">
+    <section aria-roledescription="carousel" aria-label={st("العروض")} className="rq-wrap rq-section">
       <ul ref={railRef} onScroll={onScroll} className="rq-rail rq-bleed gap-3 lg:mx-0 lg:gap-5 lg:px-0">
         {banners.map((b, i) => (
           <li
             key={b.id}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${num(i + 1)} من ${num(banners.length)}`}
+            aria-label={st("{0} من {1}", num(i + 1), num(banners.length))}
             className={cn("min-w-0 shrink-0", multiple ? "basis-[88%] lg:basis-[86%]" : "basis-full")}
           >
             <BannerLink banner={b} storeSlug={storeSlug} tabIndex={i === active ? 0 : -1} className="group block">
@@ -89,7 +90,7 @@ export default function Plates({ banners, storeSlug }: { banners: BannerData[]; 
               type="button"
               onClick={() => goTo(active - 1)}
               disabled={active === 0}
-              aria-label="العرض السابق"
+              aria-label={st("العرض السابق")}
               className="grid size-11 place-items-center border border-(--rq-rule-strong) transition-colors hover:border-(--rq-ink) disabled:opacity-35"
             >
               <ArrowRight className="size-[1.125rem] ltr:rotate-180" />
@@ -98,7 +99,7 @@ export default function Plates({ banners, storeSlug }: { banners: BannerData[]; 
               type="button"
               onClick={() => goTo(active + 1)}
               disabled={active === banners.length - 1}
-              aria-label="العرض التالي"
+              aria-label={st("العرض التالي")}
               className="grid size-11 place-items-center border border-(--rq-rule-strong) transition-colors hover:border-(--rq-ink) disabled:opacity-35"
             >
               <ArrowLeft className="size-[1.125rem] ltr:rotate-180" />

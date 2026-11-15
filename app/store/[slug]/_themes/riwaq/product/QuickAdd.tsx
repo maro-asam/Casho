@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { notifyCartUpdated } from "../../shared/cart-events";
 import { storeHref } from "../../shared/store-path";
 import { rqToast } from "../toast";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -39,7 +40,7 @@ export default function QuickAdd({ storeSlug, productId, productName, productHre
 
   if (hasOptions) {
     return (
-      <Link href={productHref} aria-label={`اختار المقاس أو اللون لـ ${productName}`} className={cn(BASE, className)}>
+      <Link href={productHref} aria-label={st("اختار المقاس أو اللون لـ {0}", productName)} className={cn(BASE, className)}>
         <Plus />
       </Link>
     );
@@ -52,15 +53,15 @@ export default function QuickAdd({ storeSlug, productId, productName, productHre
         if (res?.success) {
           notifyCartUpdated(res && "added" in res ? res.added : undefined);
           setDone(true);
-          rqToast.success("اتضاف للسلة", {
+          rqToast.success(st("اتضاف للسلة"), {
             description: productName,
-            action: { label: "السلة", onClick: () => router.push(storeHref(storeSlug, "/cart")) },
+            action: { label: st("السلة"), onClick: () => router.push(storeHref(storeSlug, "/cart")) },
           });
         } else {
-          rqToast.error(res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني");
+          rqToast.error(res && "message" in res && res.message ? res.message : st("حصلت مشكلة، حاول تاني"));
         }
       } catch {
-        rqToast.error("حصلت مشكلة، حاول تاني");
+        rqToast.error(st("حصلت مشكلة، حاول تاني"));
       }
     });
 
@@ -69,7 +70,7 @@ export default function QuickAdd({ storeSlug, productId, productName, productHre
       type="button"
       onClick={add}
       disabled={pending}
-      aria-label={`أضف ${productName} للسلة`}
+      aria-label={st("أضف {0} للسلة", productName)}
       className={cn(BASE, done && "border-(--rq-accent) bg-(--rq-accent) text-(--rq-accent-ink)", className)}
     >
       {pending ? <Loader2 className="animate-spin" /> : done ? <Check /> : <Plus />}

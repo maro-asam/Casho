@@ -3,15 +3,16 @@ import { ChevronLeft, ChevronRight, PackageSearch, SearchX, X } from "lucide-rea
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ListingViewProps } from "../../types";
 import { ProductGrid } from "../product/ProductCard";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
 import FilterForm from "./FilterForm";
 import MobileFilterBar from "./MobileFilterBar";
 import SortSelect from "./SortSelect";
+import { formatPrice, lazyStoreIntl, st, stRich } from "@/lib/i18n/storefront";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 
 function href(slug: string, q: Partial<ProductsQuery>) {
   return buildStoreUrl(slug, `/products${productsQueryString(q)}`);
@@ -21,9 +22,9 @@ function ActiveFilters({ slug, query, categoryName }: { slug: string; query: Pro
   const chips: { label: string; remove: Partial<ProductsQuery> }[] = [];
   if (query.search) chips.push({ label: `«${query.search}»`, remove: { search: "" } });
   if (categoryName) chips.push({ label: categoryName, remove: { category: "" } });
-  if (query.featured) chips.push({ label: "المميزة فقط", remove: { featured: false } });
-  if (query.minPrice > 0) chips.push({ label: `من ${formatPrice(query.minPrice)}`, remove: { minPrice: 0 } });
-  if (query.maxPrice > 0) chips.push({ label: `إلى ${formatPrice(query.maxPrice)}`, remove: { maxPrice: 0 } });
+  if (query.featured) chips.push({ label: st("المميزة فقط"), remove: { featured: false } });
+  if (query.minPrice > 0) chips.push({ label: st("من {0}", formatPrice(query.minPrice)), remove: { minPrice: 0 } });
+  if (query.maxPrice > 0) chips.push({ label: st("إلى {0}", formatPrice(query.maxPrice)), remove: { maxPrice: 0 } });
   if (chips.length === 0) return null;
 
   return (
@@ -33,7 +34,7 @@ function ActiveFilters({ slug, query, categoryName }: { slug: string; query: Pro
           key={chip.label}
           href={href(slug, { ...query, ...chip.remove, page: 1 })}
           scroll={false}
-          aria-label={`إزالة فلتر ${chip.label}`}
+          aria-label={st("إزالة فلتر {0}", chip.label)}
           className="inline-flex h-9 max-w-full items-center gap-1.5 rounded-full bg-(--c-subtle) pe-2.5 ps-3.5 text-[0.8125rem] font-medium transition-colors hover:bg-muted"
         >
           <span className="truncate">{chip.label}</span>
@@ -46,7 +47,7 @@ function ActiveFilters({ slug, query, categoryName }: { slug: string; query: Pro
           scroll={false}
           className="inline-flex h-9 items-center px-2 text-[0.8125rem] font-semibold underline-offset-4 hover:underline"
         >
-          مسح الكل
+          {st("مسح الكل")}
         </Link>
       )}
     </div>
@@ -65,9 +66,9 @@ function Pagination({ slug, query, totalPages }: { slug: string; query: Products
     "grid h-11 min-w-11 place-items-center rounded-(--c-radius-sm) px-2 text-sm font-semibold tabular-nums transition-colors";
 
   return (
-    <nav aria-label="الصفحات" className="mt-10 flex items-center justify-center gap-1 sm:mt-14">
+    <nav aria-label={st("الصفحات")} className="mt-10 flex items-center justify-center gap-1 sm:mt-14">
       {page > 1 ? (
-        <Link href={href(slug, { ...query, page: page - 1 })} aria-label="الصفحة السابقة" className={cn(cell, "hover:bg-(--c-subtle)")}>
+        <Link href={href(slug, { ...query, page: page - 1 })} aria-label={st("الصفحة السابقة")} className={cn(cell, "hover:bg-(--c-subtle)")}>
           <ChevronRight className="size-5 ltr:rotate-180" />
         </Link>
       ) : (
@@ -86,7 +87,7 @@ function Pagination({ slug, query, totalPages }: { slug: string; query: Products
             key={p}
             href={href(slug, { ...query, page: p })}
             aria-current={p === page ? "page" : undefined}
-            aria-label={`الصفحة ${p}`}
+            aria-label={st("الصفحة {0}", p)}
             className={cn(cell, p === page ? "bg-foreground text-background" : "hover:bg-(--c-subtle)")}
           >
             {nf.format(p)}
@@ -95,7 +96,7 @@ function Pagination({ slug, query, totalPages }: { slug: string; query: Products
       )}
 
       {page < totalPages ? (
-        <Link href={href(slug, { ...query, page: page + 1 })} aria-label="الصفحة التالية" className={cn(cell, "hover:bg-(--c-subtle)")}>
+        <Link href={href(slug, { ...query, page: page + 1 })} aria-label={st("الصفحة التالية")} className={cn(cell, "hover:bg-(--c-subtle)")}>
           <ChevronLeft className="size-5 ltr:rotate-180" />
         </Link>
       ) : (
@@ -124,12 +125,12 @@ export default function ClassicListing({
   const filtered = activeCount > 0 || !!query.search;
 
   const title = query.search
-    ? `نتائج البحث عن «${query.search}»`
+    ? st("نتائج البحث عن «{0}»", query.search)
     : category
       ? category.name
       : query.featured
-        ? "المنتجات المميزة"
-        : "كل المنتجات";
+        ? st("المنتجات المميزة")
+        : st("كل المنتجات");
 
   const from = total === 0 ? 0 : (query.page - 1) * pageSize + 1;
   const to = Math.min(query.page * pageSize, total);
@@ -138,13 +139,13 @@ export default function ClassicListing({
     <Container className="pb-6">
       <PageHeader
         breadcrumbs={[
-          { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+          { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
           ...(query.search || category
-            ? [{ label: "المنتجات", href: buildStoreUrl(store.slug, "/products") }, { label: query.search ? "البحث" : category!.name }]
-            : [{ label: "المنتجات" }]),
+            ? [{ label: st("المنتجات"), href: buildStoreUrl(store.slug, "/products") }, { label: query.search ? st("البحث") : category!.name }]
+            : [{ label: st("المنتجات") }]),
         ]}
         title={<span className="break-words">{title}</span>}
-        meta={total > 0 ? `${nf.format(total)} منتج` : undefined}
+        meta={total > 0 ? st("{0} منتج", nf.format(total)) : undefined}
       />
 
       <MobileFilterBar
@@ -158,7 +159,7 @@ export default function ClassicListing({
       />
 
       <div className="lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[16.5rem_minmax(0,1fr)]">
-        <aside aria-label="الفلاتر" className="hidden lg:block">
+        <aside aria-label={st("الفلاتر")} className="hidden lg:block">
           <div className="pb-6">
             <FilterForm
               storeSlug={store.slug}
@@ -170,16 +171,17 @@ export default function ClassicListing({
           </div>
         </aside>
 
-        <section aria-label="المنتجات" className="min-w-0">
+        <section aria-label={st("المنتجات")} className="min-w-0">
           <div className="mb-5 hidden items-center justify-between gap-4 lg:flex">
             <p className="text-sm text-muted-foreground">
               {total > 0 ? (
-                <>
-                  عرض <span className="font-semibold text-foreground tabular-nums">{nf.format(from)}–{nf.format(to)}</span> من{" "}
-                  <span className="tabular-nums">{nf.format(total)}</span> منتج
-                </>
+                stRich(
+                  "عرض {0} من {1} منتج",
+                  <span className="font-semibold text-foreground tabular-nums">{nf.format(from)}–{nf.format(to)}</span>,
+                  <span className="tabular-nums">{nf.format(total)}</span>,
+                )
               ) : (
-                "مفيش نتائج"
+                st("مفيش نتائج")
               )}
             </p>
             <SortSelect storeSlug={store.slug} query={query} className="w-52" />
@@ -191,26 +193,26 @@ export default function ClassicListing({
             filtered ? (
               <EmptyState
                 icon={<SearchX />}
-                title={query.search ? `مفيش نتائج لـ «${query.search}»` : "مفيش منتجات مطابقة"}
+                title={query.search ? st("مفيش نتائج لـ «{0}»", query.search) : st("مفيش منتجات مطابقة")}
                 description={
                   query.search
-                    ? "اتأكد من كتابة الاسم صح، أو جرب كلمة أبسط."
-                    : "جرب تغيّر الفلاتر أو تمسح بعضها عشان تشوف منتجات أكتر."
+                    ? st("اتأكد من كتابة الاسم صح، أو جرب كلمة أبسط.")
+                    : st("جرب تغيّر الفلاتر أو تمسح بعضها عشان تشوف منتجات أكتر.")
                 }
                 action={
                   <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ variant: "outline" })}>
-                    عرض كل المنتجات
+                    {st("عرض كل المنتجات")}
                   </Link>
                 }
               />
             ) : (
               <EmptyState
                 icon={<PackageSearch />}
-                title="لسه مفيش منتجات"
-                description="المتجر بيجهز منتجاته. ارجع تاني قريب."
+                title={st("لسه مفيش منتجات")}
+                description={st("المتجر بيجهز منتجاته. ارجع تاني قريب.")}
                 action={
                   <Link href={buildStoreUrl(store.slug)} className={btn({ variant: "outline" })}>
-                    الرجوع للرئيسية
+                    {st("الرجوع للرئيسية")}
                   </Link>
                 }
               />

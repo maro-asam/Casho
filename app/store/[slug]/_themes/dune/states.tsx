@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import { Empty, Wrap, btn } from "./ui";
 import type { StoreClosedProps } from "../types";
 import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
+import { st } from "@/lib/i18n/storefront";
 
 export function DuneStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Wrap className="py-16 sm:py-24">
       <Empty
         icon={<Store />}
-        title="المتجر مقفول مؤقتًا"
+        title={st("المتجر مقفول مؤقتًا")}
         description={closedDescription(pause)}
         action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
         className="mx-auto max-w-xl"
@@ -28,15 +29,15 @@ export function DuneNotFound({ storeSlug }: { storeSlug?: string }) {
       <p aria-hidden className="dn-num select-none text-[clamp(7rem,24vw,14rem)] leading-none text-(--dn-line-ink)">
         ٤٠٤
       </p>
-      <h1 className="dn-h2 mt-2">الصفحة دي مش موجودة</h1>
-      <p className="mt-3 max-w-md text-[0.9375rem] leading-7 text-(--dn-quiet)">ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.</p>
+      <h1 className="dn-h2 mt-2">{st("الصفحة دي مش موجودة")}</h1>
+      <p className="mt-3 max-w-md text-[0.9375rem] leading-7 text-(--dn-quiet)">{st("ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.")}</p>
       <div className="mt-9 flex flex-wrap justify-center gap-3">
         <Link href={home} className={btn({ size: "lg" })}>
-          الرجوع للرئيسية
+          {st("الرجوع للرئيسية")}
         </Link>
         {storeSlug && (
           <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg", variant: "outline" })}>
-            تصفح المنتجات
+            {st("تصفح المنتجات")}
           </Link>
         )}
       </div>
@@ -80,7 +81,7 @@ function TitleSkel() {
 
 export function DuneHomeSkeleton() {
   return (
-    <div role="status" aria-label="جاري التحميل">
+    <div role="status" aria-label={st("جاري التحميل")}>
       <div className={cn(S, "h-[min(80svh,52rem)]")} />
       <Wrap className="dn-section">
         <div className={cn(S, "mb-10 h-10 w-56")} />
@@ -92,7 +93,7 @@ export function DuneHomeSkeleton() {
 
 export function DuneListingSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className={cn(S, "mb-8 h-14")} />
       <div className="lg:flex lg:gap-12">
@@ -109,7 +110,7 @@ export function DuneListingSkeleton() {
 
 export function DuneProductSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <div className={cn(S, "my-6 h-3.5 w-52 sm:my-8")} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-14">
         <div className={cn(S, "-mx-(--dn-gutter) aspect-square lg:mx-0")} />
@@ -132,7 +133,7 @@ export function DuneProductSkeleton() {
 
 export function DunePageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_25rem]">
         <div className="space-y-4">
@@ -148,7 +149,7 @@ export function DunePageSkeleton() {
 
 export function DuneCategoriesSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <GridSkel count={8} />
     </Wrap>
@@ -157,7 +158,7 @@ export function DuneCategoriesSkeleton() {
 
 export function DuneGridPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <GridSkel count={8} />
     </Wrap>

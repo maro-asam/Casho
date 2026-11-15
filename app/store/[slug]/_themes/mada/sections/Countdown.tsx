@@ -6,8 +6,9 @@ import { useEffect, useState } from "react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { UrgencyContent } from "@/types/store-theme.types";
 import { Arrow, Wrap, btn } from "../ui";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const nf2 = new Intl.NumberFormat("ar-EG", { minimumIntegerDigits: 2 });
+const nf2 = lazyStoreIntl.number({ minimumIntegerDigits: 2 });
 
 function left(end: number) {
   const d = Math.max(0, end - Date.now());
@@ -31,21 +32,21 @@ export default function Countdown({ content, storeSlug }: { content?: UrgencyCon
   if (Number.isNaN(end) || (t && t.done)) return null;
 
   const units = [
-    { v: t?.d, l: "يوم" },
-    { v: t?.h, l: "ساعة" },
-    { v: t?.m, l: "دقيقة" },
-    { v: t?.s, l: "ثانية" },
+    { v: t?.d, l: st("يوم") },
+    { v: t?.h, l: st("ساعة") },
+    { v: t?.m, l: st("دقيقة") },
+    { v: t?.s, l: st("ثانية") },
   ];
 
   return (
     <Wrap className="md-section md-reveal">
       <div className="flex flex-col items-start gap-7 rounded-[1.75rem] bg-(--md-ink) px-6 py-9 text-(--md-bg) sm:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-14 lg:py-12">
         <div className="max-w-xl">
-          <span className="md-eyebrow">{content?.timerLabel || "عرض لفترة محدودة"}</span>
-          <h2 className="md-h2 mt-4">{content?.headline || "العرض بيخلص قريب"}</h2>
+          <span className="md-eyebrow">{content?.timerLabel || st("عرض لفترة محدودة")}</span>
+          <h2 className="md-h2 mt-4">{content?.headline || st("العرض بيخلص قريب")}</h2>
         </div>
         <div className="flex flex-wrap items-center gap-6">
-          <div className="flex gap-2" role="timer" aria-live="off" aria-label="الوقت المتبقي">
+          <div className="flex gap-2" role="timer" aria-live="off" aria-label={st("الوقت المتبقي")}>
             {units.map((u) => (
               <span key={u.l} className="flex w-16 flex-col items-center rounded-2xl bg-white/10 py-3 sm:w-[4.5rem]">
                 <span className="md-price text-2xl sm:text-3xl">{u.v === undefined ? "--" : nf2.format(u.v)}</span>
@@ -54,7 +55,7 @@ export default function Countdown({ content, storeSlug }: { content?: UrgencyCon
             ))}
           </div>
           <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ variant: "signal", size: "lg" })}>
-            الحق العرض
+            {st("الحق العرض")}
             <Arrow />
           </Link>
         </div>

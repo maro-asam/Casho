@@ -10,6 +10,8 @@ import type { BundleItem, WholesaleTier } from "../../_themes/types";
 import { PRODUCT_CARD_SELECT, getStoreThemeId, getStorefrontClosure, toProductCards } from "../../_lib/storefront";
 import { PixelEvent } from "../../_components/pixels/PixelEvent";
 import { stockOf } from "@/lib/products/digital";
+import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 // ISR: revalidate every 120 seconds — product data (price, stock, description) changes occasionally
 export const revalidate = 120;
@@ -28,6 +30,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; productSlug: string }> }): Promise<Metadata> {
   const { slug, productSlug } = await params;
+  await loadStoreLocale(slug);
   const product = await prisma.product.findFirst({
     where: { slug: productSlug, isActive: true, store: { slug } },
     select: {
@@ -41,11 +44,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
   if (!product) return {};
 
-  const price = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(product.price);
+  const price = new Intl.NumberFormat(storeIntlLocale(), { maximumFractionDigits: 2 }).format(product.price);
   // No description? Build a useful one instead of falling back to the store's.
   const description =
     metaText(product.description) ||
-    `اشتري ${product.name} من ${product.store.name} بسعر ${price} جنيه${product.category ? ` — ${product.category.name}` : ""}. اطلب أونلاين والدفع عند الاستلام.`;
+    st("اشتري {0} من {1} بسعر {2} جنيه{3}. اطلب أونلاين والدفع عند الاستلام.", product.name, product.store.name, price, product.category ? ` — ${product.category.name}` : "");
 
   return storePageMetadata({
     title: product.name,
@@ -64,6 +67,7 @@ type ProductDetailsRouteProps = {
 
 export default async function ProductDetailsRoute({ params }: ProductDetailsRouteProps) {
   const { slug, productSlug } = await params;
+  await loadStoreLocale(slug);
   if (!slug || !productSlug) return notFound();
 
   const store = await prisma.store.findUnique({

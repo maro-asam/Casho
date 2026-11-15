@@ -4,26 +4,27 @@ import { useState } from "react";
 import { ChevronRight, ChevronLeft, Star, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { TestimonialsContent, TestimonialItem } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
   {
-    name: "أحمد محمد",
-    text: "منتجات ممتازة وجودة عالية جدًا. الشحن وصل في نفس اليوم وكنت متفاجئ جدًا بالسرعة دي!",
+    get name() { return st("أحمد محمد"); },
+    get text() { return st("منتجات ممتازة وجودة عالية جدًا. الشحن وصل في نفس اليوم وكنت متفاجئ جدًا بالسرعة دي!"); },
     rating: 5,
   },
   {
-    name: "سارة أحمد",
-    text: "أفضل متجر تسوقت منه. خدمة العملاء تعاملت معايا باحترافية عالية وحلّت مشكلتي بسرعة",
+    get name() { return st("سارة أحمد"); },
+    get text() { return st("أفضل متجر تسوقت منه. خدمة العملاء تعاملت معايا باحترافية عالية وحلّت مشكلتي بسرعة"); },
     rating: 5,
   },
   {
-    name: "محمد علي",
-    text: "المنتج بالضبط زي ما في الصور، لا بل أحسن! هشتري تاني بكل تأكيد",
+    get name() { return st("محمد علي"); },
+    get text() { return st("المنتج بالضبط زي ما في الصور، لا بل أحسن! هشتري تاني بكل تأكيد"); },
     rating: 5,
   },
   {
-    name: "نور حسن",
-    text: "سعر ممتاز مقارنة بالجودة. جربت متاجر كتير لكن ده الأفضل",
+    get name() { return st("نور حسن"); },
+    get text() { return st("سعر ممتاز مقارنة بالجودة. جربت متاجر كتير لكن ده الأفضل"); },
     rating: 4,
   },
 ];
@@ -50,7 +51,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export default function TestimonialsSection({ content }: Props) {
-  const headline = content?.headline ?? "ماذا يقول عملاؤنا؟";
+  const headline = content?.headline ?? st("ماذا يقول عملاؤنا؟");
   const items = content?.items?.length ? content.items : DEFAULT_TESTIMONIALS;
   const [current, setCurrent] = useState(0);
 
@@ -139,7 +140,7 @@ export default function TestimonialsSection({ content }: Props) {
               className="text-xs"
               style={{ color: "var(--store-muted-foreground)" }}
             >
-              ✅ عميل موثّق
+              {st("✅ عميل موثّق")}
             </span>
           </div>
         </div>

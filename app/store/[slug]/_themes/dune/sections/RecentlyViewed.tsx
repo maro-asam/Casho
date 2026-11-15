@@ -8,6 +8,7 @@ import { useLocalList } from "../../shared/local-list";
 import { recentKey } from "../lib/events";
 import ProductCard from "../product/ProductCard";
 import { SectionHeader, Wrap } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Products this shopper opened before (kept in this browser). */
 export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: string; excludeId?: string }) {
@@ -32,10 +33,10 @@ export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: st
   return (
     <Wrap className="dn-section">
       <SectionHeader
-        title="شفتهم مؤخرًا"
+        title={st("شفتهم مؤخرًا")}
         actions={
           <button type="button" onClick={() => list.forEach(remove)} className="dn-link dn-label text-(--dn-quiet)">
-            مسح
+            {st("مسح")}
           </button>
         }
       />

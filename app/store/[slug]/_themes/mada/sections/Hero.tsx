@@ -12,6 +12,7 @@ import type { BannerData, HomeViewProps } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Arrow, btn, num } from "../ui";
 import { motionOff } from "../../shared/motion";
+import { st } from "@/lib/i18n/storefront";
 
 /** Full-bleed slideshow built from the merchant's banners (`compact`: the
  *  Studio's short hero, same slideshow at a band's height). */
@@ -48,12 +49,12 @@ export default function Hero({
   const url = (p: string) => buildStoreUrl(store.slug, p);
 
   return (
-    <section aria-roledescription="carousel" aria-label="العروض" className="md-wrap pt-3 sm:pt-4">
+    <section aria-roledescription="carousel" aria-label={st("العروض")} className="md-wrap pt-3 sm:pt-4">
       <div className="relative overflow-hidden rounded-[1.75rem]">
         <div ref={ref} className="overflow-hidden">
           <div className="flex touch-pan-y">
             {banners.map((b, i) => (
-              <div key={b.id} role="group" aria-roledescription="slide" aria-label={`${num(i + 1)} من ${num(banners.length)}`} className="relative min-w-0 shrink-0 grow-0 basis-full">
+              <div key={b.id} role="group" aria-roledescription="slide" aria-label={st("{0} من {1}", num(i + 1), num(banners.length))} className="relative min-w-0 shrink-0 grow-0 basis-full">
                 <div
                   className={cn(
                     "relative lg:aspect-auto",
@@ -66,7 +67,7 @@ export default function Hero({
                   <span aria-hidden className="absolute inset-0 hidden bg-[linear-gradient(to_left,rgb(12_17_15/0.6),transparent_60%)] lg:block ltr:bg-[linear-gradient(to_right,rgb(12_17_15/0.6),transparent_60%)]" />
                 </div>
                 <div className={cn("absolute inset-x-0 bottom-0 p-5 pb-16 text-white sm:p-10", compact ? "sm:pb-16 lg:p-10 lg:pb-14" : "sm:pb-20 lg:p-14 lg:pb-16")}>
-                  <span className="md-eyebrow">جديد في {store.name}</span>
+                  <span className="md-eyebrow">{st("جديد في {0}", store.name)}</span>
                   <h2 className={cn(compact ? "md-h1 mt-3" : "md-hero-title mt-4", "max-w-3xl text-balance", i !== selected && "opacity-0")} style={{ transition: "opacity 600ms" }}>
                     {b.title}
                   </h2>
@@ -80,7 +81,7 @@ export default function Hero({
                     )}
                     {hasCategories && (
                       <Link href={url("/categories")} tabIndex={i === selected ? 0 : -1} className={btn({ size: "lg", className: "border-white/40 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 max-sm:hidden" })}>
-                        التصنيفات
+                        {st("التصنيفات")}
                       </Link>
                     )}
                   </div>
@@ -100,10 +101,10 @@ export default function Hero({
               ))}
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={() => embla?.scrollPrev()} aria-label="العرض السابق" className="grid size-10 place-items-center rounded-full bg-white/15 text-white backdrop-blur-sm hover:bg-white/25">
+              <button type="button" onClick={() => embla?.scrollPrev()} aria-label={st("العرض السابق")} className="grid size-10 place-items-center rounded-full bg-white/15 text-white backdrop-blur-sm hover:bg-white/25">
                 <ArrowRight className="size-4 ltr:rotate-180" />
               </button>
-              <button type="button" onClick={() => embla?.scrollNext()} aria-label="العرض التالي" className="grid size-10 place-items-center rounded-full bg-white/15 text-white backdrop-blur-sm hover:bg-white/25">
+              <button type="button" onClick={() => embla?.scrollNext()} aria-label={st("العرض التالي")} className="grid size-10 place-items-center rounded-full bg-white/15 text-white backdrop-blur-sm hover:bg-white/25">
                 <ArrowLeft className="size-4 ltr:rotate-180" />
               </button>
             </div>

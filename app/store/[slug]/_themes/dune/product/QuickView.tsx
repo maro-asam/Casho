@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { QUICK_VIEW_EVENT } from "../lib/events";
 import { Arrow, DN_PORTAL, PlateImage, Price, Rating, discountPercent, num } from "../ui";
 import BuyForm from "./BuyForm";
+import { st } from "@/lib/i18n/storefront";
 
 /** Global quick-view host: a centered modal on desktop, a bottom sheet on phones. */
 export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: "rtl" | "ltr" }) {
@@ -49,14 +50,14 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
             "lg:inset-0 lg:m-auto lg:h-fit lg:max-h-[88dvh] lg:w-[min(68rem,calc(100vw-5rem))]",
           )}
         >
-          <Dialog.Title className="sr-only">{product?.name ?? "نظرة سريعة"}</Dialog.Title>
-          <Dialog.Close className="dn-fab absolute end-3 top-3 z-10" aria-label="إغلاق">
+          <Dialog.Title className="sr-only">{product?.name ?? st("نظرة سريعة")}</Dialog.Title>
+          <Dialog.Close className="dn-fab absolute end-3 top-3 z-10" aria-label={st("إغلاق")}>
             <X />
           </Dialog.Close>
 
           <div className="overflow-y-auto overscroll-contain">
             {failed ? (
-              <p className="p-12 text-center text-(--dn-quiet)">المنتج ده مش متاح دلوقتي.</p>
+              <p className="p-12 text-center text-(--dn-quiet)">{st("المنتج ده مش متاح دلوقتي.")}</p>
             ) : !product ? (
               <div className="grid gap-8 p-5 lg:grid-cols-2 lg:p-10" aria-busy>
                 <div className="dn-skel aspect-square" />
@@ -72,7 +73,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                 <div className="min-w-0">
                   <div className="dn-media aspect-square">
                     <PlateImage key={active} src={product.gallery[active]} sizes="(max-width: 1024px) 92vw, 32rem" alt={product.name} className="animate-[dn-fade_500ms_ease-out]" />
-                    {discount > 0 && <span className="dn-tag dn-tag--sale absolute start-0 top-0">خصم {num(discount)}٪</span>}
+                    {discount > 0 && <span className="dn-tag dn-tag--sale absolute start-0 top-0">{st("خصم {0}٪", num(discount))}</span>}
                   </div>
                   {product.gallery.length > 1 && (
                     <div className="dn-rail mt-3 gap-2">
@@ -81,7 +82,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                           key={src}
                           type="button"
                           onClick={() => setActive(i)}
-                          aria-label={`الصورة ${i + 1}`}
+                          aria-label={st("الصورة {0}", i + 1)}
                           aria-current={i === active}
                           className={cn("dn-media aspect-square w-16 shrink-0 transition-opacity", i === active ? "outline outline-1 outline-offset-2 outline-(--dn-ink)" : "opacity-60 hover:opacity-100")}
                         >
@@ -102,7 +103,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                     <BuyForm storeSlug={storeSlug} product={{ ...product, image: product.gallery[0] ?? null }} onAdded={() => setOpen(false)} />
                   </div>
                   <Link href={buildStoreUrl(storeSlug, `/products/${product.slug}`)} onClick={() => setOpen(false)} className="dn-link dn-label mt-6">
-                    التفاصيل الكاملة
+                    {st("التفاصيل الكاملة")}
                     <Arrow />
                   </Link>
                 </div>

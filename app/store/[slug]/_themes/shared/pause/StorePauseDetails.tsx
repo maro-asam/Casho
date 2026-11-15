@@ -1,15 +1,16 @@
 import type { StorePause } from "@/lib/store/pause";
 import { cn } from "@/lib/utils";
 import { PauseCountdown } from "./PauseCountdown";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** Description on a closed page: the merchant's message when paused, else the generic line. */
 export function closedDescription(pause: StorePause | null | undefined) {
-  if (!pause) return "المتجر ده مش متاح دلوقتي. جرب تزوره تاني بعد شوية.";
-  return pause.message ?? "المتجر واخد استراحة قصيرة وراجع قريب.";
+  if (!pause) return st("المتجر ده مش متاح دلوقتي. جرب تزوره تاني بعد شوية.");
+  return pause.message ?? st("المتجر واخد استراحة قصيرة وراجع قريب.");
 }
 
 // Egyptian stores and shoppers: one fixed zone, so cached pages read the same everywhere.
-const reopenFormat = new Intl.DateTimeFormat("ar-EG", {
+const reopenFormat = lazyStoreIntl.date({
   timeZone: "Africa/Cairo",
   weekday: "long",
   day: "numeric",
@@ -39,7 +40,7 @@ export function StorePauseDetails({
         className={align === "center" ? "justify-center" : "justify-start"}
       />
       <p className="text-sm text-muted-foreground">
-        بيرجع يفتح <time dateTime={pause.until}>{reopenFormat.format(new Date(pause.until))}</time>
+        {st("بيرجع يفتح")}{" "}<time dateTime={pause.until}>{reopenFormat.format(new Date(pause.until))}</time>
       </p>
     </div>
   );

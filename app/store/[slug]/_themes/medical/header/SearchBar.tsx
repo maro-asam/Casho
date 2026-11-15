@@ -16,6 +16,7 @@ import { CategoryIcon } from "../lib/category-icon";
 import { searchesKey } from "../lib/events";
 import { usePharmacy } from "../lib/pharmacy";
 import { Chevron, PlateImage, Price } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Item = Pick<SearchSuggestion, "id" | "name" | "slug" | "image" | "price" | "compareAtPrice">;
 
@@ -158,7 +159,7 @@ export default function SearchBar({
         className={cn("rx-search", size === "lg" && "rx-search--lg")}
       >
         <label htmlFor={`${id}-q`} className="sr-only">
-          ابحث في المتجر
+          {st("ابحث في المتجر")}
         </label>
         <Search aria-hidden className="size-5 shrink-0 text-(--rx-quiet)" />
         <input
@@ -173,7 +174,7 @@ export default function SearchBar({
           aria-controls={listId}
           aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
           aria-autocomplete="list"
-          placeholder={pharmacy ? "ابحث عن دواء، فيتامين أو أي منتج…" : "ابحث عن أي منتج…"}
+          placeholder={pharmacy ? st("ابحث عن دواء، فيتامين أو أي منتج…") : st("ابحث عن أي منتج…")}
           value={value}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
@@ -199,7 +200,7 @@ export default function SearchBar({
               setValue("");
               inputRef.current?.focus();
             }}
-            aria-label="مسح البحث"
+            aria-label={st("مسح البحث")}
             className="grid size-9 shrink-0 place-items-center rounded-full text-(--rx-quiet) hover:text-(--rx-ink) [&_svg]:size-4"
           >
             <X />
@@ -207,7 +208,7 @@ export default function SearchBar({
         )}
         <button type="submit" className={cn("rx-btn rx-btn--solid min-h-0 shrink-0 !rounded-full px-4 sm:px-5", size === "lg" ? "h-[2.75rem]" : "h-[2.3125rem]")}>
           {loading ? <Loader2 className="animate-spin" /> : null}
-          بحث
+          {st("بحث")}
         </button>
       </form>
 
@@ -217,7 +218,7 @@ export default function SearchBar({
             <div className="space-y-4">
               {matchedCats.length > 0 && (
                 <section>
-                  <h2 className="mb-2 text-xs font-bold text-(--rx-quiet)">أقسام</h2>
+                  <h2 className="mb-2 text-xs font-bold text-(--rx-quiet)">{st("أقسام")}</h2>
                   <ul className="flex flex-wrap gap-2">
                     {matchedCats.map((c) => {
                       return (
@@ -233,9 +234,9 @@ export default function SearchBar({
                 </section>
               )}
               <section>
-                <h2 className="mb-1 text-xs font-bold text-(--rx-quiet)">منتجات</h2>
+                <h2 className="mb-1 text-xs font-bold text-(--rx-quiet)">{st("منتجات")}</h2>
                 {failed ? (
-                  <p className="py-3 text-sm text-(--rx-error)">البحث مش شغال دلوقتي، جرّب تاني.</p>
+                  <p className="py-3 text-sm text-(--rx-error)">{st("البحث مش شغال دلوقتي، جرّب تاني.")}</p>
                 ) : loading && searchedFor !== term ? (
                   <div className="grid gap-2 sm:grid-cols-2" aria-busy>
                     {[0, 1].map((i) => (
@@ -250,10 +251,10 @@ export default function SearchBar({
                   </div>
                 ) : noResults ? (
                   <p className="py-3 text-sm">
-                    مفيش نتائج لـ «<span className="font-bold text-(--rx-ink)">{term}</span>». جرّب الاسم العلمي أو اسم الشركة، أو كلمة أبسط.
+                    {st("مفيش نتائج لـ «")}<span className="font-bold text-(--rx-ink)">{term}</span>{st("». جرّب الاسم العلمي أو اسم الشركة، أو كلمة أبسط.")}
                   </p>
                 ) : (
-                  <ul id={listId} role="listbox" aria-label="نتائج البحث" className="grid gap-1 sm:grid-cols-2">
+                  <ul id={listId} role="listbox" aria-label={st("نتائج البحث")} className="grid gap-1 sm:grid-cols-2">
                     {results.map((r, i) => (
                       <li key={r.id} role="presentation">
                         <Row item={r} id={`${id}-opt-${i}`} active={active === i} onHover={() => setActive(i)} onPick={() => go(`/products/${r.slug}`, term)} />
@@ -263,7 +264,7 @@ export default function SearchBar({
                 )}
               </section>
               <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => searchAll(term)} className="flex min-h-11 w-full items-center justify-between gap-1 rounded-(--rx-r) bg-(--rx-tint) px-4 text-sm font-bold text-(--rx-tint-ink)">
-                كل النتائج لـ «{term}»
+                {st("كل النتائج لـ «{0}»", term)}
                 <Chevron />
               </button>
             </div>
@@ -272,9 +273,9 @@ export default function SearchBar({
               {recent.list.length > 0 && (
                 <section>
                   <div className="mb-2 flex items-center justify-between">
-                    <h2 className="text-xs font-bold text-(--rx-quiet)">بحثت عن</h2>
+                    <h2 className="text-xs font-bold text-(--rx-quiet)">{st("بحثت عن")}</h2>
                     <button type="button" onClick={() => recent.list.forEach((q) => recent.remove(q))} className="min-h-8 text-xs text-(--rx-quiet) hover:text-(--rx-ink) hover:underline">
-                      مسح
+                      {st("مسح")}
                     </button>
                   </div>
                   <ul className="flex flex-wrap gap-2">
@@ -291,7 +292,7 @@ export default function SearchBar({
               )}
               {shelves.length > 0 && (
                 <section>
-                  <h2 className="mb-2 text-xs font-bold text-(--rx-quiet)">تصفّح الأقسام</h2>
+                  <h2 className="mb-2 text-xs font-bold text-(--rx-quiet)">{st("تصفّح الأقسام")}</h2>
                   <ul className="flex flex-wrap gap-2">
                     {shelves.map((c) => {
                       return (
@@ -307,7 +308,7 @@ export default function SearchBar({
                 </section>
               )}
               <section id={listId}>
-                <h2 className="mb-1 text-xs font-bold text-(--rx-quiet)">مختارات من المتجر</h2>
+                <h2 className="mb-1 text-xs font-bold text-(--rx-quiet)">{st("مختارات من المتجر")}</h2>
                 {picks === null ? (
                   <div className="grid gap-2 sm:grid-cols-2" aria-busy>
                     {[0, 1, 2, 3].map((i) => (
@@ -329,7 +330,7 @@ export default function SearchBar({
                     ))}
                   </ul>
                 ) : (
-                  <p className="py-2 text-sm text-(--rx-quiet)">اكتب اسم المنتج اللي بتدوّر عليه.</p>
+                  <p className="py-2 text-sm text-(--rx-quiet)">{st("اكتب اسم المنتج اللي بتدوّر عليه.")}</p>
                 )}
               </section>
             </div>

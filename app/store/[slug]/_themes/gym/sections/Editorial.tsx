@@ -20,6 +20,7 @@ import type { CategoryLink } from "../../types";
 import { joinMessage, waWith } from "../lib/coach";
 import Rail from "../product/Rail";
 import { Arrow, Chevron, Rating, SectionHeader, Wrap, btn, delay, num2 } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured sections in Casho Gym's language. Each renders only the
 // merchant's own content (or real store data) — no placeholder claims. Empty
@@ -32,7 +33,7 @@ export function OfferStrip({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   const run = Array.from({ length: Math.max(2, Math.ceil(8 / items.length)) }, () => items).flat();
   return (
-    <div className="gy-tape-wrap gy-marquee my-[calc(var(--gy-section)/6)]" role="region" aria-label="عروض المتجر">
+    <div className="gy-tape-wrap gy-marquee my-[calc(var(--gy-section)/6)]" role="region" aria-label={st("عروض المتجر")}>
       <p className="sr-only">{items.join(" — ")}</p>
       <div aria-hidden className="gy-tape gy-tape--under" />
       <div className="gy-tape py-3">
@@ -108,10 +109,10 @@ export function Stats({ content }: { content?: SocialProofContent }) {
 export function Testimonials({ content }: { content?: TestimonialsContent }) {
   const items = content?.items?.filter((t) => t.text?.trim()).slice(0, 8) ?? [];
   if (items.length === 0) return null;
-  const title = content?.headline || "آراء عملائنا";
+  const title = content?.headline || st("آراء عملائنا");
   return (
     <Wrap className="gy-section">
-      <Rail label={title} eyebrow="من العملاء" title={title} listClassName="[&>li]:!w-[86%] sm:[&>li]:!w-[calc((100%-var(--gy-gap))/2)] lg:[&>li]:!w-[calc((100%-var(--gy-gap)*2)/3)]">
+      <Rail label={title} eyebrow={st("من العملاء")} title={title} listClassName="[&>li]:!w-[86%] sm:[&>li]:!w-[calc((100%-var(--gy-gap))/2)] lg:[&>li]:!w-[calc((100%-var(--gy-gap)*2)/3)]">
         {items.map((t, i) => (
           <li key={i} className="min-w-0">
             <figure className="gy-quote">
@@ -177,7 +178,7 @@ export function MediaBanner({ content, storeSlug, dir }: { content?: HeroBannerS
         {content.subheadline && <p className="gy-reveal text-base font-bold sm:text-lg">{content.subheadline}</p>}
         {content.headline && <h2 className="gy-hero gy-reveal mt-2 max-w-[18ch] text-balance !text-current">{content.headline}</h2>}
         <Link href={href} className={btn({ variant: image ? "solid" : "white", size: "lg", className: "gy-reveal mt-7" })}>
-          {content.buttonText || "تسوّق دلوقتي"}
+          {content.buttonText || st("تسوّق دلوقتي")}
           <Arrow />
         </Link>
       </div>
@@ -207,7 +208,7 @@ export function PromoTiles({ content, categories, storeSlug }: { content?: Colle
   if (items.length === 0) return null;
   return (
     <Wrap className="gy-section">
-      <SectionHeader eyebrow="المجموعات" title={content?.headline || "اختار طريقك"} />
+      <SectionHeader eyebrow={st("المجموعات")} title={content?.headline || st("اختار طريقك")} />
       <ul className="gy-posters">
         {items.map((c, i) => (
           <li key={i} className="gy-reveal" style={delay(i)}>
@@ -247,10 +248,10 @@ export function AboutBrand({ content, storeName, storeSlug, description }: { con
         )}
         <div className="min-w-0">
           <p className="gy-eyebrow">{storeName}</p>
-          <h2 className="gy-h2 mt-2 text-balance">{content?.headline || `عن ${storeName}`}</h2>
+          <h2 className="gy-h2 mt-2 text-balance">{content?.headline || st("عن {0}", storeName)}</h2>
           {text && <p className="gy-prose mt-4 line-clamp-6 text-base">{text}</p>}
           <Link href={href} className={btn({ variant: "outline", size: "lg", className: "mt-6" })}>
-            {content?.ctaText || "اعرف أكتر عنّا"}
+            {content?.ctaText || st("اعرف أكتر عنّا")}
           </Link>
         </div>
       </div>
@@ -266,15 +267,15 @@ export function JoinBand({ content, storeName, storeSlug, whatsappHref }: { cont
   const body = (
     <>
       {whatsappHref && <MessageCircle />}
-      {content?.ctaText || (whatsappHref ? "تابعنا على واتساب" : "تواصل معنا")}
+      {content?.ctaText || (whatsappHref ? st("تابعنا على واتساب") : st("تواصل معنا"))}
     </>
   );
   return (
     <Wrap className="gy-section">
       <div className="gy-knurl flex flex-col items-start gap-5 rounded-(--gy-r) bg-(--gy-btn) p-6 text-(--gy-btn-ink) sm:p-10 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <h2 className="gy-h2 !text-current text-balance">{content?.headline || "اعرف العروض قبل أي حد"}</h2>
-          <p className="mt-2 max-w-xl text-base opacity-90">{content?.subheadline || "أول ما ينزل عرض أو منتج جديد، هتعرف."}</p>
+          <h2 className="gy-h2 !text-current text-balance">{content?.headline || st("اعرف العروض قبل أي حد")}</h2>
+          <p className="mt-2 max-w-xl text-base opacity-90">{content?.subheadline || st("أول ما ينزل عرض أو منتج جديد، هتعرف.")}</p>
         </div>
         {whatsappHref ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className={btn({ variant: "white", size: "lg" })}>

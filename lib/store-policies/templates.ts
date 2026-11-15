@@ -10,6 +10,7 @@
 // Format: see parsePolicy in ./index.ts ("#" headings, "-" bullets).
 
 import type { PolicyType } from "./index";
+import { ENGLISH_TEMPLATES } from "./templates.en";
 
 export type PolicyTemplateContext = {
   storeName: string;
@@ -19,6 +20,8 @@ export type PolicyTemplateContext = {
   hasDigital: boolean;
   /** Ad platforms whose pixel runs on the store (e.g. "Meta", "TikTok"). */
   adPlatforms: string[];
+  /** The store's language — English stores get ./templates.en. Default Arabic. */
+  language?: "ar" | "en";
 };
 
 const join = (lines: (string | false | null | undefined)[]) =>
@@ -207,5 +210,6 @@ const TEMPLATES: Record<PolicyType, (ctx: PolicyTemplateContext) => string> = {
 };
 
 export function buildPolicyTemplate(type: PolicyType, ctx: PolicyTemplateContext): string {
+  if (ctx.language === "en") return ENGLISH_TEMPLATES[type]({ ...ctx, storeName: ctx.storeName.trim() || "our store" });
   return TEMPLATES[type]({ ...ctx, storeName: ctx.storeName.trim() || "متجرنا" });
 }

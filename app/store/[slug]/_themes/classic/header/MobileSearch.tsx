@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { CLASSIC_PORTAL, btn } from "../ui";
 import SearchCombobox from "./SearchCombobox";
+import { st } from "@/lib/i18n/storefront";
 
 /** Full-screen search for phones/tablets: opens with the keyboard up. */
 export default function MobileSearch({ shell }: { shell: StoreShell }) {
@@ -18,7 +19,7 @@ export default function MobileSearch({ shell }: { shell: StoreShell }) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger className={btn({ variant: "ghost", size: "icon" })} aria-label="بحث">
+      <SheetTrigger className={btn({ variant: "ghost", size: "icon" })} aria-label={st("بحث")}>
         <Search />
       </SheetTrigger>
 
@@ -28,8 +29,8 @@ export default function MobileSearch({ shell }: { shell: StoreShell }) {
         dir={shell.dir}
         className={cn(CLASSIC_PORTAL, "h-dvh max-h-dvh gap-0 border-0 p-0")}
       >
-        <SheetTitle className="sr-only">البحث في {shell.name}</SheetTitle>
-        <SheetDescription className="sr-only">اكتب اسم المنتج اللي بتدور عليه</SheetDescription>
+        <SheetTitle className="sr-only">{st("البحث في {0}", shell.name)}</SheetTitle>
+        <SheetDescription className="sr-only">{st("اكتب اسم المنتج اللي بتدور عليه")}</SheetDescription>
 
         <div className="flex items-center gap-1 border-b border-border px-2 py-2">
           <SearchCombobox
@@ -40,13 +41,13 @@ export default function MobileSearch({ shell }: { shell: StoreShell }) {
             className="min-w-0 flex-1"
           />
           <SheetPrimitive.Close className={btn({ variant: "ghost", size: "sm", className: "px-3" })}>
-            إلغاء
+            {st("إلغاء")}
           </SheetPrimitive.Close>
         </div>
 
         {shell.categories.length > 0 && (
           <div className="overflow-y-auto px-4 py-5">
-            <p className="mb-3 text-xs font-semibold text-muted-foreground">تصفح التصنيفات</p>
+            <p className="mb-3 text-xs font-semibold text-muted-foreground">{st("تصفح التصنيفات")}</p>
             <ul className="flex flex-wrap gap-2">
               {shell.categories.map((c) => (
                 <li key={c.id}>

@@ -20,6 +20,7 @@ import MegaMenu from "./MegaMenu";
 import SearchBar from "./SearchBar";
 import StoreMark from "./StoreMark";
 import UtilityBar from "./UtilityBar";
+import { st } from "@/lib/i18n/storefront";
 
 const MEGA_ID = "gy-mega";
 
@@ -35,7 +36,7 @@ function CartButton({ count }: { count: number }) {
     <button
       type="button"
       onClick={openCart}
-      aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
+      aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")}
       aria-haspopup="dialog"
       className={btn({ size: "sm", className: "h-11 !px-3 lg:!px-5" })}
     >
@@ -48,7 +49,7 @@ function CartButton({ count }: { count: number }) {
         )}
       </span>
       <span aria-hidden className="hidden lg:inline">
-        السلة
+        {st("السلة")}
       </span>
     </button>
   );
@@ -127,26 +128,26 @@ export default function GymHeader({ shell }: { shell: StoreShell }) {
       className="gy-nav-link"
     >
       <LayoutGrid />
-      الأقسام
+      {st("الأقسام")}
       <ChevronDown className={cn("!size-4 transition-transform duration-300", mega && "rotate-180")} />
     </button>
   ) : (
     <Link href={url("/products")} className="gy-nav-link">
       <LayoutGrid />
-      كل المنتجات
+      {st("كل المنتجات")}
     </Link>
   );
 
   const links = [
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
   ];
 
   /** Shelves shown in the shelves row (compact / centered). */
   const shelves = shell.categories.slice(0, variant === "centered" ? 5 : 6);
 
   const searchToggle = (
-    <button type="button" onClick={() => setSearchOpen((v) => !v)} aria-expanded={searchOpen} aria-label={searchOpen ? "قفل البحث" : "البحث"} className="gy-icon text-(--gy-ink)">
+    <button type="button" onClick={() => setSearchOpen((v) => !v)} aria-expanded={searchOpen} aria-label={searchOpen ? st("قفل البحث") : st("البحث")} className="gy-icon text-(--gy-ink)">
       {searchOpen ? <X /> : <Search />}
     </button>
   );
@@ -187,10 +188,10 @@ export default function GymHeader({ shell }: { shell: StoreShell }) {
               {variant === "compact" ? (
                 <SearchBar shell={shell} className="mx-auto hidden w-full max-w-3xl min-w-0 flex-1 lg:block" />
               ) : (
-                <nav aria-label="القائمة الرئيسية" className="hidden min-w-0 flex-1 lg:block">
+                <nav aria-label={st("القائمة الرئيسية")} className="hidden min-w-0 flex-1 lg:block">
                   <ul className="flex items-center gap-1">
                     <li>{megaTrigger}</li>
-                    {[{ href: "/products", label: "كل المنتجات" }, ...links, { href: "/contact", label: "تواصل معنا" }].map((l) => (
+                    {[{ href: "/products", label: st("كل المنتجات") }, ...links, { href: "/contact", label: st("تواصل معنا") }].map((l) => (
                       <li key={l.href} onMouseEnter={() => hasMega && hoverMega(false)}>
                         <Link href={url(l.href)} aria-current={!l.href.includes("?") && isActivePath(path, l.href) ? "page" : undefined} className="gy-nav-link">
                           {l.label}
@@ -222,7 +223,7 @@ export default function GymHeader({ shell }: { shell: StoreShell }) {
 
         {/* Desktop shelves row (compact / centered) */}
         {variant !== "default" && (
-          <nav aria-label="الأقسام" className="hidden border-t border-(--gy-line) lg:block">
+          <nav aria-label={st("الأقسام")} className="hidden border-t border-(--gy-line) lg:block">
             <div className={cn("gy-wrap flex h-13 items-center gap-6", variant === "centered" ? "justify-center" : "justify-between")}>
               <ul className={cn("flex min-w-0 items-center gap-1", variant === "centered" && "justify-center")}>
                 <li>{megaTrigger}</li>
@@ -262,7 +263,7 @@ export default function GymHeader({ shell }: { shell: StoreShell }) {
         tabIndex={scroll.top ? 0 : -1}
         aria-hidden={!scroll.top}
         onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
-        aria-label="الرجوع لأعلى الصفحة"
+        aria-label={st("الرجوع لأعلى الصفحة")}
         className="gy-top"
       >
         <ArrowUp className="size-5" />

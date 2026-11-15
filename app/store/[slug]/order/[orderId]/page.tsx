@@ -43,9 +43,11 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn, formatDate } from "@/lib/utils";
+import { st, stList, storeIntlLocale } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 function formatEGPFromCents(cents: number) {
-  return new Intl.NumberFormat("ar-EG", {
+  return new Intl.NumberFormat(storeIntlLocale(), {
     style: "currency",
     currency: "EGP",
     maximumFractionDigits: 2,
@@ -58,7 +60,7 @@ function getStatusMeta(status?: string | null) {
   switch (normalized) {
     case "pending":
       return {
-        label: "قيد المراجعة",
+        label: st("قيد المراجعة"),
         badgeClass:
           "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/10",
         currentStep: 2,
@@ -66,7 +68,7 @@ function getStatusMeta(status?: string | null) {
 
     case "processing":
       return {
-        label: "جاري التجهيز",
+        label: st("جاري التجهيز"),
         badgeClass:
           "bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/10",
         currentStep: 3,
@@ -74,7 +76,7 @@ function getStatusMeta(status?: string | null) {
 
     case "shipped":
       return {
-        label: "تم الشحن",
+        label: st("تم الشحن"),
         badgeClass:
           "bg-violet-500/10 text-violet-600 border-violet-500/20 hover:bg-violet-500/10",
         currentStep: 4,
@@ -82,7 +84,7 @@ function getStatusMeta(status?: string | null) {
 
     case "delivered":
       return {
-        label: "تم التسليم",
+        label: st("تم التسليم"),
         badgeClass:
           "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10",
         currentStep: 4,
@@ -91,7 +93,7 @@ function getStatusMeta(status?: string | null) {
     case "paid":
     case "confirmed":
       return {
-        label: "تم تأكيد الطلب",
+        label: st("تم تأكيد الطلب"),
         badgeClass:
           "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10",
         currentStep: 2,
@@ -99,7 +101,7 @@ function getStatusMeta(status?: string | null) {
 
     default:
       return {
-        label: "تم استلام الطلب",
+        label: st("تم استلام الطلب"),
         badgeClass:
           "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10",
         currentStep: 1,
@@ -108,8 +110,8 @@ function getStatusMeta(status?: string | null) {
 }
 
 function getPaymentMethodLabel(method?: string | null) {
-  if (!method) return "غير محدد";
-  return getCatalogueLabel(method);
+  if (!method) return st("غير محدد");
+  return st(getCatalogueLabel(method));
 }
 
 function getPaymentStatusLabel(status?: string | null) {
@@ -120,7 +122,7 @@ function getPaymentStatusLabel(status?: string | null) {
     case "success":
     case "successful":
       return {
-        label: "مدفوع",
+        label: st("مدفوع"),
         className:
           "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
       };
@@ -129,14 +131,14 @@ function getPaymentStatusLabel(status?: string | null) {
     case "cancelled":
     case "canceled":
       return {
-        label: "فشل الدفع",
+        label: st("فشل الدفع"),
         className: "bg-red-500/10 text-red-600 border-red-500/20",
       };
 
     case "pending":
     default:
       return {
-        label: "بانتظار الدفع",
+        label: st("بانتظار الدفع"),
         className:
           "bg-amber-500/10 text-amber-600 border-amber-500/20",
       };
@@ -147,34 +149,34 @@ function getPaymentBanner(payment?: string) {
   switch (payment) {
     case "success":
       return {
-        title: "تم الدفع بنجاح",
-        description: "تم تأكيد عملية الدفع وتسجيلها على الطلب.",
+        title: st("تم الدفع بنجاح"),
+        description: st("تم تأكيد عملية الدفع وتسجيلها على الطلب."),
         icon: CheckCircle2,
         className: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
       };
 
     case "failed":
       return {
-        title: "لم تكتمل عملية الدفع",
+        title: st("لم تكتمل عملية الدفع"),
         description:
-          "لم يتم تأكيد الدفع. يمكنك التواصل مع المتجر أو المحاولة مرة أخرى.",
+          st("لم يتم تأكيد الدفع. يمكنك التواصل مع المتجر أو المحاولة مرة أخرى."),
         icon: XCircle,
         className: "border-red-500/20 bg-red-500/10 text-red-700",
       };
 
     case "pending":
       return {
-        title: "الدفع قيد التأكيد",
-        description: "بنستنى تأكيد العملية من بوابة الدفع — حالة الطلب هتتحدث أول ما يوصل.",
+        title: st("الدفع قيد التأكيد"),
+        description: st("بنستنى تأكيد العملية من بوابة الدفع — حالة الطلب هتتحدث أول ما يوصل."),
         icon: AlertTriangle,
         className: "border-amber-500/20 bg-amber-500/10 text-amber-700",
       };
 
     case "invalid":
       return {
-        title: "تعذر التحقق من الدفع",
+        title: st("تعذر التحقق من الدفع"),
         description:
-          "وصلنا رد من بوابة الدفع، لكن لم نتمكن من التحقق منه بشكل آمن.",
+          st("وصلنا رد من بوابة الدفع، لكن لم نتمكن من التحقق منه بشكل آمن."),
         icon: AlertTriangle,
         className: "border-amber-500/20 bg-amber-500/10 text-amber-700",
       };
@@ -215,8 +217,8 @@ function manualInstructionFor(method?: string | null, settings?: ManualPaymentSe
 
   if (method === "cash_on_delivery") {
     return {
-      title: "الدفع عند الاستلام",
-      description: "هتدفع قيمة الطلب لمندوب الشحن عند الاستلام.",
+      title: st("الدفع عند الاستلام"),
+      description: st("هتدفع قيمة الطلب لمندوب الشحن عند الاستلام."),
       value: null,
       icon: Banknote,
     };
@@ -227,8 +229,8 @@ function manualInstructionFor(method?: string | null, settings?: ManualPaymentSe
   if (!value) return null;
 
   return {
-    title: `ادفع عن طريق ${getCatalogueLabel(method)}`,
-    description: "استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال لحد ما المتجر يأكد طلبك.",
+    title: st("ادفع عن طريق {0}", getCatalogueLabel(method)),
+    description: st("استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال لحد ما المتجر يأكد طلبك."),
     value,
     icon: MANUAL_ICONS[method] ?? Banknote,
   };
@@ -248,7 +250,7 @@ function ManualPaymentInstructions({
   const Icon = instruction.icon;
 
   return (
-    <Card className="rounded-[28px] border-primary/20 bg-primary/5 text-right">
+    <Card className="rounded-[28px] border-primary/20 bg-primary/5 text-start">
       <CardHeader>
         <CardTitle className="flex items-center justify-end gap-2 text-lg">
           {instruction.title}
@@ -268,9 +270,12 @@ function ManualPaymentInstructions({
   );
 }
 
-const ORDER_STEPS = ["تم الطلب", "قيد المراجعة", "جاري التجهيز", "تم التسليم"];
+const ORDER_STEPS = stList(["تم الطلب", "قيد المراجعة", "جاري التجهيز", "تم التسليم"]);
 
-export const metadata: Metadata = { title: "تفاصيل الطلب", robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  await loadStoreLocale((await params).slug);
+  return { title: st("تفاصيل الطلب"), robots: { index: false, follow: false } };
+}
 
 export default async function OrderDetailsPage({
   params,
@@ -280,6 +285,7 @@ export default async function OrderDetailsPage({
   searchParams?: Promise<{ payment?: string }>;
 }) {
   const { slug, orderId } = await params;
+  await loadStoreLocale(slug);
   const query = searchParams ? await searchParams : {};
   const paymentBanner = getPaymentBanner(query.payment);
 
@@ -344,14 +350,14 @@ export default async function OrderDetailsPage({
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">لم يتم العثور على الطلب</h2>
+              <h2 className="text-2xl font-semibold">{st("لم يتم العثور على الطلب")}</h2>
               <p className="text-sm leading-6 text-muted-foreground">
-                يبدو أن الطلب غير موجود أو لا تملك صلاحية عرض تفاصيله.
+                {st("يبدو أن الطلب غير موجود أو لا تملك صلاحية عرض تفاصيله.")}
               </p>
             </div>
 
             <Button asChild className="rounded-xl">
-              <Link href={`/store/${slug}`}>العودة إلى المتجر</Link>
+              <Link href={`/store/${slug}`}>{st("العودة إلى المتجر")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -389,20 +395,20 @@ export default async function OrderDetailsPage({
       <div className="mx-auto max-w-7xl space-y-6">
         {awaitingCode && (
           <Card className="rounded-[28px] border border-amber-500/30 bg-amber-500/10">
-            <CardContent className="flex flex-col gap-3 p-5 text-right sm:flex-row sm:items-center sm:justify-between">
+            <CardContent className="flex flex-col gap-3 p-5 text-start sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
-                <h2 className="font-semibold">طلبك لسه مستني التأكيد</h2>
-                <p className="text-sm leading-6 opacity-90">اكتب الكود اللي وصلك عشان المتجر يبدأ يجهّزه — الطلب بيتلغي لوحده لو ماتأكدش.</p>
+                <h2 className="font-semibold">{st("طلبك لسه مستني التأكيد")}</h2>
+                <p className="text-sm leading-6 opacity-90">{st("اكتب الكود اللي وصلك عشان المتجر يبدأ يجهّزه — الطلب بيتلغي لوحده لو ماتأكدش.")}</p>
               </div>
               <Button asChild className="rounded-xl">
-                <Link href={`/store/${slug}/order/${order.id}/confirm`}>أكّد الطلب</Link>
+                <Link href={`/store/${slug}/order/${order.id}/confirm`}>{st("أكّد الطلب")}</Link>
               </Button>
             </CardContent>
           </Card>
         )}
         {paymentBanner ? (
           <Card className={cn("rounded-[28px] border", paymentBanner.className)}>
-            <CardContent className="flex items-start gap-4 p-5 text-right">
+            <CardContent className="flex items-start gap-4 p-5 text-start">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-background/70">
                 <paymentBanner.icon className="size-6" />
               </div>
@@ -444,8 +450,7 @@ export default async function OrderDetailsPage({
                     </div>
 
                     <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-                      تم استلام طلبك بنجاح، وهيتم التواصل معاك قريبًا لتأكيد
-                      التفاصيل ومتابعة التجهيز أو الشحن.
+                      {st("تم استلام طلبك بنجاح، وهيتم التواصل معاك قريبًا لتأكيد التفاصيل ومتابعة التجهيز أو الشحن.")}
                     </p>
                   </div>
                 </div>
@@ -453,7 +458,7 @@ export default async function OrderDetailsPage({
                 <div className="grid gap-3 sm:grid-cols-2 md:min-w-75 md:grid-cols-1">
                   <div className="rounded-xl border bg-background/80 p-4 backdrop-blur">
                     <p className="mb-1 text-sm text-muted-foreground">
-                      رقم الطلب
+                      {st("رقم الطلب")}
                     </p>
                     <p className="font-mono text-sm font-semibold" dir="ltr">
                       {orderNumber(order.id)}
@@ -462,7 +467,7 @@ export default async function OrderDetailsPage({
 
                   <div className="rounded-xl border bg-background/80 p-4 backdrop-blur">
                     <p className="mb-1 text-sm text-muted-foreground">
-                      تاريخ الطلب
+                      {st("تاريخ الطلب")}
                     </p>
                     <p className="text-sm font-medium">
                       {formatDate(order.createdAt)}
@@ -508,13 +513,13 @@ export default async function OrderDetailsPage({
                               {step}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              المرحلة {stepNumber}
+                              {st("المرحلة {0}", stepNumber)}
                             </p>
                           </div>
                         </div>
 
                         {index !== ORDER_STEPS.length - 1 && (
-                          <div className="absolute -left-4.5 top-5 hidden h-px w-9 bg-border md:block" />
+                          <div className="absolute -end-4.5 top-5 hidden h-px w-9 bg-border md:block" />
                         )}
                       </div>
                     );
@@ -546,10 +551,10 @@ export default async function OrderDetailsPage({
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ClipboardList className="size-5 text-primary" />
-                  تفاصيل الطلب
+                  {st("تفاصيل الطلب")}
                 </CardTitle>
                 <CardDescription>
-                  راجع بيانات الطلب والمنتجات المطلوبة
+                  {st("راجع بيانات الطلب والمنتجات المطلوبة")}
                 </CardDescription>
               </CardHeader>
 
@@ -558,7 +563,7 @@ export default async function OrderDetailsPage({
                   <div className="rounded-xl border bg-muted/40 p-4">
                     <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                       <Store className="size-4" />
-                      المتجر
+                      {st("المتجر")}
                     </div>
                     <div className="font-semibold">{order.store.name}</div>
                   </div>
@@ -566,7 +571,7 @@ export default async function OrderDetailsPage({
                   <div className="rounded-xl border bg-muted/40 p-4">
                     <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                       <Receipt className="size-4" />
-                      عدد المنتجات
+                      {st("عدد المنتجات")}
                     </div>
                     <div className="font-semibold">{order.items.length}</div>
                   </div>
@@ -575,14 +580,14 @@ export default async function OrderDetailsPage({
                 <Separator />
 
                 <div className="space-y-3">
-                  <h3 className="text-base font-semibold">بيانات العميل</h3>
+                  <h3 className="text-base font-semibold">{st("بيانات العميل")}</h3>
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     {order.fullName ? (
                       <div className="rounded-xl border p-4">
                         <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                           <UserRound className="size-4" />
-                          الاسم
+                          {st("الاسم")}
                         </div>
                         <p className="font-medium">{order.fullName}</p>
                       </div>
@@ -592,7 +597,7 @@ export default async function OrderDetailsPage({
                       <div className="rounded-xl border p-4">
                         <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                           <Phone className="size-4" />
-                          رقم الموبايل
+                          {st("رقم الموبايل")}
                         </div>
                         <p className="font-medium" dir="ltr">
                           {order.phone}
@@ -604,7 +609,7 @@ export default async function OrderDetailsPage({
                       <div className="rounded-xl border p-4 sm:col-span-2">
                         <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                           <MapPinHouse className="size-4" />
-                          عنوان التوصيل
+                          {st("عنوان التوصيل")}
                         </div>
                         <p className="font-medium leading-7">
                           {order.address}
@@ -617,7 +622,7 @@ export default async function OrderDetailsPage({
                 <Separator />
 
                 <div className="space-y-3">
-                  <h3 className="text-base font-semibold">المنتجات</h3>
+                  <h3 className="text-base font-semibold">{st("المنتجات")}</h3>
 
                   {order.items.map((it) => (
                     <div
@@ -634,15 +639,14 @@ export default async function OrderDetailsPage({
                             {it.product.name}
                           </p>
                           <p className="text-xs text-muted-foreground md:text-sm">
-                            الكمية: {it.quantity} ×{" "}
-                            {formatEGPFromCents(it.price)}
+                            {st("الكمية: {0} ×{1}{2}", it.quantity, " ", formatEGPFromCents(it.price))}
                           </p>
                         </div>
                       </div>
 
-                      <div className="shrink-0 text-left">
+                      <div className="shrink-0 text-end">
                         <p className="text-sm text-muted-foreground">
-                          الإجمالي
+                          {st("الإجمالي")}
                         </p>
                         <p className="text-sm font-semibold md:text-base">
                           {formatEGPFromCents(it.quantity * it.price)}
@@ -663,15 +667,15 @@ export default async function OrderDetailsPage({
 
             <Card className="rounded-[28px]">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg">ملخص الدفع</CardTitle>
-                <CardDescription>نظرة سريعة على قيمة الطلب</CardDescription>
+                <CardTitle className="text-lg">{st("ملخص الدفع")}</CardTitle>
+                <CardDescription>{st("نظرة سريعة على قيمة الطلب")}</CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-4">
                 <div className="rounded-xl border bg-muted/40 p-4">
                   <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                     <Wallet className="size-4" />
-                    طريقة الدفع
+                    {st("طريقة الدفع")}
                   </div>
                   <p className="font-semibold">
                     {getPaymentMethodLabel(order.paymentMethod)}
@@ -681,7 +685,7 @@ export default async function OrderDetailsPage({
                 <div className="rounded-xl border bg-muted/40 p-4">
                   <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
                     <CreditCard className="size-4" />
-                    حالة الدفع
+                    {st("حالة الدفع")}
                   </div>
 
                   <Badge
@@ -695,7 +699,7 @@ export default async function OrderDetailsPage({
                 {order.paymentReference ? (
                   <div className="rounded-xl border bg-muted/40 p-4">
                     <div className="mb-1 text-sm text-muted-foreground">
-                      مرجع الدفع
+                      {st("مرجع الدفع")}
                     </div>
                     <p className="break-all font-mono text-xs">
                       {order.paymentReference}
@@ -705,14 +709,14 @@ export default async function OrderDetailsPage({
 
                 <div className="rounded-xl border bg-muted/40 p-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">عدد المنتجات</span>
+                    <span className="text-muted-foreground">{st("عدد المنتجات")}</span>
                     <span className="font-semibold">{order.items.length}</span>
                   </div>
                 </div>
 
                 <div className="rounded-xl border bg-primary/5 p-4">
                   <div className="mb-2 text-sm text-muted-foreground">
-                    الإجمالي النهائي
+                    {st("الإجمالي النهائي")}
                   </div>
                   <div className="text-2xl font-extrabold tracking-tight">
                     {formatEGPFromCents(order.total)}
@@ -721,24 +725,23 @@ export default async function OrderDetailsPage({
 
                 <div className="space-y-2 rounded-xl border border-dashed p-4 text-sm leading-6 text-muted-foreground">
                   <p>
-                    احتفظ برقم الطلب{" "}
+                    {st("احتفظ برقم الطلب")}{" "}
                     <span className="font-mono font-semibold text-foreground" dir="ltr">
                       {orderNumber(order.id)}
-                    </span>{" "}
-                    — تقدر تتابع طلبك بيه في أي وقت ومن أي جهاز.
+                    </span>{" "}{st("— تقدر تتابع طلبك بيه في أي وقت ومن أي جهاز.")}
                   </p>
                   <Link
                     href={`/store/${slug}${orderTrackPath(order.id)}`}
                     className="inline-flex items-center gap-1.5 font-medium text-primary underline-offset-4 hover:underline"
                   >
-                    لينك تتبّع الطلب
+                    {st("لينك تتبّع الطلب")}
                     <ArrowLeft className="size-4" />
                   </Link>
                 </div>
 
                 <div className="flex flex-col gap-3 pt-2">
                   <Button asChild className="h-11 rounded-xl">
-                    <Link href={`/store/${slug}`}>العودة إلى المتجر</Link>
+                    <Link href={`/store/${slug}`}>{st("العودة إلى المتجر")}</Link>
                   </Button>
 
                   <Button
@@ -751,7 +754,7 @@ export default async function OrderDetailsPage({
                       className="flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="size-4" />
-                      متابعة التسوق
+                      {st("متابعة التسوق")}
                     </Link>
                   </Button>
                 </div>

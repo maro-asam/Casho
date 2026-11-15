@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { storeLocale } from "@/lib/i18n/storefront";
 
 /**
  * Per-page metadata for store pages. Paths are relative — the store layout sets
@@ -31,7 +32,8 @@ export function storePageMetadata({
       ...(description && { description }),
       url: path,
       type,
-      locale: "ar_EG",
+      // The page awaited loadStoreLocale(slug) before building its metadata.
+      locale: storeLocale() === "en" ? "en_US" : "ar_EG",
       ...(storeName && { siteName: storeName }),
       ...(image && { images: [{ url: image, alt: title ?? storeName ?? "" }] }),
     },

@@ -9,13 +9,14 @@ import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDoc
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Crumbs, Empty, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
+import { st } from "@/lib/i18n/storefront";
 
 function Channels({ contact }: { contact: StoreContact }) {
   const wa = whatsappHref(contact.whatsapp);
   const rows = [
-    ...(wa ? [{ label: "واتساب", value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
-    ...(contact.email ? [{ label: "البريد الإلكتروني", value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
-    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: "تابعنا", href: s.href, Icon: s.Icon, ltr: false })),
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
+    ...(contact.email ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, Icon: s.Icon, ltr: false })),
   ];
   if (rows.length === 0) return null;
   return (
@@ -44,7 +45,7 @@ export function MadaAbout({ store, logo, coverImage, description, contact, produ
   return (
     <Wrap className="pb-10">
       <div className="pb-6 pt-5 sm:pt-7">
-        <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]} />
+        <Crumbs items={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} />
       </div>
       <div className="relative overflow-hidden rounded-[1.75rem] bg-(--md-brand) text-(--md-brand-ink)">
         {coverImage && (
@@ -57,19 +58,19 @@ export function MadaAbout({ store, logo, coverImage, description, contact, produ
           <span className="relative grid size-16 place-items-center overflow-hidden rounded-2xl bg-white text-[#121714]">
             {logo ? <Image src={logo} alt="" fill sizes="64px" className="object-cover" /> : <Store className="size-7" />}
           </span>
-          <h1 className="md-h1 mt-5 text-white">عن {store.name}</h1>
+          <h1 className="md-h1 mt-5 text-white">{st("عن {0}", store.name)}</h1>
         </div>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
         <div>
           <p className="md-prose text-base sm:text-[1.0625rem]">
-            {description?.trim() || `أهلاً بيك في ${store.name}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.`}
+            {description?.trim() || st("أهلاً بيك في {0}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.", store.name)}
           </p>
           <div className="mt-8 grid max-w-md grid-cols-2 gap-3">
             {[
-              { n: productCount, l: "منتج" },
-              { n: categoryCount, l: "تصنيف" },
+              { n: productCount, l: st("منتج") },
+              { n: categoryCount, l: st("تصنيف") },
             ].map((s) => (
               <div key={s.l} className="md-panel p-5">
                 <p className="md-face text-3xl font-bold tabular-nums">{num(s.n)}</p>
@@ -79,19 +80,19 @@ export function MadaAbout({ store, logo, coverImage, description, contact, produ
           </div>
           <div className="mt-8 flex flex-wrap gap-2.5">
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-              تسوق المنتجات
+              {st("تسوق المنتجات")}
               <Arrow />
             </Link>
             <Link href={buildStoreUrl(store.slug, "/contact")} className={btn({ size: "lg", variant: "outline" })}>
-              تواصل معنا
+              {st("تواصل معنا")}
             </Link>
           </div>
         </div>
         <aside>
-          <h2 className="mb-3 text-sm font-semibold">طرق التواصل</h2>
+          <h2 className="mb-3 text-sm font-semibold">{st("طرق التواصل")}</h2>
           <Channels contact={contact} />
           {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && (
-            <p className="md-panel p-4 text-sm text-(--md-quiet)">المتجر هيتواصل معاك على رقمك بعد ما تطلب.</p>
+            <p className="md-panel p-4 text-sm text-(--md-quiet)">{st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}</p>
           )}
         </aside>
       </div>
@@ -105,31 +106,31 @@ export function MadaContact({ store, contact }: ContactViewProps) {
   return (
     <Wrap className="pb-10">
       <header className="pb-8 pt-5 sm:pt-7">
-        <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تواصل معنا" }]} />
-        <h1 className="md-h1 mt-4">تواصل معنا</h1>
-        <p className="mt-2 text-sm text-(--md-quiet)">عندك سؤال عن منتج أو طلب؟ إحنا معاك.</p>
+        <Crumbs items={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معنا") }]} />
+        <h1 className="md-h1 mt-4">{st("تواصل معنا")}</h1>
+        <p className="mt-2 text-sm text-(--md-quiet)">{st("عندك سؤال عن منتج أو طلب؟ إحنا معاك.")}</p>
       </header>
       {!hasAny ? (
         <Empty
           icon={<MessageCircle />}
-          title="المتجر لسه مضافش وسيلة تواصل"
-          description="لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه."
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
           <section>
-            <h2 className="mb-3 text-sm font-semibold">كلّمنا مباشرة</h2>
+            <h2 className="mb-3 text-sm font-semibold">{st("كلّمنا مباشرة")}</h2>
             <Channels contact={contact} />
           </section>
           {(wa || contact.email) && (
             <section className="md-panel p-5 sm:p-8">
-              <h2 className="md-h3">ابعتلنا رسالة</h2>
-              <p className="mb-6 mt-1 text-sm text-(--md-quiet)">{wa ? "هتتفتح محادثة واتساب ورسالتك جاهزة." : "هيتفتح الإيميل ورسالتك جاهزة."}</p>
+              <h2 className="md-h3">{st("ابعتلنا رسالة")}</h2>
+              <p className="mb-6 mt-1 text-sm text-(--md-quiet)">{wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}</p>
               <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
             </section>
           )}
@@ -154,9 +155,9 @@ export function MadaTrack({ store, whatsapp, initialCode, order }: TrackViewProp
   return (
     <Wrap className="pb-10">
       <header className="pb-8 pt-5 sm:pt-7">
-        <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]} />
-        <h1 className="md-h1 mt-4">تتبّع طلبك</h1>
-        {!order && <p className="mt-2 text-sm text-(--md-quiet)">اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.</p>}
+        <Crumbs items={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]} />
+        <h1 className="md-h1 mt-4">{st("تتبّع طلبك")}</h1>
+        {!order && <p className="mt-2 text-sm text-(--md-quiet)">{st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}</p>}
       </header>
       <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Wrap>
@@ -167,7 +168,7 @@ export function MadaPolicy({ store, policy, policies }: PolicyViewProps) {
   return (
     <Wrap className="pb-10">
       <header className="pb-8 pt-5 sm:pt-7">
-        <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+        <Crumbs items={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
         <h1 className="md-h1 mt-4">{policy.title}</h1>
       </header>
       <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />

@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import { Empty, Wrap, btn } from "./ui";
 import type { StoreClosedProps } from "../types";
 import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
+import { st } from "@/lib/i18n/storefront";
 
 export function MadaStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Wrap className="py-16 sm:py-24">
       <Empty
         icon={<Store />}
-        title="المتجر مقفول مؤقتًا"
+        title={st("المتجر مقفول مؤقتًا")}
         description={closedDescription(pause)}
         action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
         className="mx-auto max-w-xl"
@@ -29,16 +30,16 @@ export function MadaNotFound({ storeSlug }: { storeSlug?: string }) {
         <p aria-hidden className="md-face select-none text-[clamp(6rem,22vw,12rem)] font-bold leading-none text-(--md-signal)">
           ٤٠٤
         </p>
-        <h1 className="md-h2 mt-4">الصفحة دي مش موجودة</h1>
-        <p className="mx-auto mt-3 max-w-md text-[0.9375rem] leading-7 opacity-80">ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.</p>
+        <h1 className="md-h2 mt-4">{st("الصفحة دي مش موجودة")}</h1>
+        <p className="mx-auto mt-3 max-w-md text-[0.9375rem] leading-7 opacity-80">{st("ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.")}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-2.5">
           <Link href={home} className={btn({ variant: "signal", size: "lg" })}>
-            الرجوع للرئيسية
+            {st("الرجوع للرئيسية")}
           </Link>
           {storeSlug && (
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg", className: "border-white/25 bg-transparent text-inherit hover:bg-white/10" })}>
               <SearchX />
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           )}
         </div>
@@ -84,7 +85,7 @@ function HeadSkel() {
 
 export function MadaHomeSkeleton() {
   return (
-    <div role="status" aria-label="جاري التحميل">
+    <div role="status" aria-label={st("جاري التحميل")}>
       <Wrap className="pt-3 sm:pt-4">
         <div className={cn(S, "aspect-[4/5] rounded-[1.75rem] sm:aspect-[16/10] lg:aspect-auto lg:h-[min(78dvh,46rem)]")} />
       </Wrap>
@@ -99,7 +100,7 @@ export function MadaHomeSkeleton() {
 
 export function MadaListingSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <div className="mb-6 flex gap-2 overflow-hidden">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -120,7 +121,7 @@ export function MadaListingSkeleton() {
 
 export function MadaProductSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <div className={cn(S, "my-5 h-3.5 w-52 sm:my-7")} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-14">
         <div className={cn(S, "-mx-(--md-gutter) aspect-[4/5] rounded-none lg:mx-0 lg:rounded-(--md-radius)")} />
@@ -144,7 +145,7 @@ export function MadaProductSkeleton() {
 
 export function MadaPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="space-y-3">
@@ -160,7 +161,7 @@ export function MadaPageSkeleton() {
 
 export function MadaCategoriesSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -173,7 +174,7 @@ export function MadaCategoriesSkeleton() {
 
 export function MadaGridPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <GridSkel count={8} />
     </Wrap>

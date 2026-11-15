@@ -18,6 +18,7 @@ import Announcement from "./Announcement";
 import { AppearanceScript, AppearanceSegments } from "./AppearanceToggle";
 import SearchSheet from "./SearchSheet";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const FLYOUT_ID = "sg-flyout";
 const MENU_ID = "sg-menu";
@@ -34,7 +35,7 @@ const variantOf = (v: StoreShell["navbarVariant"]): Variant => (v === "centered"
 function BagButton() {
   const { count } = useCartSummary();
   return (
-    <button type="button" onClick={openCart} aria-label={count > 0 ? `الحقيبة، فيها ${num(count)} منتج` : "الحقيبة"} aria-haspopup="dialog" className="sg-gicon relative">
+    <button type="button" onClick={openCart} aria-label={count > 0 ? st("الحقيبة، فيها {0} منتج", num(count)) : st("الحقيبة")} aria-haspopup="dialog" className="sg-gicon relative">
       <ShoppingBag />
       {count > 0 && (
         <span key={count} aria-hidden className="sg-bump sg-bag-count">
@@ -48,7 +49,7 @@ function BagButton() {
 /** Two bars that turn into an X, like apple.com's menu button. */
 function MenuButton({ open, onClick, className }: { open: boolean; onClick: () => void; className?: string }) {
   return (
-    <button type="button" onClick={onClick} aria-expanded={open} aria-controls={MENU_ID} aria-label={open ? "إغلاق القائمة" : "القائمة"} className={cn("sg-gicon sg-burger", className)} data-open={open}>
+    <button type="button" onClick={onClick} aria-expanded={open} aria-controls={MENU_ID} aria-label={open ? st("إغلاق القائمة") : st("القائمة")} className={cn("sg-gicon sg-burger", className)} data-open={open}>
       <span aria-hidden />
       <span aria-hidden />
     </button>
@@ -68,14 +69,14 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
   const shelves = shell.categories.filter((c) => c.productCount > 0);
   const barLinks = shelves.slice(0, BAR_LINKS);
   const quick = [
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "مختاراتنا" },
-    { href: "/categories", label: "كل الأقسام" },
-    { href: "/track", label: "تتبّع طلبك" },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("مختاراتنا") },
+    { href: "/categories", label: st("كل الأقسام") },
+    { href: "/track", label: st("تتبّع طلبك") },
   ];
   const store = [
-    { href: "/about", label: `عن ${shell.name}` },
-    { href: "/contact", label: "تواصل معانا" },
+    { href: "/about", label: st("عن {0}", shell.name) },
+    { href: "/contact", label: st("تواصل معانا") },
   ];
 
   useCartSync(shell.slug, path);
@@ -138,7 +139,7 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
             <StoreMark shell={shell} className="sg-gnav-mark" />
 
             {variant !== "compact" && (
-              <nav aria-label="القائمة الرئيسية" className="sg-gnav-links">
+              <nav aria-label={st("القائمة الرئيسية")} className="sg-gnav-links">
                 <ul>
                   <li>
                     {shelves.length > 0 ? (
@@ -151,11 +152,11 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
                         onMouseEnter={() => hover(true)}
                         className="sg-gnav-link"
                       >
-                        تسوّق
+                        {st("تسوّق")}
                       </button>
                     ) : (
                       <Link href={url("/products")} className="sg-gnav-link">
-                        كل المنتجات
+                        {st("كل المنتجات")}
                       </Link>
                     )}
                   </li>
@@ -168,12 +169,12 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
                   ))}
                   <li onMouseEnter={() => hover(false)}>
                     <Link href={url("/products?sort=newest")} className="sg-gnav-link">
-                      الجديد
+                      {st("الجديد")}
                     </Link>
                   </li>
                   <li onMouseEnter={() => hover(false)}>
                     <Link href={url("/track")} aria-current={isActivePath(path, "/track") ? "page" : undefined} className="sg-gnav-link">
-                      تتبّع طلبك
+                      {st("تتبّع طلبك")}
                     </Link>
                   </li>
                 </ul>
@@ -181,7 +182,7 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
             )}
 
             <div className="sg-gnav-actions">
-              <button type="button" onClick={openSearch} aria-label="البحث" className="sg-gicon" onMouseEnter={() => hover(false)}>
+              <button type="button" onClick={openSearch} aria-label={st("البحث")} className="sg-gicon" onMouseEnter={() => hover(false)}>
                 <Search />
               </button>
               <BagButton />
@@ -196,11 +197,11 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
             <div className="sg-flyout-inner">
               <div className="sg-fly-col">
                 <p className="sg-fly-label" style={stagger(0)}>
-                  تسوّق
+                  {st("تسوّق")}
                 </p>
                 <ul className="sg-fly-big">
                   <li style={stagger(1)}>
-                    <Link href={url("/products")}>تسوّق كل المنتجات</Link>
+                    <Link href={url("/products")}>{st("تسوّق كل المنتجات")}</Link>
                   </li>
                   {shelves.slice(0, 8).map((c, i) => (
                     <li key={c.id} style={stagger(i + 2)}>
@@ -211,7 +212,7 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
               </div>
               <div className="sg-fly-col">
                 <p className="sg-fly-label" style={stagger(1)}>
-                  روابط سريعة
+                  {st("روابط سريعة")}
                 </p>
                 <ul className="sg-fly-small">
                   {quick.map((l, i) => (
@@ -243,7 +244,7 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
             <ul className="sg-menu-big">
               <li style={stagger(0)}>
                 <Link href={url("/products")} onClick={() => setMenu(false)}>
-                  كل المنتجات
+                  {st("كل المنتجات")}
                 </Link>
               </li>
               {shelves.map((c, i) => (
@@ -255,7 +256,7 @@ export default function StageHeader({ shell }: { shell: StoreShell }) {
               ))}
             </ul>
             <p className="sg-fly-label mt-8" style={stagger(shelves.length + 1)}>
-              روابط سريعة
+              {st("روابط سريعة")}
             </p>
             <ul className="sg-menu-small">
               {[...quick, ...store].map((l, i) => (

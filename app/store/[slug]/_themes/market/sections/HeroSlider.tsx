@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Chevron } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 const AUTO_MS = 6000;
 
@@ -61,10 +62,10 @@ export default function HeroSlider({ banners, storeSlug, variant }: { banners: B
   }, [many, paused, hover, index, banners.length, goTo]);
 
   return (
-    <section aria-roledescription="carousel" aria-label="عروض المتجر" className="mk-hero" data-variant={variant} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocusCapture={() => setHover(true)} onBlurCapture={() => setHover(false)}>
+    <section aria-roledescription="carousel" aria-label={st("عروض المتجر")} className="mk-hero" data-variant={variant} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocusCapture={() => setHover(true)} onBlurCapture={() => setHover(false)}>
       <ul ref={track} onScroll={onScroll} className="mk-hero-track">
         {banners.map((b, i) => (
-          <li key={b.id} className="mk-hero-slide" aria-roledescription="slide" aria-label={`${i + 1} من ${banners.length}`}>
+          <li key={b.id} className="mk-hero-slide" aria-roledescription="slide" aria-label={st("{0} من {1}", i + 1, banners.length)}>
             <BannerLink banner={b} storeSlug={storeSlug} className="mk-hero-card group">
               <span className="mk-hero-img">
                 <BannerImage banner={b} sizes={variant === "compact" ? "(max-width: 1024px) 85vw, 40vw" : "100vw"} priority={i === 0} className="object-cover" />
@@ -88,10 +89,10 @@ export default function HeroSlider({ banners, storeSlug, variant }: { banners: B
         <div className="mk-hero-dots">
           <div className="flex items-center gap-2">
             {banners.map((b, i) => (
-              <button key={b.id} type="button" onClick={() => goTo(i)} aria-label={`الشريحة ${i + 1}`} aria-current={i === index} className={cn("mk-dot", i === index && "mk-dot--on")} />
+              <button key={b.id} type="button" onClick={() => goTo(i)} aria-label={st("الشريحة {0}", i + 1)} aria-current={i === index} className={cn("mk-dot", i === index && "mk-dot--on")} />
             ))}
           </div>
-          <button type="button" onClick={() => setPaused((p) => !p)} aria-label={paused ? "تشغيل" : "إيقاف مؤقت"} className="mk-icon !size-8 [&_svg]:!size-3.5">
+          <button type="button" onClick={() => setPaused((p) => !p)} aria-label={paused ? st("تشغيل") : st("إيقاف مؤقت")} className="mk-icon !size-8 [&_svg]:!size-3.5">
             {paused ? <Play /> : <Pause />}
           </button>
         </div>

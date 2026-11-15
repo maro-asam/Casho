@@ -9,6 +9,7 @@ import type { ProductOffers, StorefrontOffer } from "@/lib/offers/storefront-off
 import { CART_UPDATED_EVENT, notifyCartUpdated, type CartAddedDetail } from "../../_themes/shared/cart-events";
 import { storeHref, storePath } from "../conversion/widget-position";
 import { OFFER_VARS, OfferRow, isPreviewFrame, sessionOnce } from "./offer-ui";
+import { st, stv } from "@/lib/i18n/storefront";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  After a shopper adds a product, shows the merchant's offer for it:
@@ -111,15 +112,15 @@ export function OfferHost({ storeSlug }: { storeSlug: string }) {
         features,
       });
       if (!res.success) {
-        setError({ id: offer.id, message: res.message });
+        setError({ id: offer.id, message: stv(res.message) });
         return;
       }
       notifyCartUpdated(res.added);
       router.refresh();
       if (stage?.kind === "cross") setDoneIds((ids) => [...ids, offer.id]);
-      else setStage({ kind: "done", message: res.message });
+      else setStage({ kind: "done", message: stv(res.message) });
     } catch {
-      setError({ id: offer.id, message: "حصلت مشكلة، حاول تاني" });
+      setError({ id: offer.id, message: st("حصلت مشكلة، حاول تاني") });
     } finally {
       setPendingId(null);
     }
@@ -148,11 +149,11 @@ export function OfferHost({ storeSlug }: { storeSlug: string }) {
               {title}
             </h2>
             {stage.kind === "upsell" && (
-              <p className="mt-0.5 text-xs text-(--of-muted)">بدل «{session.added.name}» — هنبدّله لك في السلة.</p>
+              <p className="mt-0.5 text-xs text-(--of-muted)">{st("بدل «{0}» — هنبدّله لك في السلة.", session.added.name)}</p>
             )}
-            {stage.kind === "cross" && <p className="mt-0.5 text-xs text-(--of-muted)">«{session.added.name}» اتضاف للسلة.</p>}
+            {stage.kind === "cross" && <p className="mt-0.5 text-xs text-(--of-muted)">{st("«{0}» اتضاف للسلة.", session.added.name)}</p>}
           </div>
-          <button type="button" onClick={close} aria-label="إغلاق" className="-me-2 -mt-1 grid size-9 place-items-center rounded-full hover:bg-(--of-soft)">
+          <button type="button" onClick={close} aria-label={st("إغلاق")} className="-me-2 -mt-1 grid size-9 place-items-center rounded-full hover:bg-(--of-soft)">
             <X className="size-4" />
           </button>
         </div>
@@ -163,7 +164,7 @@ export function OfferHost({ storeSlug }: { storeSlug: string }) {
               featured
               offer={stage.offer}
               href={productHref(stage.offer)}
-              ctaLabel={stage.kind === "upsell" ? "أيوه، طوّر اختياري" : "ضيفه للسلة"}
+              ctaLabel={stage.kind === "upsell" ? st("أيوه، طوّر اختياري") : st("ضيفه للسلة")}
               pending={pendingId === stage.offer.id}
               error={error?.id === stage.offer.id ? error.message : null}
               onAccept={(f) => accept(stage.offer, f)}
@@ -176,7 +177,7 @@ export function OfferHost({ storeSlug }: { storeSlug: string }) {
                   <OfferRow
                     offer={o}
                     href={productHref(o)}
-                    ctaLabel="ضيف"
+                    ctaLabel={st("ضيف")}
                     pending={pendingId === o.id}
                     done={doneIds.includes(o.id)}
                     error={error?.id === o.id ? error.message : null}
@@ -186,13 +187,13 @@ export function OfferHost({ storeSlug }: { storeSlug: string }) {
               ))}
             </ul>
           )}
-          {stage.kind === "done" && <p className="text-sm text-(--of-muted)">تقدر تكمّل تسوق أو تروح للسلة تخلّص طلبك.</p>}
+          {stage.kind === "done" && <p className="text-sm text-(--of-muted)">{st("تقدر تكمّل تسوق أو تروح للسلة تخلّص طلبك.")}</p>}
         </div>
 
         <div className="flex flex-col-reverse gap-2 border-t border-(--of-border) px-5 py-3 sm:flex-row sm:justify-between">
           {stage.kind === "upsell" || stage.kind === "downsell" ? (
             <button type="button" onClick={decline} className="min-h-10 text-sm font-medium text-(--of-muted) underline-offset-4 hover:underline">
-              {stage.kind === "upsell" ? `لا شكرًا، هكمّل بـ«${session.added.name}»` : "لا شكرًا"}
+              {stage.kind === "upsell" ? st("لا شكرًا، هكمّل بـ«{0}»", session.added.name) : st("لا شكرًا")}
             </button>
           ) : (
             <>
@@ -201,13 +202,13 @@ export function OfferHost({ storeSlug }: { storeSlug: string }) {
                 onClick={close}
                 className="min-h-10 rounded-[0.6rem] border border-(--of-border) px-4 text-sm font-semibold hover:bg-(--of-soft)"
               >
-                كمّل التسوق
+                {st("كمّل التسوق")}
               </button>
               <a
                 href={cartHref}
                 className="inline-flex min-h-10 items-center justify-center rounded-[0.6rem] bg-(--of-accent) px-4 text-sm font-semibold text-(--of-accent-fg) hover:opacity-90"
               >
-                روح للسلة
+                {st("روح للسلة")}
               </a>
             </>
           )}

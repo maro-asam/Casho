@@ -7,6 +7,7 @@ import type { AboutBrandContent, CategoryCardStyle, CollectionsContent } from "@
 import type { CategoryLink } from "../../types";
 import Rail from "../product/Rail";
 import { PlateImage, SectionHeader, Wrap, btn, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Cello's "Top most sold" collection grid: white tiles (photo + name) two
  *  rows high, five columns on desktop and two on phones, paged with the
@@ -19,7 +20,7 @@ export function CategoryGrid({ categories, storeSlug, shape = "square" }: { cate
   if (shape === "pill") {
     return (
       <section className="ce-wrap ce-section">
-        <SectionHeader title="تسوّق حسب التصنيف" sub={`${tiles.length} تصنيف في المتجر`} href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+        <SectionHeader title={st("تسوّق حسب التصنيف")} sub={st("{0} تصنيف في المتجر", tiles.length)} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل التصنيفات")} />
         <ul className="flex flex-wrap gap-2">
           {tiles.map((c) => (
             <li key={c.id}>
@@ -59,11 +60,11 @@ export function CategoryGrid({ categories, storeSlug, shape = "square" }: { cate
   return (
     <section className="ce-wrap ce-section">
       <Rail
-        label="التصنيفات"
-        title="تسوّق حسب التصنيف"
-        sub={`${tiles.length} تصنيف في المتجر`}
+        label={st("التصنيفات")}
+        title={st("تسوّق حسب التصنيف")}
+        sub={st("{0} تصنيف في المتجر", tiles.length)}
         href={buildStoreUrl(storeSlug, "/categories")}
-        linkLabel="كل التصنيفات"
+        linkLabel={st("كل التصنيفات")}
         listClassName="!gap-0 overflow-hidden rounded-(--ce-r) [&>li]:!w-1/2 sm:[&>li]:!w-1/3 lg:[&>li]:!w-1/5"
       >
         {columns.map((col, i) => (
@@ -101,7 +102,7 @@ export function PromoTiles({ content, storeSlug }: { content?: CollectionsConten
               <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_left,rgb(0_16_48/0.62),rgb(0_16_48/0)_75%)] ltr:bg-[linear-gradient(to_right,rgb(0_16_48/0.62),rgb(0_16_48/0)_75%)]" />
               <span className="relative flex flex-col items-start justify-center p-6 sm:p-10">
                 <span className="text-balance text-2xl font-semibold text-white sm:text-[2rem] sm:leading-tight">{c.name}</span>
-                <span className="mt-4 border-b border-white pb-0.5 text-[0.9375rem] group-hover:border-transparent">تسوّق الآن</span>
+                <span className="mt-4 border-b border-white pb-0.5 text-[0.9375rem] group-hover:border-transparent">{st("تسوّق الآن")}</span>
               </span>
             </Link>
           </li>
@@ -127,10 +128,10 @@ export function StoryWithCategories({ content, storeName, storeSlug, categories 
         )}
         <div className="relative">
           <p className="text-sm opacity-85">{storeName}</p>
-          <h2 className="ce-h2 mt-1 text-balance !text-white">{content.headline || `عن ${storeName}`}</h2>
+          <h2 className="ce-h2 mt-1 text-balance !text-white">{content.headline || st("عن {0}", storeName)}</h2>
           {content.text && <p className="mt-3 line-clamp-5 whitespace-pre-line text-sm leading-7 opacity-90">{content.text}</p>}
           <Link href={href} className={btn({ variant: "white", className: "mt-6" })}>
-            {content.ctaText || "اعرف حكايتنا"}
+            {content.ctaText || st("اعرف حكايتنا")}
           </Link>
         </div>
       </div>

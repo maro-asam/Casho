@@ -19,6 +19,7 @@ import MegaMenu from "./MegaMenu";
 import SearchBar from "./SearchBar";
 import StoreMark from "./StoreMark";
 import Ticker from "./Ticker";
+import { st } from "@/lib/i18n/storefront";
 
 const MEGA_ID = "ce-mega";
 
@@ -28,7 +29,7 @@ function CartButton({ count }: { count: number }) {
     <button
       type="button"
       onClick={openCart}
-      aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
+      aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")}
       aria-haspopup="dialog"
       className="-me-1.5 flex min-h-11 items-center gap-2.5 rounded-(--ce-r-sm) px-1.5 text-(--ce-ink) hover:text-(--ce-btn)"
     >
@@ -39,8 +40,8 @@ function CartButton({ count }: { count: number }) {
         </span>
       </span>
       <span aria-hidden className="hidden text-start text-[0.8125rem] leading-tight lg:block">
-        السلة
-        <span className="block font-semibold">{count > 0 ? `${num(count)} منتج` : "فاضية"}</span>
+        {st("السلة")}
+        <span className="block font-semibold">{count > 0 ? st("{0} منتج", num(count)) : st("فاضية")}</span>
       </span>
     </button>
   );
@@ -108,13 +109,13 @@ export default function CelloHeader({ shell }: { shell: StoreShell }) {
   const variant = shell.navbarVariant === "centered" || shell.navbarVariant === "allaia" ? "centered" : shell.navbarVariant === "compact" ? "compact" : "default";
   const navCats = shell.categories.slice(0, 5);
   const links = [
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products", label: "كل المنتجات", match: "/products" },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products", label: st("كل المنتجات"), match: "/products" },
   ];
   const utility = [
-    { href: "/products?featured=true", label: "اختيارات المتجر", Icon: Zap },
-    { href: "/about", label: "عن المتجر" },
-    { href: "/contact", label: "تواصل معنا" },
+    { href: "/products?featured=true", label: st("اختيارات المتجر"), Icon: Zap },
+    { href: "/about", label: st("عن المتجر") },
+    { href: "/contact", label: st("تواصل معنا") },
   ];
 
   return (
@@ -141,11 +142,11 @@ export default function CelloHeader({ shell }: { shell: StoreShell }) {
             {variant !== "centered" && <SearchBar shell={shell} className="hidden min-w-0 flex-1 lg:block" />}
             <div className="ms-auto flex shrink-0 items-center gap-2 lg:ms-0 lg:gap-5 lg:justify-self-end">
               {wa && (
-                <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-2.5 text-(--ce-ink) hover:text-(--ce-btn)" aria-label="كلّمنا على واتساب">
+                <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-2.5 text-(--ce-ink) hover:text-(--ce-btn)" aria-label={st("كلّمنا على واتساب")}>
                   <MessageCircle className="size-6" strokeWidth={1.5} />
                   <span aria-hidden className="hidden text-[0.8125rem] leading-tight xl:block">
-                    محتاج مساعدة؟
-                    <span className="block font-semibold">كلّمنا واتساب</span>
+                    {st("محتاج مساعدة؟")}
+                    <span className="block font-semibold">{st("كلّمنا واتساب")}</span>
                   </span>
                 </a>
               )}
@@ -160,18 +161,18 @@ export default function CelloHeader({ shell }: { shell: StoreShell }) {
         </div>
 
         {/* Desktop navigation row (not in the compact bar) */}
-        <nav aria-label="القائمة الرئيسية" className={cn("hidden border-t border-(--ce-line)", variant !== "compact" && "lg:block")}>
+        <nav aria-label={st("القائمة الرئيسية")} className={cn("hidden border-t border-(--ce-line)", variant !== "compact" && "lg:block")}>
           <div className="ce-wrap flex h-12 items-center justify-between gap-6">
             <ul className="-mx-2.5 flex min-w-0 items-center gap-1 xl:gap-2">
               <li onMouseEnter={() => hasMega && hoverMega(true)}>
                 {hasMega ? (
                   <button ref={triggerRef} type="button" aria-expanded={mega} aria-controls={MEGA_ID} onClick={() => setMega((v) => !v)} className="ce-nav-link px-2.5">
-                    كل التصنيفات
+                    {st("كل التصنيفات")}
                     <ChevronDown className={cn("size-4 transition-transform duration-300", mega && "rotate-180")} />
                   </button>
                 ) : (
                   <Link href={url("/products")} className="ce-nav-link px-2.5">
-                    تسوّق
+                    {st("تسوّق")}
                   </Link>
                 )}
               </li>
@@ -216,7 +217,7 @@ export default function CelloHeader({ shell }: { shell: StoreShell }) {
         tabIndex={scroll.top ? 0 : -1}
         aria-hidden={!scroll.top}
         onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
-        aria-label="الرجوع لأعلى الصفحة"
+        aria-label={st("الرجوع لأعلى الصفحة")}
         className="ce-top"
       >
         <ArrowUp className="size-5" />

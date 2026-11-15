@@ -1,7 +1,9 @@
+import { st } from "@/lib/i18n/storefront";
+
 export const NAV_LINKS = [
-  { href: "/", label: "الرئيسية" },
-  { href: "/products", label: "كل المنتجات" },
-  { href: "/categories", label: "التصنيفات" },
-  { href: "/about", label: "عن المتجر" },
-  { href: "/contact", label: "تواصل معنا" },
+  { href: "/", get label() { return st("الرئيسية"); } },
+  { href: "/products", get label() { return st("كل المنتجات"); } },
+  { href: "/categories", get label() { return st("التصنيفات"); } },
+  { href: "/about", get label() { return st("عن المتجر"); } },
+  { href: "/contact", get label() { return st("تواصل معنا"); } },
 ] as const;

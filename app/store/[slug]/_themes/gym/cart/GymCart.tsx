@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Gift, Minus, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2, Truck, XCircle } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   applyCouponAction,
   applyLoyaltyAction,
@@ -20,6 +20,7 @@ import { unitPriceFor } from "../../shared/commerce";
 import SubmitButton from "../../shared/SubmitButton";
 import RecentlyViewed from "../sections/RecentlyViewed";
 import { Crumbs, Empty, featureLabel, PlateImage, Wrap, btn, days, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export function Notice({ tone, children }: { tone: "success" | "error" | "warning"; children: React.ReactNode }) {
   const Icon = tone === "success" ? CheckCircle2 : tone === "error" ? XCircle : AlertTriangle;
@@ -43,21 +44,21 @@ export function Totals({ summary }: { summary: CartViewProps["cart"]["summary"] 
   return (
     <dl className="space-y-2.5 text-sm">
       <div className="flex justify-between gap-4">
-        <dt>المجموع الفرعي</dt>
+        <dt>{st("المجموع الفرعي")}</dt>
         <dd className="gy-num font-bold text-(--gy-ink)">{formatPrice(summary.subtotal)}</dd>
       </div>
       <div className="flex justify-between gap-4">
-        <dt>التوصيل</dt>
-        <dd className="gy-num font-bold text-(--gy-ink)">{summary.shipping === 0 ? "مجاني" : formatPrice(summary.shipping)}</dd>
+        <dt>{st("التوصيل")}</dt>
+        <dd className="gy-num font-bold text-(--gy-ink)">{summary.shipping === 0 ? st("مجاني") : formatPrice(summary.shipping)}</dd>
       </div>
       {summary.discount > 0 && (
         <div className="flex justify-between gap-4 text-(--gy-ok)">
-          <dt>الخصم</dt>
+          <dt>{st("الخصم")}</dt>
           <dd className="gy-num font-bold">− {formatPrice(summary.discount)}</dd>
         </div>
       )}
       <div className="flex items-baseline justify-between gap-4 border-t border-dashed border-(--gy-line) pt-3.5">
-        <dt className="font-bold text-(--gy-ink)">الإجمالي</dt>
+        <dt className="font-bold text-(--gy-ink)">{st("الإجمالي")}</dt>
         <dd className="gy-price text-2xl">{formatPrice(summary.total)}</dd>
       </div>
     </dl>
@@ -77,17 +78,17 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
         <CartRestorer storeSlug={storeSlug} />
       </Suspense>
       <Wrap>
-        <Crumbs className="py-4" items={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "السلة" }]} />
+        <Crumbs className="py-4" items={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("السلة") }]} />
         <h1 className="gy-h1 mb-6 flex items-baseline gap-2">
-          سلة المشتريات
-          {count > 0 && <span className="text-base font-normal text-(--gy-quiet)">({num(count)} منتج)</span>}
+          {st("سلة المشتريات")}
+          {count > 0 && <span className="text-base font-normal text-(--gy-quiet)">{st("({0} منتج)", num(count))}</span>}
         </h1>
 
         {notice.stockChanged && (
           <div className="mb-6">
             <Notice tone="warning">
-              <p className="font-bold">عدّلنا سلتك على حسب المتاح</p>
-              <p className="mt-0.5">في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية.</p>
+              <p className="font-bold">{st("عدّلنا سلتك على حسب المتاح")}</p>
+              <p className="mt-0.5">{st("في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية.")}</p>
             </Notice>
           </div>
         )}
@@ -95,22 +96,22 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
         {items.length === 0 ? (
           <Empty
             icon={<ShoppingBag />}
-            title="سلتك فاضية"
-            description="لسه ما ضفتش أي منتجات. ابحث عن اللي محتاجه أو تصفّح الأقسام."
+            title={st("سلتك فاضية")}
+            description={st("لسه ما ضفتش أي منتجات. ابحث عن اللي محتاجه أو تصفّح الأقسام.")}
             action={
               <>
                 <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-                  ابدأ التسوق
+                  {st("ابدأ التسوق")}
                 </Link>
                 <Link href={buildStoreUrl(storeSlug, "/categories")} className={btn({ variant: "outline", size: "lg" })}>
-                  الأقسام
+                  {st("الأقسام")}
                 </Link>
               </>
             }
           />
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-8 xl:grid-cols-[minmax(0,1fr)_26rem]">
-            <section aria-label="المنتجات في السلة" className="gy-panel min-w-0 px-4 sm:px-5">
+            <section aria-label={st("المنتجات في السلة")} className="gy-panel min-w-0 px-4 sm:px-5">
               <ul className="divide-y divide-(--gy-line)">
                 {items.map((item) => {
                   const unit = unitPriceFor(item.product.price, item.product.wholesaleOptions, item.quantity);
@@ -128,28 +129,28 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
                         </Link>
                         {features.length > 0 && <p className="mt-1 text-xs text-(--gy-quiet)">{features.map(([k, v]) => featureLabel(k, v)).join(" · ")}</p>}
                         <p className="mt-1 text-xs text-(--gy-quiet)">
-                          {formatPrice(unit)} للقطعة
-                          {wholesale && <span className="ms-1.5 font-bold text-(--gy-ok)">· سعر الكمية</span>}
+                          {st("{0} للقطعة", formatPrice(unit))}
+                          {wholesale && <span className="ms-1.5 font-bold text-(--gy-ok)">{st("· سعر الكمية")}</span>}
                         </p>
                         <form action={removeItemAction.bind(null, storeSlug, item.id)} className="mt-1">
                           <SubmitButton className="inline-flex min-h-8 items-center gap-1.5 text-xs text-(--gy-quiet) hover:text-(--gy-error) [&_svg]:size-3.5">
                             <Trash2 />
-                            إزالة<span className="sr-only"> {item.product.name}</span>
+                            {st("إزالة")}<span className="sr-only"> {item.product.name}</span>
                           </SubmitButton>
                         </form>
                       </div>
                       <div className="flex items-center justify-between gap-3 md:contents">
                         <div className="flex w-fit items-center rounded-(--gy-r-sm) border border-(--gy-line)">
                           <form action={changeQtyAction.bind(null, storeSlug, item.id, "decrement")}>
-                            <SubmitButton aria-label={item.quantity <= 1 ? `حذف ${item.product.name}` : "تقليل الكمية"} className={STEP}>
+                            <SubmitButton aria-label={item.quantity <= 1 ? st("حذف {0}", item.product.name) : st("تقليل الكمية")} className={STEP}>
                               <Minus />
                             </SubmitButton>
                           </form>
-                          <span className="gy-num w-8 text-center font-bold text-(--gy-ink)" aria-label={`الكمية ${item.quantity}`}>
+                          <span className="gy-num w-8 text-center font-bold text-(--gy-ink)" aria-label={st("الكمية {0}", item.quantity)}>
                             {num(item.quantity)}
                           </span>
                           <form action={changeQtyAction.bind(null, storeSlug, item.id, "increment")}>
-                            <SubmitButton aria-label="زيادة الكمية" disabled={item.quantity >= item.product.stock} className={STEP}>
+                            <SubmitButton aria-label={st("زيادة الكمية")} disabled={item.quantity >= item.product.stock} className={STEP}>
                               <Plus />
                             </SubmitButton>
                           </form>
@@ -162,20 +163,20 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
               </ul>
               <div className="border-t border-(--gy-line) py-4">
                 <Link href={buildStoreUrl(storeSlug, "/products")} className="gy-link text-sm">
-                  كمّل تسوق
+                  {st("كمّل تسوق")}
                 </Link>
               </div>
             </section>
 
-            <aside aria-label="ملخص الطلب" className="lg:sticky lg:top-6 lg:self-start">
+            <aside aria-label={st("ملخص الطلب")} className="lg:sticky lg:top-6 lg:self-start">
               <div className="gy-panel space-y-6 p-5 sm:p-6">
-                <h2 className="gy-h3">ملخص الطلب</h2>
+                <h2 className="gy-h3">{st("ملخص الطلب")}</h2>
 
                 {shippingMethods.length > 0 && (
                   <fieldset>
                     <legend className="mb-2.5 flex items-center gap-2 text-sm font-bold text-(--gy-ink)">
                       <Truck className="size-4 text-(--gy-link)" />
-                      طريقة التوصيل
+                      {st("طريقة التوصيل")}
                     </legend>
                     <div className="space-y-2">
                       {shippingMethods.map((m) => {
@@ -195,9 +196,9 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
                               </span>
                               <span className="min-w-0 flex-1">
                                 <span className="block font-bold text-(--gy-ink)">{m.name}</span>
-                                {m.estimatedDays ? <span className="block text-xs text-(--gy-quiet)">خلال {days(m.estimatedDays)}</span> : null}
+                                {m.estimatedDays ? <span className="block text-xs text-(--gy-quiet)">{st("خلال {0}", days(m.estimatedDays))}</span> : null}
                               </span>
-                              <span className="gy-num shrink-0 font-bold text-(--gy-ink)">{m.price === 0 ? "مجاني" : formatPrice(m.price / 100)}</span>
+                              <span className="gy-num shrink-0 font-bold text-(--gy-ink)">{m.price === 0 ? st("مجاني") : formatPrice(m.price / 100)}</span>
                             </button>
                           </form>
                         );
@@ -218,21 +219,21 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
                             {appliedCoupon.coupon.code}
                           </p>
                           <p className="text-xs text-(--gy-quiet)">
-                            {appliedCoupon.coupon.type === "PERCENTAGE" ? `خصم ${num(appliedCoupon.coupon.value)}٪` : `خصم ${formatPrice(appliedCoupon.coupon.value)}`}
+                            {appliedCoupon.coupon.type === "PERCENTAGE" ? st("خصم {0}٪", num(appliedCoupon.coupon.value)) : st("خصم {0}", formatPrice(appliedCoupon.coupon.value))}
                           </p>
                         </div>
                       </div>
                       <form action={removeCouponAction.bind(null, storeSlug)}>
-                        <SubmitButton className="min-h-10 px-2 text-xs underline underline-offset-4">إزالة</SubmitButton>
+                        <SubmitButton className="min-h-10 px-2 text-xs underline underline-offset-4">{st("إزالة")}</SubmitButton>
                       </form>
                     </div>
                   ) : (
                     <form action={applyCouponAction.bind(null, storeSlug)} className="flex gap-2">
                       <label className="sr-only" htmlFor="gy-coupon">
-                        كود الخصم
+                        {st("كود الخصم")}
                       </label>
-                      <input id="gy-coupon" name="code" required placeholder="كود الخصم" autoComplete="off" className="gy-field uppercase" />
-                      <SubmitButton className={btn({ variant: "tint" })}>تطبيق</SubmitButton>
+                      <input id="gy-coupon" name="code" required placeholder={st("كود الخصم")} autoComplete="off" className="gy-field uppercase" />
+                      <SubmitButton className={btn({ variant: "tint" })}>{st("تطبيق")}</SubmitButton>
                     </form>
                   )}
                 </div>
@@ -243,12 +244,12 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
                       <div className="flex items-center gap-2.5">
                         <Gift className="size-5 text-(--gy-link)" />
                         <div>
-                          <p className="text-sm text-(--gy-ink)">استخدمت {num(appliedLoyalty.points)} نقطة</p>
-                          <p className="text-xs text-(--gy-quiet)">خصم {formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100)}</p>
+                          <p className="text-sm text-(--gy-ink)">{st("استخدمت {0} نقطة", num(appliedLoyalty.points))}</p>
+                          <p className="text-xs text-(--gy-quiet)">{st("خصم {0}", formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100))}</p>
                         </div>
                       </div>
                       <form action={removeLoyaltyAction.bind(null, storeSlug)}>
-                        <SubmitButton className="min-h-10 px-2 text-xs underline underline-offset-4">إزالة</SubmitButton>
+                        <SubmitButton className="min-h-10 px-2 text-xs underline underline-offset-4">{st("إزالة")}</SubmitButton>
                       </form>
                     </div>
                   ) : (
@@ -256,17 +257,17 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
                       <summary className="flex min-h-12 items-center justify-between gap-2 text-sm text-(--gy-ink)">
                         <span className="flex items-center gap-2">
                           <Gift className="size-[1.125rem] text-(--gy-link)" />
-                          استخدم نقاط المكافآت
+                          {st("استخدم نقاط المكافآت")}
                         </span>
                         <svg viewBox="0 0 16 16" className="gy-chev" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
                           <path d="m4 6 4 4 4-4" />
                         </svg>
                       </summary>
                       <form action={applyLoyaltyAction.bind(null, storeSlug)} className="space-y-2 pb-4">
-                        <input name="loyaltyPhone" type="tel" inputMode="tel" autoComplete="tel" required placeholder="رقم الموبايل" aria-label="رقم الموبايل" className="gy-field" />
+                        <input name="loyaltyPhone" type="tel" inputMode="tel" autoComplete="tel" required placeholder={st("رقم الموبايل")} aria-label={st("رقم الموبايل")} className="gy-field" />
                         <div className="flex gap-2">
-                          <input name="loyaltyPoints" type="number" inputMode="numeric" min={loyaltyMinRedemption} step={1} required placeholder={`عدد النقاط (أقل حاجة ${num(loyaltyMinRedemption)})`} aria-label="عدد النقاط" className="gy-field" />
-                          <SubmitButton className={btn({ variant: "tint" })}>استخدام</SubmitButton>
+                          <input name="loyaltyPoints" type="number" inputMode="numeric" min={loyaltyMinRedemption} step={1} required placeholder={st("عدد النقاط (أقل حاجة {0})", num(loyaltyMinRedemption))} aria-label={st("عدد النقاط")} className="gy-field" />
+                          <SubmitButton className={btn({ variant: "tint" })}>{st("استخدام")}</SubmitButton>
                         </div>
                       </form>
                     </details>
@@ -275,11 +276,11 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
                 <Totals summary={summary} />
 
                 <Link href={checkoutHref} className={btn({ size: "lg", full: true, className: "hidden lg:inline-flex" })}>
-                  إتمام الطلب
+                  {st("إتمام الطلب")}
                 </Link>
                 <p className="flex items-start gap-2 text-xs leading-6 text-(--gy-quiet)">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-(--gy-link)" />
-                  بعد ما تبعت الطلب، المتجر هيتواصل معاك يأكد البيانات وميعاد التوصيل.
+                  {st("بعد ما تبعت الطلب، المتجر هيتواصل معاك يأكد البيانات وميعاد التوصيل.")}
                 </p>
               </div>
             </aside>
@@ -287,11 +288,11 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
             <div className="fixed inset-x-0 bottom-0 z-40 border-t border-(--gy-line) bg-(--gy-surface)/95 backdrop-blur-md lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
               <div className="gy-wrap flex items-center gap-4 py-3">
                 <div className="shrink-0">
-                  <p className="text-xs text-(--gy-quiet)">الإجمالي</p>
+                  <p className="text-xs text-(--gy-quiet)">{st("الإجمالي")}</p>
                   <p className="gy-price text-lg">{formatPrice(summary.total)}</p>
                 </div>
                 <Link href={checkoutHref} className={btn({ size: "lg", className: "flex-1" })}>
-                  إتمام الطلب
+                  {st("إتمام الطلب")}
                 </Link>
               </div>
             </div>

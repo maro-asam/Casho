@@ -15,6 +15,7 @@ import { Container, EmptyState, SectionHeading, btn } from "../ui";
 import CategoryRail from "./CategoryRail";
 import HeroCarousel from "./HeroCarousel";
 import PromoTiles from "./PromoTiles";
+import { st } from "@/lib/i18n/storefront";
 
 const HERO_SLIDES = 3;
 
@@ -31,7 +32,7 @@ function HeroFallback({
   return (
     <section className="grid items-center gap-8 overflow-hidden rounded-(--c-radius-lg) bg-(--c-subtle) px-5 py-9 sm:px-10 sm:py-12 lg:grid-cols-[1.1fr_1fr] lg:gap-12 lg:px-14 lg:py-14">
       <div className="max-w-xl">
-        <p className="text-sm font-medium text-muted-foreground">أهلاً بيك في</p>
+        <p className="text-sm font-medium text-muted-foreground">{st("أهلاً بيك في")}</p>
         <h1 className="mt-2 text-[1.75rem] font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{store.name}</h1>
         {store.description && (
           <p className="mt-4 line-clamp-3 text-[0.9375rem] leading-7 text-muted-foreground sm:text-base">{store.description}</p>
@@ -39,11 +40,11 @@ function HeroFallback({
         <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-8">
           <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg", className: "min-w-36" })}>
             <ShoppingBag />
-            تسوق الآن
+            {st("تسوق الآن")}
           </Link>
           {hasCategories && (
             <Link href={buildStoreUrl(store.slug, "/categories")} className={btn({ size: "lg", variant: "outline" })}>
-              التصنيفات
+              {st("التصنيفات")}
             </Link>
           )}
         </div>
@@ -117,7 +118,7 @@ export default function ClassicHome({
     showCategories:
       sections.showCategories && categories.length > 0 ? (
         <div className="c-section">
-          <SectionHeading title="تسوق حسب التصنيف" href={url("/categories")} linkLabel="كل التصنيفات" />
+          <SectionHeading title={st("تسوق حسب التصنيف")} href={url("/categories")} linkLabel={st("كل التصنيفات")} />
           <CategoryRail categories={categories.slice(0, 12)} storeSlug={store.slug} style={layout.categoryCardStyle} />
         </div>
       ) : null,
@@ -125,7 +126,7 @@ export default function ClassicHome({
     showFeaturedProducts:
       sections.showFeaturedProducts && featured.length > 0 ? (
         <div className="c-section">
-          <SectionHeading title="منتجات مميزة" href={url("/products?featured=true")} />
+          <SectionHeading title={st("منتجات مميزة")} href={url("/products?featured=true")} />
           <ProductRail products={featured} storeSlug={store.slug} />
         </div>
       ) : null,
@@ -134,8 +135,8 @@ export default function ClassicHome({
       sections.showBestSellers && bestSellers.length > 0 ? (
         <div className="c-section">
           <SectionHeading
-            title={sectionContent.bestSellers?.headline || "الأكثر مبيعًا"}
-            subtitle="اختيارات عملائنا المفضلة"
+            title={sectionContent.bestSellers?.headline || st("الأكثر مبيعًا")}
+            subtitle={st("اختيارات عملائنا المفضلة")}
             href={url("/products")}
           />
           <ProductRail products={bestSellers} storeSlug={store.slug} />
@@ -145,12 +146,12 @@ export default function ClassicHome({
     showLatestProducts: sections.showLatestProducts ? (
       hasAnyProducts ? (
         <div className="c-section">
-          <SectionHeading title="وصل حديثًا" href={url("/products")} />
+          <SectionHeading title={st("وصل حديثًا")} href={url("/products")} />
           <ProductGrid products={latest} storeSlug={store.slug} />
           {latest.length >= 8 && (
             <div className="mt-8 flex justify-center sm:mt-10">
               <Link href={url("/products")} className={btn({ variant: "outline", size: "lg", className: "min-w-52" })}>
-                تصفح كل المنتجات
+                {st("تصفح كل المنتجات")}
               </Link>
             </div>
           )}
@@ -159,8 +160,8 @@ export default function ClassicHome({
         <div className="c-section">
           <EmptyState
             icon={<ShoppingBag />}
-            title="المنتجات جاية قريب"
-            description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+            title={st("المنتجات جاية قريب")}
+            description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
           />
         </div>
       )

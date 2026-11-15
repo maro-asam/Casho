@@ -15,6 +15,7 @@ import type {
   WhyChooseUsContent,
 } from "@/types/store-theme.types";
 import { Arrow, Rating, SectionHeader, Wrap, btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured merchandising sections, drawn in Mada's language.
 // Each renders only real merchant content — no placeholder claims.
@@ -25,7 +26,7 @@ export function Marquee({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   const run = Array.from({ length: Math.max(2, Math.ceil(8 / items.length)) }, () => items).flat();
   return (
-    <div className="md-marquee my-[calc(var(--md-section)/3)] overflow-hidden bg-(--md-signal) text-(--md-signal-ink)" role="region" aria-label="عروض">
+    <div className="md-marquee my-[calc(var(--md-section)/3)] overflow-hidden bg-(--md-signal) text-(--md-signal-ink)" role="region" aria-label={st("عروض")}>
       <p className="sr-only">{items.join(" — ")}</p>
       <div className="md-marquee-track" aria-hidden>
         {[0, 1].map((copy) => (
@@ -95,7 +96,7 @@ export function Testimonials({ content }: { content?: TestimonialsContent }) {
   if (items.length === 0) return null;
   return (
     <Wrap className="md-section md-reveal">
-      <SectionHeader eyebrow="آراء" title={content?.headline || "العملاء بيقولوا إيه"} />
+      <SectionHeader eyebrow={st("آراء")} title={content?.headline || st("العملاء بيقولوا إيه")} />
       <ul className="md-rail md-bleed gap-3 sm:gap-5 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
         {items.slice(0, 6).map((t, i) => (
           <li key={i} className="w-[84%] shrink-0 sm:w-[46%] lg:w-auto">
@@ -130,11 +131,11 @@ export function ImageWithText({ content, storeName, storeSlug }: { content?: Abo
           </div>
         )}
         <div className={cn("p-6 sm:p-10 lg:p-14", !content.image && "lg:col-span-2 lg:max-w-3xl")}>
-          <span className="md-eyebrow">حكايتنا</span>
-          <h2 className="md-h2 mt-4">{content.headline || `عن ${storeName}`}</h2>
+          <span className="md-eyebrow">{st("حكايتنا")}</span>
+          <h2 className="md-h2 mt-4">{content.headline || st("عن {0}", storeName)}</h2>
           {content.text && <p className="md-prose mt-4 text-[0.9375rem]">{content.text}</p>}
           <Link href={href} className={btn({ className: "mt-7" })}>
-            {content.ctaText || "اعرف أكتر"}
+            {content.ctaText || st("اعرف أكتر")}
             <Arrow />
           </Link>
         </div>
@@ -155,7 +156,7 @@ export function PromoGrid({ content, storeSlug }: { content?: CollectionsContent
   };
   return (
     <Wrap className="md-section md-reveal">
-      <SectionHeader eyebrow="مجموعات" title={content?.headline || "مجموعات مختارة"} />
+      <SectionHeader eyebrow={st("مجموعات")} title={content?.headline || st("مجموعات مختارة")} />
       <ul className={cn("grid grid-cols-2 gap-3 sm:gap-4", items.length >= 3 && "lg:grid-cols-3", items.length >= 4 && "lg:grid-cols-4")}>
         {items.slice(0, 8).map((c, i) => (
           <li key={i} className={cn(i === 0 && items.length % 2 === 1 && "col-span-2 lg:col-span-1")}>

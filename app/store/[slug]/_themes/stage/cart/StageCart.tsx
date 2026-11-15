@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Gift, Minus, Plus, ShieldCheck, ShoppingBag, TicketPercent, XCircle } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   applyCouponAction,
   applyLoyaltyAction,
@@ -20,6 +20,7 @@ import { unitPriceFor } from "../../shared/commerce";
 import SubmitButton from "../../shared/SubmitButton";
 import RecentlyViewed from "../sections/RecentlyViewed";
 import { Empty, featureLabel, PlateImage, Wrap, btn, days, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export function Notice({ tone, children }: { tone: "success" | "error" | "warning"; children: React.ReactNode }) {
   const Icon = tone === "success" ? CheckCircle2 : tone === "error" ? XCircle : AlertTriangle;
@@ -44,21 +45,21 @@ export function Totals({ summary }: { summary: CartViewProps["cart"]["summary"] 
   return (
     <dl className="sg-totals">
       <div>
-        <dt>المجموع الفرعي</dt>
+        <dt>{st("المجموع الفرعي")}</dt>
         <dd className="sg-num">{formatPrice(summary.subtotal)}</dd>
       </div>
       <div>
-        <dt>التوصيل</dt>
-        <dd className="sg-num">{summary.shipping === 0 ? "مجاني" : formatPrice(summary.shipping)}</dd>
+        <dt>{st("التوصيل")}</dt>
+        <dd className="sg-num">{summary.shipping === 0 ? st("مجاني") : formatPrice(summary.shipping)}</dd>
       </div>
       {summary.discount > 0 && (
         <div className="text-(--sg-ok)">
-          <dt>الخصم</dt>
+          <dt>{st("الخصم")}</dt>
           <dd className="sg-num">− {formatPrice(summary.discount)}</dd>
         </div>
       )}
       <div className="sg-totals-grand">
-        <dt>الإجمالي</dt>
+        <dt>{st("الإجمالي")}</dt>
         <dd className="sg-num">{formatPrice(summary.total)}</dd>
       </div>
     </dl>
@@ -81,46 +82,46 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
           <>
             <Empty
               icon={<ShoppingBag />}
-              title="حقيبتك فاضية."
-              description="لسه ما ضفتش أي حاجة. دوّر على اللي بتحبه أو تصفّح الأقسام."
+              title={st("حقيبتك فاضية.")}
+              description={st("لسه ما ضفتش أي حاجة. دوّر على اللي بتحبه أو تصفّح الأقسام.")}
               action={
                 <>
                   <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-                    ابدأ التسوق
+                    {st("ابدأ التسوق")}
                   </Link>
                   <Link href={buildStoreUrl(storeSlug, "/categories")} className={btn({ variant: "gray", size: "lg" })}>
-                    الأقسام
+                    {st("الأقسام")}
                   </Link>
                 </>
               }
             />
             {notice.stockChanged && (
               <Notice tone="warning">
-                <p className="font-semibold">عدّلنا حقيبتك على حسب المتاح</p>
-                <p className="mt-0.5">في منتجات خلصت، فشلناها.</p>
+                <p className="font-semibold">{st("عدّلنا حقيبتك على حسب المتاح")}</p>
+                <p className="mt-0.5">{st("في منتجات خلصت، فشلناها.")}</p>
               </Notice>
             )}
           </>
         ) : (
           <>
             <header className="sg-baghead">
-              <h1 className="sg-h1 text-balance">إجمالي حقيبتك {formatPrice(summary.total)}</h1>
-              <p className="sg-lead mx-auto mt-3 max-w-xl text-balance">{summary.shipping === 0 ? "التوصيل مجاني على طلبك." : "المتجر بيأكد معاك الطلب وميعاد التوصيل قبل الشحن."}</p>
+              <h1 className="sg-h1 text-balance">{st("إجمالي حقيبتك {0}", formatPrice(summary.total))}</h1>
+              <p className="sg-lead mx-auto mt-3 max-w-xl text-balance">{summary.shipping === 0 ? st("التوصيل مجاني على طلبك.") : st("المتجر بيأكد معاك الطلب وميعاد التوصيل قبل الشحن.")}</p>
               <Link href={checkoutHref} className={btn({ size: "lg", className: "mt-7 min-w-56 max-lg:hidden" })}>
-                كمّل الطلب
+                {st("كمّل الطلب")}
               </Link>
             </header>
 
             {notice.stockChanged && (
               <div className="mb-6">
                 <Notice tone="warning">
-                  <p className="font-semibold">عدّلنا حقيبتك على حسب المتاح</p>
-                  <p className="mt-0.5">في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية.</p>
+                  <p className="font-semibold">{st("عدّلنا حقيبتك على حسب المتاح")}</p>
+                  <p className="mt-0.5">{st("في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية.")}</p>
                 </Notice>
               </div>
             )}
 
-            <section aria-label="المنتجات في الحقيبة">
+            <section aria-label={st("المنتجات في الحقيبة")}>
               <ul className="sg-bag-items">
                 {items.map((item) => {
                   const unit = unitPriceFor(item.product.price, item.product.wholesaleOptions, item.quantity);
@@ -140,22 +141,22 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                             </Link>
                             {features.length > 0 && <p className="mt-1 text-sm text-(--sg-label-2)">{features.map(([k, v]) => featureLabel(k, v)).join(" · ")}</p>}
                             <p className="mt-1 text-sm text-(--sg-label-2)">
-                              {formatPrice(unit)} للقطعة
-                              {wholesale && <span className="ms-1.5 font-semibold text-(--sg-ok)">· سعر الكمية</span>}
+                              {st("{0} للقطعة", formatPrice(unit))}
+                              {wholesale && <span className="ms-1.5 font-semibold text-(--sg-ok)">{st("· سعر الكمية")}</span>}
                             </p>
                           </div>
                           <div className="flex items-center gap-5">
                             <div className="sg-qty !h-10">
                               <form action={changeQtyAction.bind(null, storeSlug, item.id, "decrement")}>
-                                <SubmitButton aria-label={item.quantity <= 1 ? `حذف ${item.product.name}` : "تقليل الكمية"} className={STEP}>
+                                <SubmitButton aria-label={item.quantity <= 1 ? st("حذف {0}", item.product.name) : st("تقليل الكمية")} className={STEP}>
                                   <Minus />
                                 </SubmitButton>
                               </form>
-                              <span className="sg-num w-7 text-center font-semibold text-(--sg-ink)" aria-label={`الكمية ${item.quantity}`}>
+                              <span className="sg-num w-7 text-center font-semibold text-(--sg-ink)" aria-label={st("الكمية {0}", item.quantity)}>
                                 {num(item.quantity)}
                               </span>
                               <form action={changeQtyAction.bind(null, storeSlug, item.id, "increment")}>
-                                <SubmitButton aria-label="زيادة الكمية" disabled={item.quantity >= item.product.stock} className={STEP}>
+                                <SubmitButton aria-label={st("زيادة الكمية")} disabled={item.quantity >= item.product.stock} className={STEP}>
                                   <Plus />
                                 </SubmitButton>
                               </form>
@@ -165,7 +166,7 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                         </div>
                         <form action={removeItemAction.bind(null, storeSlug, item.id)} className="mt-3 flex justify-end">
                           <SubmitButton className="sg-link min-h-8 text-[0.9375rem]">
-                            إزالة<span className="sr-only"> {item.product.name}</span>
+                            {st("إزالة")}<span className="sr-only"> {item.product.name}</span>
                           </SubmitButton>
                         </form>
                       </div>
@@ -175,11 +176,11 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
               </ul>
             </section>
 
-            <section aria-label="ملخص الطلب" className="sg-bag-summary">
+            <section aria-label={st("ملخص الطلب")} className="sg-bag-summary">
               {shippingMethods.length > 0 && (
                 <fieldset>
                   <legend className="sg-step-legend">
-                    <span className="text-(--sg-ink)">التوصيل.</span> اختار الطريقة اللي تناسبك.
+                    <span className="text-(--sg-ink)">{st("التوصيل.")}</span>{" "}{st("اختار الطريقة اللي تناسبك.")}
                   </legend>
                   <div className="grid gap-2.5">
                     {shippingMethods.map((m) => {
@@ -189,9 +190,9 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                           <button type="submit" aria-pressed={on} data-on={on} className="sg-optbox !min-h-16 w-full !flex-row !justify-between gap-4 !px-5 !text-start">
                             <span className="min-w-0">
                               <span className="block font-semibold text-(--sg-ink)">{m.name}</span>
-                              {m.estimatedDays ? <span className="block text-[0.8125rem] font-normal text-(--sg-label-2)">خلال {days(m.estimatedDays)}</span> : null}
+                              {m.estimatedDays ? <span className="block text-[0.8125rem] font-normal text-(--sg-label-2)">{st("خلال {0}", days(m.estimatedDays))}</span> : null}
                             </span>
-                            <span className="sg-num shrink-0 font-semibold text-(--sg-ink)">{m.price === 0 ? "مجاني" : formatPrice(m.price / 100)}</span>
+                            <span className="sg-num shrink-0 font-semibold text-(--sg-ink)">{m.price === 0 ? st("مجاني") : formatPrice(m.price / 100)}</span>
                           </button>
                         </form>
                       );
@@ -212,12 +213,12 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                           {appliedCoupon.coupon.code}
                         </p>
                         <p className="text-xs text-(--sg-label-2)">
-                          {appliedCoupon.coupon.type === "PERCENTAGE" ? `خصم ${num(appliedCoupon.coupon.value)}٪` : `خصم ${formatPrice(appliedCoupon.coupon.value)}`}
+                          {appliedCoupon.coupon.type === "PERCENTAGE" ? st("خصم {0}٪", num(appliedCoupon.coupon.value)) : st("خصم {0}", formatPrice(appliedCoupon.coupon.value))}
                         </p>
                       </div>
                     </div>
                     <form action={removeCouponAction.bind(null, storeSlug)}>
-                      <SubmitButton className="sg-link min-h-10 px-2 text-sm">إزالة</SubmitButton>
+                      <SubmitButton className="sg-link min-h-10 px-2 text-sm">{st("إزالة")}</SubmitButton>
                     </form>
                   </div>
                 ) : (
@@ -225,7 +226,7 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                     <summary className="flex min-h-12 items-center justify-between gap-2 text-[0.9375rem] text-(--sg-ink)">
                       <span className="flex items-center gap-2">
                         <TicketPercent className="size-[1.125rem] text-(--sg-label-2)" />
-                        عندك كود خصم؟
+                        {st("عندك كود خصم؟")}
                       </span>
                       <svg viewBox="0 0 16 16" className="sg-chev" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
                         <path d="m4 6 4 4 4-4" />
@@ -233,10 +234,10 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                     </summary>
                     <form action={applyCouponAction.bind(null, storeSlug)} className="flex gap-2 pb-4">
                       <label className="sr-only" htmlFor="sg-coupon">
-                        كود الخصم
+                        {st("كود الخصم")}
                       </label>
-                      <input id="sg-coupon" name="code" required placeholder="اكتب الكود" autoComplete="off" className="sg-field uppercase" />
-                      <SubmitButton className={btn({ variant: "gray" })}>تطبيق</SubmitButton>
+                      <input id="sg-coupon" name="code" required placeholder={st("اكتب الكود")} autoComplete="off" className="sg-field uppercase" />
+                      <SubmitButton className={btn({ variant: "gray" })}>{st("تطبيق")}</SubmitButton>
                     </form>
                   </details>
                 )}
@@ -248,12 +249,12 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                     <div className="flex items-center gap-2.5">
                       <Gift className="size-5 text-(--sg-ok)" />
                       <div>
-                        <p className="text-sm text-(--sg-ink)">استخدمت {num(appliedLoyalty.points)} نقطة</p>
-                        <p className="text-xs text-(--sg-label-2)">خصم {formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100)}</p>
+                        <p className="text-sm text-(--sg-ink)">{st("استخدمت {0} نقطة", num(appliedLoyalty.points))}</p>
+                        <p className="text-xs text-(--sg-label-2)">{st("خصم {0}", formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100))}</p>
                       </div>
                     </div>
                     <form action={removeLoyaltyAction.bind(null, storeSlug)}>
-                      <SubmitButton className="sg-link min-h-10 px-2 text-sm">إزالة</SubmitButton>
+                      <SubmitButton className="sg-link min-h-10 px-2 text-sm">{st("إزالة")}</SubmitButton>
                     </form>
                   </div>
                 ) : (
@@ -261,17 +262,17 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
                     <summary className="flex min-h-12 items-center justify-between gap-2 text-[0.9375rem] text-(--sg-ink)">
                       <span className="flex items-center gap-2">
                         <Gift className="size-[1.125rem] text-(--sg-label-2)" />
-                        استخدم نقاط المكافآت
+                        {st("استخدم نقاط المكافآت")}
                       </span>
                       <svg viewBox="0 0 16 16" className="sg-chev" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
                         <path d="m4 6 4 4 4-4" />
                       </svg>
                     </summary>
                     <form action={applyLoyaltyAction.bind(null, storeSlug)} className="space-y-2 pb-4">
-                      <input name="loyaltyPhone" type="tel" inputMode="tel" autoComplete="tel" required placeholder="رقم الموبايل" aria-label="رقم الموبايل" className="sg-field" />
+                      <input name="loyaltyPhone" type="tel" inputMode="tel" autoComplete="tel" required placeholder={st("رقم الموبايل")} aria-label={st("رقم الموبايل")} className="sg-field" />
                       <div className="flex gap-2">
-                        <input name="loyaltyPoints" type="number" inputMode="numeric" min={loyaltyMinRedemption} step={1} required placeholder={`عدد النقاط (أقل حاجة ${num(loyaltyMinRedemption)})`} aria-label="عدد النقاط" className="sg-field" />
-                        <SubmitButton className={btn({ variant: "gray" })}>استخدام</SubmitButton>
+                        <input name="loyaltyPoints" type="number" inputMode="numeric" min={loyaltyMinRedemption} step={1} required placeholder={st("عدد النقاط (أقل حاجة {0})", num(loyaltyMinRedemption))} aria-label={st("عدد النقاط")} className="sg-field" />
+                        <SubmitButton className={btn({ variant: "gray" })}>{st("استخدام")}</SubmitButton>
                       </div>
                     </form>
                   </details>
@@ -280,25 +281,25 @@ export default function StageCart({ storeSlug, cart, notice }: CartViewProps) {
               <Totals summary={summary} />
 
               <Link href={checkoutHref} className={btn({ size: "lg", full: true, className: "max-lg:hidden" })}>
-                كمّل الطلب
+                {st("كمّل الطلب")}
               </Link>
               <p className="flex items-start gap-2 text-[0.8125rem] leading-6 text-(--sg-label-2)">
                 <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-                بعد ما تبعت الطلب، المتجر هيتواصل معاك يأكد البيانات وميعاد التوصيل.
+                {st("بعد ما تبعت الطلب، المتجر هيتواصل معاك يأكد البيانات وميعاد التوصيل.")}
               </p>
               <Link href={buildStoreUrl(storeSlug, "/products")} className="sg-link text-[0.9375rem]">
-                كمّل تسوّق ›
+                {st("كمّل تسوّق ›")}
               </Link>
             </section>
 
             <div className="sg-buybar lg:hidden" data-show="true">
               <div className="sg-wrap flex items-center gap-4 py-3">
                 <div className="shrink-0">
-                  <p className="text-xs text-(--sg-label-2)">الإجمالي</p>
+                  <p className="text-xs text-(--sg-label-2)">{st("الإجمالي")}</p>
                   <p className="sg-price text-lg">{formatPrice(summary.total)}</p>
                 </div>
                 <Link href={checkoutHref} className={btn({ size: "lg", className: "flex-1" })}>
-                  كمّل الطلب
+                  {st("كمّل الطلب")}
                 </Link>
               </div>
             </div>

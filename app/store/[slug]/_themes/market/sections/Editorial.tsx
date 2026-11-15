@@ -20,6 +20,7 @@ import type { CategoryLink } from "../../types";
 import { joinMessage, waWith } from "../lib/market";
 import Rail from "../product/Rail";
 import { AisleArt, Chevron, Rating, SectionHeader, Wrap, btn, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured sections in Casho Market's language. Each renders only
 // the merchant's own content (or real store data), no placeholder claims. Empty
@@ -31,7 +32,7 @@ export function OfferStrip({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   return (
     <Wrap className="py-2">
-      <ul aria-label="عروض المتجر" className="mk-rail mk-bleed gap-2">
+      <ul aria-label={st("عروض المتجر")} className="mk-rail mk-bleed gap-2">
         {items.map((t, i) => (
           <li key={i} className="mk-offer">
             {t}
@@ -89,7 +90,7 @@ export function Stats({ content }: { content?: SocialProofContent }) {
 export function Testimonials({ content }: { content?: TestimonialsContent }) {
   const items = content?.items?.filter((t) => t.text?.trim()).slice(0, 8) ?? [];
   if (items.length === 0) return null;
-  const title = content?.headline || "آراء عملائنا";
+  const title = content?.headline || st("آراء عملائنا");
   return (
     <Wrap className="mk-section">
       <Rail label={title} title={title} listClassName="[&>li]:!w-[84%] sm:[&>li]:!w-[calc((100%-var(--mk-gap))/2)] lg:[&>li]:!w-[calc((100%-var(--mk-gap)*2)/3)]">
@@ -156,7 +157,7 @@ export function MediaBanner({ content, storeSlug, dir }: { content?: HeroBannerS
           {content.headline && <h2 className="mk-h1 max-w-[18ch] text-balance !text-current">{content.headline}</h2>}
           {content.subheadline && <p className="max-w-xl text-base opacity-90 sm:text-lg">{content.subheadline}</p>}
           <Link href={href} className={btn({ variant: image ? "white" : "solid", size: "lg", className: "mt-3" })}>
-            {content.buttonText || "تسوّق دلوقتي"}
+            {content.buttonText || st("تسوّق دلوقتي")}
           </Link>
         </div>
       </section>
@@ -186,7 +187,7 @@ export function PromoTiles({ content, categories, storeSlug }: { content?: Colle
   if (items.length < 2) return null;
   return (
     <Wrap className="mk-section">
-      <SectionHeader title={content?.headline || "تسوّق بالمجموعة"} />
+      <SectionHeader title={content?.headline || st("تسوّق بالمجموعة")} />
       <ul className="mk-tiles" data-n={items.length}>
         {items.map((c, i) => (
           <li key={i} className="mk-reveal min-w-0" style={delay(i)}>
@@ -219,10 +220,10 @@ export function AboutBrand({ content, storeName, storeSlug, description }: { con
           </div>
         )}
         <div className="min-w-0 self-center p-2 sm:p-6">
-          <h2 className="mk-h2 text-balance">{content?.headline || `عن ${storeName}`}</h2>
+          <h2 className="mk-h2 text-balance">{content?.headline || st("عن {0}", storeName)}</h2>
           {text && <p className="mk-prose mt-3 line-clamp-6">{text}</p>}
           <Link href={href} className="mk-link mt-4 text-[1.0625rem]">
-            {content?.ctaText || "اعرف أكتر"}
+            {content?.ctaText || st("اعرف أكتر")}
             <Chevron />
           </Link>
         </div>
@@ -239,14 +240,14 @@ export function JoinBand({ content, storeName, storeSlug, whatsappHref }: { cont
   const body = (
     <>
       {whatsappHref && <MessageCircle />}
-      {content?.ctaText || (whatsappHref ? "تابعنا على واتساب" : "تواصل معنا")}
+      {content?.ctaText || (whatsappHref ? st("تابعنا على واتساب") : st("تواصل معنا"))}
     </>
   );
   return (
     <Wrap className="mk-section">
       <div className="mk-join mk-reveal">
-        <h2 className="mk-h2 text-balance">{content?.headline || "اعرف العروض قبل أي حد"}</h2>
-        <p className="mt-2 max-w-xl text-[1.0625rem] text-(--mk-label-2)">{content?.subheadline || "أول ما ينزل عرض أو منتج جديد، هتعرف."}</p>
+        <h2 className="mk-h2 text-balance">{content?.headline || st("اعرف العروض قبل أي حد")}</h2>
+        <p className="mt-2 max-w-xl text-[1.0625rem] text-(--mk-label-2)">{content?.subheadline || st("أول ما ينزل عرض أو منتج جديد، هتعرف.")}</p>
         {whatsappHref ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className={btn({ size: "lg", className: "mt-5" })}>
             {body}

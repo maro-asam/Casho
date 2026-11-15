@@ -12,6 +12,7 @@ import { CategoryIcon } from "../lib/category-icon";
 import { greeting } from "../lib/market";
 import { PlateImage, Wrap } from "../ui";
 import HeroSlider from "./HeroSlider";
+import { st } from "@/lib/i18n/storefront";
 
 const noSubscribe = () => () => {};
 
@@ -20,13 +21,13 @@ function Greeting({ name }: { name: string }) {
   const hello = useSyncExternalStore(
     noSubscribe,
     () => greeting(new Date().getHours()),
-    () => "أهلًا بيك",
+    () => st("أهلًا بيك"),
   );
   return (
     <h1 className="mk-display text-balance">
       {hello}،
       <br />
-      <span className="text-(--mk-label-2)">{name} فاتح.</span>
+      <span className="text-(--mk-label-2)">{st("{0} فاتح.", name)}</span>
     </h1>
   );
 }
@@ -42,7 +43,7 @@ function Welcome({ store, categories, products, plain }: { store: HeroProps["sto
         <Greeting name={store.name} />
         <button type="button" onClick={openSearch} className="mk-searchpill mk-searchpill--hero">
           <Search />
-          <span className="truncate">عايز تشتري إيه النهارده؟</span>
+          <span className="truncate">{st("عايز تشتري إيه النهارده؟")}</span>
         </button>
         {aisles.length > 0 && (
           <ul className="mk-rail mk-bleed mt-4 gap-2">

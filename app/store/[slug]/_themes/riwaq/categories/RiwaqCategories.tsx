@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { CategoriesIndexViewProps, CategoryViewProps } from "../../types";
 import { RuledGrid } from "../product/ProductCard";
 import { Arrow, Crumbs, Empty, PageTitle, Wrap, btn, idx, monogram, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** The categories page reads like a table of contents: numbered rows with
  *  big names; the arch thumbnail floats in on hover (always shown on phones). */
@@ -14,20 +15,20 @@ export function RiwaqCategoriesIndex({ store, categories }: CategoriesIndexViewP
   return (
     <Wrap className="pb-6">
       <PageTitle
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "التصنيفات" }]}
-        title="الفهرس"
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("التصنيفات") }]}
+        title={st("الفهرس")}
         count={categories.length}
-        intro={categories.length > 0 ? "كل أقسام المتجر في مكان واحد. اختار القسم وابدأ." : undefined}
+        intro={categories.length > 0 ? st("كل أقسام المتجر في مكان واحد. اختار القسم وابدأ.") : undefined}
       />
 
       {categories.length === 0 ? (
         <Empty
           icon={<LayoutGrid />}
-          title="مفيش تصنيفات لسه"
-          description="تقدر تتصفح كل المنتجات مباشرةً."
+          title={st("مفيش تصنيفات لسه")}
+          description={st("تقدر تتصفح كل المنتجات مباشرةً.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
@@ -53,7 +54,7 @@ export function RiwaqCategoriesIndex({ store, categories }: CategoriesIndexViewP
                   </span>
                 </span>
                 <span className="flex items-center gap-4 sm:gap-8">
-                  <span className="rq-caption whitespace-nowrap">{num(c.productCount)} قطعة</span>
+                  <span className="rq-caption whitespace-nowrap">{st("{0} قطعة", num(c.productCount))}</span>
                   <Arrow className="text-xl" />
                 </span>
                 {c.image && (
@@ -81,23 +82,23 @@ export function RiwaqCategory({ store, category, products, otherCategories }: Ca
       <header className="pb-8 pt-5 sm:pb-12 sm:pt-8">
         <Crumbs
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
-            { label: "التصنيفات", href: buildStoreUrl(store.slug, "/categories") },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
+            { label: st("التصنيفات"), href: buildStoreUrl(store.slug, "/categories") },
             { label: category.name },
           ]}
         />
         <div className="mt-6 grid grid-cols-1 items-end gap-6 sm:mt-10 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-12">
           <div className="min-w-0">
-            <p className="rq-label text-(--rq-accent)">تصنيف</p>
+            <p className="rq-label text-(--rq-accent)">{st("تصنيف")}</p>
             <h1 className="rq-display mt-2 break-words">{category.name}</h1>
             <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3">
-              <p className="rq-caption">{num(products.length)} قطعة في القسم ده</p>
+              <p className="rq-caption">{st("{0} قطعة في القسم ده", num(products.length))}</p>
               {products.length > 1 && (
                 <Link
                   href={buildStoreUrl(store.slug, `/products?category=${encodeURIComponent(category.slug)}`)}
                   className="group inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
                 >
-                  <span className="rq-link">فلترة وترتيب</span>
+                  <span className="rq-link">{st("فلترة وترتيب")}</span>
                   <Arrow />
                 </Link>
               )}
@@ -112,7 +113,7 @@ export function RiwaqCategory({ store, category, products, otherCategories }: Ca
       </header>
 
       {otherCategories.length > 0 && (
-        <nav aria-label="تصنيفات أخرى" className="mb-8">
+        <nav aria-label={st("تصنيفات أخرى")} className="mb-8">
           <ul className="rq-rail rq-bleed gap-2 lg:mx-0 lg:flex-wrap lg:px-0">
             {siblings.map((c) => (
               <li key={c.id} className="shrink-0">
@@ -132,11 +133,11 @@ export function RiwaqCategory({ store, category, products, otherCategories }: Ca
       {products.length === 0 ? (
         <Empty
           icon={<PackageOpen />}
-          title="القسم ده فاضي دلوقتي"
-          description="لسه مفيش منتجات هنا. شوف باقي منتجات المتجر."
+          title={st("القسم ده فاضي دلوقتي")}
+          description={st("لسه مفيش منتجات هنا. شوف باقي منتجات المتجر.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح كل المنتجات
+              {st("تصفح كل المنتجات")}
             </Link>
           }
         />

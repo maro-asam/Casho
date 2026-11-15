@@ -3,11 +3,12 @@ import { CreditCard, ShieldCheck, ShoppingBag } from "lucide-react";
 
 import CheckoutForm from "../../../checkout/_components/CheckoutForm";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { CheckoutViewProps } from "../../types";
 import { unitPriceFor } from "../../shared/commerce";
 import { Crumbs, Empty, OPTION_LABEL, PlateImage, Wrap, btn, num } from "../ui";
 import { Totals } from "./MedicalCart";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export default function MedicalCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
@@ -17,30 +18,30 @@ export default function MedicalCheckout({ storeSlug, cart, paymentMethods, creat
     <Wrap className="pb-12">
       <Crumbs
         className="py-4"
-        items={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "السلة", href: buildStoreUrl(storeSlug, "/cart") }, { label: "إتمام الطلب" }]}
+        items={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("السلة"), href: buildStoreUrl(storeSlug, "/cart") }, { label: st("إتمام الطلب") }]}
       />
-      <h1 className="rx-h1">إتمام الطلب</h1>
-      <p className="mb-6 mt-1 text-sm text-(--rx-quiet)">اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.</p>
+      <h1 className="rx-h1">{st("إتمام الطلب")}</h1>
+      <p className="mb-6 mt-1 text-sm text-(--rx-quiet)">{st("اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.")}</p>
 
       {items.length === 0 ? (
         <Empty
           icon={<ShoppingBag />}
-          title="سلتك فاضية"
-          description="ضيف منتجات للسلة الأول وبعدين كمّل طلبك."
+          title={st("سلتك فاضية")}
+          description={st("ضيف منتجات للسلة الأول وبعدين كمّل طلبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : paymentMethods.length === 0 ? (
         <Empty
           icon={<CreditCard />}
-          title="مفيش طرق دفع متاحة دلوقتي"
-          description="المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر."
+          title={st("مفيش طرق دفع متاحة دلوقتي")}
+          description={st("المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
@@ -49,11 +50,11 @@ export default function MedicalCheckout({ storeSlug, cart, paymentMethods, creat
           <div className="rx-checkout rx-panel order-2 min-w-0 p-4 sm:p-6 lg:order-1">
             <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
-          <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
             <details className="rx-details rx-panel" open>
               <summary className="flex min-h-16 items-center justify-between gap-3 px-5 lg:pointer-events-none">
                 <span className="rx-h4">
-                  طلبك <span className="font-normal text-(--rx-quiet)">({num(count)})</span>
+                  {st("طلبك")}{" "}<span className="font-normal text-(--rx-quiet)">({num(count)})</span>
                 </span>
                 <span className="rx-price text-lg">{formatPrice(summary.total)}</span>
               </summary>
@@ -84,10 +85,10 @@ export default function MedicalCheckout({ storeSlug, cart, paymentMethods, creat
                 </div>
                 <p className="mt-5 flex items-start gap-2 text-xs leading-6 text-(--rx-quiet)">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-(--rx-btn)" />
-                  بياناتك بتروح للمتجر بس عشان يوصلك الطلب.
+                  {st("بياناتك بتروح للمتجر بس عشان يوصلك الطلب.")}
                 </p>
                 <Link href={buildStoreUrl(storeSlug, "/cart")} className="rx-link mt-3 text-sm">
-                  تعديل السلة
+                  {st("تعديل السلة")}
                 </Link>
               </div>
             </details>

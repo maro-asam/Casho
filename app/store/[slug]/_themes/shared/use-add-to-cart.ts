@@ -4,6 +4,7 @@ import { useCallback, useTransition } from "react";
 
 import { AddToCartAction } from "@/actions/store/cart.actions";
 import { notifyCartUpdated } from "./cart-events";
+import { st, stv } from "@/lib/i18n/storefront";
 
 type Result = { ok: true } | { ok: false; message: string };
 
@@ -22,10 +23,10 @@ export function useAddToCart(storeSlug: string) {
               notifyCartUpdated("added" in res ? res.added : undefined);
               resolve({ ok: true });
             } else {
-              resolve({ ok: false, message: res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني" });
+              resolve({ ok: false, message: res && "message" in res && res.message ? stv(res.message) : st("حصلت مشكلة، حاول تاني") });
             }
           } catch {
-            resolve({ ok: false, message: "حصلت مشكلة، حاول تاني" });
+            resolve({ ok: false, message: st("حصلت مشكلة، حاول تاني") });
           }
         });
       }),

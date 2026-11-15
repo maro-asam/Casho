@@ -2178,7 +2178,7 @@
   "ابدأ الاستيراد": [
    "app/(merchant)/dashboard/integrations/_import/PreviewPanel.tsx"
   ],
-  "ابدأ النقل من Shopify": [
+  "ابدأ النقل من {0}": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
   "ابدأ بأول تصنيف (زي: ملابس، إكسسوارات) وبعدها ضيف منتجاتك جوّاه.": [
@@ -2682,12 +2682,12 @@
   "اربط {0}": [
    "app/(merchant)/dashboard/shipping/integrations/_components/ShippingIntegrationsClient.tsx"
   ],
+  "اربط {0} وابدأ النقل": [
+   "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
+  ],
   "اربط Paymob": [
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx",
    "app/(merchant)/dashboard/payment-methods/_components/paymob-sheet.tsx"
-  ],
-  "اربط Shopify وابدأ النقل": [
-   "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
   "اربط الدومين": [
    "app/(merchant)/dashboard/domain/_components/connect-domain-form.tsx"
@@ -3846,6 +3846,9 @@
   "الترتيب": [
    "app/(merchant)/dashboard/categories/page.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/SectionsPanel.tsx"
+  ],
+  "الترقية لـ {0}": [
+   "components/entitlements/UpgradeRequiredCard.tsx"
   ],
   "التسعير": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
@@ -5204,6 +5207,9 @@
   "الكود يفتح إيه؟": [
    "app/(merchant)/dashboard/qr-code/_components/qr-studio.tsx"
   ],
+  "اللغة اللي عملاءك بيشوفوا بيها المتجر: كل نصوص الثيم، والاتجاه، والأرقام، وصفحات السياسات الجاهزة. الخط بيرجع للخط الافتراضي للغة، وتقدر تغيّره من الاستوديو. أسماء منتجاتك وأوصافها بتفضل زي ما كتبتها.": [
+   "app/(merchant)/dashboard/settings/_components/StoreLanguageSettings.tsx"
+  ],
   "اللغة اللي عملاءك هيشوفوا بيها المتجر": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
@@ -5953,6 +5959,9 @@
   "باقة": [
    "app/(merchant)/dashboard/products/_components/BundleItemsInput.tsx"
   ],
+  "باقة {0}": [
+   "components/entitlements/UpgradeRequiredCard.tsx"
+  ],
   "باقة منتجات": [
    "app/(merchant)/dashboard/products/_components/products-table.tsx",
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
@@ -6015,6 +6024,9 @@
   ],
   "بتتبعت لـ Confirm It أول ما توصل": [
    "app/(merchant)/dashboard/apps/confirm-it/_components/ConfirmItClient.tsx"
+  ],
+  "بتتخصم من رصيدك": [
+   "components/entitlements/UpgradeRequiredCard.tsx"
   ],
   "بتحجز الشحنة مع {0} زي ما متعوّد، وتكتب رقم البوليصة في الطلب — كاشو يتابع الحالة والتحصيل ويوري العميل التتبع.": [
    "app/(merchant)/dashboard/shipping/integrations/_components/ShippingIntegrationsClient.tsx"
@@ -6480,6 +6492,9 @@
   "بيع": [
    "app/(merchant)/dashboard/inventory/_components/StockMovementBadge.tsx",
    "app/(merchant)/dashboard/inventory/movements/page.tsx"
+  ],
+  "بيع في المحل بالباركود، بنفس منتجات متجرك ومخزون كل فرع.": [
+   "app/(merchant)/pos/layout.tsx"
   ],
   "بيع مجموعة من منتجاتك مع بعض بسعر واحد.": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
@@ -8737,6 +8752,7 @@
    "app/(merchant)/print/orders/[id]/invoice/page.tsx"
   ],
   "رجوع للوحة التحكم": [
+   "app/(merchant)/pos/layout.tsx",
    "app/(merchant)/pos/_components/PosTerminal.tsx",
    "app/(merchant)/(builder)/builder/_components/BuilderTopBar.tsx"
   ],
@@ -9390,6 +9406,9 @@
    "app/(merchant)/(builder)/builder/_components/panels/PopupsPanel.tsx",
    "app/(merchant)/dashboard/shipping/integrations/_components/ShippingIntegrationsClient.tsx"
   ],
+  "شغّل أي لابتوب أو تابلت ككاشير لمحلك، وكل بيعة بتتسجل طلب في متجرك.": [
+   "app/(merchant)/pos/layout.tsx"
+  ],
   "شكرًا لتسوّقك من {0}": [
    "app/(merchant)/print/orders/[id]/invoice/page.tsx"
   ],
@@ -9425,6 +9444,7 @@
    "app/(merchant)/(builder)/builder/_components/seasons.ts"
   ],
   "شهر": [
+   "components/entitlements/UpgradeRequiredCard.tsx",
    "app/(merchant)/dashboard/balance/page.tsx",
    "app/(merchant)/dashboard/change-plan/page.tsx",
    "app/(merchant)/dashboard/trial-expired/page.tsx",
@@ -9528,6 +9548,9 @@
   ],
   "صاحب المتجر بس هو اللي يقدر يربط WooCommerce ويستورد البيانات.": [
    "app/(merchant)/dashboard/integrations/_import/provider-ui.tsx"
+  ],
+  "صاحب المتجر بس هو اللي يقدر يرقّي الباقة — كلّمه عشان يفعّل الميزة دي.": [
+   "components/entitlements/UpgradeRequiredCard.tsx"
   ],
   "صافي المبيعات": [
    "app/(merchant)/dashboard/reports/_components/tab-overview.tsx",
@@ -10312,7 +10335,7 @@
   "عندي دومين": [
    "app/(merchant)/dashboard/domain/_components/domain-setup-tabs.tsx"
   ],
-  "عندي متجر على Shopify": [
+  "عندي متجر على Shopify أو WooCommerce": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
   "عنصر مخزون": [
@@ -10722,6 +10745,9 @@
   "قابل للإرجاع: {0} من {1}": [
    "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
   ],
+  "قارن الباقات": [
+   "components/entitlements/UpgradeRequiredCard.tsx"
+  ],
   "قارن الباقات واختار": [
    "app/(merchant)/dashboard/trial-expired/page.tsx"
   ],
@@ -10909,6 +10935,9 @@
   ],
   "كاش عند الاستلام": [
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
+  ],
+  "كاش وكارت وانستاباي، وتقسيم الدفع على أكتر من طريقة": [
+   "app/(merchant)/pos/layout.tsx"
   ],
   "كــاشو": [
    "app/(merchant)/dashboard/layout.tsx"
@@ -11556,9 +11585,14 @@
    "app/(merchant)/pos/_components/PaymentDialog.tsx"
   ],
   "لغة المتجر": [
+   "app/(merchant)/dashboard/settings/page.tsx",
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx",
    "app/(merchant)/dashboard/apps/fonts/page.tsx",
+   "app/(merchant)/dashboard/settings/_components/StoreLanguageSettings.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/FontsPanel.tsx"
+  ],
+  "لغة المتجر اتغيرت": [
+   "app/(merchant)/dashboard/settings/_components/StoreLanguageSettings.tsx"
   ],
   "لغة لوحة التحكم": [
    "app/(merchant)/dashboard/settings/page.tsx",
@@ -11892,7 +11926,7 @@
   "متاح في باقة Growth و Scale —": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
-  "متاحة من باقة": [
+  "متاحة من باقة {0} وما فوق": [
    "components/entitlements/UpgradeRequiredCard.tsx"
   ],
   "متبقي": [
@@ -11922,6 +11956,9 @@
   ],
   "متجرك الإلكتروني — تسوّق بكل سهولة": [
    "app/(merchant)/(builder)/builder/_components/panels/FontsPanel.tsx"
+  ],
+  "متجرك القديم على أنهي منصة؟": [
+   "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
   "متجرك بالإنجليزي، فدي الخطوط الإنجليزي. الخط بيتطبق على كل كلام المتجر.": [
    "app/(merchant)/dashboard/apps/fonts/_components/FontsAppClient.tsx"
@@ -12391,6 +12428,9 @@
   "مرتجعات": [
    "app/(merchant)/pos/_components/PosTerminal.tsx"
   ],
+  "مرتجعات واستبدال، وفاتورة تتطبع أو تتبعت واتساب": [
+   "app/(merchant)/pos/layout.tsx"
+  ],
   "مرتجعة": [
    "app/(merchant)/dashboard/shipping/shipments/_components/shipment-filters.ts"
   ],
@@ -12524,6 +12564,9 @@
   ],
   "مش بيظهر للعميل. بنستخدمه نحسب ربحك في التقارير والكاشير.": [
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
+  ],
+  "مش ضمن باقتك الحالية": [
+   "components/entitlements/UpgradeRequiredCard.tsx"
   ],
   "مش كويس": [
    "app/(merchant)/dashboard/reviews/_components/review-form-dialog.tsx"
@@ -13700,7 +13743,7 @@
   "نظام النقاط والمكافآت": [
    "app/(merchant)/dashboard/loyalty/page.tsx"
   ],
-  "نظام نقطة البيع غير متاح في باقتك الحالية.": [
+  "نظام نقطة البيع": [
    "app/(merchant)/pos/layout.tsx"
   ],
   "نظام نقطة البيع لإدارة المبيعات المباشرة": [
@@ -13774,7 +13817,6 @@
    "app/(merchant)/pos/_components/PosTerminal.tsx"
   ],
   "نقطة البيع (POS)": [
-   "app/(merchant)/pos/layout.tsx",
    "app/(merchant)/_components/main/dashboard-nav.ts"
   ],
   "نقطة البيع | كاشو": [
@@ -14057,6 +14099,9 @@
   "ورديات فيها عجز": [
    "app/(merchant)/pos/shifts/page.tsx"
   ],
+  "ورديات وتسوية للدرج النقدي في آخر اليوم": [
+   "app/(merchant)/pos/layout.tsx"
+  ],
   "وردية مفتوحة": [
    "app/(merchant)/pos/_components/ShiftModal.tsx"
   ],
@@ -14170,9 +14215,6 @@
   ],
   "ولّد رمز الربط": [
    "app/(merchant)/dashboard/telegram/_components/TelegramConnect.tsx"
-  ],
-  "وما فوق.": [
-   "components/entitlements/UpgradeRequiredCard.tsx"
   ],
   "وهتلاقي التلاتة. معندكش حساب؟": [
    "app/(merchant)/dashboard/payment-methods/_components/paymob-sheet.tsx"

@@ -8,6 +8,7 @@ import { WishlistButton } from "../product/CardActions";
 import ProductCard from "../product/ProductCard";
 import { Arrow, PlateImage, Price, Rating, SectionHeader, Swatches, Wrap, btn, discountPercent, num } from "../ui";
 import QuickViewButton from "./QuickViewButton";
+import { st } from "@/lib/i18n/storefront";
 
 /** Featured products: one spotlight told large, the next four as a grid. */
 export default function FeaturedCollection({ products, storeSlug }: { products: ProductCardData[]; storeSlug: string }) {
@@ -18,14 +19,14 @@ export default function FeaturedCollection({ products, storeSlug }: { products: 
 
   return (
     <Wrap className="md-section md-reveal">
-      <SectionHeader eyebrow="مختارات" title="اختيارات المتجر" subtitle="منتجات المتجر بيرشحها ليك" href={buildStoreUrl(storeSlug, "/products?featured=true")} />
+      <SectionHeader eyebrow={st("مختارات")} title={st("اختيارات المتجر")} subtitle={st("منتجات المتجر بيرشحها ليك")} href={buildStoreUrl(storeSlug, "/products?featured=true")} />
       <div className={cn("grid grid-cols-1 gap-6 lg:gap-8", grid.length > 0 && "lg:grid-cols-2")}>
         <article className={cn("md-card group relative overflow-hidden rounded-[1.75rem] bg-(--md-surface)", grid.length === 0 && "lg:grid lg:grid-cols-2 lg:items-center")}>
           <div className={cn("relative bg-(--md-studio)", grid.length > 0 ? "aspect-[4/5] sm:aspect-[5/4] lg:aspect-auto lg:h-[calc(100%-9.5rem)] lg:min-h-[24rem]" : "aspect-[4/5] sm:aspect-[4/3]")}>
             <PlateImage src={lead.image} sizes="(max-width: 1024px) 100vw, 50vw" className={cn("md-card-img-1", lead.hoverImage && "has-swap")} />
             {lead.hoverImage && <Image src={lead.hoverImage} alt="" fill sizes="(max-width: 1024px) 100vw, 50vw" className="md-card-img-2 object-cover" />}
             <div className="absolute start-4 top-4 flex gap-1.5">
-              <span className="md-badge md-badge--new">الأبرز</span>
+              <span className="md-badge md-badge--new">{st("الأبرز")}</span>
               {discount > 0 && <span className="md-badge md-badge--sale">−{num(discount)}٪</span>}
             </div>
             <WishlistButton storeSlug={storeSlug} product={lead} className="absolute end-4 top-4" />
@@ -49,7 +50,7 @@ export default function FeaturedCollection({ products, storeSlug }: { products: 
             <div className="relative z-[2] flex gap-2">
               <QuickViewButton slug={lead.slug} />
               <Link href={href} className={btn({ size: "md" })}>
-                التفاصيل
+                {st("التفاصيل")}
                 <Arrow />
               </Link>
             </div>

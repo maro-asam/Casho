@@ -9,6 +9,7 @@ import { recentKey } from "../lib/events";
 import ProductCard from "../product/ProductCard";
 import Rail from "../product/Rail";
 import { SectionHeader, Wrap } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Products this shopper opened before (kept in this browser). */
 export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: string; excludeId?: string }) {
@@ -33,14 +34,14 @@ export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: st
   return (
     <Wrap className="mx-section">
       <SectionHeader
-        title="شفتهم مؤخرًا"
+        title={st("شفتهم مؤخرًا")}
         actions={
           <button type="button" onClick={() => list.forEach(remove)} className="min-h-10 text-sm text-(--mx-quiet) hover:text-(--mx-ink) hover:underline">
-            مسح السجل
+            {st("مسح السجل")}
           </button>
         }
       />
-      <Rail label="شفتهم مؤخرًا">
+      <Rail label={st("شفتهم مؤخرًا")}>
         {shown.map((p) => (
           <li key={p.id} className="min-w-0">
             <ProductCard product={p} storeSlug={storeSlug} sizes="(max-width: 768px) 46vw, 16vw" />

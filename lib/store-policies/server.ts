@@ -31,7 +31,7 @@ export async function loadStorePolicies(storeId: string): Promise<StorePolicyDat
       where: { id: storeId },
       select: {
         name: true,
-        settings: { select: { policies: true, requireTermsAtCheckout: true, email: true, whatsappNumber: true } },
+        settings: { select: { policies: true, requireTermsAtCheckout: true, email: true, whatsappNumber: true, storeLanguage: true } },
         pixelSettings: { select: { metaPixelId: true, tiktokPixelId: true, snapPixelId: true } },
       },
     }),
@@ -55,6 +55,7 @@ export async function loadStorePolicies(storeId: string): Promise<StorePolicyDat
       whatsapp: store.settings?.whatsappNumber ?? null,
       hasDigital: !!digital,
       adPlatforms,
+      language: store.settings?.storeLanguage === "en" ? "en" : "ar",
     },
   };
 }

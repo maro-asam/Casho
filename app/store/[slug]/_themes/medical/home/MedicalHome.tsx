@@ -14,6 +14,7 @@ import ProductRow, { DealsPanel } from "../sections/ProductRow";
 import { ProductGrid } from "../product/ProductCard";
 import { pharmacyOn } from "../lib/rx";
 import { Empty, SectionHeader, Wrap, btn, discountPercent } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Ctx = HomeViewProps;
 
@@ -38,11 +39,11 @@ const REGISTRY: SectionRegistry<Ctx> = {
       eyebrow={
         <>
           <TrendingUp className="size-4" />
-          الأكثر طلبًا
+          {st("الأكثر طلبًا")}
         </>
       }
-      title={c.sectionContent.bestSellers?.headline || "الأكثر مبيعًا"}
-      sub="المنتجات اللي عملاء المتجر بيطلبوها أكتر"
+      title={c.sectionContent.bestSellers?.headline || st("الأكثر مبيعًا")}
+      sub={st("المنتجات اللي عملاء المتجر بيطلبوها أكتر")}
       max={c.sectionContent.bestSellers?.maxProducts ?? 12}
       href={buildStoreUrl(c.store.slug, "/products")}
     />
@@ -53,7 +54,7 @@ const REGISTRY: SectionRegistry<Ctx> = {
       <DealsPanel
         products={deals(c)}
         storeSlug={c.store.slug}
-        title={u?.headline || "عروض لفترة محدودة"}
+        title={u?.headline || st("عروض لفترة محدودة")}
         timer={u?.timerEndDate ? <Countdown endDate={u.timerEndDate} label={u.timerLabel} /> : undefined}
       />
     );
@@ -66,11 +67,11 @@ const REGISTRY: SectionRegistry<Ctx> = {
       eyebrow={
         <>
           <Sparkles className="size-4" />
-          مختارات
+          {st("مختارات")}
         </>
       }
-      title="اختيارات المتجر"
-      sub="منتجات مختارة بعناية من المتجر"
+      title={st("اختيارات المتجر")}
+      sub={st("منتجات مختارة بعناية من المتجر")}
       href={buildStoreUrl(c.store.slug, "/products?featured=true")}
     />
   ),
@@ -78,18 +79,18 @@ const REGISTRY: SectionRegistry<Ctx> = {
   showLatestProducts: (c) =>
     c.latest.length > 0 ? (
       <Wrap className="rx-section">
-        <SectionHeader title="وصل حديثًا" sub="أحدث المنتجات اللي نزلت المتجر" href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
+        <SectionHeader title={st("وصل حديثًا")} sub={st("أحدث المنتجات اللي نزلت المتجر")} href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
         <ProductGrid products={c.latest} storeSlug={c.store.slug} />
       </Wrap>
     ) : (
       <Wrap className="rx-section">
         <Empty
           icon={<ShoppingBag />}
-          title="المنتجات جاية قريب"
-          description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+          title={st("المنتجات جاية قريب")}
+          description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
           action={
             <Link href={buildStoreUrl(c.store.slug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />

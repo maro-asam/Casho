@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 
 import { Check, Copy, Loader2, X } from "lucide-react";
 import type { PopupConfig, PopupType } from "@/lib/popups/popup-config";
 import { cn } from "@/lib/utils";
+import { st, storeDir } from "@/lib/i18n/storefront";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Pure popup UI. Rendered by the storefront host AND the dashboard preview,
@@ -131,7 +132,7 @@ export function PopupView({
       <button
         type="button"
         onClick={onClose}
-        aria-label="إغلاق"
+        aria-label={st("إغلاق")}
         className="absolute end-3 top-3 z-10 grid size-8 place-items-center rounded-full bg-black/5 text-(--pp-fg) backdrop-blur transition hover:bg-black/10"
       >
         <X className="size-4" />
@@ -162,7 +163,7 @@ export function PopupView({
 
             {countdown && (
               <div className="mx-auto flex items-center gap-2 rounded-full bg-(--pp-soft) px-3 py-1 text-xs">
-                <span className="text-(--pp-muted)">العرض ينتهي خلال</span>
+                <span className="text-(--pp-muted)">{st("العرض ينتهي خلال")}</span>
                 <span className="font-mono font-semibold tabular-nums" dir="ltr">
                   {countdown.days > 0 && `${countdown.days}d `}
                   {countdown.clock}
@@ -171,13 +172,13 @@ export function PopupView({
             )}
 
             {needsForm && (
-              <div className="mt-1 space-y-2 text-right">
+              <div className="mt-1 space-y-2 text-start">
                 {gate.askName && (
                   <input
                     ref={firstField}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="اسمك"
+                    placeholder={st("اسمك")}
                     autoComplete="given-name"
                     maxLength={60}
                     className="h-11 w-full rounded-[calc(var(--pp-radius)*0.6)] border border-(--pp-border) bg-transparent px-3 text-sm outline-none focus:border-(--pp-accent) focus:ring-2 focus:ring-(--pp-accent)/20"
@@ -187,13 +188,17 @@ export function PopupView({
                   ref={gate.askName ? undefined : firstField}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="رقم الموبايل — 01xxxxxxxxx"
+                  placeholder={st("رقم الموبايل — 01xxxxxxxxx")}
                   inputMode="tel"
                   autoComplete="tel"
                   dir="ltr"
                   maxLength={16}
                   aria-invalid={!!error || undefined}
-                  className="h-11 w-full rounded-[calc(var(--pp-radius)*0.6)] border border-(--pp-border) bg-transparent px-3 text-right text-sm outline-none placeholder:text-right focus:border-(--pp-accent) focus:ring-2 focus:ring-(--pp-accent)/20"
+                  className={cn(
+                    "h-11 w-full rounded-[calc(var(--pp-radius)*0.6)] border border-(--pp-border) bg-transparent px-3 text-sm outline-none focus:border-(--pp-accent) focus:ring-2 focus:ring-(--pp-accent)/20",
+                    // dir="ltr" (the number) — align it with the store's reading side.
+                    storeDir() === "rtl" ? "text-right placeholder:text-right" : "text-left placeholder:text-left",
+                  )}
                 />
                 {error && <p className="text-xs text-red-600">{error}</p>}
               </div>
@@ -213,7 +218,7 @@ export function PopupView({
                 {content.dismissText}
               </button>
             )}
-            {needsForm && <p className="text-[11px] text-(--pp-muted)">مش هنبعتلك غير العروض المهمة. ممكن تلغي في أي وقت.</p>}
+            {needsForm && <p className="text-[11px] text-(--pp-muted)">{st("مش هنبعتلك غير العروض المهمة. ممكن تلغي في أي وقت.")}</p>}
           </>
         ) : (
           <>
@@ -221,7 +226,7 @@ export function PopupView({
               <Check className="size-6" />
             </span>
             <h2 id="casho-popup-title" className="text-xl font-bold">
-              {content.successTitle || "تمام!"}
+              {content.successTitle || st("تمام!")}
             </h2>
             {content.successBody && <p className="text-sm leading-6 text-(--pp-muted)">{content.successBody}</p>}
 
@@ -236,13 +241,13 @@ export function PopupView({
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-(--pp-accent)">
                   {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-                  {copied ? "اتنسخ" : "انسخ"}
+                  {copied ? st("اتنسخ") : st("انسخ")}
                 </span>
               </button>
             )}
             {countdown && revealedCode && (
               <p className="text-xs text-(--pp-muted)">
-                الكود صالح لمدة{" "}
+                {st("الكود صالح لمدة")}{" "}
                 <span className="font-mono font-semibold tabular-nums" dir="ltr">
                   {countdown.days > 0 && `${countdown.days}d `}
                   {countdown.clock}
@@ -254,7 +259,7 @@ export function PopupView({
               onClick={onClose}
               className="mt-1 inline-flex h-11 w-full items-center justify-center rounded-[calc(var(--pp-radius)*0.6)] bg-(--pp-accent) px-4 text-sm font-semibold text-(--pp-accent-fg) transition hover:opacity-90"
             >
-              كمّل تسوّق
+              {st("كمّل تسوّق")}
             </button>
           </>
         )}

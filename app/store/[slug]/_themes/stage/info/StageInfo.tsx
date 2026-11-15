@@ -9,13 +9,14 @@ import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDoc
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Chevron, Empty, PageHead, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
+import { st } from "@/lib/i18n/storefront";
 
 function Channels({ contact }: { contact: StoreContact }) {
   const wa = whatsappHref(contact.whatsapp);
   const rows = [
-    ...(wa ? [{ label: "واتساب", value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
-    ...(contact.email ? [{ label: "البريد الإلكتروني", value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
-    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: "تابعنا", href: s.href, Icon: s.Icon, ltr: false })),
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
+    ...(contact.email ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, Icon: s.Icon, ltr: false })),
   ];
   if (rows.length === 0) return null;
   return (
@@ -43,7 +44,7 @@ function Channels({ contact }: { contact: StoreContact }) {
 export function StageAbout({ store, logo, coverImage, description, contact, productCount, categoryCount }: AboutViewProps) {
   return (
     <Wrap className="pb-16">
-      <PageHead title={`عن ${store.name}.`} tagline="الحكاية من الأول." crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]} />
+      <PageHead title={st("عن {0}.", store.name)} tagline={st("الحكاية من الأول.")} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} />
       {coverImage && (
         <div className="sg-reveal relative mt-2 aspect-[16/10] overflow-hidden rounded-(--sg-r-xl) bg-(--sg-alt) sm:aspect-[21/9]">
           <Image src={coverImage} alt="" fill priority sizes="(max-width: 1100px) 100vw, 1100px" className="object-cover" />
@@ -56,12 +57,12 @@ export function StageAbout({ store, logo, coverImage, description, contact, prod
             {logo ? <Image src={logo} alt="" fill sizes="64px" className="object-cover" /> : <Store className="size-7 text-(--sg-label-2)" />}
           </span>
           <p className="sg-statement sg-statement--body whitespace-pre-line">
-            {description?.trim() || `أهلاً بيك في ${store.name}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.`}
+            {description?.trim() || st("أهلاً بيك في {0}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.", store.name)}
           </p>
           <dl className="mt-12 flex flex-wrap gap-x-16 gap-y-8">
             {[
-              { n: productCount, l: "منتج" },
-              { n: categoryCount, l: "قسم" },
+              { n: productCount, l: st("منتج") },
+              { n: categoryCount, l: st("قسم") },
             ].map((s) => (
               <div key={s.l} className="flex flex-col-reverse">
                 <dt className="mt-1 text-[1.0625rem] text-(--sg-label-2)">{s.l}</dt>
@@ -71,17 +72,17 @@ export function StageAbout({ store, logo, coverImage, description, contact, prod
           </dl>
           <div className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-3">
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-              تسوّق المنتجات
+              {st("تسوّق المنتجات")}
             </Link>
             <Link href={buildStoreUrl(store.slug, "/contact")} className="sg-link text-[1.0625rem]">
-              تواصل معانا ›
+              {st("تواصل معانا ›")}
             </Link>
           </div>
         </div>
         <aside>
-          <h2 className="sg-fly-label">طرق التواصل</h2>
+          <h2 className="sg-fly-label">{st("طرق التواصل")}</h2>
           <Channels contact={contact} />
-          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="text-sm text-(--sg-label-2)">المتجر هيتواصل معاك على رقمك بعد ما تطلب.</p>}
+          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="text-sm text-(--sg-label-2)">{st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}</p>}
         </aside>
       </div>
     </Wrap>
@@ -93,28 +94,28 @@ export function StageContact({ store, contact }: ContactViewProps) {
   const hasAny = !!wa || !!contact.email || getSocialLinks(contact).length > 0;
   return (
     <Wrap className="pb-16">
-      <PageHead title="تواصل معانا." tagline="إحنا هنا." note="عندك سؤال عن منتج أو طلب؟ ابعتلنا وهنرد عليك." crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تواصل معانا" }]} />
+      <PageHead title={st("تواصل معانا.")} tagline={st("إحنا هنا.")} note={st("عندك سؤال عن منتج أو طلب؟ ابعتلنا وهنرد عليك.")} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معانا") }]} />
       {!hasAny ? (
         <Empty
           icon={<MessageCircle />}
-          title="المتجر لسه مضافش وسيلة تواصل"
-          description="لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه."
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
           <section>
-            <h2 className="sg-fly-label">كلّمنا مباشرة</h2>
+            <h2 className="sg-fly-label">{st("كلّمنا مباشرة")}</h2>
             <Channels contact={contact} />
           </section>
           {(wa || contact.email) && (
             <section className="sg-panel p-5 sm:p-8">
-              <h2 className="sg-h3">ابعتلنا رسالة</h2>
-              <p className="mb-6 mt-1 text-sm text-(--sg-label-2)">{wa ? "هتتفتح محادثة واتساب ورسالتك جاهزة." : "هيتفتح الإيميل ورسالتك جاهزة."}</p>
+              <h2 className="sg-h3">{st("ابعتلنا رسالة")}</h2>
+              <p className="mb-6 mt-1 text-sm text-(--sg-label-2)">{wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}</p>
               <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
             </section>
           )}
@@ -139,10 +140,10 @@ export function StageTrack({ store, whatsapp, initialCode, order }: TrackViewPro
   return (
     <Wrap className="sg-narrow pb-16">
       <PageHead
-        title="تتبّع طلبك."
-        tagline={order ? undefined : "خطوة بخطوة."}
-        note={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
+        title={st("تتبّع طلبك.")}
+        tagline={order ? undefined : st("خطوة بخطوة.")}
+        note={order ? undefined : st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]}
       />
       <div>
         <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
@@ -154,7 +155,7 @@ export function StageTrack({ store, whatsapp, initialCode, order }: TrackViewPro
 export function StagePolicy({ store, policy, policies }: PolicyViewProps) {
   return (
     <Wrap className="sg-narrow pb-16">
-      <PageHead title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <PageHead title={policy.title} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
       <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
     </Wrap>
   );

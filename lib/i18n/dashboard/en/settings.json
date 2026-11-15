@@ -154,5 +154,8 @@
   "{0} من {1} حرف": "{0} of {1} characters",
   "ترجّع النص الجاهز؟": "Restore the ready-made text?",
   "نصك في \"{0}\" هيتمسح، والصفحة هتعرض النص الجاهز ببيانات متجرك.": "Your text in \"{0}\" will be deleted, and the page will show the ready-made text with your store's details.",
-  "شوفها في المتجر": "View in store"
+  "شوفها في المتجر": "View in store",
+  "لغة المتجر اتغيرت": "Store language changed",
+  "اللغة اللي عملاءك بيشوفوا بيها المتجر: كل نصوص الثيم، والاتجاه، والأرقام، وصفحات السياسات الجاهزة. الخط بيرجع للخط الافتراضي للغة، وتقدر تغيّره من الاستوديو. أسماء منتجاتك وأوصافها بتفضل زي ما كتبتها.": "The language customers see your store in: all theme text, direction, numbers and the ready-made policy pages. The font switches to the language's default — you can change it in the Studio. Your product names and descriptions stay as you wrote them.",
+  "لغة المتجر": "Store language"
 }

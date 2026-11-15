@@ -12,6 +12,7 @@ import { whatsappHref } from "../../shared/social";
 import { usePharmacy } from "../lib/pharmacy";
 import { HANDOFF, waWith } from "../lib/rx";
 import { CategoryArt, Chevron, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** "All departments" panel under the header: every shelf as an icon tile
  *  with its product count, and the newest banner (or the prescription card —
@@ -41,9 +42,9 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
       <div className="rx-wrap grid max-h-[min(70dvh,34rem)] grid-cols-[minmax(0,1fr)_19rem] gap-8 overflow-y-auto py-7">
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <p className="rx-h4">كل الأقسام</p>
+            <p className="rx-h4">{st("كل الأقسام")}</p>
             <Link href={url("/categories")} onClick={() => onClose()} className="rx-link text-sm">
-              عرض الكل
+              {st("عرض الكل")}
               <Chevron />
             </Link>
           </div>
@@ -56,7 +57,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-(--rx-ink) group-hover:text-(--rx-btn)">{c.name}</span>
-                    <span className="text-xs text-(--rx-quiet)">{num(c.productCount)} منتج</span>
+                    <span className="text-xs text-(--rx-quiet)">{st("{0} منتج", num(c.productCount))}</span>
                   </span>
                 </Link>
               </li>

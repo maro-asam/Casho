@@ -4,6 +4,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { CategoryCardStyle } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { CategoryArt, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** apple.com's chapter nav: every shelf as a picture with its name under it,
  *  centered, sliding sideways when there are more than fit.
@@ -15,7 +16,7 @@ export default function CategoryShelf({ categories, storeSlug, style }: { catego
   const url = (c: CategoryLink) => buildStoreUrl(storeSlug, `/categories/${c.slug}`);
 
   return (
-    <nav aria-label="الأقسام" className="sg-chapters" data-shape={style}>
+    <nav aria-label={st("الأقسام")} className="sg-chapters" data-shape={style}>
       <ul>
         {list.map((c, i) => (
           <li key={c.id} className="sg-reveal" style={delay(Math.min(i, 7))}>

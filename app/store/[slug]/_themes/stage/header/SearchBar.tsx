@@ -14,6 +14,7 @@ import { useLocalList } from "../../shared/local-list";
 import { storeHref } from "../../shared/store-path";
 import { searchesKey } from "../lib/events";
 import { PlateImage, Price } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Item = Pick<SearchSuggestion, "id" | "name" | "slug" | "image" | "price" | "compareAtPrice">;
 
@@ -136,7 +137,7 @@ export default function SearchBar({
         className="sg-search"
       >
         <label htmlFor={`${id}-q`} className="sr-only">
-          ابحث في المتجر
+          {st("ابحث في المتجر")}
         </label>
         <Search aria-hidden className="size-6 shrink-0 text-(--sg-label-2)" />
         <input
@@ -151,7 +152,7 @@ export default function SearchBar({
           aria-controls={listId}
           aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
           aria-autocomplete="list"
-          placeholder="دوّر في المتجر"
+          placeholder={st("دوّر في المتجر")}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
@@ -172,7 +173,7 @@ export default function SearchBar({
               setValue("");
               inputRef.current?.focus();
             }}
-            aria-label="مسح البحث"
+            aria-label={st("مسح البحث")}
             className="grid size-9 shrink-0 place-items-center rounded-full bg-(--sg-fill) text-(--sg-label-2) hover:text-(--sg-ink) [&_svg]:size-4"
           >
             <X />
@@ -186,7 +187,7 @@ export default function SearchBar({
           <div className="space-y-6">
             {matchedCats.length > 0 && (
               <section>
-                <h2 className="sg-fly-label">أقسام</h2>
+                <h2 className="sg-fly-label">{st("أقسام")}</h2>
                 <ul>
                   {matchedCats.map((c) => (
                     <li key={c.id}>
@@ -199,9 +200,9 @@ export default function SearchBar({
               </section>
             )}
             <section>
-              <h2 className="sg-fly-label">منتجات</h2>
+              <h2 className="sg-fly-label">{st("منتجات")}</h2>
               {failed ? (
-                <p className="py-3 text-sm text-(--sg-error)">البحث مش شغال دلوقتي، جرّب تاني.</p>
+                <p className="py-3 text-sm text-(--sg-error)">{st("البحث مش شغال دلوقتي، جرّب تاني.")}</p>
               ) : loading && searchedFor !== term ? (
                 <div className="grid gap-2 sm:grid-cols-2" aria-busy>
                   {[0, 1].map((i) => (
@@ -216,10 +217,10 @@ export default function SearchBar({
                 </div>
               ) : noResults ? (
                 <p className="py-3 text-sm text-(--sg-label-2)">
-                  مفيش نتائج لـ «<span className="font-semibold text-(--sg-ink)">{term}</span>». جرّب كلمة أبسط.
+                  {st("مفيش نتائج لـ «")}<span className="font-semibold text-(--sg-ink)">{term}</span>{st("». جرّب كلمة أبسط.")}
                 </p>
               ) : (
-                <ul id={listId} role="listbox" aria-label="نتائج البحث" className="grid gap-1 sm:grid-cols-2">
+                <ul id={listId} role="listbox" aria-label={st("نتائج البحث")} className="grid gap-1 sm:grid-cols-2">
                   {results.map((r, i) => (
                     <li key={r.id} role="presentation">
                       <Row item={r} id={`${id}-opt-${i}`} active={active === i} onHover={() => setActive(i)} onPick={() => go(`/products/${r.slug}`, term)} />
@@ -229,7 +230,7 @@ export default function SearchBar({
               )}
             </section>
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => searchAll(term)} className="sg-link text-[0.9375rem]">
-              كل النتائج لـ «{term}» ›
+              {st("كل النتائج لـ «{0}» ›", term)}
             </button>
           </div>
         ) : (
@@ -238,9 +239,9 @@ export default function SearchBar({
               {recent.list.length > 0 && (
                 <section>
                   <div className="flex items-center justify-between">
-                    <h2 className="sg-fly-label">بحثت عن</h2>
+                    <h2 className="sg-fly-label">{st("بحثت عن")}</h2>
                     <button type="button" onClick={() => recent.list.forEach((q) => recent.remove(q))} className="min-h-8 text-xs text-(--sg-label-2) hover:text-(--sg-ink) hover:underline">
-                      مسح
+                      {st("مسح")}
                     </button>
                   </div>
                   <ul>
@@ -256,7 +257,7 @@ export default function SearchBar({
                 </section>
               )}
               <section>
-                <h2 className="sg-fly-label">روابط سريعة</h2>
+                <h2 className="sg-fly-label">{st("روابط سريعة")}</h2>
                 <ul>
                   {shelves.map((c) => (
                     <li key={c.id}>
@@ -267,14 +268,14 @@ export default function SearchBar({
                   ))}
                   <li>
                     <QuickLink href={buildStoreUrl(shell.slug, "/track")} onClick={onDone}>
-                      تتبّع طلبك
+                      {st("تتبّع طلبك")}
                     </QuickLink>
                   </li>
                 </ul>
               </section>
             </div>
             <section id={listId}>
-              <h2 className="sg-fly-label">مختارات من المتجر</h2>
+              <h2 className="sg-fly-label">{st("مختارات من المتجر")}</h2>
               {picks === null ? (
                 <div className="grid gap-2 sm:grid-cols-2" aria-busy>
                   {[0, 1, 2, 3].map((i) => (
@@ -296,7 +297,7 @@ export default function SearchBar({
                   ))}
                 </ul>
               ) : (
-                <p className="py-2 text-sm text-(--sg-label-2)">اكتب اسم المنتج اللي بتدوّر عليه.</p>
+                <p className="py-2 text-sm text-(--sg-label-2)">{st("اكتب اسم المنتج اللي بتدوّر عليه.")}</p>
               )}
             </section>
           </div>

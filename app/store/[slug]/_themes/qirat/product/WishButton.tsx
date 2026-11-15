@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useLocalList } from "../../shared/local-list";
 import { openWishlist, wishKey } from "../lib/events";
 import { qrToast } from "../toast";
+import { st } from "@/lib/i18n/storefront";
 
 /** Saves a piece to the shopper's wishlist (kept in this browser). */
 export default function WishButton({ storeSlug, productId, name, className, label }: { storeSlug: string; productId: string; name: string; className?: string; /** Show text next to the heart. */ label?: boolean }) {
@@ -16,18 +17,18 @@ export default function WishButton({ storeSlug, productId, name, className, labe
     <button
       type="button"
       aria-pressed={on}
-      aria-label={on ? `شيل ${name} من قايمة الأمنيات` : `احفظ ${name} في قايمة الأمنيات`}
+      aria-label={on ? st("شيل {0} من قايمة الأمنيات", name) : st("احفظ {0} في قايمة الأمنيات", name)}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         toggle(productId);
-        if (!on) qrToast.success("اتحفظت في قايمة أمنياتك", { action: { label: "القايمة", onClick: openWishlist } });
+        if (!on) qrToast.success(st("اتحفظت في قايمة أمنياتك"), { action: { label: st("القايمة"), onClick: openWishlist } });
       }}
       className={cn("qr-wish", label && "qr-wish--label", className)}
       data-on={on}
     >
       <Heart aria-hidden />
-      {label && <span>{on ? "في قايمة أمنياتك" : "احفظها"}</span>}
+      {label && <span>{on ? st("في قايمة أمنياتك") : st("احفظها")}</span>}
     </button>
   );
 }

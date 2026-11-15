@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { ConfirmOrderCodeAction, ResendOrderCodeAction } from "@/actions/store/order-confirmation.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { st, stv } from "@/lib/i18n/storefront";
 
 const COOLDOWN_S = 60;
 
@@ -32,14 +33,14 @@ export function ConfirmOrderForm({ storeSlug, orderId, lastSentAt }: { storeSlug
     startConfirm(async () => {
       // On success the action redirects to the order page.
       const result = await ConfirmOrderCodeAction(storeSlug, orderId, code);
-      if (result && !result.ok) setMessage({ ok: false, text: result.message });
+      if (result && !result.ok) setMessage({ ok: false, text: stv(result.message) });
     });
   }
 
   function resend() {
     startResend(async () => {
       const result = await ResendOrderCodeAction(storeSlug, orderId);
-      setMessage({ ok: result.ok, text: result.message });
+      setMessage({ ok: result.ok, text: stv(result.message) });
       if (result.ok) setWait(COOLDOWN_S);
     });
   }
@@ -54,17 +55,17 @@ export function ConfirmOrderForm({ storeSlug, orderId, lastSentAt }: { storeSlug
         autoFocus
         dir="ltr"
         placeholder="••••••"
-        aria-label="كود التأكيد"
+        aria-label={st("كود التأكيد")}
         className="h-14 text-center font-mono text-2xl tracking-[0.5em]"
       />
       {message && <p className={message.ok ? "text-sm text-emerald-600" : "text-sm text-destructive"}>{message.text}</p>}
       <Button type="submit" className="h-12 w-full" disabled={code.length < 4 || confirming}>
         {confirming && <Loader2 className="size-4 animate-spin" />}
-        أكّد الطلب
+        {st("أكّد الطلب")}
       </Button>
       <Button type="button" variant="ghost" className="w-full" onClick={resend} disabled={wait > 0 || resending}>
         {resending && <Loader2 className="size-4 animate-spin" />}
-        {wait > 0 ? `ابعت كود جديد بعد ${wait} ثانية` : "مجاليش كود — ابعت تاني"}
+        {wait > 0 ? st("ابعت كود جديد بعد {0} ثانية", wait) : st("مجاليش كود — ابعت تاني")}
       </Button>
     </form>
   );

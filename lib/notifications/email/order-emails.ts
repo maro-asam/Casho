@@ -17,7 +17,9 @@ import { prisma } from "@/lib/prisma";
 import { DIGITAL_ADDRESS } from "@/lib/products/digital";
 import { storeBaseUrl } from "@/lib/seo/store-seo";
 import { dashboardUrl, deliver, inBackground, sentWithin, type EmailKind } from "./deliver";
-import { esc, infoRows, itemsTable, notice, renderEmail, sectionTitle, type EmailBrand } from "./layout";
+import { stIn, toStoreLocale, type StoreLocale } from "@/lib/i18n/storefront";
+import { ensureStoreEnglish } from "@/lib/i18n/storefront/load-english";
+import { emailMoney, esc, infoRows, itemsTable, notice, renderEmail, sectionTitle, type EmailBrand } from "./layout";
 
 const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون" };
 
@@ -65,6 +67,7 @@ async function loadOrder(orderId: string) {
               emailNewOrders: true,
               emailCustomerOrders: true,
               emailStoreAlerts: true,
+              storeLanguage: true,
             },
           },
         },
@@ -88,12 +91,23 @@ function brandOf(order: EmailOrder): EmailBrand {
   };
 }
 
-function lines(order: EmailOrder) {
+/**
+ * Customer emails speak the store's language (StoreSettings.storeLanguage);
+ * the merchant's stay Arabic. English text comes from the storefront
+ * dictionary — loaded before a customer email is built (prepareCustomerEmail).
+ */
+const langOf = (order: EmailOrder): StoreLocale => toStoreLocale(order.store.settings?.storeLanguage);
+
+async function prepareCustomerEmail(order: EmailOrder) {
+  if (langOf(order) === "en") await ensureStoreEnglish();
+}
+
+function lines(order: EmailOrder, lang: StoreLocale = "ar") {
   return order.items.map((item) => {
     const features = Object.entries((item.selectedFeatures as Record<string, string> | null) ?? {});
     return {
       name: item.product.name,
-      detail: features.map(([k, v]) => `${FEATURE_LABEL[k] ?? k}: ${v}`).join(" · ") || undefined,
+      detail: features.map(([k, v]) => `${FEATURE_LABEL[k] ? stIn(lang, FEATURE_LABEL[k]) : k}: ${v}`).join(" · ") || undefined,
       quantity: item.quantity,
       total: item.price * item.quantity,
     };
@@ -102,9 +116,9 @@ function lines(order: EmailOrder) {
 
 const shippingAddress = (order: EmailOrder) => (order.address === DIGITAL_ADDRESS ? null : order.address);
 
-function customerFooter(order: EmailOrder) {
-  const reply = order.store.settings?.email ? " لو عندك أي سؤال رد على الإيميل ده." : "";
-  return `وصلك الإيميل ده علشان طلبت من ${order.store.name}.${reply}`;
+function customerFooter(order: EmailOrder, lang: StoreLocale) {
+  const reply = order.store.settings?.email ? stIn(lang, " لو عندك أي سؤال رد على الإيميل ده.") : "";
+  return stIn(lang, "وصلك الإيميل ده علشان طلبت من {0}.", order.store.name) + reply;
 }
 
 type Mail = { subject: string; html: string; text: string };
@@ -176,43 +190,50 @@ export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: stri
 }
 
 export function buildCustomerConfirmationEmail(order: EmailOrder) {
+  const lang = langOf(order);
+  const t = (source: string, ...args: unknown[]) => stIn(lang, source, ...args);
+  const money = (piasters: number) => emailMoney(piasters, lang);
   const name = firstName(order.fullName);
   const trackUrl = orderTrackUrl(order.store, order.id);
   const intro =
     order.status === OrderStatus.PAID
-      ? "الدفع اتأكد وبدأنا نجهّز طلبك. هنبعتلك أول ما يتشحن."
+      ? t("الدفع اتأكد وبدأنا نجهّز طلبك. هنبعتلك أول ما يتشحن.")
       : isManualPaymentMethod(order.paymentMethod)
-        ? "علشان نبدأ نجهّز طلبك، كمّل تحويل المبلغ على بيانات التحويل اللي ظهرتلك بعد الطلب."
-        : "هنتواصل معاك قريب لتأكيد الطلب وميعاد التوصيل.";
+        ? t("علشان نبدأ نجهّز طلبك، كمّل تحويل المبلغ على بيانات التحويل اللي ظهرتلك بعد الطلب.")
+        : t("هنتواصل معاك قريب لتأكيد الطلب وميعاد التوصيل.");
 
   const body =
-    infoRows([
-      { label: "رقم الطلب", value: orderNumber(order) },
-      { label: "العنوان", value: shippingAddress(order) },
-      { label: "طريقة الدفع", value: getPaymentMethodLabel(order.paymentMethod) },
-    ]) +
-    sectionTitle("طلبك") +
-    itemsTable(lines(order), order);
+    infoRows(
+      [
+        { label: t("رقم الطلب"), value: orderNumber(order) },
+        { label: t("العنوان"), value: shippingAddress(order) },
+        { label: t("طريقة الدفع"), value: t(getPaymentMethodLabel(order.paymentMethod)) },
+      ],
+      lang,
+    ) +
+    sectionTitle(t("طلبك")) +
+    itemsTable(lines(order, lang), order, lang);
 
   const html = renderEmail({
     brand: brandOf(order),
-    preheader: `طلب ${orderNumber(order)} — ${money(order.total)}`,
-    heading: name ? `شكرًا يا ${name}، طلبك وصلنا` : "شكرًا، طلبك وصلنا",
+    preheader: t("طلب {0} — {1}", orderNumber(order), money(order.total)),
+    heading: name ? t("شكرًا يا {0}، طلبك وصلنا", name) : t("شكرًا، طلبك وصلنا"),
     intro,
     body,
-    cta: { label: "تتبّع طلبك", href: trackUrl },
-    footer: customerFooter(order),
+    cta: { label: t("تتبّع طلبك"), href: trackUrl },
+    footer: customerFooter(order, lang),
+    lang,
   });
 
   const text = [
-    `طلبك ${orderNumber(order)} من ${order.store.name} وصلنا.`,
+    t("طلبك {0} من {1} وصلنا.", orderNumber(order), order.store.name),
     intro,
-    ...lines(order).map((l) => `- ${l.name} × ${l.quantity}: ${money(l.total)}`),
-    `الإجمالي: ${money(order.total)}`,
-    `تتبّع طلبك: ${trackUrl}`,
+    ...lines(order, lang).map((l) => `- ${l.name} × ${l.quantity}: ${money(l.total)}`),
+    t("الإجمالي: {0}", money(order.total)),
+    t("تتبّع طلبك: {0}", trackUrl),
   ].join("\n");
 
-  return { subject: `طلبك من ${order.store.name} وصلنا — ${orderNumber(order)}`, html, text };
+  return { subject: t("طلبك من {0} وصلنا — {1}", order.store.name, orderNumber(order)), html, text };
 }
 
 const STATUS_COPY: Partial<Record<OrderStatus, { subject: string; heading: string; intro: string }>> = {
@@ -228,8 +249,12 @@ const STATUS_COPY: Partial<Record<OrderStatus, { subject: string; heading: strin
 
 /** Null for statuses the customer isn't told about. */
 export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus) {
-  const copy = STATUS_COPY[status];
-  if (!copy) return null;
+  const source = STATUS_COPY[status];
+  if (!source) return null;
+  const lang = langOf(order);
+  const t = (text: string, ...args: unknown[]) => stIn(lang, text, ...args);
+  const money = (piasters: number) => emailMoney(piasters, lang);
+  const copy = { subject: t(source.subject), heading: t(source.heading), intro: t(source.intro) };
 
   const shipment = order.shipments[0];
   const tracking = shipment?.trackingNumber ?? order.trackingNumber;
@@ -241,31 +266,36 @@ export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus)
   const body =
     (status === OrderStatus.SHIPPED && tracking
       ? notice(
-          `${courier ? `شركة الشحن: <strong>${esc(courier)}</strong><br>` : ""}رقم الشحنة: <strong dir="ltr">${esc(tracking)}</strong>` +
-            (carrierUrl ? `<br><a href="${esc(carrierUrl)}">تتبّع على موقع شركة الشحن</a>` : ""),
+          `${courier ? `${esc(t("شركة الشحن:"))} <strong>${esc(courier)}</strong><br>` : ""}${esc(t("رقم الشحنة:"))} <strong dir="ltr">${esc(tracking)}</strong>` +
+            (carrierUrl ? `<br><a href="${esc(carrierUrl)}">${esc(t("تتبّع على موقع شركة الشحن"))}</a>` : ""),
         )
       : "") +
-    infoRows([
-      { label: "رقم الطلب", value: orderNumber(order) },
-      { label: "الإجمالي", value: money(order.total) },
-    ]);
+    infoRows(
+      [
+        { label: t("رقم الطلب"), value: orderNumber(order) },
+        { label: t("الإجمالي"), value: money(order.total) },
+      ],
+      lang,
+    );
 
+  const name = firstName(order.fullName);
   const html = renderEmail({
     brand: brandOf(order),
     preheader: `${copy.heading} — ${orderNumber(order)}`,
     heading: copy.heading,
-    intro: `${firstName(order.fullName) ? `أهلًا ${firstName(order.fullName)}، ` : ""}${copy.intro}`,
+    intro: `${name ? t("أهلًا {0}، ", name) : ""}${copy.intro}`,
     body,
-    cta: trackUrl ? { label: "تتبّع طلبك", href: trackUrl } : { label: `زور ${order.store.name}`, href: brandOf(order).url },
-    footer: customerFooter(order),
+    cta: trackUrl ? { label: t("تتبّع طلبك"), href: trackUrl } : { label: t("زور {0}", order.store.name), href: brandOf(order).url },
+    footer: customerFooter(order, lang),
+    lang,
   });
 
   const text = [
     `${copy.heading} — ${orderNumber(order)} (${order.store.name})`,
     copy.intro,
-    tracking && status === OrderStatus.SHIPPED ? `رقم الشحنة: ${tracking}` : null,
-    trackUrl ? `تتبّع طلبك: ${trackUrl}` : null,
-    carrierUrl ? `موقع شركة الشحن: ${carrierUrl}` : null,
+    tracking && status === OrderStatus.SHIPPED ? t("رقم الشحنة: {0}", tracking) : null,
+    trackUrl ? t("تتبّع طلبك: {0}", trackUrl) : null,
+    carrierUrl ? t("موقع شركة الشحن: {0}", carrierUrl) : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -315,6 +345,7 @@ export function queueNewOrderEmails(orderId: string, opts: { awaitingOnlinePayme
       await sendToOwner(order, buildMerchantNewOrderEmail(order, dashboardOrderUrl(order.id)), "ORDER_NEW");
     }
     if (!opts.awaitingOnlinePayment && wantsCustomerEmails(order)) {
+      await prepareCustomerEmail(order);
       await sendToCustomer(order, buildCustomerConfirmationEmail(order), "ORDER_CONFIRMATION");
     }
   });
@@ -338,6 +369,7 @@ export function queueOrderPaidEmail(orderId: string) {
     if (!isMailConfigured()) return;
     const order = await loadOrder(orderId);
     if (!order || !wantsCustomerEmails(order)) return;
+    await prepareCustomerEmail(order);
     await sendToCustomer(order, buildCustomerConfirmationEmail(order), "ORDER_CONFIRMATION");
   });
 }
@@ -349,6 +381,7 @@ export function queueOrderStatusEmail(orderId: string, status: OrderStatus) {
     const order = await loadOrder(orderId);
     // A refused delivery is recorded as canceled + returned — nothing to tell the customer.
     if (!order || !wantsCustomerEmails(order) || order.status !== status || order.returnedAt) return;
+    await prepareCustomerEmail(order);
     const mail = buildCustomerStatusEmail(order, status);
     if (mail) await sendToCustomer(order, mail, "ORDER_STATUS");
   });

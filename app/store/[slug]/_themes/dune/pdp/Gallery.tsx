@@ -7,6 +7,7 @@ import { Dialog } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { DN_PORTAL, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Desktop: main image with hover zoom and a thumbnail row beneath; click
  *  opens a fullscreen lightbox. Phones: swipe strip with a counter. */
@@ -20,7 +21,7 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const [light, setLight] = useState(false);
   const multiple = images.length > 1;
-  const alt = (i: number) => (i === 0 ? name : `${name} — صورة ${i + 1}`);
+  const alt = (i: number) => (i === 0 ? name : st("{0} — صورة {1}", name, i + 1));
   const go = useCallback((i: number) => setActive((i + images.length) % images.length), [images.length]);
 
   const onScroll = useCallback(() => {
@@ -45,7 +46,7 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
     <>
       {/* Phones */}
       <div className="relative -mx-(--dn-gutter) lg:hidden">
-        <div ref={railRef} onScroll={onScroll} className="dn-rail" aria-roledescription="carousel" aria-label={`صور ${name}`}>
+        <div ref={railRef} onScroll={onScroll} className="dn-rail" aria-roledescription="carousel" aria-label={st("صور {0}", name)}>
           {images.map((src, i) => (
             <button
               key={src + i}
@@ -54,7 +55,7 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
                 setActive(i);
                 setLight(true);
               }}
-              aria-label={`تكبير الصورة ${i + 1}`}
+              aria-label={st("تكبير الصورة {0}", i + 1)}
               className="relative aspect-square w-full shrink-0 basis-full bg-(--dn-plate)"
             >
               <Image src={src} alt={alt(i)} fill priority={i === 0} sizes="100vw" className="object-cover" />
@@ -97,7 +98,7 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
               e.stopPropagation();
               setLight(true);
             }}
-            aria-label="عرض الصور بملء الشاشة"
+            aria-label={st("عرض الصور بملء الشاشة")}
             className="dn-fab absolute bottom-4 end-4 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
           >
             <Expand />
@@ -110,7 +111,7 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
                 key={src + i}
                 type="button"
                 onClick={() => setActive(i)}
-                aria-label={`عرض الصورة ${i + 1}`}
+                aria-label={st("عرض الصورة {0}", i + 1)}
                 aria-current={i === active}
                 className={cn("dn-media aspect-square transition-opacity duration-300", i === active ? "outline outline-1 outline-offset-2 outline-(--dn-ink)" : "opacity-55 hover:opacity-100")}
               >
@@ -125,12 +126,12 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
       <Dialog.Root open={light} onOpenChange={setLight}>
         <Dialog.Portal>
           <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(DN_PORTAL, "dn-scrim fixed inset-0 z-50 flex flex-col bg-(--dn-drawer) outline-none")}>
-            <Dialog.Title className="sr-only">صور {name}</Dialog.Title>
+            <Dialog.Title className="sr-only">{st("صور {0}", name)}</Dialog.Title>
             <div className="flex h-16 shrink-0 items-center justify-between px-5">
               <span className="dn-num text-lg text-(--dn-quiet)">
                 {num(active + 1)} / {num(images.length)}
               </span>
-              <Dialog.Close className="dn-icon -me-2.5" aria-label="إغلاق">
+              <Dialog.Close className="dn-icon -me-2.5" aria-label={st("إغلاق")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -138,10 +139,10 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
               <Image key={active} src={images[active]} alt={alt(active)} fill sizes="100vw" className="animate-[dn-fade_400ms_ease-out] object-contain" />
               {multiple && (
                 <>
-                  <button type="button" onClick={() => go(active - 1)} aria-label="الصورة السابقة" className="dn-fab absolute start-4 top-1/2 size-12 -translate-y-1/2">
+                  <button type="button" onClick={() => go(active - 1)} aria-label={st("الصورة السابقة")} className="dn-fab absolute start-4 top-1/2 size-12 -translate-y-1/2">
                     <ArrowRight className="ltr:rotate-180" />
                   </button>
-                  <button type="button" onClick={() => go(active + 1)} aria-label="الصورة التالية" className="dn-fab absolute end-4 top-1/2 size-12 -translate-y-1/2">
+                  <button type="button" onClick={() => go(active + 1)} aria-label={st("الصورة التالية")} className="dn-fab absolute end-4 top-1/2 size-12 -translate-y-1/2">
                     <ArrowLeft className="ltr:rotate-180" />
                   </button>
                 </>
@@ -150,7 +151,7 @@ export default function Gallery({ images, name, tags }: { images: string[]; name
             {multiple && (
               <div className="dn-rail shrink-0 justify-center gap-2 p-4">
                 {images.map((src, i) => (
-                  <button key={src + i} type="button" onClick={() => setActive(i)} aria-label={`الصورة ${i + 1}`} aria-current={i === active} className={cn("relative size-14 shrink-0 overflow-hidden", i === active ? "outline outline-1 outline-offset-2 outline-(--dn-ink)" : "opacity-50")}>
+                  <button key={src + i} type="button" onClick={() => setActive(i)} aria-label={st("الصورة {0}", i + 1)} aria-current={i === active} className={cn("relative size-14 shrink-0 overflow-hidden", i === active ? "outline outline-1 outline-offset-2 outline-(--dn-ink)" : "opacity-50")}>
                     <Image src={src} alt="" fill sizes="56px" className="object-cover" />
                   </button>
                 ))}

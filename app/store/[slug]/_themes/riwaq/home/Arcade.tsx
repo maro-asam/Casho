@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { CategoryCardStyle } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { Arrow, idx, monogram, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Categories as a row of arches — the riwaq itself. A grid when they fit,
  *  a swipeable arcade when they don't. The Studio's category shape swaps the
@@ -52,7 +53,7 @@ export default function Arcade({
               <span className="rq-num text-xs text-(--rq-accent)">{idx(i + 1)}</span>
               <span className="min-w-0">
                 <span className="rq-h3 rq-link block truncate">{c.name}</span>
-                <span className="rq-caption mt-0.5 block">{num(c.productCount)} قطعة</span>
+                <span className="rq-caption mt-0.5 block">{st("{0} قطعة", num(c.productCount))}</span>
               </span>
             </div>
           </Link>
@@ -63,7 +64,7 @@ export default function Arcade({
           <Link href={buildStoreUrl(storeSlug, "/products")} className="group block">
             <div className="rq-arch grid aspect-[3/4] place-items-center border border-(--rq-ink) bg-transparent pt-[20%] transition-colors duration-(--rq-dur) group-hover:bg-(--rq-ink) group-hover:text-(--rq-paper)">
               <span className="rq-h3 flex items-center gap-2">
-                كل المنتجات
+                {st("كل المنتجات")}
                 <Arrow />
               </span>
             </div>
@@ -97,7 +98,7 @@ function Medallions({ categories, storeSlug }: { categories: CategoryLink[]; sto
               )}
             </div>
             <span className="rq-link mt-4 block truncate text-[0.9375rem] font-semibold">{c.name}</span>
-            <span className="rq-caption mt-0.5 block">{num(c.productCount)} قطعة</span>
+            <span className="rq-caption mt-0.5 block">{st("{0} قطعة", num(c.productCount))}</span>
           </Link>
         </li>
       ))}
@@ -125,7 +126,7 @@ function Capsules({ categories, storeSlug }: { categories: CategoryLink[]; store
           href={buildStoreUrl(storeSlug, "/products")}
           className="inline-flex min-h-12 items-center gap-2 rounded-full bg-(--rq-ink) px-5 text-[0.9375rem] font-semibold text-(--rq-paper) transition-colors duration-(--rq-dur) hover:bg-(--rq-accent) hover:text-(--rq-accent-ink)"
         >
-          كل المنتجات
+          {st("كل المنتجات")}
           <Arrow />
         </Link>
       </li>

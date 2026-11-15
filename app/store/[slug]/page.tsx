@@ -8,6 +8,7 @@ import { getStorefrontTheme } from "./_themes";
 import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, liveBannersQuery, toBannerData, toProductCards, getStorefrontClosure } from "./_lib/storefront";
 import { resolveStoreTheme } from "@/constants/store-themes";
 import type { ThemeCustomization } from "@/types/store-theme.types";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 // ISR: revalidate every 60 seconds — store home content changes infrequently
 export const revalidate = 60;
@@ -85,6 +86,7 @@ async function StoreJsonLd({ slug }: { slug: string }) {
 
 export default async function StoreHomeRoute({ params }: StoreHomeRouteProps) {
   const { slug } = await params;
+  await loadStoreLocale(slug);
 
   if (!slug) return notFound();
 

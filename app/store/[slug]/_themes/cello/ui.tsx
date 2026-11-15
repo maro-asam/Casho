@@ -7,14 +7,15 @@ import Link from "next/link";
 import type { CSSProperties, ComponentProps, ReactNode } from "react";
 import { ChevronLeft, ChevronsLeft, ImageIcon, Star } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { swatchColor } from "../shared/colors";
 import { discountPercent } from "../shared/commerce";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** Classes for portal content (drawers, dialogs, popovers). */
 export const CE_PORTAL = "store-theme-root theme-cello ce-portal";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 export const num = (n: number) => nf.format(n);
 
 export { discountPercent };
@@ -56,7 +57,7 @@ export function SectionHeader({
   sub,
   title,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   center,
   actions,
   className,
@@ -98,7 +99,7 @@ export function SectionHeader({
 export function Crumbs({ items, className, tone = "dark" }: { items: { label: string; href?: string }[]; className?: string; tone?: "dark" | "light" }) {
   const light = tone === "light";
   return (
-    <nav aria-label="مسار التصفح" className={cn("min-w-0", className)}>
+    <nav aria-label={st("مسار التصفح")} className={cn("min-w-0", className)}>
       <ol className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.8125rem]">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -183,17 +184,17 @@ export function Price({
           size === "xl" && "text-[1.625rem] sm:text-[1.875rem]",
         )}
       >
-        {off > 0 && <span className="sr-only">السعر بعد الخصم: </span>}
-        {from && "من "}
+        {off > 0 && <span className="sr-only">{st("السعر بعد الخصم:")}{" "}</span>}
+        {from && st("من ")}
         {formatPrice(price)}
       </span>
       {off > 0 && (
         <>
           <s className={cn("ce-num font-medium text-(--ce-sale) decoration-1", size === "xl" || size === "lg" ? "text-lg" : "text-[0.875rem]")}>
-            <span className="sr-only">السعر قبل الخصم: </span>
+            <span className="sr-only">{st("السعر قبل الخصم:")}{" "}</span>
             {formatPrice(compareAt!)}
           </s>
-          {chip && <span className="ce-chip-off">خصم {num(off)}٪</span>}
+          {chip && <span className="ce-chip-off">{st("خصم {0}٪", num(off))}</span>}
         </>
       )}
     </p>
@@ -204,7 +205,7 @@ export function Rating({ value, count, size = "sm", className }: { value: number
   const full = Math.round(value);
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>
-      <span className="sr-only">التقييم {value.toFixed(1)} من ٥</span>
+      <span className="sr-only">{st("التقييم {0} من ٥", value.toFixed(1))}</span>
       <span aria-hidden className="flex items-center gap-px">
         {[1, 2, 3, 4, 5].map((i) => (
           <Star
@@ -233,11 +234,11 @@ export function Swatches({ colors, max = 6, className, label = true }: { colors:
     <div className={cn("min-w-0", className)}>
       {label && (
         <p className="truncate text-[0.8125rem] text-(--ce-quiet)">
-          اللون: <span className="text-(--ce-ink)">{colors[0]}</span>
+          {st("اللون:")}{" "}<span className="text-(--ce-ink)">{colors[0]}</span>
         </p>
       )}
       <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
-        <span className="sr-only">الألوان المتاحة: {colors.join("، ")}</span>
+        <span className="sr-only">{st("الألوان المتاحة: {0}", colors.join("، "))}</span>
         {shown.map((c, i) => (
           <span
             key={c.label}
@@ -250,7 +251,7 @@ export function Swatches({ colors, max = 6, className, label = true }: { colors:
         ))}
         {rest > 0 && (
           <span aria-hidden className="text-xs tabular-nums text-(--ce-quiet)">
-            {shown.length ? `+${num(rest)}` : `${num(colors.length)} ألوان`}
+            {shown.length ? `+${num(rest)}` : st("{0} ألوان", num(colors.length))}
           </span>
         )}
       </span>
@@ -260,10 +261,10 @@ export function Swatches({ colors, max = 6, className, label = true }: { colors:
 
 /** "● In stock" / "● Low stock" / "● Out of stock" from real stock. */
 export function StockLine({ stock, count, className }: { stock: number; /** Show the real unit count. */ count?: boolean; className?: string }) {
-  const n = count ? ` (${num(stock)} قطعة)` : "";
-  if (stock <= 0) return <p className={cn("ce-stock text-(--ce-quiet)", className)}>نفدت الكمية</p>;
-  if (stock <= 5) return <p className={cn("ce-stock font-medium text-(--ce-low)", className)}>كمية قليلة{n}</p>;
-  return <p className={cn("ce-stock font-medium text-(--ce-stock)", className)}>متوفر{n}</p>;
+  const n = count ? st(" ({0} قطعة)", num(stock)) : "";
+  if (stock <= 0) return <p className={cn("ce-stock text-(--ce-quiet)", className)}>{st("نفدت الكمية")}</p>;
+  if (stock <= 5) return <p className={cn("ce-stock font-medium text-(--ce-low)", className)}>{st("كمية قليلة{0}", n)}</p>;
+  return <p className={cn("ce-stock font-medium text-(--ce-stock)", className)}>{st("متوفر{0}", n)}</p>;
 }
 
 /** Image that fills its media box; without a src it shows a quiet glyph.

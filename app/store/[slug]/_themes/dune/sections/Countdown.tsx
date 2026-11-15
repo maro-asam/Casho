@@ -6,8 +6,9 @@ import { useEffect, useState } from "react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { UrgencyContent } from "@/types/store-theme.types";
 import { btn } from "../ui";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const nf2 = new Intl.NumberFormat("ar-EG", { minimumIntegerDigits: 2 });
+const nf2 = lazyStoreIntl.number({ minimumIntegerDigits: 2 });
 
 function left(end: number) {
   const d = Math.max(0, end - Date.now());
@@ -31,19 +32,19 @@ export default function Countdown({ content, storeSlug }: { content?: UrgencyCon
   if (Number.isNaN(end) || (t && t.done)) return null;
 
   const units = [
-    { v: t?.d, l: "يوم" },
-    { v: t?.h, l: "ساعة" },
-    { v: t?.m, l: "دقيقة" },
-    { v: t?.s, l: "ثانية" },
+    { v: t?.d, l: st("يوم") },
+    { v: t?.h, l: st("ساعة") },
+    { v: t?.m, l: st("دقيقة") },
+    { v: t?.s, l: st("ثانية") },
   ];
 
   return (
     <section data-reveal className="dn-section">
       <div className="bg-(--dn-sand) text-(--dn-sand-ink)">
         <div className="dn-wrap flex flex-col items-center py-14 text-center sm:py-20">
-          <p className="dn-label dn-appear">{content?.timerLabel || "عرض لفترة محدودة"}</p>
-          <h2 className="dn-h2 dn-appear mt-4 max-w-3xl text-balance">{content?.headline || "العرض بيخلص قريب"}</h2>
-          <div className="dn-appear mt-9 flex gap-6 sm:gap-12" role="timer" aria-live="off" aria-label="الوقت المتبقي">
+          <p className="dn-label dn-appear">{content?.timerLabel || st("عرض لفترة محدودة")}</p>
+          <h2 className="dn-h2 dn-appear mt-4 max-w-3xl text-balance">{content?.headline || st("العرض بيخلص قريب")}</h2>
+          <div className="dn-appear mt-9 flex gap-6 sm:gap-12" role="timer" aria-live="off" aria-label={st("الوقت المتبقي")}>
             {units.map((u) => (
               <span key={u.l} className="flex min-w-14 flex-col items-center">
                 <span className="dn-num text-[clamp(2.75rem,6vw,4.5rem)] leading-none">{u.v === undefined ? "--" : nf2.format(u.v)}</span>
@@ -52,7 +53,7 @@ export default function Countdown({ content, storeSlug }: { content?: UrgencyCon
             ))}
           </div>
           <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg", className: "dn-appear mt-10 bg-(--dn-sand-ink) text-(--dn-sand) hover:bg-(--dn-sand-ink)" })}>
-            الحق العرض
+            {st("الحق العرض")}
           </Link>
         </div>
       </div>

@@ -7,15 +7,17 @@
 // "ask us on WhatsApp".
 
 import type { ThemeLayout } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 /** Pharmacy features on? Missing = on (stores that picked the theme before the switch). */
 export const pharmacyOn = (layout: Pick<ThemeLayout, "pharmacy"> | null | undefined) => layout?.pharmacy !== false;
 
-/** wa.me link with a pre-written message. */
+/** wa.me link with a pre-written message (Arabic source text is translated to the store language). */
 export function waWith(href: string, text: string) {
-  return `${href}?text=${encodeURIComponent(text)}`;
+  return `${href}?text=${encodeURIComponent(st(text))}`;
 }
 
+// Arabic source text — waWith() translates it to the store language. i18n-ignore
 export const RX_MESSAGE = "السلام عليكم، عايز أطلب روشتة. هبعت صورتها في الرسالة الجاية.";
 export const ASK_MESSAGE = "السلام عليكم، عندي استفسار.";
 
@@ -23,18 +25,18 @@ export const ASK_MESSAGE = "السلام عليكم، عندي استفسار.";
 export const HANDOFF = {
   rx: {
     message: RX_MESSAGE,
-    title: "عندك روشتة؟",
-    body: "صوّرها وابعتها على واتساب المتجر، واسأل عن المتاح والسعر قبل ما تطلب.",
-    cta: "ابعت الروشتة",
+    get title() { return st("عندك روشتة؟"); },
+    get body() { return st("صوّرها وابعتها على واتساب المتجر، واسأل عن المتاح والسعر قبل ما تطلب."); },
+    get cta() { return st("ابعت الروشتة"); },
   },
   ask: {
     message: ASK_MESSAGE,
-    title: "عندك سؤال؟",
-    body: "كلّمنا على واتساب المتجر، واسأل عن المتاح والسعر قبل ما تطلب.",
-    cta: "كلّمنا واتساب",
+    get title() { return st("عندك سؤال؟"); },
+    get body() { return st("كلّمنا على واتساب المتجر، واسأل عن المتاح والسعر قبل ما تطلب."); },
+    get cta() { return st("كلّمنا واتساب"); },
   },
 } as const;
 
 export function askAboutMessage(productName: string) {
-  return `السلام عليكم، عندي استفسار عن: ${productName}`;
+  return st("السلام عليكم، عندي استفسار عن: {0}", productName);
 }

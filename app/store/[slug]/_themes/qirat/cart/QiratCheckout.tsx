@@ -3,11 +3,12 @@ import { CreditCard, ShieldCheck, ShoppingBag } from "lucide-react";
 
 import CheckoutForm from "../../../checkout/_components/CheckoutForm";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { CheckoutViewProps } from "../../types";
 import { unitPriceFor } from "../../shared/commerce";
 import { Empty, PageHead, PlateImage, Wrap, btn, featureLabel, num } from "../ui";
 import { Totals } from "./QiratCart";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export default function QiratCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
@@ -16,31 +17,31 @@ export default function QiratCheckout({ storeSlug, cart, paymentMethods, createO
   return (
     <Wrap className="pb-14">
       <PageHead
-        kicker="الخطوة الأخيرة"
-        title="إتمام الطلب"
-        note="اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب."
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "الحقيبة", href: buildStoreUrl(storeSlug, "/cart") }, { label: "إتمام الطلب" }]}
+        kicker={st("الخطوة الأخيرة")}
+        title={st("إتمام الطلب")}
+        note={st("اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.")}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("الحقيبة"), href: buildStoreUrl(storeSlug, "/cart") }, { label: st("إتمام الطلب") }]}
       />
 
       {items.length === 0 ? (
         <Empty
           icon={<ShoppingBag />}
-          title="حقيبتك فاضية"
-          description="ضيف قطع للحقيبة الأول وبعدين كمّل طلبك."
+          title={st("حقيبتك فاضية")}
+          description={st("ضيف قطع للحقيبة الأول وبعدين كمّل طلبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-              اكتشف المجموعة
+              {st("اكتشف المجموعة")}
             </Link>
           }
         />
       ) : paymentMethods.length === 0 ? (
         <Empty
           icon={<CreditCard />}
-          title="مفيش طرق دفع متاحة دلوقتي"
-          description="المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر."
+          title={st("مفيش طرق دفع متاحة دلوقتي")}
+          description={st("المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
@@ -49,11 +50,11 @@ export default function QiratCheckout({ storeSlug, cart, paymentMethods, createO
           <div className="qr-checkout qr-panel order-2 min-w-0 p-4 sm:p-7 lg:order-1">
             <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
-          <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-[calc(var(--qr-head-h)+1.5rem)] lg:order-2 lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-[calc(var(--qr-head-h)+1.5rem)] lg:order-2 lg:self-start">
             <details className="qr-details qr-panel" open>
               <summary className="flex min-h-16 items-center justify-between gap-3 px-5 lg:pointer-events-none">
                 <span className="qr-h4">
-                  طلبك <span className="text-(--qr-ink-2)">({num(count)})</span>
+                  {st("طلبك")}{" "}<span className="text-(--qr-ink-2)">({num(count)})</span>
                 </span>
                 <span className="qr-price text-lg">{formatPrice(summary.total)}</span>
               </summary>
@@ -84,10 +85,10 @@ export default function QiratCheckout({ storeSlug, cart, paymentMethods, createO
                 </div>
                 <p className="mt-5 flex items-start gap-2 text-xs leading-6 text-(--qr-ink-2)">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-(--qr-gold-ink)" />
-                  بياناتك بتروح للمتجر بس عشان يوصلك الطلب.
+                  {st("بياناتك بتروح للمتجر بس عشان يوصلك الطلب.")}
                 </p>
                 <Link href={buildStoreUrl(storeSlug, "/cart")} className="qr-link mt-3 text-sm">
-                  <span className="qr-underline">تعديل الحقيبة</span>
+                  <span className="qr-underline">{st("تعديل الحقيبة")}</span>
                 </Link>
               </div>
             </details>

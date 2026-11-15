@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { getSocialLinks } from "../../shared/social";
 import { motionOff } from "../../shared/motion";
+import { st } from "@/lib/i18n/storefront";
 
 /** Announcement bar. Several messages (separated by "|" or new lines in the
  *  merchant's text) rotate with a pause control; socials sit at the end on
@@ -63,7 +64,7 @@ export default function Announcement({ shell }: { shell: StoreShell }) {
             <button
               type="button"
               onClick={() => setPaused((p) => !p)}
-              aria-label={paused ? "تشغيل الإعلانات" : "إيقاف الإعلانات"}
+              aria-label={paused ? st("تشغيل الإعلانات") : st("إيقاف الإعلانات")}
               aria-pressed={paused}
               className="grid size-8 place-items-center opacity-70 transition-opacity hover:opacity-100 [&_svg]:size-3.5"
             >

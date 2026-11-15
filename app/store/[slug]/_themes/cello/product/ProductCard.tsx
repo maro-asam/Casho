@@ -2,10 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Rating, Swatches, delay } from "../ui";
 import { CardCartButton, QuickLook } from "./CardActions";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 /** Corner label from real product data: sold out, "Save X" on a real
  *  discount, otherwise "New" (added in the last 30 days) or the store's pick. */
@@ -14,15 +15,15 @@ export function CardBadge({ product, className }: { product: Pick<ProductCardDat
   return (
     <span className={cn("flex flex-col items-start gap-1", className)}>
       {product.stock <= 0 ? (
-        <span className="ce-badge ce-badge--out">نفدت الكمية</span>
+        <span className="ce-badge ce-badge--out">{st("نفدت الكمية")}</span>
       ) : save > 0 ? (
-        <span className="ce-badge ce-badge--drop">وفّر {formatPrice(save)}</span>
+        <span className="ce-badge ce-badge--drop">{st("وفّر {0}", formatPrice(save))}</span>
       ) : product.isNew ? (
-        <span className="ce-badge ce-badge--new">جديد</span>
+        <span className="ce-badge ce-badge--new">{st("جديد")}</span>
       ) : product.isFeatured ? (
-        <span className="ce-badge ce-badge--pick">اختيار المتجر</span>
+        <span className="ce-badge ce-badge--pick">{st("اختيار المتجر")}</span>
       ) : null}
-      {product.stock > 0 && save > 0 && product.isNew && <span className="ce-badge ce-badge--new">جديد</span>}
+      {product.stock > 0 && save > 0 && product.isNew && <span className="ce-badge ce-badge--new">{st("جديد")}</span>}
     </span>
   );
 }

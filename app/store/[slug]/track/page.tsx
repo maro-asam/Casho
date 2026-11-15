@@ -8,6 +8,8 @@ import { orderNumber, parseOrderCode, verifyOrderTrackToken } from "@/lib/orders
 import { loadTrackedOrder } from "@/lib/orders/track-order";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId } from "../_lib/storefront";
+import { st } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 type TrackRouteProps = {
   params: Promise<{ slug: string }>;
@@ -15,12 +17,14 @@ type TrackRouteProps = {
   searchParams: Promise<{ order?: string; o?: string; t?: string }>;
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  return storePageMetadata({ title: "تتبّع طلبك", path: "/track", noindex: true });
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  await loadStoreLocale((await params).slug);
+  return storePageMetadata({ title: st("تتبّع طلبك"), path: "/track", noindex: true });
 }
 
 export default async function TrackOrderRoute({ params, searchParams }: TrackRouteProps) {
   const { slug } = await params;
+  await loadStoreLocale(slug);
   const query = await searchParams;
   if (!slug) return notFound();
 

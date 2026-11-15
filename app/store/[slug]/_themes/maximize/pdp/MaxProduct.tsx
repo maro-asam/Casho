@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, ChevronDown, Clock, PackageCheck, ShieldCheck, Truck } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { ProductViewProps, ReviewData } from "../../types";
 import BuyForm from "../product/BuyForm";
 import ProductCard from "../product/ProductCard";
@@ -11,6 +11,7 @@ import Rail from "../product/Rail";
 import RecentlyViewed, { TrackView } from "../sections/RecentlyViewed";
 import { Crumbs, Price, Rating, SectionHeader, StockLine, Wrap, discountPercent, num } from "../ui";
 import Gallery from "./Gallery";
+import { formatPrice, st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 function Panel({ title, open, children, id }: { title: string; open?: boolean; children: React.ReactNode; id?: string }) {
   return (
@@ -32,7 +33,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
       <div className="h-fit rounded-(--mx-r-lg) bg-(--mx-band) p-6">
         <p className="mx-display text-5xl leading-none">{avg.toFixed(1)}</p>
         <Rating value={avg} size="md" className="mt-3" />
-        <p className="mt-1 text-sm text-(--mx-quiet)">من {num(reviews.length)} تقييم</p>
+        <p className="mt-1 text-sm text-(--mx-quiet)">{st("من {0} تقييم", num(reviews.length))}</p>
         <ul className="mt-5 space-y-2">
           {dist.map(({ star, count }) => (
             <li key={star} className="flex items-center gap-3 text-xs">
@@ -56,7 +57,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
                 <div>
                   <p className="text-sm font-semibold text-(--mx-ink)">{r.customerName}</p>
                   <time className="text-xs text-(--mx-quiet)" dateTime={new Date(r.reviewDate).toISOString()}>
-                    {new Date(r.reviewDate).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                    {new Date(r.reviewDate).toLocaleDateString(storeIntlLocale(), { year: "numeric", month: "long", day: "numeric" })}
                   </time>
                 </div>
               </div>
@@ -65,7 +66,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
             {r.verifiedPurchase && (
               <p className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-(--mx-success)">
                 <BadgeCheck className="size-3.5" />
-                مشتري مؤكد
+                {st("مشتري مؤكد")}
               </p>
             )}
             {r.title && <p className="mx-h4 mt-2">{r.title}</p>}
@@ -87,27 +88,27 @@ export default function MaxProduct({ store, product, reviews, related, shipping 
   const description = product.description?.trim();
 
   const specs = [
-    { label: "التصنيف", value: product.category.name, href: categoryHref },
-    product.brand ? { label: "البراند", value: product.brand } : null,
-    product.sku ? { label: "كود المنتج", value: product.sku, ltr: true } : null,
-    product.weight !== null ? { label: "الوزن", value: `${num(product.weight)} كجم` } : null,
-    product.sizes.length ? { label: "المقاسات", value: product.sizes.join("، ") } : null,
-    product.colors.length ? { label: "الألوان", value: product.colors.join("، ") } : null,
+    { label: st("التصنيف"), value: product.category.name, href: categoryHref },
+    product.brand ? { label: st("البراند"), value: product.brand } : null,
+    product.sku ? { label: st("كود المنتج"), value: product.sku, ltr: true } : null,
+    product.weight !== null ? { label: st("الوزن"), value: st("{0} كجم", num(product.weight)) } : null,
+    product.sizes.length ? { label: st("المقاسات"), value: product.sizes.join("، ") } : null,
+    product.colors.length ? { label: st("الألوان"), value: product.colors.join("، ") } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   const delivery = [
-    inStock && { Icon: PackageCheck, text: "متوفر وجاهز للشحن" },
-    cheapest && { Icon: Truck, text: cheapest.price === 0 ? "شحن مجاني متاح" : `الشحن يبدأ من ${formatPrice(cheapest.price / 100)}` },
-    fastest?.estimatedDays && { Icon: Clock, text: `يوصلك خلال ${num(fastest.estimatedDays)} أيام مع ${fastest.name}` },
-    inStock && { Icon: ShieldCheck, text: "المتجر بيأكد طلبك معاك قبل الشحن" },
+    inStock && { Icon: PackageCheck, text: st("متوفر وجاهز للشحن") },
+    cheapest && { Icon: Truck, text: cheapest.price === 0 ? st("شحن مجاني متاح") : st("الشحن يبدأ من {0}", formatPrice(cheapest.price / 100)) },
+    fastest?.estimatedDays && { Icon: Clock, text: st("يوصلك خلال {0} أيام مع {1}", num(fastest.estimatedDays), fastest.name) },
+    inStock && { Icon: ShieldCheck, text: st("المتجر بيأكد طلبك معاك قبل الشحن") },
   ].filter(Boolean) as { Icon: typeof Truck; text: string }[];
 
   const badges = !inStock ? (
-    <span className="mx-badge mx-badge--out">نفدت الكمية</span>
+    <span className="mx-badge mx-badge--out">{st("نفدت الكمية")}</span>
   ) : (
     <>
-      {product.isFeatured && <span className="mx-badge mx-badge--pick">اختيار المتجر</span>}
-      {off > 0 && <span className="mx-badge mx-badge--drop">خصم {num(off)}٪</span>}
+      {product.isFeatured && <span className="mx-badge mx-badge--pick">{st("اختيار المتجر")}</span>}
+      {off > 0 && <span className="mx-badge mx-badge--drop">{st("خصم {0}٪", num(off))}</span>}
     </>
   );
 
@@ -118,7 +119,7 @@ export default function MaxProduct({ store, product, reviews, related, shipping 
         <Crumbs
           className="py-4"
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
             { label: product.category.name, href: categoryHref },
             { label: product.name },
           ]}
@@ -146,7 +147,7 @@ export default function MaxProduct({ store, product, reviews, related, shipping 
               )}
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <Price price={product.price} compareAt={product.compareAtPrice} size="xl" />
-                {off > 0 && product.compareAtPrice && <span className="text-sm font-semibold text-(--mx-sale)">وفّر {formatPrice(product.compareAtPrice - product.price)}</span>}
+                {off > 0 && product.compareAtPrice && <span className="text-sm font-semibold text-(--mx-sale)">{st("وفّر {0}", formatPrice(product.compareAtPrice - product.price))}</span>}
               </div>
               {description && <p className="mt-4 line-clamp-4 text-[0.9375rem] leading-7">{description}</p>}
               <StockLine stock={product.stock} className="mt-4" />
@@ -171,7 +172,7 @@ export default function MaxProduct({ store, product, reviews, related, shipping 
 
               {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
                 <div className="mt-6 rounded-(--mx-r) border border-(--mx-line) p-4">
-                  <p className="mb-3 text-sm font-semibold text-(--mx-ink)">الباقة فيها</p>
+                  <p className="mb-3 text-sm font-semibold text-(--mx-ink)">{st("الباقة فيها")}</p>
                   <ul className="space-y-2.5">
                     {product.bundleItems.map((item, i) => (
                       <li key={i} className="flex items-center gap-3">
@@ -208,14 +209,14 @@ export default function MaxProduct({ store, product, reviews, related, shipping 
         </div>
 
         <section id="reviews" className="mx-section mt-6 scroll-mt-28">
-          <SectionHeader title="تقييمات العملاء" />
-          {reviews.length > 0 ? <Reviews reviews={reviews} /> : <p className="rounded-(--mx-r-lg) bg-(--mx-band) px-5 py-8 text-center text-[0.9375rem]">لسه مفيش تقييمات للمنتج ده.</p>}
+          <SectionHeader title={st("تقييمات العملاء")} />
+          {reviews.length > 0 ? <Reviews reviews={reviews} /> : <p className="rounded-(--mx-r-lg) bg-(--mx-band) px-5 py-8 text-center text-[0.9375rem]">{st("لسه مفيش تقييمات للمنتج ده.")}</p>}
         </section>
 
         {related.length > 0 && (
           <section className="mx-section">
-            <SectionHeader eyebrow="من نفس التصنيف" title="ممكن يعجبك كمان" href={categoryHref} linkLabel={`كل ${product.category.name}`} />
-            <Rail label="منتجات مشابهة">
+            <SectionHeader eyebrow={st("من نفس التصنيف")} title={st("ممكن يعجبك كمان")} href={categoryHref} linkLabel={st("كل {0}", product.category.name)} />
+            <Rail label={st("منتجات مشابهة")}>
               {related.slice(0, 12).map((p, i) => (
                 <li key={p.id} className="min-w-0">
                   <ProductCard product={p} storeSlug={store.slug} index={i} sizes="(max-width: 768px) 46vw, 16vw" />
@@ -234,11 +235,11 @@ function Details({ description, specs, shipping }: { description?: string; specs
   return (
     <>
       {description && (
-        <Panel title="وصف المنتج" open>
+        <Panel title={st("وصف المنتج")} open>
           <p className="mx-prose text-[0.9375rem]">{description}</p>
         </Panel>
       )}
-      <Panel title="المواصفات" open={!description}>
+      <Panel title={st("المواصفات")} open={!description}>
         <table className="w-full text-sm">
           <tbody>
             {specs.map((s) => (
@@ -261,15 +262,15 @@ function Details({ description, specs, shipping }: { description?: string; specs
         </table>
       </Panel>
       {shipping.length > 0 && (
-        <Panel title="الشحن والتوصيل">
+        <Panel title={st("الشحن والتوصيل")}>
           <ul className="text-sm">
             {shipping.map((s) => (
               <li key={s.id} className="flex justify-between gap-4 border-b border-(--mx-line) py-3 last:border-0">
                 <span className="text-(--mx-ink)">
                   {s.name}
-                  {s.estimatedDays ? <span className="text-(--mx-quiet)"> · خلال {num(s.estimatedDays)} أيام</span> : null}
+                  {s.estimatedDays ? <span className="text-(--mx-quiet)">{" "}{st("· خلال {0} أيام", num(s.estimatedDays))}</span> : null}
                 </span>
-                <span className="mx-num shrink-0 font-semibold text-(--mx-ink)">{s.price === 0 ? "مجاني" : formatPrice(s.price / 100)}</span>
+                <span className="mx-num shrink-0 font-semibold text-(--mx-ink)">{s.price === 0 ? st("مجاني") : formatPrice(s.price / 100)}</span>
               </li>
             ))}
           </ul>

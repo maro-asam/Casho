@@ -7,23 +7,24 @@ import type { CategoriesIndexViewProps, CategoryViewProps } from "../../types";
 import { CategoryChips } from "../listing/MadaListing";
 import { ProductGrid } from "../product/ProductCard";
 import { Arrow, Crumbs, Empty, PlateImage, Wrap, btn, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 export function MadaCategoriesIndex({ store, categories }: CategoriesIndexViewProps) {
   return (
     <Wrap className="pb-8">
       <header className="pb-8 pt-5 sm:pt-7">
-        <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "التصنيفات" }]} />
-        <h1 className="md-h1 mt-4">كل التصنيفات</h1>
-        {categories.length > 0 && <p className="mt-2 text-sm text-(--md-quiet)">{num(categories.length)} تصنيف — اختار واحد وابدأ</p>}
+        <Crumbs items={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("التصنيفات") }]} />
+        <h1 className="md-h1 mt-4">{st("كل التصنيفات")}</h1>
+        {categories.length > 0 && <p className="mt-2 text-sm text-(--md-quiet)">{st("{0} تصنيف — اختار واحد وابدأ", num(categories.length))}</p>}
       </header>
       {categories.length === 0 ? (
         <Empty
           icon={<LayoutGrid />}
-          title="مفيش تصنيفات لسه"
-          description="تقدر تتصفح كل المنتجات مباشرةً."
+          title={st("مفيش تصنيفات لسه")}
+          description={st("تقدر تتصفح كل المنتجات مباشرةً.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
@@ -37,7 +38,7 @@ export function MadaCategoriesIndex({ store, categories }: CategoriesIndexViewPr
                 <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-4 text-white">
                   <span className="min-w-0">
                     <span className="md-face block truncate text-base font-bold sm:text-lg">{c.name}</span>
-                    <span className="text-xs opacity-80">{num(c.productCount)} منتج</span>
+                    <span className="text-xs opacity-80">{st("{0} منتج", num(c.productCount))}</span>
                   </span>
                   <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white text-[#121714] transition-transform group-hover:scale-110">
                     <Arrow />
@@ -48,7 +49,7 @@ export function MadaCategoriesIndex({ store, categories }: CategoriesIndexViewPr
           ))}
           <li>
             <Link href={buildStoreUrl(store.slug, "/products")} className="group flex aspect-[4/5] flex-col justify-end rounded-(--md-radius) bg-(--md-brand) p-5 text-(--md-brand-ink)">
-              <span className="md-face text-lg font-bold">كل المنتجات</span>
+              <span className="md-face text-lg font-bold">{st("كل المنتجات")}</span>
               <span className="mt-3 grid size-9 place-items-center rounded-full bg-(--md-signal) text-(--md-signal-ink) transition-transform group-hover:scale-110">
                 <Arrow />
               </span>
@@ -66,8 +67,8 @@ export function MadaCategory({ store, category, products, otherCategories }: Cat
       <div className="pt-5 sm:pt-7">
         <Crumbs
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
-            { label: "التصنيفات", href: buildStoreUrl(store.slug, "/categories") },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
+            { label: st("التصنيفات"), href: buildStoreUrl(store.slug, "/categories") },
             { label: category.name },
           ]}
         />
@@ -79,15 +80,15 @@ export function MadaCategory({ store, category, products, otherCategories }: Cat
             <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_17_15/0.75),transparent_65%)]" />
           </div>
           <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-10">
-            <span className="md-eyebrow">تصنيف</span>
+            <span className="md-eyebrow">{st("تصنيف")}</span>
             <h1 className="md-h1 mt-3">{category.name}</h1>
-            <p className="mt-1 text-sm opacity-80">{num(products.length)} منتج</p>
+            <p className="mt-1 text-sm opacity-80">{st("{0} منتج", num(products.length))}</p>
           </div>
         </header>
       ) : (
         <header className="mb-8 mt-4">
           <h1 className="md-h1">{category.name}</h1>
-          <p className="mt-2 text-sm text-(--md-quiet)">{num(products.length)} منتج</p>
+          <p className="mt-2 text-sm text-(--md-quiet)">{st("{0} منتج", num(products.length))}</p>
         </header>
       )}
 
@@ -97,7 +98,7 @@ export function MadaCategory({ store, category, products, otherCategories }: Cat
         <div className="mb-6 flex items-center justify-end gap-4 border-b border-(--md-line) pb-4">
           <Link href={buildStoreUrl(store.slug, `/products?category=${encodeURIComponent(category.slug)}`)} className={btn({ variant: "outline", size: "sm", className: "bg-(--md-surface)" })}>
             <SlidersHorizontal />
-            فلترة وترتيب
+            {st("فلترة وترتيب")}
           </Link>
         </div>
       )}
@@ -105,11 +106,11 @@ export function MadaCategory({ store, category, products, otherCategories }: Cat
       {products.length === 0 ? (
         <Empty
           icon={<PackageOpen />}
-          title="التصنيف ده فاضي دلوقتي"
-          description="لسه مفيش منتجات هنا. شوف باقي منتجات المتجر."
+          title={st("التصنيف ده فاضي دلوقتي")}
+          description={st("لسه مفيش منتجات هنا. شوف باقي منتجات المتجر.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح كل المنتجات
+              {st("تصفح كل المنتجات")}
             </Link>
           }
         />

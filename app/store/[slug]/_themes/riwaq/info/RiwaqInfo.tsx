@@ -9,14 +9,15 @@ import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDoc
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Empty, PageTitle, Wrap, btn, idx, num } from "../ui";
 import ContactForm from "./ContactForm";
+import { st } from "@/lib/i18n/storefront";
 
 /** Ways to reach the store as big ruled rows: label small, value large. */
 function Channels({ contact }: { contact: StoreContact }) {
   const wa = whatsappHref(contact.whatsapp);
   const rows = [
-    ...(wa ? [{ label: "واتساب", value: contact.whatsapp!, href: wa, ltr: true }] : []),
-    ...(contact.email ? [{ label: "البريد الإلكتروني", value: contact.email, href: `mailto:${contact.email}`, ltr: true }] : []),
-    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: "تابعنا", href: s.href, ltr: false })),
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, ltr: true }] : []),
+    ...(contact.email ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, ltr: true }] : []),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, ltr: false })),
   ];
   if (rows.length === 0) return null;
 
@@ -46,12 +47,12 @@ function Channels({ contact }: { contact: StoreContact }) {
 }
 
 export function RiwaqAbout({ store, logo, coverImage, description, contact, productCount, categoryCount }: AboutViewProps) {
-  const text = description?.trim() || `أهلاً بيك في ${store.name}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك نأكد طلبك.`;
+  const text = description?.trim() || st("أهلاً بيك في {0}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك نأكد طلبك.", store.name);
   const [lead, ...rest] = text.split(/\n+/);
 
   return (
     <Wrap className="pb-6">
-      <PageTitle crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]} title={`عن ${store.name}`} />
+      <PageTitle crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} title={st("عن {0}", store.name)} />
 
       {coverImage && (
         <figure className="mb-12 sm:mb-16">
@@ -67,11 +68,11 @@ export function RiwaqAbout({ store, logo, coverImage, description, contact, prod
           {rest.length > 0 && <p className="rq-prose mt-6">{rest.join("\n")}</p>}
           <div className="mt-10 flex flex-wrap gap-3">
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg", className: "group" })}>
-              تسوق المنتجات
+              {st("تسوق المنتجات")}
               <Arrow />
             </Link>
             <Link href={buildStoreUrl(store.slug, "/contact")} className={btn({ size: "lg", variant: "line" })}>
-              تواصل معنا
+              {st("تواصل معنا")}
             </Link>
           </div>
         </div>
@@ -79,8 +80,8 @@ export function RiwaqAbout({ store, logo, coverImage, description, contact, prod
         <aside className="space-y-12 lg:col-span-4 lg:col-start-9">
           <div className="grid grid-cols-2 border-t border-(--rq-ink)">
             {[
-              { n: productCount, label: "منتج" },
-              { n: categoryCount, label: "تصنيف" },
+              { n: productCount, label: st("منتج") },
+              { n: categoryCount, label: st("تصنيف") },
             ].map((s, i) => (
               <div key={s.label} className={i === 1 ? "border-s border-(--rq-rule) ps-5 pt-5" : "pt-5"}>
                 <p className="rq-face text-[3.5rem] font-semibold leading-none tabular-nums">{num(s.n)}</p>
@@ -90,14 +91,14 @@ export function RiwaqAbout({ store, logo, coverImage, description, contact, prod
           </div>
           {logo && (
             <span className="relative block size-20 overflow-hidden">
-              <Image src={logo} alt={`شعار ${store.name}`} fill sizes="80px" className="object-cover" />
+              <Image src={logo} alt={st("شعار {0}", store.name)} fill sizes="80px" className="object-cover" />
             </span>
           )}
           <div>
-            <h2 className="rq-label mb-2">طرق التواصل</h2>
+            <h2 className="rq-label mb-2">{st("طرق التواصل")}</h2>
             <Channels contact={contact} />
             {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && (
-              <p className="rq-small border-t border-(--rq-ink) pt-4 text-(--rq-quiet)">المتجر هيتواصل معاك على رقمك بعد ما تطلب.</p>
+              <p className="rq-small border-t border-(--rq-ink) pt-4 text-(--rq-quiet)">{st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}</p>
             )}
           </div>
         </aside>
@@ -113,33 +114,33 @@ export function RiwaqContact({ store, contact }: ContactViewProps) {
   return (
     <Wrap className="pb-6">
       <PageTitle
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تواصل معنا" }]}
-        title="تواصل معنا"
-        intro="عندك سؤال عن منتج أو طلب؟ إحنا معاك."
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معنا") }]}
+        title={st("تواصل معنا")}
+        intro={st("عندك سؤال عن منتج أو طلب؟ إحنا معاك.")}
       />
 
       {!hasAny ? (
         <Empty
           icon={<MessageCircle />}
-          title="المتجر لسه مضافش وسيلة تواصل"
-          description="لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه."
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-14">
           <section className="lg:col-span-6">
-            <h2 className="rq-label mb-2">كلّمنا مباشرة</h2>
+            <h2 className="rq-label mb-2">{st("كلّمنا مباشرة")}</h2>
             <Channels contact={contact} />
           </section>
           {(wa || contact.email) && (
             <section className="lg:col-span-5 lg:col-start-8">
               <div className="rq-receipt mt-2.5 px-5 py-8 sm:px-8">
-                <h2 className="rq-h3">ابعتلنا رسالة</h2>
-                <p className="rq-caption mb-7 mt-1">{wa ? "هتتفتح محادثة واتساب ورسالتك جاهزة." : "هيتفتح الإيميل ورسالتك جاهزة."}</p>
+                <h2 className="rq-h3">{st("ابعتلنا رسالة")}</h2>
+                <p className="rq-caption mb-7 mt-1">{wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}</p>
                 <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
               </div>
             </section>
@@ -166,9 +167,9 @@ export function RiwaqTrack({ store, whatsapp, initialCode, order }: TrackViewPro
   return (
     <Wrap className="pb-6">
       <PageTitle
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
-        title="تتبّع طلبك"
-        intro={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]}
+        title={st("تتبّع طلبك")}
+        intro={order ? undefined : st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}
       />
       <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Wrap>
@@ -178,7 +179,7 @@ export function RiwaqTrack({ store, whatsapp, initialCode, order }: TrackViewPro
 export function RiwaqPolicy({ store, policy, policies }: PolicyViewProps) {
   return (
     <Wrap className="pb-6">
-      <PageTitle crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} title={policy.title} />
+      <PageTitle crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} title={policy.title} />
       <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
     </Wrap>
   );

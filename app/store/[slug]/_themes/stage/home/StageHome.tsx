@@ -14,6 +14,7 @@ import { BigShelf, DealsBand, TopCharts } from "../sections/ProductRow";
 import Spotlight from "../sections/Spotlight";
 import StudioEmpty from "../sections/StudioEmpty";
 import { Band, Empty, SectionHeader, Wrap, btn, discountPercent } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Ctx = HomeViewProps;
 
@@ -43,15 +44,15 @@ const orEmpty = (node: React.ReactNode, title: string, hint: string) => node ?? 
  *  Order and visibility come from the Studio. */
 const REGISTRY: SectionRegistry<Ctx> = {
   showHero: (c) => <Hero style={c.layout.heroStyle} store={c.store} banners={c.banners} products={unique(c).filter((p) => p.stock > 0)} />,
-  showCategories: (c) => orEmpty(c.categories.some((k) => k.productCount > 0) ? <CategoryShelf categories={c.categories} storeSlug={c.store.slug} style={c.layout.categoryCardStyle} /> : null, "التصنيفات", "هتظهر هنا أول ما تضيف تصنيف فيه منتجات."),
-  showOfferStrip: (c) => orEmpty(c.sectionContent.offerStrip?.items?.some((s) => s.trim()) ? <OfferStrip content={c.sectionContent.offerStrip} /> : null, "شريط العروض", "اضغط هنا واكتب عروضك."),
+  showCategories: (c) => orEmpty(c.categories.some((k) => k.productCount > 0) ? <CategoryShelf categories={c.categories} storeSlug={c.store.slug} style={c.layout.categoryCardStyle} /> : null, st("التصنيفات"), st("هتظهر هنا أول ما تضيف تصنيف فيه منتجات.")),
+  showOfferStrip: (c) => orEmpty(c.sectionContent.offerStrip?.items?.some((s) => s.trim()) ? <OfferStrip content={c.sectionContent.offerStrip} /> : null, st("شريط العروض"), st("اضغط هنا واكتب عروضك.")),
   showBestSellers: (c) =>
     orEmpty(
       c.bestSellers.length > 0 ? (
-        <TopCharts products={c.bestSellers} storeSlug={c.store.slug} title={c.sectionContent.bestSellers?.headline || "الأكثر طلبًا."} max={c.sectionContent.bestSellers?.maxProducts ?? 9} href={buildStoreUrl(c.store.slug, "/products")} />
+        <TopCharts products={c.bestSellers} storeSlug={c.store.slug} title={c.sectionContent.bestSellers?.headline || st("الأكثر طلبًا.")} max={c.sectionContent.bestSellers?.maxProducts ?? 9} href={buildStoreUrl(c.store.slug, "/products")} />
       ) : null,
-      "الأكثر مبيعًا",
-      "هتظهر هنا لوحدها أول ما المتجر يبدأ يبيع.",
+      st("الأكثر مبيعًا"),
+      st("هتظهر هنا لوحدها أول ما المتجر يبدأ يبيع."),
     ),
   showUrgency: (c) => {
     const u = c.sectionContent.urgency;
@@ -61,32 +62,32 @@ const REGISTRY: SectionRegistry<Ctx> = {
         <DealsBand
           products={list}
           storeSlug={c.store.slug}
-          title={u?.headline || "عروض ما تتفوتش."}
+          title={u?.headline || st("عروض ما تتفوتش.")}
           lowStock={u?.showStockBadge !== false}
           timer={u?.timerEndDate ? <Countdown endDate={u.timerEndDate} label={u.timerLabel} /> : undefined}
         />
       ) : null,
-      "عرض لفترة محدودة",
-      "حط سعر قبل الخصم على منتجاتك وهتظهر هنا، واضبط العداد من هنا.",
+      st("عرض لفترة محدودة"),
+      st("حط سعر قبل الخصم على منتجاتك وهتظهر هنا، واضبط العداد من هنا."),
     );
   },
-  showCollections: (c) => orEmpty(c.sectionContent.collections?.items?.length || c.categories.filter((k) => k.productCount > 0).length > 1 ? <PromoTiles content={c.sectionContent.collections} categories={c.categories} storeSlug={c.store.slug} /> : null, "معرض المجموعات", "هيتملى من تصنيفاتك أول ما يبقى عندك تصنيفين فيهم منتجات."),
+  showCollections: (c) => orEmpty(c.sectionContent.collections?.items?.length || c.categories.filter((k) => k.productCount > 0).length > 1 ? <PromoTiles content={c.sectionContent.collections} categories={c.categories} storeSlug={c.store.slug} /> : null, st("معرض المجموعات"), st("هيتملى من تصنيفاتك أول ما يبقى عندك تصنيفين فيهم منتجات.")),
   showFeaturedProducts: (c) =>
     orEmpty(
-      c.featured.length > 0 ? <BigShelf products={c.featured} storeSlug={c.store.slug} title="مختاراتنا." tagline="اللي بننصحك بيه دلوقتي." href={buildStoreUrl(c.store.slug, "/products?featured=true")} /> : null,
-      "المنتجات المميزة",
-      "علّم منتجاتك كمميزة وهتظهر هنا.",
+      c.featured.length > 0 ? <BigShelf products={c.featured} storeSlug={c.store.slug} title={st("مختاراتنا.")} tagline={st("اللي بننصحك بيه دلوقتي.")} href={buildStoreUrl(c.store.slug, "/products?featured=true")} /> : null,
+      st("المنتجات المميزة"),
+      st("علّم منتجاتك كمميزة وهتظهر هنا."),
     ),
   showSpotlight: (c) => {
     const p = spotlit(c);
-    return orEmpty(p ? <Spotlight product={p} storeSlug={c.store.slug} /> : null, "منتج تحت الأضواء", "علّم منتج كمميز وهيظهر هنا على الخلفية السودا.");
+    return orEmpty(p ? <Spotlight product={p} storeSlug={c.store.slug} /> : null, st("منتج تحت الأضواء"), st("علّم منتج كمميز وهيظهر هنا على الخلفية السودا."));
   },
-  showHeroBanner: (c) => orEmpty(c.sectionContent.heroBanner?.backgroundImage || c.sectionContent.heroBanner?.headline ? <MediaBanner content={c.sectionContent.heroBanner} storeSlug={c.store.slug} dir={c.dir} /> : null, "بانر مخصص", "اضغط هنا وحط صورتك وكلامك."),
+  showHeroBanner: (c) => orEmpty(c.sectionContent.heroBanner?.backgroundImage || c.sectionContent.heroBanner?.headline ? <MediaBanner content={c.sectionContent.heroBanner} storeSlug={c.store.slug} dir={c.dir} /> : null, st("بانر مخصص"), st("اضغط هنا وحط صورتك وكلامك.")),
   showLatestProducts: (c) =>
     c.latest.length > 0 ? (
       <Band className="sg-section">
         <Wrap>
-          <SectionHeader title="وصل حديثًا." tagline="شوف الجديد." href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
+          <SectionHeader title={st("وصل حديثًا.")} tagline={st("شوف الجديد.")} href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
           <ProductGrid products={c.latest} storeSlug={c.store.slug} />
         </Wrap>
       </Band>
@@ -94,21 +95,21 @@ const REGISTRY: SectionRegistry<Ctx> = {
       <Wrap className="sg-section">
         <Empty
           icon={<ShoppingBag />}
-          title="المنتجات جاية قريب"
-          description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+          title={st("المنتجات جاية قريب")}
+          description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
           action={
             <Link href={buildStoreUrl(c.store.slug, "/contact")} className={btn({ variant: "gray" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
       </Wrap>
     ),
-  showSocialProof: (c) => orEmpty(c.sectionContent.socialProof?.stats?.some((s) => s.value?.trim()) ? <Stats content={c.sectionContent.socialProof} /> : null, "أرقام الثقة", "اضغط هنا واكتب أرقامك الحقيقية."),
-  showTestimonials: (c) => orEmpty(c.sectionContent.testimonials?.items?.some((t) => t.text?.trim()) ? <Testimonials content={c.sectionContent.testimonials} /> : null, "آراء العملاء", "اضغط هنا وضيف آراء عملائك."),
-  showAboutBrand: (c) => orEmpty(c.sectionContent.aboutBrand?.text?.trim() || c.sectionContent.aboutBrand?.headline?.trim() || c.store.description?.trim() ? <AboutBrand content={c.sectionContent.aboutBrand} storeName={c.store.name} storeSlug={c.store.slug} description={c.store.description} /> : null, "عن المتجر", "اضغط هنا واحكي قصة متجرك."),
-  showRichText: (c) => orEmpty(c.sectionContent.richText?.heading?.trim() || c.sectionContent.richText?.paragraph?.trim() ? <RichText content={c.sectionContent.richText} /> : null, "نص", "اضغط هنا واكتب عنوان وفقرة."),
-  showWhyChooseUs: (c) => orEmpty(c.sectionContent.whyChooseUs?.cards?.some((k) => k.title?.trim()) ? <TrustRow content={c.sectionContent.whyChooseUs} storeName={c.store.name} /> : null, "ليه تشتري مننا؟", "اضغط هنا واكتب مميزات متجرك."),
+  showSocialProof: (c) => orEmpty(c.sectionContent.socialProof?.stats?.some((s) => s.value?.trim()) ? <Stats content={c.sectionContent.socialProof} /> : null, st("أرقام الثقة"), st("اضغط هنا واكتب أرقامك الحقيقية.")),
+  showTestimonials: (c) => orEmpty(c.sectionContent.testimonials?.items?.some((t) => t.text?.trim()) ? <Testimonials content={c.sectionContent.testimonials} /> : null, st("آراء العملاء"), st("اضغط هنا وضيف آراء عملائك.")),
+  showAboutBrand: (c) => orEmpty(c.sectionContent.aboutBrand?.text?.trim() || c.sectionContent.aboutBrand?.headline?.trim() || c.store.description?.trim() ? <AboutBrand content={c.sectionContent.aboutBrand} storeName={c.store.name} storeSlug={c.store.slug} description={c.store.description} /> : null, st("عن المتجر"), st("اضغط هنا واحكي قصة متجرك.")),
+  showRichText: (c) => orEmpty(c.sectionContent.richText?.heading?.trim() || c.sectionContent.richText?.paragraph?.trim() ? <RichText content={c.sectionContent.richText} /> : null, st("نص"), st("اضغط هنا واكتب عنوان وفقرة.")),
+  showWhyChooseUs: (c) => orEmpty(c.sectionContent.whyChooseUs?.cards?.some((k) => k.title?.trim()) ? <TrustRow content={c.sectionContent.whyChooseUs} storeName={c.store.name} /> : null, st("ليه تشتري مننا؟"), st("اضغط هنا واكتب مميزات متجرك.")),
   showNewsletter: (c) => <JoinBand content={c.sectionContent.newsletter} storeName={c.store.name} storeSlug={c.store.slug} whatsappHref={whatsappHref(c.whatsapp)} />,
 };
 

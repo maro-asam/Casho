@@ -9,13 +9,14 @@ import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDoc
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Empty, Kicker, Ornament, PageHead, TextLink, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
+import { st } from "@/lib/i18n/storefront";
 
 function Channels({ contact }: { contact: StoreContact }) {
   const wa = whatsappHref(contact.whatsapp);
   const rows = [
-    ...(wa ? [{ label: "واتساب", value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
-    ...(contact.email ? [{ label: "البريد الإلكتروني", value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
-    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: "تابعنا", href: s.href, Icon: s.Icon, ltr: false })),
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
+    ...(contact.email ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, Icon: s.Icon, ltr: false })),
   ];
   if (rows.length === 0) return null;
   return (
@@ -44,7 +45,7 @@ export function QiratAbout({ store, logo, coverImage, description, contact, prod
   return (
     <div className="pb-20">
       <Wrap>
-        <PageHead kicker="حكايتنا" title={`عن ${store.name}`} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]} />
+        <PageHead kicker={st("حكايتنا")} title={st("عن {0}", store.name)} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} />
       </Wrap>
       {coverImage && (
         <Wrap>
@@ -60,11 +61,11 @@ export function QiratAbout({ store, logo, coverImage, description, contact, prod
               <Image src={logo} alt="" fill sizes="80px" className="object-cover" />
             </span>
           )}
-          <p className="qr-statement whitespace-pre-line">{description?.trim() || `أهلًا بيك في ${store.name}. اختار القطعة اللي تشبهك واطلبها بسهولة، وإحنا هنتواصل معاك نأكد كل التفاصيل.`}</p>
+          <p className="qr-statement whitespace-pre-line">{description?.trim() || st("أهلًا بيك في {0}. اختار القطعة اللي تشبهك واطلبها بسهولة، وإحنا هنتواصل معاك نأكد كل التفاصيل.", store.name)}</p>
           <dl className="qr-about-stats">
             {[
-              { n: productCount, l: "قطعة" },
-              { n: categoryCount, l: "مجموعة" },
+              { n: productCount, l: st("قطعة") },
+              { n: categoryCount, l: st("مجموعة") },
             ].map((s) => (
               <div key={s.l}>
                 <dd className="qr-stat-value">{num(s.n)}</dd>
@@ -74,17 +75,17 @@ export function QiratAbout({ store, logo, coverImage, description, contact, prod
           </dl>
           <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4">
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-              اكتشف المجموعة
+              {st("اكتشف المجموعة")}
             </Link>
-            <TextLink href={buildStoreUrl(store.slug, "/contact")}>تواصل معانا</TextLink>
+            <TextLink href={buildStoreUrl(store.slug, "/contact")}>{st("تواصل معانا")}</TextLink>
           </div>
         </div>
         <aside className="min-w-0">
-          <Kicker>طرق التواصل</Kicker>
+          <Kicker>{st("طرق التواصل")}</Kicker>
           <div className="mt-4">
             <Channels contact={contact} />
           </div>
-          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="mt-4 text-sm text-(--qr-ink-2)">المتجر هيتواصل معاك على رقمك بعد ما تطلب.</p>}
+          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="mt-4 text-sm text-(--qr-ink-2)">{st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}</p>}
         </aside>
       </Wrap>
     </div>
@@ -96,31 +97,31 @@ export function QiratContact({ store, contact }: ContactViewProps) {
   const hasAny = !!wa || !!contact.email || getSocialLinks(contact).length > 0;
   return (
     <Wrap className="pb-20">
-      <PageHead kicker="إحنا هنا" title="تواصل معانا" note="سؤال عن مقاس، خامة، أو طلب؟ ابعتلنا وهنرد عليك." crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تواصل معانا" }]} />
+      <PageHead kicker={st("إحنا هنا")} title={st("تواصل معانا")} note={st("سؤال عن مقاس، خامة، أو طلب؟ ابعتلنا وهنرد عليك.")} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معانا") }]} />
       {!hasAny ? (
         <Empty
           icon={<MessageCircle />}
-          title="المتجر لسه مضافش وسيلة تواصل"
-          description="لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه."
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              كل القطع
+              {st("كل القطع")}
             </Link>
           }
         />
       ) : (
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
           <section>
-            <Kicker>كلّمنا مباشرة</Kicker>
+            <Kicker>{st("كلّمنا مباشرة")}</Kicker>
             <div className="mt-4">
               <Channels contact={contact} />
             </div>
           </section>
           {(wa || contact.email) && (
             <section className="qr-panel p-6 sm:p-8">
-              <h2 className="qr-h3">ابعتلنا رسالة</h2>
+              <h2 className="qr-h3">{st("ابعتلنا رسالة")}</h2>
               <Ornament className="qr-orn--start mt-4" />
-              <p className="mb-6 mt-4 text-sm text-(--qr-ink-2)">{wa ? "هتتفتح محادثة واتساب ورسالتك جاهزة." : "هيتفتح الإيميل ورسالتك جاهزة."}</p>
+              <p className="mb-6 mt-4 text-sm text-(--qr-ink-2)">{wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}</p>
               <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
             </section>
           )}
@@ -145,10 +146,10 @@ export function QiratTrack({ store, whatsapp, initialCode, order }: TrackViewPro
   return (
     <Wrap className="pb-20">
       <PageHead
-        kicker="طلبك"
-        title="تتبّع طلبك"
-        note={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
+        kicker={st("طلبك")}
+        title={st("تتبّع طلبك")}
+        note={order ? undefined : st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]}
       />
       <div className="mx-auto max-w-3xl">
         <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
@@ -160,7 +161,7 @@ export function QiratTrack({ store, whatsapp, initialCode, order }: TrackViewPro
 export function QiratPolicy({ store, policy, policies }: PolicyViewProps) {
   return (
     <Wrap className="pb-20">
-      <PageHead kicker="سياسات المتجر" title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <PageHead kicker={st("سياسات المتجر")} title={policy.title} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
       <div className="mx-auto max-w-5xl">
         <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
       </div>

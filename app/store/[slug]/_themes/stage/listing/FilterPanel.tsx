@@ -5,12 +5,13 @@ import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
 
 import type { ProductsQuery } from "@/lib/products-query";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { CategoryLink, ListingViewProps } from "../../types";
 import { swatchColor } from "../../shared/colors";
 import { clearedQueryString, filtersQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { btn, isVariety, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type FilterProps = {
   storeSlug: string;
@@ -79,9 +80,9 @@ export default function FilterPanel({
     >
       <div className={cn(mode === "drawer" && "flex-1 overflow-y-auto overscroll-contain px-5")}>
         {categories.length > 0 && (
-          <Group title="القسم">
+          <Group title={st("القسم")}>
             <div className="max-h-72 overflow-y-auto">
-              {[{ id: "", slug: "", name: "كل الأقسام", productCount: null as number | null }, ...categories].map((c) => (
+              {[{ id: "", slug: "", name: st("كل الأقسام"), productCount: null as number | null }, ...categories].map((c) => (
                 <label key={c.id || "all"} className={ROW}>
                   <input type="radio" name="category" value={c.slug} defaultChecked={query.category === c.slug} onChange={instant} className="sr-only" />
                   <span className={cn(BOX, "rounded-full after:rounded-full")} aria-hidden />
@@ -93,22 +94,22 @@ export default function FilterPanel({
           </Group>
         )}
 
-        <Group title="التوفر">
+        <Group title={st("التوفر")}>
           <input type="hidden" name="inStockField" value="1" />
           <input type="hidden" name="featuredField" value="1" />
           <label className={ROW}>
             <input type="checkbox" name="inStock" value="true" defaultChecked={query.inStock} onChange={instant} className="sr-only" />
             <span className={BOX} aria-hidden />
-            المتوفر حالًا بس
+            {st("المتوفر حالًا بس")}
           </label>
           <label className={ROW}>
             <input type="checkbox" name="featured" value="true" defaultChecked={query.featured} onChange={instant} className="sr-only" />
             <span className={BOX} aria-hidden />
-            اختيارات المتجر
+            {st("اختيارات المتجر")}
           </label>
         </Group>
 
-        <Group title="السعر">
+        <Group title={st("السعر")}>
           {ranges.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
               {ranges.map((r) => {
@@ -126,7 +127,7 @@ export default function FilterPanel({
                     }}
                     className="sg-opt min-h-9 px-2.5 text-xs"
                   >
-                    {r.max === 0 ? `أكتر من ${formatPrice(r.min)}` : r.min === 0 ? `أقل من ${formatPrice(r.max)}` : `${formatPrice(r.min)} – ${formatPrice(r.max)}`}
+                    {r.max === 0 ? st("أكتر من {0}", formatPrice(r.min)) : r.min === 0 ? st("أقل من {0}", formatPrice(r.max)) : `${formatPrice(r.min)} – ${formatPrice(r.max)}`}
                   </button>
                 );
               })}
@@ -135,7 +136,7 @@ export default function FilterPanel({
           <div className="grid grid-cols-2 gap-2">
             {(["minPrice", "maxPrice"] as const).map((name) => (
               <label key={name} className="block">
-                <span className="mb-1 block text-xs text-(--sg-label-2)">{name === "minPrice" ? "من" : "إلى"}</span>
+                <span className="mb-1 block text-xs text-(--sg-label-2)">{name === "minPrice" ? st("من") : st("إلى")}</span>
                 <input
                   type="number"
                   inputMode="numeric"
@@ -150,17 +151,17 @@ export default function FilterPanel({
           </div>
           {mode === "sidebar" && (
             <button type="submit" className={btn({ variant: "gray", size: "sm", full: true, className: "mt-2.5" })}>
-              تطبيق السعر
+              {st("تطبيق السعر")}
             </button>
           )}
         </Group>
 
         {facets.colors.length > 0 && (
-          <Group title={isVariety(facets.colors) ? "النوع" : "اللون"}>
-            <div role="radiogroup" aria-label="الاختيارات" className="flex flex-wrap gap-1.5">
+          <Group title={isVariety(facets.colors) ? st("النوع") : st("اللون")}>
+            <div role="radiogroup" aria-label={st("الاختيارات")} className="flex flex-wrap gap-1.5">
               <label className="sg-opt min-h-10 px-3 text-xs">
                 <input type="radio" name="color" value="" defaultChecked={!query.color} onChange={instant} className="sr-only" />
-                الكل
+                {st("الكل")}
               </label>
               {facets.colors.map((c) => {
                 const sw = isVariety(facets.colors) ? null : swatchColor(c);
@@ -182,12 +183,12 @@ export default function FilterPanel({
         )}
 
         {facets.sizes.length > 0 && (
-          <Group title="الحجم">
+          <Group title={st("الحجم")}>
             <div className="flex flex-wrap gap-1.5">
               {["", ...facets.sizes].map((s) => (
                 <label key={s || "all"} className="sg-opt min-h-10 min-w-11 px-3 text-xs">
                   <input type="radio" name="size" value={s} defaultChecked={query.size === s} onChange={instant} className="sr-only" />
-                  {s || "الكل"}
+                  {s || st("الكل")}
                 </label>
               ))}
             </div>
@@ -195,13 +196,13 @@ export default function FilterPanel({
         )}
 
         {facets.brands.length > 0 && (
-          <Group title="البراند" open={!!query.brand}>
+          <Group title={st("البراند")} open={!!query.brand}>
             <div className="max-h-64 overflow-y-auto">
               {["", ...facets.brands].map((b) => (
                 <label key={b || "all"} className={ROW}>
                   <input type="radio" name="brand" value={b} defaultChecked={query.brand === b} onChange={instant} className="sr-only" />
                   <span className={cn(BOX, "rounded-full after:rounded-full")} aria-hidden />
-                  <span className="truncate">{b || "كل البراندات"}</span>
+                  <span className="truncate">{b || st("كل البراندات")}</span>
                 </label>
               ))}
             </div>
@@ -211,7 +212,7 @@ export default function FilterPanel({
 
       {mode === "sidebar" ? (
         <button type="button" onClick={() => push(clearedQueryString(query))} className="mt-4 self-start text-sm font-bold text-(--sg-tint) hover:underline">
-          مسح كل الفلاتر
+          {st("مسح كل الفلاتر")}
         </button>
       ) : (
         footer

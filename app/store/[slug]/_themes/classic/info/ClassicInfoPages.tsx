@@ -9,17 +9,18 @@ import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDoc
 import { getSocialLinks, whatsappHref } from "../social";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
 import ContactForm from "./ContactForm";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 
 function ContactChannels({ contact }: { contact: StoreContact }) {
   const wa = whatsappHref(contact.whatsapp);
   const channels = [
-    ...(wa ? [{ label: "واتساب", value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
     ...(contact.email
-      ? [{ label: "البريد الإلكتروني", value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }]
+      ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }]
       : []),
-    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: "تابعنا", href: s.href, Icon: s.Icon, ltr: false })),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, Icon: s.Icon, ltr: false })),
   ];
 
   if (channels.length === 0) return null;
@@ -55,8 +56,8 @@ export function ClassicAbout({ store, logo, coverImage, description, contact, pr
   return (
     <Container className="pb-6">
       <PageHeader
-        breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]}
-        title={`عن ${store.name}`}
+        breadcrumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]}
+        title={st("عن {0}", store.name)}
       />
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-14">
@@ -73,7 +74,7 @@ export function ClassicAbout({ store, logo, coverImage, description, contact, pr
             <div>
               <h2 className="text-xl font-bold">{store.name}</h2>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                {nf.format(productCount)} منتج · {nf.format(categoryCount)} تصنيف
+                {st("{0} منتج · {1} تصنيف", nf.format(productCount), nf.format(categoryCount))}
               </p>
             </div>
           </div>
@@ -81,25 +82,25 @@ export function ClassicAbout({ store, logo, coverImage, description, contact, pr
             <p className="mt-6 whitespace-pre-line text-[0.9375rem] leading-8 text-foreground/85 sm:text-base">{description}</p>
           ) : (
             <p className="mt-6 text-[0.9375rem] leading-8 text-muted-foreground">
-              أهلاً بيك في {store.name}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.
+              {st("أهلاً بيك في {0}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.", store.name)}
             </p>
           )}
           <div className="mt-8 flex flex-wrap gap-2.5">
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-              تسوق المنتجات
+              {st("تسوق المنتجات")}
             </Link>
             <Link href={buildStoreUrl(store.slug, "/contact")} className={btn({ size: "lg", variant: "outline" })}>
-              تواصل معنا
+              {st("تواصل معنا")}
             </Link>
           </div>
         </div>
 
         <aside>
-          <h2 className="mb-3 text-sm font-bold">طرق التواصل</h2>
+          <h2 className="mb-3 text-sm font-bold">{st("طرق التواصل")}</h2>
           <ContactChannels contact={contact} />
           {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && (
             <p className="rounded-(--c-radius) bg-(--c-subtle) p-4 text-sm text-muted-foreground">
-              المتجر هيتواصل معاك على رقمك بعد ما تطلب.
+              {st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}
             </p>
           )}
         </aside>
@@ -115,33 +116,33 @@ export function ClassicContact({ store, contact }: ContactViewProps) {
   return (
     <Container className="pb-6">
       <PageHeader
-        breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تواصل معنا" }]}
-        title="تواصل معنا"
-        meta="عندك سؤال عن منتج أو طلب؟ إحنا معاك."
+        breadcrumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معنا") }]}
+        title={st("تواصل معنا")}
+        meta={st("عندك سؤال عن منتج أو طلب؟ إحنا معاك.")}
       />
 
       {!hasAny ? (
         <EmptyState
           icon={<MessageCircle />}
-          title="المتجر لسه مضافش وسيلة تواصل"
-          description="لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه."
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : (
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
           <section>
-            <h2 className="mb-3 text-sm font-bold">كلمنا مباشرة</h2>
+            <h2 className="mb-3 text-sm font-bold">{st("كلمنا مباشرة")}</h2>
             <ContactChannels contact={contact} />
           </section>
           {(wa || contact.email) && (
             <section className="rounded-(--c-radius-lg) bg-(--c-subtle) p-5 sm:p-7">
-              <h2 className="text-lg font-bold">ابعتلنا رسالة</h2>
+              <h2 className="text-lg font-bold">{st("ابعتلنا رسالة")}</h2>
               <p className="mb-5 mt-1 text-sm text-muted-foreground">
-                {wa ? "هتتفتح محادثة واتساب ورسالتك جاهزة." : "هيتفتح الإيميل ورسالتك جاهزة."}
+                {wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}
               </p>
               <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
             </section>
@@ -168,9 +169,9 @@ export function ClassicTrack({ store, whatsapp, initialCode, order }: TrackViewP
   return (
     <Container className="pb-6">
       <PageHeader
-        breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
-        title="تتبّع طلبك"
-        meta={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
+        breadcrumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]}
+        title={st("تتبّع طلبك")}
+        meta={order ? undefined : st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}
       />
       <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Container>
@@ -180,7 +181,7 @@ export function ClassicTrack({ store, whatsapp, initialCode, order }: TrackViewP
 export function ClassicPolicy({ store, policy, policies }: PolicyViewProps) {
   return (
     <Container className="pb-6">
-      <PageHeader breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} title={policy.title} />
+      <PageHeader breadcrumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} title={policy.title} />
       <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
     </Container>
   );

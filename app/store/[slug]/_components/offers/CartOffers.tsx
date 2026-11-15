@@ -8,6 +8,7 @@ import type { StorefrontOffer } from "@/lib/offers/storefront-offers";
 import { notifyCartUpdated } from "../../_themes/shared/cart-events";
 import { storeHref } from "../conversion/widget-position";
 import { OFFER_VARS, OfferRow, isPreviewFrame, sessionOnce } from "./offer-ui";
+import { st, stv } from "@/lib/i18n/storefront";
 
 /** "Complete your order" — the merchant's cross-sells for what's in the cart. */
 export function CartOffers({ storeSlug, offers }: { storeSlug: string; offers: StorefrontOffer[] }) {
@@ -30,13 +31,13 @@ export function CartOffers({ storeSlug, offers }: { storeSlug: string; offers: S
     try {
       const res = await AcceptOfferAction(storeSlug, offer.id, { features });
       if (!res.success) {
-        setError({ id: offer.id, message: res.message });
+        setError({ id: offer.id, message: stv(res.message) });
         return;
       }
       notifyCartUpdated(res.added);
       router.refresh();
     } catch {
-      setError({ id: offer.id, message: "حصلت مشكلة، حاول تاني" });
+      setError({ id: offer.id, message: st("حصلت مشكلة، حاول تاني") });
     } finally {
       setPendingId(null);
     }
@@ -53,14 +54,14 @@ export function CartOffers({ storeSlug, offers }: { storeSlug: string; offers: S
         <h2 id="cart-offers-title" className="text-base font-bold">
           {offers[0].headline}
         </h2>
-        <p className="mt-0.5 text-xs text-(--of-muted)">كمّل طلبك بالسعر ده — العرض بيتطبق طول ما المنتج الأساسي في السلة.</p>
+        <p className="mt-0.5 text-xs text-(--of-muted)">{st("كمّل طلبك بالسعر ده — العرض بيتطبق طول ما المنتج الأساسي في السلة.")}</p>
         <ul className="mt-4 grid gap-4 sm:grid-cols-2">
           {offers.map((o) => (
             <li key={o.id} className="rounded-xl border border-(--of-border) p-3">
               <OfferRow
                 offer={o}
                 href={storeHref(pathname, storeSlug, `/products/${o.product.slug}`)}
-                ctaLabel="ضيف للسلة"
+                ctaLabel={st("ضيف للسلة")}
                 pending={pendingId === o.id}
                 error={error?.id === o.id ? error.message : null}
                 onAccept={(f) => accept(o, f)}

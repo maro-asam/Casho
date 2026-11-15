@@ -6,6 +6,7 @@ import type { StoreShell } from "../../types";
 import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, StarMark } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type LinkItem = { label: string; href: string; external?: boolean; ltr?: boolean };
 
@@ -43,20 +44,20 @@ export default function RiwaqFooter({ shell }: { shell: StoreShell }) {
   const year = new Date().getFullYear();
 
   const shop: LinkItem[] = [
-    { label: "الرئيسية", href: url("") },
-    { label: "كل المنتجات", href: url("/products") },
-    { label: "التصنيفات", href: url("/categories") },
-    { label: "سلة المشتريات", href: url("/cart") },
+    { label: st("الرئيسية"), href: url("") },
+    { label: st("كل المنتجات"), href: url("/products") },
+    { label: st("التصنيفات"), href: url("/categories") },
+    { label: st("سلة المشتريات"), href: url("/cart") },
   ];
   const categories: LinkItem[] = [
     ...shell.categories.slice(0, 7).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })),
-    ...(shell.categories.length > 7 ? [{ label: "كل التصنيفات", href: url("/categories") }] : []),
+    ...(shell.categories.length > 7 ? [{ label: st("كل التصنيفات"), href: url("/categories") }] : []),
   ];
   const help: LinkItem[] = [
-    { label: "تتبّع طلبك", href: url("/track") },
-    { label: "تواصل معنا", href: url("/contact") },
-    { label: "عن المتجر", href: url("/about") },
-    ...(wa ? [{ label: "واتساب", href: wa, external: true }] : []),
+    { label: st("تتبّع طلبك"), href: url("/track") },
+    { label: st("تواصل معنا"), href: url("/contact") },
+    { label: st("عن المتجر"), href: url("/about") },
+    ...(wa ? [{ label: st("واتساب"), href: wa, external: true }] : []),
     ...(shell.contact.email ? [{ label: shell.contact.email, href: `mailto:${shell.contact.email}`, ltr: true }] : []),
     ...policyFooterLinks(shell),
   ];
@@ -74,16 +75,16 @@ export default function RiwaqFooter({ shell }: { shell: StoreShell }) {
           <p className="rq-face text-[1.625rem] font-semibold leading-snug sm:text-[2.25rem] lg:col-span-7">
             {shell.description?.trim()
               ? shell.description.trim().split(/(?<=[.!؟?])\s/)[0].slice(0, 160)
-              : `شكرًا إنك وصلت لآخر الصفحة. لو محتاج أي حاجة، ${shell.name} معاك.`}
+              : st("شكرًا إنك وصلت لآخر الصفحة. لو محتاج أي حاجة، {0} معاك.", shell.name)}
           </p>
           <div className="flex flex-col items-start gap-3 lg:col-span-4 lg:col-start-9 lg:items-end lg:justify-end">
             <Link href={url("/products")} className="group inline-flex min-h-12 items-center gap-3 text-lg font-semibold">
-              <span className="rq-link">تسوّق كل المنتجات</span>
+              <span className="rq-link">{st("تسوّق كل المنتجات")}</span>
               <Arrow />
             </Link>
             {wa && (
               <a href={wa} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-12 items-center gap-3 text-lg font-semibold">
-                <span className="rq-link">كلّمنا على واتساب</span>
+                <span className="rq-link">{st("كلّمنا على واتساب")}</span>
                 <Arrow />
               </a>
             )}
@@ -92,10 +93,10 @@ export default function RiwaqFooter({ shell }: { shell: StoreShell }) {
 
         {/* Columns */}
         <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-9 lg:mt-20 lg:grid-cols-4 lg:gap-x-10">
-          <Column title="المتجر" links={shop} />
-          <Column title="التصنيفات" links={categories} />
-          <Column title="المساعدة" links={help} />
-          <Column title="تابعنا" links={follow} />
+          <Column title={st("المتجر")} links={shop} />
+          <Column title={st("التصنيفات")} links={categories} />
+          <Column title={st("المساعدة")} links={help} />
+          <Column title={st("تابعنا")} links={follow} />
         </div>
       </div>
 
@@ -113,7 +114,7 @@ export default function RiwaqFooter({ shell }: { shell: StoreShell }) {
       <div className="rq-wrap">
         <div className="flex flex-col items-center gap-3 border-t border-current/20 py-6 text-xs sm:flex-row sm:justify-between">
           <p className="flex items-center gap-2 opacity-70">
-            <StarMark className="size-2.5" />© {year} {shell.name}. كل الحقوق محفوظة.
+            <StarMark className="size-2.5" />{st("© {0} {1}. كل الحقوق محفوظة.", year, shell.name)}
           </p>
           {shell.showPoweredByCasho && (
             <a
@@ -122,7 +123,7 @@ export default function RiwaqFooter({ shell }: { shell: StoreShell }) {
               rel="noopener"
               className="inline-flex min-h-10 items-center gap-2 opacity-70 transition-opacity hover:opacity-100"
             >
-              متجر مبني على
+              {st("متجر مبني على")}
               <CashoLogo withSubTitle={false} />
             </a>
           )}

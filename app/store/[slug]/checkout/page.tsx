@@ -12,6 +12,8 @@ import type { CheckoutLegal } from "../_themes/types";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
 import { PixelEvent } from "../_components/pixels/PixelEvent";
+import { st } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 type CheckoutPageProps = {
   params: Promise<{ slug: string }>;
@@ -34,14 +36,18 @@ async function checkoutLegal(storeId: string, slug: string): Promise<CheckoutLeg
   const data = await loadPolicySettings(storeId);
   const links = consentPolicyTypes(data.stored)
     .sort((a, b) => (a === "terms" ? -1 : b === "terms" ? 1 : 0))
-    .map((type) => ({ label: POLICY_LABELS[type].title, href: buildStoreUrl(slug, policyPath(type)) }));
+    .map((type) => ({ label: st(POLICY_LABELS[type].title), href: buildStoreUrl(slug, policyPath(type)) }));
   return { requireConsent: data.requireTermsAtCheckout && links.length > 0, links };
 }
 
-export const metadata: Metadata = { title: "إتمام الطلب", robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  await loadStoreLocale((await params).slug);
+  return { title: st("إتمام الطلب"), robots: { index: false, follow: false } };
+}
 
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const { slug } = await params;
+  await loadStoreLocale(slug);
 
   const [paymentMethods, cartData, themeId] = await Promise.all([
     GetStoreCheckoutPaymentMethodsAction(slug),
@@ -55,9 +61,9 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const legal = await checkoutLegal(cartData.store.id, slug);
 
   // Digital-only carts can't be paid on delivery — there is no delivery.
-  const checkoutMethods = cartData.digitalOnly
-    ? paymentMethods.filter((method) => method.key !== "cash_on_delivery")
-    : paymentMethods;
+  const checkoutMethods = (
+    cartData.digitalOnly ? paymentMethods.filter((method) => method.key !== "cash_on_delivery") : paymentMethods
+  ).map((method) => ({ ...method, label: st(method.label) }));
 
   async function handleCreateOrder(formData: FormData) {
     "use server";
@@ -80,21 +86,21 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
       formData.get("paymentMethod") ?? defaultPaymentMethod,
     ).trim();
 
-    if (!fullName) throw new Error("الاسم بالكامل مطلوب");
-    if (!phone) throw new Error("رقم الموبايل مطلوب");
+    if (!fullName) throw new Error(st("الاسم بالكامل مطلوب"));
+    if (!phone) throw new Error(st("رقم الموبايل مطلوب"));
     if (!cart.digitalOnly) {
-      if (!isGovernorateCode(governorate)) throw new Error("اختر المحافظة");
-      if (!address) throw new Error("العنوان مطلوب");
+      if (!isGovernorateCode(governorate)) throw new Error(st("اختر المحافظة"));
+      if (!address) throw new Error(st("العنوان مطلوب"));
     }
 
     if (!isValidPaymentMethod(paymentMethodValue, enabledPaymentMethods)) {
-      throw new Error("طريقة الدفع غير متاحة");
+      throw new Error(st("طريقة الدفع غير متاحة"));
     }
 
     // Re-read the setting: the page may have been open since the merchant changed it.
     const { requireConsent } = await checkoutLegal(cart.store.id, slug);
     const termsAccepted = formData.get("acceptTerms") === "on";
-    if (requireConsent && !termsAccepted) throw new Error("لازم توافق على الشروط عشان تكمّل الطلب");
+    if (requireConsent && !termsAccepted) throw new Error(st("لازم توافق على الشروط عشان تكمّل الطلب"));
 
     await CreateOrderAction(slug, {
       fullName,

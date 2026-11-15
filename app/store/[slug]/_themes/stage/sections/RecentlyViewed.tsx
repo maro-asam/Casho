@@ -9,6 +9,7 @@ import { recentKey } from "../lib/events";
 import ProductCard from "../product/ProductCard";
 import Rail from "../product/Rail";
 import { Band } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Products this shopper opened before (kept in this browser). */
 export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: string; excludeId?: string }) {
@@ -33,13 +34,13 @@ export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: st
   return (
     <Band className="sg-section">
       <Rail
-        label="شفتهم مؤخرًا"
-        title="شفتهم مؤخرًا."
-        tagline="كمّل من مكان ما وقفت."
+        label={st("شفتهم مؤخرًا")}
+        title={st("شفتهم مؤخرًا.")}
+        tagline={st("كمّل من مكان ما وقفت.")}
         listClassName="sg-shelf--cards"
         actions={
           <button type="button" onClick={() => list.forEach(remove)} className="min-h-10 text-sm text-(--sg-label-2) hover:text-(--sg-ink) hover:underline">
-            مسح السجل
+            {st("مسح السجل")}
           </button>
         }
       >

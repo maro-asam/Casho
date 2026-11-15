@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { AddToCartAction } from "@/actions/store/cart.actions";
 import { cn } from "@/lib/utils";
 import { notifyCartUpdated } from "../../shared/cart-events";
+import { st, stv } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -36,7 +37,7 @@ export default function QuickAddButton({
 
   if (hasOptions) {
     return (
-      <Link href={productHref} aria-label={`اختر المقاس أو اللون لـ ${productName}`} className={cn(BASE, className)}>
+      <Link href={productHref} aria-label={st("اختر المقاس أو اللون لـ {0}", productName)} className={cn(BASE, className)}>
         <Plus />
       </Link>
     );
@@ -48,15 +49,15 @@ export default function QuickAddButton({
         const res = await AddToCartAction(storeSlug, productId);
         if (res?.success) {
           notifyCartUpdated(res && "added" in res ? res.added : undefined);
-          toast.success("اتضاف للسلة", {
+          toast.success(st("اتضاف للسلة"), {
             description: productName,
             icon: <Check className="size-4" />,
           });
         } else {
-          toast.error(res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني");
+          toast.error(res && "message" in res && res.message ? stv(res.message) : st("حصلت مشكلة، حاول تاني"));
         }
       } catch {
-        toast.error("حصلت مشكلة، حاول تاني");
+        toast.error(st("حصلت مشكلة، حاول تاني"));
       }
     });
 
@@ -65,7 +66,7 @@ export default function QuickAddButton({
       type="button"
       onClick={add}
       disabled={pending}
-      aria-label={`أضف ${productName} للسلة`}
+      aria-label={st("أضف {0} للسلة", productName)}
       className={cn(BASE, className)}
     >
       {pending ? <Loader2 className="animate-spin" /> : <ShoppingBag />}

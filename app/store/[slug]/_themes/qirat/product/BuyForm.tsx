@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Minus, Plus, Send } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { WholesaleTier } from "../../types";
 import { openCart } from "../../shared/cart-events";
 import { tierFor } from "../../shared/commerce";
@@ -15,6 +15,7 @@ import SizeGuide from "../pdp/SizeGuide";
 import { qrToast } from "../toast";
 import { PlateImage, btn, isVariety, num, optionLabel } from "../ui";
 import WishButton from "./WishButton";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type BuyProduct = {
   id: string;
@@ -80,7 +81,7 @@ function OptionGroup({
       </div>
       {error && (
         <p role="alert" className="mt-2 text-sm font-semibold text-(--qr-error)">
-          اختار {label} الأول.
+          {st("اختار {0} الأول.", label)}
         </p>
       )}
     </fieldset>
@@ -90,13 +91,13 @@ function OptionGroup({
 export function Qty({ value, max, onChange, disabled }: { value: number; max: number; onChange: (n: number) => void; disabled?: boolean }) {
   return (
     <div className="qr-qty">
-      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label="تقليل الكمية">
+      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label={st("تقليل الكمية")}>
         <Minus />
       </button>
-      <output aria-live="polite" aria-label="الكمية" className="qr-num">
+      <output aria-live="polite" aria-label={st("الكمية")} className="qr-num">
         {num(value)}
       </output>
-      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label="زيادة الكمية">
+      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label={st("زيادة الكمية")}>
         <Plus />
       </button>
     </div>
@@ -194,7 +195,7 @@ export default function BuyForm({
       <WishButton storeSlug={storeSlug} productId={product.id} name={product.name} label />
       <button type="button" onClick={hint} className="qr-hint">
         <Send aria-hidden />
-        <span className="qr-underline">لمّح لحد يهاديك</span>
+        <span className="qr-underline">{st("لمّح لحد يهاديك")}</span>
       </button>
     </div>
   );
@@ -203,9 +204,9 @@ export default function BuyForm({
     return (
       <div className="space-y-4">
         <button type="button" disabled className={btn({ variant: "outline", size: "lg", full: true })}>
-          نفدت الكمية حاليًا
+          {st("نفدت الكمية حاليًا")}
         </button>
-        <p className="text-sm leading-6 text-(--qr-ink-2)">القطعة دي خلصت دلوقتي. احفظها في قايمة أمنياتك، أو اسأل المتجر عن ميعاد رجوعها.</p>
+        <p className="text-sm leading-6 text-(--qr-ink-2)">{st("القطعة دي خلصت دلوقتي. احفظها في قايمة أمنياتك، أو اسأل المتجر عن ميعاد رجوعها.")}</p>
         {keep}
       </div>
     );
@@ -228,16 +229,16 @@ export default function BuyForm({
 
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <fieldset className="qr-opt-group">
-          <legend className="qr-opt-legend">اشتري أكتر ووفّر</legend>
+          <legend className="qr-opt-legend">{st("اشتري أكتر ووفّر")}</legend>
           <div className="qr-optgrid">
             {product.wholesaleOptions.map((t) => {
               const on = tier === t;
               const save = product.price > t.price ? Math.round(((product.price - t.price) / product.price) * 100) : 0;
               return (
                 <button key={t.minQty} type="button" aria-pressed={on} onClick={() => setQty(Math.min(product.stock, t.minQty))} className="qr-optbox qr-optbox--tier" data-on={on}>
-                  <span className="block font-semibold">{t.maxQty ? `${num(t.minQty)}–${num(t.maxQty)} قطعة` : `${num(t.minQty)} قطع أو أكتر`}</span>
+                  <span className="block font-semibold">{t.maxQty ? st("{0}–{1} قطعة", num(t.minQty), num(t.maxQty)) : st("{0} قطع أو أكتر", num(t.minQty))}</span>
                   <span className="block text-xs text-(--qr-ink-2)">
-                    {formatPrice(t.price)} للقطعة{save > 0 && ` · وفّر ${num(save)}٪`}
+                    {st("{0} للقطعة", formatPrice(t.price))}{save > 0 && st(" · وفّر {0}٪", num(save))}
                   </span>
                 </button>
               );
@@ -251,13 +252,13 @@ export default function BuyForm({
           <Qty value={qty} max={product.stock} onChange={setQty} disabled={pending} />
           <button type="button" onClick={addToCart} disabled={pending} className={btn({ size: "lg", className: "flex-1" })}>
             {pending && !buying && <Loader2 className="animate-spin" />}
-            أضف للحقيبة
+            {st("أضف للحقيبة")}
             {qty > 1 || tier ? <span className="qr-btn-meta">· {formatPrice(unit * qty)}</span> : null}
           </button>
         </div>
         <button type="button" onClick={buyNow} disabled={pending} className={btn({ variant: "outline", size: "lg", full: true })}>
           {buying && <Loader2 className="animate-spin" />}
-          اشتري دلوقتي
+          {st("اشتري دلوقتي")}
         </button>
       </div>
 
@@ -275,7 +276,7 @@ export default function BuyForm({
             </div>
             <button type="button" onClick={addToCart} disabled={pending} className={btn({ className: "px-5" })}>
               {pending && <Loader2 className="animate-spin" />}
-              أضف للحقيبة
+              {st("أضف للحقيبة")}
             </button>
           </div>
         </div>

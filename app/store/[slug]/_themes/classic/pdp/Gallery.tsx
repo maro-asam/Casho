@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 /** One image strip for every screen: swipe (scroll-snap) on touch, thumbnails
  *  + arrows + hover zoom on desktop. Images are only rendered once. */
@@ -45,7 +46,7 @@ export default function Gallery({ images, productName, badge }: { images: string
           onScroll={onScroll}
           className="c-rail c-img-bg lg:rounded-(--c-radius-lg)"
           aria-roledescription="carousel"
-          aria-label={`صور ${productName}`}
+          aria-label={st("صور {0}", productName)}
         >
           {images.map((src, i) => (
             <div
@@ -55,7 +56,7 @@ export default function Gallery({ images, productName, badge }: { images: string
               }}
               role="group"
               aria-roledescription="slide"
-              aria-label={`صورة ${i + 1} من ${images.length}`}
+              aria-label={st("صورة {0} من {1}", i + 1, images.length)}
               className={cn("relative w-full shrink-0 basis-full overflow-hidden", canZoom && "cursor-zoom-in")}
               style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}
               onMouseMove={
@@ -70,7 +71,7 @@ export default function Gallery({ images, productName, badge }: { images: string
             >
               <Image
                 src={src}
-                alt={i === 0 ? productName : `${productName} — صورة ${i + 1}`}
+                alt={i === 0 ? productName : st("{0} — صورة {1}", productName, i + 1)}
                 fill
                 priority={i === 0}
                 sizes="(max-width: 1024px) 100vw, 55vw"
@@ -95,7 +96,7 @@ export default function Gallery({ images, productName, badge }: { images: string
             <button
               type="button"
               onClick={() => goTo(active - 1)}
-              aria-label="الصورة السابقة"
+              aria-label={st("الصورة السابقة")}
               className="absolute start-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-background/90 text-foreground opacity-0 shadow-md transition-opacity duration-(--c-motion) group-hover:opacity-100 focus-visible:opacity-100 lg:grid"
             >
               <ChevronRight className="size-5 ltr:rotate-180" />
@@ -103,7 +104,7 @@ export default function Gallery({ images, productName, badge }: { images: string
             <button
               type="button"
               onClick={() => goTo(active + 1)}
-              aria-label="الصورة التالية"
+              aria-label={st("الصورة التالية")}
               className="absolute end-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-background/90 text-foreground opacity-0 shadow-md transition-opacity duration-(--c-motion) group-hover:opacity-100 focus-visible:opacity-100 lg:grid"
             >
               <ChevronLeft className="size-5 ltr:rotate-180" />
@@ -134,7 +135,7 @@ export default function Gallery({ images, productName, badge }: { images: string
                 key={src + i}
                 type="button"
                 onClick={() => goTo(i)}
-                aria-label={`عرض الصورة ${i + 1}`}
+                aria-label={st("عرض الصورة {0}", i + 1)}
                 aria-current={i === active}
                 className={cn(
                   "c-img-bg relative overflow-hidden rounded-(--c-radius-sm) ring-offset-2 ring-offset-background transition-[box-shadow,opacity] duration-(--c-motion)",

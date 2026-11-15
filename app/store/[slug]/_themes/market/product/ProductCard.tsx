@@ -7,6 +7,7 @@ import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Rating, Swatches, delay, discountPercent, num } from "../ui";
 import { QuickLook } from "./CardActions";
 import Stepper from "./Stepper";
+import { st } from "@/lib/i18n/storefront";
 
 /** Corner labels from real product data: unavailable, "-X%" on a real
  *  discount, "new" (added in the last 30 days) or the store's pick. */
@@ -15,14 +16,14 @@ export function CardBadges({ product, className }: { product: Pick<ProductCardDa
   if (product.stock <= 0) {
     return (
       <span className={cn("flex flex-col items-start gap-1", className)}>
-        <span className="mk-badge mk-badge--out">خلص</span>
+        <span className="mk-badge mk-badge--out">{st("خلص")}</span>
       </span>
     );
   }
   return (
     <span className={cn("flex flex-col items-start gap-1", className)}>
-      {off > 0 && <span className="mk-badge mk-badge--sale">خصم {num(off)}٪</span>}
-      {off === 0 && product.isNew && <span className="mk-badge mk-badge--new">جديد</span>}
+      {off > 0 && <span className="mk-badge mk-badge--sale">{st("خصم {0}٪", num(off))}</span>}
+      {off === 0 && product.isNew && <span className="mk-badge mk-badge--new">{st("جديد")}</span>}
     </span>
   );
 }

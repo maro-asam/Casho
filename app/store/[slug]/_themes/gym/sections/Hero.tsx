@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { HeroStyle } from "@/types/store-theme.types";
 import type { BannerData, CategoryLink, ProductCardData } from "../../types";
 import SearchBar from "../header/SearchBar";
@@ -10,6 +10,7 @@ import { CategoryIcon } from "../lib/category-icon";
 import { Arrow, PlateImage, Wrap, btn, num } from "../ui";
 import HeroSlider from "./HeroSlider";
 import WeightPlate from "./WeightPlate";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 type HeroProps = {
   style: HeroStyle;
@@ -70,23 +71,23 @@ function Poster({ store, categories, products, short }: Pick<HeroProps, "store" 
           {store.description && <p className="mt-4 line-clamp-3 max-w-xl text-base leading-8 text-(--gy-text) sm:text-lg">{store.description}</p>}
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-              ابدأ التسوق
+              {st("ابدأ التسوق")}
               <Arrow />
             </Link>
             {shelves.length > 0 && (
               <Link href={buildStoreUrl(store.slug, "/categories")} className={btn({ size: "lg", variant: "outline" })}>
-                كل الأقسام
+                {st("كل الأقسام")}
               </Link>
             )}
           </div>
           {total > 0 && !short && (
             <dl className="gy-poster-stats">
               <div>
-                <dt>منتج</dt>
+                <dt>{st("منتجات")}</dt>
                 <dd>{num(total)}</dd>
               </div>
               <div>
-                <dt>قسم</dt>
+                <dt>{st("أقسام")}</dt>
                 <dd>{num(shelves.length)}</dd>
               </div>
             </dl>
@@ -108,7 +109,7 @@ function SearchHero({ store, categories }: Pick<HeroProps, "store" | "categories
         {store.description && <p className="mt-4 line-clamp-3 max-w-2xl text-base leading-8 text-(--gy-text) sm:text-lg">{store.description}</p>}
         <SearchBar shell={{ slug: store.slug, categories }} size="lg" className="mt-7 max-w-2xl" />
         {shelves.length > 0 && (
-          <ul className="mt-4 flex flex-wrap gap-2" aria-label="أقسام سريعة">
+          <ul className="mt-4 flex flex-wrap gap-2" aria-label={st("أقسام سريعة")}>
             {shelves.map((c) => (
               <li key={c.id}>
                 <Link href={buildStoreUrl(store.slug, `/categories/${c.slug}`)} className="gy-opt min-h-10 gap-1.5 px-3.5 text-[0.8125rem]">
@@ -132,7 +133,7 @@ function ShelfTape({ categories, storeSlug }: { categories: CategoryLink[]; stor
   return (
     <div className="gy-tape-wrap gy-marquee !pt-0 -mt-3">
       <div className="gy-tape py-2.5">
-        <nav aria-label="الأقسام" className="sr-only">
+        <nav aria-label={st("الأقسام")} className="sr-only">
           <ul>
             {shelves.map((c) => (
               <li key={c.id}>

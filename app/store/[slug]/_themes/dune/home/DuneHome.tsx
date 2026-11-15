@@ -14,6 +14,7 @@ import ProductSection from "../sections/ProductSection";
 import Spotlight from "../sections/Spotlight";
 import Testimonials from "../sections/Testimonials";
 import { Empty, Wrap, btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Ctx = HomeViewProps & { underHeader: boolean };
 
@@ -51,7 +52,7 @@ const REGISTRY: SectionRegistry<Ctx> = {
       cols={c.layout.desktopGridCols}
       products={c.bestSellers}
       storeSlug={c.store.slug}
-      title={c.sectionContent.bestSellers?.headline || "الأكثر مبيعًا"}
+      title={c.sectionContent.bestSellers?.headline || st("الأكثر مبيعًا")}
       max={c.sectionContent.bestSellers?.maxProducts ?? 8}
       href={buildStoreUrl(c.store.slug, "/products")}
     />
@@ -64,7 +65,7 @@ const REGISTRY: SectionRegistry<Ctx> = {
     return (
       <>
         <Spotlight product={lead} storeSlug={c.store.slug} />
-        {rest.length >= 2 && <ProductSection cols={c.layout.desktopGridCols} products={rest} storeSlug={c.store.slug} title="اختيارات المتجر" href={buildStoreUrl(c.store.slug, "/products?featured=true")} />}
+        {rest.length >= 2 && <ProductSection cols={c.layout.desktopGridCols} products={rest} storeSlug={c.store.slug} title={st("اختيارات المتجر")} href={buildStoreUrl(c.store.slug, "/products?featured=true")} />}
       </>
     );
   },
@@ -74,16 +75,16 @@ const REGISTRY: SectionRegistry<Ctx> = {
   showUrgency: (c) => <Countdown content={c.sectionContent.urgency} storeSlug={c.store.slug} />,
   showLatestProducts: (c) =>
     c.latest.length > 0 ? (
-      <ProductSection cols={c.layout.desktopGridCols} products={c.latest} storeSlug={c.store.slug} title="وصل حديثًا" href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
+      <ProductSection cols={c.layout.desktopGridCols} products={c.latest} storeSlug={c.store.slug} title={st("وصل حديثًا")} href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
     ) : (
       <Wrap className="dn-section">
         <Empty
           icon={<ShoppingBag />}
-          title="المنتجات جاية قريب"
-          description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+          title={st("المنتجات جاية قريب")}
+          description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
           action={
             <Link href={buildStoreUrl(c.store.slug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />

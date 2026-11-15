@@ -11,6 +11,7 @@ import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { AppearanceSegments } from "../header/AppearanceToggle";
 import StoreMark from "../header/StoreMark";
 import { Ornament } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type LinkItem = { label: string; href: string };
 
@@ -49,22 +50,22 @@ export default async function QiratFooter({ shell }: { shell: StoreShell }) {
 
   const groups: { title: string; links: LinkItem[] }[] = [
     {
-      title: "تسوّق",
+      title: st("تسوّق"),
       links: [
-        { label: "كل القطع", href: url("/products") },
-        { label: "وصل حديثًا", href: url("/products?sort=newest") },
-        { label: "مختارات المتجر", href: url("/products?featured=true") },
-        { label: "المتوفر حالًا", href: url("/products?inStock=true") },
+        { label: st("كل القطع"), href: url("/products") },
+        { label: st("وصل حديثًا"), href: url("/products?sort=newest") },
+        { label: st("مختارات المتجر"), href: url("/products?featured=true") },
+        { label: st("المتوفر حالًا"), href: url("/products?inStock=true") },
       ],
     },
-    ...(shell.categories.length ? [{ title: "المجموعات", links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
+    ...(shell.categories.length ? [{ title: st("المجموعات"), links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
     {
-      title: "خدمة العملاء",
+      title: st("خدمة العملاء"),
       links: [
-        { label: "تتبّع طلبك", href: url("/track") },
-        { label: "تواصل معانا", href: url("/contact") },
-        { label: `عن ${shell.name}`, href: url("/about") },
-        { label: "الحقيبة", href: url("/cart") },
+        { label: st("تتبّع طلبك"), href: url("/track") },
+        { label: st("تواصل معانا"), href: url("/contact") },
+        { label: st("عن {0}", shell.name), href: url("/about") },
+        { label: st("الحقيبة"), href: url("/cart") },
         ...policyFooterLinks(shell),
       ],
     },
@@ -134,7 +135,7 @@ export default async function QiratFooter({ shell }: { shell: StoreShell }) {
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-(--qr-line) pt-6">
           <AppearanceSegments />
           {payments.length > 0 && (
-            <ul className="flex flex-wrap items-center gap-1.5" aria-label="طرق الدفع المتاحة">
+            <ul className="flex flex-wrap items-center gap-1.5" aria-label={st("طرق الدفع المتاحة")}>
               {payments.map((p) => (
                 <li key={p.key} className="grid h-7 min-w-11 place-items-center rounded-[0.25rem] bg-white px-1.5" title={p.label}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -147,11 +148,11 @@ export default async function QiratFooter({ shell }: { shell: StoreShell }) {
 
         <div className="mt-5 flex flex-col items-center justify-between gap-x-6 gap-y-2 text-xs text-(--qr-ink-2) sm:flex-row">
           <p>
-            © {year} {shell.name}. كل الحقوق محفوظة.
+            {st("© {0} {1}. كل الحقوق محفوظة.", year, shell.name)}
           </p>
           {shell.showPoweredByCasho && (
             <a href="https://casho.store" target="_blank" rel="noopener" className="inline-flex min-h-10 items-center gap-2 transition-opacity hover:opacity-80">
-              متجر مبني على
+              {st("متجر مبني على")}
               <CashoLogo withSubTitle={false} iconClassName="size-6" />
             </a>
           )}

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { CategoryArt, Chevron, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Aisles popover under the bar: every aisle as an app icon with its product
  *  count, and the newest banner on the end side.
@@ -33,9 +34,9 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
       <div className={cn("grid max-h-[min(70dvh,34rem)] gap-6 overflow-y-auto p-5", shell.banner && "grid-cols-[minmax(0,1fr)_17rem]")}>
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <p className="mk-h4">كل الأقسام</p>
+            <p className="mk-h4">{st("كل الأقسام")}</p>
             <Link href={url("/categories")} onClick={() => onClose()} className="mk-link text-sm">
-              عرض الكل
+              {st("عرض الكل")}
               <Chevron />
             </Link>
           </div>
@@ -48,7 +49,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-(--mk-ink) ">{c.name}</span>
-                    <span className="text-xs text-(--mk-label-2)">{num(c.productCount)} منتج</span>
+                    <span className="text-xs text-(--mk-label-2)">{st("{0} منتج", num(c.productCount))}</span>
                   </span>
                 </Link>
               </li>

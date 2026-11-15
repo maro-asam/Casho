@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { CollectionsContent } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -16,7 +17,7 @@ export default function CollectionsPreviewSection({
   content,
   categories = [],
 }: Props) {
-  const headline = content?.headline ?? "تسوق حسب المجموعة";
+  const headline = content?.headline ?? st("تسوق حسب المجموعة");
 
   // Use custom collections OR fall back to store categories
   const items =
@@ -49,7 +50,7 @@ export default function CollectionsPreviewSection({
           className="flex shrink-0 items-center gap-1 text-sm font-medium transition-colors hover:underline"
           style={{ color: "var(--store-primary)" }}
         >
-          كل المجموعات
+          {st("كل المجموعات")}
           <ArrowLeft className="size-4" />
         </Link>
       </div>

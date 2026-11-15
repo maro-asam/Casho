@@ -7,8 +7,9 @@ import { AlertTriangle, Banknote, Check, CheckCircle2, Copy, ExternalLink, Packa
 import type { TrackedOrder } from "@/lib/orders/tracking";
 import { cn } from "@/lib/utils";
 import type { TrackSkin } from "./OrderTracker";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const when = new Intl.DateTimeFormat("ar-EG", {
+const when = lazyStoreIntl.date({
   timeZone: "Africa/Cairo",
   weekday: "short",
   day: "numeric",
@@ -16,9 +17,9 @@ const when = new Intl.DateTimeFormat("ar-EG", {
   hour: "numeric",
   minute: "2-digit",
 });
-const day = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
-const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 });
-const nf = new Intl.NumberFormat("ar-EG");
+const day = lazyStoreIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
+const money = lazyStoreIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const nf = lazyStoreIntl.number();
 
 const TONE_ICON = { progress: Truck, attention: AlertTriangle, done: CheckCircle2, ended: XCircle } as const;
 
@@ -43,7 +44,7 @@ function CopyNumber({ value }: { value: string }) {
         setTimeout(() => setCopied(false), 1500);
       }}
       className="grid size-10 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-      aria-label={copied ? "اتنسخ" : "انسخ رقم الشحنة"}
+      aria-label={copied ? st("اتنسخ") : st("انسخ رقم الشحنة")}
     >
       {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
     </button>
@@ -52,7 +53,7 @@ function CopyNumber({ value }: { value: string }) {
 
 function Steps({ steps, skin }: { steps: TrackedOrder["steps"]; skin: TrackSkin }) {
   return (
-    <ol className="grid gap-2" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }} aria-label="مراحل الطلب">
+    <ol className="grid gap-2" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }} aria-label={st("مراحل الطلب")}>
       {steps.map((step, i) => {
         const color = step.ended ? skin.bad : step.done ? "var(--primary)" : undefined;
         return (
@@ -79,14 +80,14 @@ function Shipment({ shipment, skin }: { shipment: NonNullable<TrackedOrder["ship
         <div className="min-w-0">
           <h3 id="track-shipment" className="flex items-center gap-2 text-base font-bold">
             <Truck className="size-5 shrink-0" style={{ color: "var(--primary)" }} />
-            الشحنة
+            {st("الشحنة")}
           </h3>
-          <p className="mt-1 text-sm text-muted-foreground">{shipment.courier ? `مع ${shipment.courier}` : "مع شركة الشحن"}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{shipment.courier ? st("مع {0}", shipment.courier) : st("مع شركة الشحن")}</p>
         </div>
         {shipment.trackingUrl && (
           <a href={shipment.trackingUrl} target="_blank" rel="noreferrer" className={skin.secondary}>
             <ExternalLink />
-            تتبّع على موقع الشركة
+            {st("تتبّع على موقع الشركة")}
           </a>
         )}
       </div>
@@ -94,7 +95,7 @@ function Shipment({ shipment, skin }: { shipment: NonNullable<TrackedOrder["ship
       {shipment.trackingNumber && (
         <div className="mt-4 flex items-center justify-between gap-3 rounded-(--store-radius) bg-muted py-2 pe-1.5 ps-4">
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">رقم الشحنة</p>
+            <p className="text-xs text-muted-foreground">{st("رقم الشحنة")}</p>
             <p className="truncate font-mono text-[0.9375rem] font-semibold" dir="ltr">
               {shipment.trackingNumber}
             </p>
@@ -106,12 +107,12 @@ function Shipment({ shipment, skin }: { shipment: NonNullable<TrackedOrder["ship
       <div className="mt-5">
         <p className="font-semibold">{shipment.statusLabel}</p>
         {shipment.estimatedDelivery && (
-          <p className="mt-0.5 text-sm text-muted-foreground">متوقع يوصل {when.format(new Date(shipment.estimatedDelivery))}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{st("متوقع يوصل {0}", when.format(new Date(shipment.estimatedDelivery)))}</p>
         )}
       </div>
 
       {shipment.progress.length > 0 && (
-        <ol className="mt-4 grid grid-cols-5 gap-1.5" aria-label="مراحل الشحنة">
+        <ol className="mt-4 grid grid-cols-5 gap-1.5" aria-label={st("مراحل الشحنة")}>
           {shipment.progress.map((step) => (
             <li key={step.label} className="min-w-0 space-y-1.5">
               <span className={cn("block h-1 rounded-full", !step.done && "bg-muted")} style={step.done ? { background: "var(--primary)" } : undefined} />
@@ -124,12 +125,12 @@ function Shipment({ shipment, skin }: { shipment: NonNullable<TrackedOrder["ship
       {shipment.codDue && (
         <p className="mt-5 flex items-center gap-2.5 rounded-(--store-radius) px-4 py-3 text-sm font-medium" style={chip(skin.warn)}>
           <Banknote className="size-4 shrink-0" />
-          جهّز {money.format(shipment.codDue / 100)} للمندوب عند الاستلام.
+          {st("جهّز {0} للمندوب عند الاستلام.", money.format(shipment.codDue / 100))}
         </p>
       )}
 
       {shipment.events.length > 0 && (
-        <ol className="mt-6 space-y-4 border-s border-border ps-5" aria-label="تحديثات الشحنة">
+        <ol className="mt-6 space-y-4 border-s border-border ps-5" aria-label={st("تحديثات الشحنة")}>
           {shipment.events.map((e, i) => (
             <li key={`${e.at}-${i}`} className="relative">
               <span
@@ -150,9 +151,32 @@ function Shipment({ shipment, skin }: { shipment: NonNullable<TrackedOrder["ship
   );
 }
 
+/**
+ * The view-model is built in Arabic on the server (lib/orders/tracking, also
+ * used by emails and the tracking action) — its fixed text is translated here,
+ * at display. Carrier scan notes and product names pass through untouched.
+ */
+function translateTrackedOrder(order: TrackedOrder): TrackedOrder {
+  return {
+    ...order,
+    headline: st(order.headline),
+    detail: st(order.detail),
+    paymentLabel: st(order.paymentLabel),
+    steps: order.steps.map((step) => ({ ...step, label: st(step.label) })),
+    shipment: order.shipment && {
+      ...order.shipment,
+      statusLabel: st(order.shipment.statusLabel),
+      progress: order.shipment.progress.map((step) => ({ ...step, label: st(step.label) })),
+      events: order.shipment.events.map((e) => ({ ...e, label: st(e.label) })),
+    },
+    // "المقاس: M · اللون: أحمر" — one option per part.
+    items: order.items.map((item) => ({ ...item, detail: item.detail && item.detail.split(" · ").map((part) => st(part)).join(" · ") })),
+  };
+}
+
 /** One tracked order: status and timeline, the shipment, then what was ordered. */
 export function TrackedOrderView({
-  order,
+  order: source,
   skin,
   helpHref,
   onReset,
@@ -163,6 +187,7 @@ export function TrackedOrderView({
   helpHref: string;
   onReset: () => void;
 }) {
+  const order = translateTrackedOrder(source);
   const Icon = TONE_ICON[order.tone];
   const units = order.items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -176,7 +201,7 @@ export function TrackedOrderView({
             </span>
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">
-                طلب{" "}
+                {st("طلب")}{" "}
                 <span className="font-mono font-semibold text-foreground" dir="ltr">
                   {order.number}
                 </span>{" "}
@@ -198,8 +223,8 @@ export function TrackedOrderView({
         <section className={skin.panel} aria-labelledby="track-items">
           <h3 id="track-items" className="flex items-center gap-2 text-base font-bold">
             <Package className="size-5 shrink-0" style={{ color: "var(--primary)" }} />
-            طلبك
-            <span className="text-sm font-normal text-muted-foreground">({nf.format(units)} قطعة)</span>
+            {st("طلبك")}
+            <span className="text-sm font-normal text-muted-foreground">{st("({0} قطعة)", nf.format(units))}</span>
           </h3>
           <ul className="mt-3 divide-y divide-border">
             {order.items.map((item, i) => (
@@ -217,11 +242,11 @@ export function TrackedOrderView({
           </ul>
           <dl className="mt-1 space-y-2 border-t border-border pt-4 text-sm">
             <div className="flex items-center justify-between gap-3">
-              <dt className="text-muted-foreground">طريقة الدفع</dt>
+              <dt className="text-muted-foreground">{st("طريقة الدفع")}</dt>
               <dd className="text-end">{order.paymentLabel}</dd>
             </div>
             <div className="flex items-center justify-between gap-3 text-base font-bold">
-              <dt>الإجمالي</dt>
+              <dt>{st("الإجمالي")}</dt>
               <dd>{money.format(order.total / 100)}</dd>
             </div>
           </dl>
@@ -229,10 +254,10 @@ export function TrackedOrderView({
 
         <div className="grid gap-2.5">
           <a href={helpHref} target={helpHref.startsWith("https://wa.me") ? "_blank" : undefined} rel="noreferrer" className={skin.secondary}>
-            عندك سؤال عن الطلب؟ كلّم المتجر
+            {st("عندك سؤال عن الطلب؟ كلّم المتجر")}
           </a>
           <button type="button" onClick={onReset} className={skin.secondary}>
-            تتبّع طلب تاني
+            {st("تتبّع طلب تاني")}
           </button>
         </div>
       </aside>

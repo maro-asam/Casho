@@ -3,15 +3,16 @@ import Link from "next/link";
 import { BadgeCheck, ChevronDown, Star, Truck } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProductViewProps, ReviewData } from "../../types";
 import ProductRail from "../product/ProductRail";
 import { Breadcrumbs, Container, Price, SectionHeading, Stars, discountPercent } from "../ui";
 import Gallery from "./Gallery";
 import PurchasePanel from "./PurchasePanel";
 import ShareButton from "./ShareButton";
+import { formatPrice, lazyStoreIntl, st, storeIntlLocale } from "@/lib/i18n/storefront";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 
 function InfoSection({
   id,
@@ -40,7 +41,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
     return (
       <div className="flex items-center gap-3 rounded-(--c-radius) bg-(--c-subtle) px-4 py-5 text-sm text-muted-foreground">
         <Star className="size-5 shrink-0" />
-        لسه مفيش تقييمات للمنتج ده.
+        {st("لسه مفيش تقييمات للمنتج ده.")}
       </div>
     );
   }
@@ -54,7 +55,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
           <p className="text-5xl font-bold leading-none tabular-nums">{avg.toFixed(1)}</p>
           <div>
             <Stars value={avg} size="md" />
-            <p className="mt-1 text-sm text-muted-foreground">{nf.format(reviews.length)} تقييم</p>
+            <p className="mt-1 text-sm text-muted-foreground">{st("{0} تقييم", nf.format(reviews.length))}</p>
           </div>
         </div>
         <ul className="w-full max-w-xs space-y-1.5">
@@ -90,14 +91,14 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
                   {r.verifiedPurchase && (
                     <span className="inline-flex items-center gap-1 text-xs font-medium text-(--c-success)">
                       <BadgeCheck className="size-3.5" />
-                      مشتري مؤكد
+                      {st("مشتري مؤكد")}
                     </span>
                   )}
                 </p>
                 <div className="mt-0.5 flex items-center gap-2">
                   <Stars value={r.rating} />
                   <time className="text-xs text-muted-foreground" dateTime={new Date(r.reviewDate).toISOString()}>
-                    {new Date(r.reviewDate).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                    {new Date(r.reviewDate).toLocaleDateString(storeIntlLocale(), { year: "numeric", month: "long", day: "numeric" })}
                   </time>
                 </div>
               </div>
@@ -118,12 +119,12 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
   const cheapestShipping = shipping.length ? Math.min(...shipping.map((s) => s.price)) : null;
 
   const specs = [
-    { label: "التصنيف", value: product.category.name, href: buildStoreUrl(store.slug, `/categories/${product.category.slug}`) },
-    product.brand ? { label: "البراند", value: product.brand } : null,
-    product.sku ? { label: "كود المنتج", value: product.sku, ltr: true } : null,
-    product.weight !== null ? { label: "الوزن", value: `${product.weight} كجم` } : null,
-    product.sizes.length ? { label: "المقاسات", value: product.sizes.join("، ") } : null,
-    product.colors.length ? { label: "الألوان", value: product.colors.join("، ") } : null,
+    { label: st("التصنيف"), value: product.category.name, href: buildStoreUrl(store.slug, `/categories/${product.category.slug}`) },
+    product.brand ? { label: st("البراند"), value: product.brand } : null,
+    product.sku ? { label: st("كود المنتج"), value: product.sku, ltr: true } : null,
+    product.weight !== null ? { label: st("الوزن"), value: st("{0} كجم", product.weight) } : null,
+    product.sizes.length ? { label: st("المقاسات"), value: product.sizes.join("، ") } : null,
+    product.colors.length ? { label: st("الألوان"), value: product.colors.join("، ") } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   return (
@@ -132,7 +133,7 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
         <div className="py-3 sm:py-5">
           <Breadcrumbs
             items={[
-              { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+              { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
               { label: product.category.name, href: buildStoreUrl(store.slug, `/categories/${product.category.slug}`) },
               { label: product.name },
             ]}
@@ -147,11 +148,11 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
               badge={
                 !inStock ? (
                   <span className="rounded-(--c-radius-sm) bg-foreground px-2.5 py-1.5 text-xs font-semibold text-background">
-                    نفد المخزون
+                    {st("نفد المخزون")}
                   </span>
                 ) : discount > 0 ? (
                   <span className="rounded-(--c-radius-sm) bg-(--c-sale-solid) px-2.5 py-1.5 text-xs font-bold text-white tabular-nums">
-                    خصم {discount}%
+                    {st("خصم {0}%", discount)}
                   </span>
                 ) : null
               }
@@ -175,7 +176,7 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
               <a href="#reviews" className="mt-2.5 inline-flex min-h-8 items-center gap-2 text-sm hover:underline">
                 <Stars value={avg} size="md" />
                 <span className="text-muted-foreground">
-                  {avg.toFixed(1)} · {nf.format(reviews.length)} تقييم
+                  {st("{0} · {1} تقييم", avg.toFixed(1), nf.format(reviews.length))}
                 </span>
               </a>
             )}
@@ -184,7 +185,7 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
               <Price price={product.price} compareAt={product.compareAtPrice} size="lg" />
               {discount > 0 && product.compareAtPrice && (
                 <span className="rounded-(--c-radius-sm) bg-(--c-sale-soft) px-2 py-1 text-xs font-semibold text-(--c-sale)">
-                  وفّر {formatPrice(product.compareAtPrice - product.price)}
+                  {st("وفّر {0}", formatPrice(product.compareAtPrice - product.price))}
                 </span>
               )}
             </div>
@@ -196,7 +197,7 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
               )}
             >
               <span className="size-2 rounded-full bg-current" aria-hidden />
-              {!inStock ? "نفد المخزون" : product.stock <= 5 ? `باقي ${nf.format(product.stock)} قطع بس` : "متوفر"}
+              {!inStock ? st("نفد المخزون") : product.stock <= 5 ? st("باقي {0} قطع بس", nf.format(product.stock)) : st("متوفر")}
             </p>
 
             <div className="my-6 h-px bg-border" />
@@ -217,7 +218,7 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
 
             {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
               <div className="mt-6 rounded-(--c-radius) border border-border">
-                <p className="border-b border-border px-4 py-3 text-sm font-semibold">الباقة فيها</p>
+                <p className="border-b border-border px-4 py-3 text-sm font-semibold">{st("الباقة فيها")}</p>
                 <ul className="divide-y divide-border">
                   {product.bundleItems.map((item, i) => (
                     <li key={i} className="flex items-center gap-3 px-4 py-2.5">
@@ -239,16 +240,16 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
                 <Truck className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0 text-sm">
                   <p className="font-semibold">
-                    {cheapestShipping === 0 ? "متاح شحن مجاني" : `الشحن يبدأ من ${formatPrice((cheapestShipping ?? 0) / 100)}`}
+                    {cheapestShipping === 0 ? st("متاح شحن مجاني") : st("الشحن يبدأ من {0}", formatPrice((cheapestShipping ?? 0) / 100))}
                   </p>
                   <ul className="mt-1.5 space-y-1 text-muted-foreground">
                     {shipping.slice(0, 3).map((s) => (
                       <li key={s.id} className="flex justify-between gap-3">
                         <span className="truncate">
                           {s.name}
-                          {s.estimatedDays ? ` · ${nf.format(s.estimatedDays)} أيام` : ""}
+                          {s.estimatedDays ? st(" · {0} أيام", nf.format(s.estimatedDays)) : ""}
                         </span>
-                        <span className="shrink-0 tabular-nums">{s.price === 0 ? "مجاني" : formatPrice(s.price / 100)}</span>
+                        <span className="shrink-0 tabular-nums">{s.price === 0 ? st("مجاني") : formatPrice(s.price / 100)}</span>
                       </li>
                     ))}
                   </ul>
@@ -258,11 +259,11 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
 
             <div className="mt-8 border-t border-border">
               {product.description?.trim() && (
-                <InfoSection title="وصف المنتج" defaultOpen>
+                <InfoSection title={st("وصف المنتج")} defaultOpen>
                   <p className="whitespace-pre-line text-[0.9375rem] leading-8 text-foreground/85">{product.description}</p>
                 </InfoSection>
               )}
-              <InfoSection title="التفاصيل" defaultOpen={!product.description?.trim()}>
+              <InfoSection title={st("التفاصيل")} defaultOpen={!product.description?.trim()}>
                 <dl className="divide-y divide-border text-sm">
                   {specs.map((s) => (
                     <div key={s.label} className="flex justify-between gap-6 py-2.5">
@@ -280,7 +281,7 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
                   ))}
                 </dl>
               </InfoSection>
-              <InfoSection id="reviews" title={`التقييمات${reviews.length ? ` (${nf.format(reviews.length)})` : ""}`} defaultOpen={reviews.length > 0}>
+              <InfoSection id="reviews" title={st("التقييمات{0}", reviews.length ? ` (${nf.format(reviews.length)})` : "")} defaultOpen={reviews.length > 0}>
                 <Reviews reviews={reviews} />
               </InfoSection>
             </div>
@@ -290,7 +291,7 @@ export default function ClassicProduct({ store, product, reviews, related, shipp
         {related.length > 0 && (
           <section className="c-section mt-[calc(var(--c-section-y)/2)]">
             <SectionHeading
-              title="ممكن يعجبك كمان"
+              title={st("ممكن يعجبك كمان")}
               href={buildStoreUrl(store.slug, `/categories/${product.category.slug}`)}
             />
             <ProductRail products={related} storeSlug={store.slug} />

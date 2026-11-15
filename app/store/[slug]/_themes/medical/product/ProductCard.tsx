@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Rating, Swatches, delay, discountPercent, num } from "../ui";
 import { CardAddButton, CardAddFab, QuickLook } from "./CardActions";
+import { st } from "@/lib/i18n/storefront";
 
 /** Corner labels from real product data: unavailable, "-X%" on a real
  *  discount, "new" (added in the last 30 days) or the store's pick. */
@@ -14,15 +15,15 @@ export function CardBadges({ product, className }: { product: Pick<ProductCardDa
   if (product.stock <= 0) {
     return (
       <span className={cn("flex flex-col items-start gap-1", className)}>
-        <span className="rx-badge rx-badge--out">غير متوفر</span>
+        <span className="rx-badge rx-badge--out">{st("غير متوفر")}</span>
       </span>
     );
   }
   return (
     <span className={cn("flex flex-col items-start gap-1", className)}>
-      {off > 0 && <span className="rx-badge rx-badge--sale">خصم {num(off)}٪</span>}
-      {product.isNew && <span className="rx-badge rx-badge--new">جديد</span>}
-      {off === 0 && !product.isNew && product.isFeatured && <span className="rx-badge rx-badge--pick">اختيار المتجر</span>}
+      {off > 0 && <span className="rx-badge rx-badge--sale">{st("خصم {0}٪", num(off))}</span>}
+      {product.isNew && <span className="rx-badge rx-badge--new">{st("جديد")}</span>}
+      {off === 0 && !product.isNew && product.isFeatured && <span className="rx-badge rx-badge--pick">{st("اختيار المتجر")}</span>}
     </span>
   );
 }

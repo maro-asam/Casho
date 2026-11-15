@@ -4,13 +4,14 @@ import { ArrowLeft, ArrowRight, PackageSearch, SearchX, X } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { CategoryLink, ListingViewProps } from "../../types";
 import { RuledGrid } from "../product/ProductCard";
 import { Empty, PageTitle, StarMark, Wrap, btn, num } from "../ui";
 import MobileFilters from "./MobileFilters";
 import PricePopover from "./PricePopover";
 import SortSelect from "./SortSelect";
+import { formatPrice, st, stRich } from "@/lib/i18n/storefront";
 
 function href(slug: string, q: Partial<ProductsQuery>) {
   return buildStoreUrl(slug, `/products${productsQueryString(q)}`);
@@ -19,9 +20,9 @@ function href(slug: string, q: Partial<ProductsQuery>) {
 /** Category tabs: one swipeable row on every screen. */
 function CategoryTabs({ slug, query, categories }: { slug: string; query: ProductsQuery; categories: CategoryLink[] }) {
   if (categories.length === 0) return null;
-  const tabs = [{ id: "all", slug: "", name: "الكل", productCount: null as number | null }, ...categories];
+  const tabs = [{ id: "all", slug: "", name: st("الكل"), productCount: null as number | null }, ...categories];
   return (
-    <nav aria-label="التصنيفات" className="border-b border-(--rq-rule)">
+    <nav aria-label={st("التصنيفات")} className="border-b border-(--rq-rule)">
       <ul className="rq-rail rq-bleed gap-7 lg:mx-0 lg:px-0">
         {tabs.map((c) => {
           const current = query.category === c.slug;
@@ -51,9 +52,9 @@ function CategoryTabs({ slug, query, categories }: { slug: string; query: Produc
 function ActiveFilters({ slug, query }: { slug: string; query: ProductsQuery }) {
   const chips: { label: string; remove: Partial<ProductsQuery> }[] = [];
   if (query.search) chips.push({ label: `«${query.search}»`, remove: { search: "" } });
-  if (query.featured) chips.push({ label: "اختيارات المتجر", remove: { featured: false } });
-  if (query.minPrice > 0) chips.push({ label: `من ${formatPrice(query.minPrice)}`, remove: { minPrice: 0 } });
-  if (query.maxPrice > 0) chips.push({ label: `لحد ${formatPrice(query.maxPrice)}`, remove: { maxPrice: 0 } });
+  if (query.featured) chips.push({ label: st("اختيارات المتجر"), remove: { featured: false } });
+  if (query.minPrice > 0) chips.push({ label: st("من {0}", formatPrice(query.minPrice)), remove: { minPrice: 0 } });
+  if (query.maxPrice > 0) chips.push({ label: st("لحد {0}", formatPrice(query.maxPrice)), remove: { maxPrice: 0 } });
   if (chips.length === 0) return null;
 
   return (
@@ -63,7 +64,7 @@ function ActiveFilters({ slug, query }: { slug: string; query: ProductsQuery }) 
           key={chip.label}
           href={href(slug, { ...query, ...chip.remove, page: 1 })}
           scroll={false}
-          aria-label={`إزالة فلتر ${chip.label}`}
+          aria-label={st("إزالة فلتر {0}", chip.label)}
           className="rq-opt gap-2 text-sm"
         >
           <span className="max-w-56 truncate">{chip.label}</span>
@@ -72,7 +73,7 @@ function ActiveFilters({ slug, query }: { slug: string; query: ProductsQuery }) 
       ))}
       {chips.length > 1 && (
         <Link href={href(slug, { sort: query.sort })} scroll={false} className={btn({ variant: "text", size: "sm" })}>
-          مسح الكل
+          {st("مسح الكل")}
         </Link>
       )}
     </div>
@@ -90,16 +91,16 @@ function Pagination({ slug, query, totalPages }: { slug: string; query: Products
   const edge = "group inline-flex min-h-12 items-center gap-2 text-sm font-semibold";
 
   return (
-    <nav aria-label="الصفحات" className="mt-10 flex items-center justify-between gap-4 border-b border-(--rq-ink) pb-3 sm:mt-14">
+    <nav aria-label={st("الصفحات")} className="mt-10 flex items-center justify-between gap-4 border-b border-(--rq-ink) pb-3 sm:mt-14">
       {page > 1 ? (
         <Link href={href(slug, { ...query, page: page - 1 })} className={edge}>
           <ArrowRight className="size-4 ltr:rotate-180" />
-          <span className="rq-link">السابق</span>
+          <span className="rq-link">{st("السابق")}</span>
         </Link>
       ) : (
         <span className={cn(edge, "opacity-30")} aria-hidden>
           <ArrowRight className="size-4 ltr:rotate-180" />
-          السابق
+          {st("السابق")}
         </span>
       )}
 
@@ -114,7 +115,7 @@ function Pagination({ slug, query, totalPages }: { slug: string; query: Products
               <Link
                 href={href(slug, { ...query, page: p })}
                 aria-current={p === page ? "page" : undefined}
-                aria-label={`الصفحة ${p}`}
+                aria-label={st("الصفحة {0}", p)}
                 className={cn(
                   "rq-face grid size-11 place-items-center text-lg font-semibold transition-colors",
                   p === page ? "text-(--rq-accent) underline decoration-2 underline-offset-8" : "text-(--rq-quiet) hover:text-(--rq-ink)",
@@ -129,12 +130,12 @@ function Pagination({ slug, query, totalPages }: { slug: string; query: Products
 
       {page < totalPages ? (
         <Link href={href(slug, { ...query, page: page + 1 })} className={edge}>
-          <span className="rq-link">التالي</span>
+          <span className="rq-link">{st("التالي")}</span>
           <ArrowLeft className="size-4 ltr:rotate-180" />
         </Link>
       ) : (
         <span className={cn(edge, "opacity-30")} aria-hidden>
-          التالي
+          {st("التالي")}
           <ArrowLeft className="size-4 ltr:rotate-180" />
         </span>
       )}
@@ -163,8 +164,8 @@ export default function RiwaqListing({
     : category
       ? category.name
       : query.featured
-        ? "اختيارات المتجر"
-        : "كل المنتجات";
+        ? st("اختيارات المتجر")
+        : st("كل المنتجات");
 
   const from = total === 0 ? 0 : (query.page - 1) * pageSize + 1;
   const to = Math.min(query.page * pageSize, total);
@@ -173,15 +174,15 @@ export default function RiwaqListing({
     <Wrap className="pb-6">
       <PageTitle
         crumbs={[
-          { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+          { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
           ...(query.search || category
-            ? [{ label: "المنتجات", href: buildStoreUrl(store.slug, "/products") }, { label: query.search ? "البحث" : category!.name }]
-            : [{ label: "المنتجات" }]),
+            ? [{ label: st("المنتجات"), href: buildStoreUrl(store.slug, "/products") }, { label: query.search ? st("البحث") : category!.name }]
+            : [{ label: st("المنتجات") }]),
         ]}
         title={
           query.search ? (
             <>
-              <span className="rq-label mb-2 block">نتائج البحث عن</span>
+              <span className="rq-label mb-2 block">{st("نتائج البحث عن")}</span>
               {title}
             </>
           ) : (
@@ -214,15 +215,15 @@ export default function RiwaqListing({
       <div className="hidden min-h-16 items-center justify-between gap-6 border-b border-(--rq-rule) lg:flex">
         <p className="text-sm text-(--rq-quiet)">
           {total > 0 ? (
-            <>
-              عرض{" "}
+            stRich(
+              "عرض {0} من {1} منتج",
               <span className="rq-num font-semibold text-(--rq-ink)">
                 {num(from)}–{num(to)}
-              </span>{" "}
-              من <span className="rq-num">{num(total)}</span> منتج
-            </>
+              </span>,
+              <span className="rq-num">{num(total)}</span>,
+            )
           ) : (
-            "مفيش نتائج"
+            st("مفيش نتائج")
           )}
         </p>
         <div className="flex items-center gap-4">
@@ -234,7 +235,7 @@ export default function RiwaqListing({
             className="rq-opt gap-2 border-transparent text-sm aria-pressed:border-(--rq-ink)"
           >
             <StarMark className="size-2.5" />
-            اختيارات المتجر
+            {st("اختيارات المتجر")}
           </Link>
           <span className="h-6 w-px bg-(--rq-rule)" aria-hidden />
           <SortSelect storeSlug={store.slug} query={query} />
@@ -243,25 +244,25 @@ export default function RiwaqListing({
 
       <ActiveFilters slug={store.slug} query={query} />
 
-      <section aria-label="المنتجات" className="mt-6 sm:mt-8">
+      <section aria-label={st("المنتجات")} className="mt-6 sm:mt-8">
         {products.length === 0 ? (
           filtered ? (
             <Empty
               icon={<SearchX />}
-              title={query.search ? `مفيش نتائج لـ «${query.search}»` : "مفيش منتجات بالفلاتر دي"}
+              title={query.search ? st("مفيش نتائج لـ «{0}»", query.search) : st("مفيش منتجات بالفلاتر دي")}
               description={
                 query.search
-                  ? "اتأكد من كتابة الاسم، أو جرب كلمة أبسط."
-                  : "جرب تغيّر الفلاتر أو تمسح بعضها عشان تشوف منتجات أكتر."
+                  ? st("اتأكد من كتابة الاسم، أو جرب كلمة أبسط.")
+                  : st("جرب تغيّر الفلاتر أو تمسح بعضها عشان تشوف منتجات أكتر.")
               }
               action={
                 <>
                   <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-                    عرض كل المنتجات
+                    {st("عرض كل المنتجات")}
                   </Link>
                   {categories.length > 0 && (
                     <Link href={buildStoreUrl(store.slug, "/categories")} className={btn({ variant: "line" })}>
-                      التصنيفات
+                      {st("التصنيفات")}
                     </Link>
                   )}
                 </>
@@ -270,11 +271,11 @@ export default function RiwaqListing({
           ) : (
             <Empty
               icon={<PackageSearch />}
-              title="لسه مفيش منتجات"
-              description="المتجر بيجهز منتجاته. ارجع تاني قريب."
+              title={st("لسه مفيش منتجات")}
+              description={st("المتجر بيجهز منتجاته. ارجع تاني قريب.")}
               action={
                 <Link href={buildStoreUrl(store.slug)} className={btn({ variant: "line" })}>
-                  الرجوع للرئيسية
+                  {st("الرجوع للرئيسية")}
                 </Link>
               }
             />

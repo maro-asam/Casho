@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Minus, Plus } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { WholesaleTier } from "../../types";
 import { openCart } from "../../shared/cart-events";
 import { swatchColor } from "../../shared/colors";
@@ -13,6 +13,7 @@ import { storeHref } from "../../shared/store-path";
 import { useAddToCart } from "../../shared/use-add-to-cart";
 import { sgToast } from "../toast";
 import { OPTION_LABEL, PlateImage, btn, isVariety, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type BuyProduct = {
   id: string;
@@ -47,8 +48,8 @@ function OptionGroup({
 }) {
   const flavor = kind === "color" && isVariety(values);
   const swatches = kind === "color" && !flavor;
-  const label = flavor ? "النوع" : OPTION_LABEL[kind];
-  const hint = flavor ? "اختار اللي يعجبك." : kind === "color" ? "اختار لونك المفضّل." : "إيه المقاس المناسب ليك؟";
+  const label = flavor ? st("النوع") : OPTION_LABEL[kind];
+  const hint = flavor ? st("اختار اللي يعجبك.") : kind === "color" ? st("اختار لونك المفضّل.") : st("إيه المقاس المناسب ليك؟");
   return (
     <fieldset id={id} className="sg-step-group scroll-mt-40">
       <legend className="sg-step-legend">
@@ -69,10 +70,10 @@ function OptionGroup({
           );
         })}
       </div>
-      {swatches && <p className="mt-3 min-h-5 text-sm text-(--sg-label-2)">{selected ? `اللون — ${selected}` : values.length === 1 ? "لون واحد" : values.length === 2 ? "لونين" : `${num(values.length)} ألوان`}</p>}
+      {swatches && <p className="mt-3 min-h-5 text-sm text-(--sg-label-2)">{selected ? st("اللون — {0}", selected) : values.length === 1 ? st("لون واحد") : values.length === 2 ? st("لونين") : st("{0} ألوان", num(values.length))}</p>}
       {error && (
         <p role="alert" className="mt-2 text-sm font-semibold text-(--sg-error)">
-          اختار {label} الأول.
+          {st("اختار {0} الأول.", label)}
         </p>
       )}
     </fieldset>
@@ -83,13 +84,13 @@ export function Qty({ value, max, onChange, disabled, size = "lg" }: { value: nu
   const cell = size === "lg" ? "size-12" : "size-9";
   return (
     <div className="sg-qty">
-      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label="تقليل الكمية" className={cell}>
+      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label={st("تقليل الكمية")} className={cell}>
         <Minus />
       </button>
-      <output aria-live="polite" aria-label="الكمية" className={cn("sg-num grid place-items-center text-center font-semibold text-(--sg-ink)", size === "lg" ? "w-9" : "w-7")}>
+      <output aria-live="polite" aria-label={st("الكمية")} className={cn("sg-num grid place-items-center text-center font-semibold text-(--sg-ink)", size === "lg" ? "w-9" : "w-7")}>
         {num(value)}
       </output>
-      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label="زيادة الكمية" className={cell}>
+      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label={st("زيادة الكمية")} className={cell}>
         <Plus />
       </button>
     </div>
@@ -178,9 +179,9 @@ export default function BuyForm({
     return (
       <div className="space-y-3">
         <button type="button" disabled className={btn({ variant: "gray", size: "lg", full: true })}>
-          غير متوفر حاليًا
+          {st("غير متوفر حاليًا")}
         </button>
-        <p className="text-sm leading-6 text-(--sg-label-2)">المنتج ده خلص دلوقتي. شوف البدائل تحت، أو اسأل المتجر عن ميعاد توفّره.</p>
+        <p className="text-sm leading-6 text-(--sg-label-2)">{st("المنتج ده خلص دلوقتي. شوف البدائل تحت، أو اسأل المتجر عن ميعاد توفّره.")}</p>
       </div>
     );
   }
@@ -202,7 +203,7 @@ export default function BuyForm({
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <fieldset className="sg-step-group">
           <legend className="sg-step-legend">
-            <span className="text-(--sg-ink)">الكمية.</span> اشتري أكتر ووفّر.
+            <span className="text-(--sg-ink)">{st("الكمية.")}</span>{" "}{st("اشتري أكتر ووفّر.")}
           </legend>
           <div className="sg-optgrid">
             {product.wholesaleOptions.map((t) => {
@@ -210,9 +211,9 @@ export default function BuyForm({
               const save = product.price > t.price ? Math.round(((product.price - t.price) / product.price) * 100) : 0;
               return (
                 <button key={t.minQty} type="button" aria-pressed={on} onClick={() => setQty(Math.min(product.stock, t.minQty))} className="sg-optbox !items-start !justify-start !text-start" data-on={on}>
-                  <span className="block font-semibold text-(--sg-ink)">{t.maxQty ? `${num(t.minQty)}–${num(t.maxQty)} قطعة` : `${num(t.minQty)} قطع أو أكتر`}</span>
+                  <span className="block font-semibold text-(--sg-ink)">{t.maxQty ? st("{0}–{1} قطعة", num(t.minQty), num(t.maxQty)) : st("{0} قطع أو أكتر", num(t.minQty))}</span>
                   <span className="block text-[0.8125rem] font-normal text-(--sg-label-2)">
-                    {formatPrice(t.price)} للقطعة{save > 0 && ` · وفّر ${num(save)}٪`}
+                    {st("{0} للقطعة", formatPrice(t.price))}{save > 0 && st(" · وفّر {0}٪", num(save))}
                   </span>
                 </button>
               );
@@ -232,11 +233,11 @@ export default function BuyForm({
         <div className="mt-5 grid gap-3">
           <button type="button" onClick={addToCart} disabled={pending} className={btn({ size: "lg", full: true })}>
             {pending && !buying && <Loader2 className="animate-spin" />}
-            أضف للحقيبة
+            {st("أضف للحقيبة")}
           </button>
           <button type="button" onClick={buyNow} disabled={pending} className={btn({ variant: "gray", size: "lg", full: true })}>
             {buying && <Loader2 className="animate-spin" />}
-            اشترِ دلوقتي
+            {st("اشترِ دلوقتي")}
           </button>
         </div>
       </div>
@@ -253,7 +254,7 @@ export default function BuyForm({
             </div>
             <button type="button" onClick={addToCart} disabled={pending} className={btn({ className: "px-5" })}>
               {pending && <Loader2 className="animate-spin" />}
-              أضف للحقيبة
+              {st("أضف للحقيبة")}
             </button>
           </div>
         </div>

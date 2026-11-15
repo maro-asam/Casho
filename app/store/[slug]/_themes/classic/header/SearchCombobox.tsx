@@ -10,7 +10,8 @@ import {
   type SearchSuggestion,
 } from "@/actions/store/storefront-search.actions";
 import { storeHref } from "../../shared/store-path";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -107,7 +108,7 @@ export default function SearchCombobox({ storeSlug, variant, autoFocus, onNaviga
     <div ref={rootRef} className={cn("relative", className)}>
       <form role="search" onSubmit={submit} className="relative">
         <label htmlFor={`${listId}-input`} className="sr-only">
-          ابحث في المتجر
+          {st("ابحث في المتجر")}
         </label>
         <Search
           aria-hidden
@@ -126,7 +127,7 @@ export default function SearchCombobox({ storeSlug, variant, autoFocus, onNaviga
           aria-controls={`${listId}-list`}
           aria-activedescendant={active >= 0 ? `${listId}-opt-${active}` : undefined}
           aria-autocomplete="list"
-          placeholder="ابحث عن منتج…"
+          placeholder={st("ابحث عن منتج…")}
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
@@ -147,7 +148,7 @@ export default function SearchCombobox({ storeSlug, variant, autoFocus, onNaviga
               setValue("");
               inputRef.current?.focus();
             }}
-            aria-label="مسح البحث"
+            aria-label={st("مسح البحث")}
             className="absolute end-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
           >
             {loading ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
@@ -164,7 +165,7 @@ export default function SearchCombobox({ storeSlug, variant, autoFocus, onNaviga
             variant === "overlay" && "fixed inset-x-0 bottom-0 top-[3.75rem] z-10 overflow-y-auto overscroll-contain bg-background",
           )}
         >
-          <ul id={`${listId}-list`} role="listbox" aria-label="اقتراحات البحث" className="py-1.5">
+          <ul id={`${listId}-list`} role="listbox" aria-label={st("اقتراحات البحث")} className="py-1.5">
             {results.map((item, i) => (
               <li
                 key={item.id}
@@ -199,7 +200,7 @@ export default function SearchCombobox({ storeSlug, variant, autoFocus, onNaviga
 
           {noResults && (
             <p className="px-4 py-5 text-center text-sm text-muted-foreground">
-              مفيش منتجات باسم «{term}»
+              {st("مفيش منتجات باسم «{0}»", term)}
             </p>
           )}
 
@@ -212,7 +213,7 @@ export default function SearchCombobox({ storeSlug, variant, autoFocus, onNaviga
             }}
             className="flex min-h-12 w-full items-center justify-between gap-3 border-t border-border px-4 text-sm font-semibold transition-colors hover:bg-(--c-subtle)"
           >
-            <span className="truncate">عرض كل النتائج لـ «{term}»</span>
+            <span className="truncate">{st("عرض كل النتائج لـ «{0}»", term)}</span>
             <ArrowUpLeft className="size-4 shrink-0 ltr:-scale-x-100" />
           </button>
         </div>

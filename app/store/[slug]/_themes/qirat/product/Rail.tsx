@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { SectionHead } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** A shelf of pieces that slides sideways: the head on the start with two
  *  hairline arrows on the end (following the reading direction), the cards
@@ -15,7 +16,7 @@ export default function Rail({
   title,
   kicker,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   actions,
   className,
   listClassName,
@@ -60,10 +61,10 @@ export default function Rail({
   const scrollable = !(state.start && state.end);
   const arrows = scrollable && (
     <div className="flex gap-2 max-sm:hidden">
-      <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label="السابق" className="qr-paddle">
+      <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label={st("السابق")} className="qr-paddle">
         <ChevronRight className="ltr:rotate-180" />
       </button>
-      <button type="button" onClick={() => page(1)} disabled={state.end} aria-label="التالي" className="qr-paddle">
+      <button type="button" onClick={() => page(1)} disabled={state.end} aria-label={st("التالي")} className="qr-paddle">
         <ChevronLeft className="ltr:rotate-180" />
       </button>
     </div>

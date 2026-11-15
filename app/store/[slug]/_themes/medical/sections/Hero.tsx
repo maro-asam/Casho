@@ -12,6 +12,7 @@ import { CategoryIcon } from "../lib/category-icon";
 import { HANDOFF, waWith } from "../lib/rx";
 import { Chevron, Wrap } from "../ui";
 import HeroSlider from "./HeroSlider";
+import { st } from "@/lib/i18n/storefront";
 
 type HeroProps = {
   style: HeroStyle;
@@ -35,7 +36,7 @@ function SearchHero({ store, categories, framed }: Pick<HeroProps, "store" | "ca
         {store.description && <p className="mt-3 line-clamp-3 max-w-2xl text-[0.9375rem] leading-7 opacity-85 sm:text-base">{store.description}</p>}
         <SearchBar shell={{ slug: store.slug, categories }} size="lg" className="mt-6 max-w-2xl text-(--rx-text)" />
         {shelves.length > 0 && (
-          <ul className="mt-4 flex flex-wrap gap-2" aria-label="أقسام سريعة">
+          <ul className="mt-4 flex flex-wrap gap-2" aria-label={st("أقسام سريعة")}>
             {shelves.map((c) => {
               return (
                 <li key={c.id}>
@@ -82,8 +83,8 @@ function TrackCard({ storeSlug, className }: { storeSlug: string; className?: st
         <PackageSearch className="size-6" strokeWidth={1.5} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block font-bold text-(--rx-ink)">تابع طلبك</span>
-        <span className="block text-sm text-(--rx-quiet)">برقم الطلب والموبايل اللي طلبت بيه</span>
+        <span className="block font-bold text-(--rx-ink)">{st("تابع طلبك")}</span>
+        <span className="block text-sm text-(--rx-quiet)">{st("برقم الطلب والموبايل اللي طلبت بيه")}</span>
       </span>
       <Chevron className="text-(--rx-quiet) group-hover:text-(--rx-btn)" />
     </Link>

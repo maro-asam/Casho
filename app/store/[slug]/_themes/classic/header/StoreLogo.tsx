@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -35,7 +36,7 @@ export default function StoreLogo({
   return (
     <Link
       href={buildStoreUrl(storeSlug)}
-      aria-label={`${storeName} — الصفحة الرئيسية`}
+      aria-label={st("{0} — الصفحة الرئيسية", storeName)}
       className={cn("flex min-w-0 shrink items-center gap-2.5", className)}
     >
       {logo && (

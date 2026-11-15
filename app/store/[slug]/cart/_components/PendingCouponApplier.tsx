@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ApplyCouponAction } from "@/actions/store/cart.actions";
 import { pendingCouponKey } from "../../_components/CouponLinkCapture";
+import { st, stv } from "@/lib/i18n/storefront";
 
 const MAX_AGE_MS = 14 * 86400_000;
 
@@ -29,7 +30,7 @@ export function PendingCouponApplier({ storeSlug }: { storeSlug: string }) {
       .then((result) => {
         const params = new URLSearchParams({
           couponStatus: result.success ? "success" : "error",
-          couponMessage: result.success ? `اتطبق كود ${code} 🎉` : (result.error ?? "الكود مش صالح"),
+          couponMessage: result.success ? st("اتطبق كود {0} 🎉", code) : (stv(result.error) ?? st("الكود مش صالح")),
         });
         router.replace(`?${params.toString()}`, { scroll: false });
         router.refresh();

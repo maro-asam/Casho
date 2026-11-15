@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { TicketPercent, X } from "lucide-react";
+import { st } from "@/lib/i18n/storefront";
 
 export const pendingCouponKey = (slug: string) => `casho:coupon:${slug}`;
 
@@ -45,13 +46,12 @@ export function CouponLinkCapture({ storeSlug }: { storeSlug: string }) {
         <TicketPercent className="size-4" />
       </span>
       <p className="min-w-0 flex-1 text-sm">
-        كود{" "}
+        {st("كود")}{" "}
         <span className="font-mono font-semibold" dir="ltr">
           {code}
-        </span>{" "}
-        جاهز — هيتطبق لوحده في السلة.
+        </span>{" "}{st("جاهز — هيتطبق لوحده في السلة.")}
       </p>
-      <button type="button" onClick={() => setCode(null)} aria-label="إغلاق" className="grid size-7 place-items-center rounded-full hover:bg-black/5">
+      <button type="button" onClick={() => setCode(null)} aria-label={st("إغلاق")} className="grid size-7 place-items-center rounded-full hover:bg-black/5">
         <X className="size-4" />
       </button>
     </div>

@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Chevron } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Swipeable row with the section title on the start side and "View all"
  *  plus two round arrows on the end. Arrows page by the visible width and
@@ -17,7 +18,7 @@ export default function Rail({
   title,
   sub,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   actions,
   className,
   listClassName,
@@ -83,10 +84,10 @@ export default function Rail({
             )}
             {scrollable && (
               <div className="flex items-center gap-2 max-sm:hidden">
-                <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label="السابق" className="gy-arrow">
+                <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label={st("السابق")} className="gy-arrow">
                   <ChevronRight className="ltr:rotate-180" />
                 </button>
-                <button type="button" onClick={() => page(1)} disabled={state.end} aria-label="التالي" className="gy-arrow">
+                <button type="button" onClick={() => page(1)} disabled={state.end} aria-label={st("التالي")} className="gy-arrow">
                   <ChevronLeft className="ltr:rotate-180" />
                 </button>
               </div>

@@ -6,14 +6,15 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { Eyebrow, PlateImage, Price, Rating, Swatches, delay, discountPercent, num } from "../ui";
 import BuyButton from "./BuyButton";
+import { st } from "@/lib/i18n/storefront";
 
 /** apple.com's eyebrow from real product data: unavailable, a real saving,
  *  or "new" (added in the last 30 days). */
 export function CardEyebrow({ product, className }: { product: Pick<ProductCardData, "stock" | "price" | "compareAtPrice" | "isNew">; className?: string }) {
   const off = discountPercent(product.price, product.compareAtPrice);
-  if (product.stock <= 0) return <Eyebrow className={cn("!text-(--sg-label-2)", className)}>خلصت الكمية</Eyebrow>;
-  if (off > 0) return <Eyebrow className={className}>وفّر {num(off)}٪</Eyebrow>;
-  if (product.isNew) return <Eyebrow className={className}>جديد</Eyebrow>;
+  if (product.stock <= 0) return <Eyebrow className={cn("!text-(--sg-label-2)", className)}>{st("خلصت الكمية")}</Eyebrow>;
+  if (off > 0) return <Eyebrow className={className}>{st("وفّر {0}٪", num(off))}</Eyebrow>;
+  if (product.isNew) return <Eyebrow className={className}>{st("جديد")}</Eyebrow>;
   return null;
 }
 

@@ -9,11 +9,12 @@ import { Dialog } from "radix-ui";
 import { SearchStoreProductsAction, type SearchSuggestion } from "@/actions/store/storefront-search.actions";
 import { GetStorefrontCardsAction } from "@/actions/store/storefront-products.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProductCardData, StoreShell } from "../../types";
 import { storeHref } from "../../shared/store-path";
 import { useLocalList } from "../lib/local-list";
 import { Arrow, MD_PORTAL, PlateImage, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 /** Instant search: drops under the header on desktop, full screen on phones.
  *  Empty state = recent searches, categories and featured products. */
@@ -75,7 +76,7 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
           }}
           className={cn(MD_PORTAL, "md-pop fixed inset-x-0 top-0 z-50 flex h-dvh flex-col bg-(--md-bg) outline-none lg:h-auto lg:max-h-[86dvh] lg:rounded-b-[1.75rem] lg:shadow-2xl")}
         >
-          <Dialog.Title className="sr-only">البحث في {shell.name}</Dialog.Title>
+          <Dialog.Title className="sr-only">{st("البحث في {0}", shell.name)}</Dialog.Title>
           <div className="md-wrap flex shrink-0 items-center gap-3 py-3 lg:py-5">
             <form
               role="search"
@@ -86,7 +87,7 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                 searchAll(term);
               }}
             >
-              <label htmlFor={`${id}-q`} className="sr-only">ابحث في المتجر</label>
+              <label htmlFor={`${id}-q`} className="sr-only">{st("ابحث في المتجر")}</label>
               <Search aria-hidden className="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-(--md-quiet)" />
               <input
                 ref={inputRef}
@@ -100,7 +101,7 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                 aria-controls={`${id}-list`}
                 aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
                 aria-autocomplete="list"
-                placeholder="ابحث عن منتج، تصنيف…"
+                placeholder={st("ابحث عن منتج، تصنيف…")}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={(e) => {
@@ -115,12 +116,12 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                 className="md-field h-14 rounded-full pe-12 ps-12 text-base lg:h-16 lg:text-lg"
               />
               {value && (
-                <button type="button" onClick={() => { setValue(""); inputRef.current?.focus(); }} aria-label="مسح البحث" className="absolute end-2 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full text-(--md-quiet) hover:bg-(--md-studio)">
+                <button type="button" onClick={() => { setValue(""); inputRef.current?.focus(); }} aria-label={st("مسح البحث")} className="absolute end-2 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full text-(--md-quiet) hover:bg-(--md-studio)">
                   {loading ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
                 </button>
               )}
             </form>
-            <Dialog.Close className="md-btn md-btn--ghost md-btn--sm shrink-0">إغلاق</Dialog.Close>
+            <Dialog.Close className="md-btn md-btn--ghost md-btn--sm shrink-0">{st("إغلاق")}</Dialog.Close>
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain">
@@ -129,7 +130,7 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                 <div className="grid gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
                   {matchedCats.length > 0 && (
                     <section>
-                      <h2 className="mb-2 text-xs font-semibold text-(--md-quiet)">تصنيفات</h2>
+                      <h2 className="mb-2 text-xs font-semibold text-(--md-quiet)">{st("تصنيفات")}</h2>
                       <ul className="flex flex-wrap gap-2 lg:flex-col lg:items-start">
                         {matchedCats.map((c) => (
                           <li key={c.id}>
@@ -145,14 +146,14 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                     </section>
                   )}
                   <section className={cn(matchedCats.length === 0 && "lg:col-span-2")}>
-                    <h2 className="mb-2 text-xs font-semibold text-(--md-quiet)">منتجات</h2>
+                    <h2 className="mb-2 text-xs font-semibold text-(--md-quiet)">{st("منتجات")}</h2>
                     {noResults ? (
                       <div className="rounded-2xl bg-(--md-surface) p-6">
-                        <p className="font-semibold">مفيش منتجات باسم «{term}»</p>
-                        <p className="mt-1 text-sm text-(--md-quiet)">جرب كلمة أبسط، أو اختار تصنيف من تحت.</p>
+                        <p className="font-semibold">{st("مفيش منتجات باسم «{0}»", term)}</p>
+                        <p className="mt-1 text-sm text-(--md-quiet)">{st("جرب كلمة أبسط، أو اختار تصنيف من تحت.")}</p>
                       </div>
                     ) : (
-                      <ul id={`${id}-list`} role="listbox" aria-label="نتائج البحث" className="md-stagger grid gap-2 sm:grid-cols-2">
+                      <ul id={`${id}-list`} role="listbox" aria-label={st("نتائج البحث")} className="md-stagger grid gap-2 sm:grid-cols-2">
                         {results.map((r, i) => (
                           <li
                             key={r.id}
@@ -177,7 +178,7 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                       </ul>
                     )}
                     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => searchAll(term)} className="md-btn md-btn--outline md-btn--sm mt-4">
-                      عرض كل النتائج لـ «{term}»
+                      {st("عرض كل النتائج لـ «{0}»", term)}
                       <Arrow />
                     </button>
                   </section>
@@ -188,9 +189,9 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                     {recent.list.length > 0 && (
                       <section>
                         <div className="mb-2 flex items-center justify-between">
-                          <h2 className="text-xs font-semibold text-(--md-quiet)">عمليات بحث سابقة</h2>
+                          <h2 className="text-xs font-semibold text-(--md-quiet)">{st("عمليات بحث سابقة")}</h2>
                           <button type="button" onClick={() => recent.list.forEach((q) => recent.remove(q))} className="min-h-9 px-2 text-xs font-semibold text-(--md-quiet) hover:text-(--md-ink)">
-                            مسح
+                            {st("مسح")}
                           </button>
                         </div>
                         <ul className="flex flex-wrap gap-2">
@@ -207,7 +208,7 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                     )}
                     {shell.categories.length > 0 && (
                       <section>
-                        <h2 className="mb-2 text-xs font-semibold text-(--md-quiet)">تصفّح التصنيفات</h2>
+                        <h2 className="mb-2 text-xs font-semibold text-(--md-quiet)">{st("تصفّح التصنيفات")}</h2>
                         <ul className="flex flex-wrap gap-2">
                           {shell.categories.slice(0, 10).map((c) => (
                             <li key={c.id}>
@@ -221,7 +222,7 @@ export default function SearchPanel({ shell, open, onOpenChange }: { shell: Stor
                     )}
                   </div>
                   <section>
-                    <h2 className="mb-3 text-xs font-semibold text-(--md-quiet)">مختارات من المتجر</h2>
+                    <h2 className="mb-3 text-xs font-semibold text-(--md-quiet)">{st("مختارات من المتجر")}</h2>
                     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                       {(featured ?? Array.from({ length: 4 }, () => null)).map((p, i) => (
                         <li key={p?.id ?? i}>

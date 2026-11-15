@@ -5,6 +5,7 @@ import MiniCard from "../product/MiniCard";
 import ProductCard from "../product/ProductCard";
 import Rail from "../product/Rail";
 import { SectionHeader, Wrap, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** A swipeable shelf of product cards. */
 export default function ProductRow({ products, storeSlug, title, href }: { products: ProductCardData[]; storeSlug: string; title: string; href?: string }) {
@@ -50,7 +51,7 @@ export function DealsPanel({ products, storeSlug, title, lowStock, timer }: { pr
           {list.map((p) => (
             <li key={p.id} className="min-w-0">
               <ProductCard product={p} storeSlug={storeSlug} sizes="(max-width: 768px) 46vw, 20vw" />
-              {lowStock && p.stock <= 5 && <p className="mt-1.5 text-center text-xs font-medium text-(--mk-low)">باقي {num(p.stock)} بس</p>}
+              {lowStock && p.stock <= 5 && <p className="mt-1.5 text-center text-xs font-medium text-(--mk-low)">{st("باقي {0} بس", num(p.stock))}</p>}
             </li>
           ))}
         </Rail>

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, Search, ShoppingBasket } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { openCart } from "../../shared/cart-events";
 import { isActivePath, useStorePath } from "../../shared/store-path";
@@ -20,6 +20,7 @@ import MegaMenu from "./MegaMenu";
 import SearchSheet from "./SearchSheet";
 import StoreMark from "./StoreMark";
 import TabBar from "./TabBar";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 const MEGA_ID = "mk-mega";
 
@@ -33,7 +34,7 @@ const variantOf = (v: StoreShell["navbarVariant"]): Variant => (v === "centered"
 function CartPill() {
   const { count, subtotal } = useCartSummary();
   return (
-    <button type="button" onClick={openCart} aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"} aria-haspopup="dialog" className="mk-cartpill">
+    <button type="button" onClick={openCart} aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")} aria-haspopup="dialog" className="mk-cartpill">
       <ShoppingBasket />
       {count > 0 && (
         <span className="mk-num flex items-center gap-1.5">
@@ -51,7 +52,7 @@ function SearchField({ wide }: { wide?: boolean }) {
   return (
     <button type="button" onClick={openSearch} className={cn("mk-searchpill", wide && "mk-searchpill--wide")}>
       <Search />
-      <span className="truncate">دوّر في المتجر</span>
+      <span className="truncate">{st("دوّر في المتجر")}</span>
       <kbd dir="ltr">⌘K</kbd>
     </button>
   );
@@ -96,25 +97,25 @@ export default function MarketHeader({ shell }: { shell: StoreShell }) {
 
   const aislesTrigger = hasMega ? (
     <button ref={triggerRef} type="button" aria-expanded={mega} aria-controls={MEGA_ID} onClick={() => setMega((v) => !v)} onMouseEnter={() => hoverMega(true)} className="mk-nav-link">
-      الأقسام
+      {st("الأقسام")}
       <ChevronDown className={cn("!size-3.5 transition-transform duration-300", mega && "rotate-180")} />
     </button>
   ) : (
     <Link href={url("/products")} className="mk-nav-link">
-      كل المنتجات
+      {st("كل المنتجات")}
     </Link>
   );
 
   const links = [
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "مختاراتنا" },
-    { href: "/track", label: "تتبّع طلبك" },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("مختاراتنا") },
+    { href: "/track", label: st("تتبّع طلبك") },
   ];
 
   const navLinks = (
     <ul className="flex items-center gap-0.5">
       <li>{aislesTrigger}</li>
-      {[{ href: "/products", label: "كل المنتجات" }, ...links].map((l) => (
+      {[{ href: "/products", label: st("كل المنتجات") }, ...links].map((l) => (
         <li key={l.href} onMouseEnter={() => hasMega && hoverMega(false)}>
           <Link href={url(l.href)} aria-current={!l.href.includes("?") && isActivePath(path, l.href) ? "page" : undefined} className="mk-nav-link">
             {l.label}
@@ -142,7 +143,7 @@ export default function MarketHeader({ shell }: { shell: StoreShell }) {
             {variant === "centered" ? (
               <div className="grid h-(--mk-bar-h) grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <div className="flex items-center gap-1">
-                  <button type="button" onClick={openSearch} aria-label="البحث" className="mk-icon">
+                  <button type="button" onClick={openSearch} aria-label={st("البحث")} className="mk-icon">
                     <Search />
                   </button>
                   <AppearanceToggle />
@@ -160,7 +161,7 @@ export default function MarketHeader({ shell }: { shell: StoreShell }) {
                     <SearchField wide />
                   </div>
                 ) : (
-                  <nav aria-label="القائمة الرئيسية" className="hidden min-w-0 flex-1 lg:block">
+                  <nav aria-label={st("القائمة الرئيسية")} className="hidden min-w-0 flex-1 lg:block">
                     {navLinks}
                   </nav>
                 )}
@@ -179,7 +180,7 @@ export default function MarketHeader({ shell }: { shell: StoreShell }) {
             )}
 
             {variant !== "default" && (
-              <nav aria-label="الأقسام" className="hidden border-t border-(--mk-sep) py-1 lg:block">
+              <nav aria-label={st("الأقسام")} className="hidden border-t border-(--mk-sep) py-1 lg:block">
                 <div className={cn("flex items-center", variant === "centered" ? "justify-center" : "justify-between")}>{navLinks}</div>
               </nav>
             )}
@@ -189,7 +190,7 @@ export default function MarketHeader({ shell }: { shell: StoreShell }) {
             <div className="mt-2 lg:hidden">
               <button type="button" onClick={openSearch} className="mk-searchpill mk-searchpill--wide mk-glass !h-11">
                 <Search />
-                <span className="truncate">دوّر في المتجر</span>
+                <span className="truncate">{st("دوّر في المتجر")}</span>
               </button>
             </div>
           )}

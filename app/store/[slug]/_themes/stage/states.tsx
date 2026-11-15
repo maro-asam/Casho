@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import { Empty, Wrap, btn } from "./ui";
 import type { StoreClosedProps } from "../types";
 import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
+import { st } from "@/lib/i18n/storefront";
 
 export function StageStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Wrap className="py-16 sm:py-24">
       <Empty
         icon={<Store />}
-        title="المتجر مقفول مؤقتًا"
+        title={st("المتجر مقفول مؤقتًا")}
         description={closedDescription(pause)}
         action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
         className="mx-auto max-w-xl"
@@ -28,15 +29,15 @@ export function StageNotFound({ storeSlug }: { storeSlug?: string }) {
       <span aria-hidden className="grid size-20 place-items-center rounded-full bg-(--sg-fill) text-(--sg-label-2)">
         <ShoppingBag className="size-9" />
       </span>
-      <h1 className="sg-h1 mt-5">الصفحة دي مش موجودة</h1>
-      <p className="mt-2 max-w-md text-[0.9375rem] leading-7 text-(--sg-label-2)">ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر. جرّب تدوّر عليه من البحث.</p>
+      <h1 className="sg-h1 mt-5">{st("الصفحة دي مش موجودة")}</h1>
+      <p className="mt-2 max-w-md text-[0.9375rem] leading-7 text-(--sg-label-2)">{st("ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر. جرّب تدوّر عليه من البحث.")}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link href={home} className={btn({ size: "lg" })}>
-          الرجوع للرئيسية
+          {st("الرجوع للرئيسية")}
         </Link>
         {storeSlug && (
           <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg", variant: "gray" })}>
-            تصفح المنتجات
+            {st("تصفح المنتجات")}
           </Link>
         )}
       </div>
@@ -76,7 +77,7 @@ function TitleSkel() {
 
 export function StageHomeSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="py-5">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="py-5">
       <div className="grid gap-(--sg-gap) lg:grid-cols-[2fr_1fr]">
         <div className={cn(S, "h-72 rounded-(--sg-r) lg:h-[26rem]")} />
         <div className="hidden gap-(--sg-gap) lg:grid">
@@ -101,7 +102,7 @@ export function StageHomeSkeleton() {
 
 export function StageListingSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className="my-5 flex gap-2 overflow-hidden">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -121,7 +122,7 @@ export function StageListingSkeleton() {
 
 export function StageProductSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <div className={cn(S, "my-5 h-3.5 w-52")} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
         <div className={cn(S, "aspect-square rounded-(--sg-r)")} />
@@ -144,7 +145,7 @@ export function StageProductSkeleton() {
 
 export function StagePageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="space-y-4">
@@ -160,7 +161,7 @@ export function StagePageSkeleton() {
 
 export function StageCategoriesSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className="mt-6 grid grid-cols-2 gap-(--sg-gap) sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         {Array.from({ length: 12 }).map((_, i) => (
@@ -176,7 +177,7 @@ export function StageCategoriesSkeleton() {
 
 export function StageGridPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className="h-6" />
       <GridSkel count={10} />

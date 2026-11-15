@@ -11,6 +11,7 @@ import ProductRow from "../sections/ProductRow";
 import PromotionGrid from "../sections/PromotionGrid";
 import TabbedCollection from "../sections/TabbedCollection";
 import { Empty, Wrap, btn, discountPercent } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Ctx = HomeViewProps;
 
@@ -39,15 +40,15 @@ const REGISTRY: SectionRegistry<Ctx> = {
     <ProductRow
       products={c.bestSellers}
       storeSlug={c.store.slug}
-      eyebrow="الأكثر طلبًا"
-      title={c.sectionContent.bestSellers?.headline || "الأكثر مبيعًا"}
+      eyebrow={st("الأكثر طلبًا")}
+      title={c.sectionContent.bestSellers?.headline || st("الأكثر مبيعًا")}
       max={c.sectionContent.bestSellers?.maxProducts ?? 12}
       href={buildStoreUrl(c.store.slug, "/products")}
     />
   ),
   showCategories: (c) => <CategoryCircles categories={c.categories} storeSlug={c.store.slug} shape={c.layout.categoryCardStyle} />,
   showFeaturedProducts: (c) => (
-    <ProductRow products={c.featured} storeSlug={c.store.slug} eyebrow="مختارات" title="اختيارات المتجر" href={buildStoreUrl(c.store.slug, "/products?featured=true")} band />
+    <ProductRow products={c.featured} storeSlug={c.store.slug} eyebrow={st("مختارات")} title={st("اختيارات المتجر")} href={buildStoreUrl(c.store.slug, "/products?featured=true")} band />
   ),
   showCollections: (c) => <PromoTiles content={c.sectionContent.collections} storeSlug={c.store.slug} />,
   showWhyChooseUs: (c) => <TrustRow content={c.sectionContent.whyChooseUs} />,
@@ -61,8 +62,8 @@ const REGISTRY: SectionRegistry<Ctx> = {
       <ProductRow
         products={products}
         storeSlug={c.store.slug}
-        eyebrow={list.length ? "أقوى العروض" : "الأكثر طلبًا"}
-        title={u?.headline || "عروض لفترة محدودة"}
+        eyebrow={list.length ? st("أقوى العروض") : st("الأكثر طلبًا")}
+        title={u?.headline || st("عروض لفترة محدودة")}
         href={buildStoreUrl(c.store.slug, "/products")}
         actions={u?.timerEndDate ? <Countdown endDate={u.timerEndDate} label={u.timerLabel} /> : undefined}
       />
@@ -70,16 +71,16 @@ const REGISTRY: SectionRegistry<Ctx> = {
   },
   showLatestProducts: (c) =>
     c.latest.length > 0 ? (
-      <TabbedCollection title="وصل حديثًا" products={c.latest} categories={c.categories} storeSlug={c.store.slug} href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
+      <TabbedCollection title={st("وصل حديثًا")} products={c.latest} categories={c.categories} storeSlug={c.store.slug} href={buildStoreUrl(c.store.slug, "/products?sort=newest")} />
     ) : (
       <Wrap className="mx-section">
         <Empty
           icon={<ShoppingBag />}
-          title="المنتجات جاية قريب"
-          description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+          title={st("المنتجات جاية قريب")}
+          description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
           action={
             <Link href={buildStoreUrl(c.store.slug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />

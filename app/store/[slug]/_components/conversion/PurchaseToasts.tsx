@@ -7,8 +7,9 @@ import { ShoppingBag, X } from "lucide-react";
 import type { ConversionConfig, RecentPurchase } from "@/lib/conversion/conversion-config";
 import { cn } from "@/lib/utils";
 import { hasStickyBar, QUIET_PATHS, storeHref, storePath } from "./widget-position";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const rtf = new Intl.RelativeTimeFormat("ar-EG", { numeric: "auto" });
+const rtf = lazyStoreIntl.relative({ numeric: "auto" });
 
 function timeAgo(iso: string) {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -71,7 +72,7 @@ export function PurchaseToasts({ storeSlug, config, purchases, stacked }: Props)
   const item = purchases[index];
   if (!item) return null;
 
-  const who = config.nameMode === "first" && item.firstName ? item.firstName : "عميل";
+  const who = config.nameMode === "first" && item.firstName ? item.firstName : st("عميل");
 
   return (
     <div
@@ -98,7 +99,7 @@ export function PurchaseToasts({ storeSlug, config, purchases, stacked }: Props)
         </Link>
         <div className="min-w-0 text-sm">
           <p className="truncate">
-            <span className="font-semibold">{who}</span> طلب
+            <span className="font-semibold">{who}</span>{" "}{st("طلب")}
           </p>
           <p className="truncate font-medium">{item.productName}</p>
           <p className="text-xs text-(--store-muted-foreground,#6b7280)">{timeAgo(item.createdAt)}</p>
@@ -106,7 +107,7 @@ export function PurchaseToasts({ storeSlug, config, purchases, stacked }: Props)
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          aria-label="إخفاء"
+          aria-label={st("إخفاء")}
           className="absolute end-2 top-2 grid size-6 place-items-center rounded-full text-(--store-muted-foreground,#6b7280) hover:bg-black/5"
         >
           <X className="size-3.5" />

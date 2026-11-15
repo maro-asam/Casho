@@ -4,6 +4,7 @@ import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Native share sheet where available (phones), copy-link elsewhere. */
 export default function ShareButton({ title }: { title: string }) {
@@ -15,16 +16,16 @@ export default function ShareButton({ title }: { title: string }) {
         return;
       }
       await navigator.clipboard.writeText(url);
-      toast.success("اتنسخ رابط المنتج");
+      toast.success(st("اتنسخ رابط المنتج"));
     } catch (e) {
-      if ((e as Error)?.name !== "AbortError") toast.error("مقدرناش ننسخ الرابط");
+      if ((e as Error)?.name !== "AbortError") toast.error(st("مقدرناش ننسخ الرابط"));
     }
   };
 
   return (
     <button type="button" onClick={share} className={btn({ variant: "ghost", size: "sm", className: "-me-2 text-muted-foreground" })}>
       <Share2 />
-      مشاركة
+      {st("مشاركة")}
     </button>
   );
 }

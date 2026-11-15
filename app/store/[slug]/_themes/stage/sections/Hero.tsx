@@ -6,6 +6,7 @@ import type { BannerData, ProductCardData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import Rail from "../product/Rail";
 import { MoreLink, PlateImage, Wrap, btn, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Store = { name: string; slug: string; description: string | null };
 
@@ -21,11 +22,11 @@ function Actions({ banner, storeSlug, onMedia }: { banner: BannerData; storeSlug
       )}
       {onMedia ? (
         <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ variant: banner.link ? "outline" : "solid" })}>
-          تسوّق الكل
+          {st("تسوّق الكل")}
         </Link>
       ) : (
         <MoreLink href={buildStoreUrl(storeSlug, "/products")} className="text-[1.0625rem]">
-          تسوّق الكل
+          {st("تسوّق الكل")}
         </MoreLink>
       )}
     </div>
@@ -82,7 +83,7 @@ function SplitHero({ banner, store }: { banner: BannerData; store: Store }) {
 /** apple.com/store's header: the store's name huge, a gray line beside it,
  *  then every banner as a card on a shelf. */
 function StoreHead({ store, banners }: { store: Store; banners: BannerData[] }) {
-  const line = store.description?.split(/[.\n]/)[0]?.trim() || "أحسن طريقة تشتري الحاجات اللي بتحبها.";
+  const line = store.description?.split(/[.\n]/)[0]?.trim() || st("أحسن طريقة تشتري الحاجات اللي بتحبها.");
   return (
     <section className="sg-storehead">
       <Wrap className="sg-storehead-top">
@@ -92,7 +93,7 @@ function StoreHead({ store, banners }: { store: Store; banners: BannerData[] }) 
         </p>
       </Wrap>
       {banners.length > 0 && (
-        <Rail label="عروض المتجر" listClassName="sg-shelf--banners">
+        <Rail label={st("عروض المتجر")} listClassName="sg-shelf--banners">
           {banners.map((b, i) => (
             <li key={b.id}>
               <BannerLink banner={b} storeSlug={store.slug} className="sg-bannercard group" aria-label={b.title}>
@@ -121,14 +122,14 @@ function StageHero({ store, products }: { store: Store; products: ProductCardDat
       <Wrap className="text-center">
         <h1 className="sg-hero-title sg-gradient-text sg-rise mx-auto text-balance">{store.name}</h1>
         <p className="sg-hero-sub sg-rise mx-auto text-balance" style={delay(1)}>
-          {store.description?.split("\n")[0]?.trim() || "كل اللي بتحبه، في مكان واحد."}
+          {store.description?.split("\n")[0]?.trim() || st("كل اللي بتحبه، في مكان واحد.")}
         </p>
         <div className="sg-hero-ctas sg-rise justify-center" style={delay(2)}>
           <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-            تسوّق دلوقتي
+            {st("تسوّق دلوقتي")}
           </Link>
           <MoreLink href={buildStoreUrl(store.slug, "/categories")} className="text-[1.0625rem]">
-            كل الأقسام
+            {st("كل الأقسام")}
           </MoreLink>
         </div>
       </Wrap>

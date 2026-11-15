@@ -64,7 +64,7 @@
   "القسم ده بيتملي لوحده من بيانات متجرك.": "This section fills itself from your store data.",
   "القسم ده بيتملي لوحده من منتجاتك.": "This section fills itself from your products.",
   "الكلام": "Text",
-  "اللغة بتغيّر اتجاه المتجر وخطه الافتراضي.": "The language changes the store's direction and default font.",
+  "اللغة بتغيّر كل نصوص المتجر واتجاهه وخطه الافتراضي.": "The language changes all of the store's text, its direction and its default font.",
   "المحاذاة": "Alignment",
   "المسافات": "Spacing",
   "المنتجات اللي علّمتها كمميزة.": "Products you marked as featured.",

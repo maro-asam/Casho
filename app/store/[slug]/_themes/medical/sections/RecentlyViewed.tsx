@@ -9,6 +9,7 @@ import { recentKey } from "../lib/events";
 import ProductCard from "../product/ProductCard";
 import Rail from "../product/Rail";
 import { Wrap } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Products this shopper opened before (kept in this browser). */
 export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: string; excludeId?: string }) {
@@ -33,11 +34,11 @@ export default function RecentlyViewed({ storeSlug, excludeId }: { storeSlug: st
   return (
     <Wrap className="rx-section">
       <Rail
-        label="شفتهم مؤخرًا"
-        title="شفتهم مؤخرًا"
+        label={st("شفتهم مؤخرًا")}
+        title={st("شفتهم مؤخرًا")}
         actions={
           <button type="button" onClick={() => list.forEach(remove)} className="min-h-10 text-sm text-(--rx-quiet) hover:text-(--rx-ink) hover:underline">
-            مسح السجل
+            {st("مسح السجل")}
           </button>
         }
       >

@@ -8,6 +8,7 @@ import { useAddToCart } from "../../shared/use-add-to-cart";
 import { openQuickView } from "../lib/events";
 import { useLocalList, wishlistKey } from "../lib/local-list";
 import { mdToast } from "../toast";
+import { st } from "@/lib/i18n/storefront";
 
 type CardProduct = { id: string; name: string; slug: string; hasOptions: boolean; stock: number };
 
@@ -19,10 +20,10 @@ export function WishlistButton({ storeSlug, product, className }: { storeSlug: s
       type="button"
       onClick={() => {
         toggle(product.id);
-        mdToast.success(saved ? "اتشال من المفضلة" : "اتحفظ في المفضلة", { description: product.name });
+        mdToast.success(saved ? st("اتشال من المفضلة") : st("اتحفظ في المفضلة"), { description: product.name });
       }}
       aria-pressed={saved}
-      aria-label={saved ? `إزالة ${product.name} من المفضلة` : `حفظ ${product.name} في المفضلة`}
+      aria-label={saved ? st("إزالة {0} من المفضلة", product.name) : st("حفظ {0} في المفضلة", product.name)}
       className={cn("md-fab relative z-[2]", className)}
     >
       <Heart />
@@ -47,14 +48,14 @@ export default function CardActions({ storeSlug, product }: { storeSlug: string;
       <div className="md-card-actions md-pointer-only absolute inset-x-3 bottom-3 z-[2] gap-2">
         <button type="button" onClick={() => openQuickView(product.slug)} className="md-btn md-btn--light md-btn--sm flex-1 shadow-sm">
           <Eye />
-          نظرة سريعة
+          {st("نظرة سريعة")}
         </button>
         {!soldOut && (
           <button
             type="button"
             onClick={quickAdd}
             disabled={pending}
-            aria-label={product.hasOptions ? `اختار المقاس أو اللون لـ ${product.name}` : `أضف ${product.name} للسلة`}
+            aria-label={product.hasOptions ? st("اختار المقاس أو اللون لـ {0}", product.name) : st("أضف {0} للسلة", product.name)}
             className="md-btn md-btn--brand md-btn--sm md-btn--icon shadow-sm"
           >
             {pending ? <Loader2 className="animate-spin" /> : <ShoppingBag />}
@@ -66,7 +67,7 @@ export default function CardActions({ storeSlug, product }: { storeSlug: string;
           type="button"
           onClick={quickAdd}
           disabled={pending}
-          aria-label={product.hasOptions ? `اختار المقاس أو اللون لـ ${product.name}` : `أضف ${product.name} للسلة`}
+          aria-label={product.hasOptions ? st("اختار المقاس أو اللون لـ {0}", product.name) : st("أضف {0} للسلة", product.name)}
           className="md-fab md-touch-only absolute bottom-2.5 end-2.5 z-[2]"
         >
           {pending ? <Loader2 className="animate-spin" /> : <Plus />}

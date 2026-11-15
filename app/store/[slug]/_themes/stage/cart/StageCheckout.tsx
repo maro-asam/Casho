@@ -3,11 +3,12 @@ import { CreditCard, ShieldCheck, ShoppingBag } from "lucide-react";
 
 import CheckoutForm from "../../../checkout/_components/CheckoutForm";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { CheckoutViewProps } from "../../types";
 import { unitPriceFor } from "../../shared/commerce";
 import { Crumbs, Empty, PageHead, featureLabel, PlateImage, Wrap, btn, num } from "../ui";
 import { Totals } from "./StageCart";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export default function StageCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
@@ -17,29 +18,29 @@ export default function StageCheckout({ storeSlug, cart, paymentMethods, createO
     <Wrap className="pb-12">
       <Crumbs
         className="py-4"
-        items={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "الحقيبة", href: buildStoreUrl(storeSlug, "/cart") }, { label: "الدفع" }]}
+        items={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("الحقيبة"), href: buildStoreUrl(storeSlug, "/cart") }, { label: st("الدفع") }]}
       />
-      <PageHead title="الدفع." tagline="خطوة واحدة وطلبك يوصل." note="اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب." className="!pt-2 pb-8" />
+      <PageHead title={st("الدفع.")} tagline={st("خطوة واحدة وطلبك يوصل.")} note={st("اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.")} className="!pt-2 pb-8" />
 
       {items.length === 0 ? (
         <Empty
           icon={<ShoppingBag />}
-          title="حقيبتك فاضية."
-          description="ضيف منتجات للحقيبة الأول وبعدين كمّل طلبك."
+          title={st("حقيبتك فاضية.")}
+          description={st("ضيف منتجات للحقيبة الأول وبعدين كمّل طلبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : paymentMethods.length === 0 ? (
         <Empty
           icon={<CreditCard />}
-          title="مفيش طرق دفع متاحة دلوقتي"
-          description="المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر."
+          title={st("مفيش طرق دفع متاحة دلوقتي")}
+          description={st("المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/contact")} className={btn({ variant: "gray" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
@@ -48,11 +49,11 @@ export default function StageCheckout({ storeSlug, cart, paymentMethods, createO
           <div className="sg-checkout sg-panel order-2 min-w-0 p-4 sm:p-6 lg:order-1">
             <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
-          <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
             <details className="sg-details sg-panel" open>
               <summary className="flex min-h-16 items-center justify-between gap-3 px-5 lg:pointer-events-none">
                 <span className="sg-h4">
-                  طلبك <span className="font-normal text-(--sg-label-2)">({num(count)})</span>
+                  {st("طلبك")}{" "}<span className="font-normal text-(--sg-label-2)">({num(count)})</span>
                 </span>
                 <span className="sg-price text-lg">{formatPrice(summary.total)}</span>
               </summary>
@@ -83,10 +84,10 @@ export default function StageCheckout({ storeSlug, cart, paymentMethods, createO
                 </div>
                 <p className="mt-5 flex items-start gap-2 text-xs leading-6 text-(--sg-label-2)">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-                  بياناتك بتروح للمتجر بس عشان يوصلك الطلب.
+                  {st("بياناتك بتروح للمتجر بس عشان يوصلك الطلب.")}
                 </p>
                 <Link href={buildStoreUrl(storeSlug, "/cart")} className="sg-link mt-3 text-sm">
-                  تعديل الحقيبة ›
+                  {st("تعديل الحقيبة ›")}
                 </Link>
               </div>
             </details>

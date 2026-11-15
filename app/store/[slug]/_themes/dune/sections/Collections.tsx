@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { CategoryCardStyle, CollectionsContent } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { Arrow, PlateImage, SectionHeader, Wrap, delay, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** "Shop by category": square images with the name centered underneath.
  *  Studio category shape: `square` (Dune's own) as above, `circle` round
@@ -13,7 +14,7 @@ import { Arrow, PlateImage, SectionHeader, Wrap, delay, num } from "../ui";
 export function CollectionList({
   categories,
   storeSlug,
-  title = "تسوّق حسب التصنيف",
+  title = st("تسوّق حسب التصنيف"),
   shape = "square",
 }: {
   categories: CategoryLink[];
@@ -26,7 +27,7 @@ export function CollectionList({
   if (shape === "pill") {
     return (
       <Wrap data-reveal className="dn-section">
-        <SectionHeader title={title} href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+        <SectionHeader title={title} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل التصنيفات")} />
         <ul className="flex flex-wrap justify-center gap-2.5">
           {categories.map((c) => (
             <li key={c.id}>
@@ -46,7 +47,7 @@ export function CollectionList({
   const circle = shape === "circle";
   return (
     <Wrap data-reveal className="dn-section">
-      <SectionHeader title={title} href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+      <SectionHeader title={title} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل التصنيفات")} />
       <ul className={cn("grid grid-cols-2 gap-x-(--dn-gap) gap-y-8", circle ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-8" : cols)}>
         {tiles.map((c, i) => (
           <li key={c.id}>
@@ -59,7 +60,7 @@ export function CollectionList({
               <span className="dn-h4 mt-4 block">
                 <span className="dn-link">{c.name}</span>
               </span>
-              <span className="mt-0.5 block text-xs text-(--dn-quiet)">{num(c.productCount)} منتج</span>
+              <span className="mt-0.5 block text-xs text-(--dn-quiet)">{st("{0} منتج", num(c.productCount))}</span>
             </Link>
           </li>
         ))}
@@ -99,7 +100,7 @@ export function PromoGrid({ content, storeSlug }: { content?: CollectionsContent
                 <span className={cn("absolute inset-x-0 bottom-0 flex flex-col p-6 sm:p-9", full ? "items-center text-center lg:pb-14" : "items-start")}>
                   <span className={cn("dn-serif text-balance leading-[1.1]", full ? "text-[clamp(2.25rem,5vw,4.5rem)]" : "text-[clamp(1.875rem,3vw,3rem)]")}>{c.name}</span>
                   <span className="dn-label mt-4 inline-flex items-center gap-2 border-b border-white/70 pb-1 transition-[gap] duration-500 group-hover:gap-3">
-                    تسوّق الآن
+                    {st("تسوّق الآن")}
                     <Arrow />
                   </span>
                 </span>

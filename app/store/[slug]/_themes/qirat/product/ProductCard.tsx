@@ -7,6 +7,7 @@ import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Rating, Swatches, delay, discountPercent, num } from "../ui";
 import QuickAdd from "./QuickAdd";
 import WishButton from "./WishButton";
+import { st } from "@/lib/i18n/storefront";
 
 /** Corner tags from real data only: sold out, a real saving, or new. */
 export function CardTag({ product, className }: { product: Pick<ProductCardData, "stock" | "price" | "compareAtPrice" | "isNew">; className?: string }) {
@@ -14,19 +15,19 @@ export function CardTag({ product, className }: { product: Pick<ProductCardData,
   if (product.stock <= 0)
     return (
       <span className={cn("qr-tag", className)} data-tone="out">
-        نفدت
+        {st("نفدت")}
       </span>
     );
   if (off > 0)
     return (
       <span className={cn("qr-tag", className)} data-tone="sale">
-        خصم {num(off)}٪
+        {st("خصم {0}٪", num(off))}
       </span>
     );
   if (product.isNew)
     return (
       <span className={cn("qr-tag", className)} data-tone="new">
-        جديد
+        {st("جديد")}
       </span>
     );
   return null;

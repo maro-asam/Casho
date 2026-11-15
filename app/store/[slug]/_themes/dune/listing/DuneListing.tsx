@@ -4,11 +4,12 @@ import { ArrowLeft, ArrowRight, PackageSearch, SearchX, X } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { CategoryLink, ListingViewProps } from "../../types";
 import ProductCard from "../product/ProductCard";
 import { Crumbs, Empty, PageTitle, Wrap, btn, delay, num } from "../ui";
 import ListingLayout from "./ListingControls";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 function href(slug: string, q: Partial<ProductsQuery>) {
   return buildStoreUrl(slug, `/products${productsQueryString(q)}`);
@@ -42,9 +43,9 @@ export function CategoryPills({ slug, current, categories, query }: { slug: stri
   if (categories.length === 0) return null;
   const to = (c: string) => (query ? href(slug, { ...query, category: c, page: 1 }) : c ? buildStoreUrl(slug, `/categories/${c}`) : buildStoreUrl(slug, "/products"));
   return (
-    <nav aria-label="التصنيفات" className="mb-8">
+    <nav aria-label={st("التصنيفات")} className="mb-8">
       <ul className="dn-rail dn-bleed gap-2 md:flex-wrap md:justify-center">
-        {[{ id: "all", slug: "", name: "الكل" }, ...categories].map((c) => (
+        {[{ id: "all", slug: "", name: st("الكل") }, ...categories].map((c) => (
           <li key={c.id} className="shrink-0">
             <Link href={to(c.slug)} scroll={false} aria-current={current === c.slug ? "page" : undefined} className="dn-opt min-h-10">
               {c.name}
@@ -60,25 +61,25 @@ function ActiveChips({ slug, query, categoryName }: { slug: string; query: Produ
   const chips: { label: string; remove: Partial<ProductsQuery> }[] = [];
   if (query.search) chips.push({ label: `«${query.search}»`, remove: { search: "" } });
   if (categoryName) chips.push({ label: categoryName, remove: { category: "" } });
-  if (query.inStock) chips.push({ label: "المتوفر حالًا", remove: { inStock: false } });
-  if (query.featured) chips.push({ label: "اختيارات المتجر", remove: { featured: false } });
+  if (query.inStock) chips.push({ label: st("المتوفر حالًا"), remove: { inStock: false } });
+  if (query.featured) chips.push({ label: st("اختيارات المتجر"), remove: { featured: false } });
   if (query.brand) chips.push({ label: query.brand, remove: { brand: "" } });
-  if (query.size) chips.push({ label: `مقاس ${query.size}`, remove: { size: "" } });
+  if (query.size) chips.push({ label: st("مقاس {0}", query.size), remove: { size: "" } });
   if (query.color) chips.push({ label: query.color, remove: { color: "" } });
-  if (query.minPrice > 0) chips.push({ label: `من ${formatPrice(query.minPrice)}`, remove: { minPrice: 0 } });
-  if (query.maxPrice > 0) chips.push({ label: `لحد ${formatPrice(query.maxPrice)}`, remove: { maxPrice: 0 } });
+  if (query.minPrice > 0) chips.push({ label: st("من {0}", formatPrice(query.minPrice)), remove: { minPrice: 0 } });
+  if (query.maxPrice > 0) chips.push({ label: st("لحد {0}", formatPrice(query.maxPrice)), remove: { maxPrice: 0 } });
   if (chips.length === 0) return null;
   return (
     <div className="mb-7 flex flex-wrap items-center gap-2">
       {chips.map((c) => (
-        <Link key={c.label} href={href(slug, { ...query, ...c.remove, page: 1 })} scroll={false} aria-label={`إزالة فلتر ${c.label}`} className="dn-opt min-h-9 gap-1.5 pe-2.5 text-xs">
+        <Link key={c.label} href={href(slug, { ...query, ...c.remove, page: 1 })} scroll={false} aria-label={st("إزالة فلتر {0}", c.label)} className="dn-opt min-h-9 gap-1.5 pe-2.5 text-xs">
           <span className="max-w-48 truncate">{c.label}</span>
           <X className="size-3" />
         </Link>
       ))}
       {chips.length > 1 && (
         <Link href={href(slug, { sort: query.sort })} scroll={false} className="dn-link dn-label ms-2 text-(--dn-quiet)">
-          مسح الكل
+          {st("مسح الكل")}
         </Link>
       )}
     </div>
@@ -94,16 +95,16 @@ function Pagination({ slug, query, totalPages, shown, total }: { slug: string; q
     else if (pages[pages.length - 1] !== "…") pages.push("…");
   }
   return (
-    <nav aria-label="الصفحات" className="mt-16 flex flex-col items-center gap-5">
+    <nav aria-label={st("الصفحات")} className="mt-16 flex flex-col items-center gap-5">
       <p className="text-sm text-(--dn-quiet)">
-        شفت {num(shown)} من {num(total)} منتج
+        {st("شفت {0} من {1} منتج", num(shown), num(total))}
       </p>
       <span className="h-px w-56 bg-(--dn-line)" aria-hidden>
         <span className="block h-full bg-(--dn-ink)" style={{ width: `${Math.round((shown / total) * 100)}%` }} />
       </span>
       <div className="flex items-center gap-1">
         {page > 1 && (
-          <Link href={href(slug, { ...query, page: page - 1 })} aria-label="الصفحة السابقة" className="dn-icon [&_svg]:size-4">
+          <Link href={href(slug, { ...query, page: page - 1 })} aria-label={st("الصفحة السابقة")} className="dn-icon [&_svg]:size-4">
             <ArrowRight className="ltr:rotate-180" />
           </Link>
         )}
@@ -117,7 +118,7 @@ function Pagination({ slug, query, totalPages, shown, total }: { slug: string; q
               key={p}
               href={href(slug, { ...query, page: p })}
               aria-current={p === page ? "page" : undefined}
-              aria-label={`الصفحة ${p}`}
+              aria-label={st("الصفحة {0}", p)}
               className={cn("dn-num grid size-11 place-items-center rounded-full text-lg transition-colors", p === page ? "bg-(--dn-ink) text-(--dn-bg)" : "hover:bg-(--dn-plate)")}
             >
               {num(p)}
@@ -125,7 +126,7 @@ function Pagination({ slug, query, totalPages, shown, total }: { slug: string; q
           ),
         )}
         {page < totalPages && (
-          <Link href={href(slug, { ...query, page: page + 1 })} aria-label="الصفحة التالية" className="dn-icon [&_svg]:size-4">
+          <Link href={href(slug, { ...query, page: page + 1 })} aria-label={st("الصفحة التالية")} className="dn-icon [&_svg]:size-4">
             <ArrowLeft className="ltr:rotate-180" />
           </Link>
         )}
@@ -140,12 +141,12 @@ export default function DuneListing({ store, products, categories, query, total,
     (query.category ? 1 : 0) + (query.featured ? 1 : 0) + (query.inStock ? 1 : 0) + (query.brand ? 1 : 0) + (query.size ? 1 : 0) + (query.color ? 1 : 0) + (query.minPrice > 0 ? 1 : 0) + (query.maxPrice > 0 ? 1 : 0);
   const filtered = activeCount > 0 || !!query.search;
   const shown = Math.min(query.page * pageSize, total);
-  const title = query.search ? `نتائج «${query.search}»` : category ? category.name : query.featured ? "اختيارات المتجر" : "كل المنتجات";
+  const title = query.search ? st("نتائج «{0}»", query.search) : category ? category.name : query.featured ? st("اختيارات المتجر") : st("كل المنتجات");
   const crumbs = [
-    { label: "الرئيسية", href: buildStoreUrl(store.slug) },
-    ...(query.search || category ? [{ label: "المنتجات", href: buildStoreUrl(store.slug, "/products") }, { label: query.search ? "البحث" : category!.name }] : [{ label: "المنتجات" }]),
+    { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
+    ...(query.search || category ? [{ label: st("المنتجات"), href: buildStoreUrl(store.slug, "/products") }, { label: query.search ? st("البحث") : category!.name }] : [{ label: st("المنتجات") }]),
   ];
-  const note = total > 0 ? `${num(total)} منتج` : "مفيش نتائج";
+  const note = total > 0 ? st("{0} منتج", num(total)) : st("مفيش نتائج");
   const promoAt = query.page === 1 && products.length >= 8 && !query.featured ? 5 : -1;
 
   return (
@@ -161,21 +162,21 @@ export default function DuneListing({ store, products, categories, query, total,
             filtered ? (
               <Empty
                 icon={<SearchX />}
-                title={query.search ? `مفيش نتائج لـ «${query.search}»` : "مفيش منتجات بالفلاتر دي"}
-                description={query.search ? "اتأكد من الكتابة أو جرب كلمة أبسط." : "جرب تشيل فلتر أو اتنين عشان تشوف منتجات أكتر."}
+                title={query.search ? st("مفيش نتائج لـ «{0}»", query.search) : st("مفيش منتجات بالفلاتر دي")}
+                description={query.search ? st("اتأكد من الكتابة أو جرب كلمة أبسط.") : st("جرب تشيل فلتر أو اتنين عشان تشوف منتجات أكتر.")}
                 action={
                   <>
                     <Link href={href(store.slug, { search: query.search, sort: query.sort })} className={btn()}>
-                      مسح الفلاتر
+                      {st("مسح الفلاتر")}
                     </Link>
                     <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ variant: "outline" })}>
-                      كل المنتجات
+                      {st("كل المنتجات")}
                     </Link>
                   </>
                 }
               />
             ) : (
-              <Empty icon={<PackageSearch />} title="لسه مفيش منتجات" description="المتجر بيجهز منتجاته. ارجع تاني قريب." />
+              <Empty icon={<PackageSearch />} title={st("لسه مفيش منتجات")} description={st("المتجر بيجهز منتجاته. ارجع تاني قريب.")} />
             )
           ) : (
             <>
@@ -185,10 +186,10 @@ export default function DuneListing({ store, products, categories, query, total,
                     {i === promoAt && (
                       <div className="dn-fade" style={delay(i)}>
                         <Link href={href(store.slug, { featured: true })} className="group flex h-full min-h-72 flex-col items-center justify-center bg-(--dn-plate) p-6 text-center">
-                          <span className="dn-label text-(--dn-quiet)">مختارات</span>
-                          <span className="dn-h3 mt-3">اختيارات المتجر</span>
-                          <span className="mt-2 text-sm text-(--dn-quiet)">المنتجات اللي المتجر بيرشحها</span>
-                          <span className="dn-link dn-label dn-link--on mt-5">شوفها</span>
+                          <span className="dn-label text-(--dn-quiet)">{st("مختارات")}</span>
+                          <span className="dn-h3 mt-3">{st("اختيارات المتجر")}</span>
+                          <span className="mt-2 text-sm text-(--dn-quiet)">{st("المنتجات اللي المتجر بيرشحها")}</span>
+                          <span className="dn-link dn-label dn-link--on mt-5">{st("شوفها")}</span>
                         </Link>
                       </div>
                     )}

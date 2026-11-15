@@ -7,15 +7,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { maskPhone } from "@/lib/fraud/phone";
 import { prisma } from "@/lib/prisma";
 import { ConfirmOrderForm } from "./ConfirmOrderForm";
+import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
-export const metadata: Metadata = { title: "تأكيد الطلب", robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  await loadStoreLocale((await params).slug);
+  return { title: st("تأكيد الطلب"), robots: { index: false, follow: false } };
+}
 
 function formatEGP(piasters: number) {
-  return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(piasters / 100);
+  return new Intl.NumberFormat(storeIntlLocale(), { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(piasters / 100);
 }
 
 export default async function ConfirmOrderPage({ params }: { params: Promise<{ slug: string; orderId: string }> }) {
   const { slug, orderId } = await params;
+  await loadStoreLocale(slug);
   const { guestSessionId } = await MustSession();
 
   const order = await prisma.order.findFirst({
@@ -36,18 +42,17 @@ export default async function ConfirmOrderPage({ params }: { params: Promise<{ s
             <ShieldCheck className="size-8 text-primary" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold">أكّد طلبك</h1>
+            <h1 className="text-2xl font-bold">{st("أكّد طلبك")}</h1>
             <p className="text-sm leading-6 text-muted-foreground">
-              بعتنا كود تأكيد للرقم{" "}
+              {st("بعتنا كود تأكيد للرقم")}{" "}
               <span className="font-mono text-foreground" dir="ltr">
                 {maskPhone(order.phone)}
-              </span>{" "}
-              على واتساب أو في رسالة. اكتبه هنا عشان {order.store.name} يبدأ يجهّز طلبك ({formatEGP(order.total)}).
+              </span>{" "}{st("على واتساب أو في رسالة. اكتبه هنا عشان {0} يبدأ يجهّز طلبك ({1}).", order.store.name, formatEGP(order.total))}
             </p>
           </div>
           {expired ? (
             <p className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">
-              الطلب ده اتلغى لأنه ماتأكدش في الوقت المحدد. تقدر تعمل طلب جديد من المتجر.
+              {st("الطلب ده اتلغى لأنه ماتأكدش في الوقت المحدد. تقدر تعمل طلب جديد من المتجر.")}
             </p>
           ) : (
             <ConfirmOrderForm

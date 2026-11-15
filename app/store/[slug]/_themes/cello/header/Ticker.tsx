@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Pause, Play } from "lucide-react";
+import { st } from "@/lib/i18n/storefront";
 
 /** Cello's navy promo bar: the merchant's announcement text, split into
  *  messages by "|" or new lines, loops with dot separators and can be
@@ -18,7 +19,7 @@ export default function Ticker({ text }: { text: string | null }) {
   const run = Array.from({ length: Math.max(2, Math.ceil(8 / messages.length)) }, () => messages).flat();
 
   return (
-    <div className="ce-ticker ce-marquee relative flex h-[2.125rem] items-center overflow-hidden" data-paused={paused} role="region" aria-label="إعلانات المتجر">
+    <div className="ce-ticker ce-marquee relative flex h-[2.125rem] items-center overflow-hidden" data-paused={paused} role="region" aria-label={st("إعلانات المتجر")}>
       <p className="sr-only">{messages.join(" — ")}</p>
       <div className="ce-marquee-track" aria-hidden style={{ ["--ce-marquee-dur" as string]: `${run.length * 6}s` }}>
         {[0, 1].map((copy) => (
@@ -36,7 +37,7 @@ export default function Ticker({ text }: { text: string | null }) {
         type="button"
         onClick={() => setPaused((p) => !p)}
         aria-pressed={paused}
-        aria-label={paused ? "تشغيل شريط الإعلانات" : "إيقاف شريط الإعلانات"}
+        aria-label={paused ? st("تشغيل شريط الإعلانات") : st("إيقاف شريط الإعلانات")}
         className="absolute inset-y-0 end-0 grid w-9 place-items-center bg-(--ce-navy) text-white/70 transition-colors hover:text-white [&_svg]:size-3"
       >
         {paused ? <Play /> : <Pause />}

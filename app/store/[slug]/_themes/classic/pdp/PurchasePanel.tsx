@@ -7,13 +7,14 @@ import { Check, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 import { AddToCartAction } from "@/actions/store/cart.actions";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { isLightSwatch, swatchColor } from "../../shared/colors";
 import type { WholesaleTier } from "../../types";
 import { tierFor } from "../../shared/commerce";
 import { notifyCartUpdated } from "../../shared/cart-events";
 import { storeHref } from "../../shared/store-path";
 import { btn } from "../ui";
+import { formatPrice, st, stv } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -57,7 +58,7 @@ function OptionGroup({
           <span className="text-muted-foreground">: {selected}</span>
         ) : (
           <span className={cn("ms-1.5 text-xs", error ? "font-semibold text-(--c-danger)" : "text-muted-foreground")}>
-            {error ? `اختار ${label} الأول` : "(اختار واحد)"}
+            {error ? st("اختار {0} الأول", label) : st("(اختار واحد)")}
           </span>
         )}
       </legend>
@@ -178,20 +179,20 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
           qty,
         );
         if (!res?.success) {
-          toast.error(res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني");
+          toast.error(res && "message" in res && res.message ? stv(res.message) : st("حصلت مشكلة، حاول تاني"));
           return;
         }
         notifyCartUpdated(res && "added" in res ? res.added : undefined);
         if (then) {
           then();
         } else {
-          toast.success(qty > 1 ? `اتضاف ${qty} قطع للسلة` : "اتضاف للسلة", {
+          toast.success(qty > 1 ? st("اتضاف {0} قطع للسلة", qty) : st("اتضاف للسلة"), {
             icon: <Check className="size-4" />,
-            action: { label: "عرض السلة", onClick: () => router.push(storeHref(storeSlug, "/cart")) },
+            action: { label: st("عرض السلة"), onClick: () => router.push(storeHref(storeSlug, "/cart")) },
           });
         }
       } catch {
-        toast.error("حصلت مشكلة، حاول تاني");
+        toast.error(st("حصلت مشكلة، حاول تاني"));
       }
     });
   };
@@ -213,7 +214,7 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
           {product.sizes.length > 0 && (
             <OptionGroup
               id="opt-size"
-              label="المقاس"
+              label={st("المقاس")}
               values={product.sizes}
               selected={selected.size}
               onSelect={(v) => choose("size", v)}
@@ -223,7 +224,7 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
           {product.colors.length > 0 && (
             <OptionGroup
               id="opt-color"
-              label="اللون"
+              label={st("اللون")}
               swatches
               values={product.colors}
               selected={selected.color}
@@ -236,7 +237,7 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
 
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <div className="rounded-(--c-radius) border border-border">
-          <p className="border-b border-border px-4 py-3 text-sm font-semibold">اشتري كمية ووفّر</p>
+          <p className="border-b border-border px-4 py-3 text-sm font-semibold">{st("اشتري كمية ووفّر")}</p>
           <ul className="divide-y divide-border">
             {product.wholesaleOptions.map((t) => {
               const on = tier === t;
@@ -251,9 +252,9 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
                     )}
                   >
                     <span>
-                      {t.maxQty ? `${t.minQty}–${t.maxQty} قطعة` : `${t.minQty}+ قطعة`}
+                      {t.maxQty ? st("{0}–{1} قطعة", t.minQty, t.maxQty) : st("{0}+ قطعة", t.minQty)}
                     </span>
-                    <span className="tabular-nums">{formatPrice(t.price)} للقطعة</span>
+                    <span className="tabular-nums">{st("{0} للقطعة", formatPrice(t.price))}</span>
                   </button>
                 </li>
               );
@@ -270,19 +271,19 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
                 type="button"
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 disabled={qty <= 1 || busy}
-                aria-label="تقليل الكمية"
+                aria-label={st("تقليل الكمية")}
                 className="grid h-full w-11 place-items-center text-foreground transition-opacity disabled:opacity-30"
               >
                 <Minus className="size-4" />
               </button>
-              <output aria-live="polite" aria-label="الكمية" className="w-8 text-center text-base font-semibold tabular-nums">
+              <output aria-live="polite" aria-label={st("الكمية")} className="w-8 text-center text-base font-semibold tabular-nums">
                 {qty}
               </output>
               <button
                 type="button"
                 onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
                 disabled={qty >= product.stock || busy}
-                aria-label="زيادة الكمية"
+                aria-label={st("زيادة الكمية")}
                 className="grid h-full w-11 place-items-center text-foreground transition-opacity disabled:opacity-30"
               >
                 <Plus className="size-4" />
@@ -290,23 +291,23 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
             </div>
             <button type="button" onClick={() => add()} disabled={busy} className={btn({ size: "lg", className: "flex-1" })}>
               {adding ? <Loader2 className="animate-spin" /> : <ShoppingBag />}
-              أضف للسلة
+              {st("أضف للسلة")}
             </button>
           </div>
           <button type="button" onClick={buyNow} disabled={busy} className={btn({ variant: "outline", size: "lg", full: true })}>
             {buying && <Loader2 className="animate-spin" />}
-            اشتري الآن
+            {st("اشتري الآن")}
           </button>
           {qty > 1 && (
             <p className="text-center text-sm text-muted-foreground">
-              الإجمالي: <span className="font-semibold text-foreground tabular-nums">{formatPrice(unitPrice * qty)}</span>
+              {st("الإجمالي:")}{" "}<span className="font-semibold text-foreground tabular-nums">{formatPrice(unitPrice * qty)}</span>
             </p>
           )}
         </div>
       ) : (
         <div className="rounded-(--c-radius) bg-(--c-subtle) p-4 text-center">
-          <p className="font-semibold">المنتج ده خلص حاليًا</p>
-          <p className="mt-1 text-sm text-muted-foreground">تقدر تتصفح منتجات مشابهة تحت.</p>
+          <p className="font-semibold">{st("المنتج ده خلص حاليًا")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{st("تقدر تتصفح منتجات مشابهة تحت.")}</p>
         </div>
       )}
 
@@ -336,7 +337,7 @@ export default function PurchasePanel({ storeSlug, product }: Props) {
               className={btn({ size: "lg", className: "px-5" })}
             >
               {adding ? <Loader2 className="animate-spin" /> : <ShoppingBag />}
-              أضف للسلة
+              {st("أضف للسلة")}
             </button>
           </div>
         </div>

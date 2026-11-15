@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Rating, Swatches, discountPercent, num } from "../ui";
 import CardActions, { WishlistButton } from "./CardActions";
+import { st } from "@/lib/i18n/storefront";
 
 type Variant = "standard" | "compact";
 
@@ -16,12 +17,12 @@ function Badges({ product }: { product: ProductCardData }) {
   return (
     <div className="md-card-badges pointer-events-none absolute start-3 top-3 z-[2] flex flex-col items-start gap-1.5">
       {soldOut ? (
-        <span className="md-badge md-badge--ink">نفدت الكمية</span>
+        <span className="md-badge md-badge--ink">{st("نفدت الكمية")}</span>
       ) : (
         <>
           {discount > 0 && <span className="md-badge md-badge--sale">−{num(discount)}٪</span>}
-          {product.isNew && <span className="md-badge md-badge--new">جديد</span>}
-          {low && <span className="md-badge md-badge--soft">آخر {num(product.stock)} قطع</span>}
+          {product.isNew && <span className="md-badge md-badge--new">{st("جديد")}</span>}
+          {low && <span className="md-badge md-badge--soft">{st("آخر {0} قطع", num(product.stock))}</span>}
         </>
       )}
     </div>

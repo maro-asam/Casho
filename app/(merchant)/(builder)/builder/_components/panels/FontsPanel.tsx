@@ -51,7 +51,7 @@ export default function FontsPanel() {
         <link key={f.id} rel="stylesheet" href={f.googleUrl} />
       ))}
 
-      <Group footer={tr("اللغة بتغيّر اتجاه المتجر وخطه الافتراضي.")}>
+      <Group footer={tr("اللغة بتغيّر كل نصوص المتجر واتجاهه وخطه الافتراضي.")}>
         <Row label={tr("لغة المتجر")}>
           {busy === "language" && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
           <SegmentedButtons

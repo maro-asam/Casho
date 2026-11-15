@@ -6,6 +6,7 @@ import { openCart } from "../../shared/cart-events";
 import { useAddToCart } from "../../shared/use-add-to-cart";
 import { openQuickView } from "../lib/events";
 import { mxToast } from "../toast";
+import { st } from "@/lib/i18n/storefront";
 
 type CardProduct = { id: string; name: string; slug: string; hasOptions: boolean; stock: number };
 
@@ -16,7 +17,7 @@ type CardProduct = { id: string; name: string; slug: string; hasOptions: boolean
 export default function CardActions({ storeSlug, product }: { storeSlug: string; product: CardProduct }) {
   const { add, pending } = useAddToCart(storeSlug);
   const soldOut = product.stock <= 0;
-  const addLabel = product.hasOptions ? `اختار المقاس أو اللون لـ ${product.name}` : `أضف ${product.name} للسلة`;
+  const addLabel = product.hasOptions ? st("اختار المقاس أو اللون لـ {0}", product.name) : st("أضف {0} للسلة", product.name);
 
   const quickAdd = async () => {
     if (product.hasOptions) return openQuickView(product.slug);
@@ -28,7 +29,7 @@ export default function CardActions({ storeSlug, product }: { storeSlug: string;
   return (
     <>
       <div className="mx-card-side mx-pointer-only absolute end-2.5 top-2.5 z-[2] flex-col gap-2">
-        <button type="button" onClick={() => openQuickView(product.slug)} aria-label={`نظرة سريعة على ${product.name}`} title="نظرة سريعة" className="mx-fab">
+        <button type="button" onClick={() => openQuickView(product.slug)} aria-label={st("نظرة سريعة على {0}", product.name)} title={st("نظرة سريعة")} className="mx-fab">
           <Eye />
         </button>
       </div>
@@ -36,7 +37,7 @@ export default function CardActions({ storeSlug, product }: { storeSlug: string;
         <div className="mx-card-quick mx-pointer-only absolute inset-x-2.5 bottom-2.5 z-[2]">
           <button type="button" onClick={quickAdd} disabled={pending} aria-label={addLabel} className="mx-btn mx-btn--solid mx-btn--sm mx-btn--full shadow-(--mx-shadow-sm)">
             {pending ? <Loader2 className="animate-spin" /> : <ShoppingCart />}
-            {product.hasOptions ? "اختار الخيارات" : "أضف للسلة"}
+            {product.hasOptions ? st("اختار الخيارات") : st("أضف للسلة")}
           </button>
         </div>
       )}

@@ -11,6 +11,7 @@ import {
   TrackPopupEventAction,
 } from "@/actions/store/popups.actions";
 import { QUIET_PATHS, storeHref, storePath } from "./widget-position";
+import { st, stv } from "@/lib/i18n/storefront";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Decides which popup (if any) a visitor sees, and when.
@@ -221,10 +222,10 @@ export function PopupHost({ storeSlug, popups }: { storeSlug: string; popups: St
     setError(null);
     const result = await SubmitPopupLeadAction(active.id, { phone, name }).catch(() => ({
       ok: false as const,
-      message: "حصلت مشكلة، جرّب تاني.",
+      message: st("حصلت مشكلة، جرّب تاني."),
     }));
     setPending(false);
-    if (!result.ok) return setError(result.message);
+    if (!result.ok) return setError(stv(result.message));
     markDone();
     setCode(result.couponCode);
     setStage("success");
@@ -258,7 +259,7 @@ export function PopupHost({ storeSlug, popups }: { storeSlug: string; popups: St
   return (
     <PopupView
       type={active.type}
-      config={active.config}
+      config={translatePopupConfig(active.config)}
       stage={stage}
       mobile={isMobile}
       revealedCode={code}
@@ -277,4 +278,26 @@ function earliest(a: string | null, b: string | null) {
   if (!a) return b;
   if (!b) return a;
   return new Date(a) < new Date(b) ? a : b;
+}
+
+/**
+ * The ready-made popup texts are saved in Arabic when the merchant adds a
+ * popup — show them in the store language. The merchant's own text passes
+ * through st() untouched.
+ */
+function translatePopupConfig(config: StorefrontPopup["config"]): StorefrontPopup["config"] {
+  const c = config.content;
+  return {
+    ...config,
+    content: {
+      ...c,
+      eyebrow: st(c.eyebrow),
+      title: st(c.title),
+      body: st(c.body),
+      ctaText: st(c.ctaText),
+      dismissText: st(c.dismissText),
+      successTitle: st(c.successTitle),
+      successBody: st(c.successBody),
+    },
+  };
 }

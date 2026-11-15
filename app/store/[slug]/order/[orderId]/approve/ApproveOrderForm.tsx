@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 
 import { RespondToOrderAction } from "@/actions/store/order-confirmation.actions";
 import { Button } from "@/components/ui/button";
+import { st, stv } from "@/lib/i18n/storefront";
 
 export function ApproveOrderForm({
   storeSlug,
@@ -29,7 +30,7 @@ export function ApproveOrderForm({
     setError(null);
     startTransition(async () => {
       const result = await RespondToOrderAction(storeSlug, orderId, token, answer);
-      if (!result.ok) setError(result.message);
+      if (!result.ok) setError(stv(result.message));
       router.refresh();
     });
   }
@@ -37,15 +38,15 @@ export function ApproveOrderForm({
   if (askCancel) {
     return (
       <div className="space-y-3 rounded-2xl border bg-card p-4 text-center">
-        <p className="font-semibold">متأكد إنك عايز تلغي الطلب؟</p>
-        <p className="text-sm text-muted-foreground">مش هتقدر ترجّعه، ولو غيّرت رأيك هتحتاج تطلب من جديد.</p>
+        <p className="font-semibold">{st("متأكد إنك عايز تلغي الطلب؟")}</p>
+        <p className="text-sm text-muted-foreground">{st("مش هتقدر ترجّعه، ولو غيّرت رأيك هتحتاج تطلب من جديد.")}</p>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" size="lg" className="rounded-xl" disabled={pending} onClick={() => setAskCancel(false)}>
-            رجوع
+            {st("رجوع")}
           </Button>
           <Button variant="destructive" size="lg" className="rounded-xl" disabled={pending} onClick={() => respond("cancel")}>
             {pending && busy === "cancel" && <Loader2 className="size-4 animate-spin" />}
-            ألغي الطلب
+            {st("ألغي الطلب")}
           </Button>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
@@ -58,7 +59,7 @@ export function ApproveOrderForm({
       {!confirmed && (
         <Button size="lg" className="h-12 w-full rounded-xl text-base" disabled={pending} onClick={() => respond("confirm")}>
           {pending && busy === "confirm" && <Loader2 className="size-4 animate-spin" />}
-          تأكيد الطلب
+          {st("تأكيد الطلب")}
         </Button>
       )}
       <Button
@@ -68,7 +69,7 @@ export function ApproveOrderForm({
         disabled={pending}
         onClick={() => setAskCancel(true)}
       >
-        {confirmed ? "محتاج تلغي الطلب؟" : "إلغاء الطلب"}
+        {confirmed ? st("محتاج تلغي الطلب؟") : st("إلغاء الطلب")}
       </Button>
       {error && <p className="text-center text-sm text-destructive">{error}</p>}
     </div>

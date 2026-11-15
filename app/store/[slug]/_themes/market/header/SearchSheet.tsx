@@ -9,6 +9,7 @@ import type { StoreShell } from "../../types";
 import { SEARCH_EVENT } from "../lib/events";
 import { MK_PORTAL } from "../ui";
 import SearchBar from "./SearchBar";
+import { st } from "@/lib/i18n/storefront";
 
 /** Spotlight-style search: a floating panel on desktop, a full sheet on phones.
  *  Every search button in the theme opens this one. */
@@ -36,10 +37,10 @@ export default function SearchSheet({ shell }: { shell: StoreShell }) {
       <Dialog.Portal>
         <Dialog.Overlay className={cn(MK_PORTAL, "mk-scrim fixed inset-0 z-50")} />
         <Dialog.Content dir={shell.dir} aria-describedby={undefined} className={cn(MK_PORTAL, "mk-spotlight fixed z-50 outline-none")}>
-          <Dialog.Title className="sr-only">البحث في المتجر</Dialog.Title>
+          <Dialog.Title className="sr-only">{st("البحث في المتجر")}</Dialog.Title>
           <div className="flex items-start gap-2">
             <SearchBar shell={shell} size="lg" autoFocus onDone={() => setOpen(false)} className="min-w-0 flex-1" />
-            <Dialog.Close aria-label="إغلاق البحث" className="mk-icon mt-1.5 shrink-0 lg:hidden">
+            <Dialog.Close aria-label={st("إغلاق البحث")} className="mk-icon mt-1.5 shrink-0 lg:hidden">
               <X />
             </Dialog.Close>
           </div>

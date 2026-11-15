@@ -7,6 +7,7 @@ import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
 import { storeHref } from "../../shared/store-path";
 import { cn } from "@/lib/utils";
 import { SORT_OPTIONS } from "../../shared/commerce";
+import { st } from "@/lib/i18n/storefront";
 
 export { SORT_OPTIONS };
 
@@ -23,7 +24,7 @@ export default function SortSelect({
   const router = useRouter();
   return (
     <label className={cn("relative inline-flex items-center", className)}>
-      <span className="sr-only">ترتيب المنتجات</span>
+      <span className="sr-only">{st("ترتيب المنتجات")}</span>
       <ArrowDownUp aria-hidden className="pointer-events-none absolute start-3 size-4 text-muted-foreground" />
       <select
         value={query.sort}

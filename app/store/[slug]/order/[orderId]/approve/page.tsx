@@ -5,11 +5,16 @@ import { CheckCircle2, Package, Truck, XCircle } from "lucide-react";
 import { verifyOrderConfirmToken } from "@/lib/orders/whatsapp-confirm";
 import { prisma } from "@/lib/prisma";
 import { ApproveOrderForm } from "./ApproveOrderForm";
+import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
-export const metadata: Metadata = { title: "تأكيد الطلب", robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  await loadStoreLocale((await params).slug);
+  return { title: st("تأكيد الطلب"), robots: { index: false, follow: false } };
+}
 
 function formatEGP(piasters: number) {
-  return new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(piasters / 100);
+  return new Intl.NumberFormat(storeIntlLocale(), { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(piasters / 100);
 }
 
 /** Opened from the WhatsApp message: the customer confirms or cancels with one tap. */
@@ -21,6 +26,7 @@ export default async function ApproveOrderPage({
   searchParams: Promise<{ t?: string }>;
 }) {
   const [{ slug, orderId }, { t }] = await Promise.all([params, searchParams]);
+  await loadStoreLocale(slug);
   if (!verifyOrderConfirmToken(orderId, t)) notFound();
 
   const order = await prisma.order.findFirst({
@@ -45,10 +51,10 @@ export default async function ApproveOrderPage({
 
   const state = !pending
     ? order.status === "CANCELED"
-      ? { icon: XCircle, tone: "text-destructive bg-destructive/10", title: "الطلب ده اتلغى", text: "لو عايز تطلب تاني، تقدر تعمل طلب جديد من المتجر." }
-      : { icon: Truck, tone: "text-primary bg-primary/10", title: "طلبك في الطريق", text: `${order.store.name} بيجهّز طلبك أو شحنه خلاص.` }
+      ? { icon: XCircle, tone: "text-destructive bg-destructive/10", title: st("الطلب ده اتلغى"), text: st("لو عايز تطلب تاني، تقدر تعمل طلب جديد من المتجر.") }
+      : { icon: Truck, tone: "text-primary bg-primary/10", title: st("طلبك في الطريق"), text: st("{0} بيجهّز طلبك أو شحنه خلاص.", order.store.name) }
     : confirmed
-      ? { icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-500/10", title: "طلبك متأكد", text: `شكرًا يا ${firstName}! ${order.store.name} هيجهّز طلبك ويبعته.` }
+      ? { icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-500/10", title: st("طلبك متأكد"), text: st("شكرًا يا {0}! {1} هيجهّز طلبك ويبعته.", firstName, order.store.name) }
       : null;
 
   return (
@@ -60,9 +66,9 @@ export default async function ApproveOrderPage({
               <state.icon className="size-8" />
             </span>
           ) : null}
-          <h1 className="text-2xl font-bold">{state ? state.title : `أهلًا ${firstName}، أكّد طلبك`}</h1>
+          <h1 className="text-2xl font-bold">{state ? state.title : st("أهلًا {0}، أكّد طلبك", firstName)}</h1>
           <p className="text-sm leading-6 text-muted-foreground">
-            {state ? state.text : `راجع طلبك من ${order.store.name} وأكّده عشان نبدأ نجهّزه.`}
+            {state ? state.text : st("راجع طلبك من {0} وأكّده عشان نبدأ نجهّزه.", order.store.name)}
           </p>
         </div>
 
@@ -89,15 +95,15 @@ export default async function ApproveOrderPage({
           </ul>
           <dl className="space-y-2 border-t bg-muted/40 p-4 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">العنوان</dt>
+              <dt className="text-muted-foreground">{st("العنوان")}</dt>
               <dd className="text-end">{order.address}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">الدفع</dt>
-              <dd>{order.paymentMethod === "cash_on_delivery" ? "كاش عند الاستلام" : "أونلاين"}</dd>
+              <dt className="text-muted-foreground">{st("الدفع")}</dt>
+              <dd>{order.paymentMethod === "cash_on_delivery" ? st("كاش عند الاستلام") : st("أونلاين")}</dd>
             </div>
             <div className="flex items-baseline justify-between gap-4 border-t pt-2">
-              <dt className="font-semibold">الإجمالي</dt>
+              <dt className="font-semibold">{st("الإجمالي")}</dt>
               <dd className="text-lg font-bold tabular-nums">{formatEGP(order.total)}</dd>
             </div>
           </dl>

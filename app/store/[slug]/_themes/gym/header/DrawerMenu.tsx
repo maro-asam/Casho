@@ -13,6 +13,7 @@ import { isActivePath } from "../../shared/store-path";
 import { COACH_MESSAGE, waWith } from "../lib/coach";
 import { CategoryArt, Chevron, GY_PORTAL, num, stagger } from "../ui";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const ROW =
   "flex min-h-12 w-full items-center justify-between gap-3 rounded-(--gy-r-sm) px-3 text-[0.9375rem] font-semibold text-(--gy-ink) transition-colors hover:bg-(--gy-band) aria-[current=page]:bg-(--gy-tint)";
@@ -27,17 +28,17 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
   const close = () => setOpen(false);
 
   const links = [
-    { href: "/", label: "الرئيسية" },
-    { href: "/products", label: "كل المنتجات" },
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
-    { href: "/track", label: "تتبّع طلبك" },
-    { href: "/contact", label: "تواصل معنا" },
+    { href: "/", label: st("الرئيسية") },
+    { href: "/products", label: st("كل المنتجات") },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
+    { href: "/track", label: st("تتبّع طلبك") },
+    { href: "/contact", label: st("تواصل معنا") },
   ];
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="gy-icon -ms-2" aria-label="فتح القائمة">
+      <Dialog.Trigger className="gy-icon -ms-2" aria-label={st("فتح القائمة")}>
         <Menu />
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -53,7 +54,7 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
                 <StoreMark shell={shell} onClick={close} />
               </div>
             </Dialog.Title>
-            <Dialog.Close className="gy-icon -me-2" aria-label="إغلاق القائمة">
+            <Dialog.Close className="gy-icon -me-2" aria-label={st("إغلاق القائمة")}>
               <X />
             </Dialog.Close>
           </div>
@@ -63,14 +64,14 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
               <a href={waWith(wa, COACH_MESSAGE)} target="_blank" rel="noopener noreferrer" className="gy-knurl mx-2 mb-3 flex items-center gap-3 rounded-(--gy-r) bg-(--gy-btn) p-3.5 text-(--gy-btn-ink)">
                 <MessageCircle className="size-7 shrink-0" strokeWidth={1.75} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-extrabold">محتار تبدأ بإيه؟</span>
-                  <span className="block text-xs opacity-90">قولنا هدفك على واتساب</span>
+                  <span className="block text-sm font-extrabold">{st("محتار تبدأ بإيه؟")}</span>
+                  <span className="block text-xs opacity-90">{st("قولنا هدفك على واتساب")}</span>
                 </span>
                 <Chevron />
               </a>
             )}
 
-            <nav aria-label="القائمة الرئيسية">
+            <nav aria-label={st("القائمة الرئيسية")}>
               <ul className="gy-stagger">
                 {links.map((l, i) => (
                   <li key={l.href} style={stagger(i)}>
@@ -84,7 +85,7 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
 
             {shell.categories.length > 0 && (
               <section className="mt-4 border-t border-(--gy-line) pt-4">
-                <h2 className="px-3 pb-2 text-xs font-bold text-(--gy-quiet)">الأقسام</h2>
+                <h2 className="px-3 pb-2 text-xs font-bold text-(--gy-quiet)">{st("الأقسام")}</h2>
                 <ul>
                   {shell.categories.map((c) => (
                     <li key={c.id}>
@@ -110,12 +111,12 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
           <div className="shrink-0 space-y-1 border-t border-(--gy-line) px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
             <Link href={url("/track")} onClick={close} className="flex min-h-11 items-center gap-3 text-sm text-(--gy-ink)">
               <PackageSearch className="size-[1.125rem] text-(--gy-link)" />
-              تتبّع طلبك برقم الطلب
+              {st("تتبّع طلبك برقم الطلب")}
             </Link>
             {wa && (
               <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-3 text-sm text-(--gy-ink)">
                 <MessageCircle className="size-[1.125rem] text-(--gy-wa)" />
-                كلّمنا على واتساب
+                {st("كلّمنا على واتساب")}
               </a>
             )}
             {shell.contact.email && (

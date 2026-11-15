@@ -5,9 +5,10 @@ import { useRef, type FormEvent } from "react";
 
 import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
 import { storeHref } from "../../shared/store-path";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { CategoryLink } from "../../types";
 import { btn } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -81,9 +82,9 @@ export default function FilterForm({ storeSlug, query, categories, priceBounds, 
     >
       <div className={cn(mode === "sheet" && "flex-1 overflow-y-auto overscroll-contain px-4 pt-4")}>
         {categories.length > 0 && (
-          <Fieldset legend="التصنيف">
+          <Fieldset legend={st("التصنيف")}>
             <div className="-mx-2 space-y-0.5">
-              {[{ id: "", slug: "", name: "كل التصنيفات", productCount: null as number | null }, ...categories].map((c) => (
+              {[{ id: "", slug: "", name: st("كل التصنيفات"), productCount: null as number | null }, ...categories].map((c) => (
                 <label key={c.id || "all"} className={RADIO_ROW}>
                   <input
                     type="radio"
@@ -103,11 +104,11 @@ export default function FilterForm({ storeSlug, query, categories, priceBounds, 
           </Fieldset>
         )}
 
-        <Fieldset legend="السعر">
+        <Fieldset legend={st("السعر")}>
           <div className="grid grid-cols-2 gap-2.5">
             {(["minPrice", "maxPrice"] as const).map((name) => (
               <label key={name} className="block">
-                <span className="mb-1.5 block text-xs text-muted-foreground">{name === "minPrice" ? "من" : "إلى"}</span>
+                <span className="mb-1.5 block text-xs text-muted-foreground">{name === "minPrice" ? st("من") : st("إلى")}</span>
                 <span className="relative block">
                   <input
                     type="number"
@@ -121,7 +122,7 @@ export default function FilterForm({ storeSlug, query, categories, priceBounds, 
                     className="h-11 w-full rounded-(--c-radius-sm) border border-border bg-background pe-10 ps-3 text-base tabular-nums outline-none transition-colors focus:border-foreground/40 lg:h-10 lg:text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                    ج.م
+                    {st("ج.م")}
                   </span>
                 </span>
               </label>
@@ -129,17 +130,17 @@ export default function FilterForm({ storeSlug, query, categories, priceBounds, 
           </div>
           {priceBounds && (
             <p className="mt-2 text-xs text-muted-foreground">
-              الأسعار من {formatPrice(priceBounds.min)} إلى {formatPrice(priceBounds.max)}
+              {st("الأسعار من {0} إلى {1}", formatPrice(priceBounds.min), formatPrice(priceBounds.max))}
             </p>
           )}
           {mode === "sidebar" && (
             <button type="submit" className={btn({ variant: "outline", size: "sm", full: true, className: "mt-3" })}>
-              تطبيق السعر
+              {st("تطبيق السعر")}
             </button>
           )}
         </Fieldset>
 
-        <Fieldset legend="عرض">
+        <Fieldset legend={st("عرض")}>
           <label className={cn(RADIO_ROW, "-mx-2")}>
             <input
               type="checkbox"
@@ -149,7 +150,7 @@ export default function FilterForm({ storeSlug, query, categories, priceBounds, 
               onChange={instant}
               className="size-[1.125rem] shrink-0 rounded accent-(--primary)"
             />
-            المنتجات المميزة فقط
+            {st("المنتجات المميزة فقط")}
           </label>
         </Fieldset>
       </div>

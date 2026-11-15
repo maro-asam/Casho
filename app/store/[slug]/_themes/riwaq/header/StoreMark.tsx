@@ -4,6 +4,7 @@ import Link from "next/link";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
+import { st } from "@/lib/i18n/storefront";
 
 /** Logo + store name set in the display face. */
 export default function StoreMark({
@@ -24,7 +25,7 @@ export default function StoreMark({
   return (
     <Link
       href={buildStoreUrl(shell.slug)}
-      aria-label={`${shell.name} — الصفحة الرئيسية`}
+      aria-label={st("{0} — الصفحة الرئيسية", shell.name)}
       className={cn("flex min-w-0 items-center gap-3", className)}
     >
       {shell.logo && (

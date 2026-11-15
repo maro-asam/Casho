@@ -7,37 +7,38 @@ import Link from "next/link";
 import type { CSSProperties, ComponentProps, ReactNode } from "react";
 import { ArrowLeft, ChevronLeft, Gem, Star } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { discountPercent } from "../shared/commerce";
 import { qiratArabic, qiratLatin } from "./fonts";
 import { isMetalOption, isVariety, swatchFill } from "./lib/qirat";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** Classes for portal content (drawers, dialogs, sheets) — they render outside
  *  the store root, so they carry the theme scope and its display fonts. */
 export const QR_PORTAL = `store-theme-root theme-qirat qr-portal ${qiratArabic.variable} ${qiratLatin.variable}`;
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 export const num = (n: number) => nf.format(n);
-const nf2 = new Intl.NumberFormat("ar-EG", { minimumIntegerDigits: 2 });
+const nf2 = lazyStoreIntl.number({ minimumIntegerDigits: 2 });
 /** Two-digit Arabic numerals ("٠١"). */
 export const num2 = (n: number) => nf2.format(n);
 /** Delivery time in natural Arabic ("يوم واحد", "يومين", "٣ أيام", "١٤ يوم"). */
-export const days = (n: number) => (n === 1 ? "يوم واحد" : n === 2 ? "يومين" : n <= 10 ? `${num(n)} أيام` : `${num(n)} يوم`);
+export const days = (n: number) => (n === 1 ? st("يوم واحد") : n === 2 ? st("يومين") : n <= 10 ? st("{0} أيام", num(n)) : st("{0} يوم", num(n)));
 
 export { discountPercent, isMetalOption, isVariety };
 
 /** Option label on product pages and cart rows: metals read "المعدن",
  *  scents and stones "النوع". */
 export function optionLabel(kind: "size" | "color", values: string[]) {
-  if (kind === "size") return "المقاس";
-  if (isMetalOption(values)) return "المعدن";
-  if (isVariety(values)) return "النوع";
-  return "اللون";
+  if (kind === "size") return st("المقاس");
+  if (isMetalOption(values)) return st("المعدن");
+  if (isVariety(values)) return st("النوع");
+  return st("اللون");
 }
 
 /** "المعدن: ذهبي" / "المقاس: ١٧" for a chosen option on cart rows. */
 export function featureLabel(key: string, value: string) {
-  const label = key === "color" ? optionLabel("color", [value]) : key === "size" ? "المقاس" : key;
+  const label = key === "color" ? optionLabel("color", [value]) : key === "size" ? st("المقاس") : key;
   return `${label}: ${value}`;
 }
 
@@ -116,7 +117,7 @@ export function SectionHead({
   title,
   note,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   align = "center",
   actions,
   className,
@@ -156,7 +157,7 @@ export function SectionHead({
 
 export function Crumbs({ items, className }: { items: { label: string; href?: string }[]; className?: string }) {
   return (
-    <nav aria-label="مسار التصفح" className={cn("min-w-0", className)}>
+    <nav aria-label={st("مسار التصفح")} className={cn("min-w-0", className)}>
       <ol className="qr-crumbs">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -233,17 +234,17 @@ export function Price({
   return (
     <p className={cn("qr-pricebox", className)} data-size={size}>
       <span className={cn("qr-price", off > 0 && "qr-price--sale")}>
-        {off > 0 && <span className="sr-only">السعر بعد الخصم: </span>}
-        {from && "من "}
+        {off > 0 && <span className="sr-only">{st("السعر بعد الخصم:")}{" "}</span>}
+        {from && st("من ")}
         {formatPrice(price)}
       </span>
       {off > 0 && (
         <>
           <s className="qr-was">
-            <span className="sr-only">السعر قبل الخصم: </span>
+            <span className="sr-only">{st("السعر قبل الخصم:")}{" "}</span>
             {formatPrice(compareAt!)}
           </s>
-          {save && <span className="qr-save">وفّر {num(off)}٪</span>}
+          {save && <span className="qr-save">{st("وفّر {0}٪", num(off))}</span>}
         </>
       )}
     </p>
@@ -254,7 +255,7 @@ export function Rating({ value, count, size = "sm", className }: { value: number
   const full = Math.round(value);
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
-      <span className="sr-only">التقييم {value.toFixed(1)} من ٥</span>
+      <span className="sr-only">{st("التقييم {0} من ٥", value.toFixed(1))}</span>
       <span aria-hidden className="flex items-center gap-0.5">
         {[1, 2, 3, 4, 5].map((i) => (
           <Star key={i} className={cn(size === "sm" ? "size-3" : "size-4", i <= full ? "fill-(--qr-gold) text-(--qr-gold)" : "fill-transparent text-(--qr-ink-3)")} strokeWidth={1.25} />
@@ -279,7 +280,7 @@ export function Swatches({ colors, max = 5, className }: { colors: string[]; max
   return (
     <span className={cn("qr-swatches", className)}>
       <span className="sr-only">
-        {isMetalOption(colors) ? "المعادن المتاحة" : "الألوان المتاحة"}: {colors.join("، ")}
+        {isMetalOption(colors) ? st("المعادن المتاحة") : st("الألوان المتاحة")}: {colors.join("، ")}
       </span>
       {shown.map((c) => (
         <span key={c.label} aria-hidden title={c.label} className="qr-swatch" style={{ background: c.fill! }} />
@@ -298,18 +299,18 @@ export function StockLine({ stock, count, className }: { stock: number; /** Show
   if (stock <= 0)
     return (
       <p className={cn("qr-stock", className)} data-level="out">
-        نفدت الكمية حاليًا
+        {st("نفدت الكمية حاليًا")}
       </p>
     );
   if (stock <= 5)
     return (
       <p className={cn("qr-stock", className)} data-level="low">
-        قطع محدودة{count ? ` — باقي ${num(stock)} بس` : ""}
+        {st("قطع محدودة")}{count ? st(" — باقي {0} بس", num(stock)) : ""}
       </p>
     );
   return (
     <p className={cn("qr-stock", className)} data-level="ok">
-      متوفرة وجاهزة للطلب
+      {st("متوفرة وجاهزة للطلب")}
     </p>
   );
 }

@@ -1,6 +1,7 @@
 import { Download, ExternalLink, Lock } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { st } from "@/lib/i18n/storefront";
 
 export type DigitalItem = {
   id: string;
@@ -16,21 +17,21 @@ export function DigitalDownloads({ items, paid, canceled }: { items: DigitalItem
 
   return (
     <Card className="rounded-[28px] border-primary/20">
-      <CardHeader className="pb-4 text-right">
+      <CardHeader className="pb-4 text-start">
         <CardTitle className="flex items-center gap-2 text-lg">
           {paid ? <Download className="size-5 text-primary" /> : <Lock className="size-5 text-muted-foreground" />}
-          {paid ? "منتجاتك الرقمية جاهزة" : "منتجاتك الرقمية"}
+          {paid ? st("منتجاتك الرقمية جاهزة") : st("منتجاتك الرقمية")}
         </CardTitle>
         <CardDescription>
           {paid
-            ? "نزّلها دلوقتي واحتفظ بنسخة — اللينك هيفضل موجود هنا في صفحة الطلب."
-            : "روابط التحميل هتظهر هنا أول ما الدفع يتأكد."}
+            ? st("نزّلها دلوقتي واحتفظ بنسخة — اللينك هيفضل موجود هنا في صفحة الطلب.")
+            : st("روابط التحميل هتظهر هنا أول ما الدفع يتأكد.")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         {items.map((item) => (
           <div key={item.id} className="flex items-center gap-3 rounded-2xl bg-muted/50 p-3">
-            <div className="min-w-0 flex-1 text-right">
+            <div className="min-w-0 flex-1 text-start">
               <p className="truncate font-medium">{item.name}</p>
               {item.fileName && <p className="truncate text-xs text-muted-foreground" dir="auto">{item.fileName}</p>}
             </div>
@@ -43,12 +44,12 @@ export function DigitalDownloads({ items, paid, canceled }: { items: DigitalItem
                 className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 {item.fileName ? <Download className="size-4" /> : <ExternalLink className="size-4" />}
-                {item.fileName ? "تحميل" : "افتح"}
+                {item.fileName ? st("تحميل") : st("افتح")}
               </a>
             ) : (
               <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-muted px-4 text-sm text-muted-foreground">
                 <Lock className="size-4" />
-                بعد الدفع
+                {st("بعد الدفع")}
               </span>
             )}
           </div>

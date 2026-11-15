@@ -22,6 +22,7 @@ import MegaMenu from "./MegaMenu";
 import SearchBar from "./SearchBar";
 import StoreMark from "./StoreMark";
 import UtilityBar from "./UtilityBar";
+import { st } from "@/lib/i18n/storefront";
 
 const MEGA_ID = "rx-mega";
 
@@ -37,7 +38,7 @@ function CartButton({ count }: { count: number }) {
     <button
       type="button"
       onClick={openCart}
-      aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
+      aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")}
       aria-haspopup="dialog"
       className="flex min-h-11 items-center gap-2.5 rounded-full text-(--rx-ink) lg:bg-(--rx-band) lg:py-1 lg:pe-4 lg:ps-1 lg:hover:bg-(--rx-tint)"
     >
@@ -50,8 +51,8 @@ function CartButton({ count }: { count: number }) {
         )}
       </span>
       <span aria-hidden className="hidden text-start text-xs leading-tight lg:block">
-        <span className="text-(--rx-quiet)">السلة</span>
-        <span className="block text-sm font-bold">{count > 0 ? `${num(count)} منتج` : "فاضية"}</span>
+        <span className="text-(--rx-quiet)">{st("السلة")}</span>
+        <span className="block text-sm font-bold">{count > 0 ? st("{0} منتج", num(count)) : st("فاضية")}</span>
       </span>
     </button>
   );
@@ -63,14 +64,14 @@ function RxButton({ href, compact }: { href: string; compact?: boolean }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="ابعت روشتة على واتساب"
+      aria-label={st("ابعت روشتة على واتساب")}
       className={cn(
         "items-center gap-2 rounded-full font-bold transition-colors",
         compact ? "rx-icon flex text-(--rx-btn)" : "hidden min-h-11 border border-(--rx-line) px-4 text-sm text-(--rx-ink) hover:border-(--rx-btn) hover:text-(--rx-btn) lg:inline-flex",
       )}
     >
       <ClipboardPlus className={compact ? "" : "size-5 text-(--rx-btn)"} />
-      {!compact && "ابعت روشتة"}
+      {!compact && st("ابعت روشتة")}
     </a>
   );
 }
@@ -151,19 +152,19 @@ export default function MedicalHeader({ shell }: { shell: StoreShell }) {
       className={cn("rx-nav-link", variant !== "default" && "bg-(--rx-btn) !text-(--rx-btn-ink) hover:!bg-(--rx-btn-hover)")}
     >
       <LayoutGrid className={cn(variant !== "default" && "!text-(--rx-btn-ink)")} />
-      كل الأقسام
+      {st("كل الأقسام")}
       <ChevronDown className={cn("!size-4 transition-transform duration-300", variant !== "default" && "!text-(--rx-btn-ink)", mega && "rotate-180")} />
     </button>
   ) : (
     <Link href={url("/products")} className="rx-nav-link">
       <LayoutGrid />
-      كل المنتجات
+      {st("كل المنتجات")}
     </Link>
   );
 
   const links = [
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
   ];
 
   /** Shelves shown in the departments row (compact / centered). */
@@ -174,7 +175,7 @@ export default function MedicalHeader({ shell }: { shell: StoreShell }) {
       type="button"
       onClick={() => setSearchOpen((v) => !v)}
       aria-expanded={searchOpen}
-      aria-label={searchOpen ? "قفل البحث" : "البحث"}
+      aria-label={searchOpen ? st("قفل البحث") : st("البحث")}
       className="rx-icon text-(--rx-ink)"
     >
       {searchOpen ? <X /> : <Search />}
@@ -223,10 +224,10 @@ export default function MedicalHeader({ shell }: { shell: StoreShell }) {
               {variant === "compact" ? (
                 <SearchBar shell={shell} className="mx-auto hidden w-full max-w-3xl min-w-0 flex-1 lg:block" />
               ) : (
-                <nav aria-label="القائمة الرئيسية" className="hidden min-w-0 flex-1 lg:block">
+                <nav aria-label={st("القائمة الرئيسية")} className="hidden min-w-0 flex-1 lg:block">
                   <ul className="flex items-center gap-1">
                     <li>{megaTrigger}</li>
-                    {[{ href: "/products", label: "كل المنتجات" }, ...links, { href: "/contact", label: "تواصل معنا" }].map((l) => (
+                    {[{ href: "/products", label: st("كل المنتجات") }, ...links, { href: "/contact", label: st("تواصل معنا") }].map((l) => (
                       <li key={l.href} onMouseEnter={() => hasMega && hoverMega(false)}>
                         <Link href={url(l.href)} aria-current={!l.href.includes("?") && isActivePath(path, l.href) ? "page" : undefined} className="rx-nav-link">
                           {l.label}
@@ -264,7 +265,7 @@ export default function MedicalHeader({ shell }: { shell: StoreShell }) {
 
         {/* Desktop departments row (compact / centered) */}
         {variant !== "default" && (
-          <nav aria-label="الأقسام" className="hidden border-t border-(--rx-line) lg:block">
+          <nav aria-label={st("الأقسام")} className="hidden border-t border-(--rx-line) lg:block">
             <div className={cn("rx-wrap flex h-14 items-center gap-6", variant === "centered" ? "justify-center" : "justify-between")}>
               <ul className={cn("flex min-w-0 items-center gap-1", variant === "centered" && "justify-center")}>
                 <li>{megaTrigger}</li>
@@ -306,7 +307,7 @@ export default function MedicalHeader({ shell }: { shell: StoreShell }) {
         tabIndex={scroll.top ? 0 : -1}
         aria-hidden={!scroll.top}
         onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
-        aria-label="الرجوع لأعلى الصفحة"
+        aria-label={st("الرجوع لأعلى الصفحة")}
         className="rx-top"
       >
         <ArrowUp className="size-5" />

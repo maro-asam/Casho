@@ -8,6 +8,7 @@ import { openCart } from "../../shared/cart-events";
 import { useAddToCart } from "../../shared/use-add-to-cart";
 import { openQuickView } from "../lib/events";
 import { qrToast } from "../toast";
+import { st } from "@/lib/i18n/storefront";
 
 type Product = { id: string; name: string; slug: string; stock: number; hasOptions: boolean };
 
@@ -31,21 +32,21 @@ export default function QuickAdd({ storeSlug, product, className }: { storeSlug:
     setDone(true);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setDone(false), 1600);
-    qrToast.success(`اتضافت للحقيبة: ${product.name}`, { action: { label: "الحقيبة", onClick: openCart } });
+    qrToast.success(st("اتضافت للحقيبة: {0}", product.name), { action: { label: st("الحقيبة"), onClick: openCart } });
   };
 
-  const label = product.hasOptions ? "اختار المقاس" : "أضف للحقيبة";
+  const label = product.hasOptions ? st("اختار المقاس") : st("أضف للحقيبة");
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={pending}
-      aria-label={product.hasOptions ? `اختار المقاس أو المعدن لـ ${product.name}` : `أضف ${product.name} للحقيبة`}
+      aria-label={product.hasOptions ? st("اختار المقاس أو المعدن لـ {0}", product.name) : st("أضف {0} للحقيبة", product.name)}
       className={cn("qr-quick", className)}
       data-done={done}
     >
       {pending ? <Loader2 aria-hidden className="animate-spin" /> : done ? <Check aria-hidden /> : <Plus aria-hidden />}
-      <span className="qr-quick-label">{done ? "اتضافت" : label}</span>
+      <span className="qr-quick-label">{done ? st("اتضافت") : label}</span>
     </button>
   );
 }

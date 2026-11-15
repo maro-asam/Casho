@@ -7,13 +7,14 @@ import { cn } from "@/lib/utils";
 import { Container, EmptyState, btn } from "./ui";
 import type { StoreClosedProps } from "../types";
 import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
+import { st } from "@/lib/i18n/storefront";
 
 export function ClassicStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Container className="py-16 sm:py-24">
       <EmptyState
         icon={<Store />}
-        title="المتجر مقفول مؤقتًا"
+        title={st("المتجر مقفول مؤقتًا")}
         description={closedDescription(pause)}
         action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
         className="mx-auto max-w-xl bg-transparent"
@@ -28,17 +29,17 @@ export function ClassicNotFound({ storeSlug }: { storeSlug?: string }) {
     <Container className="py-16 sm:py-24">
       <EmptyState
         icon={<SearchX />}
-        title="الصفحة دي مش موجودة"
-        description="ممكن يكون الرابط غلط أو المنتج اتشال من المتجر."
+        title={st("الصفحة دي مش موجودة")}
+        description={st("ممكن يكون الرابط غلط أو المنتج اتشال من المتجر.")}
         className="mx-auto max-w-xl"
         action={
           <>
             <Link href={home} className={btn()}>
-              الرجوع للرئيسية
+              {st("الرجوع للرئيسية")}
             </Link>
             {storeSlug && (
               <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ variant: "outline" })}>
-                تصفح المنتجات
+                {st("تصفح المنتجات")}
               </Link>
             )}
           </>
@@ -85,7 +86,7 @@ function HeaderSkeleton() {
 
 export function HomeSkeleton() {
   return (
-    <Container role="status" aria-label="جاري التحميل" className="pb-10 pt-4 sm:pt-6">
+    <Container role="status" aria-label={st("جاري التحميل")} className="pb-10 pt-4 sm:pt-6">
       <Skeleton className={cn(S, "aspect-[4/3] w-full rounded-(--c-radius-lg) sm:aspect-[16/9] lg:aspect-[16/6]")} />
       <div className="c-section">
         <Skeleton className={cn(S, "mb-5 h-6 w-44")} />
@@ -108,7 +109,7 @@ export function HomeSkeleton() {
 
 export function ListingSkeleton() {
   return (
-    <Container role="status" aria-label="جاري التحميل" className="pb-10">
+    <Container role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeaderSkeleton />
       <div className="mb-4 grid grid-cols-2 gap-2 lg:hidden">
         <Skeleton className={cn(S, "h-11")} />
@@ -134,7 +135,7 @@ export function ListingSkeleton() {
 
 export function ProductSkeleton() {
   return (
-    <Container role="status" aria-label="جاري التحميل" className="pb-10">
+    <Container role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <Skeleton className={cn(S, "my-4 h-4 w-52 sm:my-6")} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-12">
         <Skeleton className={cn(S, "-mx-(--c-gutter) aspect-square lg:mx-0 lg:rounded-(--c-radius-lg)")} />
@@ -162,7 +163,7 @@ export function ProductSkeleton() {
 
 export function PageSkeleton() {
   return (
-    <Container role="status" aria-label="جاري التحميل" className="pb-10">
+    <Container role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeaderSkeleton />
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-12">
         <div className="space-y-4">
@@ -185,7 +186,7 @@ export function PageSkeleton() {
 
 export function CategoriesSkeleton() {
   return (
-    <Container role="status" aria-label="جاري التحميل" className="pb-10">
+    <Container role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeaderSkeleton />
       <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -201,7 +202,7 @@ export function CategoriesSkeleton() {
 
 export function ProductGridPageSkeleton() {
   return (
-    <Container role="status" aria-label="جاري التحميل" className="pb-10">
+    <Container role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeaderSkeleton />
       <ProductGridSkeleton count={8} />
     </Container>

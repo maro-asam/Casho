@@ -9,6 +9,7 @@ import type { StoreShell } from "../../types";
 import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import StoreMark from "../header/StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 type LinkItem = { label: string; href: string; external?: boolean; ltr?: boolean };
 
@@ -52,22 +53,22 @@ export default async function DuneFooter({ shell }: { shell: StoreShell }) {
 
   const groups: { title: string; links: LinkItem[] }[] = [
     {
-      title: "تسوّق",
+      title: st("تسوّق"),
       links: [
-        { label: "كل المنتجات", href: url("/products") },
-        { label: "وصل حديثًا", href: url("/products?sort=newest") },
-        { label: "اختيارات المتجر", href: url("/products?featured=true") },
-        { label: "التصنيفات", href: url("/categories") },
+        { label: st("كل المنتجات"), href: url("/products") },
+        { label: st("وصل حديثًا"), href: url("/products?sort=newest") },
+        { label: st("اختيارات المتجر"), href: url("/products?featured=true") },
+        { label: st("التصنيفات"), href: url("/categories") },
       ],
     },
-    ...(shell.categories.length ? [{ title: "التصنيفات", links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
+    ...(shell.categories.length ? [{ title: st("التصنيفات"), links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
     {
-      title: "المساعدة",
+      title: st("المساعدة"),
       links: [
-        { label: "عن المتجر", href: url("/about") },
-        { label: "تواصل معنا", href: url("/contact") },
-        { label: "تتبّع طلبك", href: url("/track") },
-        { label: "سلة المشتريات", href: url("/cart") },
+        { label: st("عن المتجر"), href: url("/about") },
+        { label: st("تواصل معنا"), href: url("/contact") },
+        { label: st("تتبّع طلبك"), href: url("/track") },
+        { label: st("سلة المشتريات"), href: url("/cart") },
         ...policyFooterLinks(shell),
       ],
     },
@@ -120,19 +121,19 @@ export default async function DuneFooter({ shell }: { shell: StoreShell }) {
 
           {(wa || shell.contact.email) && (
             <div className="lg:col-span-3">
-              <h2 className="dn-h3">محتاج مساعدة؟</h2>
-              <p className="mt-2 text-sm text-(--dn-quiet)">كلّم {shell.name} مباشرة وهيردوا عليك.</p>
+              <h2 className="dn-h3">{st("محتاج مساعدة؟")}</h2>
+              <p className="mt-2 text-sm text-(--dn-quiet)">{st("كلّم {0} مباشرة وهيردوا عليك.", shell.name)}</p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {wa && (
                   <a href={wa} target="_blank" rel="noopener noreferrer" className="dn-btn dn-btn--solid dn-btn--sm">
                     <MessageCircle />
-                    واتساب
+                    {st("واتساب")}
                   </a>
                 )}
                 {shell.contact.email && (
                   <a href={`mailto:${shell.contact.email}`} className="dn-btn dn-btn--outline dn-btn--sm">
                     <Mail />
-                    إيميل
+                    {st("إيميل")}
                   </a>
                 )}
               </div>
@@ -147,13 +148,13 @@ export default async function DuneFooter({ shell }: { shell: StoreShell }) {
             </p>
             {shell.showPoweredByCasho && (
               <a href="https://casho.store" target="_blank" rel="noopener" className="inline-flex min-h-10 items-center gap-2 transition-opacity hover:opacity-80">
-                متجر مبني على
+                {st("متجر مبني على")}
                 <CashoLogo withSubTitle={false} />
               </a>
             )}
           </div>
           {payments.length > 0 && (
-            <ul className="flex flex-wrap items-center gap-2" aria-label="طرق الدفع المتاحة">
+            <ul className="flex flex-wrap items-center gap-2" aria-label={st("طرق الدفع المتاحة")}>
               {payments.map((p) => (
                 <li key={p.key} className="grid h-8 min-w-12 place-items-center bg-white px-2" title={p.label}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -1,25 +1,26 @@
 import type { WhyChooseUsContent } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 const DEFAULT_CARDS = [
   {
     icon: "🛡️",
-    title: "ضمان الجودة",
-    description: "كل منتج يمر بفحص دقيق قبل الشحن لضمان وصوله بأفضل حالة",
+    get title() { return st("ضمان الجودة"); },
+    get description() { return st("كل منتج يمر بفحص دقيق قبل الشحن لضمان وصوله بأفضل حالة"); },
   },
   {
     icon: "🚀",
-    title: "شحن سريع",
-    description: "توصيل خلال 24-48 ساعة لجميع المحافظات مع متابعة الشحنة",
+    get title() { return st("شحن سريع"); },
+    get description() { return st("توصيل خلال 24-48 ساعة لجميع المحافظات مع متابعة الشحنة"); },
   },
   {
     icon: "💬",
-    title: "دعم على مدار الساعة",
-    description: "فريق الدعم جاهز للرد على استفساراتك في أي وقت",
+    get title() { return st("دعم على مدار الساعة"); },
+    get description() { return st("فريق الدعم جاهز للرد على استفساراتك في أي وقت"); },
   },
   {
     icon: "🔄",
-    title: "إرجاع مجاني",
-    description: "غير راضٍ؟ أرسل المنتج ونرسلك مبلغك كاملًا خلال 30 يوم",
+    get title() { return st("إرجاع مجاني"); },
+    get description() { return st("غير راضٍ؟ أرسل المنتج ونرسلك مبلغك كاملًا خلال 30 يوم"); },
   },
 ];
 
@@ -28,7 +29,7 @@ type Props = {
 };
 
 export default function WhyChooseUsSection({ content }: Props) {
-  const headline = content?.headline ?? "لماذا تتسوق معنا؟";
+  const headline = content?.headline ?? st("لماذا تتسوق معنا؟");
   const cards = content?.cards?.length ? content.cards : DEFAULT_CARDS;
 
   return (

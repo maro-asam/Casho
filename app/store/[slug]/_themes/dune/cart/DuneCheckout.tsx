@@ -3,11 +3,12 @@ import { CreditCard, ShieldCheck, ShoppingBag } from "lucide-react";
 
 import CheckoutForm from "../../../checkout/_components/CheckoutForm";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { CheckoutViewProps } from "../../types";
 import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { Empty, PageTitle, PlateImage, Wrap, btn, num } from "../ui";
 import { Totals } from "./DuneCart";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export default function DuneCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
@@ -16,30 +17,30 @@ export default function DuneCheckout({ storeSlug, cart, paymentMethods, createOr
   return (
     <Wrap className="pb-12">
       <PageTitle
-        title="إتمام الطلب"
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "السلة", href: buildStoreUrl(storeSlug, "/cart") }, { label: "إتمام الطلب" }]}
-        note="اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب."
+        title={st("إتمام الطلب")}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("السلة"), href: buildStoreUrl(storeSlug, "/cart") }, { label: st("إتمام الطلب") }]}
+        note={st("اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.")}
       />
 
       {items.length === 0 ? (
         <Empty
           icon={<ShoppingBag />}
-          title="سلتك فاضية"
-          description="ضيف منتجات للسلة الأول وبعدين كمّل طلبك."
+          title={st("سلتك فاضية")}
+          description={st("ضيف منتجات للسلة الأول وبعدين كمّل طلبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : paymentMethods.length === 0 ? (
         <Empty
           icon={<CreditCard />}
-          title="مفيش طرق دفع متاحة دلوقتي"
-          description="المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر."
+          title={st("مفيش طرق دفع متاحة دلوقتي")}
+          description={st("المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
@@ -48,11 +49,11 @@ export default function DuneCheckout({ storeSlug, cart, paymentMethods, createOr
           <div className="dn-checkout order-2 lg:order-1">
             <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
-          <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-[calc(var(--dn-header-h)+2rem)] lg:order-2 lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-[calc(var(--dn-header-h)+2rem)] lg:order-2 lg:self-start">
             <details className="dn-details bg-(--dn-plate)" open>
               <summary className="flex min-h-16 items-center justify-between gap-3 px-6 lg:pointer-events-none">
                 <span className="dn-h3">
-                  طلبك <span className="text-base text-(--dn-quiet)">({num(count)})</span>
+                  {st("طلبك")}{" "}<span className="text-base text-(--dn-quiet)">({num(count)})</span>
                 </span>
                 <span className="dn-price text-xl">{formatPrice(summary.total)}</span>
               </summary>
@@ -83,10 +84,10 @@ export default function DuneCheckout({ storeSlug, cart, paymentMethods, createOr
                 </div>
                 <p className="mt-5 flex items-start gap-2 text-xs leading-6 text-(--dn-quiet)">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-                  بياناتك بتروح للمتجر بس عشان يوصلك الطلب.
+                  {st("بياناتك بتروح للمتجر بس عشان يوصلك الطلب.")}
                 </p>
                 <Link href={buildStoreUrl(storeSlug, "/cart")} className="dn-link dn-label mt-3">
-                  تعديل السلة
+                  {st("تعديل السلة")}
                 </Link>
               </div>
             </details>

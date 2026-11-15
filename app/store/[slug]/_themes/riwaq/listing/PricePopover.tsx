@@ -6,10 +6,11 @@ import { ChevronDown } from "lucide-react";
 import { Popover } from "radix-ui";
 
 import type { ProductsQuery } from "@/lib/products-query";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { filtersQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { RQ_PORTAL, btn } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export function PriceFields({ query, priceBounds }: { query: ProductsQuery; priceBounds: { min: number; max: number } | null }) {
   return (
@@ -17,7 +18,7 @@ export function PriceFields({ query, priceBounds }: { query: ProductsQuery; pric
       <div className="grid grid-cols-2 gap-5">
         {(["minPrice", "maxPrice"] as const).map((name) => (
           <label key={name} className="block">
-            <span className="rq-label block">{name === "minPrice" ? "من" : "إلى"} (ج.م)</span>
+            <span className="rq-label block">{name === "minPrice" ? st("من") : st("إلى")}{" "}{st("(ج.م)")}</span>
             <input
               type="number"
               inputMode="numeric"
@@ -32,7 +33,7 @@ export function PriceFields({ query, priceBounds }: { query: ProductsQuery; pric
       </div>
       {priceBounds && (
         <p className="rq-caption mt-3">
-          الأسعار في المتجر من {formatPrice(priceBounds.min)} لحد {formatPrice(priceBounds.max)}
+          {st("الأسعار في المتجر من {0} لحد {1}", formatPrice(priceBounds.min), formatPrice(priceBounds.max))}
         </p>
       )}
     </>
@@ -56,7 +57,7 @@ export default function PricePopover({
   const active = query.minPrice > 0 || query.maxPrice > 0;
   const label = active
     ? `${query.minPrice ? formatPrice(query.minPrice) : "٠"} – ${query.maxPrice ? formatPrice(query.maxPrice) : "∞"}`
-    : "السعر";
+    : st("السعر");
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
@@ -79,7 +80,7 @@ export default function PricePopover({
               setOpen(false);
             }}
           >
-            <p className="rq-h3 mb-4">نطاق السعر</p>
+            <p className="rq-h3 mb-4">{st("نطاق السعر")}</p>
             <PriceFields query={query} priceBounds={priceBounds} />
             <div className="mt-5 flex items-center justify-between gap-3">
               {active ? (
@@ -94,13 +95,13 @@ export default function PricePopover({
                   }}
                   className={btn({ variant: "text", size: "sm" })}
                 >
-                  مسح
+                  {st("مسح")}
                 </button>
               ) : (
                 <span />
               )}
               <button type="submit" className={btn({ size: "sm" })}>
-                تطبيق
+                {st("تطبيق")}
               </button>
             </div>
           </form>

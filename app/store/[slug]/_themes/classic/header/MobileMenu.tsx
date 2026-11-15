@@ -15,6 +15,7 @@ import { SocialLinks, whatsappHref } from "../social";
 import ThemeToggle from "./ThemeToggle";
 import { NAV_LINKS } from "./nav-links";
 import { isActivePath, useStorePath } from "../../shared/store-path";
+import { st } from "@/lib/i18n/storefront";
 
 export default function MobileMenu({ shell, cartCount }: { shell: StoreShell; cartCount: number }) {
   const [open, setOpen] = useState(false);
@@ -24,7 +25,7 @@ export default function MobileMenu({ shell, cartCount }: { shell: StoreShell; ca
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger className={btn({ variant: "ghost", size: "icon", className: "-ms-2.5 lg:hidden" })} aria-label="فتح القائمة">
+      <SheetTrigger className={btn({ variant: "ghost", size: "icon", className: "-ms-2.5 lg:hidden" })} aria-label={st("فتح القائمة")}>
         <Menu />
       </SheetTrigger>
 
@@ -36,13 +37,13 @@ export default function MobileMenu({ shell, cartCount }: { shell: StoreShell; ca
       >
         <div className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border ps-4 pe-2">
           <SheetTitle className="truncate text-base font-bold">{shell.name}</SheetTitle>
-          <SheetDescription className="sr-only">روابط المتجر والتصنيفات</SheetDescription>
-          <SheetPrimitive.Close className={btn({ variant: "ghost", size: "icon" })} aria-label="إغلاق القائمة">
+          <SheetDescription className="sr-only">{st("روابط المتجر والتصنيفات")}</SheetDescription>
+          <SheetPrimitive.Close className={btn({ variant: "ghost", size: "icon" })} aria-label={st("إغلاق القائمة")}>
             <X />
           </SheetPrimitive.Close>
         </div>
 
-        <nav aria-label="القائمة الرئيسية" className="flex-1 overflow-y-auto overscroll-contain">
+        <nav aria-label={st("القائمة الرئيسية")} className="flex-1 overflow-y-auto overscroll-contain">
           <ul className="px-2 py-2">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(path, link.href);
@@ -67,7 +68,7 @@ export default function MobileMenu({ shell, cartCount }: { shell: StoreShell; ca
 
           {shell.categories.length > 0 && (
             <div className="border-t border-border px-2 pb-3 pt-4">
-              <p className="px-3 pb-2 text-xs font-semibold text-muted-foreground">تسوق حسب التصنيف</p>
+              <p className="px-3 pb-2 text-xs font-semibold text-muted-foreground">{st("تسوق حسب التصنيف")}</p>
               <ul>
                 {shell.categories.map((category) => {
                   const active = isActivePath(path, `/categories/${category.slug}`);
@@ -108,7 +109,7 @@ export default function MobileMenu({ shell, cartCount }: { shell: StoreShell; ca
               {wa && (
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-(--c-radius-sm) px-3 text-[0.9375rem] hover:bg-(--c-subtle)">
                   <MessageCircle className="size-5 text-muted-foreground" />
-                  تواصل على واتساب
+                  {st("تواصل على واتساب")}
                 </a>
               )}
               {shell.contact.email && (
@@ -130,7 +131,7 @@ export default function MobileMenu({ shell, cartCount }: { shell: StoreShell; ca
           <SheetClose asChild>
             <Link href={buildStoreUrl(shell.slug, "/cart")} className={btn({ size: "lg", full: true })}>
               <ShoppingBag />
-              السلة
+              {st("السلة")}
               {cartCount > 0 && (
                 <span className="rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs tabular-nums">{cartCount}</span>
               )}

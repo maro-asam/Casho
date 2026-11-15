@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, ChevronDown, MessageCircle, PackageCheck, Timer, Truck } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { ProductViewProps, ReviewData } from "../../types";
 import { whatsappHref } from "../../shared/social";
 import { askAboutMessage, waWith, weightLabel } from "../lib/qirat";
@@ -13,6 +13,7 @@ import Rail from "../product/Rail";
 import RecentlyViewed, { TrackView } from "../sections/RecentlyViewed";
 import { Band, Crumbs, Kicker, Ornament, Price, Rating, SectionHead, StockLine, Wrap, days, num, optionLabel } from "../ui";
 import Gallery from "./Gallery";
+import { formatPrice, st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 function Reviews({ reviews }: { reviews: ReviewData[] }) {
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
@@ -22,7 +23,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
       <div className="h-fit text-center lg:text-start">
         <p className="qr-stat-value leading-none">{avg.toFixed(1)}</p>
         <Rating value={avg} size="md" className="mt-3" />
-        <p className="mt-1 text-sm text-(--qr-ink-2)">من {num(reviews.length)} تقييم</p>
+        <p className="mt-1 text-sm text-(--qr-ink-2)">{st("من {0} تقييم", num(reviews.length))}</p>
         <ul className="mt-6 space-y-2.5">
           {dist.map(({ star, count }) => (
             <li key={star} className="flex items-center gap-3 text-xs text-(--qr-ink-2)">
@@ -41,7 +42,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
             <div className="flex items-center justify-between gap-3">
               <Rating value={r.rating} />
               <time className="text-xs text-(--qr-ink-2)" dateTime={new Date(r.reviewDate).toISOString()}>
-                {new Date(r.reviewDate).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                {new Date(r.reviewDate).toLocaleDateString(storeIntlLocale(), { year: "numeric", month: "long", day: "numeric" })}
               </time>
             </div>
             {r.title && <p className="qr-h4 mt-3">{r.title}</p>}
@@ -54,7 +55,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
               {r.verifiedPurchase && (
                 <span className="inline-flex items-center gap-1 text-xs text-(--qr-ok)">
                   <BadgeCheck className="size-3.5" />
-                  مشتري مؤكد
+                  {st("مشتري مؤكد")}
                 </span>
               )}
             </div>
@@ -88,19 +89,19 @@ export default function QiratProduct({ store, product, reviews, related, shippin
   const weight = product.weight !== null ? weightLabel(product.weight, num) : null;
 
   const specs = [
-    { label: "المجموعة", value: product.category.name, href: categoryHref },
-    product.brand ? { label: "البراند", value: product.brand } : null,
+    { label: st("المجموعة"), value: product.category.name, href: categoryHref },
+    product.brand ? { label: st("البراند"), value: product.brand } : null,
     product.colors.length ? { label: optionLabel("color", product.colors), value: product.colors.join("، ") } : null,
-    product.sizes.length ? { label: "المقاسات", value: product.sizes.join("، ") } : null,
-    weight ? { label: "الوزن", value: weight } : null,
-    product.sku ? { label: "كود القطعة", value: product.sku, ltr: true } : null,
+    product.sizes.length ? { label: st("المقاسات"), value: product.sizes.join("، ") } : null,
+    weight ? { label: st("الوزن"), value: weight } : null,
+    product.sku ? { label: st("كود القطعة"), value: product.sku, ltr: true } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   // Service facts from the store's real shipping methods only.
   const assurances = [
-    cheapest && { Icon: Truck, title: cheapest.price === 0 ? "توصيل مجاني" : `التوصيل من ${formatPrice(cheapest.price / 100)}`, note: cheapest.name },
-    fastest?.estimatedDays && { Icon: Timer, title: `توصلك خلال ${days(fastest.estimatedDays)}`, note: fastest.name },
-    inStock && { Icon: PackageCheck, title: "المتجر بيأكد معاك قبل الشحن", note: "تقدر تسأل عن أي تفصيلة قبل ما توصلك" },
+    cheapest && { Icon: Truck, title: cheapest.price === 0 ? st("توصيل مجاني") : st("التوصيل من {0}", formatPrice(cheapest.price / 100)), note: cheapest.name },
+    fastest?.estimatedDays && { Icon: Timer, title: st("توصلك خلال {0}", days(fastest.estimatedDays)), note: fastest.name },
+    inStock && { Icon: PackageCheck, title: st("المتجر بيأكد معاك قبل الشحن"), note: st("تقدر تسأل عن أي تفصيلة قبل ما توصلك") },
   ].filter(Boolean) as { Icon: typeof Truck; title: string; note: string }[];
 
   return (
@@ -111,7 +112,7 @@ export default function QiratProduct({ store, product, reviews, related, shippin
         <Crumbs
           className="py-5"
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
             { label: product.category.name, href: categoryHref },
             { label: product.name },
           ]}
@@ -124,7 +125,7 @@ export default function QiratProduct({ store, product, reviews, related, shippin
 
           <div className="qr-pdp-info">
             <div className="lg:sticky lg:top-[calc(var(--qr-head-h)+1.5rem)]">
-              <Kicker>{!inStock ? "نفدت حاليًا" : product.isFeatured ? "اختيار المتجر" : product.brand || product.category.name}</Kicker>
+              <Kicker>{!inStock ? st("نفدت حاليًا") : product.isFeatured ? st("اختيار المتجر") : product.brand || product.category.name}</Kicker>
               <h1 className="qr-h1 mt-3 text-balance">{product.name}</h1>
               <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
                 <Price price={product.price} compareAt={product.compareAtPrice} size="xl" save />
@@ -157,7 +158,7 @@ export default function QiratProduct({ store, product, reviews, related, shippin
 
               {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
                 <div className="mt-8">
-                  <p className="qr-opt-legend mb-3">جوّه العلبة</p>
+                  <p className="qr-opt-legend mb-3">{st("جوّه العلبة")}</p>
                   <ul className="qr-group">
                     {product.bundleItems.map((item, i) => (
                       <li key={i} className="qr-row">
@@ -192,19 +193,19 @@ export default function QiratProduct({ store, product, reviews, related, shippin
                 <a href={waWith(wa, askAboutMessage(product.name))} target="_blank" rel="noopener noreferrer" className="qr-ask">
                   <MessageCircle aria-hidden />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm text-(--qr-ink)">عندك سؤال عن القطعة؟</span>
-                    <span className="block text-xs text-(--qr-ink-2)">اسأل المتجر على واتساب عن المقاس أو الخامة أو التغليف.</span>
+                    <span className="block text-sm text-(--qr-ink)">{st("عندك سؤال عن القطعة؟")}</span>
+                    <span className="block text-xs text-(--qr-ink-2)">{st("اسأل المتجر على واتساب عن المقاس أو الخامة أو التغليف.")}</span>
                   </span>
                 </a>
               )}
 
               <div className="mt-8 border-t border-(--qr-line)">
                 {description && (
-                  <Fold title="عن القطعة" open>
+                  <Fold title={st("عن القطعة")} open>
                     <p className="whitespace-pre-line text-[0.9375rem] leading-8 text-(--qr-ink-2)">{description}</p>
                   </Fold>
                 )}
-                <Fold title="التفاصيل" open={!description}>
+                <Fold title={st("التفاصيل")} open={!description}>
                   <dl className="qr-specs">
                     {specs.map((s) => (
                       <div key={s.label}>
@@ -223,15 +224,15 @@ export default function QiratProduct({ store, product, reviews, related, shippin
                   </dl>
                 </Fold>
                 {shipping.length > 0 && (
-                  <Fold title="التوصيل">
+                  <Fold title={st("التوصيل")}>
                     <ul className="space-y-2.5 text-sm">
                       {shipping.map((s) => (
                         <li key={s.id} className="flex flex-wrap justify-between gap-x-4">
                           <span className="text-(--qr-ink)">
                             {s.name}
-                            {s.estimatedDays ? <span className="text-(--qr-ink-2)"> · خلال {days(s.estimatedDays)}</span> : null}
+                            {s.estimatedDays ? <span className="text-(--qr-ink-2)">{" "}{st("· خلال {0}", days(s.estimatedDays))}</span> : null}
                           </span>
-                          <span className="qr-num">{s.price === 0 ? "مجاني" : formatPrice(s.price / 100)}</span>
+                          <span className="qr-num">{s.price === 0 ? st("مجاني") : formatPrice(s.price / 100)}</span>
                         </li>
                       ))}
                     </ul>
@@ -246,7 +247,7 @@ export default function QiratProduct({ store, product, reviews, related, shippin
       {reviews.length > 0 && (
         <Band tone="alt" id="reviews" className="qr-section mt-(--qr-section) scroll-mt-28">
           <Wrap>
-            <SectionHead kicker="من عملاء جرّبوها" title="التقييمات" />
+            <SectionHead kicker={st("من عملاء جرّبوها")} title={st("التقييمات")} />
             <Reviews reviews={reviews} />
           </Wrap>
         </Band>
@@ -254,7 +255,7 @@ export default function QiratProduct({ store, product, reviews, related, shippin
 
       {related.length > 0 && (
         <Band className="qr-section">
-          <Rail label="قطع مشابهة" kicker="من نفس المجموعة" title="ممكن تعجبك كمان" href={categoryHref} linkLabel="كل المجموعة" listClassName="qr-shelf--cards">
+          <Rail label={st("قطع مشابهة")} kicker={st("من نفس المجموعة")} title={st("ممكن تعجبك كمان")} href={categoryHref} linkLabel={st("كل المجموعة")} listClassName="qr-shelf--cards">
             {related.slice(0, 12).map((p, i) => (
               <li key={p.id} className="min-w-0">
                 <ProductCard product={p} storeSlug={store.slug} index={i} sizes="(max-width: 768px) 62vw, 19rem" />

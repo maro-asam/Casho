@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const nf = new Intl.NumberFormat("ar-EG", { minimumIntegerDigits: 2 });
+const nf = lazyStoreIntl.number({ minimumIntegerDigits: 2 });
 
 function left(end: number) {
   const d = Math.max(0, end - Date.now());
@@ -26,16 +27,16 @@ export default function Countdown({ endDate, label }: { endDate: string; label?:
   if (Number.isNaN(end) || (t && t.done)) return null;
 
   const units = [
-    { v: t?.d, l: "يوم" },
-    { v: t?.h, l: "ساعة" },
-    { v: t?.m, l: "دقيقة" },
-    { v: t?.s, l: "ثانية" },
+    { v: t?.d, l: st("يوم") },
+    { v: t?.h, l: st("ساعة") },
+    { v: t?.m, l: st("دقيقة") },
+    { v: t?.s, l: st("ثانية") },
   ];
 
   return (
     <div className="flex flex-col gap-2">
       {label && <span className="text-sm text-(--ce-text)">{label}</span>}
-      <div role="timer" aria-live="off" aria-label="الوقت المتبقي على نهاية العرض" className="flex items-center gap-1.5 sm:gap-2.5">
+      <div role="timer" aria-live="off" aria-label={st("الوقت المتبقي على نهاية العرض")} className="flex items-center gap-1.5 sm:gap-2.5">
         {units.map((u, i) => (
           <span key={u.l} className="flex items-center gap-1.5 sm:gap-2.5">
             {i > 0 && (

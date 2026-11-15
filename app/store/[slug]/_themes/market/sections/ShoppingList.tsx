@@ -8,6 +8,7 @@ import { useLocalList } from "../../shared/local-list";
 import { listKey } from "../lib/events";
 import { listMessage, waWith } from "../lib/market";
 import { Wrap, btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Notes-style shopping list: the shopper writes what they want the way they
  *  would on paper and sends it to the store's WhatsApp. It stays in this
@@ -31,8 +32,8 @@ export default function ShoppingList({ storeSlug, whatsappHref }: { storeSlug: s
     <Wrap className="mk-section">
       <div className="mk-notes mk-reveal">
         <div className="min-w-0 lg:max-w-sm">
-          <h2 className="mk-h2 text-balance">قايمة المشتريات</h2>
-          <p className="mt-2 text-[0.9375rem] leading-6 text-(--mk-label-2)">اكتب اللي محتاجه زي ما بتكتبه في الورقة، وابعته للمتجر على واتساب.</p>
+          <h2 className="mk-h2 text-balance">{st("قايمة المشتريات")}</h2>
+          <p className="mt-2 text-[0.9375rem] leading-6 text-(--mk-label-2)">{st("اكتب اللي محتاجه زي ما بتكتبه في الورقة، وابعته للمتجر على واتساب.")}</p>
         </div>
 
         <div className="mk-notes-paper min-w-0 flex-1">
@@ -53,7 +54,7 @@ export default function ShoppingList({ storeSlug, whatsappHref }: { storeSlug: s
                       {on && <Check />}
                     </button>
                     <span className={cn("min-w-0 flex-1 truncate", on && "text-(--mk-label-3) line-through")}>{item}</span>
-                    <button type="button" onClick={() => remove(item)} aria-label={`شيل ${item}`} className="mk-icon !size-8 text-(--mk-label-3) [&_svg]:!size-4">
+                    <button type="button" onClick={() => remove(item)} aria-label={st("شيل {0}", item)} className="mk-icon !size-8 text-(--mk-label-3) [&_svg]:!size-4">
                       <X />
                     </button>
                   </li>
@@ -68,13 +69,13 @@ export default function ShoppingList({ storeSlug, whatsappHref }: { storeSlug: s
             }}
             className="mk-note-row"
           >
-            <button type="submit" aria-label="أضف للقايمة" className="mk-note-check mk-note-check--add">
+            <button type="submit" aria-label={st("أضف للقايمة")} className="mk-note-check mk-note-check--add">
               <Plus />
             </button>
             <label htmlFor="mk-list-input" className="sr-only">
-              أضف للقايمة
+              {st("أضف للقايمة")}
             </label>
-            <input id="mk-list-input" value={text} onChange={(e) => setText(e.target.value)} placeholder="٢ كيلو سكر، لبن، عيش…" autoComplete="off" enterKeyHint="done" className="min-w-0 flex-1 bg-transparent text-(--mk-ink) outline-none placeholder:text-(--mk-label-3)" />
+            <input id="mk-list-input" value={text} onChange={(e) => setText(e.target.value)} placeholder={st("٢ كيلو سكر، لبن، عيش…")} autoComplete="off" enterKeyHint="done" className="min-w-0 flex-1 bg-transparent text-(--mk-ink) outline-none placeholder:text-(--mk-label-3)" />
           </form>
 
           <a
@@ -85,7 +86,7 @@ export default function ShoppingList({ storeSlug, whatsappHref }: { storeSlug: s
             className={btn({ size: "lg", full: true, className: cn("mt-4", open.length === 0 && "pointer-events-none opacity-40") })}
           >
             <MessageCircle />
-            ابعت القايمة على واتساب
+            {st("ابعت القايمة على واتساب")}
           </a>
         </div>
       </div>

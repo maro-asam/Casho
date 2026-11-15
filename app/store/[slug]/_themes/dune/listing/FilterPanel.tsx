@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import type { ProductsQuery } from "@/lib/products-query";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { CategoryLink, ListingViewProps } from "../../types";
 import { swatchColor } from "../../shared/colors";
 import { clearedQueryString, filtersQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type FilterProps = {
   storeSlug: string;
@@ -77,9 +78,9 @@ export default function FilterPanel({
     >
       <div className={cn(mode === "drawer" && "flex-1 overflow-y-auto overscroll-contain px-6")}>
         {categories.length > 0 && (
-          <Group title="التصنيف">
+          <Group title={st("التصنيف")}>
             <div>
-              {[{ id: "", slug: "", name: "كل التصنيفات", productCount: null as number | null }, ...categories].map((c) => (
+              {[{ id: "", slug: "", name: st("كل التصنيفات"), productCount: null as number | null }, ...categories].map((c) => (
                 <label key={c.id || "all"} className={ROW}>
                   <input type="radio" name="category" value={c.slug} defaultChecked={query.category === c.slug} onChange={instant} className="sr-only" />
                   <span className={cn(BOX, "rounded-full after:rounded-full")} aria-hidden />
@@ -91,22 +92,22 @@ export default function FilterPanel({
           </Group>
         )}
 
-        <Group title="التوفر">
+        <Group title={st("التوفر")}>
           <input type="hidden" name="inStockField" value="1" />
           <input type="hidden" name="featuredField" value="1" />
           <label className={ROW}>
             <input type="checkbox" name="inStock" value="true" defaultChecked={query.inStock} onChange={instant} className="sr-only" />
             <span className={BOX} aria-hidden />
-            المتوفر حالًا بس
+            {st("المتوفر حالًا بس")}
           </label>
           <label className={ROW}>
             <input type="checkbox" name="featured" value="true" defaultChecked={query.featured} onChange={instant} className="sr-only" />
             <span className={BOX} aria-hidden />
-            اختيارات المتجر
+            {st("اختيارات المتجر")}
           </label>
         </Group>
 
-        <Group title="السعر">
+        <Group title={st("السعر")}>
           {ranges.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
               {ranges.map((r) => {
@@ -124,7 +125,7 @@ export default function FilterPanel({
                     }}
                     className="dn-opt min-h-9 px-3 text-xs"
                   >
-                    {r.max === 0 ? `أكتر من ${formatPrice(r.min)}` : r.min === 0 ? `أقل من ${formatPrice(r.max)}` : `${formatPrice(r.min)} – ${formatPrice(r.max)}`}
+                    {r.max === 0 ? st("أكتر من {0}", formatPrice(r.min)) : r.min === 0 ? st("أقل من {0}", formatPrice(r.max)) : `${formatPrice(r.min)} – ${formatPrice(r.max)}`}
                   </button>
                 );
               })}
@@ -133,7 +134,7 @@ export default function FilterPanel({
           <div className="grid grid-cols-2 gap-2.5">
             {(["minPrice", "maxPrice"] as const).map((name) => (
               <label key={name} className="block">
-                <span className="mb-1 block text-xs text-(--dn-quiet)">{name === "minPrice" ? "من" : "إلى"}</span>
+                <span className="mb-1 block text-xs text-(--dn-quiet)">{name === "minPrice" ? st("من") : st("إلى")}</span>
                 <input
                   type="number"
                   inputMode="numeric"
@@ -148,17 +149,17 @@ export default function FilterPanel({
           </div>
           {mode === "sidebar" && (
             <button type="submit" className={btn({ variant: "outline", size: "sm", full: true, className: "mt-3" })}>
-              تطبيق
+              {st("تطبيق")}
             </button>
           )}
         </Group>
 
         {facets.colors.length > 0 && (
-          <Group title="اللون">
-            <div role="radiogroup" aria-label="اللون" className="flex flex-wrap gap-1.5">
+          <Group title={st("اللون")}>
+            <div role="radiogroup" aria-label={st("اللون")} className="flex flex-wrap gap-1.5">
               <label className="dn-opt min-h-10 px-3 text-xs">
                 <input type="radio" name="color" value="" defaultChecked={!query.color} onChange={instant} className="sr-only" />
-                الكل
+                {st("الكل")}
               </label>
               {facets.colors.map((c) => {
                 const sw = swatchColor(c);
@@ -180,12 +181,12 @@ export default function FilterPanel({
         )}
 
         {facets.sizes.length > 0 && (
-          <Group title="المقاس">
+          <Group title={st("المقاس")}>
             <div className="flex flex-wrap gap-1.5">
               {["", ...facets.sizes].map((s) => (
                 <label key={s || "all"} className="dn-opt min-h-10 min-w-11 px-3 text-xs">
                   <input type="radio" name="size" value={s} defaultChecked={query.size === s} onChange={instant} className="sr-only" />
-                  {s || "الكل"}
+                  {s || st("الكل")}
                 </label>
               ))}
             </div>
@@ -193,13 +194,13 @@ export default function FilterPanel({
         )}
 
         {facets.brands.length > 0 && (
-          <Group title="البراند" open={!!query.brand}>
+          <Group title={st("البراند")} open={!!query.brand}>
             <div className="max-h-64 overflow-y-auto">
               {["", ...facets.brands].map((b) => (
                 <label key={b || "all"} className={ROW}>
                   <input type="radio" name="brand" value={b} defaultChecked={query.brand === b} onChange={instant} className="sr-only" />
                   <span className={cn(BOX, "rounded-full after:rounded-full")} aria-hidden />
-                  <span className="truncate">{b || "كل البراندات"}</span>
+                  <span className="truncate">{b || st("كل البراندات")}</span>
                 </label>
               ))}
             </div>
@@ -209,7 +210,7 @@ export default function FilterPanel({
 
       {mode === "sidebar" ? (
         <button type="button" onClick={() => push(clearedQueryString(query))} className="dn-link dn-label mt-5 self-start text-(--dn-quiet)">
-          مسح كل الفلاتر
+          {st("مسح كل الفلاتر")}
         </button>
       ) : (
         footer

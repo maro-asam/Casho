@@ -14,6 +14,7 @@ import { useLocalList } from "../../shared/local-list";
 import { storeHref } from "../../shared/store-path";
 import { searchesKey } from "../lib/events";
 import { Arrow, PlateImage, Price } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Item = Pick<SearchSuggestion, "id" | "name" | "slug" | "image" | "price" | "compareAtPrice">;
 
@@ -139,7 +140,7 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
         className="qr-search"
       >
         <label htmlFor={`${id}-q`} className="sr-only">
-          ابحث في المتجر
+          {st("ابحث في المتجر")}
         </label>
         <Search aria-hidden className="size-5 shrink-0 text-(--qr-ink-2)" />
         <input
@@ -154,7 +155,7 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
           aria-controls={listId}
           aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
           aria-autocomplete="list"
-          placeholder="دوّر على خاتم، سلسلة، ساعة…"
+          placeholder={st("دوّر على خاتم، سلسلة، ساعة…")}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
@@ -175,7 +176,7 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
               setValue("");
               inputRef.current?.focus();
             }}
-            aria-label="مسح البحث"
+            aria-label={st("مسح البحث")}
             className="qr-icon size-9 text-(--qr-ink-2) [&_svg]:size-4"
           >
             <X />
@@ -189,7 +190,7 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
           <div className="space-y-7">
             {matchedCats.length > 0 && (
               <section>
-                <h2 className="qr-kicker mb-2">مجموعات</h2>
+                <h2 className="qr-kicker mb-2">{st("مجموعات")}</h2>
                 <ul className="flex flex-wrap gap-x-6 gap-y-1">
                   {matchedCats.map((c) => (
                     <li key={c.id}>
@@ -202,17 +203,17 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
               </section>
             )}
             <section>
-              <h2 className="qr-kicker mb-2">قطع</h2>
+              <h2 className="qr-kicker mb-2">{st("قطع")}</h2>
               {failed ? (
-                <p className="py-3 text-sm text-(--qr-error)">البحث مش شغال دلوقتي، جرّب تاني.</p>
+                <p className="py-3 text-sm text-(--qr-error)">{st("البحث مش شغال دلوقتي، جرّب تاني.")}</p>
               ) : loading && searchedFor !== term ? (
                 skeleton(2)
               ) : noResults ? (
                 <p className="py-3 text-sm text-(--qr-ink-2)">
-                  مفيش نتائج لـ «<span className="text-(--qr-ink)">{term}</span>». جرّب كلمة أبسط.
+                  {st("مفيش نتائج لـ «")}<span className="text-(--qr-ink)">{term}</span>{st("». جرّب كلمة أبسط.")}
                 </p>
               ) : (
-                <ul id={listId} role="listbox" aria-label="نتائج البحث" className="grid gap-1 sm:grid-cols-2">
+                <ul id={listId} role="listbox" aria-label={st("نتائج البحث")} className="grid gap-1 sm:grid-cols-2">
                   {results.map((r, i) => (
                     <li key={r.id} role="presentation">
                       <Row item={r} id={`${id}-opt-${i}`} active={active === i} onHover={() => setActive(i)} onPick={() => go(`/products/${r.slug}`, term)} />
@@ -222,7 +223,7 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
               )}
             </section>
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => searchAll(term)} className="qr-link text-[0.9375rem]">
-              <span className="qr-underline">كل النتائج لـ «{term}»</span>
+              <span className="qr-underline">{st("كل النتائج لـ «{0}»", term)}</span>
               <Arrow />
             </button>
           </div>
@@ -232,9 +233,9 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
               {recent.list.length > 0 && (
                 <section>
                   <div className="mb-2 flex items-center justify-between">
-                    <h2 className="qr-kicker">بحثت عن</h2>
+                    <h2 className="qr-kicker">{st("بحثت عن")}</h2>
                     <button type="button" onClick={() => recent.list.forEach((q) => recent.remove(q))} className="min-h-8 text-xs text-(--qr-ink-2) hover:text-(--qr-ink) hover:underline">
-                      مسح
+                      {st("مسح")}
                     </button>
                   </div>
                   <ul>
@@ -250,7 +251,7 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
                 </section>
               )}
               <section>
-                <h2 className="qr-kicker mb-2">المجموعات</h2>
+                <h2 className="qr-kicker mb-2">{st("المجموعات")}</h2>
                 <ul>
                   {shelves.map((c) => (
                     <li key={c.id}>
@@ -261,14 +262,14 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
                   ))}
                   <li>
                     <QuickLink href={buildStoreUrl(shell.slug, "/track")} onClick={onDone}>
-                      تتبّع طلبك
+                      {st("تتبّع طلبك")}
                     </QuickLink>
                   </li>
                 </ul>
               </section>
             </div>
             <section id={listId}>
-              <h2 className="qr-kicker mb-2">مختارات المتجر</h2>
+              <h2 className="qr-kicker mb-2">{st("مختارات المتجر")}</h2>
               {picks === null ? (
                 skeleton(4)
               ) : picks.length > 0 ? (
@@ -280,7 +281,7 @@ export default function SearchBar({ shell, className, autoFocus, onDone }: { she
                   ))}
                 </ul>
               ) : (
-                <p className="py-2 text-sm text-(--qr-ink-2)">اكتب اسم القطعة اللي بتدوّر عليها.</p>
+                <p className="py-2 text-sm text-(--qr-ink-2)">{st("اكتب اسم القطعة اللي بتدوّر عليها.")}</p>
               )}
             </section>
           </div>

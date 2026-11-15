@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { WholesaleTier } from "../../types";
 import { openCart } from "../../shared/cart-events";
 import { tierFor } from "../../shared/commerce";
@@ -13,6 +13,7 @@ import { useAddToCart } from "../../shared/use-add-to-cart";
 import { swatchColor } from "../lib/colors";
 import { mdToast } from "../toast";
 import { PlateImage, btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type BuyProduct = {
   id: string;
@@ -33,16 +34,16 @@ function ColorPicker({ id, values, selected, onSelect, error }: { id: string; va
     <fieldset id={id} className="scroll-mt-32">
       <legend className="mb-2.5 flex w-full items-baseline justify-between gap-3 text-sm">
         <span>
-          <span className="font-semibold">اللون</span>
+          <span className="font-semibold">{st("اللون")}</span>
           {selected && <span className="text-(--md-quiet)">: {selected}</span>}
         </span>
         {!selected && (
           <span role={error ? "alert" : undefined} className={cn("text-xs", error ? "font-semibold text-(--md-sale)" : "text-(--md-quiet)")}>
-            {error ? "اختار اللون الأول" : "اختار لون"}
+            {error ? st("اختار اللون الأول") : st("اختار لون")}
           </span>
         )}
       </legend>
-      <div role="radiogroup" aria-label="اللون" className="flex flex-wrap gap-1.5">
+      <div role="radiogroup" aria-label={st("اللون")} className="flex flex-wrap gap-1.5">
         {values.map((v) => {
           const color = swatchColor(v);
           const on = selected === v;
@@ -66,16 +67,16 @@ function SizePicker({ id, values, selected, onSelect, error }: { id: string; val
     <fieldset id={id} className="scroll-mt-32">
       <legend className="mb-2.5 flex w-full items-baseline justify-between gap-3 text-sm">
         <span>
-          <span className="font-semibold">المقاس</span>
+          <span className="font-semibold">{st("المقاس")}</span>
           {selected && <span className="text-(--md-quiet)">: {selected}</span>}
         </span>
         {!selected && (
           <span role={error ? "alert" : undefined} className={cn("text-xs", error ? "font-semibold text-(--md-sale)" : "text-(--md-quiet)")}>
-            {error ? "اختار المقاس الأول" : "اختار مقاس"}
+            {error ? st("اختار المقاس الأول") : st("اختار مقاس")}
           </span>
         )}
       </legend>
-      <div role="radiogroup" aria-label="المقاس" className="flex flex-wrap gap-2">
+      <div role="radiogroup" aria-label={st("المقاس")} className="flex flex-wrap gap-2">
         {values.map((v) => (
           <button key={v} type="button" role="radio" aria-checked={selected === v} onClick={() => onSelect(v)} className="md-chip min-w-14" data-error={error || undefined}>
             {v}
@@ -89,13 +90,13 @@ function SizePicker({ id, values, selected, onSelect, error }: { id: string; val
 export function Qty({ value, max, onChange, disabled }: { value: number; max: number; onChange: (n: number) => void; disabled?: boolean }) {
   return (
     <div className="flex h-12 items-center rounded-full border border-(--md-line) bg-(--md-surface)">
-      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label="تقليل الكمية" className="grid size-12 place-items-center rounded-full transition-colors hover:bg-(--md-studio) disabled:opacity-30">
+      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label={st("تقليل الكمية")} className="grid size-12 place-items-center rounded-full transition-colors hover:bg-(--md-studio) disabled:opacity-30">
         <Minus className="size-4" />
       </button>
-      <output aria-live="polite" aria-label="الكمية" className="md-price w-8 text-center text-base">
+      <output aria-live="polite" aria-label={st("الكمية")} className="md-price w-8 text-center text-base">
         {num(value)}
       </output>
-      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label="زيادة الكمية" className="grid size-12 place-items-center rounded-full transition-colors hover:bg-(--md-studio) disabled:opacity-30">
+      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label={st("زيادة الكمية")} className="grid size-12 place-items-center rounded-full transition-colors hover:bg-(--md-studio) disabled:opacity-30">
         <Plus className="size-4" />
       </button>
     </div>
@@ -180,8 +181,8 @@ export default function BuyForm({
   if (!inStock) {
     return (
       <div className="md-panel border border-(--md-line) p-5">
-        <p className="font-semibold">الكمية خلصت حاليًا</p>
-        <p className="mt-1 text-sm text-(--md-quiet)">احفظ المنتج في المفضلة وارجعله، أو شوف منتجات قريبة منه تحت.</p>
+        <p className="font-semibold">{st("الكمية خلصت حاليًا")}</p>
+        <p className="mt-1 text-sm text-(--md-quiet)">{st("احفظ المنتج في المفضلة وارجعله، أو شوف منتجات قريبة منه تحت.")}</p>
       </div>
     );
   }
@@ -197,7 +198,7 @@ export default function BuyForm({
 
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <div className="rounded-(--md-radius) border border-(--md-line) bg-(--md-surface) p-1.5">
-          <p className="px-2.5 pb-1.5 pt-1 text-xs font-semibold text-(--md-quiet)">اشتري كمية ووفّر</p>
+          <p className="px-2.5 pb-1.5 pt-1 text-xs font-semibold text-(--md-quiet)">{st("اشتري كمية ووفّر")}</p>
           <div className="grid gap-1">
             {product.wholesaleOptions.map((t) => {
               const on = tier === t;
@@ -212,8 +213,8 @@ export default function BuyForm({
                     on ? "bg-(--md-signal) font-semibold text-(--md-signal-ink)" : "hover:bg-(--md-studio)",
                   )}
                 >
-                  <span>{t.maxQty ? `${num(t.minQty)}–${num(t.maxQty)} قطعة` : `${num(t.minQty)}+ قطعة`}</span>
-                  <span className="md-price">{formatPrice(t.price)} للقطعة</span>
+                  <span>{t.maxQty ? st("{0}–{1} قطعة", num(t.minQty), num(t.maxQty)) : st("{0}+ قطعة", num(t.minQty))}</span>
+                  <span className="md-price">{st("{0} للقطعة", formatPrice(t.price))}</span>
                 </button>
               );
             })}
@@ -226,13 +227,13 @@ export default function BuyForm({
           <Qty value={qty} max={product.stock} onChange={setQty} disabled={pending} />
           <button type="button" onClick={addToCart} disabled={pending} className={btn({ size: "lg", className: "min-w-0 flex-1 px-5" })}>
             {pending && !buying ? <Loader2 className="animate-spin" /> : <ShoppingBag />}
-            <span className="truncate">أضف للسلة</span>
+            <span className="truncate">{st("أضف للسلة")}</span>
             <span className="md-price opacity-80">· {formatPrice(unit * qty)}</span>
           </button>
         </div>
         <button type="button" onClick={buyNow} disabled={pending} className={btn({ variant: "outline", size: "lg", full: true })}>
           {buying ? <Loader2 className="animate-spin" /> : <Check />}
-          اشتري الآن
+          {st("اشتري الآن")}
         </button>
       </div>
 
@@ -255,7 +256,7 @@ export default function BuyForm({
             </div>
             <button type="button" tabIndex={showBar ? 0 : -1} onClick={addToCart} disabled={pending} className={btn({ className: "px-5" })}>
               {pending ? <Loader2 className="animate-spin" /> : <ShoppingBag />}
-              أضف للسلة
+              {st("أضف للسلة")}
             </button>
           </div>
         </div>

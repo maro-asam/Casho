@@ -3,11 +3,12 @@ import { CreditCard, ShoppingBag } from "lucide-react";
 
 import CheckoutForm from "../../../checkout/_components/CheckoutForm";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { CheckoutViewProps } from "../../types";
 import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { Empty, PageTitle, Wrap, btn, num, PlateImage } from "../ui";
 import { Leader } from "./RiwaqCart";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
@@ -17,33 +18,33 @@ export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createO
     <Wrap className="pb-6">
       <PageTitle
         crumbs={[
-          { label: "الرئيسية", href: buildStoreUrl(storeSlug) },
-          { label: "السلة", href: buildStoreUrl(storeSlug, "/cart") },
-          { label: "إتمام الطلب" },
+          { label: st("الرئيسية"), href: buildStoreUrl(storeSlug) },
+          { label: st("السلة"), href: buildStoreUrl(storeSlug, "/cart") },
+          { label: st("إتمام الطلب") },
         ]}
-        title="إتمام الطلب"
-        intro="اكتب بياناتك، والمتجر هيتواصل معاك يأكد الطلب."
+        title={st("إتمام الطلب")}
+        intro={st("اكتب بياناتك، والمتجر هيتواصل معاك يأكد الطلب.")}
       />
 
       {items.length === 0 ? (
         <Empty
           icon={<ShoppingBag />}
-          title="السلة فاضية"
-          description="ضيف منتجات للسلة الأول وبعدين كمّل طلبك."
+          title={st("السلة فاضية")}
+          description={st("ضيف منتجات للسلة الأول وبعدين كمّل طلبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : paymentMethods.length === 0 ? (
         <Empty
           icon={<CreditCard />}
-          title="مفيش طرق دفع متاحة دلوقتي"
-          description="المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر."
+          title={st("مفيش طرق دفع متاحة دلوقتي")}
+          description={st("المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/contact")} className={btn({ variant: "line" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
@@ -54,11 +55,11 @@ export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createO
           </div>
 
           {/* The slip comes first on phones so the shopper sees what they're paying for */}
-          <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-[calc(var(--rq-bar-h)+2.5rem)] lg:order-2 lg:col-span-5 lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-[calc(var(--rq-bar-h)+2.5rem)] lg:order-2 lg:col-span-5 lg:self-start">
             <details className="rq-details rq-receipt mt-2.5 lg:pointer-events-none" open>
               <summary className="flex min-h-16 items-center justify-between gap-3 px-5 sm:px-7">
                 <span className="rq-h3">
-                  الطلب <span className="rq-sup">({num(count)})</span>
+                  {st("الطلب")}{" "}<span className="rq-sup">({num(count)})</span>
                 </span>
                 <span className="rq-price text-lg">{formatPrice(summary.total)}</span>
               </summary>
@@ -86,11 +87,11 @@ export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createO
                 </ul>
 
                 <dl className="mt-5 space-y-3 text-sm">
-                  <Leader label="المجموع الفرعي" value={formatPrice(summary.subtotal)} />
-                  <Leader label="الشحن" value={summary.shipping === 0 ? "مجاني" : formatPrice(summary.shipping)} />
-                  {summary.discount > 0 && <Leader className="text-(--rq-success)" label="الخصم" value={`− ${formatPrice(summary.discount)}`} />}
+                  <Leader label={st("المجموع الفرعي")} value={formatPrice(summary.subtotal)} />
+                  <Leader label={st("الشحن")} value={summary.shipping === 0 ? st("مجاني") : formatPrice(summary.shipping)} />
+                  {summary.discount > 0 && <Leader className="text-(--rq-success)" label={st("الخصم")} value={`− ${formatPrice(summary.discount)}`} />}
                   <div className="flex items-baseline justify-between gap-4 border-t border-(--rq-ink) pt-4">
-                    <dt className="text-base font-semibold">الإجمالي</dt>
+                    <dt className="text-base font-semibold">{st("الإجمالي")}</dt>
                     <dd className="rq-price text-[1.75rem]">{formatPrice(summary.total)}</dd>
                   </div>
                 </dl>
@@ -99,7 +100,7 @@ export default function RiwaqCheckout({ storeSlug, cart, paymentMethods, createO
                   href={buildStoreUrl(storeSlug, "/cart")}
                   className="rq-link pointer-events-auto mt-5 inline-flex min-h-10 items-center text-sm font-semibold"
                 >
-                  تعديل السلة
+                  {st("تعديل السلة")}
                 </Link>
               </div>
             </details>

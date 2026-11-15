@@ -20,6 +20,7 @@ import type { CategoryLink } from "../../types";
 import { joinMessage, waWith } from "../lib/stage";
 import Rail from "../product/Rail";
 import { Band, CategoryArt, MoreLink, Rating, SectionHeader, Wrap, btn, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured sections in Casho Stage's language. Each renders only
 // the merchant's own content (or real store data), no placeholder claims. Empty
@@ -32,7 +33,7 @@ export function OfferStrip({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   return (
     <Band tone="alt" className="py-3.5">
-      <ul aria-label="عروض المتجر" className="sg-offers">
+      <ul aria-label={st("عروض المتجر")} className="sg-offers">
         {items.map((t, i) => (
           <li key={i}>{t}</li>
         ))}
@@ -46,10 +47,10 @@ export function OfferStrip({ content }: { content?: OfferStripContent }) {
 export function TrustRow({ content, storeName }: { content?: WhyChooseUsContent; storeName: string }) {
   const cards = content?.cards?.filter((c) => c.title?.trim()).slice(0, 8) ?? [];
   if (cards.length === 0) return null;
-  const title = content?.headline || `ليه ${storeName}؟`;
+  const title = content?.headline || st("ليه {0}؟", storeName);
   return (
     <Band tone="alt" className="sg-section">
-      <Rail label={title} title={title} tagline={content?.headline ? undefined : "أسباب أكتر تشتري مننا."}>
+      <Rail label={title} title={title} tagline={content?.headline ? undefined : st("أسباب أكتر تشتري مننا.")}>
         {cards.map((c, i) => (
           <li key={i} className="sg-reveal" style={delay(Math.min(i, 4))}>
             <div className="sg-diff">
@@ -95,10 +96,10 @@ export function Stats({ content }: { content?: SocialProofContent }) {
 export function Testimonials({ content }: { content?: TestimonialsContent }) {
   const items = content?.items?.filter((t) => t.text?.trim()).slice(0, 8) ?? [];
   if (items.length === 0) return null;
-  const title = content?.headline || "بيقولوا عننا";
+  const title = content?.headline || st("بيقولوا عننا");
   return (
     <Band tone="alt" className="sg-section">
-      <Rail label={title} title={title} tagline={content?.headline ? undefined : "من عملائنا."}>
+      <Rail label={title} title={title} tagline={content?.headline ? undefined : st("من عملائنا.")}>
         {items.map((t, i) => (
           <li key={i} className="sg-reveal" style={delay(Math.min(i, 4))}>
             <figure className="sg-quote">
@@ -168,7 +169,7 @@ export function MediaBanner({ content, storeSlug, dir }: { content?: HeroBannerS
         )}
         <div className="sg-reveal mt-4" style={delay(2)}>
           <Link href={href} className={btn({ size: "lg" })}>
-            {content.buttonText || "تسوّق دلوقتي"}
+            {content.buttonText || st("تسوّق دلوقتي")}
           </Link>
         </div>
       </div>
@@ -197,7 +198,7 @@ export function PromoTiles({ content, categories, storeSlug }: { content?: Colle
         .map((c) => ({ name: c.name, image: c.image ?? undefined, link: c.slug }));
   if (items.length < 2) return null;
   return (
-    <section aria-label={content?.headline || "تسوّق بالمجموعة"}>
+    <section aria-label={content?.headline || st("تسوّق بالمجموعة")}>
       {content?.headline && (
         <Wrap className="pt-(--sg-section)">
           <SectionHeader title={content.headline} />
@@ -211,7 +212,7 @@ export function PromoTiles({ content, categories, storeSlug }: { content?: Colle
               {c.image && <span aria-hidden className="sg-hero-shade" />}
               <span className="sg-tile-copy">
                 <span className="sg-tile-title">{c.name}</span>
-                <span className="sg-tile-more">تسوّق ›</span>
+                <span className="sg-tile-more">{st("تسوّق ›")}</span>
               </span>
             </Link>
           </li>
@@ -237,14 +238,14 @@ export function AboutBrand({ content, storeName, storeSlug, description }: { con
           </div>
         )}
         <div className="sg-about">
-          <p className="sg-eyebrow sg-reveal !text-(--sg-label-2)">{content?.headline || `عن ${storeName}`}</p>
+          <p className="sg-eyebrow sg-reveal !text-(--sg-label-2)">{content?.headline || st("عن {0}", storeName)}</p>
           {text && (
             <p className="sg-statement sg-reveal" style={delay(1)}>
               {text}
             </p>
           )}
           <MoreLink href={href} className="sg-reveal mt-6 text-[1.0625rem]">
-            {content?.ctaText || "اعرف حكايتنا"}
+            {content?.ctaText || st("اعرف حكايتنا")}
           </MoreLink>
         </div>
       </Wrap>
@@ -260,15 +261,15 @@ export function JoinBand({ content, storeName, storeSlug, whatsappHref }: { cont
   const body = (
     <>
       {whatsappHref && <MessageCircle />}
-      {content?.ctaText || (whatsappHref ? "تابعنا على واتساب" : "تواصل معانا")}
+      {content?.ctaText || (whatsappHref ? st("تابعنا على واتساب") : st("تواصل معانا"))}
     </>
   );
   return (
     <Band tone="alt" className="sg-section">
       <Wrap className="sg-join">
-        <h2 className="sg-h1 sg-reveal text-balance">{content?.headline || "خليك أول من يعرف."}</h2>
+        <h2 className="sg-h1 sg-reveal text-balance">{content?.headline || st("خليك أول من يعرف.")}</h2>
         <p className="sg-lead sg-reveal mt-3 max-w-xl text-balance" style={delay(1)}>
-          {content?.subheadline || "أول ما ينزل منتج جديد أو عرض، هيوصلك."}
+          {content?.subheadline || st("أول ما ينزل منتج جديد أو عرض، هيوصلك.")}
         </p>
         <div className="sg-reveal mt-8" style={delay(2)}>
           {whatsappHref ? (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 /** Cello carousel: the section title and italic subtitle on the start side,
  *  an underlined "View all" link and two square arrows (pale previous, navy
@@ -16,7 +17,7 @@ export default function Rail({
   title,
   sub,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   actions,
   className,
   listClassName,
@@ -64,10 +65,10 @@ export default function Rail({
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const arrows = scrollable && (
     <div className="flex items-center gap-2">
-      <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label="السابق" className="ce-arrow">
+      <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label={st("السابق")} className="ce-arrow">
         <ChevronRight className="ltr:rotate-180" />
       </button>
-      <button type="button" onClick={() => page(1)} disabled={state.end} aria-label="التالي" className="ce-arrow">
+      <button type="button" onClick={() => page(1)} disabled={state.end} aria-label={st("التالي")} className="ce-arrow">
         <ChevronLeft className="ltr:rotate-180" />
       </button>
     </div>

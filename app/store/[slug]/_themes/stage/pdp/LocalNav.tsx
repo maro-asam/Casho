@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-import { formatPrice } from "@/lib/utils";
+
 import { btn } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 /** apple.com's local nav: once the product's title scrolls away, a glass bar
  *  under the global one keeps its name, price and "اشترِ" in reach (wide
@@ -27,7 +28,7 @@ export default function LocalNav({ name, price, watch, target }: { name: string;
         <div className="flex shrink-0 items-center gap-4">
           <span className="sg-price text-sm">{formatPrice(price)}</span>
           <button type="button" onClick={() => document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" })} className={btn({ size: "sm" })}>
-            اشترِ
+            {st("اشترِ")}
           </button>
         </div>
       </div>

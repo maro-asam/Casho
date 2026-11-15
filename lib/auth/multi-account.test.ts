@@ -19,4 +19,11 @@ describe("canReusePhone", () => {
     expect(canReusePhone("another@yahoo.com", " 01211504120 ")).toBe(true);
     expect(canReusePhone("first@gmail.com", "01211504121")).toBe(false);
   });
+
+  it("lets an email-only entry and its +tag aliases sign up with any phone", () => {
+    expect(canReusePhone("minadiesel51@gmail.com", "01012345678")).toBe(true);
+    expect(canReusePhone("MinaDiesel51+store2@Gmail.com", "01198765432")).toBe(true);
+    expect(canReusePhone("minadiesel52@gmail.com", "01012345678")).toBe(false);
+    expect(canReusePhone("minadiesel51@yahoo.com", "01012345678")).toBe(false);
+  });
 });

@@ -1,6 +1,7 @@
 import type { ProductCardData } from "../../types";
 import ProductCard from "../product/ProductCard";
 import { num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Best sellers as a ranked rail — big outlined numerals set against each entry. */
 export default function Ranked({ products, storeSlug }: { products: ProductCardData[]; storeSlug: string }) {
@@ -15,7 +16,7 @@ export default function Ranked({ products, storeSlug }: { products: ProductCardD
             {num(i + 1)}
           </span>
           <div className="min-w-0">
-            <span className="sr-only">رقم {num(i + 1)} في الأكثر مبيعًا: </span>
+            <span className="sr-only">{st("رقم {0} في الأكثر مبيعًا:", num(i + 1))}{" "}</span>
             <ProductCard product={p} storeSlug={storeSlug} sizes="(max-width: 640px) 60vw, (max-width: 1024px) 34vw, 20vw" />
           </div>
         </li>

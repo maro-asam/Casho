@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, MessageCircle, PackageCheck, Timer, Truck } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { ProductViewProps, ReviewData } from "../../types";
 import { whatsappHref } from "../../shared/social";
 import { askAboutMessage, waWith } from "../lib/stage";
@@ -14,6 +14,7 @@ import RecentlyViewed, { TrackView } from "../sections/RecentlyViewed";
 import { Band, Crumbs, Eyebrow, OPTION_LABEL, Price, Rating, SectionHeader, StockLine, Wrap, days, discountPercent, isVariety, num } from "../ui";
 import Gallery from "./Gallery";
 import LocalNav from "./LocalNav";
+import { formatPrice, st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 function Reviews({ reviews }: { reviews: ReviewData[] }) {
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
@@ -23,7 +24,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
       <div className="h-fit">
         <p className="sg-stat-value leading-none">{avg.toFixed(1)}</p>
         <Rating value={avg} size="md" className="mt-3" />
-        <p className="mt-1 text-sm text-(--sg-label-2)">من {num(reviews.length)} تقييم</p>
+        <p className="mt-1 text-sm text-(--sg-label-2)">{st("من {0} تقييم", num(reviews.length))}</p>
         <ul className="mt-6 space-y-2.5">
           {dist.map(({ star, count }) => (
             <li key={star} className="flex items-center gap-3 text-xs text-(--sg-label-2)">
@@ -42,7 +43,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
             <div className="flex items-center justify-between gap-3">
               <Rating value={r.rating} />
               <time className="text-xs text-(--sg-label-2)" dateTime={new Date(r.reviewDate).toISOString()}>
-                {new Date(r.reviewDate).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                {new Date(r.reviewDate).toLocaleDateString(storeIntlLocale(), { year: "numeric", month: "long", day: "numeric" })}
               </time>
             </div>
             {r.title && <p className="sg-h4 mt-3">{r.title}</p>}
@@ -55,7 +56,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
               {r.verifiedPurchase && (
                 <span className="inline-flex items-center gap-1 text-xs text-(--sg-ok)">
                   <BadgeCheck className="size-3.5" />
-                  مشتري مؤكد
+                  {st("مشتري مؤكد")}
                 </span>
               )}
             </div>
@@ -77,19 +78,19 @@ export default function StageProduct({ store, product, reviews, related, shippin
   const wa = whatsappHref(whatsapp);
 
   const specs = [
-    { label: "القسم", value: product.category.name, href: categoryHref },
-    product.brand ? { label: "البراند", value: product.brand } : null,
-    product.colors.length ? { label: isVariety(product.colors) ? "النوع" : OPTION_LABEL.color, value: product.colors.join("، ") } : null,
+    { label: st("القسم"), value: product.category.name, href: categoryHref },
+    product.brand ? { label: st("البراند"), value: product.brand } : null,
+    product.colors.length ? { label: isVariety(product.colors) ? st("النوع") : OPTION_LABEL.color, value: product.colors.join("، ") } : null,
     product.sizes.length ? { label: OPTION_LABEL.size, value: product.sizes.join("، ") } : null,
-    product.weight !== null ? { label: "الوزن", value: `${num(product.weight)} كجم` } : null,
-    product.sku ? { label: "كود المنتج", value: product.sku, ltr: true } : null,
+    product.weight !== null ? { label: st("الوزن"), value: st("{0} كجم", num(product.weight)) } : null,
+    product.sku ? { label: st("كود المنتج"), value: product.sku, ltr: true } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   // Service facts from the store's real shipping methods only.
   const delivery = [
-    cheapest && { Icon: Truck, title: cheapest.price === 0 ? "توصيل مجاني" : `التوصيل من ${formatPrice(cheapest.price / 100)}`, note: cheapest.name },
-    fastest?.estimatedDays && { Icon: Timer, title: `يوصلك خلال ${days(fastest.estimatedDays)}`, note: fastest.name },
-    inStock && { Icon: PackageCheck, title: "متوفر وجاهز للطلب", note: "المتجر بيأكد معاك قبل الشحن" },
+    cheapest && { Icon: Truck, title: cheapest.price === 0 ? st("توصيل مجاني") : st("التوصيل من {0}", formatPrice(cheapest.price / 100)), note: cheapest.name },
+    fastest?.estimatedDays && { Icon: Timer, title: st("يوصلك خلال {0}", days(fastest.estimatedDays)), note: fastest.name },
+    inStock && { Icon: PackageCheck, title: st("متوفر وجاهز للطلب"), note: st("المتجر بيأكد معاك قبل الشحن") },
   ].filter(Boolean) as { Icon: typeof Truck; title: string; note: string }[];
 
   return (
@@ -101,14 +102,14 @@ export default function StageProduct({ store, product, reviews, related, shippin
         <Crumbs
           className="pt-5"
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
             { label: product.category.name, href: categoryHref },
             { label: product.name },
           ]}
         />
 
         <header id="sg-buy-head" className="sg-buyhead">
-          {!inStock ? <Eyebrow className="!text-(--sg-label-2)">غير متوفر حاليًا</Eyebrow> : off > 0 ? <Eyebrow>وفّر {num(off)}٪</Eyebrow> : product.isFeatured ? <Eyebrow>اختيار المتجر</Eyebrow> : null}
+          {!inStock ? <Eyebrow className="!text-(--sg-label-2)">{st("غير متوفر حاليًا")}</Eyebrow> : off > 0 ? <Eyebrow>{st("وفّر {0}٪", num(off))}</Eyebrow> : product.isFeatured ? <Eyebrow>{st("اختيار المتجر")}</Eyebrow> : null}
           <h1 className="sg-h1 text-balance">{product.name}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
             <Price price={product.price} compareAt={product.compareAtPrice} size="md" />
@@ -148,7 +149,7 @@ export default function StageProduct({ store, product, reviews, related, shippin
             {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
               <div className="mt-8">
                 <p className="sg-step-legend">
-                  <span className="text-(--sg-ink)">جوّه العلبة.</span> كل اللي هيوصلك.
+                  <span className="text-(--sg-ink)">{st("جوّه العلبة.")}</span>{" "}{st("كل اللي هيوصلك.")}
                 </p>
                 <ul className="sg-group">
                   {product.bundleItems.map((item, i) => (
@@ -184,9 +185,9 @@ export default function StageProduct({ store, product, reviews, related, shippin
               <div className="sg-help">
                 <MessageCircle aria-hidden />
                 <p className="min-w-0 flex-1 text-[0.9375rem] text-(--sg-label-2)">
-                  <span className="font-semibold text-(--sg-ink)">محتاج مساعدة؟</span>{" "}
+                  <span className="font-semibold text-(--sg-ink)">{st("محتاج مساعدة؟")}</span>{" "}
                   <a href={waWith(wa, askAboutMessage(product.name))} target="_blank" rel="noopener noreferrer" className="sg-link">
-                    اسأل المتجر على واتساب ›
+                    {st("اسأل المتجر على واتساب ›")}
                   </a>
                 </p>
               </div>
@@ -198,7 +199,7 @@ export default function StageProduct({ store, product, reviews, related, shippin
       {description && (
         <Band tone="alt" className="sg-section mt-(--sg-section)">
           <Wrap>
-            <SectionHeader title="نظرة أقرب." tagline="كل اللي محتاج تعرفه." />
+            <SectionHeader title={st("نظرة أقرب.")} tagline={st("كل اللي محتاج تعرفه.")} />
             <p className="sg-statement sg-statement--body sg-reveal whitespace-pre-line">{description}</p>
           </Wrap>
         </Band>
@@ -206,7 +207,7 @@ export default function StageProduct({ store, product, reviews, related, shippin
 
       <Band className="sg-section">
         <Wrap>
-          <SectionHeader title="المواصفات." />
+          <SectionHeader title={st("المواصفات.")} />
           <dl className="sg-specs">
             {specs.map((s) => (
               <div key={s.label}>
@@ -224,16 +225,16 @@ export default function StageProduct({ store, product, reviews, related, shippin
             ))}
             {shipping.length > 0 && (
               <div>
-                <dt>التوصيل</dt>
+                <dt>{st("التوصيل")}</dt>
                 <dd>
                   <ul className="space-y-1.5">
                     {shipping.map((s) => (
                       <li key={s.id} className="flex flex-wrap justify-between gap-x-4">
                         <span>
                           {s.name}
-                          {s.estimatedDays ? <span className="text-(--sg-label-2)"> · خلال {days(s.estimatedDays)}</span> : null}
+                          {s.estimatedDays ? <span className="text-(--sg-label-2)">{" "}{st("· خلال {0}", days(s.estimatedDays))}</span> : null}
                         </span>
-                        <span className="sg-num">{s.price === 0 ? "مجاني" : formatPrice(s.price / 100)}</span>
+                        <span className="sg-num">{s.price === 0 ? st("مجاني") : formatPrice(s.price / 100)}</span>
                       </li>
                     ))}
                   </ul>
@@ -247,7 +248,7 @@ export default function StageProduct({ store, product, reviews, related, shippin
       {reviews.length > 0 && (
         <Band tone="alt" id="reviews" className="sg-section scroll-mt-28">
           <Wrap>
-            <SectionHeader title="التقييمات." tagline="من ناس جرّبته." />
+            <SectionHeader title={st("التقييمات.")} tagline={st("من ناس جرّبته.")} />
             <Reviews reviews={reviews} />
           </Wrap>
         </Band>
@@ -255,7 +256,7 @@ export default function StageProduct({ store, product, reviews, related, shippin
 
       {related.length > 0 && (
         <Band className="sg-section">
-          <Rail label="منتجات مشابهة" title="ممكن يعجبك كمان." href={categoryHref} linkLabel="كل القسم" listClassName="sg-shelf--cards">
+          <Rail label={st("منتجات مشابهة")} title={st("ممكن يعجبك كمان.")} href={categoryHref} linkLabel={st("كل القسم")} listClassName="sg-shelf--cards">
             {related.slice(0, 12).map((p, i) => (
               <li key={p.id} className="min-w-0">
                 <ProductCard product={p} storeSlug={store.slug} index={i} sizes="(max-width: 768px) 60vw, 18rem" />

@@ -12,6 +12,7 @@ import { QUICK_VIEW_EVENT } from "../lib/events";
 import { Arrow, MD_PORTAL, PlateImage, Price, Rating, discountPercent, num } from "../ui";
 import BuyForm from "./BuyForm";
 import { WishlistButton } from "./CardActions";
+import { st } from "@/lib/i18n/storefront";
 
 /** Global quick-view host: a centered dialog on desktop, a bottom sheet on phones. */
 export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: "rtl" | "ltr" }) {
@@ -50,15 +51,15 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
             "lg:inset-0 lg:m-auto lg:h-fit lg:max-h-[86dvh] lg:w-[min(64rem,calc(100vw-4rem))] lg:rounded-[1.75rem] lg:[animation-name:md-pop] lg:data-[state=closed]:[animation:md-fade_160ms_ease-in_reverse_both]",
           )}
         >
-          <Dialog.Title className="sr-only">{product?.name ?? "نظرة سريعة"}</Dialog.Title>
+          <Dialog.Title className="sr-only">{product?.name ?? st("نظرة سريعة")}</Dialog.Title>
           <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-(--md-line-strong) lg:hidden" aria-hidden />
-          <Dialog.Close className="md-fab absolute end-3 top-3 z-10 size-10" aria-label="إغلاق">
+          <Dialog.Close className="md-fab absolute end-3 top-3 z-10 size-10" aria-label={st("إغلاق")}>
             <X />
           </Dialog.Close>
 
           <div className="overflow-y-auto overscroll-contain">
             {failed ? (
-              <p className="p-10 text-center text-(--md-quiet)">المنتج ده مش متاح دلوقتي.</p>
+              <p className="p-10 text-center text-(--md-quiet)">{st("المنتج ده مش متاح دلوقتي.")}</p>
             ) : !product ? (
               <div className="grid gap-6 p-5 lg:grid-cols-2 lg:p-8" aria-busy>
                 <div className="md-skel aspect-[4/5]" />
@@ -83,7 +84,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                           key={src}
                           type="button"
                           onClick={() => setActive(i)}
-                          aria-label={`الصورة ${i + 1}`}
+                          aria-label={st("الصورة {0}", i + 1)}
                           aria-current={i === active}
                           className={cn("md-media aspect-square w-16 shrink-0 rounded-xl ring-offset-2 ring-offset-(--md-bg) transition", i === active ? "ring-2 ring-(--md-ink)" : "opacity-70 hover:opacity-100")}
                         >
@@ -115,7 +116,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                     onClick={() => setOpen(false)}
                     className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold underline-offset-4 hover:underline"
                   >
-                    التفاصيل الكاملة
+                    {st("التفاصيل الكاملة")}
                     <Arrow />
                   </Link>
                 </div>

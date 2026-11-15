@@ -3,6 +3,7 @@
 // invents a claim.
 
 import { swatchColor } from "../../shared/colors";
+import { st } from "@/lib/i18n/storefront";
 
 /** wa.me link with a pre-written message. */
 export function waWith(href: string, text: string) {
@@ -10,11 +11,11 @@ export function waWith(href: string, text: string) {
 }
 
 export function askAboutMessage(productName: string) {
-  return `السلام عليكم، عندي استفسار عن: ${productName}`;
+  return st("السلام عليكم، عندي استفسار عن: {0}", productName);
 }
 
 export function joinMessage(storeName: string) {
-  return `السلام عليكم، عايز أعرف كل جديد ${storeName} أول بأول.`;
+  return st("السلام عليكم، عايز أعرف كل جديد {0} أول بأول.", storeName);
 }
 
 // A flavor or scent word, unless it's the color adjective made from it

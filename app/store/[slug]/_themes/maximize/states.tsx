@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import { Empty, Wrap, btn } from "./ui";
 import type { StoreClosedProps } from "../types";
 import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
+import { st } from "@/lib/i18n/storefront";
 
 export function MaxStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Wrap className="py-16 sm:py-24">
       <Empty
         icon={<Store />}
-        title="المتجر مقفول مؤقتًا"
+        title={st("المتجر مقفول مؤقتًا")}
         description={closedDescription(pause)}
         action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
         className="mx-auto max-w-xl"
@@ -28,15 +29,15 @@ export function MaxNotFound({ storeSlug }: { storeSlug?: string }) {
       <p aria-hidden className="mx-display select-none text-[clamp(6rem,20vw,11rem)] leading-none text-(--mx-tint)">
         ٤٠٤
       </p>
-      <h1 className="mx-h2 mt-2">الصفحة دي مش موجودة</h1>
-      <p className="mt-2 max-w-md text-[0.9375rem] leading-7 text-(--mx-quiet)">ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.</p>
+      <h1 className="mx-h2 mt-2">{st("الصفحة دي مش موجودة")}</h1>
+      <p className="mt-2 max-w-md text-[0.9375rem] leading-7 text-(--mx-quiet)">{st("ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.")}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link href={home} className={btn({ size: "lg" })}>
-          الرجوع للرئيسية
+          {st("الرجوع للرئيسية")}
         </Link>
         {storeSlug && (
           <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg", variant: "outline" })}>
-            تصفح المنتجات
+            {st("تصفح المنتجات")}
           </Link>
         )}
       </div>
@@ -80,7 +81,7 @@ function TitleSkel() {
 
 export function MaxHomeSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="py-5">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="py-5">
       <div className="mx-rail gap-(--mx-gap)">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className={cn(S, "h-[5.5rem] w-[46%] shrink-0 rounded-(--mx-r) sm:w-[30%] lg:w-[16%]")} />
@@ -101,7 +102,7 @@ export function MaxHomeSkeleton() {
 
 export function MaxListingSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className={cn(S, "mb-6 h-14 rounded-(--mx-r)")} />
       <div className="lg:flex lg:gap-8">
@@ -118,7 +119,7 @@ export function MaxListingSkeleton() {
 
 export function MaxProductSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <div className={cn(S, "my-5 h-3.5 w-52")} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-12">
         <div className={cn(S, "aspect-square rounded-(--mx-r-lg)")} />
@@ -141,7 +142,7 @@ export function MaxProductSkeleton() {
 
 export function MaxPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <div className={cn(S, "my-5 h-3.5 w-40")} />
       <div className={cn(S, "mb-8 h-9 w-56")} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
@@ -158,7 +159,7 @@ export function MaxPageSkeleton() {
 
 export function MaxCategoriesSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <div className="grid grid-cols-2 gap-(--mx-gap) md:grid-cols-4 xl:grid-cols-6">
         {Array.from({ length: 12 }).map((_, i) => (
@@ -171,7 +172,7 @@ export function MaxCategoriesSkeleton() {
 
 export function MaxGridPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkel />
       <GridSkel count={10} />
     </Wrap>

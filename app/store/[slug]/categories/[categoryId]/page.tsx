@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { getStorefrontTheme } from "../../_themes";
 import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreThemeId, toProductCards, getStorefrontClosure } from "../../_lib/storefront";
+import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 // ISR: revalidate every 300 seconds — category product lists change infrequently
 export const revalidate = 300;
@@ -27,6 +29,7 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, categoryId } = await params;
+  await loadStoreLocale(slug);
   const category = await prisma.category.findFirst({
     where: { slug: categoryId, store: { slug } },
     select: { name: true, image: true, store: { select: { name: true } }, _count: { select: { products: { where: { isActive: true } } } } },
@@ -34,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!category) return {};
   return storePageMetadata({
     title: category.name,
-    description: `تسوّق ${category.name} من ${category.store.name} — ${new Intl.NumberFormat("ar-EG").format(category._count.products)} منتج، اطلب أونلاين بسهولة.`,
+    description: st("تسوّق {0} من {1} — {2} منتج، اطلب أونلاين بسهولة.", category.name, category.store.name, new Intl.NumberFormat(storeIntlLocale()).format(category._count.products)),
     path: `/categories/${categoryId}`,
     image: category.image,
     storeName: category.store.name,
@@ -43,6 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CategoryProducts({ params }: PageProps) {
   const { slug, categoryId } = await params;
+  await loadStoreLocale(slug);
 
   const store = await prisma.store.findUnique({
     where: { slug },

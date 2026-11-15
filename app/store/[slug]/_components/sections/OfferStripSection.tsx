@@ -2,13 +2,14 @@
 
 import { Marquee } from "@/components/ui/marquee";
 import type { OfferStripContent } from "@/types/store-theme.types";
+import { stList } from "@/lib/i18n/storefront";
 
-const DEFAULT_ITEMS = [
+const DEFAULT_ITEMS = stList([
   "🚚 توصيل سريع لجميع المحافظات",
   "✅ ضمان الاسترجاع خلال 30 يوم",
   "💳 الدفع عند الاستلام متاح",
   "🎁 هدية مجانية مع كل طلب",
-];
+]);
 
 type Props = {
   content?: OfferStripContent;

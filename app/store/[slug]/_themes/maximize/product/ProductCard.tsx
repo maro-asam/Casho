@@ -6,16 +6,17 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { PlateImage, Price, Rating, StockLine, Swatches, delay, discountPercent } from "../ui";
 import CardActions from "./CardActions";
+import { st } from "@/lib/i18n/storefront";
 
 /** Stacked corner labels from real product data only. */
 function Badges({ product }: { product: ProductCardData }) {
-  if (product.stock <= 0) return <span className="mx-badge mx-badge--out">نفدت الكمية</span>;
+  if (product.stock <= 0) return <span className="mx-badge mx-badge--out">{st("نفدت الكمية")}</span>;
   const off = discountPercent(product.price, product.compareAtPrice);
   return (
     <>
-      {product.isFeatured && <span className="mx-badge mx-badge--pick">اختيار المتجر</span>}
-      {off > 0 && <span className="mx-badge mx-badge--drop">تخفيض</span>}
-      {product.isNew && <span className="mx-badge mx-badge--new">جديد</span>}
+      {product.isFeatured && <span className="mx-badge mx-badge--pick">{st("اختيار المتجر")}</span>}
+      {off > 0 && <span className="mx-badge mx-badge--drop">{st("تخفيض")}</span>}
+      {product.isNew && <span className="mx-badge mx-badge--new">{st("جديد")}</span>}
     </>
   );
 }

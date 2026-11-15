@@ -5,6 +5,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
 import type { HeroBannerSettings, OfferStripContent, RichTextSettings, SocialProofContent, TestimonialsContent, WhyChooseUsContent } from "@/types/store-theme.types";
 import { Chevron, Rating, Wrap, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured sections in Maximize's language. Each renders only the
 // merchant's own content — no placeholder claims.
@@ -49,7 +50,7 @@ export function MediaBanner({ content, storeSlug }: { content?: HeroBannerSettin
           {content.subheadline && <span className="text-sm font-semibold opacity-90">{content.subheadline}</span>}
           {content.headline && <span className="mx-display mt-1 text-balance text-2xl text-white sm:text-[1.75rem]">{content.headline}</span>}
           <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[color-mix(in_srgb,#fff_80%,var(--mx-btn))] group-hover:underline">
-            {content.buttonText || "تسوّق الآن"}
+            {content.buttonText || st("تسوّق الآن")}
             <Chevron double />
           </span>
         </span>
@@ -64,7 +65,7 @@ export function OfferBand({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   const run = Array.from({ length: Math.max(2, Math.ceil(6 / items.length)) }, () => items).flat();
   return (
-    <div className="mx-marquee mx-band my-[calc(var(--mx-section)/4)] overflow-hidden py-4" role="region" aria-label="عروض">
+    <div className="mx-marquee mx-band my-[calc(var(--mx-section)/4)] overflow-hidden py-4" role="region" aria-label={st("عروض")}>
       <p className="sr-only">{items.join(" — ")}</p>
       <div className="mx-marquee-track" aria-hidden style={{ ["--mx-marquee-dur" as string]: `${run.length * 6}s` }}>
         {[0, 1].map((copy) => (
@@ -113,7 +114,7 @@ export function Testimonials({ content }: { content?: TestimonialsContent }) {
   return (
     <section className="mx-band mx-section my-[calc(var(--mx-section)/2)]">
       <Wrap>
-        <h2 className="mx-h2 mb-6 text-center">{content?.headline || "آراء عملائنا"}</h2>
+        <h2 className="mx-h2 mb-6 text-center">{content?.headline || st("آراء عملائنا")}</h2>
         <ul className="mx-rail mx-bleed gap-(--mx-gap) lg:grid lg:grid-cols-4 lg:overflow-visible">
           {items.slice(0, 8).map((t, i) => (
             <li key={i} className="mx-reveal w-[82%] shrink-0 sm:w-[46%] lg:w-auto" style={delay(i)}>

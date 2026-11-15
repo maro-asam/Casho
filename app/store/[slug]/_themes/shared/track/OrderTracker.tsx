@@ -9,6 +9,7 @@ import type { TrackedOrder } from "@/lib/orders/tracking";
 import { cn } from "@/lib/utils";
 import { whatsappHref } from "../social";
 import { TrackedOrderView } from "./TrackedOrderView";
+import { st, stv } from "@/lib/i18n/storefront";
 
 /** The theme's own classes and status colors — the tracker's layout and copy are shared. */
 export type TrackSkin = {
@@ -64,13 +65,13 @@ export function OrderTracker({
         setOrder(result.order);
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        setError({ message: result.message, field: result.field });
+        setError({ message: stv(result.message), field: result.field });
       }
     });
   }
 
   if (order) {
-    const helpHref = wa ? `${wa}?text=${encodeURIComponent(`أهلًا، عندي سؤال عن طلبي ${order.number}`)}` : contactPage;
+    const helpHref = wa ? `${wa}?text=${encodeURIComponent(st("أهلًا، عندي سؤال عن طلبي {0}", order.number))}` : contactPage;
     return (
       <TrackedOrderView
         order={order}
@@ -90,7 +91,7 @@ export function OrderTracker({
       <form onSubmit={submit} className={cn(skin.panel, "space-y-5")} noValidate>
         <div>
           <label htmlFor={`${id}-code`} className={cn(skin.label, "mb-1.5 block")}>
-            رقم الطلب
+            {st("رقم الطلب")}
           </label>
           <input
             id={`${id}-code`}
@@ -108,7 +109,7 @@ export function OrderTracker({
             className={cn(skin.field, "font-mono uppercase tracking-wider")}
           />
           <p id={`${id}-code-hint`} className="mt-1.5 text-xs leading-5 text-muted-foreground">
-            تلاقيه في رسالة أو إيميل تأكيد الطلب، زي{" "}
+            {st("تلاقيه في رسالة أو إيميل تأكيد الطلب، زي")}{" "}
             <span dir="ltr" className="font-mono">
               #A1B2C3
             </span>
@@ -118,7 +119,7 @@ export function OrderTracker({
 
         <div>
           <label htmlFor={`${id}-phone`} className={cn(skin.label, "mb-1.5 block")}>
-            رقم الموبايل اللي طلبت بيه
+            {st("رقم الموبايل اللي طلبت بيه")}
           </label>
           <input
             id={`${id}-phone`}
@@ -143,14 +144,14 @@ export function OrderTracker({
 
         <button type="submit" disabled={pending} aria-busy={pending} className={skin.button}>
           {pending ? <Loader2 className="animate-spin" /> : <Search />}
-          تتبّع الطلب
+          {st("تتبّع الطلب")}
         </button>
       </form>
 
       <p className="mt-5 text-center text-sm text-muted-foreground">
-        مش لاقي رقم الطلب؟{" "}
+        {st("مش لاقي رقم الطلب؟")}{" "}
         <a href={wa ?? contactPage} target={wa ? "_blank" : undefined} rel="noreferrer" className="font-medium text-foreground underline underline-offset-4 hover:no-underline">
-          كلّم المتجر
+          {st("كلّم المتجر")}
         </a>
       </p>
     </div>

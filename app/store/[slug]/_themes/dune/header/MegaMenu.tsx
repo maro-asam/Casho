@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { BannerData, StoreShell } from "../../types";
 import { BannerLink } from "../../shared/banner";
 import { Arrow, num, stagger } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** `banner` set → the merchant's banner, linked to wherever they chose. */
 type Promo = { key: string; href: string; image: string; title: string; note: string; banner?: BannerData };
@@ -25,7 +26,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
   const promos: Promo[] = [];
   if (shell.banner) promos.push({ key: "banner", href: "", image: shell.banner.image, title: shell.banner.title, note: shell.banner.link ? shell.banner.cta : (shell.banner.subtitle ?? ""), banner: shell.banner });
   const featuredCat = [...shell.categories].filter((c) => c.image).sort((a, b) => b.productCount - a.productCount)[0];
-  if (featuredCat) promos.push({ key: featuredCat.id, href: url(`/categories/${featuredCat.slug}`), image: featuredCat.image!, title: featuredCat.name, note: `${num(featuredCat.productCount)} منتج` });
+  if (featuredCat) promos.push({ key: featuredCat.id, href: url(`/categories/${featuredCat.slug}`), image: featuredCat.image!, title: featuredCat.name, note: st("{0} منتج", num(featuredCat.productCount)) });
 
   useEffect(() => {
     if (!open) return;
@@ -48,7 +49,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
         <div className="flex min-w-0 flex-1 gap-10 xl:gap-14">
           {columns.map((col, c) => (
             <div key={c} className="min-w-0 max-w-56 flex-1">
-              <p className="dn-label mb-4 text-(--dn-quiet)">{c === 0 ? "التصنيفات" : " "}</p>
+              <p className="dn-label mb-4 text-(--dn-quiet)">{c === 0 ? st("التصنيفات") : " "}</p>
               <ul className={cn(open && "dn-stagger")}>
                 {col.map((cat, n) => (
                   <li key={cat.id} style={stagger(c * 6 + n)}>
@@ -62,14 +63,14 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
             </div>
           ))}
           <div className="w-44 shrink-0">
-            <p className="dn-label mb-4 text-(--dn-quiet)">تسوّق</p>
+            <p className="dn-label mb-4 text-(--dn-quiet)">{st("تسوّق")}</p>
             <ul className={cn(open && "dn-stagger")}>
               {[
-                { href: "/products", label: "كل المنتجات" },
-                { href: "/products?sort=newest", label: "وصل حديثًا" },
-                { href: "/products?featured=true", label: "اختيارات المتجر" },
-                { href: "/products?inStock=true", label: "المتوفر حالًا" },
-                { href: "/categories", label: "كل التصنيفات" },
+                { href: "/products", label: st("كل المنتجات") },
+                { href: "/products?sort=newest", label: st("وصل حديثًا") },
+                { href: "/products?featured=true", label: st("اختيارات المتجر") },
+                { href: "/products?inStock=true", label: st("المتوفر حالًا") },
+                { href: "/categories", label: st("كل التصنيفات") },
               ].map((l, n) => (
                 <li key={l.label} style={stagger(Math.min(cats.length, 6) + n)}>
                   <Link href={url(l.href)} onClick={() => onClose()} className="flex min-h-9 items-center text-[0.9375rem]">

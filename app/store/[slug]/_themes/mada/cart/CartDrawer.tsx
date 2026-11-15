@@ -8,13 +8,14 @@ import { Dialog } from "radix-ui";
 import { GetCartItemsAction, RemoveCartItemAction, UpdateCartItemQtyAction } from "@/actions/store/cart.actions";
 import { GetStorefrontCardsAction } from "@/actions/store/storefront-products.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { CART_OPEN_EVENT, notifyCartUpdated } from "../../shared/cart-events";
 import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { openQuickView } from "../lib/events";
 import { mdToast } from "../toast";
 import { MD_PORTAL, PlateImage, btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 type Cart = Awaited<ReturnType<typeof GetCartItemsAction>>;
 
@@ -74,10 +75,10 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
         >
           <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-(--md-line) px-5">
             <Dialog.Title className="md-h3 flex items-center gap-2">
-              السلة
+              {st("السلة")}
               {count > 0 && <span className="md-badge md-badge--new">{num(count)}</span>}
             </Dialog.Title>
-            <Dialog.Close className={btn({ variant: "ghost", icon: true, className: "-me-2" })} aria-label="إغلاق السلة">
+            <Dialog.Close className={btn({ variant: "ghost", icon: true, className: "-me-2" })} aria-label={st("إغلاق السلة")}>
               <X />
             </Dialog.Close>
           </div>
@@ -100,11 +101,11 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                 <span className="grid size-16 place-items-center rounded-full bg-(--md-signal) text-(--md-signal-ink)">
                   <ShoppingBag className="size-7" />
                 </span>
-                <p className="md-h3 mt-5">سلتك فاضية</p>
-                <p className="mt-1.5 text-sm text-(--md-quiet)">ابدأ بالمنتجات اللي تحت أو لفّ في المتجر.</p>
+                <p className="md-h3 mt-5">{st("سلتك فاضية")}</p>
+                <p className="mt-1.5 text-sm text-(--md-quiet)">{st("ابدأ بالمنتجات اللي تحت أو لفّ في المتجر.")}</p>
                 <Dialog.Close asChild>
                   <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ className: "mt-6" })}>
-                    تسوّق المنتجات
+                    {st("تسوّق المنتجات")}
                   </Link>
                 </Dialog.Close>
               </div>
@@ -128,7 +129,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                             type="button"
                             onClick={() => mutate(item.id, () => RemoveCartItemAction(item.id, storeSlug))}
                             disabled={busy}
-                            aria-label={`إزالة ${item.product.name}`}
+                            aria-label={st("إزالة {0}", item.product.name)}
                             className="-me-2 -mt-1.5 grid size-10 shrink-0 place-items-center rounded-full text-(--md-quiet) hover:bg-(--md-studio) hover:text-(--md-sale)"
                           >
                             <Trash2 className="size-4" />
@@ -139,11 +140,11 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                         )}
                         <div className="mt-auto flex items-center justify-between gap-2 pt-2.5">
                           <div className="flex h-10 items-center rounded-full border border-(--md-line) bg-(--md-surface)">
-                            <button type="button" disabled={busy} onClick={() => mutate(item.id, () => UpdateCartItemQtyAction(item.id, storeSlug, "decrement"))} aria-label={item.quantity <= 1 ? `إزالة ${item.product.name}` : "تقليل الكمية"} className="grid size-10 place-items-center rounded-full disabled:opacity-40">
+                            <button type="button" disabled={busy} onClick={() => mutate(item.id, () => UpdateCartItemQtyAction(item.id, storeSlug, "decrement"))} aria-label={item.quantity <= 1 ? st("إزالة {0}", item.product.name) : st("تقليل الكمية")} className="grid size-10 place-items-center rounded-full disabled:opacity-40">
                               <Minus className="size-3.5" />
                             </button>
                             <span className="md-price w-7 text-center text-sm">{busy ? <Loader2 className="mx-auto size-3.5 animate-spin" /> : num(item.quantity)}</span>
-                            <button type="button" disabled={busy || item.quantity >= item.product.stock} onClick={() => mutate(item.id, () => UpdateCartItemQtyAction(item.id, storeSlug, "increment"))} aria-label="زيادة الكمية" className="grid size-10 place-items-center rounded-full disabled:opacity-40">
+                            <button type="button" disabled={busy || item.quantity >= item.product.stock} onClick={() => mutate(item.id, () => UpdateCartItemQtyAction(item.id, storeSlug, "increment"))} aria-label={st("زيادة الكمية")} className="grid size-10 place-items-center rounded-full disabled:opacity-40">
                               <Plus className="size-3.5" />
                             </button>
                           </div>
@@ -158,7 +159,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
 
             {cart && suggest.length > 0 && (
               <section className="border-t border-(--md-line) px-5 py-5">
-                <h3 className="mb-3 text-sm font-semibold">{items.length ? "ممكن يعجبك كمان" : "مقترحات ليك"}</h3>
+                <h3 className="mb-3 text-sm font-semibold">{items.length ? st("ممكن يعجبك كمان") : st("مقترحات ليك")}</h3>
                 <ul className="md-rail md-bleed gap-3 [--md-gutter:1.25rem]">
                   {suggest.map((p) => (
                     <li key={p.id} className="w-36 shrink-0">
@@ -179,20 +180,20 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
           {items.length > 0 && cart && (
             <div className="shrink-0 space-y-3 border-t border-(--md-line) bg-(--md-surface) p-5" style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}>
               <div className="flex items-baseline justify-between">
-                <span className="text-sm text-(--md-quiet)">المجموع الفرعي</span>
+                <span className="text-sm text-(--md-quiet)">{st("المجموع الفرعي")}</span>
                 <span className="md-price text-xl">{formatPrice(cart.summary.subtotal)}</span>
               </div>
-              <p className="text-xs text-(--md-quiet)">الشحن والخصومات بتتحسب في صفحة السلة.</p>
+              <p className="text-xs text-(--md-quiet)">{st("الشحن والخصومات بتتحسب في صفحة السلة.")}</p>
               <div className="grid grid-cols-[auto_1fr] gap-2.5">
                 <Dialog.Close asChild>
                   <Link href={buildStoreUrl(storeSlug, "/cart")} className={btn({ variant: "outline", size: "lg" })}>
-                    عرض السلة
+                    {st("عرض السلة")}
                   </Link>
                 </Dialog.Close>
                 <Dialog.Close asChild>
                   <Link href={buildStoreUrl(storeSlug, "/checkout")} className={btn({ size: "lg" })}>
                     <Lock />
-                    إتمام الطلب
+                    {st("إتمام الطلب")}
                   </Link>
                 </Dialog.Close>
               </div>

@@ -7,6 +7,7 @@ import { Dialog } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { CE_PORTAL, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Desktop: a bordered main image with hover zoom over a row of bordered
  *  thumbnails (Cello's layout); click opens a fullscreen lightbox. Phones:
@@ -21,7 +22,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const [light, setLight] = useState(false);
   const multiple = images.length > 1;
-  const alt = (i: number) => (i === 0 ? name : `${name} — صورة ${i + 1}`);
+  const alt = (i: number) => (i === 0 ? name : st("{0} — صورة {1}", name, i + 1));
   const go = useCallback((i: number) => setActive((i + images.length) % images.length), [images.length]);
 
   const onScroll = useCallback(() => {
@@ -52,7 +53,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
     <>
       {/* Phones */}
       <div className="relative lg:hidden">
-        <div ref={railRef} onScroll={onScroll} className="ce-rail rounded-(--ce-r) border border-(--ce-line)" aria-roledescription="carousel" aria-label={`صور ${name}`}>
+        <div ref={railRef} onScroll={onScroll} className="ce-rail rounded-(--ce-r) border border-(--ce-line)" aria-roledescription="carousel" aria-label={st("صور {0}", name)}>
           {images.map((src, i) => (
             <button
               key={src + i}
@@ -61,7 +62,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                 setActive(i);
                 setLight(true);
               }}
-              aria-label={`تكبير الصورة ${i + 1}`}
+              aria-label={st("تكبير الصورة {0}", i + 1)}
               className="relative aspect-square w-full shrink-0 basis-full bg-(--ce-card)"
             >
               <Image src={src} alt={alt(i)} fill priority={i === 0} sizes="100vw" className="ce-product-img p-[6%]" />
@@ -72,7 +73,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
         {multiple && (
           <div className="mt-3 flex justify-center gap-1.5">
             {images.map((_, i) => (
-              <button key={i} type="button" onClick={() => scrollTo(i)} aria-label={`الصورة ${i + 1}`} aria-current={i === active} className="grid h-6 place-items-center px-0.5">
+              <button key={i} type="button" onClick={() => scrollTo(i)} aria-label={st("الصورة {0}", i + 1)} aria-current={i === active} className="grid h-6 place-items-center px-0.5">
                 <span className={cn("block h-1.5 rounded-full transition-all", i === active ? "w-5 bg-(--ce-ink)" : "w-1.5 bg-(--ce-line)")} />
               </button>
             ))}
@@ -108,7 +109,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
               e.stopPropagation();
               setLight(true);
             }}
-            aria-label="عرض الصور بملء الشاشة"
+            aria-label={st("عرض الصور بملء الشاشة")}
             className="ce-fab absolute start-4 top-4 size-10"
           >
             <Expand />
@@ -121,7 +122,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                 key={src + i}
                 type="button"
                 onClick={() => setActive(i)}
-                aria-label={`عرض الصورة ${i + 1}`}
+                aria-label={st("عرض الصورة {0}", i + 1)}
                 aria-current={i === active}
                 className={cn(
                   "relative aspect-square w-[calc((100%-2.25rem)/4)] shrink-0 overflow-hidden rounded-(--ce-r-sm) border bg-(--ce-card) transition-colors",
@@ -139,12 +140,12 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
       <Dialog.Root open={light} onOpenChange={setLight}>
         <Dialog.Portal>
           <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(CE_PORTAL, "ce-scrim fixed inset-0 z-50 flex flex-col bg-(--ce-surface) outline-none")}>
-            <Dialog.Title className="sr-only">صور {name}</Dialog.Title>
+            <Dialog.Title className="sr-only">{st("صور {0}", name)}</Dialog.Title>
             <div className="flex h-16 shrink-0 items-center justify-between px-5">
               <span className="ce-num text-sm font-semibold">
                 {num(active + 1)} / {num(images.length)}
               </span>
-              <Dialog.Close className="ce-icon -me-2" aria-label="إغلاق">
+              <Dialog.Close className="ce-icon -me-2" aria-label={st("إغلاق")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -152,10 +153,10 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
               <Image key={active} src={images[active]} alt={alt(active)} fill sizes="100vw" className="ce-pop object-contain" />
               {multiple && (
                 <>
-                  <button type="button" onClick={() => go(active - 1)} aria-label="الصورة السابقة" className="ce-fab absolute start-4 top-1/2 size-12 -translate-y-1/2">
+                  <button type="button" onClick={() => go(active - 1)} aria-label={st("الصورة السابقة")} className="ce-fab absolute start-4 top-1/2 size-12 -translate-y-1/2">
                     <ChevronRight className="ltr:rotate-180" />
                   </button>
-                  <button type="button" onClick={() => go(active + 1)} aria-label="الصورة التالية" className="ce-fab absolute end-4 top-1/2 size-12 -translate-y-1/2">
+                  <button type="button" onClick={() => go(active + 1)} aria-label={st("الصورة التالية")} className="ce-fab absolute end-4 top-1/2 size-12 -translate-y-1/2">
                     <ChevronLeft className="ltr:rotate-180" />
                   </button>
                 </>
@@ -168,7 +169,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                     key={src + i}
                     type="button"
                     onClick={() => setActive(i)}
-                    aria-label={`الصورة ${i + 1}`}
+                    aria-label={st("الصورة {0}", i + 1)}
                     aria-current={i === active}
                     className={cn("relative size-14 shrink-0 overflow-hidden rounded-(--ce-r-sm) border-2 bg-(--ce-plate)", i === active ? "border-(--ce-ink)" : "border-transparent opacity-60")}
                   >

@@ -3,11 +3,12 @@ import { CreditCard, ShieldCheck, ShoppingCart } from "lucide-react";
 
 import CheckoutForm from "../../../checkout/_components/CheckoutForm";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { CheckoutViewProps } from "../../types";
 import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { Crumbs, Empty, PlateImage, Wrap, btn, num } from "../ui";
 import { Totals } from "./MaxCart";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export default function MaxCheckout({ storeSlug, cart, paymentMethods, createOrder, legal }: CheckoutViewProps) {
   const { items, summary } = cart;
@@ -17,30 +18,30 @@ export default function MaxCheckout({ storeSlug, cart, paymentMethods, createOrd
     <Wrap className="pb-12">
       <Crumbs
         className="py-4"
-        items={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "السلة", href: buildStoreUrl(storeSlug, "/cart") }, { label: "إتمام الطلب" }]}
+        items={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("السلة"), href: buildStoreUrl(storeSlug, "/cart") }, { label: st("إتمام الطلب") }]}
       />
-      <h1 className="mx-h1">إتمام الطلب</h1>
-      <p className="mb-6 mt-1 text-sm text-(--mx-quiet)">اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.</p>
+      <h1 className="mx-h1">{st("إتمام الطلب")}</h1>
+      <p className="mb-6 mt-1 text-sm text-(--mx-quiet)">{st("اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.")}</p>
 
       {items.length === 0 ? (
         <Empty
           icon={<ShoppingCart />}
-          title="سلتك فاضية"
-          description="ضيف منتجات للسلة الأول وبعدين كمّل طلبك."
+          title={st("سلتك فاضية")}
+          description={st("ضيف منتجات للسلة الأول وبعدين كمّل طلبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg" })}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : paymentMethods.length === 0 ? (
         <Empty
           icon={<CreditCard />}
-          title="مفيش طرق دفع متاحة دلوقتي"
-          description="المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر."
+          title={st("مفيش طرق دفع متاحة دلوقتي")}
+          description={st("المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />
@@ -49,11 +50,11 @@ export default function MaxCheckout({ storeSlug, cart, paymentMethods, createOrd
           <div className="mx-checkout order-2 min-w-0 lg:order-1">
             <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
           </div>
-          <aside aria-label="ملخص الطلب" className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-6 lg:order-2 lg:self-start">
             <details className="mx-details rounded-(--mx-r-lg) border border-(--mx-line) bg-(--mx-band)" open>
               <summary className="flex min-h-16 items-center justify-between gap-3 px-5 lg:pointer-events-none">
                 <span className="mx-h4">
-                  طلبك <span className="font-normal text-(--mx-quiet)">({num(count)})</span>
+                  {st("طلبك")}{" "}<span className="font-normal text-(--mx-quiet)">({num(count)})</span>
                 </span>
                 <span className="mx-price text-lg">{formatPrice(summary.total)}</span>
               </summary>
@@ -84,10 +85,10 @@ export default function MaxCheckout({ storeSlug, cart, paymentMethods, createOrd
                 </div>
                 <p className="mt-5 flex items-start gap-2 text-xs leading-6 text-(--mx-quiet)">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-                  بياناتك بتروح للمتجر بس عشان يوصلك الطلب.
+                  {st("بياناتك بتروح للمتجر بس عشان يوصلك الطلب.")}
                 </p>
                 <Link href={buildStoreUrl(storeSlug, "/cart")} className="mx-link mt-3">
-                  تعديل السلة
+                  {st("تعديل السلة")}
                 </Link>
               </div>
             </details>

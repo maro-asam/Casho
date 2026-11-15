@@ -14,6 +14,7 @@ import EditorsPick from "./EditorsPick";
 import Hero, { Ticker } from "./Hero";
 import Plates from "./Plates";
 import Ranked from "./Ranked";
+import { st } from "@/lib/i18n/storefront";
 
 export default function RiwaqHome({
   store,
@@ -50,7 +51,7 @@ export default function RiwaqHome({
             hasCategories={categories.length > 0}
             style={layout.heroStyle}
           />
-          <Ticker words={categories.length >= 2 ? categories.slice(0, 8).map((c) => c.name) : [store.name, "وصل حديثًا", "مختارات المتجر"]} />
+          <Ticker words={categories.length >= 2 ? categories.slice(0, 8).map((c) => c.name) : [store.name, st("وصل حديثًا"), st("مختارات المتجر")]} />
           {/* A full-screen hero already shows the lead banner. */}
           {(layout.heroStyle === "fullscreen" ? banners.slice(1) : banners).length > 0 && (
             <Plates banners={layout.heroStyle === "fullscreen" ? banners.slice(1) : banners} storeSlug={store.slug} />
@@ -61,7 +62,7 @@ export default function RiwaqHome({
     showCategories: () =>
       sections.showCategories && categories.length > 0 ? (
         <Wrap className="rq-section rq-reveal">
-          <SectionHead index={next()} title="التصنيفات" href={url("/categories")} linkLabel="الفهرس الكامل" />
+          <SectionHead index={next()} title={st("التصنيفات")} href={url("/categories")} linkLabel={st("الفهرس الكامل")} />
           <Arcade categories={categories.slice(0, 10)} storeSlug={store.slug} shape={layout.categoryCardStyle} />
         </Wrap>
       ) : null,
@@ -69,7 +70,7 @@ export default function RiwaqHome({
     showFeaturedProducts: () =>
       sections.showFeaturedProducts && featured.length > 0 ? (
         <Wrap className="rq-section rq-reveal">
-          <SectionHead index={next()} title="اختيارات المتجر" href={url("/products?featured=true")} />
+          <SectionHead index={next()} title={st("اختيارات المتجر")} href={url("/products?featured=true")} />
           <EditorsPick products={featured} storeSlug={store.slug} />
         </Wrap>
       ) : null,
@@ -79,8 +80,8 @@ export default function RiwaqHome({
         <Wrap className="rq-section rq-reveal">
           <SectionHead
             index={next()}
-            title={sectionContent.bestSellers?.headline || "الأكثر مبيعًا"}
-            subtitle="اللي العملاء بيرجعوا يطلبوه"
+            title={sectionContent.bestSellers?.headline || st("الأكثر مبيعًا")}
+            subtitle={st("اللي العملاء بيرجعوا يطلبوه")}
             href={url("/products")}
           />
           <Ranked products={bestSellers} storeSlug={store.slug} />
@@ -90,7 +91,7 @@ export default function RiwaqHome({
     showLatestProducts: () =>
       sections.showLatestProducts ? (
         <Wrap className="rq-section">
-          <SectionHead index={next()} title="وصل حديثًا" href={latest.length ? url("/products") : undefined} />
+          <SectionHead index={next()} title={st("وصل حديثًا")} href={latest.length ? url("/products") : undefined} />
           {latest.length > 0 ? (
             <>
               <RuledGrid products={latest} storeSlug={store.slug} />
@@ -98,15 +99,15 @@ export default function RiwaqHome({
                 href={url("/products")}
                 className="group flex min-h-20 items-center justify-between gap-6 border-b border-(--rq-ink) transition-colors hover:text-(--rq-accent)"
               >
-                <span className="rq-h3">تصفّح كل المنتجات</span>
+                <span className="rq-h3">{st("تصفّح كل المنتجات")}</span>
                 <Arrow className="text-2xl" />
               </Link>
             </>
           ) : (
             <Empty
               icon={<ShoppingBag />}
-              title="المنتجات جاية قريب"
-              description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+              title={st("المنتجات جاية قريب")}
+              description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
             />
           )}
         </Wrap>

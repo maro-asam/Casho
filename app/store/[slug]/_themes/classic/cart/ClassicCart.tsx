@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   applyCouponAction,
   applyLoyaltyAction,
@@ -32,8 +32,9 @@ import type { CartViewProps } from "../../types";
 import { FEATURE_LABEL, unitPriceFor } from "../../shared/commerce";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
 import SubmitButton from "../../shared/SubmitButton";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 
 const INPUT =
   "h-11 w-full min-w-0 rounded-(--c-radius-sm) border border-border bg-background px-3 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground/40 sm:text-sm";
@@ -78,16 +79,16 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
       </Suspense>
 
       <PageHeader
-        breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(storeSlug) }, { label: "السلة" }]}
-        title="سلة المشتريات"
-        meta={items.length > 0 ? `${nf.format(count)} ${count === 1 ? "منتج" : "منتجات"}` : undefined}
+        breadcrumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(storeSlug) }, { label: st("السلة") }]}
+        title={st("سلة المشتريات")}
+        meta={items.length > 0 ? `${nf.format(count)} ${count === 1 ? st("منتج") : st("منتجات")}` : undefined}
       />
 
       {notice.stockChanged && (
         <div className="mb-5">
           <Notice tone="warning">
-            <p className="font-semibold">عدّلنا سلتك على حسب المتاح</p>
-            <p className="mt-0.5">في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية. راجع السلة وكمّل طلبك.</p>
+            <p className="font-semibold">{st("عدّلنا سلتك على حسب المتاح")}</p>
+            <p className="mt-0.5">{st("في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية. راجع السلة وكمّل طلبك.")}</p>
           </Notice>
         </div>
       )}
@@ -95,18 +96,18 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
       {items.length === 0 ? (
         <EmptyState
           icon={<ShoppingBag />}
-          title="سلتك فاضية"
-          description="لسه ما ضفتش أي منتجات. تصفح المتجر واختار اللي يعجبك."
+          title={st("سلتك فاضية")}
+          description={st("لسه ما ضفتش أي منتجات. تصفح المتجر واختار اللي يعجبك.")}
           action={
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg", className: "min-w-44" })}>
-              ابدأ التسوق
+              {st("ابدأ التسوق")}
             </Link>
           }
         />
       ) : (
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_25rem]">
           {/* ── Items ─────────────────────────────────────────────────── */}
-          <section aria-label="المنتجات في السلة">
+          <section aria-label={st("المنتجات في السلة")}>
             <ul className="divide-y divide-border border-y border-border">
               {items.map((item) => {
                 const unit = unitPriceFor(item.product.price, item.product.wholesaleOptions, item.quantity);
@@ -147,15 +148,15 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                             </p>
                           )}
                           <p className="mt-1 text-[0.8125rem] text-muted-foreground tabular-nums">
-                            {formatPrice(unit)} للقطعة
+                            {st("{0} للقطعة", formatPrice(unit))}
                             {wholesale && (
-                              <span className="ms-1.5 font-semibold text-(--c-success)">· سعر الجملة</span>
+                              <span className="ms-1.5 font-semibold text-(--c-success)">{st("· سعر الجملة")}</span>
                             )}
                           </p>
                         </div>
                         <form action={removeItemAction.bind(null, storeSlug, item.id)} className="-me-2 -mt-2">
                           <SubmitButton
-                            aria-label={`حذف ${item.product.name}`}
+                            aria-label={st("حذف {0}", item.product.name)}
                             className="grid size-10 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-(--c-subtle) hover:text-(--c-danger) [&_svg]:size-[1.125rem]"
                           >
                             <Trash2 />
@@ -167,20 +168,20 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                         <div className="flex h-10 items-center rounded-(--c-btn-radius) border border-border">
                           <form action={changeQtyAction.bind(null, storeSlug, item.id, "decrement")}>
                             <SubmitButton
-                              aria-label={item.quantity <= 1 ? `حذف ${item.product.name}` : "تقليل الكمية"}
+                              aria-label={item.quantity <= 1 ? st("حذف {0}", item.product.name) : st("تقليل الكمية")}
                               className="grid h-10 w-10 place-items-center [&_svg]:size-4"
                             >
                               {item.quantity <= 1 ? <Trash2 /> : <Minus />}
                             </SubmitButton>
                           </form>
-                          <span className="w-7 text-center text-sm font-semibold tabular-nums" aria-label={`الكمية ${item.quantity}`}>
+                          <span className="w-7 text-center text-sm font-semibold tabular-nums" aria-label={st("الكمية {0}", item.quantity)}>
                             {item.quantity}
                           </span>
                           <form action={changeQtyAction.bind(null, storeSlug, item.id, "increment")}>
                             <SubmitButton
-                              aria-label="زيادة الكمية"
+                              aria-label={st("زيادة الكمية")}
                               disabled={atMax}
-                              title={atMax ? "مفيش كمية أكتر متاحة" : undefined}
+                              title={atMax ? st("مفيش كمية أكتر متاحة") : undefined}
                               className="grid h-10 w-10 place-items-center disabled:opacity-30 [&_svg]:size-4"
                             >
                               <Plus />
@@ -199,18 +200,18 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
               href={buildStoreUrl(storeSlug, "/products")}
               className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold underline-offset-4 hover:underline"
             >
-              كمّل تسوق
+              {st("كمّل تسوق")}
             </Link>
           </section>
 
           {/* ── Summary ───────────────────────────────────────────────── */}
-          <aside aria-label="ملخص الطلب" className="lg:sticky lg:top-[calc(var(--c-header-h)+3.75rem)] lg:self-start">
+          <aside aria-label={st("ملخص الطلب")} className="lg:sticky lg:top-[calc(var(--c-header-h)+3.75rem)] lg:self-start">
             <div className="space-y-5 rounded-(--c-radius-lg) bg-(--c-subtle) p-5 sm:p-6">
-              <h2 className="text-lg font-bold">ملخص الطلب</h2>
+              <h2 className="text-lg font-bold">{st("ملخص الطلب")}</h2>
 
               {shippingMethods.length > 0 && (
                 <fieldset>
-                  <legend className="mb-2.5 text-sm font-semibold">طريقة الشحن</legend>
+                  <legend className="mb-2.5 text-sm font-semibold">{st("طريقة الشحن")}</legend>
                   <div className="space-y-2">
                     {shippingMethods.map((m) => {
                       const on = selectedShippingMethodId === m.id;
@@ -236,11 +237,11 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                             <span className="min-w-0 flex-1">
                               <span className="block font-medium">{m.name}</span>
                               {m.estimatedDays ? (
-                                <span className="block text-xs text-muted-foreground">خلال {nf.format(m.estimatedDays)} أيام</span>
+                                <span className="block text-xs text-muted-foreground">{st("خلال {0} أيام", nf.format(m.estimatedDays))}</span>
                               ) : null}
                             </span>
                             <span className="shrink-0 font-semibold tabular-nums">
-                              {m.price === 0 ? "مجاني" : formatPrice(m.price / 100)}
+                              {m.price === 0 ? st("مجاني") : formatPrice(m.price / 100)}
                             </span>
                           </button>
                         </form>
@@ -266,14 +267,14 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {appliedCoupon.coupon.type === "PERCENTAGE"
-                            ? `خصم ${appliedCoupon.coupon.value}%`
-                            : `خصم ${formatPrice(appliedCoupon.coupon.value)}`}
+                            ? st("خصم {0}%", appliedCoupon.coupon.value)
+                            : st("خصم {0}", formatPrice(appliedCoupon.coupon.value))}
                         </p>
                       </div>
                     </div>
                     <form action={removeCouponAction.bind(null, storeSlug)}>
                       <SubmitButton className="min-h-10 px-2 text-sm font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                        إزالة
+                        {st("إزالة")}
                       </SubmitButton>
                     </form>
                   </div>
@@ -282,16 +283,16 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                     <summary className="flex min-h-11 items-center justify-between gap-2 text-sm font-semibold">
                       <span className="flex items-center gap-2">
                         <TicketPercent className="size-[1.125rem] text-muted-foreground" />
-                        عندك كوبون خصم؟
+                        {st("عندك كوبون خصم؟")}
                       </span>
                       <ChevronDown aria-hidden className="c-accordion-icon size-4 text-muted-foreground" />
                     </summary>
                     <form action={applyCouponAction.bind(null, storeSlug)} className="mt-2 flex gap-2">
                       <label className="sr-only" htmlFor="coupon-code">
-                        كود الخصم
+                        {st("كود الخصم")}
                       </label>
-                      <input id="coupon-code" name="code" required placeholder="اكتب الكود" autoComplete="off" className={cn(INPUT, "uppercase")} />
-                      <SubmitButton className={btn({ variant: "primary", size: "md", className: "h-11 px-4" })}>تطبيق</SubmitButton>
+                      <input id="coupon-code" name="code" required placeholder={st("اكتب الكود")} autoComplete="off" className={cn(INPUT, "uppercase")} />
+                      <SubmitButton className={btn({ variant: "primary", size: "md", className: "h-11 px-4" })}>{st("تطبيق")}</SubmitButton>
                     </form>
                   </details>
                 )}
@@ -304,15 +305,15 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                       <div className="flex items-center gap-2.5">
                         <Gift className="size-5 text-(--c-success)" />
                         <div>
-                          <p className="text-sm font-semibold">استخدمت {nf.format(appliedLoyalty.points)} نقطة</p>
+                          <p className="text-sm font-semibold">{st("استخدمت {0} نقطة", nf.format(appliedLoyalty.points))}</p>
                           <p className="text-xs text-muted-foreground">
-                            خصم {formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100)}
+                            {st("خصم {0}", formatPrice((appliedLoyalty.points * loyaltyPointsValue) / 100))}
                           </p>
                         </div>
                       </div>
                       <form action={removeLoyaltyAction.bind(null, storeSlug)}>
                         <SubmitButton className="min-h-10 px-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
-                          إزالة
+                          {st("إزالة")}
                         </SubmitButton>
                       </form>
                     </div>
@@ -321,7 +322,7 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                       <summary className="flex min-h-11 items-center justify-between gap-2 text-sm font-semibold">
                         <span className="flex items-center gap-2">
                           <Gift className="size-[1.125rem] text-muted-foreground" />
-                          استخدم نقاط المكافآت
+                          {st("استخدم نقاط المكافآت")}
                         </span>
                         <ChevronDown aria-hidden className="c-accordion-icon size-4 text-muted-foreground" />
                       </summary>
@@ -332,8 +333,8 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                           inputMode="tel"
                           autoComplete="tel"
                           required
-                          placeholder="رقم الموبايل"
-                          aria-label="رقم الموبايل"
+                          placeholder={st("رقم الموبايل")}
+                          aria-label={st("رقم الموبايل")}
                           className={INPUT}
                         />
                         <div className="flex gap-2">
@@ -344,11 +345,11 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
                             min={loyaltyMinRedemption}
                             step={1}
                             required
-                            placeholder={`عدد النقاط (أقل حاجة ${nf.format(loyaltyMinRedemption)})`}
-                            aria-label="عدد النقاط"
+                            placeholder={st("عدد النقاط (أقل حاجة {0})", nf.format(loyaltyMinRedemption))}
+                            aria-label={st("عدد النقاط")}
                             className={INPUT}
                           />
-                          <SubmitButton className={btn({ size: "md", className: "h-11 px-4" })}>استخدام</SubmitButton>
+                          <SubmitButton className={btn({ size: "md", className: "h-11 px-4" })}>{st("استخدام")}</SubmitButton>
                         </div>
                       </form>
                     </details>
@@ -358,32 +359,32 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
 
               <dl className="space-y-2.5 border-t border-border pt-5 text-sm">
                 <div className="flex justify-between gap-4">
-                  <dt className="text-muted-foreground">المجموع الفرعي</dt>
+                  <dt className="text-muted-foreground">{st("المجموع الفرعي")}</dt>
                   <dd className="font-medium tabular-nums">{formatPrice(summary.subtotal)}</dd>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <dt className="text-muted-foreground">الشحن</dt>
-                  <dd className="font-medium tabular-nums">{summary.shipping === 0 ? "مجاني" : formatPrice(summary.shipping)}</dd>
+                  <dt className="text-muted-foreground">{st("الشحن")}</dt>
+                  <dd className="font-medium tabular-nums">{summary.shipping === 0 ? st("مجاني") : formatPrice(summary.shipping)}</dd>
                 </div>
                 {summary.discount > 0 && (
                   <div className="flex justify-between gap-4 text-(--c-success)">
-                    <dt>الخصم</dt>
+                    <dt>{st("الخصم")}</dt>
                     <dd className="font-semibold tabular-nums">− {formatPrice(summary.discount)}</dd>
                   </div>
                 )}
                 <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3.5">
-                  <dt className="text-base font-bold">الإجمالي</dt>
+                  <dt className="text-base font-bold">{st("الإجمالي")}</dt>
                   <dd className="text-xl font-bold tabular-nums">{formatPrice(summary.total)}</dd>
                 </div>
               </dl>
 
               <Link href={checkoutHref} className={btn({ size: "lg", full: true, className: "hidden lg:inline-flex" })}>
                 <Lock />
-                إتمام الطلب
+                {st("إتمام الطلب")}
               </Link>
 
               <p className="text-xs leading-6 text-muted-foreground">
-                بعد ما تبعت الطلب، المتجر هيتواصل معاك لتأكيد البيانات وميعاد التوصيل.
+                {st("بعد ما تبعت الطلب، المتجر هيتواصل معاك لتأكيد البيانات وميعاد التوصيل.")}
               </p>
             </div>
           </aside>
@@ -395,11 +396,11 @@ export default function ClassicCart({ storeSlug, cart, notice }: CartViewProps) 
           >
             <div className="c-container flex items-center gap-4 py-3">
               <div className="shrink-0">
-                <p className="text-xs text-muted-foreground">الإجمالي</p>
+                <p className="text-xs text-muted-foreground">{st("الإجمالي")}</p>
                 <p className="text-lg font-bold leading-tight tabular-nums">{formatPrice(summary.total)}</p>
               </div>
               <Link href={checkoutHref} className={btn({ size: "lg", className: "flex-1" })}>
-                إتمام الطلب
+                {st("إتمام الطلب")}
               </Link>
             </div>
           </div>

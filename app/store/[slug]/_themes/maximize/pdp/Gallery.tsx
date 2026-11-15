@@ -7,6 +7,7 @@ import { Dialog } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { MX_PORTAL, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Desktop: vertical thumbnails beside a main image with hover zoom; click
  *  opens a fullscreen lightbox. Phones: a swipe strip with dots. */
@@ -20,7 +21,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const [light, setLight] = useState(false);
   const multiple = images.length > 1;
-  const alt = (i: number) => (i === 0 ? name : `${name} — صورة ${i + 1}`);
+  const alt = (i: number) => (i === 0 ? name : st("{0} — صورة {1}", name, i + 1));
   const go = useCallback((i: number) => setActive((i + images.length) % images.length), [images.length]);
 
   const onScroll = useCallback(() => {
@@ -51,7 +52,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
     <>
       {/* Phones */}
       <div className="relative lg:hidden">
-        <div ref={railRef} onScroll={onScroll} className="mx-rail rounded-(--mx-r-lg)" aria-roledescription="carousel" aria-label={`صور ${name}`}>
+        <div ref={railRef} onScroll={onScroll} className="mx-rail rounded-(--mx-r-lg)" aria-roledescription="carousel" aria-label={st("صور {0}", name)}>
           {images.map((src, i) => (
             <button
               key={src + i}
@@ -60,7 +61,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                 setActive(i);
                 setLight(true);
               }}
-              aria-label={`تكبير الصورة ${i + 1}`}
+              aria-label={st("تكبير الصورة {0}", i + 1)}
               className="relative aspect-square w-full shrink-0 basis-full bg-(--mx-plate)"
             >
               <Image src={src} alt={alt(i)} fill priority={i === 0} sizes="100vw" className="mx-product-img" />
@@ -71,7 +72,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
         {multiple && (
           <div className="mt-3 flex justify-center gap-1.5">
             {images.map((_, i) => (
-              <button key={i} type="button" onClick={() => scrollTo(i)} aria-label={`الصورة ${i + 1}`} aria-current={i === active} className="grid h-6 place-items-center px-0.5">
+              <button key={i} type="button" onClick={() => scrollTo(i)} aria-label={st("الصورة {0}", i + 1)} aria-current={i === active} className="grid h-6 place-items-center px-0.5">
                 <span className={cn("block h-1.5 rounded-full transition-all", i === active ? "w-5 bg-(--mx-ink)" : "w-1.5 bg-(--mx-line)")} />
               </button>
             ))}
@@ -89,7 +90,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                 type="button"
                 onClick={() => setActive(i)}
                 onMouseEnter={() => setActive(i)}
-                aria-label={`عرض الصورة ${i + 1}`}
+                aria-label={st("عرض الصورة {0}", i + 1)}
                 aria-current={i === active}
                 className={cn("mx-media aspect-square shrink-0 rounded-(--mx-r-sm) border-2 transition-colors", i === active ? "border-(--mx-ink)" : "border-transparent hover:border-(--mx-line)")}
               >
@@ -124,7 +125,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
               e.stopPropagation();
               setLight(true);
             }}
-            aria-label="عرض الصور بملء الشاشة"
+            aria-label={st("عرض الصور بملء الشاشة")}
             className="mx-fab absolute bottom-4 end-4 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
           >
             <Expand />
@@ -136,12 +137,12 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
       <Dialog.Root open={light} onOpenChange={setLight}>
         <Dialog.Portal>
           <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(MX_PORTAL, "mx-scrim fixed inset-0 z-50 flex flex-col bg-(--mx-surface) outline-none")}>
-            <Dialog.Title className="sr-only">صور {name}</Dialog.Title>
+            <Dialog.Title className="sr-only">{st("صور {0}", name)}</Dialog.Title>
             <div className="flex h-16 shrink-0 items-center justify-between px-5">
               <span className="mx-num text-sm font-semibold">
                 {num(active + 1)} / {num(images.length)}
               </span>
-              <Dialog.Close className="mx-icon -me-2" aria-label="إغلاق">
+              <Dialog.Close className="mx-icon -me-2" aria-label={st("إغلاق")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -149,10 +150,10 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
               <Image key={active} src={images[active]} alt={alt(active)} fill sizes="100vw" className="mx-pop object-contain" />
               {multiple && (
                 <>
-                  <button type="button" onClick={() => go(active - 1)} aria-label="الصورة السابقة" className="mx-fab absolute start-4 top-1/2 size-12 -translate-y-1/2">
+                  <button type="button" onClick={() => go(active - 1)} aria-label={st("الصورة السابقة")} className="mx-fab absolute start-4 top-1/2 size-12 -translate-y-1/2">
                     <ChevronRight className="ltr:rotate-180" />
                   </button>
-                  <button type="button" onClick={() => go(active + 1)} aria-label="الصورة التالية" className="mx-fab absolute end-4 top-1/2 size-12 -translate-y-1/2">
+                  <button type="button" onClick={() => go(active + 1)} aria-label={st("الصورة التالية")} className="mx-fab absolute end-4 top-1/2 size-12 -translate-y-1/2">
                     <ChevronLeft className="ltr:rotate-180" />
                   </button>
                 </>
@@ -165,7 +166,7 @@ export default function Gallery({ images, name, badges }: { images: string[]; na
                     key={src + i}
                     type="button"
                     onClick={() => setActive(i)}
-                    aria-label={`الصورة ${i + 1}`}
+                    aria-label={st("الصورة {0}", i + 1)}
                     aria-current={i === active}
                     className={cn("relative size-14 shrink-0 overflow-hidden rounded-(--mx-r-sm) border-2 bg-(--mx-plate)", i === active ? "border-(--mx-ink)" : "border-transparent opacity-60")}
                   >

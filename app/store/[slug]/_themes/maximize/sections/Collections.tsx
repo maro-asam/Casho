@@ -7,6 +7,7 @@ import type { AboutBrandContent, CategoryCardStyle, CollectionsContent } from "@
 import type { CategoryLink } from "../../types";
 import Rail from "../product/Rail";
 import { Chevron, PlateImage, SectionHeader, Wrap, btn, delay, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Category strip under the header: compact cards (name, product count and
  *  the category photo). A rail on phones; up to six across on desktop. */
@@ -15,8 +16,8 @@ export function CollectionStrip({ categories, storeSlug }: { categories: Categor
   if (tiles.length === 0) return null;
   return (
     <Wrap className="pt-4 sm:pt-6">
-      <h2 className="sr-only">تسوّق حسب التصنيف</h2>
-      <Rail label="التصنيفات" controls="below" listClassName="[&>li]:!w-[46%] sm:[&>li]:!w-[30%] lg:[&>li]:!w-[calc((100%-var(--mx-gap)*5)/6)]">
+      <h2 className="sr-only">{st("تسوّق حسب التصنيف")}</h2>
+      <Rail label={st("التصنيفات")} controls="below" listClassName="[&>li]:!w-[46%] sm:[&>li]:!w-[30%] lg:[&>li]:!w-[calc((100%-var(--mx-gap)*5)/6)]">
         {tiles.map((c) => (
           <li key={c.id}>
             <Link
@@ -25,7 +26,7 @@ export function CollectionStrip({ categories, storeSlug }: { categories: Categor
             >
               <span className="min-w-0">
                 <span className="block truncate text-[0.9375rem] font-semibold text-(--mx-ink) group-hover:text-(--mx-link)">{c.name}</span>
-                <span className="block text-xs text-(--mx-text)">{num(c.productCount)} منتج</span>
+                <span className="block text-xs text-(--mx-text)">{st("{0} منتج", num(c.productCount))}</span>
               </span>
               <span className="mx-media aspect-square w-full shrink-0 rounded-(--mx-r-sm) sm:size-16">
                 <PlateImage src={c.image} sizes="(max-width: 640px) 45vw, 64px" fit="cover" className="mx-zoom-img" />
@@ -44,7 +45,7 @@ export function CollectionStrip({ categories, storeSlug }: { categories: Categor
 export function CategoryCircles({
   categories,
   storeSlug,
-  title = "تصنيفات مختارة ليك",
+  title = st("تصنيفات مختارة ليك"),
   shape = "circle",
 }: {
   categories: CategoryLink[];
@@ -57,7 +58,7 @@ export function CategoryCircles({
   if (shape === "pill") {
     return (
       <Wrap className="mx-section">
-        <SectionHeader title={title} center href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+        <SectionHeader title={title} center href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل التصنيفات")} />
         <ul className="flex flex-wrap justify-center gap-2">
           {categories.map((c) => (
             <li key={c.id}>
@@ -77,7 +78,7 @@ export function CategoryCircles({
   const square = shape === "square";
   return (
     <Wrap className="mx-section">
-      <SectionHeader title={title} center href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+      <SectionHeader title={title} center href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل التصنيفات")} />
       <ul className="mx-rail mx-bleed gap-4 sm:justify-center-safe sm:gap-6">
         {tiles.map((c, i) => (
           <li key={c.id} className="mx-reveal w-24 shrink-0 sm:w-32" style={delay(Math.min(i, 5))}>
@@ -128,7 +129,7 @@ export function PromoTiles({ content, storeSlug }: { content?: CollectionsConten
                 <span className="absolute inset-x-0 bottom-0 flex flex-col items-start p-5 sm:p-7">
                   <span className="mx-display text-balance text-xl text-white sm:text-2xl">{c.name}</span>
                   <span className="mt-2 inline-flex items-center gap-1 border-b border-white/80 pb-0.5 text-sm font-semibold">
-                    تسوّق الآن
+                    {st("تسوّق الآن")}
                     <Chevron />
                   </span>
                 </span>
@@ -158,11 +159,11 @@ export function StoryWithCategories({ content, storeName, storeSlug, categories 
             </>
           )}
           <div className="relative">
-            <p className="text-sm font-semibold opacity-85">حصريًا في {storeName}</p>
-            <h2 className="mx-display mt-1 text-balance text-2xl text-(--mx-btn-ink) sm:text-[1.75rem]">{content.headline || `عن ${storeName}`}</h2>
+            <p className="text-sm font-semibold opacity-85">{st("حصريًا في {0}", storeName)}</p>
+            <h2 className="mx-display mt-1 text-balance text-2xl text-(--mx-btn-ink) sm:text-[1.75rem]">{content.headline || st("عن {0}", storeName)}</h2>
             {content.text && <p className="mt-3 line-clamp-5 whitespace-pre-line text-sm leading-7 opacity-90">{content.text}</p>}
             <Link href={href} className={btn({ variant: "white", className: "mt-6" })}>
-              {content.ctaText || "اعرف حكايتنا"}
+              {content.ctaText || st("اعرف حكايتنا")}
             </Link>
           </div>
         </div>

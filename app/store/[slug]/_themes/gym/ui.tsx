@@ -7,31 +7,32 @@ import Link from "next/link";
 import type { CSSProperties, ComponentProps, ReactNode } from "react";
 import { ArrowLeft, ChevronLeft, Dumbbell, Star } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { swatchColor } from "../shared/colors";
 import { discountPercent } from "../shared/commerce";
 import { CategoryIcon } from "./lib/category-icon";
 import { isFlavor } from "./lib/coach";
+import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** Classes for portal content (drawers, dialogs, popovers). */
 export const GY_PORTAL = "store-theme-root theme-gym gy-portal";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 export const num = (n: number) => nf.format(n);
-const nf2 = new Intl.NumberFormat("ar-EG", { minimumIntegerDigits: 2 });
+const nf2 = lazyStoreIntl.number({ minimumIntegerDigits: 2 });
 /** Two-digit Arabic numerals ("٠١"). */
 export const num2 = (n: number) => nf2.format(n);
 /** Delivery time in natural Arabic ("يوم واحد", "يومين", "٣ أيام", "١٤ يوم"). */
-export const days = (n: number) => (n === 1 ? "يوم واحد" : n === 2 ? "يومين" : n <= 10 ? `${num(n)} أيام` : `${num(n)} يوم`);
+export const days = (n: number) => (n === 1 ? st("يوم واحد") : n === 2 ? st("يومين") : n <= 10 ? st("{0} أيام", num(n)) : st("{0} يوم", num(n)));
 
 export { discountPercent, isFlavor };
 
 /** Option labels on product pages and cart rows. */
-export const OPTION_LABEL: Record<string, string> = { size: "الحجم", color: "اللون" };
+export const OPTION_LABEL: Record<string, string> = { get size() { return st("الحجم"); }, get color() { return st("اللون"); } };
 
 /** "اللون: أحمر" / "النكهة: شوكولاتة" for a chosen option on cart rows. */
 export function featureLabel(key: string, value: string) {
-  return `${key === "color" && isFlavor([value]) ? "النكهة" : (OPTION_LABEL[key] ?? key)}: ${value}`;
+  return `${key === "color" && isFlavor([value]) ? st("النكهة") : (OPTION_LABEL[key] ?? key)}: ${value}`;
 }
 
 /** Stagger index for reveal / drawer animations. */
@@ -76,7 +77,7 @@ export function SectionHeader({
   title,
   sub,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   actions,
   className,
 }: {
@@ -112,7 +113,7 @@ export function SectionHeader({
 
 export function Crumbs({ items, className }: { items: { label: string; href?: string }[]; className?: string }) {
   return (
-    <nav aria-label="مسار التصفح" className={cn("min-w-0", className)}>
+    <nav aria-label={st("مسار التصفح")} className={cn("min-w-0", className)}>
       <ol className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.8125rem]">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -208,17 +209,17 @@ export function Price({
           size === "xl" && "text-[2rem] sm:text-[2.5rem]",
         )}
       >
-        {off > 0 && <span className="sr-only">السعر بعد الخصم: </span>}
-        {from && "من "}
+        {off > 0 && <span className="sr-only">{st("السعر بعد الخصم:")}{" "}</span>}
+        {from && st("من ")}
         {formatPrice(price)}
       </span>
       {off > 0 && (
         <>
           <s className={cn("gy-num text-(--gy-quiet) decoration-1", size === "xl" || size === "lg" ? "text-base" : "text-[0.8125rem]")}>
-            <span className="sr-only">السعر قبل الخصم: </span>
+            <span className="sr-only">{st("السعر قبل الخصم:")}{" "}</span>
             {formatPrice(compareAt!)}
           </s>
-          {chip && <span className="gy-chip-off self-center">خصم {num(off)}٪</span>}
+          {chip && <span className="gy-chip-off self-center">{st("خصم {0}٪", num(off))}</span>}
         </>
       )}
     </p>
@@ -229,7 +230,7 @@ export function Rating({ value, count, size = "sm", className }: { value: number
   const full = Math.round(value);
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>
-      <span className="sr-only">التقييم {value.toFixed(1)} من ٥</span>
+      <span className="sr-only">{st("التقييم {0} من ٥", value.toFixed(1))}</span>
       <span aria-hidden className="flex items-center gap-px">
         {[1, 2, 3, 4, 5].map((i) => (
           <Star key={i} className={cn(size === "sm" ? "size-3" : "size-4", i <= full ? "fill-(--gy-star) text-(--gy-star)" : "fill-(--gy-line) text-(--gy-line)")} />
@@ -253,7 +254,7 @@ export function Swatches({ colors, max = 5, className }: { colors: string[]; max
   const rest = colors.length - shown.length;
   return (
     <span className={cn("flex flex-wrap items-center gap-1", className)}>
-      <span className="sr-only">الألوان المتاحة: {colors.join("، ")}</span>
+      <span className="sr-only">{st("الألوان المتاحة: {0}", colors.join("، "))}</span>
       {shown.map((c) => (
         <span key={c.label} aria-hidden title={c.label} className="gy-swatch size-3.5" style={{ background: c.color! }} />
       ))}
@@ -268,9 +269,9 @@ export function Swatches({ colors, max = 5, className }: { colors: string[]; max
 
 /** "متوفر" / "كمية محدودة" / "غير متوفر حاليًا" from real stock. */
 export function StockLine({ stock, count, className }: { stock: number; /** Show the real unit count. */ count?: boolean; className?: string }) {
-  if (stock <= 0) return <p className={cn("gy-stock text-(--gy-quiet)", className)}>غير متوفر حاليًا</p>;
-  if (stock <= 5) return <p className={cn("gy-stock text-(--gy-low)", className)}>كمية محدودة{count ? ` — باقي ${num(stock)} بس` : ""}</p>;
-  return <p className={cn("gy-stock text-(--gy-ok)", className)}>متوفر{count ? ` (${num(stock)} قطعة)` : ""}</p>;
+  if (stock <= 0) return <p className={cn("gy-stock text-(--gy-quiet)", className)}>{st("غير متوفر حاليًا")}</p>;
+  if (stock <= 5) return <p className={cn("gy-stock text-(--gy-low)", className)}>{st("كمية محدودة")}{count ? st(" — باقي {0} بس", num(stock)) : ""}</p>;
+  return <p className={cn("gy-stock text-(--gy-ok)", className)}>{st("متوفر")}{count ? st(" ({0} قطعة)", num(stock)) : ""}</p>;
 }
 
 /** Image that fills its media box; without a src it shows a quiet dumbbell.

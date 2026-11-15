@@ -4,6 +4,7 @@ import { Tabs } from "radix-ui";
 import { useSyncExternalStore, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 const noop = () => () => {};
 
@@ -20,7 +21,7 @@ export default function DetailTabs({ tabs }: { tabs: { id: string; label: string
   if (tabs.length === 0) return null;
   return (
     <Tabs.Root defaultValue={tabs[0].id} dir={dir}>
-      <Tabs.List aria-label="معلومات المنتج" className="ce-rail gap-7 border-b border-(--ce-line)">
+      <Tabs.List aria-label={st("معلومات المنتج")} className="ce-rail gap-7 border-b border-(--ce-line)">
         {tabs.map((t) => (
           <Tabs.Trigger
             key={t.id}

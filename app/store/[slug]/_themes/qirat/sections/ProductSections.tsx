@@ -9,6 +9,7 @@ import QuickAdd from "../product/QuickAdd";
 import Rail from "../product/Rail";
 import WishButton from "../product/WishButton";
 import { Band, Kicker, Ornament, PlateImage, Price, SectionHead, TextLink, Wrap, delay, num, num2 } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** "The edit": the lead piece large on a lit plate with its story beside it,
  *  the next four in a 2×2 next to it. Phones get a shelf. */
@@ -19,7 +20,7 @@ export function FeaturedEdit({ products, storeSlug, href }: { products: ProductC
   return (
     <Band tone="alt" className="qr-section">
       <Wrap>
-        <SectionHead kicker="اختيار المتجر" title="مختاراتنا" note="القطع اللي بننصح بيها دلوقتي." href={href} />
+        <SectionHead kicker={st("اختيار المتجر")} title={st("مختاراتنا")} note={st("القطع اللي بننصح بيها دلوقتي.")} href={href} />
         <div className="qr-edit" data-n={four.length}>
           <article className="qr-edit-lead qr-reveal group">
             <div className="qr-plate qr-edit-lead-media">
@@ -30,7 +31,7 @@ export function FeaturedEdit({ products, storeSlug, href }: { products: ProductC
               <WishButton storeSlug={storeSlug} productId={lead.id} name={lead.name} className="qr-card-wish" />
             </div>
             <div className="qr-edit-lead-copy">
-              <Kicker>{lead.brand || lead.categoryName || "قطعة مميزة"}</Kicker>
+              <Kicker>{lead.brand || lead.categoryName || st("قطعة مميزة")}</Kicker>
               <h3 className="qr-h2 mt-2 text-balance">
                 <Link href={leadHref} className="qr-cover-link">
                   {lead.name}
@@ -39,7 +40,7 @@ export function FeaturedEdit({ products, storeSlug, href }: { products: ProductC
               <Price price={lead.price} compareAt={lead.compareAtPrice} size="lg" save className="mt-3" />
               <div className="relative z-[2] mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <QuickAdd storeSlug={storeSlug} product={lead} className="qr-quick--inline" />
-                <TextLink href={leadHref}>شوف التفاصيل</TextLink>
+                <TextLink href={leadHref}>{st("شوف التفاصيل")}</TextLink>
               </div>
             </div>
           </article>
@@ -79,13 +80,13 @@ export function BestSellers({ products, storeSlug, title, max = 8, href }: { pro
   const list = products.slice(0, max);
   return (
     <Band className="qr-section">
-      <Rail label={title} title={title} kicker="الأكثر طلبًا" href={href} listClassName="qr-shelf--cards">
+      <Rail label={title} title={title} kicker={st("الأكثر طلبًا")} href={href} listClassName="qr-shelf--cards">
         {list.map((p, i) => (
           <li key={p.id} className="qr-ranked min-w-0">
             <span aria-hidden className="qr-rank">
               {num2(i + 1)}
             </span>
-            <span className="sr-only">رقم {num(i + 1)}</span>
+            <span className="sr-only">{st("رقم {0}", num(i + 1))}</span>
             <ProductCard product={p} storeSlug={storeSlug} index={i} sizes="(max-width: 768px) 62vw, 19rem" />
           </li>
         ))}
@@ -101,7 +102,7 @@ export function DealsBand({ products, storeSlug, title, lowStock, timer }: { pro
   return (
     <Band tone="velvet" aria-label={title} className="qr-section qr-deals">
       <Wrap className="text-center">
-        <Kicker className="qr-reveal">لفترة محدودة</Kicker>
+        <Kicker className="qr-reveal">{st("لفترة محدودة")}</Kicker>
         <h2 className="qr-display qr-reveal mx-auto mt-3 max-w-[20ch] text-balance" style={delay(1)}>
           {title}
         </h2>
@@ -116,7 +117,7 @@ export function DealsBand({ products, storeSlug, title, lowStock, timer }: { pro
         {list.map((p, i) => (
           <li key={p.id} className="min-w-0">
             <ProductCard product={p} storeSlug={storeSlug} index={i} sizes="(max-width: 768px) 62vw, 19rem" />
-            {lowStock && p.stock > 0 && p.stock <= 5 && <p className="mt-2 text-center text-xs text-(--qr-gold)">باقي {num(p.stock)} بس</p>}
+            {lowStock && p.stock > 0 && p.stock <= 5 && <p className="mt-2 text-center text-xs text-(--qr-gold)">{st("باقي {0} بس", num(p.stock))}</p>}
           </li>
         ))}
       </Rail>

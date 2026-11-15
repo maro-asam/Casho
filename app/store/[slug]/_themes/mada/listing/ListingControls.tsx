@@ -13,6 +13,7 @@ import { clearedQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { MD_PORTAL, btn, num } from "../ui";
 import FilterPanel from "./FilterPanel";
+import { st } from "@/lib/i18n/storefront";
 
 const PREF_EVENT = "mada:pref";
 
@@ -69,13 +70,13 @@ function SortMenu({ storeSlug, query, dir }: Pick<Shared, "storeSlug" | "query" 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger className="md-chip gap-2 border-transparent bg-transparent hover:bg-(--md-surface)">
-        <span className="text-(--md-quiet)">ترتيب:</span>
+        <span className="text-(--md-quiet)">{st("ترتيب:")}</span>
         <span className="font-semibold">{current.label}</span>
         <ChevronDown className="size-4" />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content align="end" sideOffset={6} dir={dir} className={cn(MD_PORTAL, "md-pop z-50 w-56 rounded-2xl bg-(--md-surface) p-1.5 shadow-xl outline-none")}>
-          <ul role="listbox" aria-label="ترتيب المنتجات">
+          <ul role="listbox" aria-label={st("ترتيب المنتجات")}>
             {SORT_OPTIONS.map((o) => (
               <li key={o.value} role="option" aria-selected={o.value === query.sort}>
                 <button
@@ -107,7 +108,7 @@ function Sheet({ open, onOpenChange, title, dir, children }: { open: boolean; on
           <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-(--md-line-strong)" aria-hidden />
           <div className="flex h-14 shrink-0 items-center justify-between px-5">
             <Dialog.Title className="md-h3">{title}</Dialog.Title>
-            <Dialog.Close className={btn({ variant: "ghost", icon: true, className: "-me-2" })} aria-label="إغلاق">
+            <Dialog.Close className={btn({ variant: "ghost", icon: true, className: "-me-2" })} aria-label={st("إغلاق")}>
               <X />
             </Dialog.Close>
           </div>
@@ -133,7 +134,7 @@ export function MobileControls(props: Shared) {
       <div className="flex gap-2">
         <button type="button" onClick={() => setFilters(true)} className={btn({ variant: "outline", size: "sm", className: "flex-1 bg-(--md-surface)" })}>
           <SlidersHorizontal />
-          فلترة
+          {st("فلترة")}
           {activeCount > 0 && <span className="grid size-5 place-items-center rounded-full bg-(--md-brand) text-[0.6875rem] font-bold text-(--md-brand-ink)">{num(activeCount)}</span>}
         </button>
         <button type="button" onClick={() => setSorting(true)} className={btn({ variant: "outline", size: "sm", className: "min-w-0 flex-1 bg-(--md-surface)" })}>
@@ -143,14 +144,14 @@ export function MobileControls(props: Shared) {
         <button
           type="button"
           onClick={() => setPref("mada:mcols", mcols === "2" ? "1" : "2")}
-          aria-label={mcols === "2" ? "عرض منتج واحد في الصف" : "عرض منتجين في الصف"}
+          aria-label={mcols === "2" ? st("عرض منتج واحد في الصف") : st("عرض منتجين في الصف")}
           className={btn({ variant: "outline", size: "sm", icon: true, className: "bg-(--md-surface)" })}
         >
           {mcols === "2" ? <Rows3 /> : <Columns2 />}
         </button>
       </div>
 
-      <Sheet open={filters} onOpenChange={setFilters} title="فلترة المنتجات" dir={dir}>
+      <Sheet open={filters} onOpenChange={setFilters} title={st("فلترة المنتجات")} dir={dir}>
         <FilterPanel
           {...props}
           mode="sheet"
@@ -165,18 +166,18 @@ export function MobileControls(props: Shared) {
                 }}
                 className={btn({ variant: "outline", size: "lg" })}
               >
-                مسح الكل
+                {st("مسح الكل")}
               </button>
               <button type="submit" className={btn({ size: "lg", full: true })}>
-                عرض النتائج
+                {st("عرض النتائج")}
               </button>
             </div>
           }
         />
       </Sheet>
 
-      <Sheet open={sorting} onOpenChange={setSorting} title="ترتيب حسب" dir={dir}>
-        <ul role="listbox" aria-label="ترتيب المنتجات" className="px-3 pb-6" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
+      <Sheet open={sorting} onOpenChange={setSorting} title={st("ترتيب حسب")} dir={dir}>
+        <ul role="listbox" aria-label={st("ترتيب المنتجات")} className="px-3 pb-6" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
           {SORT_OPTIONS.map((o) => (
             <li key={o.value} role="option" aria-selected={o.value === query.sort}>
               <button
@@ -195,7 +196,7 @@ export function MobileControls(props: Shared) {
         </ul>
       </Sheet>
       <p className="sr-only" aria-live="polite">
-        {total} منتج
+        {st("{0} منتج", total)}
       </p>
     </div>
   );
@@ -216,17 +217,17 @@ export function DesktopLayout({ children, toolbarStart, ...props }: Shared & { c
         <div className="flex items-center gap-4">
           <button type="button" onClick={toggle} aria-expanded={sidebar} className={btn({ variant: "outline", size: "sm", className: "bg-(--md-surface)" })}>
             <SlidersHorizontal />
-            {sidebar ? "إخفاء الفلاتر" : "إظهار الفلاتر"}
+            {sidebar ? st("إخفاء الفلاتر") : st("إظهار الفلاتر")}
             {props.activeCount > 0 && <span className="grid size-5 place-items-center rounded-full bg-(--md-brand) text-[0.6875rem] font-bold text-(--md-brand-ink)">{num(props.activeCount)}</span>}
           </button>
           {toolbarStart}
         </div>
         <div className="flex items-center gap-2">
-          <div role="group" aria-label="كثافة العرض" className="flex rounded-full bg-(--md-surface) p-1">
+          <div role="group" aria-label={st("كثافة العرض")} className="flex rounded-full bg-(--md-surface) p-1">
             {(
               [
-                { d: "comfy" as const, Icon: Columns3, label: "منتجات أكبر" },
-                { d: "dense" as const, Icon: Grid2x2, label: "منتجات أكتر في الصف" },
+                { d: "comfy" as const, Icon: Columns3, label: st("منتجات أكبر") },
+                { d: "dense" as const, Icon: Grid2x2, label: st("منتجات أكتر في الصف") },
               ]
             ).map(({ d, Icon, label }) => (
               <button key={d} type="button" onClick={() => setPref("mada:cols", d)} aria-pressed={cols === d} aria-label={label} className={cn("grid size-9 place-items-center rounded-full transition-colors [&_svg]:size-4", cols === d ? "bg-(--md-ink) text-(--md-bg)" : "text-(--md-quiet) hover:text-(--md-ink)")}>
@@ -242,7 +243,7 @@ export function DesktopLayout({ children, toolbarStart, ...props }: Shared & { c
 
       <div className="lg:flex lg:items-start lg:gap-10">
         {sidebar && (
-          <aside aria-label="الفلاتر" className="hidden w-64 shrink-0 lg:sticky lg:top-[calc(var(--md-header-h)+1.5rem)] lg:block xl:w-72">
+          <aside aria-label={st("الفلاتر")} className="hidden w-64 shrink-0 lg:sticky lg:top-[calc(var(--md-header-h)+1.5rem)] lg:block xl:w-72">
             <FilterPanel {...props} mode="sidebar" />
           </aside>
         )}

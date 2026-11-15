@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Pause, Play, Sparkle } from "lucide-react";
+import { st } from "@/lib/i18n/storefront";
 
 /** Scrolling promo bar over the header. The merchant's announcement text is
  *  split into messages by "|" or new lines; the strip loops and can be
@@ -18,7 +19,7 @@ export default function Ticker({ text }: { text: string | null }) {
   const run = Array.from({ length: Math.max(2, Math.ceil(8 / messages.length)) }, () => messages).flat();
 
   return (
-    <div className="mx-ticker mx-marquee relative flex h-10 items-center overflow-hidden" data-paused={paused} role="region" aria-label="إعلانات المتجر">
+    <div className="mx-ticker mx-marquee relative flex h-10 items-center overflow-hidden" data-paused={paused} role="region" aria-label={st("إعلانات المتجر")}>
       <p className="sr-only">{messages.join(" — ")}</p>
       <div className="mx-marquee-track" aria-hidden style={{ ["--mx-marquee-dur" as string]: `${run.length * 5}s` }}>
         {[0, 1].map((copy) => (
@@ -36,7 +37,7 @@ export default function Ticker({ text }: { text: string | null }) {
         type="button"
         onClick={() => setPaused((p) => !p)}
         aria-pressed={paused}
-        aria-label={paused ? "تشغيل شريط الإعلانات" : "إيقاف شريط الإعلانات"}
+        aria-label={paused ? st("تشغيل شريط الإعلانات") : st("إيقاف شريط الإعلانات")}
         className="absolute inset-y-0 end-0 grid w-10 place-items-center bg-[color-mix(in_srgb,var(--mx-btn)_92%,#000)] text-white/85 transition-colors hover:text-white [&_svg]:size-3.5"
       >
         {paused ? <Play /> : <Pause />}

@@ -3,6 +3,7 @@
 // pre-written WhatsApp messages. Nothing here invents a claim about a product.
 
 import { swatchColor } from "../../shared/colors";
+import { st } from "@/lib/i18n/storefront";
 
 // ─── WhatsApp hand-offs ──────────────────────────────────────────────────────
 
@@ -17,27 +18,27 @@ export function waShare(text: string) {
 }
 
 export function askAboutMessage(productName: string) {
-  return `السلام عليكم، عندي استفسار عن: ${productName}`;
+  return st("السلام عليكم، عندي استفسار عن: {0}", productName);
 }
 
 export function joinMessage(storeName: string) {
-  return `السلام عليكم، عايز أعرف كل جديد ${storeName} أول بأول.`;
+  return st("السلام عليكم، عايز أعرف كل جديد {0} أول بأول.", storeName);
 }
 
 /** "Drop a hint": the shopper sends a piece they love to someone who might gift it. */
 export function hintMessage(productName: string, url: string, storeName: string) {
-  return `شوفت القطعة دي في ${storeName} وعجبتني جدًا ✨\n${productName}\n${url}`;
+  return st("شوفت القطعة دي في {0} وعجبتني جدًا ✨\n{1}\n{2}", storeName, productName, url);
 }
 
 /** The whole wishlist, one line per piece. */
 export function wishlistMessage(items: { name: string; url: string }[], storeName: string) {
   const lines = items.map((it, i) => `${i + 1}. ${it.name}\n${it.url}`);
-  return `دي قايمة أمنياتي من ${storeName} ✨\n\n${lines.join("\n\n")}`;
+  return st("دي قايمة أمنياتي من {0} ✨\n\n{1}", storeName, lines.join("\n\n"));
 }
 
 export function giftHelpMessage(storeName: string, budget?: string, kind?: string) {
-  const parts = [budget && `الميزانية: ${budget}`, kind && `النوع: ${kind}`].filter(Boolean).join(" · ");
-  return `السلام عليكم، محتاج مساعدة أختار هدية من ${storeName}${parts ? ` (${parts})` : ""}.`;
+  const parts = [budget && st("الميزانية: {0}", budget), kind && st("النوع: {0}", kind)].filter(Boolean).join(" · ");
+  return st("السلام عليكم، محتاج مساعدة أختار هدية من {0}{1}.", storeName, parts ? ` (${parts})` : "");
 }
 
 // ─── Metals ──────────────────────────────────────────────────────────────────
@@ -165,7 +166,7 @@ export function weightLabel(kg: number, fmt: (n: number) => string) {
   if (kg <= 0) return null;
   if (kg < 1) {
     const g = Math.round(kg * 1000 * 100) / 100;
-    return `${fmt(g)} جرام`;
+    return st("{0} جرام", fmt(g));
   }
-  return `${fmt(Math.round(kg * 100) / 100)} كجم`;
+  return st("{0} كجم", fmt(Math.round(kg * 100) / 100));
 }

@@ -8,6 +8,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import type { CategoryLink, ProductCardData } from "../../types";
 import ProductCard from "../product/ProductCard";
 import { Chevron, Wrap } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Tab = { key: string; label: string; image: string | null; products: ProductCardData[]; href: string };
 
@@ -30,7 +31,7 @@ export default function TabbedCollection({
 }) {
   const id = useId();
   const listRef = useRef<HTMLDivElement>(null);
-  const tabs: Tab[] = [{ key: "all", label: "الكل", image: null, products, href }];
+  const tabs: Tab[] = [{ key: "all", label: st("الكل"), image: null, products, href }];
   for (const c of categories) {
     if (tabs.length >= 5) break;
     // Cards carry the category name only, so same-named categories share a tab.
@@ -91,7 +92,7 @@ export default function TabbedCollection({
           </ul>
           <div className="mt-8 flex justify-center">
             <Link href={tab.href} className="inline-flex min-h-10 items-center gap-1 font-semibold text-(--mx-link) hover:underline">
-              {tab.key === "all" ? "عرض كل المنتجات" : `كل ${tab.label}`}
+              {tab.key === "all" ? st("عرض كل المنتجات") : st("كل {0}", tab.label)}
               <Chevron double />
             </Link>
           </div>

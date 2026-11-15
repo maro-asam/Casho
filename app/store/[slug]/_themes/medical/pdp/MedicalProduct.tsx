@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, Clock, Info, MessageCircle, PackageCheck, ShieldCheck, Truck } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProductViewProps, ReviewData } from "../../types";
 import { whatsappHref } from "../../shared/social";
 import { PharmacyOnly } from "../lib/pharmacy";
@@ -15,6 +15,7 @@ import RecentlyViewed, { TrackView } from "../sections/RecentlyViewed";
 import { Crumbs, Note, OPTION_LABEL, Price, Rating, SectionHeader, StockLine, Wrap, discountPercent, num } from "../ui";
 import DetailTabs from "./DetailTabs";
 import Gallery from "./Gallery";
+import { formatPrice, st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 function Reviews({ reviews }: { reviews: ReviewData[] }) {
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
@@ -24,7 +25,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
       <div className="h-fit rounded-(--rx-r) bg-(--rx-tint) p-6 text-(--rx-tint-ink)">
         <p className="text-5xl leading-none font-bold">{avg.toFixed(1)}</p>
         <Rating value={avg} size="md" className="mt-3" />
-        <p className="mt-1 text-sm opacity-80">من {num(reviews.length)} تقييم</p>
+        <p className="mt-1 text-sm opacity-80">{st("من {0} تقييم", num(reviews.length))}</p>
         <ul className="mt-5 space-y-2">
           {dist.map(({ star, count }) => (
             <li key={star} className="flex items-center gap-3 text-xs">
@@ -48,7 +49,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
                 <div>
                   <p className="text-sm font-bold text-(--rx-ink)">{r.customerName}</p>
                   <time className="text-xs text-(--rx-quiet)" dateTime={new Date(r.reviewDate).toISOString()}>
-                    {new Date(r.reviewDate).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                    {new Date(r.reviewDate).toLocaleDateString(storeIntlLocale(), { year: "numeric", month: "long", day: "numeric" })}
                   </time>
                 </div>
               </div>
@@ -57,7 +58,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
             {r.verifiedPurchase && (
               <p className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold text-(--rx-ok)">
                 <BadgeCheck className="size-3.5" />
-                مشتري مؤكد
+                {st("مشتري مؤكد")}
               </p>
             )}
             {r.title && <p className="rx-h4 mt-2">{r.title}</p>}
@@ -80,34 +81,34 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
   const wa = whatsappHref(whatsapp);
 
   const specs = [
-    { label: "القسم", value: product.category.name, href: categoryHref },
-    product.brand ? { label: "الشركة المصنعة", value: product.brand } : null,
-    product.sku ? { label: "كود المنتج", value: product.sku, ltr: true } : null,
-    product.weight !== null ? { label: "الوزن", value: `${num(product.weight)} كجم` } : null,
+    { label: st("القسم"), value: product.category.name, href: categoryHref },
+    product.brand ? { label: st("الشركة المصنعة"), value: product.brand } : null,
+    product.sku ? { label: st("كود المنتج"), value: product.sku, ltr: true } : null,
+    product.weight !== null ? { label: st("الوزن"), value: st("{0} كجم", num(product.weight)) } : null,
     product.sizes.length ? { label: OPTION_LABEL.size, value: product.sizes.join("، ") } : null,
     product.colors.length ? { label: OPTION_LABEL.color, value: product.colors.join("، ") } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   // Service facts from the store's real shipping methods only.
   const delivery = [
-    cheapest && { Icon: Truck, title: cheapest.price === 0 ? "توصيل مجاني متاح" : `توصيل من ${formatPrice(cheapest.price / 100)}`, note: cheapest.name },
-    fastest?.estimatedDays && { Icon: Clock, title: `يوصلك خلال ${num(fastest.estimatedDays)} أيام`, note: fastest.name },
-    inStock && { Icon: PackageCheck, title: "متوفر للطلب", note: "المتجر هيأكد معاك قبل الشحن" },
+    cheapest && { Icon: Truck, title: cheapest.price === 0 ? st("توصيل مجاني متاح") : st("توصيل من {0}", formatPrice(cheapest.price / 100)), note: cheapest.name },
+    fastest?.estimatedDays && { Icon: Clock, title: st("يوصلك خلال {0} أيام", num(fastest.estimatedDays)), note: fastest.name },
+    inStock && { Icon: PackageCheck, title: st("متوفر للطلب"), note: st("المتجر هيأكد معاك قبل الشحن") },
   ].filter(Boolean) as { Icon: typeof Truck; title: string; note: string }[];
 
   const badges = !inStock ? (
-    <span className="rx-badge rx-badge--out">غير متوفر</span>
+    <span className="rx-badge rx-badge--out">{st("غير متوفر")}</span>
   ) : (
     <>
-      {off > 0 && <span className="rx-badge rx-badge--sale">خصم {num(off)}٪</span>}
-      {product.isFeatured && <span className="rx-badge rx-badge--pick">اختيار المتجر</span>}
+      {off > 0 && <span className="rx-badge rx-badge--sale">{st("خصم {0}٪", num(off))}</span>}
+      {product.isFeatured && <span className="rx-badge rx-badge--pick">{st("اختيار المتجر")}</span>}
     </>
   );
 
   const tabs = [
-    description && { id: "description", label: "الوصف", content: <p className="rx-prose max-w-none text-[0.9375rem]">{description}</p> },
-    { id: "specs", label: "التفاصيل", content: <Specs specs={specs} /> },
-    shipping.length > 0 && { id: "shipping", label: "التوصيل", content: <ShippingList shipping={shipping} /> },
+    description && { id: "description", label: st("الوصف"), content: <p className="rx-prose max-w-none text-[0.9375rem]">{description}</p> },
+    { id: "specs", label: st("التفاصيل"), content: <Specs specs={specs} /> },
+    shipping.length > 0 && { id: "shipping", label: st("التوصيل"), content: <ShippingList shipping={shipping} /> },
   ].filter(Boolean) as { id: string; label: string; content: React.ReactNode }[];
 
   return (
@@ -117,7 +118,7 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
         <Crumbs
           className="py-4"
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
             { label: product.category.name, href: categoryHref },
             { label: product.name },
           ]}
@@ -145,7 +146,7 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
                 )}
                 {product.sku && (
                   <span className="text-xs text-(--rx-quiet)">
-                    كود: <span dir="ltr">{product.sku}</span>
+                    {st("كود:")}{" "}<span dir="ltr">{product.sku}</span>
                   </span>
                 )}
               </div>
@@ -179,18 +180,18 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
                     <MessageCircle className="size-5" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold text-(--rx-ink)">عندك سؤال عن المنتج ده؟</span>
+                    <span className="block text-sm font-bold text-(--rx-ink)">{st("عندك سؤال عن المنتج ده؟")}</span>
                     <span className="block text-xs text-(--rx-quiet)">
-                      <PharmacyOnly otherwise="اسألنا على واتساب قبل ما تطلب">اسأل الصيدلي على واتساب قبل ما تطلب</PharmacyOnly>
+                      <PharmacyOnly otherwise={st("اسألنا على واتساب قبل ما تطلب")}>{st("اسأل الصيدلي على واتساب قبل ما تطلب")}</PharmacyOnly>
                     </span>
                   </span>
-                  <span className="text-sm font-bold text-(--rx-wa) group-hover:underline">اسأل</span>
+                  <span className="text-sm font-bold text-(--rx-wa) group-hover:underline">{st("اسأل")}</span>
                 </a>
               )}
 
               {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
                 <div className="mt-5 rounded-(--rx-r) border border-(--rx-line) p-4">
-                  <p className="mb-3 text-sm font-bold text-(--rx-ink)">الباقة فيها</p>
+                  <p className="mb-3 text-sm font-bold text-(--rx-ink)">{st("الباقة فيها")}</p>
                   <ul className="space-y-2.5">
                     {product.bundleItems.map((item, i) => (
                       <li key={i} className="flex items-center gap-3">
@@ -224,18 +225,18 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
 
             <PharmacyOnly>
               <Note icon={<Info />} className="mt-(--rx-gap)">
-                المعلومات المعروضة للتوضيح بس ومش بديل عن استشارة الطبيب أو الصيدلي. اقرأ النشرة الداخلية قبل الاستخدام.
+                {st("المعلومات المعروضة للتوضيح بس ومش بديل عن استشارة الطبيب أو الصيدلي. اقرأ النشرة الداخلية قبل الاستخدام.")}
               </Note>
             </PharmacyOnly>
           </div>
         </div>
 
-        <section id="details" aria-label="تفاصيل المنتج" className="rx-panel mt-8 scroll-mt-28 p-4 sm:p-6">
+        <section id="details" aria-label={st("تفاصيل المنتج")} className="rx-panel mt-8 scroll-mt-28 p-4 sm:p-6">
           <DetailTabs tabs={tabs} />
         </section>
 
         <section id="reviews" className="rx-section mt-4 scroll-mt-28">
-          <SectionHeader title="تقييمات العملاء" />
+          <SectionHeader title={st("تقييمات العملاء")} />
           {reviews.length > 0 ? (
             <div className="rx-panel p-4 sm:p-6">
               <Reviews reviews={reviews} />
@@ -243,14 +244,14 @@ export default function MedicalProduct({ store, product, reviews, related, shipp
           ) : (
             <p className="rx-panel flex items-center justify-center gap-2 px-5 py-8 text-center text-[0.9375rem]">
               <ShieldCheck className="size-5 text-(--rx-quiet)" />
-              لسه مفيش تقييمات للمنتج ده.
+              {st("لسه مفيش تقييمات للمنتج ده.")}
             </p>
           )}
         </section>
 
         {related.length > 0 && (
           <section className="rx-section">
-            <Rail label="منتجات مشابهة" title="بدائل ومنتجات مشابهة" sub={`من قسم ${product.category.name}`} href={categoryHref} linkLabel="كل القسم">
+            <Rail label={st("منتجات مشابهة")} title={st("بدائل ومنتجات مشابهة")} sub={st("من قسم {0}", product.category.name)} href={categoryHref} linkLabel={st("كل القسم")}>
               {related.slice(0, 12).map((p, i) => (
                 <li key={p.id} className="min-w-0">
                   <ProductCard product={p} storeSlug={store.slug} index={i} sizes="(max-width: 768px) 46vw, 18vw" />
@@ -293,9 +294,9 @@ function ShippingList({ shipping }: { shipping: ProductViewProps["shipping"] }) 
         <li key={s.id} className="flex justify-between gap-4 border-b border-(--rx-line) py-3 last:border-0">
           <span className="text-(--rx-ink)">
             {s.name}
-            {s.estimatedDays ? <span className="text-(--rx-quiet)"> · خلال {num(s.estimatedDays)} أيام</span> : null}
+            {s.estimatedDays ? <span className="text-(--rx-quiet)">{" "}{st("· خلال {0} أيام", num(s.estimatedDays))}</span> : null}
           </span>
-          <span className="rx-num shrink-0 font-bold text-(--rx-ink)">{s.price === 0 ? "مجاني" : formatPrice(s.price / 100)}</span>
+          <span className="rx-num shrink-0 font-bold text-(--rx-ink)">{s.price === 0 ? st("مجاني") : formatPrice(s.price / 100)}</span>
         </li>
       ))}
     </ul>

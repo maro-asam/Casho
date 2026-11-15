@@ -19,6 +19,7 @@ import SearchCombobox from "./SearchCombobox";
 import StoreLogo from "./StoreLogo";
 import ThemeToggle from "./ThemeToggle";
 import { useStorePath } from "../../shared/store-path";
+import { st } from "@/lib/i18n/storefront";
 
 function useCartCount(storeSlug: string) {
   const [count, setCount] = useState(0);
@@ -71,7 +72,7 @@ function AnnouncementBar({ text, storeSlug }: { text: string; storeSlug: string 
               sessionStorage.setItem(key, text);
             } catch {}
           }}
-          aria-label="إخفاء الإعلان"
+          aria-label={st("إخفاء الإعلان")}
           className="absolute end-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full opacity-70 transition-opacity hover:opacity-100 sm:end-[calc(var(--c-gutter)-0.5rem)]"
         >
           <X className="size-4" />
@@ -85,7 +86,7 @@ function CartButton({ storeSlug, count, withLabel }: { storeSlug: string; count:
   return (
     <Link
       href={buildStoreUrl(storeSlug, "/cart")}
-      aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
+      aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")}
       className={btn({
         variant: "ghost",
         size: withLabel ? "md" : "icon",
@@ -93,7 +94,7 @@ function CartButton({ storeSlug, count, withLabel }: { storeSlug: string; count:
       })}
     >
       <ShoppingBag />
-      {withLabel && <span>السلة</span>}
+      {withLabel && <span>{st("السلة")}</span>}
       {count > 0 && (
         <span
           aria-hidden

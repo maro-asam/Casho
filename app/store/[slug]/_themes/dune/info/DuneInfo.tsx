@@ -9,13 +9,14 @@ import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDoc
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Arrow, Crumbs, Empty, PageTitle, Wrap, btn, delay, num } from "../ui";
 import ContactForm from "./ContactForm";
+import { st } from "@/lib/i18n/storefront";
 
 function Channels({ contact }: { contact: StoreContact }) {
   const wa = whatsappHref(contact.whatsapp);
   const rows = [
-    ...(wa ? [{ label: "واتساب", value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
-    ...(contact.email ? [{ label: "البريد الإلكتروني", value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
-    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: "تابعنا", href: s.href, Icon: s.Icon, ltr: false })),
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
+    ...(contact.email ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, Icon: s.Icon, ltr: false })),
   ];
   if (rows.length === 0) return null;
   return (
@@ -50,15 +51,15 @@ export function DuneAbout({ store, logo, coverImage, description, contact, produ
           </div>
           <span aria-hidden className="absolute inset-0 bg-[rgb(20_20_18/0.42)]" />
           <div className="dn-wrap relative flex min-h-[22rem] flex-col items-center justify-center py-16 text-center sm:min-h-[30rem]">
-            <Crumbs items={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]} className="dn-appear [&_li]:flex-none [&_ol]:justify-center [&_ol]:text-white/80 [&_[aria-current]]:text-white" />
+            <Crumbs items={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} className="dn-appear [&_li]:flex-none [&_ol]:justify-center [&_ol]:text-white/80 [&_[aria-current]]:text-white" />
             <h1 className="dn-hero dn-appear mt-5 text-balance text-[clamp(2.5rem,6vw,5rem)]" style={delay(1)}>
-              عن {store.name}
+              {st("عن {0}", store.name)}
             </h1>
           </div>
         </header>
       ) : (
         <Wrap>
-          <PageTitle title={`عن ${store.name}`} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]} />
+          <PageTitle title={st("عن {0}", store.name)} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} />
         </Wrap>
       )}
 
@@ -68,12 +69,12 @@ export function DuneAbout({ store, logo, coverImage, description, contact, produ
             {logo ? <Image src={logo} alt="" fill sizes="64px" className="object-cover" /> : <Store className="size-7 text-(--dn-quiet)" />}
           </span>
           <p className="dn-serif dn-appear text-[clamp(1.5rem,2.4vw,2rem)] leading-[1.6] whitespace-pre-line" style={delay(1)}>
-            {description?.trim() || `أهلاً بيك في ${store.name}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.`}
+            {description?.trim() || st("أهلاً بيك في {0}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.", store.name)}
           </p>
           <dl className="dn-appear mt-10 grid max-w-md grid-cols-2 border-y border-(--dn-line)" style={delay(2)}>
             {[
-              { n: productCount, l: "منتج" },
-              { n: categoryCount, l: "تصنيف" },
+              { n: productCount, l: st("منتج") },
+              { n: categoryCount, l: st("تصنيف") },
             ].map((s, i) => (
               <div key={s.l} className={i === 0 ? "flex flex-col-reverse border-e border-(--dn-line) py-6" : "flex flex-col-reverse py-6 ps-6"}>
                 <dt className="mt-2 text-sm text-(--dn-quiet)">{s.l}</dt>
@@ -83,17 +84,17 @@ export function DuneAbout({ store, logo, coverImage, description, contact, produ
           </dl>
           <div className="dn-appear mt-10 flex flex-wrap gap-3" style={delay(3)}>
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-              تسوق المنتجات
+              {st("تسوق المنتجات")}
             </Link>
             <Link href={buildStoreUrl(store.slug, "/contact")} className={btn({ size: "lg", variant: "outline" })}>
-              تواصل معنا
+              {st("تواصل معنا")}
             </Link>
           </div>
         </div>
         <aside className="dn-appear" style={delay(2)}>
-          <h2 className="dn-label mb-4">طرق التواصل</h2>
+          <h2 className="dn-label mb-4">{st("طرق التواصل")}</h2>
           <Channels contact={contact} />
-          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="text-sm text-(--dn-quiet)">المتجر هيتواصل معاك على رقمك بعد ما تطلب.</p>}
+          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="text-sm text-(--dn-quiet)">{st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}</p>}
         </aside>
       </Wrap>
     </div>
@@ -105,28 +106,28 @@ export function DuneContact({ store, contact }: ContactViewProps) {
   const hasAny = !!wa || !!contact.email || getSocialLinks(contact).length > 0;
   return (
     <Wrap className="pb-12">
-      <PageTitle title="تواصل معنا" crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تواصل معنا" }]} note="عندك سؤال عن منتج أو طلب؟ إحنا معاك." />
+      <PageTitle title={st("تواصل معنا")} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معنا") }]} note={st("عندك سؤال عن منتج أو طلب؟ إحنا معاك.")} />
       {!hasAny ? (
         <Empty
           icon={<MessageCircle />}
-          title="المتجر لسه مضافش وسيلة تواصل"
-          description="لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه."
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : (
         <div data-reveal className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20">
           <section className="dn-appear">
-            <h2 className="dn-label mb-4">كلّمنا مباشرة</h2>
+            <h2 className="dn-label mb-4">{st("كلّمنا مباشرة")}</h2>
             <Channels contact={contact} />
           </section>
           {(wa || contact.email) && (
             <section className="dn-appear bg-(--dn-plate) p-6 sm:p-10" style={delay(1)}>
-              <h2 className="dn-h3">ابعتلنا رسالة</h2>
-              <p className="mb-7 mt-2 text-sm text-(--dn-quiet)">{wa ? "هتتفتح محادثة واتساب ورسالتك جاهزة." : "هيتفتح الإيميل ورسالتك جاهزة."}</p>
+              <h2 className="dn-h3">{st("ابعتلنا رسالة")}</h2>
+              <p className="mb-7 mt-2 text-sm text-(--dn-quiet)">{wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}</p>
               <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
             </section>
           )}
@@ -151,9 +152,9 @@ export function DuneTrack({ store, whatsapp, initialCode, order }: TrackViewProp
   return (
     <Wrap className="pb-12">
       <PageTitle
-        title="تتبّع طلبك"
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
-        note={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
+        title={st("تتبّع طلبك")}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]}
+        note={order ? undefined : st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}
       />
       <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
     </Wrap>
@@ -163,7 +164,7 @@ export function DuneTrack({ store, whatsapp, initialCode, order }: TrackViewProp
 export function DunePolicy({ store, policy, policies }: PolicyViewProps) {
   return (
     <Wrap className="pb-12">
-      <PageTitle title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <PageTitle title={policy.title} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
       <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
     </Wrap>
   );

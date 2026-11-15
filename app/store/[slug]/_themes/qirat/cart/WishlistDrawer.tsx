@@ -7,13 +7,14 @@ import { Dialog } from "radix-ui";
 
 import { GetStorefrontCardsAction } from "@/actions/store/storefront-products.actions";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { useLocalList } from "../../shared/local-list";
 import { storeHref } from "../../shared/store-path";
 import { WISHLIST_EVENT, openQuickView, wishKey } from "../lib/events";
 import { waShare, wishlistMessage } from "../lib/qirat";
 import { Ornament, PlateImage, QR_PORTAL, btn, num, stagger } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 /** The shopper's wishlist (kept in this browser). Casho has no accounts, so
  *  instead of "save to account" the list can be sent — to themselves, or to
@@ -56,10 +57,10 @@ export default function WishlistDrawer({ storeSlug, storeName, dir }: { storeSlu
         <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(QR_PORTAL, "qr-drawer fixed inset-y-0 end-0 z-50 flex w-[min(100vw,27rem)] flex-col bg-(--qr-sheet) outline-none")}>
           <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-(--qr-line) px-6">
             <Dialog.Title className="qr-h3 flex items-baseline gap-2">
-              قايمة أمنياتك
+              {st("قايمة أمنياتك")}
               {list.length > 0 && <span className="text-sm text-(--qr-ink-2)">({num(list.length)})</span>}
             </Dialog.Title>
-            <Dialog.Close className="qr-icon -me-2" aria-label="إغلاق">
+            <Dialog.Close className="qr-icon -me-2" aria-label={st("إغلاق")}>
               <X />
             </Dialog.Close>
           </div>
@@ -70,12 +71,12 @@ export default function WishlistDrawer({ storeSlug, storeName, dir }: { storeSlu
                 <span className="qr-empty-icon">
                   <Heart />
                 </span>
-                <p className="qr-h3 mt-6">لسه ما حفظتش قطع</p>
+                <p className="qr-h3 mt-6">{st("لسه ما حفظتش قطع")}</p>
                 <Ornament className="mt-4" />
-                <p className="mt-4 max-w-xs text-sm leading-6 text-(--qr-ink-2)">دوس على القلب فوق أي قطعة عجبتك، وهتلاقيها هنا لما ترجع.</p>
+                <p className="mt-4 max-w-xs text-sm leading-6 text-(--qr-ink-2)">{st("دوس على القلب فوق أي قطعة عجبتك، وهتلاقيها هنا لما ترجع.")}</p>
                 <Dialog.Close asChild>
                   <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ className: "mt-7" })}>
-                    اكتشف المجموعة
+                    {st("اكتشف المجموعة")}
                   </Link>
                 </Dialog.Close>
               </div>
@@ -97,14 +98,14 @@ export default function WishlistDrawer({ storeSlug, storeName, dir }: { storeSlu
                         <PlateImage src={p.image} sizes="12rem" className={cn("qr-zoom", p.stock <= 0 && "opacity-50 grayscale")} />
                       </span>
                       <span className="qr-serif mt-2.5 line-clamp-2 block text-[0.9375rem] leading-6 text-(--qr-ink)">{p.name}</span>
-                      <span className="qr-price block text-sm">{p.stock > 0 ? formatPrice(p.price) : "نفدت"}</span>
+                      <span className="qr-price block text-sm">{p.stock > 0 ? formatPrice(p.price) : st("نفدت")}</span>
                     </Link>
-                    <button type="button" onClick={() => remove(p.id)} aria-label={`شيل ${p.name} من القايمة`} className="qr-fab absolute end-2 top-2 size-8 [&_svg]:size-3.5">
+                    <button type="button" onClick={() => remove(p.id)} aria-label={st("شيل {0} من القايمة", p.name)} className="qr-fab absolute end-2 top-2 size-8 [&_svg]:size-3.5">
                       <X />
                     </button>
                     {p.stock > 0 && (
                       <button type="button" onClick={() => openQuickView(p.slug)} className="qr-link mt-1.5 justify-center text-xs">
-                        <span className="qr-underline">{p.hasOptions ? "اختار وأضف" : "أضف للحقيبة"}</span>
+                        <span className="qr-underline">{p.hasOptions ? st("اختار وأضف") : st("أضف للحقيبة")}</span>
                       </button>
                     )}
                   </li>
@@ -117,9 +118,9 @@ export default function WishlistDrawer({ storeSlug, storeName, dir }: { storeSlu
             <div className="shrink-0 space-y-2 border-t border-(--qr-line) px-6 pt-4" style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}>
               <button type="button" onClick={share} className={btn({ variant: "gold", size: "lg", full: true })}>
                 <Send />
-                ابعت القايمة لحد يهاديك
+                {st("ابعت القايمة لحد يهاديك")}
               </button>
-              <p className="text-center text-xs text-(--qr-ink-2)">هتتفتح واتساب والقايمة جاهزة بروابط القطع.</p>
+              <p className="text-center text-xs text-(--qr-ink-2)">{st("هتتفتح واتساب والقايمة جاهزة بروابط القطع.")}</p>
             </div>
           )}
         </Dialog.Content>

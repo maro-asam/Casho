@@ -5,7 +5,8 @@ import Image from "next/image";
 import { Check, Loader2 } from "lucide-react";
 
 import type { StorefrontOffer } from "@/lib/offers/storefront-offers";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Offer UI shared by the post-add modal (OfferHost) and the cart strip
@@ -106,7 +107,7 @@ export function OfferRow({ offer, href, ctaLabel, pending, done, error, featured
       )}
     >
       {pending ? <Loader2 className="size-4 animate-spin" /> : done ? <Check className="size-4" /> : null}
-      <span className="font-semibold">{done ? "اتضاف" : ctaLabel}</span>
+      <span className="font-semibold">{done ? st("اتضاف") : ctaLabel}</span>
     </button>
   );
 
@@ -128,8 +129,8 @@ export function OfferRow({ offer, href, ctaLabel, pending, done, error, featured
           </a>
           <OfferPrice offer={offer} className="mt-1" />
         </div>
-        {!done && product.sizes.length > 1 && <Chips label="المقاس" values={product.sizes} value={size} onChange={setSize} />}
-        {!done && product.colors.length > 1 && <Chips label="اللون" values={product.colors} value={color} onChange={setColor} />}
+        {!done && product.sizes.length > 1 && <Chips label={st("المقاس")} values={product.sizes} value={size} onChange={setSize} />}
+        {!done && product.colors.length > 1 && <Chips label={st("اللون")} values={product.colors} value={color} onChange={setColor} />}
         {error && <p className="text-xs font-medium text-red-600">{error}</p>}
         <div className={cn(!featured && "mt-auto")}>{button}</div>
       </div>

@@ -7,24 +7,25 @@ import type { CategoriesIndexViewProps, CategoryViewProps } from "../../types";
 import { CollectionTabs } from "../listing/QiratListing";
 import { ProductGrid } from "../product/ProductCard";
 import { CategoryArt, Empty, Kicker, Ornament, PageHead, TextLink, Wrap, btn, delay, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 export function QiratCategoriesIndex({ store, categories }: CategoriesIndexViewProps) {
   return (
     <Wrap className="pb-20">
       <PageHead
         kicker={store.name}
-        title="المجموعات"
-        note={categories.length > 0 ? `${num(categories.length)} مجموعة` : undefined}
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "المجموعات" }]}
+        title={st("المجموعات")}
+        note={categories.length > 0 ? st("{0} مجموعة", num(categories.length)) : undefined}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("المجموعات") }]}
       />
       {categories.length === 0 ? (
         <Empty
           icon={<LayoutGrid />}
-          title="مفيش مجموعات لسه"
-          description="تقدر تتصفح كل القطع مباشرةً."
+          title={st("مفيش مجموعات لسه")}
+          description={st("تقدر تتصفح كل القطع مباشرةً.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              كل القطع
+              {st("كل القطع")}
             </Link>
           }
         />
@@ -37,7 +38,7 @@ export function QiratCategoriesIndex({ store, categories }: CategoriesIndexViewP
                   <CategoryArt name={c.name} image={c.image} priority={i < 6} sizes="(max-width: 768px) 50vw, 25vw" className="qr-zoom" />
                 </span>
                 <span className="qr-h3 mt-4 block truncate">{c.name}</span>
-                <span className="mt-1 block text-xs text-(--qr-ink-2)">{num(c.productCount)} قطعة</span>
+                <span className="mt-1 block text-xs text-(--qr-ink-2)">{st("{0} قطعة", num(c.productCount))}</span>
               </Link>
             </li>
           ))}
@@ -49,8 +50,8 @@ export function QiratCategoriesIndex({ store, categories }: CategoriesIndexViewP
 
 export function QiratCategory({ store, category, products, otherCategories }: CategoryViewProps) {
   const crumbs = [
-    { label: "الرئيسية", href: buildStoreUrl(store.slug) },
-    { label: "المجموعات", href: buildStoreUrl(store.slug, "/categories") },
+    { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
+    { label: st("المجموعات"), href: buildStoreUrl(store.slug, "/categories") },
     { label: category.name },
   ];
   return (
@@ -60,10 +61,10 @@ export function QiratCategory({ store, category, products, otherCategories }: Ca
           <Image src={category.image} alt="" fill priority sizes="100vw" className="object-cover" />
           <span aria-hidden className="qr-shade" />
           <div className="qr-wrap qr-cathero-copy">
-            <Kicker className="qr-rise">المجموعة</Kicker>
+            <Kicker className="qr-rise">{st("المجموعة")}</Kicker>
             <h1 className="qr-display qr-rise mt-2 text-balance">{category.name}</h1>
             <Ornament className="qr-rise mt-5" />
-            <p className="qr-rise mt-4 text-sm text-(--qr-ink-2)">{num(products.length)} قطعة</p>
+            <p className="qr-rise mt-4 text-sm text-(--qr-ink-2)">{st("{0} قطعة", num(products.length))}</p>
           </div>
         </section>
       ) : null}
@@ -71,22 +72,22 @@ export function QiratCategory({ store, category, products, otherCategories }: Ca
         {category.image ? (
           <div className="pt-6" />
         ) : (
-          <PageHead kicker="المجموعة" title={category.name} note={`${num(products.length)} قطعة`} crumbs={crumbs} />
+          <PageHead kicker={st("المجموعة")} title={category.name} note={st("{0} قطعة", num(products.length))} crumbs={crumbs} />
         )}
         {otherCategories.length > 0 && <CollectionTabs slug={store.slug} current={category.slug} categories={[category, ...otherCategories]} />}
         {products.length > 1 && (
           <div className="mb-8 flex justify-center">
-            <TextLink href={buildStoreUrl(store.slug, `/products?category=${encodeURIComponent(category.slug)}`)}>فلترة وترتيب</TextLink>
+            <TextLink href={buildStoreUrl(store.slug, `/products?category=${encodeURIComponent(category.slug)}`)}>{st("فلترة وترتيب")}</TextLink>
           </div>
         )}
         {products.length === 0 ? (
           <Empty
             icon={<Gem />}
-            title="المجموعة دي فاضية دلوقتي"
-            description="لسه مفيش قطع هنا. شوف باقي المجموعة."
+            title={st("المجموعة دي فاضية دلوقتي")}
+            description={st("لسه مفيش قطع هنا. شوف باقي المجموعة.")}
             action={
               <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-                كل القطع
+                {st("كل القطع")}
               </Link>
             }
           />

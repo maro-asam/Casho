@@ -10,6 +10,7 @@ import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { StoreMark } from "../header/parts";
 import { Arrow, btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type LinkItem = { label: string; href: string; external?: boolean; ltr?: boolean };
 
@@ -52,25 +53,25 @@ export default async function MadaFooter({ shell }: { shell: StoreShell }) {
 
   const groups: { title: string; links: LinkItem[] }[] = [
     {
-      title: "تسوّق",
+      title: st("تسوّق"),
       links: [
-        { label: "كل المنتجات", href: url("/products") },
-        { label: "وصل حديثًا", href: url("/products") },
-        { label: "اختيارات المتجر", href: url("/products?featured=true") },
-        { label: "التصنيفات", href: url("/categories") },
+        { label: st("كل المنتجات"), href: url("/products") },
+        { label: st("وصل حديثًا"), href: url("/products") },
+        { label: st("اختيارات المتجر"), href: url("/products?featured=true") },
+        { label: st("التصنيفات"), href: url("/categories") },
       ],
     },
     ...(shell.categories.length
-      ? [{ title: "التصنيفات", links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }]
+      ? [{ title: st("التصنيفات"), links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }]
       : []),
     {
-      title: "المساعدة",
+      title: st("المساعدة"),
       links: [
-        { label: "تتبّع طلبك", href: url("/track") },
-        { label: "تواصل معنا", href: url("/contact") },
-        { label: "عن المتجر", href: url("/about") },
-        { label: "سلة المشتريات", href: url("/cart") },
-        ...(wa ? [{ label: "واتساب", href: wa, external: true }] : []),
+        { label: st("تتبّع طلبك"), href: url("/track") },
+        { label: st("تواصل معنا"), href: url("/contact") },
+        { label: st("عن المتجر"), href: url("/about") },
+        { label: st("سلة المشتريات"), href: url("/cart") },
+        ...(wa ? [{ label: st("واتساب"), href: wa, external: true }] : []),
         ...(shell.contact.email ? [{ label: shell.contact.email, href: `mailto:${shell.contact.email}`, ltr: true }] : []),
         ...policyFooterLinks(shell),
       ],
@@ -83,20 +84,20 @@ export default async function MadaFooter({ shell }: { shell: StoreShell }) {
         <div className="md-wrap mb-[calc(var(--md-section)/2)]">
           <div className="flex flex-col items-start gap-5 rounded-[1.75rem] bg-(--md-signal) px-6 py-8 text-(--md-signal-ink) sm:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-14">
             <div>
-              <p className="md-h3">محتاج مساعدة في طلبك؟</p>
-              <p className="mt-1 text-sm opacity-75">كلّم {shell.name} مباشرة وهيردوا عليك.</p>
+              <p className="md-h3">{st("محتاج مساعدة في طلبك؟")}</p>
+              <p className="mt-1 text-sm opacity-75">{st("كلّم {0} مباشرة وهيردوا عليك.", shell.name)}</p>
             </div>
             <div className="flex flex-wrap gap-2.5">
               {wa && (
                 <a href={wa} target="_blank" rel="noopener noreferrer" className={btn({ className: "bg-[#121714] text-white hover:bg-black" })}>
                   <MessageCircle />
-                  واتساب
+                  {st("واتساب")}
                 </a>
               )}
               {shell.contact.email && (
                 <a href={`mailto:${shell.contact.email}`} className={btn({ variant: "outline", className: "border-current/30 text-inherit hover:bg-white/30" })}>
                   <Mail />
-                  إيميل
+                  {st("إيميل")}
                 </a>
               )}
             </div>
@@ -151,7 +152,7 @@ export default async function MadaFooter({ shell }: { shell: StoreShell }) {
 
           <div className="mt-12 flex flex-col gap-6 border-t border-current/15 pt-6 lg:flex-row lg:items-center lg:justify-between">
             {payments.length > 0 ? (
-              <ul className="flex flex-wrap items-center gap-2" aria-label="طرق الدفع المتاحة">
+              <ul className="flex flex-wrap items-center gap-2" aria-label={st("طرق الدفع المتاحة")}>
                 {payments.map((p) => (
                   <li key={p.key} className="grid h-9 min-w-14 place-items-center rounded-lg bg-white px-2" title={p.label}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -161,15 +162,15 @@ export default async function MadaFooter({ shell }: { shell: StoreShell }) {
               </ul>
             ) : (
               <Link href={url("/products")} className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold">
-                ابدأ التسوق
+                {st("ابدأ التسوق")}
                 <Arrow />
               </Link>
             )}
             <div className="flex flex-col gap-2 text-xs opacity-70 sm:flex-row sm:items-center sm:gap-6">
-              <p>© {year} {shell.name}. كل الحقوق محفوظة.</p>
+              <p>{st("© {0} {1}. كل الحقوق محفوظة.", year, shell.name)}</p>
               {shell.showPoweredByCasho && (
                 <a href="https://casho.store" target="_blank" rel="noopener" className="inline-flex min-h-10 items-center gap-2 transition-opacity hover:opacity-100">
-                  متجر مبني على
+                  {st("متجر مبني على")}
                   <CashoLogo withSubTitle={false} />
                 </a>
               )}

@@ -6,12 +6,13 @@ import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
 import { cn } from "@/lib/utils";
 import { SORT_OPTIONS } from "../../shared/commerce";
 import { storeHref } from "../../shared/store-path";
+import { st } from "@/lib/i18n/storefront";
 
 /** Native <select> (the best picker on phones), set as an underlined field. */
 export default function SortSelect({
   storeSlug,
   query,
-  label = "ترتيب",
+  label = st("ترتيب"),
   className,
 }: {
   storeSlug: string;

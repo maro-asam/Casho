@@ -17,16 +17,21 @@ import { orderNumber, orderTrackPath } from "@/lib/orders/tracking";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 function formatEGPFromCents(cents: number) {
-  return new Intl.NumberFormat("ar-EG", {
+  return new Intl.NumberFormat(storeIntlLocale(), {
     style: "currency",
     currency: "EGP",
     maximumFractionDigits: 2,
   }).format(cents / 100);
 }
 
-export const metadata: Metadata = { title: "تم الطلب", robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  await loadStoreLocale((await params).slug);
+  return { title: st("تم الطلب"), robots: { index: false, follow: false } };
+}
 
 export default async function OrderSuccessPage({
   params,
@@ -34,6 +39,7 @@ export default async function OrderSuccessPage({
   params: Promise<{ slug: string; orderId: string }>;
 }) {
   const { slug, orderId } = await params;
+  await loadStoreLocale(slug);
   const { guestSessionId } = await MustSession();
 
   const order = await prisma.order.findFirst({
@@ -100,20 +106,19 @@ export default async function OrderSuccessPage({
 
           <div className="space-y-3">
             <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">
-              تم الدفع بنجاح 🎉
+              {st("تم الدفع بنجاح 🎉")}
             </h1>
 
             <p className="mx-auto max-w-lg text-sm leading-7 text-muted-foreground md:text-base">
-              شكراً لطلبك من {order.store.name}. تم تسجيل عملية الدفع بنجاح
-              وهيتم تجهيز الطلب ومتابعته من المتجر.
+              {st("شكراً لطلبك من {0}. تم تسجيل عملية الدفع بنجاح وهيتم تجهيز الطلب ومتابعته من المتجر.", order.store.name)}
             </p>
           </div>
 
-          <div className="grid gap-3 text-right sm:grid-cols-3">
+          <div className="grid gap-3 text-start sm:grid-cols-3">
             <div className="rounded-2xl border bg-muted/40 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
                 <ClipboardList className="size-4" />
-                رقم الطلب
+                {st("رقم الطلب")}
               </div>
               <p className="font-mono text-sm font-semibold" dir="ltr">
                 {orderNumber(order.id)}
@@ -123,13 +128,13 @@ export default async function OrderSuccessPage({
             <div className="rounded-2xl border bg-muted/40 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
                 <Package className="size-4" />
-                عدد المنتجات
+                {st("عدد المنتجات")}
               </div>
               <p className="font-semibold">{order.items.length}</p>
             </div>
 
             <div className="rounded-2xl border bg-primary/5 p-4">
-              <div className="mb-2 text-sm text-muted-foreground">الإجمالي</div>
+              <div className="mb-2 text-sm text-muted-foreground">{st("الإجمالي")}</div>
               <p className="font-extrabold">
                 {formatEGPFromCents(order.total)}
               </p>
@@ -138,7 +143,7 @@ export default async function OrderSuccessPage({
 
           {order.paymentReference ? (
             <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
-              مرجع الدفع:{" "}
+              {st("مرجع الدفع:")}{" "}
               <span className="font-mono text-foreground">
                 {order.paymentReference}
               </span>
@@ -146,12 +151,12 @@ export default async function OrderSuccessPage({
           ) : null}
 
           <p className="text-sm leading-7 text-muted-foreground">
-            تقدر تتابع طلبك في أي وقت ومن أي جهاز من{" "}
+            {st("تقدر تتابع طلبك في أي وقت ومن أي جهاز من")}{" "}
             <Link
               href={`/store/${slug}${orderTrackPath(order.id)}`}
               className="font-medium text-primary underline underline-offset-4 hover:no-underline"
             >
-              صفحة تتبّع الطلب
+              {st("صفحة تتبّع الطلب")}
             </Link>
             .
           </p>
@@ -160,7 +165,7 @@ export default async function OrderSuccessPage({
             <Button asChild className="h-12 flex-1 rounded-2xl">
               <Link href={`/store/${slug}/order/${order.id}`}>
                 <ClipboardList className="ms-2 size-4" />
-                عرض تفاصيل الطلب
+                {st("عرض تفاصيل الطلب")}
               </Link>
             </Button>
 
@@ -171,7 +176,7 @@ export default async function OrderSuccessPage({
             >
               <Link href={`/store/${slug}`}>
                 <Home className="ms-2 size-4" />
-                العودة للمتجر
+                {st("العودة للمتجر")}
               </Link>
             </Button>
           </div>
@@ -179,7 +184,7 @@ export default async function OrderSuccessPage({
           <Button asChild variant="ghost" className="rounded-2xl">
             <Link href={`/store/${slug}`}>
               <ShoppingBag className="ms-2 size-4" />
-              متابعة التسوق
+              {st("متابعة التسوق")}
             </Link>
           </Button>
         </CardContent>

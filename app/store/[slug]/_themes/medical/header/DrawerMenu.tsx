@@ -14,6 +14,7 @@ import { usePharmacy } from "../lib/pharmacy";
 import { RX_MESSAGE, waWith } from "../lib/rx";
 import { CategoryArt, Chevron, RX_PORTAL, num, stagger } from "../ui";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const ROW =
   "flex min-h-12 w-full items-center justify-between gap-3 rounded-(--rx-r-sm) px-3 text-[0.9375rem] font-semibold text-(--rx-ink) transition-colors hover:bg-(--rx-band) aria-[current=page]:bg-(--rx-tint) aria-[current=page]:text-(--rx-tint-ink)";
@@ -30,17 +31,17 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
   const close = () => setOpen(false);
 
   const links = [
-    { href: "/", label: "الرئيسية" },
-    { href: "/products", label: "كل المنتجات" },
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
-    { href: "/track", label: "تتبّع طلبك" },
-    { href: "/contact", label: "تواصل معنا" },
+    { href: "/", label: st("الرئيسية") },
+    { href: "/products", label: st("كل المنتجات") },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
+    { href: "/track", label: st("تتبّع طلبك") },
+    { href: "/contact", label: st("تواصل معنا") },
   ];
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="rx-icon -ms-2" aria-label="فتح القائمة">
+      <Dialog.Trigger className="rx-icon -ms-2" aria-label={st("فتح القائمة")}>
         <Menu />
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -56,7 +57,7 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
                 <StoreMark shell={shell} onClick={close} />
               </div>
             </Dialog.Title>
-            <Dialog.Close className="rx-icon -me-2" aria-label="إغلاق القائمة">
+            <Dialog.Close className="rx-icon -me-2" aria-label={st("إغلاق القائمة")}>
               <X />
             </Dialog.Close>
           </div>
@@ -71,14 +72,14 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
               >
                 <ClipboardPlus className="size-7 shrink-0" strokeWidth={1.5} />
                 <span className="min-w-0 flex-1 text-(--rx-tint-ink)">
-                  <span className="block text-sm font-bold">ابعت روشتة على واتساب</span>
-                  <span className="block text-xs opacity-80">صوّرها واسأل عن المتاح والسعر</span>
+                  <span className="block text-sm font-bold">{st("ابعت روشتة على واتساب")}</span>
+                  <span className="block text-xs opacity-80">{st("صوّرها واسأل عن المتاح والسعر")}</span>
                 </span>
                 <Chevron />
               </a>
             )}
 
-            <nav aria-label="القائمة الرئيسية">
+            <nav aria-label={st("القائمة الرئيسية")}>
               <ul className="rx-stagger">
                 {links.map((l, i) => (
                   <li key={l.href} style={stagger(i)}>
@@ -92,7 +93,7 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
 
             {shell.categories.length > 0 && (
               <section className="mt-4 border-t border-(--rx-line) pt-4">
-                <h2 className="px-3 pb-2 text-xs font-bold text-(--rx-quiet)">الأقسام</h2>
+                <h2 className="px-3 pb-2 text-xs font-bold text-(--rx-quiet)">{st("الأقسام")}</h2>
                 <ul>
                   {shell.categories.map((c) => (
                     <li key={c.id}>
@@ -118,12 +119,12 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
           <div className="shrink-0 space-y-1 border-t border-(--rx-line) px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
             <Link href={url("/track")} onClick={close} className="flex min-h-11 items-center gap-3 text-sm text-(--rx-ink)">
               <PackageSearch className="size-[1.125rem] text-(--rx-btn)" />
-              تتبّع طلبك برقم الطلب
+              {st("تتبّع طلبك برقم الطلب")}
             </Link>
             {wa && (
               <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-3 text-sm text-(--rx-ink)">
                 <MessageCircle className="size-[1.125rem] text-(--rx-wa)" />
-                كلّمنا على واتساب
+                {st("كلّمنا على واتساب")}
               </a>
             )}
             {shell.contact.email && (

@@ -5,6 +5,8 @@ import { Metadata } from "next";
 import { normalizeProductsQueryParams } from "@/lib/products-query";
 import { getStorefrontTheme } from "../_themes";
 import { PRODUCT_CARD_SELECT, getStoreCategoryLinks, getStoreFacets, getStoreThemeId, toProductCards, getStorefrontClosure } from "../_lib/storefront";
+import { st } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 type StoreProductsRouteProps = {
   params: Promise<{ slug: string }>;
@@ -29,6 +31,7 @@ export async function generateMetadata({
   params,
 }: StoreProductsRouteProps): Promise<Metadata> {
   const { slug } = await params;
+  await loadStoreLocale(slug);
 
   const store = await prisma.store.findUnique({
     where: { slug },
@@ -36,8 +39,8 @@ export async function generateMetadata({
   });
 
   return {
-    title: "كل المنتجات",
-    description: store ? `تصفح كل منتجات ${store.name} واطلب أونلاين بسهولة.` : "تصفح المنتجات المتاحة",
+    title: st("كل المنتجات"),
+    description: store ? st("تصفح كل منتجات {0} واطلب أونلاين بسهولة.", store.name) : st("تصفح المنتجات المتاحة"),
     // Filters/sorting/pages are variations of the same listing.
     alternates: { canonical: "/products" },
     openGraph: { url: "/products" },
@@ -49,6 +52,7 @@ export default async function StoreProductsRoute({
   searchParams,
 }: StoreProductsRouteProps) {
   const { slug } = await params;
+  await loadStoreLocale(slug);
   const resolvedSearchParams = await searchParams;
 
   if (!slug) return notFound();

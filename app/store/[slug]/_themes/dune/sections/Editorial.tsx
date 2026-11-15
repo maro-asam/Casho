@@ -12,6 +12,7 @@ import type {
   WhyChooseUsContent,
 } from "@/types/store-theme.types";
 import { Wrap, btn, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured editorial sections in Dune's language. Each renders only
 // the merchant's own content — no placeholder claims.
@@ -23,9 +24,9 @@ export function ImageWithText({ content, storeName, storeSlug }: { content?: Abo
   const href = content.ctaLink?.trim() || buildStoreUrl(storeSlug, "/about");
   const body = (
     <>
-      <p className="dn-label dn-appear text-(--dn-quiet)">حكايتنا</p>
+      <p className="dn-label dn-appear text-(--dn-quiet)">{st("حكايتنا")}</p>
       <h2 className="dn-h2 dn-appear mt-4 text-balance" style={delay(1)}>
-        {content.headline || `عن ${storeName}`}
+        {content.headline || st("عن {0}", storeName)}
       </h2>
       {content.text && (
         <p className="dn-prose dn-appear mt-5 text-[0.9375rem]" style={delay(2)}>
@@ -33,7 +34,7 @@ export function ImageWithText({ content, storeName, storeSlug }: { content?: Abo
         </p>
       )}
       <Link href={href} className={btn({ variant: "outline", className: "dn-appear mt-8" })} style={delay(3)}>
-        {content.ctaText || "اعرف أكتر"}
+        {content.ctaText || st("اعرف أكتر")}
       </Link>
     </>
   );
@@ -103,7 +104,7 @@ export function ScrollingText({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   const run = Array.from({ length: Math.max(2, Math.ceil(6 / items.length)) }, () => items).flat();
   return (
-    <div className="dn-marquee my-[calc(var(--dn-section)/4)] overflow-hidden border-y border-(--dn-line) py-5 sm:py-7" role="region" aria-label="عروض">
+    <div className="dn-marquee my-[calc(var(--dn-section)/4)] overflow-hidden border-y border-(--dn-line) py-5 sm:py-7" role="region" aria-label={st("عروض")}>
       <p className="sr-only">{items.join(" — ")}</p>
       <div className="dn-marquee-track" aria-hidden>
         {[0, 1].map((copy) => (

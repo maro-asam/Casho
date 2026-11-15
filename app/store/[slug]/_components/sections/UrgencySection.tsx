@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Timer, Users, Zap } from "lucide-react";
 import type { UrgencyContent } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   content?: UrgencyContent;
@@ -31,9 +32,9 @@ function Countdown({ endDate }: { endDate: string }) {
   return (
     <div className="flex items-center gap-2" dir="ltr">
       {[
-        { value: pad(timeLeft.h), label: "ساعة" },
-        { value: pad(timeLeft.m), label: "دقيقة" },
-        { value: pad(timeLeft.s), label: "ثانية" },
+        { value: pad(timeLeft.h), label: st("ساعة") },
+        { value: pad(timeLeft.m), label: st("دقيقة") },
+        { value: pad(timeLeft.s), label: st("ثانية") },
       ].map(({ value, label }, i) => (
         <span key={i} className="flex flex-col items-center">
           <span
@@ -63,8 +64,8 @@ function Countdown({ endDate }: { endDate: string }) {
 }
 
 export default function UrgencySection({ content }: Props) {
-  const headline = content?.headline ?? "⚡ عرض محدود الوقت — لا تفوّته!";
-  const timerLabel = content?.timerLabel ?? "العرض ينتهي بعد";
+  const headline = content?.headline ?? st("⚡ عرض محدود الوقت — لا تفوّته!");
+  const timerLabel = content?.timerLabel ?? st("العرض ينتهي بعد");
   const showTimer = content?.timerEndDate !== undefined;
   const showStock = content?.showStockBadge ?? true;
   const showViewers = content?.showViewersBadge ?? true;
@@ -122,7 +123,7 @@ export default function UrgencySection({ content }: Props) {
               </span>
               <Users className="size-4" style={{ color: "#22c55e" }} />
               <span className="text-sm font-semibold" style={{ color: "#16a34a" }}>
-                {viewers} شخص يتصفح الآن
+                {st("{0} شخص يتصفح الآن", viewers)}
               </span>
             </div>
           )}
@@ -138,7 +139,7 @@ export default function UrgencySection({ content }: Props) {
             >
               <Zap className="size-4" style={{ color: "#ef4444" }} />
               <span className="text-sm font-semibold" style={{ color: "#dc2626" }}>
-                مخزون محدود — اطلب الآن!
+                {st("مخزون محدود — اطلب الآن!")}
               </span>
             </div>
           )}

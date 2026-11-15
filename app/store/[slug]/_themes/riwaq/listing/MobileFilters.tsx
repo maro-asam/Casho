@@ -13,6 +13,7 @@ import { storeHref } from "../../shared/store-path";
 import { RQ_PORTAL, btn, num } from "../ui";
 import { PriceFields } from "./PricePopover";
 import SortSelect from "./SortSelect";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -40,7 +41,7 @@ export default function MobileFilters({ storeSlug, query, categories, priceBound
       <div className="grid grid-cols-2 divide-x divide-(--rq-rule) rtl:divide-x-reverse">
         <Dialog.Root open={open} onOpenChange={setOpen}>
           <Dialog.Trigger className="flex min-h-12 items-center justify-center gap-2 text-sm font-semibold">
-            تصفية
+            {st("تصفية")}
             {activeCount > 0 && (
               <span className="grid h-5 min-w-5 place-items-center bg-(--rq-accent) px-1 text-[0.6875rem] font-bold text-(--rq-accent-ink)">
                 {num(activeCount)}
@@ -54,9 +55,9 @@ export default function MobileFilters({ storeSlug, query, categories, priceBound
               className={cn(RQ_PORTAL, "fixed inset-0 z-50 flex flex-col outline-none data-[state=open]:animate-[rq-rise_280ms_cubic-bezier(.16,1,.3,1)]")}
             >
               <div className="rq-wrap flex h-(--rq-bar-h) shrink-0 items-center justify-between border-b border-(--rq-rule)">
-                <Dialog.Title className="rq-h3">تصفية المنتجات</Dialog.Title>
+                <Dialog.Title className="rq-h3">{st("تصفية المنتجات")}</Dialog.Title>
                 <Dialog.Close className="-me-2 inline-flex min-h-11 items-center gap-2 px-2 text-sm font-semibold">
-                  إغلاق
+                  {st("إغلاق")}
                   <X className="size-5" />
                 </Dialog.Close>
               </div>
@@ -73,8 +74,8 @@ export default function MobileFilters({ storeSlug, query, categories, priceBound
                   <div className="rq-wrap space-y-10 py-6">
                     {categories.length > 0 && (
                       <fieldset>
-                        <legend className="rq-label mb-2">التصنيف</legend>
-                        {[{ id: "", slug: "", name: "الكل", productCount: null as number | null }, ...categories].map((c) => (
+                        <legend className="rq-label mb-2">{st("التصنيف")}</legend>
+                        {[{ id: "", slug: "", name: st("الكل"), productCount: null as number | null }, ...categories].map((c) => (
                           <label
                             key={c.id || "all"}
                             className="flex min-h-14 cursor-pointer items-center gap-4 border-b border-(--rq-rule) has-[:checked]:text-(--rq-accent)"
@@ -94,12 +95,12 @@ export default function MobileFilters({ storeSlug, query, categories, priceBound
                     )}
 
                     <fieldset>
-                      <legend className="rq-label mb-3">السعر</legend>
+                      <legend className="rq-label mb-3">{st("السعر")}</legend>
                       <PriceFields query={query} priceBounds={priceBounds} />
                     </fieldset>
 
                     <fieldset>
-                      <legend className="rq-label mb-2">عرض</legend>
+                      <legend className="rq-label mb-2">{st("عرض")}</legend>
                       <input type="hidden" name="featuredField" value="1" />
                       <label className="flex min-h-14 cursor-pointer items-center gap-4 border-y border-(--rq-rule)">
                         <input
@@ -109,7 +110,7 @@ export default function MobileFilters({ storeSlug, query, categories, priceBound
                           defaultChecked={query.featured}
                           className="size-5 shrink-0 accent-(--rq-accent)"
                         />
-                        <span className="text-base">اختيارات المتجر بس</span>
+                        <span className="text-base">{st("اختيارات المتجر بس")}</span>
                       </label>
                     </fieldset>
                   </div>
@@ -120,10 +121,10 @@ export default function MobileFilters({ storeSlug, query, categories, priceBound
                   style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
                 >
                   <button type="button" onClick={() => push(clearedQueryString(query))} className={btn({ variant: "line", size: "lg" })}>
-                    مسح الكل
+                    {st("مسح الكل")}
                   </button>
                   <button type="submit" className={btn({ size: "lg", full: true })}>
-                    عرض النتائج
+                    {st("عرض النتائج")}
                   </button>
                 </div>
               </form>
@@ -134,7 +135,7 @@ export default function MobileFilters({ storeSlug, query, categories, priceBound
         <SortSelect storeSlug={storeSlug} query={query} className="justify-center px-3" />
       </div>
       <p className="sr-only" aria-live="polite">
-        {total} منتج
+        {st("{0} منتج", total)}
       </p>
     </div>
   );

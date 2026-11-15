@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BadgePercent, Loader2, Minus, Plus, ShoppingCart, Zap } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { WholesaleTier } from "../../types";
 import { openCart } from "../../shared/cart-events";
 import { swatchColor } from "../../shared/colors";
@@ -13,6 +13,7 @@ import { storeHref } from "../../shared/store-path";
 import { useAddToCart } from "../../shared/use-add-to-cart";
 import { mxToast } from "../toast";
 import { PlateImage, btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type BuyProduct = {
   id: string;
@@ -27,7 +28,7 @@ export type BuyProduct = {
 };
 
 type OptionKey = "size" | "color";
-const LABEL: Record<OptionKey, string> = { size: "المقاس", color: "اللون" };
+const LABEL: Record<OptionKey, string> = { get size() { return st("المقاس"); }, get color() { return st("اللون"); } };
 
 function OptionGroup({
   id,
@@ -52,7 +53,7 @@ function OptionGroup({
         </span>
         {!selected && (
           <span role={error ? "alert" : undefined} className={cn("text-xs", error ? "font-semibold text-(--mx-error)" : "text-(--mx-quiet)")}>
-            {error ? `اختار ${LABEL[kind]} الأول` : `اختار ${LABEL[kind]}`}
+            {error ? st("اختار {0} الأول", LABEL[kind]) : st("اختار {0}", LABEL[kind])}
           </span>
         )}
       </legend>
@@ -79,13 +80,13 @@ export function Qty({ value, max, onChange, disabled, size = "lg" }: { value: nu
   const cell = size === "lg" ? "size-12" : "size-9";
   return (
     <div className="flex shrink-0 items-center rounded-(--mx-r-sm) border border-(--mx-line) bg-(--mx-bg)">
-      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label="تقليل الكمية" className={cn(cell, "grid place-items-center transition-opacity disabled:opacity-30 [&_svg]:size-4")}>
+      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label={st("تقليل الكمية")} className={cn(cell, "grid place-items-center transition-opacity disabled:opacity-30 [&_svg]:size-4")}>
         <Minus />
       </button>
-      <output aria-live="polite" aria-label="الكمية" className="mx-num w-8 text-center text-base font-semibold text-(--mx-ink)">
+      <output aria-live="polite" aria-label={st("الكمية")} className="mx-num w-8 text-center text-base font-semibold text-(--mx-ink)">
         {num(value)}
       </output>
-      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label="زيادة الكمية" className={cn(cell, "grid place-items-center transition-opacity disabled:opacity-30 [&_svg]:size-4")}>
+      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label={st("زيادة الكمية")} className={cn(cell, "grid place-items-center transition-opacity disabled:opacity-30 [&_svg]:size-4")}>
         <Plus />
       </button>
     </div>
@@ -172,9 +173,9 @@ export default function BuyForm({
     return (
       <div className="space-y-3">
         <button type="button" disabled className={btn({ variant: "soft", size: "lg", full: true })}>
-          نفدت الكمية
+          {st("نفدت الكمية")}
         </button>
-        <p className="text-sm text-(--mx-quiet)">المنتج ده خلص حاليًا. شوف منتجات قريبة منه تحت.</p>
+        <p className="text-sm text-(--mx-quiet)">{st("المنتج ده خلص حاليًا. شوف منتجات قريبة منه تحت.")}</p>
       </div>
     );
   }
@@ -198,7 +199,7 @@ export default function BuyForm({
           <Qty value={qty} max={product.stock} onChange={setQty} disabled={pending} />
           <button type="button" onClick={addToCart} disabled={pending} className={btn({ size: "lg", className: "min-w-0 flex-1 px-4" })}>
             {pending && !buying ? <Loader2 className="animate-spin" /> : <ShoppingCart />}
-            <span className="truncate">أضف للسلة</span>
+            <span className="truncate">{st("أضف للسلة")}</span>
             <span aria-hidden className="opacity-60">
               ·
             </span>
@@ -207,13 +208,13 @@ export default function BuyForm({
         </div>
         <button type="button" onClick={buyNow} disabled={pending} className={btn({ variant: "outline", size: "lg", full: true, className: "border-(--mx-ink)" })}>
           {buying ? <Loader2 className="animate-spin" /> : <Zap />}
-          اشتري الآن
+          {st("اشتري الآن")}
         </button>
       </div>
 
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <div>
-          <p className="mb-2.5 text-sm font-semibold text-(--mx-ink)">اشتري كمية ووفّر</p>
+          <p className="mb-2.5 text-sm font-semibold text-(--mx-ink)">{st("اشتري كمية ووفّر")}</p>
           <ul className="space-y-2">
             {product.wholesaleOptions.map((t) => {
               const on = tier === t;
@@ -231,10 +232,10 @@ export default function BuyForm({
                   >
                     <BadgePercent aria-hidden className="size-6 shrink-0 text-(--mx-link)" strokeWidth={1.5} />
                     <span className="min-w-0 flex-1">
-                      <span className="font-semibold text-(--mx-ink)">{t.maxQty ? `${num(t.minQty)}–${num(t.maxQty)} قطعة` : `${num(t.minQty)} قطع أو أكتر`}</span>
-                      <span className="text-(--mx-text)"> · {formatPrice(t.price)} للقطعة</span>
+                      <span className="font-semibold text-(--mx-ink)">{t.maxQty ? st("{0}–{1} قطعة", num(t.minQty), num(t.maxQty)) : st("{0} قطع أو أكتر", num(t.minQty))}</span>
+                      <span className="text-(--mx-text)">{" "}{st("· {0} للقطعة", formatPrice(t.price))}</span>
                     </span>
-                    {save > 0 && <span className="mx-chip-off shrink-0">وفّر {num(save)}٪</span>}
+                    {save > 0 && <span className="mx-chip-off shrink-0">{st("وفّر {0}٪", num(save))}</span>}
                   </button>
                 </li>
               );
@@ -263,7 +264,7 @@ export default function BuyForm({
             </div>
             <button type="button" onClick={addToCart} disabled={pending} className={btn({ className: "px-5" })}>
               {pending ? <Loader2 className="animate-spin" /> : <ShoppingCart />}
-              أضف للسلة
+              {st("أضف للسلة")}
             </button>
           </div>
         </div>

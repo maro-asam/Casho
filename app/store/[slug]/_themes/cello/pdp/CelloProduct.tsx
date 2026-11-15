@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowDown, BadgeCheck, Clock, PackageCheck, Truck } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
-import { formatPrice } from "@/lib/utils";
+
 import type { ProductViewProps, ReviewData } from "../../types";
 import BuyForm from "../product/BuyForm";
 import ProductCard from "../product/ProductCard";
@@ -12,6 +12,7 @@ import RecentlyViewed, { TrackView } from "../sections/RecentlyViewed";
 import { Crumbs, Price, Rating, SectionHeader, StockLine, Wrap, discountPercent, num } from "../ui";
 import DetailTabs from "./DetailTabs";
 import Gallery from "./Gallery";
+import { formatPrice, st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 function Reviews({ reviews }: { reviews: ReviewData[] }) {
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
@@ -21,7 +22,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
       <div className="h-fit rounded-(--ce-r) bg-(--ce-band) p-6">
         <p className="ce-display text-5xl leading-none">{avg.toFixed(1)}</p>
         <Rating value={avg} size="md" className="mt-3" />
-        <p className="mt-1 text-sm text-(--ce-quiet)">من {num(reviews.length)} تقييم</p>
+        <p className="mt-1 text-sm text-(--ce-quiet)">{st("من {0} تقييم", num(reviews.length))}</p>
         <ul className="mt-5 space-y-2">
           {dist.map(({ star, count }) => (
             <li key={star} className="flex items-center gap-3 text-xs">
@@ -45,7 +46,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
                 <div>
                   <p className="text-sm font-semibold text-(--ce-ink)">{r.customerName}</p>
                   <time className="text-xs text-(--ce-quiet)" dateTime={new Date(r.reviewDate).toISOString()}>
-                    {new Date(r.reviewDate).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}
+                    {new Date(r.reviewDate).toLocaleDateString(storeIntlLocale(), { year: "numeric", month: "long", day: "numeric" })}
                   </time>
                 </div>
               </div>
@@ -54,7 +55,7 @@ function Reviews({ reviews }: { reviews: ReviewData[] }) {
             {r.verifiedPurchase && (
               <p className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-(--ce-success)">
                 <BadgeCheck className="size-3.5" />
-                مشتري مؤكد
+                {st("مشتري مؤكد")}
               </p>
             )}
             {r.title && <p className="ce-h4 mt-2">{r.title}</p>}
@@ -76,34 +77,34 @@ export default function CelloProduct({ store, product, reviews, related, shippin
   const description = product.description?.trim();
 
   const specs = [
-    { label: "التصنيف", value: product.category.name, href: categoryHref },
-    product.brand ? { label: "البراند", value: product.brand } : null,
-    product.sku ? { label: "كود المنتج", value: product.sku, ltr: true } : null,
-    product.weight !== null ? { label: "الوزن", value: `${num(product.weight)} كجم` } : null,
-    product.sizes.length ? { label: "المقاسات", value: product.sizes.join("، ") } : null,
-    product.colors.length ? { label: "الألوان", value: product.colors.join("، ") } : null,
+    { label: st("التصنيف"), value: product.category.name, href: categoryHref },
+    product.brand ? { label: st("البراند"), value: product.brand } : null,
+    product.sku ? { label: st("كود المنتج"), value: product.sku, ltr: true } : null,
+    product.weight !== null ? { label: st("الوزن"), value: st("{0} كجم", num(product.weight)) } : null,
+    product.sizes.length ? { label: st("المقاسات"), value: product.sizes.join("، ") } : null,
+    product.colors.length ? { label: st("الألوان"), value: product.colors.join("، ") } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   // Service facts from the store's real shipping methods only.
   const delivery = [
-    cheapest && { Icon: Truck, text: cheapest.price === 0 ? "شحن مجاني متاح" : `شحن من ${formatPrice(cheapest.price / 100)}` },
-    fastest?.estimatedDays && { Icon: Clock, text: `توصيل خلال ${num(fastest.estimatedDays)} أيام` },
-    inStock && { Icon: PackageCheck, text: "متوفر للطلب" },
+    cheapest && { Icon: Truck, text: cheapest.price === 0 ? st("شحن مجاني متاح") : st("شحن من {0}", formatPrice(cheapest.price / 100)) },
+    fastest?.estimatedDays && { Icon: Clock, text: st("توصيل خلال {0} أيام", num(fastest.estimatedDays)) },
+    inStock && { Icon: PackageCheck, text: st("متوفر للطلب") },
   ].filter(Boolean) as { Icon: typeof Truck; text: string }[];
 
   const badges = !inStock ? (
-    <span className="ce-badge ce-badge--out">نفدت الكمية</span>
+    <span className="ce-badge ce-badge--out">{st("نفدت الكمية")}</span>
   ) : (
     <>
-      {product.isFeatured && <span className="ce-badge ce-badge--pick">اختيار المتجر</span>}
-      {off > 0 && <span className="ce-badge ce-badge--drop">خصم {num(off)}٪</span>}
+      {product.isFeatured && <span className="ce-badge ce-badge--pick">{st("اختيار المتجر")}</span>}
+      {off > 0 && <span className="ce-badge ce-badge--drop">{st("خصم {0}٪", num(off))}</span>}
     </>
   );
 
   const tabs = [
-    description && { id: "description", label: "الوصف", content: <p className="ce-prose max-w-none text-[0.9375rem]">{description}</p> },
-    { id: "specs", label: "المواصفات", content: <Specs specs={specs} /> },
-    shipping.length > 0 && { id: "shipping", label: "الشحن والتوصيل", content: <ShippingList shipping={shipping} /> },
+    description && { id: "description", label: st("الوصف"), content: <p className="ce-prose max-w-none text-[0.9375rem]">{description}</p> },
+    { id: "specs", label: st("المواصفات"), content: <Specs specs={specs} /> },
+    shipping.length > 0 && { id: "shipping", label: st("الشحن والتوصيل"), content: <ShippingList shipping={shipping} /> },
   ].filter(Boolean) as { id: string; label: string; content: React.ReactNode }[];
 
   return (
@@ -113,7 +114,7 @@ export default function CelloProduct({ store, product, reviews, related, shippin
         <Crumbs
           className="py-4"
           items={[
-            { label: "الرئيسية", href: buildStoreUrl(store.slug) },
+            { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
             { label: product.category.name, href: categoryHref },
             { label: product.name },
           ]}
@@ -160,7 +161,7 @@ export default function CelloProduct({ store, product, reviews, related, shippin
 
               {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
                 <div className="mt-6 rounded-(--ce-r) border border-(--ce-line) p-4">
-                  <p className="mb-3 text-sm font-semibold text-(--ce-ink)">الباقة فيها</p>
+                  <p className="mb-3 text-sm font-semibold text-(--ce-ink)">{st("الباقة فيها")}</p>
                   <ul className="space-y-2.5">
                     {product.bundleItems.map((item, i) => (
                       <li key={i} className="flex items-center gap-3">
@@ -191,31 +192,31 @@ export default function CelloProduct({ store, product, reviews, related, shippin
               )}
 
               <a href="#details" className="mt-6 inline-flex min-h-10 items-center gap-1.5 text-sm text-(--ce-ink) hover:text-(--ce-btn)">
-                تفاصيل المنتج
+                {st("تفاصيل المنتج")}
                 <ArrowDown aria-hidden className="size-4" />
               </a>
             </div>
           </div>
         </div>
 
-        <section id="details" aria-label="تفاصيل المنتج" className="mt-8 scroll-mt-28 rounded-(--ce-r-lg) bg-(--ce-card) p-4 sm:p-6">
+        <section id="details" aria-label={st("تفاصيل المنتج")} className="mt-8 scroll-mt-28 rounded-(--ce-r-lg) bg-(--ce-card) p-4 sm:p-6">
           <DetailTabs tabs={tabs} />
         </section>
 
         <section id="reviews" className="ce-section mt-6 scroll-mt-28">
-          <SectionHeader title="تقييمات العملاء" />
+          <SectionHeader title={st("تقييمات العملاء")} />
           {reviews.length > 0 ? (
             <div className="rounded-(--ce-r-lg) bg-(--ce-card) p-4 sm:p-6">
               <Reviews reviews={reviews} />
             </div>
           ) : (
-            <p className="rounded-(--ce-r-lg) bg-(--ce-card) px-5 py-8 text-center text-[0.9375rem]">لسه مفيش تقييمات للمنتج ده.</p>
+            <p className="rounded-(--ce-r-lg) bg-(--ce-card) px-5 py-8 text-center text-[0.9375rem]">{st("لسه مفيش تقييمات للمنتج ده.")}</p>
           )}
         </section>
 
         {related.length > 0 && (
           <section className="ce-section">
-            <Rail label="منتجات مشابهة" title="ممكن يعجبك كمان" sub={`من ${product.category.name}`} href={categoryHref} linkLabel={`كل ${product.category.name}`}>
+            <Rail label={st("منتجات مشابهة")} title={st("ممكن يعجبك كمان")} sub={st("من {0}", product.category.name)} href={categoryHref} linkLabel={st("كل {0}", product.category.name)}>
               {related.slice(0, 12).map((p, i) => (
                 <li key={p.id} className="min-w-0">
                   <ProductCard product={p} storeSlug={store.slug} index={i} sizes="(max-width: 768px) 46vw, 18vw" />
@@ -262,9 +263,9 @@ function ShippingList({ shipping }: { shipping: ProductViewProps["shipping"] }) 
         <li key={s.id} className="flex justify-between gap-4 border-b border-(--ce-line) py-3 last:border-0">
           <span className="text-(--ce-ink)">
             {s.name}
-            {s.estimatedDays ? <span className="text-(--ce-quiet)"> · خلال {num(s.estimatedDays)} أيام</span> : null}
+            {s.estimatedDays ? <span className="text-(--ce-quiet)">{" "}{st("· خلال {0} أيام", num(s.estimatedDays))}</span> : null}
           </span>
-          <span className="ce-num shrink-0 font-medium text-(--ce-ink)">{s.price === 0 ? "مجاني" : formatPrice(s.price / 100)}</span>
+          <span className="ce-num shrink-0 font-medium text-(--ce-ink)">{s.price === 0 ? st("مجاني") : formatPrice(s.price / 100)}</span>
         </li>
       ))}
     </ul>

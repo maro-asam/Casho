@@ -15,6 +15,7 @@ import NewArrivals from "../sections/NewArrivals";
 import ProductRail from "../sections/ProductRail";
 import RecentlyViewed from "../sections/RecentlyViewed";
 import { Empty, Wrap, btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Ctx = HomeViewProps & { onSale: ProductCardData[] };
 
@@ -48,9 +49,9 @@ const REGISTRY: SectionRegistry<Ctx> = {
       <ProductRail
         products={c.bestSellers}
         storeSlug={c.store.slug}
-        eyebrow="الأكثر طلبًا"
-        title={c.sectionContent.bestSellers?.headline || "الأكثر مبيعًا"}
-        subtitle="اللي العملاء بيرجعوا يطلبوه تاني"
+        eyebrow={st("الأكثر طلبًا")}
+        title={c.sectionContent.bestSellers?.headline || st("الأكثر مبيعًا")}
+        subtitle={st("اللي العملاء بيرجعوا يطلبوه تاني")}
         href={buildStoreUrl(c.store.slug, "/products")}
       />
     ) : null,
@@ -68,11 +69,11 @@ const REGISTRY: SectionRegistry<Ctx> = {
       <Wrap className="md-section">
         <Empty
           icon={<ShoppingBag />}
-          title="المنتجات جاية قريب"
-          description="المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب."
+          title={st("المنتجات جاية قريب")}
+          description={st("المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.")}
           action={
             <Link href={buildStoreUrl(c.store.slug, "/contact")} className={btn({ variant: "outline" })}>
-              تواصل مع المتجر
+              {st("تواصل مع المتجر")}
             </Link>
           }
         />

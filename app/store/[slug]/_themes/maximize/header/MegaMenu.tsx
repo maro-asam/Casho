@@ -10,13 +10,14 @@ import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Chevron, num, stagger } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 const QUICK = [
-  { href: "/products", label: "كل المنتجات" },
-  { href: "/products?sort=newest", label: "وصل حديثًا" },
-  { href: "/products?featured=true", label: "اختيارات المتجر" },
-  { href: "/products?inStock=true", label: "المتوفر حالًا" },
-  { href: "/products?sort=price-asc", label: "الأقل سعرًا" },
+  { href: "/products", get label() { return st("كل المنتجات"); } },
+  { href: "/products?sort=newest", get label() { return st("وصل حديثًا"); } },
+  { href: "/products?featured=true", get label() { return st("اختيارات المتجر"); } },
+  { href: "/products?inStock=true", get label() { return st("المتوفر حالًا"); } },
+  { href: "/products?sort=price-asc", get label() { return st("الأقل سعرًا"); } },
 ];
 
 /** Desktop "All categories" mega menu in Maximize's tabbed style: the
@@ -77,7 +78,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
           {shell.categories.length > cats.length && (
             <li>
               <Link href={url("/categories")} onClick={() => onClose()} className="mx-link mx-3 mt-2">
-                كل التصنيفات ({num(shell.categories.length)})
+                {st("كل التصنيفات ({0})", num(shell.categories.length))}
               </Link>
             </li>
           )}
@@ -88,16 +89,16 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
             {active.image && <Image src={active.image} alt="" fill sizes="40vw" className="mx-zoom-img object-cover" />}
             <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(16_15_15/0.65),transparent_60%)]" />
             <span className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <span className="block text-sm opacity-85">{num(active.productCount)} منتج</span>
+              <span className="block text-sm opacity-85">{st("{0} منتج", num(active.productCount))}</span>
               <span className="mx-display mt-1 block text-2xl text-white">{active.name}</span>
               <span className="mt-3 inline-flex items-center gap-1 border-b border-white/80 pb-0.5 text-sm font-semibold">
-                تسوّق {active.name}
+                {st("تسوّق {0}", active.name)}
                 <Chevron />
               </span>
             </span>
           </Link>
           <div>
-            <p className="mb-2 text-xs font-semibold text-(--mx-quiet)">تسوّق</p>
+            <p className="mb-2 text-xs font-semibold text-(--mx-quiet)">{st("تسوّق")}</p>
             <ul>
               {QUICK.map((l) => (
                 <li key={l.label}>

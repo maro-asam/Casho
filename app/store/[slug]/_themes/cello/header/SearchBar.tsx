@@ -14,6 +14,7 @@ import { useLocalList } from "../../shared/local-list";
 import { storeHref } from "../../shared/store-path";
 import { searchesKey } from "../lib/events";
 import { Chevron, PlateImage, Price } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type Item = Pick<SearchSuggestion, "id" | "name" | "slug" | "image" | "price" | "compareAtPrice">;
 
@@ -137,7 +138,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
         className="flex h-11 items-stretch gap-2.5 lg:h-[2.75rem] lg:gap-4"
       >
         <label htmlFor={`${id}-q`} className="sr-only">
-          ابحث في المتجر
+          {st("ابحث في المتجر")}
         </label>
         <div className="flex min-w-0 flex-1 items-center rounded-(--ce-r-sm) border border-transparent bg-[color-mix(in_srgb,var(--ce-ink)_7%,var(--ce-card))] ps-3 transition-[border-color,box-shadow] focus-within:border-(--ce-ink) focus-within:bg-(--ce-card)">
         <input
@@ -152,7 +153,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
           aria-controls={listId}
           aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
           aria-autocomplete="list"
-          placeholder="ابحث في المتجر"
+          placeholder={st("ابحث في المتجر")}
           value={value}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
@@ -178,7 +179,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
               setValue("");
               inputRef.current?.focus();
             }}
-            aria-label="مسح البحث"
+            aria-label={st("مسح البحث")}
             className="grid size-9 shrink-0 place-items-center rounded-full text-(--ce-quiet) hover:text-(--ce-ink) [&_svg]:size-4"
           >
             <X />
@@ -187,7 +188,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
         </div>
         <button type="submit" className="ce-btn ce-btn--cta min-h-0 shrink-0 px-4 lg:min-w-[7.5rem]">
           {loading ? <Loader2 className="animate-spin" /> : <Search />}
-          <span className="max-sm:sr-only">بحث</span>
+          <span className="max-sm:sr-only">{st("بحث")}</span>
         </button>
       </form>
 
@@ -197,7 +198,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
             <div className="space-y-5">
               {matchedCats.length > 0 && (
                 <section>
-                  <h2 className="mb-2 text-xs font-semibold text-(--ce-quiet)">تصنيفات</h2>
+                  <h2 className="mb-2 text-xs font-semibold text-(--ce-quiet)">{st("تصنيفات")}</h2>
                   <ul className="flex flex-wrap gap-2">
                     {matchedCats.map((c) => (
                       <li key={c.id}>
@@ -214,9 +215,9 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
                 </section>
               )}
               <section>
-                <h2 className="mb-1 text-xs font-semibold text-(--ce-quiet)">منتجات</h2>
+                <h2 className="mb-1 text-xs font-semibold text-(--ce-quiet)">{st("منتجات")}</h2>
                 {failed ? (
-                  <p className="py-3 text-sm text-(--ce-error)">البحث مش شغال دلوقتي، جرّب تاني.</p>
+                  <p className="py-3 text-sm text-(--ce-error)">{st("البحث مش شغال دلوقتي، جرّب تاني.")}</p>
                 ) : loading && searchedFor !== term ? (
                   <div className="grid gap-2 sm:grid-cols-2" aria-busy>
                     {[0, 1].map((i) => (
@@ -231,10 +232,10 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
                   </div>
                 ) : noResults ? (
                   <p className="py-3 text-sm">
-                    مفيش نتائج لـ «<span className="font-semibold text-(--ce-ink)">{term}</span>». جرّب كلمة أبسط.
+                    {st("مفيش نتائج لـ «")}<span className="font-semibold text-(--ce-ink)">{term}</span>{st("». جرّب كلمة أبسط.")}
                   </p>
                 ) : (
-                  <ul id={listId} role="listbox" aria-label="نتائج البحث" className="grid gap-1 sm:grid-cols-2">
+                  <ul id={listId} role="listbox" aria-label={st("نتائج البحث")} className="grid gap-1 sm:grid-cols-2">
                     {results.map((r, i) => (
                       <li key={r.id} role="presentation">
                         <Row item={r} id={`${id}-opt-${i}`} active={active === i} onHover={() => setActive(i)} onPick={() => go(`/products/${r.slug}`, term)} />
@@ -244,7 +245,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
                 )}
               </section>
               <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => searchAll(term)} className="flex min-h-11 w-full items-center gap-1 rounded-(--ce-r-sm) bg-(--ce-card) px-3 text-[0.9375rem] text-(--ce-ink) hover:text-(--ce-btn)">
-                كل النتائج لـ «{term}»
+                {st("كل النتائج لـ «{0}»", term)}
                 <Chevron double />
               </button>
             </div>
@@ -253,9 +254,9 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
               {recent.list.length > 0 && (
                 <section>
                   <div className="mb-2 flex items-center justify-between">
-                    <h2 className="text-xs font-semibold text-(--ce-quiet)">بحثت عن</h2>
+                    <h2 className="text-xs font-semibold text-(--ce-quiet)">{st("بحثت عن")}</h2>
                     <button type="button" onClick={() => recent.list.forEach((q) => recent.remove(q))} className="min-h-8 text-xs text-(--ce-quiet) hover:text-(--ce-ink) hover:underline">
-                      مسح
+                      {st("مسح")}
                     </button>
                   </div>
                   <ul className="flex flex-wrap gap-2">
@@ -271,7 +272,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
                 </section>
               )}
               <section id={listId}>
-                <h2 className="mb-1 text-xs font-semibold text-(--ce-quiet)">مختارات من المتجر</h2>
+                <h2 className="mb-1 text-xs font-semibold text-(--ce-quiet)">{st("مختارات من المتجر")}</h2>
                 {picks === null ? (
                   <div className="grid gap-2 sm:grid-cols-2" aria-busy>
                     {[0, 1, 2, 3].map((i) => (
@@ -293,7 +294,7 @@ export default function SearchBar({ shell, className, autoFocus }: { shell: Stor
                     ))}
                   </ul>
                 ) : (
-                  <p className="py-2 text-sm text-(--ce-quiet)">اكتب اسم المنتج اللي بتدوّر عليه.</p>
+                  <p className="py-2 text-sm text-(--ce-quiet)">{st("اكتب اسم المنتج اللي بتدوّر عليه.")}</p>
                 )}
               </section>
             </div>

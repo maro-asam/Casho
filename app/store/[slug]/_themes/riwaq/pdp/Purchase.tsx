@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { Loader2, Minus, Plus } from "lucide-react";
 
 import { AddToCartAction } from "@/actions/store/cart.actions";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { swatchColor } from "../../shared/colors";
 import type { WholesaleTier } from "../../types";
 import { notifyCartUpdated } from "../../shared/cart-events";
@@ -14,6 +14,7 @@ import { tierFor } from "../../shared/commerce";
 import { storeHref } from "../../shared/store-path";
 import { rqToast } from "../toast";
 import { btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 type Props = {
   storeSlug: string;
@@ -58,7 +59,7 @@ function OptionGroup({
         </span>
         {!selected && (
           <span className={cn("text-xs", error ? "font-semibold text-(--rq-sale)" : "text-(--rq-quiet)")} role={error ? "alert" : undefined}>
-            {error ? `اختار ${label} الأول` : "اختار واحد"}
+            {error ? st("اختار {0} الأول", label) : st("اختار واحد")}
           </span>
         )}
       </legend>
@@ -122,20 +123,20 @@ export default function Purchase({ storeSlug, product }: Props) {
       try {
         const res = await AddToCartAction(storeSlug, product.id, Object.keys(features).length ? features : undefined, qty);
         if (!res?.success) {
-          rqToast.error(res && "message" in res && res.message ? res.message : "حصلت مشكلة، حاول تاني");
+          rqToast.error(res && "message" in res && res.message ? res.message : st("حصلت مشكلة، حاول تاني"));
           return;
         }
         notifyCartUpdated(res && "added" in res ? res.added : undefined);
         if (then) {
           then();
         } else {
-          rqToast.success(qty > 1 ? `اتضاف ${num(qty)} قطع للسلة` : "اتضاف للسلة", {
+          rqToast.success(qty > 1 ? st("اتضاف {0} قطع للسلة", num(qty)) : st("اتضاف للسلة"), {
             description: product.name,
-            action: { label: "السلة", onClick: () => router.push(storeHref(storeSlug, "/cart")) },
+            action: { label: st("السلة"), onClick: () => router.push(storeHref(storeSlug, "/cart")) },
           });
         }
       } catch {
-        rqToast.error("حصلت مشكلة، حاول تاني");
+        rqToast.error(st("حصلت مشكلة، حاول تاني"));
       }
     });
   };
@@ -151,8 +152,8 @@ export default function Purchase({ storeSlug, product }: Props) {
   if (!inStock) {
     return (
       <div className="border border-(--rq-ink) p-5">
-        <p className="rq-h3">الكمية خلصت حاليًا</p>
-        <p className="rq-small mt-1 text-(--rq-quiet)">شوف منتجات قريبة منه تحت، أو كلّم المتجر يعرّفك أول ما يرجع.</p>
+        <p className="rq-h3">{st("الكمية خلصت حاليًا")}</p>
+        <p className="rq-small mt-1 text-(--rq-quiet)">{st("شوف منتجات قريبة منه تحت، أو كلّم المتجر يعرّفك أول ما يرجع.")}</p>
       </div>
     );
   }
@@ -162,7 +163,7 @@ export default function Purchase({ storeSlug, product }: Props) {
       {product.sizes.length > 0 && (
         <OptionGroup
           id="opt-size"
-          label="المقاس"
+          label={st("المقاس")}
           values={product.sizes}
           selected={selected.size}
           onSelect={(v) => choose("size", v)}
@@ -172,7 +173,7 @@ export default function Purchase({ storeSlug, product }: Props) {
       {product.colors.length > 0 && (
         <OptionGroup
           id="opt-color"
-          label="اللون"
+          label={st("اللون")}
           values={product.colors}
           selected={selected.color}
           onSelect={(v) => choose("color", v)}
@@ -182,7 +183,7 @@ export default function Purchase({ storeSlug, product }: Props) {
 
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-semibold">اشتري كمية ووفّر</p>
+          <p className="mb-2 text-sm font-semibold">{st("اشتري كمية ووفّر")}</p>
           <ul className="border-t border-(--rq-ink)">
             {product.wholesaleOptions.map((t) => {
               const on = tier === t;
@@ -197,8 +198,8 @@ export default function Purchase({ storeSlug, product }: Props) {
                       on ? "font-semibold text-(--rq-accent)" : "hover:text-(--rq-accent)",
                     )}
                   >
-                    <span>{t.maxQty ? `${num(t.minQty)}–${num(t.maxQty)} قطعة` : `${num(t.minQty)}+ قطعة`}</span>
-                    <span className="rq-price">{formatPrice(t.price)} للقطعة</span>
+                    <span>{t.maxQty ? st("{0}–{1} قطعة", num(t.minQty), num(t.maxQty)) : st("{0}+ قطعة", num(t.minQty))}</span>
+                    <span className="rq-price">{st("{0} للقطعة", formatPrice(t.price))}</span>
                   </button>
                 </li>
               );
@@ -208,25 +209,25 @@ export default function Purchase({ storeSlug, product }: Props) {
       )}
 
       <div className="flex items-center justify-between gap-4">
-        <span className="text-sm font-semibold">الكمية</span>
+        <span className="text-sm font-semibold">{st("الكمية")}</span>
         <div className="flex items-center border border-(--rq-rule-strong)">
           <button
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             disabled={qty <= 1 || busy}
-            aria-label="تقليل الكمية"
+            aria-label={st("تقليل الكمية")}
             className="grid size-12 place-items-center transition-colors hover:bg-(--rq-sheet) disabled:opacity-30"
           >
             <Minus className="size-4" />
           </button>
-          <output aria-live="polite" aria-label="الكمية" className="rq-face w-12 text-center text-lg font-semibold tabular-nums">
+          <output aria-live="polite" aria-label={st("الكمية")} className="rq-face w-12 text-center text-lg font-semibold tabular-nums">
             {num(qty)}
           </output>
           <button
             type="button"
             onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
             disabled={qty >= product.stock || busy}
-            aria-label="زيادة الكمية"
+            aria-label={st("زيادة الكمية")}
             className="grid size-12 place-items-center transition-colors hover:bg-(--rq-sheet) disabled:opacity-30"
           >
             <Plus className="size-4" />
@@ -238,13 +239,13 @@ export default function Purchase({ storeSlug, product }: Props) {
         <button type="button" onClick={() => add()} disabled={busy} className={btn({ size: "lg", full: true, className: "hidden justify-between lg:flex" })}>
           <span className="flex items-center gap-2.5">
             {adding && <Loader2 className="animate-spin" />}
-            أضف للسلة
+            {st("أضف للسلة")}
           </span>
           <span className="rq-price">{formatPrice(total)}</span>
         </button>
         <button type="button" onClick={buyNow} disabled={busy} className={btn({ variant: "line", size: "lg", full: true })}>
           {buying && <Loader2 className="animate-spin" />}
-          اشتري الآن
+          {st("اشتري الآن")}
         </button>
       </div>
 
@@ -266,7 +267,7 @@ export default function Purchase({ storeSlug, product }: Props) {
           </div>
           <button type="button" onClick={() => add()} disabled={busy} className={btn({ size: "lg", className: "px-5" })}>
             {adding ? <Loader2 className="animate-spin" /> : <Plus />}
-            أضف للسلة
+            {st("أضف للسلة")}
           </button>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BadgePercent, Loader2, Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { WholesaleTier } from "../../types";
 import { openCart } from "../../shared/cart-events";
 import { swatchColor } from "../../shared/colors";
@@ -13,6 +13,7 @@ import { storeHref } from "../../shared/store-path";
 import { useAddToCart } from "../../shared/use-add-to-cart";
 import { rxToast } from "../toast";
 import { OPTION_LABEL, PlateImage, btn, num } from "../ui";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 export type BuyProduct = {
   id: string;
@@ -53,7 +54,7 @@ function OptionGroup({
         </span>
         {!selected && (
           <span role={error ? "alert" : undefined} className={cn("text-xs", error ? "font-bold text-(--rx-error)" : "text-(--rx-quiet)")}>
-            {error ? `اختار ${label} الأول` : `اختار ${label}`}
+            {error ? st("اختار {0} الأول", label) : st("اختار {0}", label)}
           </span>
         )}
       </legend>
@@ -80,13 +81,13 @@ export function Qty({ value, max, onChange, disabled, size = "lg" }: { value: nu
   const cell = size === "lg" ? "size-11" : "size-9";
   return (
     <div className="flex w-fit shrink-0 items-center rounded-full border border-(--rx-line) bg-(--rx-card)">
-      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label="تقليل الكمية" className={cn(cell, "grid place-items-center rounded-full transition-opacity hover:bg-(--rx-band) disabled:opacity-30 [&_svg]:size-4")}>
+      <button type="button" onClick={() => onChange(Math.max(1, value - 1))} disabled={disabled || value <= 1} aria-label={st("تقليل الكمية")} className={cn(cell, "grid place-items-center rounded-full transition-opacity hover:bg-(--rx-band) disabled:opacity-30 [&_svg]:size-4")}>
         <Minus />
       </button>
-      <output aria-live="polite" aria-label="الكمية" className={cn("rx-num grid place-items-center text-center font-bold text-(--rx-ink)", size === "lg" ? "w-10" : "w-8")}>
+      <output aria-live="polite" aria-label={st("الكمية")} className={cn("rx-num grid place-items-center text-center font-bold text-(--rx-ink)", size === "lg" ? "w-10" : "w-8")}>
         {num(value)}
       </output>
-      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label="زيادة الكمية" className={cn(cell, "grid place-items-center rounded-full transition-opacity hover:bg-(--rx-band) disabled:opacity-30 [&_svg]:size-4")}>
+      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={disabled || value >= max} aria-label={st("زيادة الكمية")} className={cn(cell, "grid place-items-center rounded-full transition-opacity hover:bg-(--rx-band) disabled:opacity-30 [&_svg]:size-4")}>
         <Plus />
       </button>
     </div>
@@ -173,9 +174,9 @@ export default function BuyForm({
     return (
       <div className="space-y-3">
         <button type="button" disabled className={btn({ variant: "soft", size: "lg", full: true })}>
-          غير متوفر حاليًا
+          {st("غير متوفر حاليًا")}
         </button>
-        <p className="text-sm text-(--rx-quiet)">المنتج ده خلص دلوقتي. شوف البدائل المتاحة تحت، أو اسأل المتجر عن ميعاد توفّره.</p>
+        <p className="text-sm text-(--rx-quiet)">{st("المنتج ده خلص دلوقتي. شوف البدائل المتاحة تحت، أو اسأل المتجر عن ميعاد توفّره.")}</p>
       </div>
     );
   }
@@ -196,7 +197,7 @@ export default function BuyForm({
 
       {product.wholesaleOptions && product.wholesaleOptions.length > 0 && (
         <div>
-          <p className="mb-2.5 text-sm font-semibold text-(--rx-ink)">اشتري كمية ووفّر</p>
+          <p className="mb-2.5 text-sm font-semibold text-(--rx-ink)">{st("اشتري كمية ووفّر")}</p>
           <ul className="grid gap-2 sm:grid-cols-2">
             {product.wholesaleOptions.map((t) => {
               const on = tier === t;
@@ -214,10 +215,10 @@ export default function BuyForm({
                   >
                     <BadgePercent aria-hidden className="size-5 shrink-0 text-(--rx-btn)" />
                     <span className="min-w-0 flex-1">
-                      <span className="block font-bold text-(--rx-ink)">{t.maxQty ? `${num(t.minQty)}–${num(t.maxQty)} قطعة` : `${num(t.minQty)} قطع أو أكتر`}</span>
-                      <span className="text-xs text-(--rx-text)">{formatPrice(t.price)} للقطعة</span>
+                      <span className="block font-bold text-(--rx-ink)">{t.maxQty ? st("{0}–{1} قطعة", num(t.minQty), num(t.maxQty)) : st("{0} قطع أو أكتر", num(t.minQty))}</span>
+                      <span className="text-xs text-(--rx-text)">{st("{0} للقطعة", formatPrice(t.price))}</span>
                     </span>
-                    {save > 0 && <span className="rx-chip-off shrink-0">وفّر {num(save)}٪</span>}
+                    {save > 0 && <span className="rx-chip-off shrink-0">{st("وفّر {0}٪", num(save))}</span>}
                   </button>
                 </li>
               );
@@ -230,12 +231,12 @@ export default function BuyForm({
         <Qty value={qty} max={product.stock} onChange={setQty} disabled={pending} />
         <button type="button" onClick={addToCart} disabled={pending} className={btn({ size: "lg", className: "min-w-0 flex-1 px-4" })}>
           {pending && !buying ? <Loader2 className="animate-spin" /> : <ShoppingBag />}
-          <span className="truncate">أضف للسلة</span>
+          <span className="truncate">{st("أضف للسلة")}</span>
           {qty > 1 && <span className="rx-num opacity-85">· {formatPrice(unit * qty)}</span>}
         </button>
         <button type="button" onClick={buyNow} disabled={pending} className={btn({ variant: "tint", size: "lg", full: true })}>
           {buying ? <Loader2 className="animate-spin" /> : <Zap />}
-          اشتري دلوقتي
+          {st("اشتري دلوقتي")}
         </button>
       </div>
 
@@ -259,7 +260,7 @@ export default function BuyForm({
             </div>
             <button type="button" onClick={addToCart} disabled={pending} className={btn({ className: "px-5" })}>
               {pending ? <Loader2 className="animate-spin" /> : <ShoppingBag />}
-              أضف للسلة
+              {st("أضف للسلة")}
             </button>
           </div>
         </div>

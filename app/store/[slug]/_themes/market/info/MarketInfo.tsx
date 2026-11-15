@@ -9,13 +9,14 @@ import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDoc
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { Chevron, Empty, PageHead, Wrap, btn, num } from "../ui";
 import ContactForm from "./ContactForm";
+import { st } from "@/lib/i18n/storefront";
 
 function Channels({ contact }: { contact: StoreContact }) {
   const wa = whatsappHref(contact.whatsapp);
   const rows = [
-    ...(wa ? [{ label: "واتساب", value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
-    ...(contact.email ? [{ label: "البريد الإلكتروني", value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
-    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: "تابعنا", href: s.href, Icon: s.Icon, ltr: false })),
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
+    ...(contact.email ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, Icon: s.Icon, ltr: false })),
   ];
   if (rows.length === 0) return null;
   return (
@@ -48,7 +49,7 @@ function Channels({ contact }: { contact: StoreContact }) {
 export function MarketAbout({ store, logo, coverImage, description, contact, productCount, categoryCount }: AboutViewProps) {
   return (
     <Wrap className="pb-12">
-      <PageHead title={`عن ${store.name}`} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "عن المتجر" }]} image={coverImage} />
+      <PageHead title={st("عن {0}", store.name)} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} image={coverImage} />
 
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-14">
         <div>
@@ -56,12 +57,12 @@ export function MarketAbout({ store, logo, coverImage, description, contact, pro
             {logo ? <Image src={logo} alt="" fill sizes="64px" className="object-cover" /> : <Store className="size-7 text-(--mk-label-2)" />}
           </span>
           <p className="max-w-[66ch] whitespace-pre-line text-[1.0625rem] leading-8 text-(--mk-ink)">
-            {description?.trim() || `أهلاً بيك في ${store.name}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.`}
+            {description?.trim() || st("أهلاً بيك في {0}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.", store.name)}
           </p>
           <dl className="mt-8 grid max-w-md grid-cols-2 gap-(--mk-gap)">
             {[
-              { n: productCount, l: "منتج" },
-              { n: categoryCount, l: "قسم" },
+              { n: productCount, l: st("منتج") },
+              { n: categoryCount, l: st("قسم") },
             ].map((s) => (
               <div key={s.l} className="flex flex-col-reverse rounded-(--mk-r) bg-(--mk-btn) p-5 text-(--mk-btn-ink)">
                 <dt className="mt-1 text-sm opacity-85">{s.l}</dt>
@@ -71,17 +72,17 @@ export function MarketAbout({ store, logo, coverImage, description, contact, pro
           </dl>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-              تسوق المنتجات
+              {st("تسوق المنتجات")}
             </Link>
             <Link href={buildStoreUrl(store.slug, "/contact")} className={btn({ size: "lg", variant: "outline" })}>
-              تواصل معنا
+              {st("تواصل معنا")}
             </Link>
           </div>
         </div>
         <aside>
-          <h2 className="mk-h4 mb-4">طرق التواصل</h2>
+          <h2 className="mk-h4 mb-4">{st("طرق التواصل")}</h2>
           <Channels contact={contact} />
-          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="text-sm text-(--mk-label-2)">المتجر هيتواصل معاك على رقمك بعد ما تطلب.</p>}
+          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="text-sm text-(--mk-label-2)">{st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}</p>}
         </aside>
       </div>
     </Wrap>
@@ -93,29 +94,29 @@ export function MarketContact({ store, contact }: ContactViewProps) {
   const hasAny = !!wa || !!contact.email || getSocialLinks(contact).length > 0;
   return (
     <Wrap className="pb-12">
-      <PageHead title="تواصل معنا" note="عندك سؤال عن منتج أو طلب؟ إحنا معاك." crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تواصل معنا" }]} />
+      <PageHead title={st("تواصل معنا")} note={st("عندك سؤال عن منتج أو طلب؟ إحنا معاك.")} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معنا") }]} />
       <div className="h-8" />
       {!hasAny ? (
         <Empty
           icon={<MessageCircle />}
-          title="المتجر لسه مضافش وسيلة تواصل"
-          description="لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه."
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
           <section>
-            <h2 className="mk-h4 mb-4">كلّمنا مباشرة</h2>
+            <h2 className="mk-h4 mb-4">{st("كلّمنا مباشرة")}</h2>
             <Channels contact={contact} />
           </section>
           {(wa || contact.email) && (
             <section className="mk-panel p-5 sm:p-8">
-              <h2 className="mk-h3">ابعتلنا رسالة</h2>
-              <p className="mb-6 mt-1 text-sm text-(--mk-label-2)">{wa ? "هتتفتح محادثة واتساب ورسالتك جاهزة." : "هيتفتح الإيميل ورسالتك جاهزة."}</p>
+              <h2 className="mk-h3">{st("ابعتلنا رسالة")}</h2>
+              <p className="mb-6 mt-1 text-sm text-(--mk-label-2)">{wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}</p>
               <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
             </section>
           )}
@@ -140,9 +141,9 @@ export function MarketTrack({ store, whatsapp, initialCode, order }: TrackViewPr
   return (
     <Wrap className="pb-12">
       <PageHead
-        title="تتبّع طلبك"
-        note={order ? undefined : "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة."}
-        crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "تتبّع طلبك" }]}
+        title={st("تتبّع طلبك")}
+        note={order ? undefined : st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]}
       />
       <div className="mt-8">
         <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
@@ -154,7 +155,7 @@ export function MarketTrack({ store, whatsapp, initialCode, order }: TrackViewPr
 export function MarketPolicy({ store, policy, policies }: PolicyViewProps) {
   return (
     <Wrap className="pb-12">
-      <PageHead title={policy.title} crumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <PageHead title={policy.title} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
       <div className="mt-8">
         <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
       </div>

@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { getStorefrontTheme } from "../_themes";
 import { getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
+import { st } from "@/lib/i18n/storefront";
+import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 type AboutStoreRouteProps = {
   params: Promise<{ slug: string }>;
@@ -13,10 +15,11 @@ type AboutStoreRouteProps = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  await loadStoreLocale(slug);
   const store = await prisma.store.findUnique({ where: { slug }, select: { name: true } });
   return storePageMetadata({
-    title: "من نحن",
-    description: store ? `تعرّف على ${store.name} وطرق التواصل معانا.` : undefined,
+    title: st("من نحن"),
+    description: store ? st("تعرّف على {0} وطرق التواصل معانا.", store.name) : undefined,
     path: "/about",
     storeName: store?.name,
   });
@@ -24,6 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function AboutStoreRoute({ params }: AboutStoreRouteProps) {
   const { slug } = await params;
+  await loadStoreLocale(slug);
   if (!slug) return notFound();
 
   const store = await prisma.store.findUnique({

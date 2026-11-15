@@ -23,6 +23,7 @@ import Announcement from "./Announcement";
 import { AppearanceScript, AppearanceSegments, AppearanceToggle } from "./AppearanceToggle";
 import SearchSheet from "./SearchSheet";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const MEGA_ID = "qr-mega";
 /** Collections that get their own link in the bar; the rest live in the panel. */
@@ -60,14 +61,14 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
   const shelves = shell.categories.filter((c) => c.productCount > 0);
   const barLinks = shelves.slice(0, BAR_LINKS);
   const quick = [
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "مختارات المتجر" },
-    { href: "/categories", label: "كل المجموعات" },
-    { href: "/track", label: "تتبّع طلبك" },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("مختارات المتجر") },
+    { href: "/categories", label: st("كل المجموعات") },
+    { href: "/track", label: st("تتبّع طلبك") },
   ];
   const house = [
-    { href: "/about", label: `عن ${shell.name}` },
-    { href: "/contact", label: "تواصل معانا" },
+    { href: "/about", label: st("عن {0}", shell.name) },
+    { href: "/contact", label: st("تواصل معانا") },
   ];
 
   useEffect(() => {
@@ -100,14 +101,14 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
 
   const megaTrigger = shelves.length > 0 && (
     <button type="button" aria-expanded={mega} aria-controls={MEGA_ID} onClick={() => setMega((v) => !v)} onMouseEnter={() => hover(true)} className="qr-navlink">
-      المجموعات
+      {st("المجموعات")}
     </button>
   );
   const links = (
     <ul className="qr-navlinks">
       <li onMouseEnter={() => hover(false)}>
         <Link href={url("/products")} aria-current={path === "/products" ? "page" : undefined} className="qr-navlink">
-          كل القطع
+          {st("كل القطع")}
         </Link>
       </li>
       {megaTrigger && <li>{megaTrigger}</li>}
@@ -120,7 +121,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
       ))}
       <li onMouseEnter={() => hover(false)}>
         <Link href={url("/products?sort=newest")} className="qr-navlink">
-          الجديد
+          {st("الجديد")}
         </Link>
       </li>
     </ul>
@@ -143,11 +144,11 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
         <div className="qr-header-bar">
           <div className="qr-wrap qr-header-inner">
             <div className="qr-hs">
-              <button type="button" onClick={() => setMenu(true)} aria-label="القائمة" aria-haspopup="dialog" className={cn("qr-icon -ms-2", variant !== "compact" && "lg:hidden")}>
+              <button type="button" onClick={() => setMenu(true)} aria-label={st("القائمة")} aria-haspopup="dialog" className={cn("qr-icon -ms-2", variant !== "compact" && "lg:hidden")}>
                 <Menu />
               </button>
               {variant === "centered" && (
-                <button type="button" onClick={openSearch} aria-label="البحث" className="qr-icon max-lg:hidden -ms-2">
+                <button type="button" onClick={openSearch} aria-label={st("البحث")} className="qr-icon max-lg:hidden -ms-2">
                   <Search />
                 </button>
               )}
@@ -156,7 +157,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
             <StoreMark shell={shell} className="qr-hm" />
 
             {variant === "default" && (
-              <nav aria-label="القائمة الرئيسية" className="qr-hn">
+              <nav aria-label={st("القائمة الرئيسية")} className="qr-hn">
                 {links}
               </nav>
             )}
@@ -164,21 +165,21 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
             {variant === "compact" && (
               <button type="button" onClick={openSearch} className="qr-hsearch">
                 <Search aria-hidden />
-                <span>دوّر على خاتم، سلسلة، ساعة…</span>
+                <span>{st("دوّر على خاتم، سلسلة، ساعة…")}</span>
                 <kbd dir="ltr">⌘K</kbd>
               </button>
             )}
 
             <div className="qr-he">
-              <button type="button" onClick={openSearch} aria-label="البحث" className={cn("qr-icon", variant === "centered" && "lg:hidden", variant === "compact" && "lg:hidden")}>
+              <button type="button" onClick={openSearch} aria-label={st("البحث")} className={cn("qr-icon", variant === "centered" && "lg:hidden", variant === "compact" && "lg:hidden")}>
                 <Search />
               </button>
               <AppearanceToggle className="max-lg:hidden" />
-              <button type="button" onClick={openWishlist} aria-label={wish > 0 ? `قايمة الأمنيات، فيها ${num(wish)}` : "قايمة الأمنيات"} aria-haspopup="dialog" className="qr-icon relative max-sm:hidden">
+              <button type="button" onClick={openWishlist} aria-label={wish > 0 ? st("قايمة الأمنيات، فيها {0}", num(wish)) : st("قايمة الأمنيات")} aria-haspopup="dialog" className="qr-icon relative max-sm:hidden">
                 <Heart />
                 <Count n={wish} />
               </button>
-              <button type="button" onClick={openCart} aria-label={bag > 0 ? `الحقيبة، فيها ${num(bag)} قطعة` : "الحقيبة"} aria-haspopup="dialog" className="qr-icon relative -me-2">
+              <button type="button" onClick={openCart} aria-label={bag > 0 ? st("الحقيبة، فيها {0} قطعة", num(bag)) : st("الحقيبة")} aria-haspopup="dialog" className="qr-icon relative -me-2">
                 <ShoppingBag />
                 <Count n={bag} />
               </button>
@@ -187,7 +188,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
         </div>
 
         {variant === "centered" && (
-          <nav aria-label="القائمة الرئيسية" className="qr-header-nav max-lg:hidden">
+          <nav aria-label={st("القائمة الرئيسية")} className="qr-header-nav max-lg:hidden">
             <div className="qr-wrap">{links}</div>
           </nav>
         )}
@@ -198,7 +199,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
             <div className="qr-wrap qr-mega-inner">
               <div className="min-w-0">
                 <p className="qr-kicker" style={stagger(0)}>
-                  المجموعات
+                  {st("المجموعات")}
                 </p>
                 <ul className="qr-mega-grid">
                   {shelves.slice(0, 8).map((c, i) => (
@@ -209,7 +210,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
                         </span>
                         <span className="min-w-0">
                           <span className="qr-serif block truncate text-[1.0625rem] text-(--qr-ink)">{c.name}</span>
-                          <span className="block text-xs text-(--qr-ink-2)">{num(c.productCount)} قطعة</span>
+                          <span className="block text-xs text-(--qr-ink-2)">{st("{0} قطعة", num(c.productCount))}</span>
                         </span>
                       </Link>
                     </li>
@@ -244,10 +245,10 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
         <Dialog.Portal>
           <Dialog.Overlay className={cn(QR_PORTAL, "qr-scrim fixed inset-0 z-50")} />
           <Dialog.Content dir={shell.dir} aria-describedby={undefined} className={cn(QR_PORTAL, "qr-drawer qr-drawer--start fixed inset-y-0 start-0 z-50 flex w-[min(92vw,24rem)] flex-col bg-(--qr-sheet) outline-none")}>
-            <Dialog.Title className="sr-only">القائمة</Dialog.Title>
+            <Dialog.Title className="sr-only">{st("القائمة")}</Dialog.Title>
             <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-(--qr-line) px-6">
               <StoreMark shell={shell} max={36} onClick={() => setMenu(false)} />
-              <Dialog.Close className="qr-icon -me-2" aria-label="إغلاق القائمة">
+              <Dialog.Close className="qr-icon -me-2" aria-label={st("إغلاق القائمة")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -255,7 +256,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
               <ul className="qr-menu-big">
                 <li style={stagger(0)}>
                   <Link href={url("/products")} onClick={() => setMenu(false)}>
-                    <span>كل القطع</span>
+                    <span>{st("كل القطع")}</span>
                     <Arrow />
                   </Link>
                 </li>
@@ -288,7 +289,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
                       openWishlist();
                     }}
                   >
-                    قايمة أمنياتك{wish > 0 ? ` (${num(wish)})` : ""}
+                    {st("قايمة أمنياتك{0}", wish > 0 ? ` (${num(wish)})` : "")}
                   </button>
                 </li>
               </ul>
@@ -297,7 +298,7 @@ export default function QiratHeader({ shell }: { shell: StoreShell }) {
                 {(wa || socials.length > 0) && (
                   <div className="flex items-center gap-1">
                     {wa && (
-                      <a href={wa} target="_blank" rel="noopener noreferrer" aria-label="واتساب" className="qr-icon -ms-2">
+                      <a href={wa} target="_blank" rel="noopener noreferrer" aria-label={st("واتساب")} className="qr-icon -ms-2">
                         <MessageCircle />
                       </a>
                     )}

@@ -14,13 +14,14 @@ import { isActivePath } from "../../shared/store-path";
 import { Arrow, RQ_PORTAL, btn, idx, monogram, num } from "../ui";
 import ThemeToggle from "./ThemeToggle";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const PRIMARY = [
-  { href: "/", label: "الرئيسية" },
-  { href: "/products", label: "كل المنتجات" },
-  { href: "/categories", label: "التصنيفات" },
-  { href: "/about", label: "عن المتجر" },
-  { href: "/contact", label: "تواصل معنا" },
+  { href: "/", get label() { return st("الرئيسية"); } },
+  { href: "/products", get label() { return st("كل المنتجات"); } },
+  { href: "/categories", get label() { return st("التصنيفات"); } },
+  { href: "/about", get label() { return st("عن المتجر"); } },
+  { href: "/contact", get label() { return st("تواصل معنا"); } },
 ] as const;
 
 /** Phones/tablets: a full-screen paper index — big numbered links first,
@@ -33,13 +34,13 @@ export default function MenuOverlay({ shell, count, path }: { shell: StoreShell;
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="-ms-2 inline-flex min-h-11 items-center gap-2.5 px-2 text-sm font-semibold" aria-label="فتح القائمة">
+      <Dialog.Trigger className="-ms-2 inline-flex min-h-11 items-center gap-2.5 px-2 text-sm font-semibold" aria-label={st("فتح القائمة")}>
         <span aria-hidden className="flex w-5 flex-col gap-[5px]">
           <span className="h-[1.5px] w-5 bg-current" />
           <span className="h-[1.5px] w-3 bg-current" />
         </span>
         <span aria-hidden className="max-[379px]:hidden">
-          القائمة
+          {st("القائمة")}
         </span>
       </Dialog.Trigger>
 
@@ -59,12 +60,12 @@ export default function MenuOverlay({ shell, count, path }: { shell: StoreShell;
               </div>
             </Dialog.Title>
             <Dialog.Close className="-me-2 inline-flex min-h-11 items-center gap-2 px-2 text-sm font-semibold">
-              إغلاق
+              {st("إغلاق")}
               <X className="size-5" />
             </Dialog.Close>
           </div>
 
-          <nav aria-label="القائمة الرئيسية" className="flex-1 overflow-y-auto overscroll-contain">
+          <nav aria-label={st("القائمة الرئيسية")} className="flex-1 overflow-y-auto overscroll-contain">
             <ol className="rq-wrap rq-stagger pt-4">
               {PRIMARY.map((link, i) => {
                 const active = isActivePath(path, link.href);
@@ -89,7 +90,7 @@ export default function MenuOverlay({ shell, count, path }: { shell: StoreShell;
 
             {shell.categories.length > 0 && (
               <section className="rq-wrap pt-9">
-                <h2 className="rq-label mb-2">التصنيفات</h2>
+                <h2 className="rq-label mb-2">{st("التصنيفات")}</h2>
                 <ul>
                   {shell.categories.map((c) => {
                     const active = isActivePath(path, `/categories/${c.slug}`);
@@ -124,13 +125,13 @@ export default function MenuOverlay({ shell, count, path }: { shell: StoreShell;
 
             {(wa || shell.contact.email || socials.length > 0) && (
               <section className="rq-wrap pb-8 pt-9">
-                <h2 className="rq-label mb-2">كلّمنا</h2>
+                <h2 className="rq-label mb-2">{st("كلّمنا")}</h2>
                 <ul className="space-y-1">
                   {wa && (
                     <li>
                       <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 text-[0.9375rem]">
                         <MessageCircle className="size-5 text-(--rq-quiet)" />
-                        واتساب
+                        {st("واتساب")}
                       </a>
                     </li>
                   )}
@@ -167,7 +168,7 @@ export default function MenuOverlay({ shell, count, path }: { shell: StoreShell;
             <Dialog.Close asChild>
               <Link href={url("/cart")} className={btn({ size: "lg", className: "flex-1" })}>
                 <ShoppingBag />
-                السلة
+                {st("السلة")}
                 {count > 0 && <span className="rq-num">({num(count)})</span>}
               </Link>
             </Dialog.Close>

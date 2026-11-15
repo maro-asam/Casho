@@ -11,6 +11,7 @@ import type { BannerData, HomeViewProps } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { btn, delay, num } from "../ui";
 import { motionOff } from "../../shared/motion";
+import { st } from "@/lib/i18n/storefront";
 
 const SLIDE_MS = 7000;
 
@@ -67,7 +68,7 @@ export default function Hero({
   return (
     <section
       aria-roledescription={multiple ? "carousel" : undefined}
-      aria-label="العروض"
+      aria-label={st("العروض")}
       data-under-header={underHeader || undefined}
       className="relative overflow-hidden bg-[#2a2a28] text-white"
       onMouseEnter={() => setHovered(true)}
@@ -84,7 +85,7 @@ export default function Hero({
                 key={b.id}
                 role={multiple ? "group" : undefined}
                 aria-roledescription={multiple ? "slide" : undefined}
-                aria-label={multiple ? `${num(i + 1)} من ${num(banners.length)}` : undefined}
+                aria-label={multiple ? st("{0} من {1}", num(i + 1), num(banners.length)) : undefined}
                 aria-hidden={multiple && i !== selected ? true : undefined}
                 className={cn(
                   "dn-slide relative min-w-0 shrink-0 grow-0 basis-full overflow-hidden",
@@ -119,7 +120,7 @@ export default function Hero({
                       )}
                       {hasCategories && (
                         <Link href={url("/categories")} tabIndex={i === selected ? 0 : -1} className={btn({ variant: "glass", size: "lg", className: "max-sm:hidden" })}>
-                          التصنيفات
+                          {st("التصنيفات")}
                         </Link>
                       )}
                     </div>
@@ -148,13 +149,13 @@ export default function Hero({
             <span className="dn-num text-lg opacity-60">{num(banners.length).padStart(2, "٠")}</span>
           </div>
           <div className="pointer-events-auto -me-2.5 flex items-center gap-1">
-            <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused} aria-label={paused ? "تشغيل العرض" : "إيقاف العرض"} className="dn-icon size-10 [&_svg]:size-4">
+            <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused} aria-label={paused ? st("تشغيل العرض") : st("إيقاف العرض")} className="dn-icon size-10 [&_svg]:size-4">
               {paused ? <Play /> : <Pause />}
             </button>
-            <button type="button" onClick={() => embla?.scrollPrev()} aria-label="العرض السابق" className="dn-icon size-10 max-sm:hidden [&_svg]:size-4">
+            <button type="button" onClick={() => embla?.scrollPrev()} aria-label={st("العرض السابق")} className="dn-icon size-10 max-sm:hidden [&_svg]:size-4">
               <ArrowRight className="ltr:rotate-180" />
             </button>
-            <button type="button" onClick={() => embla?.scrollNext()} aria-label="العرض التالي" className="dn-icon size-10 max-sm:hidden [&_svg]:size-4">
+            <button type="button" onClick={() => embla?.scrollNext()} aria-label={st("العرض التالي")} className="dn-icon size-10 max-sm:hidden [&_svg]:size-4">
               <ArrowLeft className="ltr:rotate-180" />
             </button>
           </div>

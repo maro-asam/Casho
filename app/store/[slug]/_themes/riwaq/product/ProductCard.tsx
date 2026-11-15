@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import { Price, StarMark, Stars, discountPercent, idx, num, PlateImage } from "../ui";
 import QuickAdd from "./QuickAdd";
+import { st } from "@/lib/i18n/storefront";
 
 type Props = {
   product: ProductCardData;
@@ -34,13 +35,13 @@ export default function ProductCard({
       <div className="rq-card-meta mb-2.5 flex min-h-[1.625rem] items-center justify-between gap-2">
         {index !== undefined ? <span className="rq-card-num rq-num text-xs text-(--rq-quiet)">{idx(index)}</span> : <span className="rq-card-num" />}
         {soldOut ? (
-          <span className="rq-badge rq-badge--ink">نفدت الكمية</span>
+          <span className="rq-badge rq-badge--ink">{st("نفدت الكمية")}</span>
         ) : discount > 0 ? (
           <span className="rq-badge rq-badge--sale">−{num(discount)}٪</span>
         ) : product.isFeatured ? (
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-(--rq-accent)">
             <StarMark className="size-2.5" />
-            مختار
+            {st("مختار")}
           </span>
         ) : null}
       </div>

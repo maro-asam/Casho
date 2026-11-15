@@ -5,6 +5,7 @@ import type { CategoryCardStyle } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { CategoryIcon } from "../lib/category-icon";
 import { CategoryArt, SectionHeader, Wrap, delay, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** "Shop by department", following the Studio "category shape" setting:
  *  circle — round icons/photos in a swipe row (pharmacy-app style)
@@ -14,7 +15,7 @@ export default function CategoryShelf({ categories, storeSlug, style }: { catego
   const shelves = categories.filter((c) => c.productCount > 0).slice(0, style === "square" ? 12 : 16);
   if (shelves.length === 0) return null;
   const url = (c: CategoryLink) => buildStoreUrl(storeSlug, `/categories/${c.slug}`);
-  const header = <SectionHeader title="تسوّق حسب القسم" sub={`${num(shelves.length)} قسم في المتجر`} href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل الأقسام" />;
+  const header = <SectionHeader title={st("تسوّق حسب القسم")} sub={st("{0} قسم في المتجر", num(shelves.length))} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل الأقسام")} />;
 
   if (style === "pill") {
     return (

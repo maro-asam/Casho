@@ -10,6 +10,7 @@ import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { AppearanceSegments } from "../header/AppearanceToggle";
 import StoreMark from "../header/StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 type LinkItem = { label: string; href: string };
 
@@ -48,23 +49,23 @@ export default async function MarketFooter({ shell }: { shell: StoreShell }) {
 
   const groups: { title: string; links: LinkItem[] }[] = [
     {
-      title: "تسوّق",
+      title: st("تسوّق"),
       links: [
-        { label: "كل المنتجات", href: url("/products") },
-        { label: "وصل حديثًا", href: url("/products?sort=newest") },
-        { label: "اختيارات المتجر", href: url("/products?featured=true") },
-        { label: "المتوفر حالًا", href: url("/products?inStock=true") },
+        { label: st("كل المنتجات"), href: url("/products") },
+        { label: st("وصل حديثًا"), href: url("/products?sort=newest") },
+        { label: st("اختيارات المتجر"), href: url("/products?featured=true") },
+        { label: st("المتوفر حالًا"), href: url("/products?inStock=true") },
       ],
     },
-    ...(shell.categories.length ? [{ title: "الأقسام", links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
+    ...(shell.categories.length ? [{ title: st("الأقسام"), links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
     {
-      title: "مساعدة",
+      title: st("مساعدة"),
       links: [
-        { label: "تتبّع طلبك", href: url("/track") },
-        { label: "تواصل معنا", href: url("/contact") },
-        { label: "عن المتجر", href: url("/about") },
-        { label: "كل الأقسام", href: url("/categories") },
-        { label: "سلة المشتريات", href: url("/cart") },
+        { label: st("تتبّع طلبك"), href: url("/track") },
+        { label: st("تواصل معنا"), href: url("/contact") },
+        { label: st("عن المتجر"), href: url("/about") },
+        { label: st("كل الأقسام"), href: url("/categories") },
+        { label: st("سلة المشتريات"), href: url("/cart") },
         ...policyFooterLinks(shell),
       ],
     },
@@ -98,7 +99,7 @@ export default async function MarketFooter({ shell }: { shell: StoreShell }) {
             {!wa && !shell.contact.email && (
               <Link href={url("/contact")} className="mt-3 inline-flex min-h-9 items-center gap-2 text-(--mk-ink)">
                 <Headset className="size-4" />
-                صفحة التواصل
+                {st("صفحة التواصل")}
               </Link>
             )}
             {socials.length > 0 && (
@@ -141,7 +142,7 @@ export default async function MarketFooter({ shell }: { shell: StoreShell }) {
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-(--mk-sep) pt-4">
           <AppearanceSegments />
           {payments.length > 0 && (
-            <ul className="flex flex-wrap items-center gap-1.5" aria-label="طرق الدفع المتاحة">
+            <ul className="flex flex-wrap items-center gap-1.5" aria-label={st("طرق الدفع المتاحة")}>
               {payments.map((p) => (
                 <li key={p.key} className="grid h-7 min-w-11 place-items-center rounded-lg bg-white px-1.5" title={p.label}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -158,7 +159,7 @@ export default async function MarketFooter({ shell }: { shell: StoreShell }) {
           </p>
           {shell.showPoweredByCasho && (
             <a href="https://casho.store" target="_blank" rel="noopener" className="inline-flex min-h-10 items-center gap-2 transition-opacity hover:opacity-80">
-              متجر مبني على
+              {st("متجر مبني على")}
               <CashoLogo withSubTitle={false} iconClassName="size-6" />
             </a>
           )}

@@ -3,20 +3,22 @@
 // for the shopper, and the matchers only read the merchant's own names.
 
 import { swatchColor } from "../../shared/colors";
+import { st } from "@/lib/i18n/storefront";
 
-/** wa.me link with a pre-written message. */
+/** wa.me link with a pre-written message (Arabic source text is translated to the store language). */
 export function waWith(href: string, text: string) {
-  return `${href}?text=${encodeURIComponent(text)}`;
+  return `${href}?text=${encodeURIComponent(st(text))}`;
 }
 
+// Arabic source text — waWith() translates it to the store language. i18n-ignore
 export const COACH_MESSAGE = "السلام عليكم، محتاج أسأل عن المكملات والأدوات اللي تناسب هدفي.";
 
 export function askAboutMessage(productName: string) {
-  return `السلام عليكم، عندي استفسار عن: ${productName}`;
+  return st("السلام عليكم، عندي استفسار عن: {0}", productName);
 }
 
 export function joinMessage(storeName: string) {
-  return `السلام عليكم، عايز أتابع عروض ${storeName} أول بأول.`;
+  return st("السلام عليكم، عايز أتابع عروض {0} أول بأول.", storeName);
 }
 
 const FLAVOR = /شوكول|فانيل|فراول|كراميل|مانج|موز|كوكيز|بندق|كابتشينو|قهوة|ليمون|توت|بطيخ|خوخ|تفاح|عنب|سادة|بدون نكهة|chocolate|vanilla|strawberry|caramel|mango|banana|cookie|cappuccino|coffee|berry|lemon|unflavou?red/i;

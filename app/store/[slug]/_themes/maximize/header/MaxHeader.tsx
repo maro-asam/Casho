@@ -19,12 +19,13 @@ import MegaMenu from "./MegaMenu";
 import SearchBar from "./SearchBar";
 import StoreMark from "./StoreMark";
 import Ticker from "./Ticker";
+import { st } from "@/lib/i18n/storefront";
 
 const MEGA_ID = "mx-mega";
 
 function CartButton({ count }: { count: number }) {
   return (
-    <button type="button" onClick={openCart} aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"} aria-haspopup="dialog" className="mx-icon -me-2">
+    <button type="button" onClick={openCart} aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")} aria-haspopup="dialog" className="mx-icon -me-2">
       <ShoppingCart />
       {count > 0 && (
         <span key={count} className="mx-cart-dot mx-bump absolute end-0.5 top-0.5 grid h-[1.125rem] min-w-[1.125rem] place-items-center rounded-full px-1 text-[0.625rem] font-bold tabular-nums">
@@ -97,9 +98,9 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
   const variant = shell.navbarVariant === "centered" || shell.navbarVariant === "allaia" ? "centered" : shell.navbarVariant === "compact" ? "compact" : "default";
   const navCats = shell.categories.slice(0, 4);
   const links = [
-    { href: "/products?sort=newest", label: "وصل حديثًا", tag: "جديد" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
-    { href: "/products", label: "كل المنتجات", match: "/products" },
+    { href: "/products?sort=newest", label: st("وصل حديثًا"), tag: st("جديد") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
+    { href: "/products", label: st("كل المنتجات"), match: "/products" },
   ];
 
   return (
@@ -137,7 +138,7 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
             {variant !== "centered" && <SearchBar shell={shell} className="hidden w-full max-w-[40rem] justify-self-center lg:block" />}
             <div className="flex items-center justify-end gap-1">
               {wa && (
-                <a href={wa} target="_blank" rel="noopener noreferrer" aria-label="كلّمنا على واتساب" className="mx-icon hidden lg:grid">
+                <a href={wa} target="_blank" rel="noopener noreferrer" aria-label={st("كلّمنا على واتساب")} className="mx-icon hidden lg:grid">
                   <MessageCircle />
                 </a>
               )}
@@ -151,7 +152,7 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
           </div>
 
           {/* Desktop navigation (not in the compact bar) */}
-          <nav aria-label="القائمة الرئيسية" className={cn("hidden", variant !== "compact" && "lg:flex lg:items-center lg:gap-6")}>
+          <nav aria-label={st("القائمة الرئيسية")} className={cn("hidden", variant !== "compact" && "lg:flex lg:items-center lg:gap-6")}>
             <ul className="-mx-3 flex h-12 min-w-0 flex-1 items-center gap-1 xl:gap-3">
               <li onMouseEnter={() => hasMega && hoverMega(true)}>
                 {hasMega ? (
@@ -164,12 +165,12 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
                     className="mx-nav-link px-3 font-semibold text-(--mx-link)"
                   >
                     <LayoutGrid className="size-4" />
-                    تسوّق حسب التصنيف
+                    {st("تسوّق حسب التصنيف")}
                     <ChevronDown className={cn("size-4 transition-transform duration-300", mega && "rotate-180")} />
                   </button>
                 ) : (
                   <Link href={url("/products")} className="mx-nav-link px-3 font-semibold text-(--mx-link)">
-                    تسوّق
+                    {st("تسوّق")}
                   </Link>
                 )}
               </li>
@@ -205,10 +206,10 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
         <div className="mx-wrap flex h-11 items-center justify-between gap-6 text-[0.8125rem] text-(--mx-ink)">
           <ul className="flex items-center gap-5">
             {[
-              { href: "/about", label: "عن المتجر" },
-              { href: "/contact", label: "المساعدة والتواصل" },
-              { href: "/categories", label: "كل التصنيفات" },
-              { href: "/cart", label: "سلة المشتريات" },
+              { href: "/about", label: st("عن المتجر") },
+              { href: "/contact", label: st("المساعدة والتواصل") },
+              { href: "/categories", label: st("كل التصنيفات") },
+              { href: "/cart", label: st("سلة المشتريات") },
             ].map((l) => (
               <li key={l.href}>
                 <Link href={url(l.href)} aria-current={isActivePath(path, l.href) ? "page" : undefined} className="mx-hover-line">
@@ -249,7 +250,7 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
         tabIndex={scroll.top ? 0 : -1}
         aria-hidden={!scroll.top}
         onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
-        aria-label="الرجوع لأعلى الصفحة"
+        aria-label={st("الرجوع لأعلى الصفحة")}
         className="mx-top"
       >
         <ArrowUp className="size-5" />

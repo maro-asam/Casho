@@ -2,6 +2,7 @@
 
 import type { ProductsQuery } from "@/lib/products-query";
 import type { WholesaleTier } from "../types";
+import { st } from "@/lib/i18n/storefront";
 
 export function discountPercent(price: number, compareAt: number | null | undefined) {
   if (!compareAt || compareAt <= price) return 0;
@@ -20,13 +21,13 @@ export function unitPriceFor(price: number, tiers: unknown, qty: number) {
 }
 
 /** Labels for the selected product options stored on cart items. */
-export const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون" };
+export const FEATURE_LABEL: Record<string, string> = { get size() { return st("المقاس"); }, get color() { return st("اللون"); } };
 
 export const SORT_OPTIONS: { value: ProductsQuery["sort"]; label: string }[] = [
-  { value: "newest", label: "الأحدث" },
-  { value: "price-asc", label: "السعر: من الأقل" },
-  { value: "price-desc", label: "السعر: من الأعلى" },
-  { value: "name-asc", label: "الاسم: أ – ي" },
-  { value: "name-desc", label: "الاسم: ي – أ" },
-  { value: "oldest", label: "الأقدم" },
+  { value: "newest", get label() { return st("الأحدث"); } },
+  { value: "price-asc", get label() { return st("السعر: من الأقل"); } },
+  { value: "price-desc", get label() { return st("السعر: من الأعلى"); } },
+  { value: "name-asc", get label() { return st("الاسم: أ – ي"); } },
+  { value: "name-desc", get label() { return st("الاسم: ي – أ"); } },
+  { value: "oldest", get label() { return st("الأقدم"); } },
 ];

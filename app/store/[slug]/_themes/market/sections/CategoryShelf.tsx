@@ -6,6 +6,7 @@ import type { CategoryCardStyle } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { CategoryIcon } from "../lib/category-icon";
 import { AisleArt, SectionHeader, Wrap, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Studio "category shape" setting:
  *  square — aisles as home-screen app icons (theme default)
@@ -19,7 +20,7 @@ export default function CategoryShelf({ categories, storeSlug, style }: { catego
 
   return (
     <Wrap className="mk-section">
-      <SectionHeader title="الأقسام" href={buildStoreUrl(storeSlug, "/categories")} />
+      <SectionHeader title={st("الأقسام")} href={buildStoreUrl(storeSlug, "/categories")} />
       {style === "pill" ? (
         <ul className="mk-rail mk-bleed gap-2">
           {list.map((c) => (

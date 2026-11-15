@@ -13,6 +13,7 @@ import { getSocialLinks, whatsappHref } from "../../shared/social";
 import { isActivePath } from "../../shared/store-path";
 import { Arrow, DN_PORTAL, num, stagger } from "../ui";
 import StoreMark from "./StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 const ROW = "flex min-h-14 w-full items-center justify-between gap-4 dn-serif text-[1.75rem] leading-tight";
 
@@ -26,16 +27,16 @@ export default function MobileNav({ shell, path }: { shell: StoreShell; path: st
   const close = () => setOpen(false);
 
   const links = [
-    { href: "/", label: "الرئيسية" },
-    { href: "/products?sort=newest", label: "وصل حديثًا" },
-    { href: "/products?featured=true", label: "اختيارات المتجر" },
-    { href: "/about", label: "عن المتجر" },
-    { href: "/contact", label: "تواصل معنا" },
+    { href: "/", label: st("الرئيسية") },
+    { href: "/products?sort=newest", label: st("وصل حديثًا") },
+    { href: "/products?featured=true", label: st("اختيارات المتجر") },
+    { href: "/about", label: st("عن المتجر") },
+    { href: "/contact", label: st("تواصل معنا") },
   ];
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="dn-icon -ms-2.5" aria-label="فتح القائمة">
+      <Dialog.Trigger className="dn-icon -ms-2.5" aria-label={st("فتح القائمة")}>
         <Menu />
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -51,13 +52,13 @@ export default function MobileNav({ shell, path }: { shell: StoreShell; path: st
                 <StoreMark shell={shell} onClick={close} />
               </div>
             </Dialog.Title>
-            <Dialog.Close className="dn-icon -me-2.5" aria-label="إغلاق القائمة">
+            <Dialog.Close className="dn-icon -me-2.5" aria-label={st("إغلاق القائمة")}>
               <X />
             </Dialog.Close>
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-8 pt-3">
-            <nav aria-label="القائمة الرئيسية">
+            <nav aria-label={st("القائمة الرئيسية")}>
               <ul className="dn-stagger divide-y divide-(--dn-line)">
                 <li style={stagger(0)}>
                   <Link href={url("/")} onClick={close} aria-current={path === "/" ? "page" : undefined} className={ROW}>
@@ -68,7 +69,7 @@ export default function MobileNav({ shell, path }: { shell: StoreShell; path: st
                   {shell.categories.length > 0 ? (
                     <details className="dn-details">
                       <summary className={ROW}>
-                        تسوّق
+                        {st("تسوّق")}
                         <span className="dn-plus" aria-hidden />
                       </summary>
                       <ul className="pb-4">
@@ -87,7 +88,7 @@ export default function MobileNav({ shell, path }: { shell: StoreShell; path: st
                         ))}
                         <li>
                           <Link href={url("/products")} onClick={close} className="dn-label mt-2 inline-flex min-h-11 items-center gap-1.5">
-                            كل المنتجات
+                            {st("كل المنتجات")}
                             <Arrow />
                           </Link>
                         </li>
@@ -95,7 +96,7 @@ export default function MobileNav({ shell, path }: { shell: StoreShell; path: st
                     </details>
                   ) : (
                     <Link href={url("/products")} onClick={close} className={ROW}>
-                      تسوّق
+                      {st("تسوّق")}
                     </Link>
                   )}
                 </li>
@@ -130,7 +131,7 @@ export default function MobileNav({ shell, path }: { shell: StoreShell; path: st
               {wa && (
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-3 text-sm">
                   <MessageCircle className="size-[1.125rem] text-(--dn-quiet)" />
-                  كلّمنا على واتساب
+                  {st("كلّمنا على واتساب")}
                 </a>
               )}
               {shell.contact.email && (

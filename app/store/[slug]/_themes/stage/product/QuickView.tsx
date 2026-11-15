@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { QUICK_VIEW_EVENT } from "../lib/events";
 import { Chevron, PlateImage, Price, SG_PORTAL, Rating, StockLine, discountPercent, num } from "../ui";
 import BuyForm from "./BuyForm";
+import { st } from "@/lib/i18n/storefront";
 
 /** Global quick-view host: a centered popup on desktop, a bottom sheet on phones. */
 export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: "rtl" | "ltr" }) {
@@ -49,14 +50,14 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
             "lg:inset-0 lg:m-auto lg:h-fit lg:max-h-[88dvh] lg:w-[min(62rem,calc(100vw-4rem))] lg:rounded-(--sg-r-xl)",
           )}
         >
-          <Dialog.Title className="sr-only">{product?.name ?? "نظرة سريعة"}</Dialog.Title>
-          <Dialog.Close className="sg-fab absolute end-3 top-3 z-10" aria-label="إغلاق">
+          <Dialog.Title className="sr-only">{product?.name ?? st("نظرة سريعة")}</Dialog.Title>
+          <Dialog.Close className="sg-fab absolute end-3 top-3 z-10" aria-label={st("إغلاق")}>
             <X />
           </Dialog.Close>
 
           <div className="overflow-y-auto overscroll-contain">
             {failed ? (
-              <p className="p-12 text-center text-(--sg-label-2)">المنتج ده مش متاح دلوقتي.</p>
+              <p className="p-12 text-center text-(--sg-label-2)">{st("المنتج ده مش متاح دلوقتي.")}</p>
             ) : !product ? (
               <div className="grid gap-6 p-5 lg:grid-cols-2 lg:p-8" aria-busy>
                 <div className="sg-skel aspect-square rounded-(--sg-r)" />
@@ -81,7 +82,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                           key={src}
                           type="button"
                           onClick={() => setActive(i)}
-                          aria-label={`الصورة ${i + 1}`}
+                          aria-label={st("الصورة {0}", i + 1)}
                           aria-current={i === active}
                           className={cn("sg-media aspect-square w-16 shrink-0 rounded-(--sg-r-sm) border-2 transition-colors", i === active ? "border-(--sg-btn)" : "border-transparent opacity-70 hover:opacity-100")}
                         >
@@ -93,7 +94,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                 </div>
 
                 <div className="min-w-0 pb-4">
-                  <p className="sg-eyebrow">{off > 0 ? `وفّر ${num(off)}٪` : product.brand || product.category.name}</p>
+                  <p className="sg-eyebrow">{off > 0 ? st("وفّر {0}٪", num(off)) : product.brand || product.category.name}</p>
                   <h2 className="sg-h2 mt-1 text-balance">{product.name}</h2>
                   {product.rating && <Rating value={product.rating.average} count={product.rating.count} className="mt-2" />}
                   <Price price={product.price} compareAt={product.compareAtPrice} size="lg" chip className="mt-3" />
@@ -103,7 +104,7 @@ export default function QuickView({ storeSlug, dir }: { storeSlug: string; dir: 
                     <BuyForm storeSlug={storeSlug} product={{ ...product, image: product.gallery[0] ?? null }} onAdded={() => setOpen(false)} />
                   </div>
                   <Link href={buildStoreUrl(storeSlug, `/products/${product.slug}`)} onClick={() => setOpen(false)} className="sg-link mt-6 text-[0.9375rem]">
-                    كل تفاصيل المنتج
+                    {st("كل تفاصيل المنتج")}
                     <Chevron />
                   </Link>
                 </div>

@@ -37,6 +37,7 @@ import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import { compressImage, ONE_MB } from "@/lib/image-compress";
 import { cn } from "@/lib/utils";
 import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
+import { ProviderMark } from "@/app/(merchant)/dashboard/integrations/_import/provider-ui";
 import { StorePreview } from "./StorePreview";
 
 const nf = lazyIntl.number();
@@ -47,6 +48,13 @@ const FLOW: Step[] = ["welcome", "look", "contact", "checkout", "start", "done"]
 const COUNTED: Step[] = ["look", "contact", "checkout", "start"];
 
 type Start = "demo" | "empty" | "import";
+
+/** Platforms a new merchant can move their old store from. */
+type ImportFrom = "shopify" | "woocommerce";
+const IMPORT_FROM: Record<ImportFrom, { label: string; href: string; provider: "SHOPIFY" | "WOOCOMMERCE"; tone: string }> = {
+  shopify: { label: "Shopify", href: "/integrations/shopify", provider: "SHOPIFY", tone: "bg-[#5e8e3e]" },
+  woocommerce: { label: "WooCommerce", href: "/integrations/woocommerce", provider: "WOOCOMMERCE", tone: "bg-[#6b3fa0]" },
+};
 
 type Props = {
   storeName: string;
@@ -95,6 +103,8 @@ export default function OnboardingWizard(props: Props) {
   const [shippingPrice, setShippingPrice] = useState("50");
   // Start
   const [start, setStart] = useState<Start>("demo");
+  const [importFrom, setImportFrom] = useState<ImportFrom>("shopify");
+  const enterHref = start === "import" ? IMPORT_FROM[importFrom].href : "/dashboard";
 
   const [result, setResult] = useState<{ storeUrl: string; seeded: { products: number; orders: number } | null } | null>(null);
 
@@ -161,7 +171,7 @@ export default function OnboardingWizard(props: Props) {
       }
       setResult({ storeUrl: res.storeUrl, seeded: res.seeded });
       go("done");
-      router.prefetch(start === "import" ? "/integrations/shopify" : "/dashboard");
+      router.prefetch(enterHref);
     });
   }
 
@@ -270,16 +280,17 @@ export default function OnboardingWizard(props: Props) {
                 errors={checkoutErrors}
               />
             )}
-            {step === "start" && (isPending ? <Building start={start} /> : <StartStep start={start} setStart={setStart} demo={demo} businessType={businessType} />)}
+            {step === "start" && (isPending ? <Building start={start} /> : <StartStep start={start} setStart={setStart} importFrom={importFrom} setImportFrom={setImportFrom} demo={demo} businessType={businessType} />)}
             {step === "done" && result && (
               <Done
                 storeName={storeName}
                 storeUrl={result.storeUrl}
                 seeded={result.seeded}
                 start={start}
+                importLabel={IMPORT_FROM[importFrom].label}
                 trialDaysLeft={trialDaysLeft}
                 onEnter={() => {
-                  router.push(start === "import" ? "/integrations/shopify" : "/dashboard");
+                  router.push(enterHref);
                   router.refresh();
                 }}
               />
@@ -756,7 +767,21 @@ function CheckoutStep(p: {
 
 /* ── Start ───────────────────────────────────────────────────────────────── */
 
-function StartStep({ start, setStart, demo, businessType }: { start: Start; setStart: (s: Start) => void; demo: Props["demo"]; businessType: string }) {
+function StartStep({
+  start,
+  setStart,
+  importFrom,
+  setImportFrom,
+  demo,
+  businessType,
+}: {
+  start: Start;
+  setStart: (s: Start) => void;
+  importFrom: ImportFrom;
+  setImportFrom: (p: ImportFrom) => void;
+  demo: Props["demo"];
+  businessType: string;
+}) {
   const options: { id: Start; icon: LucideIcon; tone: string; title: string; text: string }[] = [
     {
       id: "demo",
@@ -768,7 +793,13 @@ function StartStep({ start, setStart, demo, businessType }: { start: Start; setS
         : tr("منتجات وطلبات وعملاء نموذجيين، عشان تشوف كل حاجة شغالة قبل ما تضيف بتاعتك."),
     },
     { id: "empty", icon: Package, tone: "bg-primary", title: tr("هضيف منتجاتي بنفسي"), text: tr("متجر فاضي، وأول حاجة هتعملها تضيف منتجك الأول.") },
-    { id: "import", icon: Download, tone: "bg-[#5e8e3e]", title: tr("عندي متجر على Shopify"), text: tr("انقل منتجاتك وعملاءك وطلباتك في دقايق، من غير ما تعيد حاجة.") },
+    {
+      id: "import",
+      icon: Download,
+      tone: IMPORT_FROM[importFrom].tone,
+      title: tr("عندي متجر على Shopify أو WooCommerce"),
+      text: tr("انقل منتجاتك وعملاءك وطلباتك في دقايق، من غير ما تعيد حاجة."),
+    },
   ];
 
   return (
@@ -779,60 +810,94 @@ function StartStep({ start, setStart, demo, businessType }: { start: Start; setS
         {options.map(({ id, icon: Icon, tone, title, text }) => {
           const active = start === id;
           return (
-            <button
+            <div
               key={id}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => setStart(id)}
               className={cn(
-                "apple-press apple-card block w-full p-4 text-start transition-shadow duration-200 ease-(--ease-apple) focus-visible:outline-none",
-                active ? "ring-[2.5px] ring-primary" : "ring-1 ring-transparent hover:ring-foreground/10 focus-visible:ring-primary/50",
+                "apple-card transition-shadow duration-200 ease-(--ease-apple)",
+                active ? "ring-[2.5px] ring-primary" : "ring-1 ring-transparent hover:ring-foreground/10 has-[>button:focus-visible]:ring-primary/50",
               )}
             >
-              <div className="flex items-start gap-3.5">
-                <IconTile className={cn(tone, "size-10 rounded-[11px]")}>
-                  <Icon className="size-5" />
-                </IconTile>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[17px] font-semibold">{title}</p>
-                  <p className="mt-0.5 text-[15px] leading-6 text-muted-foreground">{text}</p>
-                </div>
-                <span
-                  className={cn(
-                    "mt-1 grid size-6 shrink-0 place-items-center rounded-full transition-colors",
-                    active ? "bg-primary text-primary-foreground" : "ring-[1.5px] ring-(--label-3) ring-inset",
-                  )}
-                >
-                  {active && <Check className="size-3.5" strokeWidth={3} />}
-                </span>
-              </div>
-
-              {id === "demo" && (
-                <div className="mt-4 space-y-3">
-                  <div className="grid grid-cols-4 gap-2">
-                    {demo.preview.map((p) => (
-                      <div key={p.name} className="min-w-0 space-y-1">
-                        {/* eslint-disable-next-line @next/next/no-img-element -- remote sample image */}
-                        <img src={p.image.replace("w=800", "w=240")} alt="" className="aspect-square w-full rounded-[12px] bg-muted object-cover" />
-                        <p className="truncate text-[11px] text-muted-foreground">{p.name}</p>
-                      </div>
-                    ))}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => setStart(id)}
+                className="apple-press block w-full p-4 text-start focus-visible:outline-none"
+              >
+                <div className="flex items-start gap-3.5">
+                  <IconTile className={cn(tone, "size-10 rounded-[11px]")}>
+                    <Icon className="size-5" />
+                  </IconTile>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[17px] font-semibold">{title}</p>
+                    <p className="mt-0.5 text-[15px] leading-6 text-muted-foreground">{text}</p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      tr("{0} منتجات", nf.format(demo.products)),
-                      tr("{0} طلبات", nf.format(demo.orders)),
-                      tr("{0} عملاء", nf.format(demo.customers)),
-                    ].map((t) => (
-                      <span key={t} className="rounded-full bg-(--sys-indigo)/10 px-2.5 py-0.5 text-[12px] font-medium text-(--sys-indigo)">
-                        {t}
-                      </span>
-                    ))}
+                  <span
+                    className={cn(
+                      "mt-1 grid size-6 shrink-0 place-items-center rounded-full transition-colors",
+                      active ? "bg-primary text-primary-foreground" : "ring-[1.5px] ring-(--label-3) ring-inset",
+                    )}
+                  >
+                    {active && <Check className="size-3.5" strokeWidth={3} />}
+                  </span>
+                </div>
+
+                {id === "demo" && (
+                  <div className="mt-4 space-y-3">
+                    <div className="grid grid-cols-4 gap-2">
+                      {demo.preview.map((p) => (
+                        <div key={p.name} className="min-w-0 space-y-1">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- remote sample image */}
+                          <img src={p.image.replace("w=800", "w=240")} alt="" className="aspect-square w-full rounded-[12px] bg-muted object-cover" />
+                          <p className="truncate text-[11px] text-muted-foreground">{p.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        tr("{0} منتجات", nf.format(demo.products)),
+                        tr("{0} طلبات", nf.format(demo.orders)),
+                        tr("{0} عملاء", nf.format(demo.customers)),
+                      ].map((t) => (
+                        <span key={t} className="rounded-full bg-(--sys-indigo)/10 px-2.5 py-0.5 text-[12px] font-medium text-(--sys-indigo)">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </button>
+
+              {id === "import" && active && (
+                <div className="px-4 pb-4 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+                  <p className="mb-2 text-[13px] font-medium text-muted-foreground">{tr("متجرك القديم على أنهي منصة؟")}</p>
+                  <div role="radiogroup" aria-label={tr("متجرك القديم على أنهي منصة؟")} className="grid grid-cols-2 gap-2">
+                    {(Object.keys(IMPORT_FROM) as ImportFrom[]).map((p) => {
+                      const on = importFrom === p;
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          onClick={() => setImportFrom(p)}
+                          className={cn(
+                            "apple-press flex items-center gap-2.5 rounded-[14px] p-2.5 text-start transition-[background-color,box-shadow] duration-200 ease-(--ease-apple) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                            on ? "bg-primary/8 ring-[1.5px] ring-primary" : "bg-(--fill-3) ring-1 ring-transparent hover:ring-foreground/10",
+                          )}
+                        >
+                          <ProviderMark provider={IMPORT_FROM[p].provider} size="sm" />
+                          <span className="min-w-0 flex-1 truncate text-[15px] font-semibold" dir="ltr">
+                            {IMPORT_FROM[p].label}
+                          </span>
+                          {on && <Check className="size-4 shrink-0 text-primary" strokeWidth={3} />}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
@@ -890,6 +955,7 @@ function Done({
   storeUrl,
   seeded,
   start,
+  importLabel,
   trialDaysLeft,
   onEnter,
 }: {
@@ -897,6 +963,7 @@ function Done({
   storeUrl: string;
   seeded: { products: number; orders: number } | null;
   start: Start;
+  importLabel: string;
   trialDaysLeft: number | null;
   onEnter: () => void;
 }) {
@@ -915,7 +982,7 @@ function Done({
   const nextSteps: [string, string][] =
     start === "import"
       ? [
-          [tr("اربط Shopify وابدأ النقل"), tr("منتجاتك وعملاءك هيتنقلوا في الخلفية.")],
+          [tr("اربط {0} وابدأ النقل", importLabel), tr("منتجاتك وعملاءك هيتنقلوا في الخلفية.")],
           [tr("راجع الأسعار والصور"), tr("بعد النقل، اتأكد إن كل حاجة مظبوطة.")],
         ]
       : start === "demo"
@@ -986,7 +1053,7 @@ function Done({
         className={cn(appleButton.filled, "mx-auto mt-8 h-[52px] w-full max-w-md text-[17px]")}
       >
         {leaving && <Loader2 className="size-5 animate-spin" />}
-        {start === "import" ? tr("ابدأ النقل من Shopify") : tr("ادخل لوحة التحكم")}
+        {start === "import" ? tr("ابدأ النقل من {0}", importLabel) : tr("ادخل لوحة التحكم")}
         {!leaving && <ChevronLeft className="size-5 ltr:-scale-x-100" />}
       </button>
     </div>

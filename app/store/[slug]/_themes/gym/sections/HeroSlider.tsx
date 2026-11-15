@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Arrow, num2, stagger } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 const INTERVAL = 6000;
 const RM = "(prefers-reduced-motion: reduce)";
@@ -65,7 +66,7 @@ export default function HeroSlider({
   return (
     <section
       aria-roledescription="carousel"
-      aria-label="العروض الرئيسية"
+      aria-label={st("العروض الرئيسية")}
       className={cn("gy-slides", variant === "contained" && "rounded-(--gy-r)", split && "!bg-(--gy-bg) !text-(--gy-ink)")}
       onMouseEnter={() => setHold(true)}
       onMouseLeave={() => setHold(false)}
@@ -106,7 +107,7 @@ export default function HeroSlider({
             </div>
           );
           return (
-            <div key={b.id} role="group" aria-roledescription="slide" aria-label={`${i + 1} من ${count}`} aria-hidden={i !== index} inert={i !== index} data-active={i === index} className="gy-slide">
+            <div key={b.id} role="group" aria-roledescription="slide" aria-label={st("{0} من {1}", i + 1, count)} aria-hidden={i !== index} inert={i !== index} data-active={i === index} className="gy-slide">
               {split ? (
                 <div className="flex h-full flex-col lg:flex-row-reverse lg:items-center">
                   <div className="gy-split-img">
@@ -137,19 +138,19 @@ export default function HeroSlider({
           </span>
           <div className="flex items-center gap-1.5">
             {banners.map((b, i) => (
-              <button key={b.id} type="button" onClick={() => go(i)} aria-label={`الشريحة ${i + 1}`} aria-current={i === index} className="grid h-8 place-items-center">
+              <button key={b.id} type="button" onClick={() => go(i)} aria-label={st("الشريحة {0}", i + 1)} aria-current={i === index} className="grid h-8 place-items-center">
                 <span key={i === index ? wipes : undefined} className="gy-tick" data-active={i === index} data-playing={ticking} style={{ ["--gy-tick" as string]: `${INTERVAL}ms` }} />
               </button>
             ))}
           </div>
           <div className={cn("ms-auto flex items-center gap-0.5", split ? "text-(--gy-ink)" : "text-white", variant === "contained" && "ms-3")}>
-            <button type="button" onClick={() => step(-1)} aria-label="الشريحة السابقة" className="gy-icon size-9 [&_svg]:size-5">
+            <button type="button" onClick={() => step(-1)} aria-label={st("الشريحة السابقة")} className="gy-icon size-9 [&_svg]:size-5">
               <ChevronRight className="ltr:rotate-180" />
             </button>
-            <button type="button" onClick={() => step(1)} aria-label="الشريحة التالية" className="gy-icon size-9 [&_svg]:size-5">
+            <button type="button" onClick={() => step(1)} aria-label={st("الشريحة التالية")} className="gy-icon size-9 [&_svg]:size-5">
               <ChevronLeft className="ltr:rotate-180" />
             </button>
-            <button type="button" onClick={() => setPaused(playing)} aria-label={playing ? "إيقاف التشغيل التلقائي" : "تشغيل تلقائي"} className="gy-icon size-9 [&_svg]:size-4">
+            <button type="button" onClick={() => setPaused(playing)} aria-label={playing ? st("إيقاف التشغيل التلقائي") : st("تشغيل تلقائي")} className="gy-icon size-9 [&_svg]:size-4">
               {playing ? <Pause /> : <Play />}
             </button>
           </div>

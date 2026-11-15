@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Wrap, btn } from "./ui";
 import type { StoreClosedProps } from "../types";
 import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
+import { st } from "@/lib/i18n/storefront";
 
 // ─── Closed / not found ─────────────────────────────────────────────────────
 
@@ -14,8 +15,8 @@ export function RiwaqStoreClosed({ storeSlug, pause }: StoreClosedProps) {
       <div className="grid grid-cols-1 items-end gap-10 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-14">
         <div className="rq-arch h-48 w-36 border border-(--rq-ink) bg-transparent" aria-hidden />
         <div>
-          <p className="rq-label text-(--rq-accent)">مقفول مؤقتًا</p>
-          <h1 className="rq-h1 mt-3">المتجر واخد استراحة</h1>
+          <p className="rq-label text-(--rq-accent)">{st("مقفول مؤقتًا")}</p>
+          <h1 className="rq-h1 mt-3">{st("المتجر واخد استراحة")}</h1>
           <p className="rq-body mt-4 max-w-[44ch] text-(--rq-quiet)">{closedDescription(pause)}</p>
           {pause && storeSlug && <StorePauseDetails storeSlug={storeSlug} pause={pause} align="start" className="mt-8" />}
         </div>
@@ -36,16 +37,16 @@ export function RiwaqNotFound({ storeSlug }: { storeSlug?: string }) {
       </p>
       <div className="mt-8 grid grid-cols-1 gap-6 border-t border-(--rq-ink) pt-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
         <div>
-          <h1 className="rq-h2">الصفحة دي مش موجودة</h1>
-          <p className="rq-body mt-3 max-w-[48ch] text-(--rq-quiet)">ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.</p>
+          <h1 className="rq-h2">{st("الصفحة دي مش موجودة")}</h1>
+          <p className="rq-body mt-3 max-w-[48ch] text-(--rq-quiet)">{st("ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر.")}</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link href={home} className={btn()}>
-            الرجوع للرئيسية
+            {st("الرجوع للرئيسية")}
           </Link>
           {storeSlug && (
             <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ variant: "line" })}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           )}
         </div>
@@ -93,7 +94,7 @@ export function GridSkeleton({ count = 8 }: { count?: number }) {
 
 export function RiwaqHomeSkeleton() {
   return (
-    <div role="status" aria-label="جاري التحميل">
+    <div role="status" aria-label={st("جاري التحميل")}>
       <Wrap className="grid grid-cols-1 items-end gap-12 pb-12 pt-8 lg:grid-cols-12 lg:pt-14">
         <div className="lg:col-span-7">
           <div className={cn(S, "h-3.5 w-36")} />
@@ -114,7 +115,7 @@ export function RiwaqHomeSkeleton() {
 
 export function RiwaqListingSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkeleton />
       <div className="mb-8 flex gap-7 border-b border-(--rq-rule) pb-4">
         {Array.from({ length: 5 }).map((_, i) => (
@@ -128,7 +129,7 @@ export function RiwaqListingSkeleton() {
 
 export function RiwaqProductSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <div className={cn(S, "my-5 h-3.5 w-52 sm:my-7")} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14">
         <div className={cn(S, "-mx-(--rq-gutter) aspect-[4/5] lg:col-span-7 lg:mx-0")} />
@@ -153,7 +154,7 @@ export function RiwaqProductSkeleton() {
 
 export function RiwaqPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkeleton />
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-14">
         <div className="border-t border-(--rq-ink) lg:col-span-7">
@@ -176,7 +177,7 @@ export function RiwaqPageSkeleton() {
 
 export function RiwaqCategoriesSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkeleton />
       <div className="border-t border-(--rq-ink)">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -192,7 +193,7 @@ export function RiwaqCategoriesSkeleton() {
 
 export function RiwaqGridPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <TitleSkeleton />
       <GridSkeleton count={8} />
     </Wrap>

@@ -6,6 +6,7 @@ import { openCart } from "../../shared/cart-events";
 import { useAddToCart } from "../../shared/use-add-to-cart";
 import { openQuickView } from "../lib/events";
 import { dnToast } from "../toast";
+import { st } from "@/lib/i18n/storefront";
 
 type CardProduct = { id: string; name: string; slug: string; hasOptions: boolean; stock: number };
 
@@ -15,7 +16,7 @@ type CardProduct = { id: string; name: string; slug: string; hasOptions: boolean
 export default function CardActions({ storeSlug, product }: { storeSlug: string; product: CardProduct }) {
   const { add, pending } = useAddToCart(storeSlug);
   const soldOut = product.stock <= 0;
-  const addLabel = product.hasOptions ? `اختار المقاس أو اللون لـ ${product.name}` : `أضف ${product.name} للسلة`;
+  const addLabel = product.hasOptions ? st("اختار المقاس أو اللون لـ {0}", product.name) : st("أضف {0} للسلة", product.name);
 
   const quickAdd = async () => {
     if (product.hasOptions) return openQuickView(product.slug);
@@ -28,7 +29,7 @@ export default function CardActions({ storeSlug, product }: { storeSlug: string;
     <>
       <div className="dn-card-quick dn-pointer-only absolute inset-x-3 bottom-3 z-[2] justify-center gap-2">
         <button type="button" onClick={() => openQuickView(product.slug)} className="dn-btn dn-btn--light dn-btn--sm shadow-[0_8px_24px_-12px_rgb(0_0_0/0.35)]">
-          نظرة سريعة
+          {st("نظرة سريعة")}
         </button>
         {!soldOut && (
           <button type="button" onClick={quickAdd} disabled={pending} aria-label={addLabel} className="dn-btn dn-btn--solid dn-btn--sm dn-btn--icon">

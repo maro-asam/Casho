@@ -14,6 +14,7 @@ import MenuOverlay from "./MenuOverlay";
 import SearchOverlay from "./SearchOverlay";
 import StoreMark from "./StoreMark";
 import ThemeToggle from "./ThemeToggle";
+import { st } from "@/lib/i18n/storefront";
 
 /** Inline categories in the masthead index row; the rest live on /categories. */
 const INDEX_LIMIT = 8;
@@ -29,8 +30,8 @@ function Count({ value, className }: { value: number; className?: string }) {
 
 function PrimaryLinks({ shell, path }: { shell: StoreShell; path: string }) {
   const links = [
-    { href: "/products", label: "كل المنتجات" },
-    { href: "/categories", label: "التصنيفات" },
+    { href: "/products", label: st("كل المنتجات") },
+    { href: "/categories", label: st("التصنيفات") },
   ];
   return (
     <ul className="flex items-center gap-7">
@@ -62,7 +63,7 @@ function SearchField({ shell, onSearch, className }: { shell: StoreShell; onSear
       )}
     >
       <Search className="size-[1.125rem] shrink-0 text-(--rq-ink)" />
-      <span className="truncate">ابحث في {shell.name}…</span>
+      <span className="truncate">{st("ابحث في {0}…", shell.name)}</span>
     </button>
   );
 }
@@ -88,16 +89,16 @@ function Actions({
           aria-haspopup="dialog"
         >
           <Search className="size-[1.125rem]" />
-          <span className="rq-link">بحث</span>
+          <span className="rq-link">{st("بحث")}</span>
         </button>
       )}
       <Link
         href={buildStoreUrl(shell.slug, "/cart")}
-        aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
+        aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")}
         className="inline-flex min-h-11 items-center gap-2 text-[0.9375rem] font-semibold"
       >
         <ShoppingBag className="size-[1.125rem]" />
-        <span className="rq-link">السلة</span>
+        <span className="rq-link">{st("السلة")}</span>
         <span aria-hidden className="text-(--rq-accent)">
           (<Count value={count} />)
         </span>
@@ -145,7 +146,7 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              aria-label="بحث"
+              aria-label={st("بحث")}
               aria-haspopup="dialog"
               className="grid size-11 place-items-center [&_svg]:size-5"
             >
@@ -153,7 +154,7 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
             </button>
             <Link
               href={href("/cart")}
-              aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
+              aria-label={count > 0 ? st("السلة، فيها {0} منتج", count) : st("السلة")}
               className="relative grid size-11 place-items-center [&_svg]:size-5"
             >
               <ShoppingBag />
@@ -183,12 +184,12 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
             <ul className="flex shrink-0 items-center gap-6">
               <li>
                 <Link href={href("/about")} aria-current={isActivePath(path, "/about") ? "page" : undefined} className="rq-link">
-                  عن المتجر
+                  {st("عن المتجر")}
                 </Link>
               </li>
               <li>
                 <Link href={href("/contact")} aria-current={isActivePath(path, "/contact") ? "page" : undefined} className="rq-link">
-                  تواصل معنا
+                  {st("تواصل معنا")}
                 </Link>
               </li>
               <li className="-me-3">
@@ -200,7 +201,7 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
 
         {variant === "centered" ? (
           <div className="rq-wrap grid h-24 grid-cols-[1fr_auto_1fr] items-center gap-10">
-            <nav aria-label="القائمة الرئيسية">
+            <nav aria-label={st("القائمة الرئيسية")}>
               <PrimaryLinks shell={shell} path={path} />
             </nav>
             <StoreMark shell={shell} size="lg" className="max-w-[28rem]" />
@@ -209,7 +210,7 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
         ) : variant === "default" ? (
           <div className="rq-wrap flex h-20 items-center gap-12">
             <StoreMark shell={shell} size="lg" className="max-w-[22rem]" />
-            <nav aria-label="القائمة الرئيسية" className="me-auto">
+            <nav aria-label={st("القائمة الرئيسية")} className="me-auto">
               <PrimaryLinks shell={shell} path={path} />
             </nav>
             <Actions shell={shell} count={count} onSearch={() => setSearchOpen(true)} />
@@ -223,7 +224,7 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
         )}
 
         {categories.length > 0 && (
-          <nav aria-label="التصنيفات" className="border-y border-(--rq-ink)">
+          <nav aria-label={st("التصنيفات")} className="border-y border-(--rq-ink)">
             <ul className="rq-wrap rq-rail h-12 items-center justify-center gap-9">
               {categories.slice(0, INDEX_LIMIT).map((c) => (
                 <li key={c.id} className="shrink-0">
@@ -240,7 +241,7 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
               {categories.length > INDEX_LIMIT && (
                 <li className="shrink-0">
                   <Link href={href("/categories")} className="rq-link text-sm font-semibold text-(--rq-accent)">
-                    كل التصنيفات
+                    {st("كل التصنيفات")}
                   </Link>
                 </li>
               )}

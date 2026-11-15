@@ -4,6 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 /** One-tap light/dark switch for shoppers. */
 export default function ThemeToggle({ className }: { className?: string }) {
@@ -12,7 +13,7 @@ export default function ThemeToggle({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      aria-label="تبديل الوضع الليلي"
+      aria-label={st("تبديل الوضع الليلي")}
       className={cn("grid size-11 place-items-center transition-colors hover:text-(--rq-accent) [&_svg]:size-[1.125rem]", className)}
     >
       <Sun className="dark:hidden" />

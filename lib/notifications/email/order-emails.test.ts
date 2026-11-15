@@ -6,6 +6,7 @@ vi.mock("next/server", () => ({ after: vi.fn() }));
 const { buildCustomerConfirmationEmail, buildCustomerStatusEmail, buildMerchantNewOrderEmail, buildPaymentFailedEmail } = await import(
   "./order-emails"
 );
+const { ensureStoreEnglish } = await import("@/lib/i18n/storefront/load-english");
 type EmailOrder = Parameters<typeof buildCustomerConfirmationEmail>[0];
 
 function makeOrder(overrides: Partial<EmailOrder> = {}): EmailOrder {
@@ -86,6 +87,34 @@ describe("order emails", () => {
 
   it("sends nothing for a status the customer isn't told about", () => {
     expect(buildCustomerStatusEmail(makeOrder(), "PENDING")).toBeNull();
+  });
+
+  it("writes an English store's customer emails in English, left to right", async () => {
+    await ensureStoreEnglish();
+    const order = makeOrder({ status: "SHIPPED", shipments: [{ trackingNumber: "BOS-123", trackingUrl: null, courierName: "Bosta" }] });
+    order.store.settings!.storeLanguage = "en";
+    order.store.name = "Noor";
+
+    const confirmation = buildCustomerConfirmationEmail({ ...order, status: "PENDING" });
+    expect(confirmation.subject).toBe("Your Noor order is confirmed — #7890AB");
+    expect(confirmation.html).toContain('<html lang="en" dir="ltr">');
+    expect(confirmation.html).toContain("Size: L");
+    expect(confirmation.html).toContain("Cash on delivery");
+    expect(confirmation.html).toContain("EGP\u00a0350");
+    expect(confirmation.text).toContain("We'll contact you soon");
+
+    const shipped = buildCustomerStatusEmail(order, "SHIPPED");
+    expect(shipped?.subject).toBe("Your order has shipped — #7890AB");
+    expect(shipped?.html).toContain("Tracking number:");
+    expect(shipped?.text).toContain("Tracking number: BOS-123");
+  });
+
+  it("keeps the merchant's email in Arabic whatever the store language", () => {
+    const order = makeOrder();
+    order.store.settings!.storeLanguage = "en";
+    const mail = buildMerchantNewOrderEmail(order, "https://x");
+    expect(mail.html).toContain('<html lang="ar" dir="rtl">');
+    expect(mail.html).toContain("بيانات العميل");
   });
 
   it("falls back to a safe color when the store color isn't a hex", () => {

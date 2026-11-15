@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { RestoreCartAction } from "@/actions/store/cart-recovery.actions";
+import { stv } from "@/lib/i18n/storefront";
 
 /** `?restore=<token>` from a recovery message: bring the saved cart into this browser. */
 export function CartRestorer({ storeSlug }: { storeSlug: string }) {
@@ -19,8 +20,8 @@ export function CartRestorer({ storeSlug }: { storeSlug: string }) {
       .then((result) => {
         const next = new URLSearchParams(searchParams.toString());
         next.delete("restore");
-        if (result.ok) toast.success(result.message);
-        else toast.error(result.message);
+        if (result.ok) toast.success(stv(result.message));
+        else toast.error(stv(result.message));
         const query = next.toString();
         router.replace(query ? `?${query}` : "?", { scroll: false });
         router.refresh();

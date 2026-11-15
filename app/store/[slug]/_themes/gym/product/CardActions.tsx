@@ -9,6 +9,7 @@ import { useAddToCart } from "../../shared/use-add-to-cart";
 import { openQuickView } from "../lib/events";
 import { gyToast } from "../toast";
 import { btn } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 type CardProduct = { id: string; name: string; slug: string; hasOptions: boolean; stock: number };
 
@@ -30,7 +31,7 @@ function useQuickAdd(storeSlug: string, product: CardProduct) {
     const res = await add(product.id);
     if (!res.ok) return gyToast.error(res.message);
     setDone(true);
-    gyToast.success("اتضاف للسلة", { description: product.name, action: { label: "عرض السلة", onClick: openCart } });
+    gyToast.success(st("اتضاف للسلة"), { description: product.name, action: { label: st("عرض السلة"), onClick: openCart } });
   };
 
   return { run, pending, done };
@@ -42,7 +43,7 @@ export function CardAddButton({ storeSlug, product, className, size = "sm" }: { 
   if (product.stock <= 0) {
     return (
       <button type="button" disabled className={btn({ variant: "soft", size, full: true, className })}>
-        غير متوفر
+        {st("غير متوفر")}
       </button>
     );
   }
@@ -51,11 +52,11 @@ export function CardAddButton({ storeSlug, product, className, size = "sm" }: { 
       type="button"
       onClick={run}
       disabled={pending}
-      aria-label={product.hasOptions ? `اختار الخيارات لـ ${product.name}` : `أضف ${product.name} للسلة`}
+      aria-label={product.hasOptions ? st("اختار الخيارات لـ {0}", product.name) : st("أضف {0} للسلة", product.name)}
       className={btn({ variant: done ? "tint" : "solid", size, full: true, className: cn("relative z-[2]", className) })}
     >
       {pending ? <Loader2 className="animate-spin" /> : done ? <Check /> : product.hasOptions ? <Plus /> : <ShoppingBag />}
-      {done ? "اتضاف" : product.hasOptions ? "اختار" : "أضف للسلة"}
+      {done ? st("اتضاف") : product.hasOptions ? st("اختار") : st("أضف للسلة")}
     </button>
   );
 }
@@ -69,8 +70,8 @@ export function CardAddFab({ storeSlug, product, className }: { storeSlug: strin
       type="button"
       onClick={run}
       disabled={pending}
-      aria-label={product.hasOptions ? `اختار الخيارات لـ ${product.name}` : `أضف ${product.name} للسلة`}
-      title={product.hasOptions ? "اختار الخيارات" : "أضف للسلة"}
+      aria-label={product.hasOptions ? st("اختار الخيارات لـ {0}", product.name) : st("أضف {0} للسلة", product.name)}
+      title={product.hasOptions ? st("اختار الخيارات") : st("أضف للسلة")}
       className={cn("gy-add-fab relative z-[2]", className)}
     >
       {pending ? <Loader2 className="animate-spin" /> : done ? <Check /> : <Plus />}
@@ -81,7 +82,7 @@ export function CardAddFab({ storeSlug, product, className }: { storeSlug: strin
 /** "Quick look" button that appears over the image on hover. */
 export function QuickLook({ slug, name, className }: { slug: string; name: string; className?: string }) {
   return (
-    <button type="button" onClick={() => openQuickView(slug)} aria-label={`نظرة سريعة على ${name}`} title="نظرة سريعة" className={cn("gy-fab relative z-[2] size-9", className)}>
+    <button type="button" onClick={() => openQuickView(slug)} aria-label={st("نظرة سريعة على {0}", name)} title={st("نظرة سريعة")} className={cn("gy-fab relative z-[2] size-9", className)}>
       <Eye />
     </button>
   );

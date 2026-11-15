@@ -1,10 +1,11 @@
 import type { SocialProofContent } from "@/types/store-theme.types";
+import { st } from "@/lib/i18n/storefront";
 
 const DEFAULT_STATS = [
-  { icon: "😊", value: "10,000+", label: "عميل سعيد" },
-  { icon: "⭐", value: "4.9", label: "متوسط التقييم" },
-  { icon: "🚚", value: "24h", label: "متوسط التوصيل" },
-  { icon: "🔄", value: "30 يوم", label: "ضمان الاسترجاع" },
+  { icon: "😊", value: "10,000+", get label() { return st("عميل سعيد"); } },
+  { icon: "⭐", value: "4.9", get label() { return st("متوسط التقييم"); } },
+  { icon: "🚚", value: "24h", get label() { return st("متوسط التوصيل"); } },
+  { icon: "🔄", get value() { return st("30 يوم"); }, get label() { return st("ضمان الاسترجاع"); } },
 ];
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 };
 
 export default function SocialProofSection({ content }: Props) {
-  const headline = content?.headline ?? "لماذا يثق بنا آلاف العملاء؟";
+  const headline = content?.headline ?? st("لماذا يثق بنا آلاف العملاء؟");
   const stats = content?.stats?.length ? content.stats : DEFAULT_STATS;
 
   return (

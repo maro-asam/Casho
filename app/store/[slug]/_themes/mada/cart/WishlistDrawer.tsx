@@ -16,10 +16,11 @@ import { useLocalList, wishlistKey } from "../lib/local-list";
 import HorizontalCard from "../product/HorizontalCard";
 import { mdToast } from "../toast";
 import { MD_PORTAL, btn, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 function AddButton({ storeSlug, product, onDone }: { storeSlug: string; product: ProductCardData; onDone: () => void }) {
   const { add, pending } = useAddToCart(storeSlug);
-  if (product.stock <= 0) return <span className="text-xs text-(--md-quiet)">نفد</span>;
+  if (product.stock <= 0) return <span className="text-xs text-(--md-quiet)">{st("نفد")}</span>;
   return (
     <button
       type="button"
@@ -34,7 +35,7 @@ function AddButton({ storeSlug, product, onDone }: { storeSlug: string; product:
         onDone();
         openCart();
       }}
-      aria-label={`أضف ${product.name} للسلة`}
+      aria-label={st("أضف {0} للسلة", product.name)}
       className={btn({ size: "sm", icon: true })}
     >
       {pending ? <Loader2 className="animate-spin" /> : <Plus />}
@@ -73,10 +74,10 @@ export default function WishlistDrawer({ storeSlug, dir }: { storeSlug: string; 
         <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(MD_PORTAL, "md-drawer fixed inset-y-0 end-0 z-50 flex w-[min(100vw,25rem)] flex-col bg-(--md-bg) shadow-2xl outline-none")}>
           <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-(--md-line) px-5">
             <Dialog.Title className="md-h3 flex items-center gap-2">
-              المفضلة
+              {st("المفضلة")}
               {list.length > 0 && <span className="md-badge md-badge--new">{num(list.length)}</span>}
             </Dialog.Title>
-            <Dialog.Close className={btn({ variant: "ghost", icon: true, className: "-me-2" })} aria-label="إغلاق المفضلة">
+            <Dialog.Close className={btn({ variant: "ghost", icon: true, className: "-me-2" })} aria-label={st("إغلاق المفضلة")}>
               <X />
             </Dialog.Close>
           </div>
@@ -86,11 +87,11 @@ export default function WishlistDrawer({ storeSlug, dir }: { storeSlug: string; 
                 <span className="grid size-16 place-items-center rounded-full bg-(--md-signal) text-(--md-signal-ink)">
                   <Heart className="size-7" />
                 </span>
-                <p className="md-h3 mt-5">لسه مفيش حاجة محفوظة</p>
-                <p className="mt-1.5 max-w-xs text-sm text-(--md-quiet)">دوس على القلب في أي منتج عشان ترجعله بسهولة. القائمة بتتحفظ على الجهاز ده.</p>
+                <p className="md-h3 mt-5">{st("لسه مفيش حاجة محفوظة")}</p>
+                <p className="mt-1.5 max-w-xs text-sm text-(--md-quiet)">{st("دوس على القلب في أي منتج عشان ترجعله بسهولة. القائمة بتتحفظ على الجهاز ده.")}</p>
                 <Dialog.Close asChild>
                   <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ className: "mt-6" })}>
-                    تصفّح المنتجات
+                    {st("تصفّح المنتجات")}
                   </Link>
                 </Dialog.Close>
               </div>
@@ -117,7 +118,7 @@ export default function WishlistDrawer({ storeSlug, dir }: { storeSlug: string; 
                       trailing={
                         <div className="flex flex-col items-center gap-1">
                           <AddButton storeSlug={storeSlug} product={p} onDone={() => setOpen(false)} />
-                          <button type="button" onClick={() => remove(p.id)} aria-label={`إزالة ${p.name} من المفضلة`} className="grid size-10 place-items-center rounded-full text-(--md-quiet) hover:text-(--md-sale)">
+                          <button type="button" onClick={() => remove(p.id)} aria-label={st("إزالة {0} من المفضلة", p.name)} className="grid size-10 place-items-center rounded-full text-(--md-quiet) hover:text-(--md-sale)">
                             <X className="size-4" />
                           </button>
                         </div>

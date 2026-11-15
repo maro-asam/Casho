@@ -12,6 +12,7 @@ import { clearedQueryString } from "../../shared/filters";
 import { storeHref } from "../../shared/store-path";
 import { MX_PORTAL, btn, num } from "../ui";
 import FilterPanel, { type FilterProps } from "./FilterPanel";
+import { st } from "@/lib/i18n/storefront";
 
 // Per-viewer layout preferences, remembered in this browser.
 const PREF_EVENT = "maximize:pref";
@@ -46,7 +47,7 @@ function SortSelect({ storeSlug, query }: Pick<Props, "storeSlug" | "query">) {
   return (
     <div className="flex items-center gap-2">
       <label htmlFor={id} className="shrink-0 text-sm text-(--mx-text) max-sm:sr-only">
-        ترتيب حسب:
+        {st("ترتيب حسب:")}
       </label>
       <select
         id={id}
@@ -93,30 +94,30 @@ export default function ListingLayout({ children, ...props }: Props & { children
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => setDrawer(true)} aria-haspopup="dialog" className={btn({ variant: "soft", size: "sm", className: "h-10 lg:hidden" })}>
             <SlidersHorizontal />
-            فلترة
+            {st("فلترة")}
             {badge}
           </button>
           <button type="button" onClick={() => setPref("maximize:filters", sidebar ? "0" : "1")} aria-expanded={sidebar} className={btn({ variant: "soft", size: "sm", className: "hidden h-10 lg:inline-flex" })}>
             <SlidersHorizontal />
-            {sidebar ? "إخفاء الفلاتر" : "فلترة"}
+            {sidebar ? st("إخفاء الفلاتر") : st("فلترة")}
             {badge}
           </button>
           <p className="text-sm text-(--mx-text) max-sm:hidden" aria-live="polite">
-            {total > 0 ? `${num(total)} منتج` : "مفيش نتائج"}
+            {total > 0 ? st("{0} منتج", num(total)) : st("مفيش نتائج")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <SortSelect storeSlug={storeSlug} query={query} />
           <div className="flex items-center gap-0.5 rounded-(--mx-r-sm) border border-(--mx-line) p-0.5">
-            {viewBtn("list", "عرض كقائمة", List)}
-            {viewBtn("grid", "عرض كشبكة", LayoutGrid)}
+            {viewBtn("list", st("عرض كقائمة"), List)}
+            {viewBtn("grid", st("عرض كشبكة"), LayoutGrid)}
           </div>
         </div>
       </div>
 
       <div className="lg:flex lg:items-start lg:gap-8">
         {sidebar && (
-          <aside aria-label="الفلاتر" className="hidden w-64 shrink-0 lg:sticky lg:top-4 lg:block">
+          <aside aria-label={st("الفلاتر")} className="hidden w-64 shrink-0 lg:sticky lg:top-4 lg:block">
             <FilterPanel {...props} mode="sidebar" />
           </aside>
         )}
@@ -132,8 +133,8 @@ export default function ListingLayout({ children, ...props }: Props & { children
             className={cn(MX_PORTAL, "mx-drawer mx-drawer--start fixed inset-y-0 start-0 z-50 flex w-[min(90vw,23rem)] flex-col bg-(--mx-surface) outline-none")}
           >
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-(--mx-line) px-5">
-              <Dialog.Title className="mx-h3">فلترة المنتجات</Dialog.Title>
-              <Dialog.Close className="mx-icon -me-2" aria-label="إغلاق">
+              <Dialog.Title className="mx-h3">{st("فلترة المنتجات")}</Dialog.Title>
+              <Dialog.Close className="mx-icon -me-2" aria-label={st("إغلاق")}>
                 <X />
               </Dialog.Close>
             </div>
@@ -151,10 +152,10 @@ export default function ListingLayout({ children, ...props }: Props & { children
                     }}
                     className={btn({ variant: "outline" })}
                   >
-                    مسح الكل
+                    {st("مسح الكل")}
                   </button>
                   <button type="submit" className={btn({ full: true })}>
-                    عرض النتائج
+                    {st("عرض النتائج")}
                   </button>
                 </div>
               }

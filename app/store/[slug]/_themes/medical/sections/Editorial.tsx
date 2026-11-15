@@ -17,6 +17,7 @@ import type {
 import Rail from "../product/Rail";
 import { RX_MESSAGE, waWith } from "../lib/rx";
 import { Chevron, Rating, SectionHeader, Wrap, btn, delay } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 // Merchant-configured sections in Casho Medical's language. Each renders only
 // the merchant's own content — no placeholder claims.
@@ -27,7 +28,7 @@ export function OfferStrip({ content }: { content?: OfferStripContent }) {
   if (items.length === 0) return null;
   const run = Array.from({ length: Math.max(2, Math.ceil(8 / items.length)) }, () => items).flat();
   return (
-    <div className="rx-marquee my-[calc(var(--rx-section)/4)] overflow-hidden border-y border-(--rx-line) bg-(--rx-tint) py-3 text-(--rx-tint-ink)" role="region" aria-label="عروض المتجر">
+    <div className="rx-marquee my-[calc(var(--rx-section)/4)] overflow-hidden border-y border-(--rx-line) bg-(--rx-tint) py-3 text-(--rx-tint-ink)" role="region" aria-label={st("عروض المتجر")}>
       <p className="sr-only">{items.join(" — ")}</p>
       <div className="rx-marquee-track" aria-hidden style={{ ["--rx-marquee-dur" as string]: `${run.length * 6}s` }}>
         {[0, 1].map((copy) => (
@@ -101,7 +102,7 @@ export function Stats({ content }: { content?: SocialProofContent }) {
 export function Testimonials({ content }: { content?: TestimonialsContent }) {
   const items = content?.items?.filter((t) => t.text?.trim()).slice(0, 8) ?? [];
   if (items.length === 0) return null;
-  const title = content?.headline || "آراء عملائنا";
+  const title = content?.headline || st("آراء عملائنا");
   return (
     <Wrap className="rx-section">
       <Rail label={title} title={title} listClassName="[&>li]:!w-[86%] sm:[&>li]:!w-[calc((100%-var(--rx-gap))/2)] lg:[&>li]:!w-[calc((100%-var(--rx-gap)*2)/3)]">
@@ -159,7 +160,7 @@ export function MediaBanner({ content, storeSlug }: { content?: HeroBannerSettin
           {content.subheadline && <p className="text-sm font-semibold text-white/90">{content.subheadline}</p>}
           {content.headline && <h2 className="rx-hero mt-2 max-w-[16ch] text-balance !text-white">{content.headline}</h2>}
           <Link href={href} className={btn({ variant: "white", size: "lg", className: "mt-6" })}>
-            {content.buttonText || "تسوّق الآن"}
+            {content.buttonText || st("تسوّق الآن")}
             <Chevron />
           </Link>
         </div>
@@ -216,10 +217,10 @@ export function AboutBrand({ content, storeName, storeSlug }: { content?: AboutB
         )}
         <div className="flex flex-col justify-center p-6 sm:p-10">
           <p className="rx-eyebrow">{storeName}</p>
-          <h2 className="rx-h2 mt-2 text-balance">{content.headline || `عن ${storeName}`}</h2>
+          <h2 className="rx-h2 mt-2 text-balance">{content.headline || st("عن {0}", storeName)}</h2>
           {content.text && <p className="rx-prose mt-3 line-clamp-6 text-[0.9375rem]">{content.text}</p>}
           <Link href={href} className={btn({ variant: "outline", className: "mt-6 self-start" })}>
-            {content.ctaText || "اعرف أكتر عنّا"}
+            {content.ctaText || st("اعرف أكتر عنّا")}
           </Link>
         </div>
       </div>
@@ -236,12 +237,12 @@ export function RxBand({ whatsappHref }: { whatsappHref: string }) {
           <ClipboardPlus className="size-8" strokeWidth={1.5} />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-xl font-bold sm:text-2xl">عندك روشتة؟ ابعتها واتساب</h2>
-          <p className="mt-1 text-sm leading-6 text-white/85 sm:text-[0.9375rem]">صوّر الروشتة وابعتها في محادثة المتجر، واسأل عن المتاح والسعر قبل ما تطلب.</p>
+          <h2 className="text-xl font-bold sm:text-2xl">{st("عندك روشتة؟ ابعتها واتساب")}</h2>
+          <p className="mt-1 text-sm leading-6 text-white/85 sm:text-[0.9375rem]">{st("صوّر الروشتة وابعتها في محادثة المتجر، واسأل عن المتاح والسعر قبل ما تطلب.")}</p>
         </div>
         <a href={waWith(whatsappHref, RX_MESSAGE)} target="_blank" rel="noopener noreferrer" className={btn({ variant: "wa", size: "lg", className: "sm:self-center" })}>
           <MessageCircle />
-          ابعت الروشتة
+          {st("ابعت الروشتة")}
         </a>
       </div>
     </Wrap>

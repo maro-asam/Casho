@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { st } from "@/lib/i18n/storefront";
 
 /** Horizontal rail with snap scrolling, swipe on touch and arrow buttons on
  *  desktop. Children are the slides (each sets its own width). */
@@ -42,7 +43,7 @@ export function Carousel({ children, label, className, controlsClassName }: { ch
           <button
             type="button"
             onClick={() => page(-1)}
-            aria-label="السابق"
+            aria-label={st("السابق")}
             className={cn("md-fab pointer-events-auto -ms-5 size-12 transition-opacity", edges.start && "pointer-events-none opacity-0")}
           >
             <ArrowRight className="ltr:rotate-180" />
@@ -50,7 +51,7 @@ export function Carousel({ children, label, className, controlsClassName }: { ch
           <button
             type="button"
             onClick={() => page(1)}
-            aria-label="التالي"
+            aria-label={st("التالي")}
             className={cn("md-fab pointer-events-auto -me-5 size-12 transition-opacity", edges.end && "pointer-events-none opacity-0")}
           >
             <ArrowLeft className="ltr:rotate-180" />

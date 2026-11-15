@@ -6,6 +6,7 @@ import type { BannerData, ProductCardData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Kicker, Ornament, PlateImage, Price, TextLink, Wrap, btn, delay } from "../ui";
 import HeroSlides from "./HeroSlides";
+import { st } from "@/lib/i18n/storefront";
 
 type Store = { name: string; slug: string; description: string | null };
 
@@ -35,7 +36,7 @@ function Atelier({ banners, store }: { banners: BannerData[]; store: Store }) {
                 {main.cta}
               </BannerLink>
             )}
-            <TextLink href={buildStoreUrl(store.slug, "/products")}>تسوّق كل القطع</TextLink>
+            <TextLink href={buildStoreUrl(store.slug, "/products")}>{st("تسوّق كل القطع")}</TextLink>
           </div>
         </div>
         <div className="qr-atelier-art">
@@ -99,11 +100,11 @@ function Gazette({ banners, store }: { banners: BannerData[]; store: Store }) {
  *  then up to three pieces laid on lit plates, the middle one raised. */
 function Tray({ store, products }: { store: Store; products: ProductCardData[] }) {
   const tray = products.slice(0, 3);
-  const line = firstLine(store.description) || "قطع مختارة بعناية، لكل مناسبة.";
+  const line = firstLine(store.description) || st("قطع مختارة بعناية، لكل مناسبة.");
   return (
     <section className="qr-tray">
       <Wrap className="text-center">
-        <Kicker className="qr-rise">أهلًا بيك</Kicker>
+        <Kicker className="qr-rise">{st("أهلًا بيك")}</Kicker>
         <h1 className="qr-hero-title qr-rise mx-auto mt-3 text-balance" style={delay(1)}>
           {store.name}
         </h1>
@@ -113,9 +114,9 @@ function Tray({ store, products }: { store: Store; products: ProductCardData[] }
         </p>
         <div className="qr-hero-ctas qr-rise justify-center" style={delay(3)}>
           <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
-            اكتشف المجموعة
+            {st("اكتشف المجموعة")}
           </Link>
-          <TextLink href={buildStoreUrl(store.slug, "/categories")}>كل المجموعات</TextLink>
+          <TextLink href={buildStoreUrl(store.slug, "/categories")}>{st("كل المجموعات")}</TextLink>
         </div>
       </Wrap>
       {tray.length > 0 && (

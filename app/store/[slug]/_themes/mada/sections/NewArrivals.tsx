@@ -8,13 +8,14 @@ import { cn } from "@/lib/utils";
 import type { ProductCardData } from "../../types";
 import ProductCard from "../product/ProductCard";
 import { Arrow, Wrap, btn, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** New arrivals with an optional "on sale" tab, plus a promo tile that
  *  closes the grid. */
 export default function NewArrivals({ latest, onSale, storeSlug }: { latest: ProductCardData[]; onSale: ProductCardData[]; storeSlug: string }) {
   const tabs = [
-    { id: "new", label: "وصل حديثًا", items: latest },
-    ...(onSale.length >= 2 ? [{ id: "sale", label: `العروض (${num(onSale.length)})`, items: onSale }] : []),
+    { id: "new", label: st("وصل حديثًا"), items: latest },
+    ...(onSale.length >= 2 ? [{ id: "sale", label: st("العروض ({0})", num(onSale.length)), items: onSale }] : []),
   ];
   const [tab, setTab] = useState(tabs[0].id);
   const items = (tabs.find((t) => t.id === tab) ?? tabs[0]).items.slice(0, 7);
@@ -25,11 +26,11 @@ export default function NewArrivals({ latest, onSale, storeSlug }: { latest: Pro
     <Wrap className="md-section">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-9">
         <div>
-          <span className="md-eyebrow mb-3">جديد</span>
-          <h2 className="md-h2">آخر ما وصل للمتجر</h2>
+          <span className="md-eyebrow mb-3">{st("جديد")}</span>
+          <h2 className="md-h2">{st("آخر ما وصل للمتجر")}</h2>
         </div>
         {tabs.length > 1 && (
-          <div role="tablist" aria-label="المنتجات" className="flex gap-1 rounded-full bg-(--md-surface) p-1">
+          <div role="tablist" aria-label={st("المنتجات")} className="flex gap-1 rounded-full bg-(--md-surface) p-1">
             {tabs.map((t) => (
               <button
                 key={t.id}
@@ -58,11 +59,11 @@ export default function NewArrivals({ latest, onSale, storeSlug }: { latest: Pro
             href={buildStoreUrl(storeSlug, "/products")}
             className="group flex h-full min-h-56 flex-col justify-between rounded-(--md-radius) bg-(--md-brand) p-6 text-(--md-brand-ink) transition-transform duration-300 hover:-translate-y-1"
           >
-            <span className="md-eyebrow self-start">المزيد</span>
+            <span className="md-eyebrow self-start">{st("المزيد")}</span>
             <span>
-              <span className="md-face block text-2xl font-bold leading-snug">شوف كل المنتجات</span>
+              <span className="md-face block text-2xl font-bold leading-snug">{st("شوف كل المنتجات")}</span>
               <span className={btn({ variant: "signal", size: "sm", className: "mt-4" })}>
-                تصفّح الكل
+                {st("تصفّح الكل")}
                 <Arrow />
               </span>
             </span>
@@ -73,7 +74,7 @@ export default function NewArrivals({ latest, onSale, storeSlug }: { latest: Pro
       {!promo && (
         <div className="mt-10 flex justify-center">
           <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ variant: "outline", size: "lg" })}>
-            تصفّح كل المنتجات
+            {st("تصفّح كل المنتجات")}
             <Arrow />
           </Link>
         </div>

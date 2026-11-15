@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import type { StoreClosedProps } from "../types";
 import { StorePauseDetails, closedDescription } from "../shared/pause/StorePauseDetails";
 import { Empty, Ornament, Wrap, btn } from "./ui";
+import { st } from "@/lib/i18n/storefront";
 
 export function QiratStoreClosed({ storeSlug, pause }: StoreClosedProps) {
   return (
     <Wrap className="py-16 sm:py-24">
       <Empty
         icon={<Store />}
-        title="المتجر مقفول مؤقتًا"
+        title={st("المتجر مقفول مؤقتًا")}
         description={closedDescription(pause)}
         action={pause && storeSlug ? <StorePauseDetails storeSlug={storeSlug} pause={pause} /> : undefined}
         className="mx-auto max-w-xl"
@@ -28,16 +29,16 @@ export function QiratNotFound({ storeSlug }: { storeSlug?: string }) {
       <span className="qr-empty-icon">
         <Gem />
       </span>
-      <h1 className="qr-h1 mt-6">الصفحة دي مش موجودة</h1>
+      <h1 className="qr-h1 mt-6">{st("الصفحة دي مش موجودة")}</h1>
       <Ornament className="mt-5" />
-      <p className="mt-5 max-w-md text-[0.9375rem] leading-7 text-(--qr-ink-2)">ممكن يكون الرابط غلط، أو القطعة اتشالت من المتجر. جرّب تدوّر عليها من البحث.</p>
+      <p className="mt-5 max-w-md text-[0.9375rem] leading-7 text-(--qr-ink-2)">{st("ممكن يكون الرابط غلط، أو القطعة اتشالت من المتجر. جرّب تدوّر عليها من البحث.")}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link href={home} className={btn({ size: "lg" })}>
-          الرجوع للرئيسية
+          {st("الرجوع للرئيسية")}
         </Link>
         {storeSlug && (
           <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ size: "lg", variant: "outline" })}>
-            كل القطع
+            {st("كل القطع")}
           </Link>
         )}
       </div>
@@ -82,7 +83,7 @@ function HeadSkel() {
 
 export function QiratHomeSkeleton() {
   return (
-    <div role="status" aria-label="جاري التحميل">
+    <div role="status" aria-label={st("جاري التحميل")}>
       <div className={cn(S, "h-[70svh] w-full !rounded-none")} />
       <Wrap>
         <HeadSkel />
@@ -103,7 +104,7 @@ export function QiratHomeSkeleton() {
 
 export function QiratListingSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <div className="mb-6 flex justify-center gap-6 overflow-hidden">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -118,7 +119,7 @@ export function QiratListingSkeleton() {
 
 export function QiratProductSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <div className={cn(S, "my-5 h-3.5 w-52")} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-14">
         <div className={cn(S, "w-full")} style={{ aspectRatio: "var(--store-img-ratio, 3 / 4)" }} />
@@ -142,7 +143,7 @@ export function QiratProductSkeleton() {
 
 export function QiratPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="space-y-4">
@@ -158,7 +159,7 @@ export function QiratPageSkeleton() {
 
 export function QiratCategoriesSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <div className="qr-catgrid">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -174,7 +175,7 @@ export function QiratCategoriesSkeleton() {
 
 export function QiratGridPageSkeleton() {
   return (
-    <Wrap role="status" aria-label="جاري التحميل" className="pb-10">
+    <Wrap role="status" aria-label={st("جاري التحميل")} className="pb-10">
       <HeadSkel />
       <GridSkel count={8} />
     </Wrap>

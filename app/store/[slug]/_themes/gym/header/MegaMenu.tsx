@@ -11,6 +11,7 @@ import { BannerImage, BannerLink } from "../../shared/banner";
 import { whatsappHref } from "../../shared/social";
 import { COACH_MESSAGE, waWith } from "../lib/coach";
 import { CategoryArt, Chevron, num } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** "All shelves" panel under the header: every shelf as an icon tile with its
  *  product count, and the newest banner (or an ask-us card) on the end side.
@@ -37,9 +38,9 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
       <div className="gy-wrap grid max-h-[min(70dvh,34rem)] grid-cols-[minmax(0,1fr)_19rem] gap-8 overflow-y-auto py-7">
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <p className="gy-h4">كل الأقسام</p>
+            <p className="gy-h4">{st("كل الأقسام")}</p>
             <Link href={url("/categories")} onClick={() => onClose()} className="gy-link text-sm">
-              عرض الكل
+              {st("عرض الكل")}
               <Chevron />
             </Link>
           </div>
@@ -52,7 +53,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-(--gy-ink) group-hover:text-(--gy-link)">{c.name}</span>
-                    <span className="text-xs text-(--gy-quiet)">{num(c.productCount)} منتج</span>
+                    <span className="text-xs text-(--gy-quiet)">{st("{0} منتج", num(c.productCount))}</span>
                   </span>
                 </Link>
               </li>
@@ -77,8 +78,8 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
         ) : wa ? (
           <a href={waWith(wa, COACH_MESSAGE)} target="_blank" rel="noopener noreferrer" className="gy-knurl flex flex-col justify-end rounded-(--gy-r) bg-(--gy-btn) p-6 text-(--gy-btn-ink)">
             <MessageCircle className="size-9" strokeWidth={1.75} />
-            <span className="gy-h3 mt-4 !text-current">محتار تبدأ بإيه؟</span>
-            <span className="mt-1 text-sm leading-6 opacity-90">قولنا هدفك على واتساب، ونرشحلك اللي يناسبك.</span>
+            <span className="gy-h3 mt-4 !text-current">{st("محتار تبدأ بإيه؟")}</span>
+            <span className="mt-1 text-sm leading-6 opacity-90">{st("قولنا هدفك على واتساب، ونرشحلك اللي يناسبك.")}</span>
           </a>
         ) : null}
       </div>

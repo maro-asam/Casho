@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
 import type { CategoriesIndexViewProps, CategoryLink, CategoryViewProps } from "../../types";
 import { ProductGrid } from "../product/ProductCard";
 import { Container, EmptyState, PageHeader, btn } from "../ui";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
-const nf = new Intl.NumberFormat("ar-EG");
+const nf = lazyStoreIntl.number();
 
 function CategoryTile({ category, storeSlug, priority }: { category: CategoryLink; storeSlug: string; priority?: boolean }) {
   return (
@@ -29,7 +30,7 @@ function CategoryTile({ category, storeSlug, priority }: { category: CategoryLin
       </div>
       <div className="mt-3 flex items-baseline justify-between gap-2">
         <h2 className="line-clamp-2 text-[0.9375rem] font-semibold leading-snug">{category.name}</h2>
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{nf.format(category.productCount)} منتج</span>
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{st("{0} منتج", nf.format(category.productCount))}</span>
       </div>
     </Link>
   );
@@ -39,19 +40,19 @@ export function ClassicCategoriesIndex({ store, categories }: CategoriesIndexVie
   return (
     <Container className="pb-6">
       <PageHeader
-        breadcrumbs={[{ label: "الرئيسية", href: buildStoreUrl(store.slug) }, { label: "التصنيفات" }]}
-        title="التصنيفات"
-        meta={categories.length > 0 ? `${nf.format(categories.length)} تصنيف` : undefined}
+        breadcrumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("التصنيفات") }]}
+        title={st("التصنيفات")}
+        meta={categories.length > 0 ? st("{0} تصنيف", nf.format(categories.length)) : undefined}
       />
 
       {categories.length === 0 ? (
         <EmptyState
           icon={<LayoutGrid />}
-          title="مفيش تصنيفات لسه"
-          description="تقدر تتصفح كل المنتجات مباشرةً."
+          title={st("مفيش تصنيفات لسه")}
+          description={st("تقدر تتصفح كل المنتجات مباشرةً.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح المنتجات
+              {st("تصفح المنتجات")}
             </Link>
           }
         />
@@ -73,8 +74,8 @@ export function ClassicCategory({ store, category, products, otherCategories }: 
     <Container className="pb-6">
       <PageHeader
         breadcrumbs={[
-          { label: "الرئيسية", href: buildStoreUrl(store.slug) },
-          { label: "التصنيفات", href: buildStoreUrl(store.slug, "/categories") },
+          { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
+          { label: st("التصنيفات"), href: buildStoreUrl(store.slug, "/categories") },
           { label: category.name },
         ]}
         title={
@@ -87,7 +88,7 @@ export function ClassicCategory({ store, category, products, otherCategories }: 
             <span className="min-w-0 break-words">{category.name}</span>
           </span>
         }
-        meta={`${nf.format(products.length)} منتج`}
+        meta={st("{0} منتج", nf.format(products.length))}
       >
         {products.length > 1 && (
           <Link
@@ -95,13 +96,13 @@ export function ClassicCategory({ store, category, products, otherCategories }: 
             className={btn({ variant: "outline", className: "self-start sm:self-auto" })}
           >
             <SlidersHorizontal />
-            فلترة وترتيب
+            {st("فلترة وترتيب")}
           </Link>
         )}
       </PageHeader>
 
       {otherCategories.length > 0 && (
-        <nav aria-label="تصنيفات أخرى" className="mb-6 sm:mb-8">
+        <nav aria-label={st("تصنيفات أخرى")} className="mb-6 sm:mb-8">
           <ul className="c-rail c-bleed gap-2 lg:mx-0 lg:flex-wrap lg:px-0">
             {[{ ...category, current: true }, ...otherCategories.map((c) => ({ ...c, current: false }))].map((c) => (
               <li key={c.id} className="shrink-0">
@@ -126,11 +127,11 @@ export function ClassicCategory({ store, category, products, otherCategories }: 
       {products.length === 0 ? (
         <EmptyState
           icon={<PackageOpen />}
-          title="التصنيف ده فاضي دلوقتي"
-          description="لسه مفيش منتجات هنا. شوف باقي منتجات المتجر."
+          title={st("التصنيف ده فاضي دلوقتي")}
+          description={st("لسه مفيش منتجات هنا. شوف باقي منتجات المتجر.")}
           action={
             <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
-              تصفح كل المنتجات
+              {st("تصفح كل المنتجات")}
             </Link>
           }
         />

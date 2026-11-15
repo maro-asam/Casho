@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { idx } from "../ui";
+import { st } from "@/lib/i18n/storefront";
 
 /** Phones: a full-bleed swipe strip with a counter and segmented progress.
  *  Desktop: the images laid out as an editorial stack — lead image full,
@@ -21,7 +22,7 @@ export default function Gallery({ images, productName, badge }: { images: string
     setActive((prev) => (prev === i ? prev : Math.min(images.length - 1, i)));
   }, [images.length]);
 
-  const alt = (i: number) => (i === 0 ? productName : `${productName} — صورة ${i + 1}`);
+  const alt = (i: number) => (i === 0 ? productName : st("{0} — صورة {1}", productName, i + 1));
 
   return (
     <>
@@ -32,14 +33,14 @@ export default function Gallery({ images, productName, badge }: { images: string
           onScroll={onScroll}
           className="rq-rail rq-plate"
           aria-roledescription="carousel"
-          aria-label={`صور ${productName}`}
+          aria-label={st("صور {0}", productName)}
         >
           {images.map((src, i) => (
             <div
               key={src + i}
               role="group"
               aria-roledescription="slide"
-              aria-label={`صورة ${i + 1} من ${images.length}`}
+              aria-label={st("صورة {0} من {1}", i + 1, images.length)}
               className="relative w-full shrink-0 basis-full"
               style={{ aspectRatio: "var(--store-img-ratio, 4 / 5)" }}
             >

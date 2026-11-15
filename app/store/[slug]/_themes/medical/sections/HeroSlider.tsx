@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
+import { st } from "@/lib/i18n/storefront";
 
 const INTERVAL = 6000;
 const RM = "(prefers-reduced-motion: reduce)";
@@ -54,7 +55,7 @@ export default function HeroSlider({
   return (
     <section
       aria-roledescription="carousel"
-      aria-label="العروض الرئيسية"
+      aria-label={st("العروض الرئيسية")}
       className={cn("relative h-full overflow-hidden bg-(--rx-deep) text-white", variant === "contained" && "rounded-(--rx-r-lg)")}
       onMouseEnter={() => setHold(true)}
       onMouseLeave={() => setHold(false)}
@@ -76,7 +77,7 @@ export default function HeroSlider({
             key={b.id}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${i + 1} من ${count}`}
+            aria-label={st("{0} من {1}", i + 1, count)}
             aria-hidden={i !== index}
             inert={i !== index}
             className={cn("absolute inset-0 transition-opacity duration-700 ease-out", i === index ? "z-[1] opacity-100" : "opacity-0")}
@@ -99,18 +100,18 @@ export default function HeroSlider({
 
       {count > 1 && (
         <div className={cn("absolute bottom-4 z-[2] flex items-center gap-1 rounded-full bg-black/25 px-1.5 backdrop-blur-sm", variant === "full" ? "inset-x-0 mx-auto w-fit" : "start-6 sm:start-10")}>
-          <button type="button" onClick={() => step(-1)} aria-label="الشريحة السابقة" className="rx-icon size-8 text-white [&_svg]:size-4">
+          <button type="button" onClick={() => step(-1)} aria-label={st("الشريحة السابقة")} className="rx-icon size-8 text-white [&_svg]:size-4">
             <ChevronRight className="ltr:rotate-180" />
           </button>
           {banners.map((b, i) => (
-            <button key={b.id} type="button" onClick={() => go(i)} aria-label={`الشريحة ${i + 1}`} aria-current={i === index} className="grid h-8 place-items-center px-0.5">
+            <button key={b.id} type="button" onClick={() => go(i)} aria-label={st("الشريحة {0}", i + 1)} aria-current={i === index} className="grid h-8 place-items-center px-0.5">
               <span className={cn("block h-2 rounded-full transition-all duration-300", i === index ? "w-6 bg-white" : "w-2 bg-white/55")} />
             </button>
           ))}
-          <button type="button" onClick={() => step(1)} aria-label="الشريحة التالية" className="rx-icon size-8 text-white [&_svg]:size-4">
+          <button type="button" onClick={() => step(1)} aria-label={st("الشريحة التالية")} className="rx-icon size-8 text-white [&_svg]:size-4">
             <ChevronLeft className="ltr:rotate-180" />
           </button>
-          <button type="button" onClick={() => setPaused(playing)} aria-label={playing ? "إيقاف التشغيل التلقائي" : "تشغيل تلقائي"} className="rx-icon size-8 text-white [&_svg]:size-3.5">
+          <button type="button" onClick={() => setPaused(playing)} aria-label={playing ? st("إيقاف التشغيل التلقائي") : st("تشغيل تلقائي")} className="rx-icon size-8 text-white [&_svg]:size-3.5">
             {playing ? <Pause /> : <Play />}
           </button>
         </div>

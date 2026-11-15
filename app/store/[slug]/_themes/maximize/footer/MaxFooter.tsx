@@ -9,6 +9,7 @@ import type { StoreShell } from "../../types";
 import { policyFooterLinks } from "../../shared/policies/links";
 import { getSocialLinks, whatsappHref } from "../../shared/social";
 import StoreMark from "../header/StoreMark";
+import { st } from "@/lib/i18n/storefront";
 
 type LinkItem = { label: string; href: string };
 
@@ -47,23 +48,23 @@ export default async function MaxFooter({ shell }: { shell: StoreShell }) {
 
   const groups: { title: string; links: LinkItem[] }[] = [
     {
-      title: "تسوّق",
+      title: st("تسوّق"),
       links: [
-        { label: "كل المنتجات", href: url("/products") },
-        { label: "وصل حديثًا", href: url("/products?sort=newest") },
-        { label: "اختيارات المتجر", href: url("/products?featured=true") },
-        { label: "المتوفر حالًا", href: url("/products?inStock=true") },
+        { label: st("كل المنتجات"), href: url("/products") },
+        { label: st("وصل حديثًا"), href: url("/products?sort=newest") },
+        { label: st("اختيارات المتجر"), href: url("/products?featured=true") },
+        { label: st("المتوفر حالًا"), href: url("/products?inStock=true") },
       ],
     },
-    ...(shell.categories.length ? [{ title: "التصنيفات", links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
+    ...(shell.categories.length ? [{ title: st("التصنيفات"), links: shell.categories.slice(0, 6).map((c) => ({ label: c.name, href: url(`/categories/${c.slug}`) })) }] : []),
     {
-      title: "معلومات",
+      title: st("معلومات"),
       links: [
-        { label: "عن المتجر", href: url("/about") },
-        { label: "تواصل معنا", href: url("/contact") },
-        { label: "تتبّع طلبك", href: url("/track") },
-        { label: "كل التصنيفات", href: url("/categories") },
-        { label: "سلة المشتريات", href: url("/cart") },
+        { label: st("عن المتجر"), href: url("/about") },
+        { label: st("تواصل معنا"), href: url("/contact") },
+        { label: st("تتبّع طلبك"), href: url("/track") },
+        { label: st("كل التصنيفات"), href: url("/categories") },
+        { label: st("سلة المشتريات"), href: url("/cart") },
         ...policyFooterLinks(shell),
       ],
     },
@@ -89,7 +90,7 @@ export default async function MaxFooter({ shell }: { shell: StoreShell }) {
 
         <div className="grid grid-cols-1 gap-8 pt-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-3">
-            <h2 className="text-lg font-semibold text-white">محتاج مساعدة؟</h2>
+            <h2 className="text-lg font-semibold text-white">{st("محتاج مساعدة؟")}</h2>
             {wa || shell.contact.email ? (
               <ul className="mt-5 space-y-5">
                 {wa && (
@@ -97,7 +98,7 @@ export default async function MaxFooter({ shell }: { shell: StoreShell }) {
                     <a href={wa} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3.5">
                       <MessageCircle className="size-8 shrink-0 text-(--mx-dark-quiet)" strokeWidth={1.25} />
                       <span className="text-sm">
-                        <span className="block text-(--mx-dark-quiet)">كلّمنا على واتساب</span>
+                        <span className="block text-(--mx-dark-quiet)">{st("كلّمنا على واتساب")}</span>
                         <span dir="ltr" className="mt-0.5 block font-semibold text-white group-hover:underline">
                           {shell.contact.whatsapp}
                         </span>
@@ -110,7 +111,7 @@ export default async function MaxFooter({ shell }: { shell: StoreShell }) {
                     <a href={`mailto:${shell.contact.email}`} className="group flex items-center gap-3.5">
                       <Mail className="size-8 shrink-0 text-(--mx-dark-quiet)" strokeWidth={1.25} />
                       <span className="min-w-0 text-sm">
-                        <span className="block text-(--mx-dark-quiet)">ابعتلنا إيميل</span>
+                        <span className="block text-(--mx-dark-quiet)">{st("ابعتلنا إيميل")}</span>
                         <span dir="ltr" className="mt-0.5 block truncate font-semibold text-white group-hover:underline">
                           {shell.contact.email}
                         </span>
@@ -122,7 +123,7 @@ export default async function MaxFooter({ shell }: { shell: StoreShell }) {
             ) : (
               <Link href={url("/contact")} className="group mt-5 flex items-center gap-3.5">
                 <Headset className="size-8 shrink-0 text-(--mx-dark-quiet)" strokeWidth={1.25} />
-                <span className="text-sm font-semibold text-white group-hover:underline">صفحة التواصل</span>
+                <span className="text-sm font-semibold text-white group-hover:underline">{st("صفحة التواصل")}</span>
               </Link>
             )}
           </div>
@@ -155,7 +156,7 @@ export default async function MaxFooter({ shell }: { shell: StoreShell }) {
           <div className="lg:col-span-3">
             {shell.description && (
               <>
-                <h2 className="text-lg font-semibold text-white">عن {shell.name}</h2>
+                <h2 className="text-lg font-semibold text-white">{st("عن {0}", shell.name)}</h2>
                 <p className="mt-3 line-clamp-4 text-sm leading-7 text-(--mx-dark-quiet)">{shell.description}</p>
               </>
             )}
@@ -180,13 +181,13 @@ export default async function MaxFooter({ shell }: { shell: StoreShell }) {
             </p>
             {shell.showPoweredByCasho && (
               <a href="https://casho.store" target="_blank" rel="noopener" className="inline-flex min-h-10 items-center gap-2 transition-opacity hover:opacity-80">
-                متجر مبني على
+                {st("متجر مبني على")}
                 <CashoLogo withSubTitle={false} iconClassName="size-7" textClassName="text-white" />
               </a>
             )}
           </div>
           {payments.length > 0 && (
-            <ul className="flex flex-wrap items-center gap-2" aria-label="طرق الدفع المتاحة">
+            <ul className="flex flex-wrap items-center gap-2" aria-label={st("طرق الدفع المتاحة")}>
               {payments.map((p) => (
                 <li key={p.key} className="grid h-8 min-w-12 place-items-center rounded-(--mx-r-sm) bg-white px-2" title={p.label}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -4,6 +4,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { policyPath } from "@/lib/store-policies";
 import { cn } from "@/lib/utils";
 import type { PolicyViewProps } from "../../types";
+import { lazyStoreIntl, st } from "@/lib/i18n/storefront";
 
 /** The theme's own classes — the document's layout and structure are shared. */
 export type PolicySkin = {
@@ -21,7 +22,7 @@ export type PolicySkin = {
   marker: string;
 };
 
-const dateFormat = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "long", year: "numeric" });
+const dateFormat = lazyStoreIntl.date({ day: "numeric", month: "long", year: "numeric" });
 
 /**
  * A storefront legal page, shared by every theme: the merchant's text (or the
@@ -45,7 +46,7 @@ export function PolicyDocument({
   return (
     <div className={cn(showNav && "lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-14")}>
       {showNav && (
-        <nav aria-label="سياسات المتجر" className="mb-8 lg:sticky lg:top-28 lg:mb-0 lg:self-start">
+        <nav aria-label={st("سياسات المتجر")} className="mb-8 lg:sticky lg:top-28 lg:mb-0 lg:self-start">
           <ul className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0">
             {policies.map((p) => {
               const active = p.type === policy.type;
@@ -72,7 +73,7 @@ export function PolicyDocument({
       <article className="min-w-0 max-w-[68ch]">
         {updated && !Number.isNaN(updated.getTime()) && (
           <p className={cn("mb-6 text-sm", skin.meta)}>
-            آخر تحديث: <time dateTime={policy.updatedAt!}>{dateFormat.format(updated)}</time>
+            {st("آخر تحديث:")}{" "}<time dateTime={policy.updatedAt!}>{dateFormat.format(updated)}</time>
           </p>
         )}
 

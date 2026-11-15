@@ -8,7 +8,8 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { ChevronLeft, Star } from "lucide-react";
 
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { formatPrice, st } from "@/lib/i18n/storefront";
 
 /** Classes for content rendered in a portal (sheets, dialogs, popovers):
  *  re-applies the store tokens + Classic scope outside the store root. */
@@ -59,7 +60,7 @@ export function SectionHeading({
   title,
   subtitle,
   href,
-  linkLabel = "عرض الكل",
+  linkLabel = st("عرض الكل"),
   className,
 }: {
   title: string;
@@ -89,7 +90,7 @@ export function SectionHeading({
 
 export function Breadcrumbs({ items }: { items: { label: string; href?: string }[] }) {
   return (
-    <nav aria-label="مسار التصفح" className="min-w-0">
+    <nav aria-label={st("مسار التصفح")} className="min-w-0">
       <ol className="flex min-w-0 items-center gap-1.5 text-[0.8125rem] text-muted-foreground">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -149,7 +150,7 @@ export function Price({
             size === "lg" ? "text-base" : "text-xs sm:text-[0.8125rem]",
           )}
         >
-          <span className="sr-only">السعر قبل الخصم: </span>
+          <span className="sr-only">{st("السعر قبل الخصم:")}{" "}</span>
           {formatPrice(compareAt!)}
         </span>
       )}
@@ -171,7 +172,7 @@ export function Stars({
   const rounded = Math.round(value * 2) / 2;
   return (
     <div className={cn("flex items-center gap-1", className)}>
-      <span className="sr-only">التقييم {value.toFixed(1)} من 5</span>
+      <span className="sr-only">{st("التقييم {0} من 5", value.toFixed(1))}</span>
       <div aria-hidden className="flex items-center gap-px">
         {[1, 2, 3, 4, 5].map((i) => (
           <Star

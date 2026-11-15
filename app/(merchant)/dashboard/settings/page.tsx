@@ -12,6 +12,7 @@ import StoreSettingsForm from "./_components/StoreSettingsForm";
 import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
 import LanguageSettings from "./_components/LanguageSettings";
+import StoreLanguageSettings from "./_components/StoreLanguageSettings";
 import OrderEmailSettings from "./_components/OrderEmailSettings";
 import StorePauseSettings from "./_components/StorePauseSettings";
 import DeleteAccount from "./_components/DeleteAccount";
@@ -74,6 +75,7 @@ export default async function SettingsRoute() {
           pausedUntil: true,
           pauseMessage: true,
           pauseCountdown: true,
+          storeLanguage: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -101,6 +103,7 @@ export default async function SettingsRoute() {
     { id: "contact", label: tr("روابط التواصل"), icon: AtSign, tint: "bg-(--sys-green)" },
     { id: "pause", label: tr("إيقاف المتجر مؤقتًا"), icon: PauseCircle, tint: "bg-(--sys-orange)" },
     { id: "emails", label: tr("إيميلات الطلبات"), icon: Mail, tint: "bg-(--sys-red)" },
+    { id: "store-language", label: tr("لغة المتجر"), icon: Languages, tint: "bg-(--sys-teal)" },
     { id: "language", label: tr("لغة لوحة التحكم"), icon: Languages, tint: "bg-(--sys-indigo)" },
     { id: "team", label: tr("أعضاء المتجر"), icon: Users, tint: "bg-(--sys-teal)" },
     { id: "security", label: tr("الجلسات النشطة"), icon: ShieldCheck, tint: "bg-(--sys-gray)" },
@@ -203,6 +206,7 @@ export default async function SettingsRoute() {
               emailStoreAlerts: store.settings?.emailStoreAlerts ?? true,
             }}
           />
+          <StoreLanguageSettings storeId={store.id} initial={store.settings?.storeLanguage === "en" ? "en" : "ar"} />
           <LanguageSettings />
           <div>
             <StoreMembers
