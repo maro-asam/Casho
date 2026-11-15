@@ -4,7 +4,7 @@
 //  Each preset = tokens + layout config + section defaults.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { hexToRgb, readableOn } from "@/lib/theme/contrast";
+import { hexToRgb, inkOn, mixHex, readableOn } from "@/lib/theme/contrast";
 import type {
   ThemePreset,
   ThemePresetId,
@@ -84,6 +84,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     get name() { return tr("كلاسيك"); },
     get description() { return tr("تصميم نظيف واحترافي مناسب لجميع أنواع المتاجر."); },
     colorScheme: "light",
+    brandAccent: true,
     categories: ["general", "electronics", "food", "home"],
     tokens: {
       primary: "#2563eb",
@@ -148,6 +149,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     get name() { return tr("رواق"); },
     get description() { return tr("تصميم تحريري بروح أروقة الأسواق القديمة: ورق دافئ، حبر، وأقواس."); },
     colorScheme: "light",
+    brandAccent: true,
     categories: ["fashion", "beauty", "home", "general"],
     tokens: {
       primary: "#a8432a",
@@ -351,6 +353,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     get name() { return tr("ماكسيمايز"); },
     get description() { return tr("ثيم للمتاجر الكبيرة: بحث بالتصنيف، قائمة تصنيفات كبيرة، شبكة عروض، منتجات كثيفة بفلاتر، نظرة سريعة، وسلة جانبية."); },
     colorScheme: "light",
+    brandAccent: true,
     categories: ["electronics", "general", "home", "beauty", "fashion"],
     tokens: {
       primary: "#0b7f6f",
@@ -400,7 +403,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
       navbar: "default",
       heroStyle: "split",
       productCardStyle: "default",
-      categoryCardStyle: "square",
+      categoryCardStyle: "circle", // its category section is round photos
       desktopGridCols: 5,
       density: "compact",
       animations: "subtle",
@@ -421,6 +424,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     get name() { return tr("تشيلو"); },
     get description() { return tr("ثيم إلكترونيات أنيق: سلايدر رئيسي، بحث كبير، قائمة تصنيفات، عروض بعدّاد، كروت منتجات بنظرة سريعة، وفوتر كحلي."); },
     colorScheme: "light",
+    brandAccent: true,
     categories: ["electronics", "general", "home", "fashion"],
     tokens: {
       primary: "#1447e6",
@@ -998,6 +1002,20 @@ function withReadableForegrounds(
   return next;
 }
 
+/**
+ * `brandAccent` presets: once the merchant's primary replaces the preset's,
+ * re-derive the accent tint and its text color from it (unless they picked an
+ * accent themselves), so no preset hue is left next to their brand.
+ */
+function withBrandAccent<T extends Partial<ThemeTokens>>(tokens: T, background: string | undefined): T {
+  const { primary } = tokens;
+  if (!primary || !background || !hexToRgb(primary) || !hexToRgb(background)) return tokens;
+  const dark = readableOn(background) === "#ffffff";
+  const accent = mixHex(primary, background, dark ? 0.24 : 0.12);
+  const accentForeground = inkOn(primary, accent ?? background);
+  return accent && accentForeground ? { ...tokens, accent, accentForeground } : tokens;
+}
+
 export function resolveStoreTheme(
   presetId: string | null | undefined,
   customization: ThemeCustomization | null | undefined,
@@ -1016,6 +1034,10 @@ export function resolveStoreTheme(
     preset.tokens,
     customization?.tokenOverrides,
   );
+
+  const deriveAccent =
+    preset.brandAccent && tokens.primary !== preset.tokens.primary && !customization?.tokenOverrides?.accent;
+  const finalTokens = deriveAccent ? withBrandAccent(tokens, tokens.background) : tokens;
 
   const layout = {
     ...preset.layout,
@@ -1049,8 +1071,11 @@ export function resolveStoreTheme(
   return {
     id: preset.id,
     colorScheme: preset.colorScheme,
-    tokens,
-    darkTokens,
+    tokens: finalTokens,
+    darkTokens:
+      deriveAccent && darkTokens
+        ? withBrandAccent(darkTokens, darkTokens.background ?? preset.darkTokens?.background)
+        : darkTokens,
     layout,
     sections,
     sectionContent: customization?.sectionContent ?? {},

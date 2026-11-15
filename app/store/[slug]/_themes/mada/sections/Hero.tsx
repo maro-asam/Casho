@@ -11,21 +11,25 @@ import { cn } from "@/lib/utils";
 import type { BannerData, HomeViewProps } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Arrow, btn, num } from "../ui";
+import { motionOff } from "../../shared/motion";
 
-/** Full-bleed slideshow built from the merchant's banners. */
+/** Full-bleed slideshow built from the merchant's banners (`compact`: the
+ *  Studio's short hero, same slideshow at a band's height). */
 export default function Hero({
   banners,
   store,
   dir,
   hasCategories,
+  compact,
 }: {
   banners: BannerData[];
   store: HomeViewProps["store"];
   dir: "rtl" | "ltr";
   hasCategories: boolean;
+  compact?: boolean;
 }) {
   const multiple = banners.length > 1;
-  const [reduced] = useState(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [reduced] = useState(motionOff);
   const [ref, embla] = useEmblaCarousel(
     { loop: multiple, direction: dir, duration: 32, active: multiple },
     multiple && !reduced ? [Autoplay({ delay: 6500, stopOnInteraction: true, stopOnMouseEnter: true })] : [],
@@ -50,15 +54,20 @@ export default function Hero({
           <div className="flex touch-pan-y">
             {banners.map((b, i) => (
               <div key={b.id} role="group" aria-roledescription="slide" aria-label={`${num(i + 1)} من ${num(banners.length)}`} className="relative min-w-0 shrink-0 grow-0 basis-full">
-                <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-auto lg:h-[min(78dvh,46rem)]">
+                <div
+                  className={cn(
+                    "relative lg:aspect-auto",
+                    compact ? "aspect-[4/3] sm:aspect-[16/7] lg:h-[min(46dvh,26rem)]" : "aspect-[4/5] sm:aspect-[16/10] lg:h-[min(78dvh,46rem)]",
+                  )}
+                >
                   <BannerImage banner={b} priority={i === 0} sizes="(max-width: 1472px) 100vw, 1472px" className="object-cover" />
                   <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_17_15/0.78),rgb(12_17_15/0.1)_55%,transparent)]" />
                   {/* Extra scrim on the text side so baked-in banner text never fights the title */}
                   <span aria-hidden className="absolute inset-0 hidden bg-[linear-gradient(to_left,rgb(12_17_15/0.6),transparent_60%)] lg:block ltr:bg-[linear-gradient(to_right,rgb(12_17_15/0.6),transparent_60%)]" />
                 </div>
-                <div className="absolute inset-x-0 bottom-0 p-5 pb-16 text-white sm:p-10 sm:pb-20 lg:p-14 lg:pb-16">
+                <div className={cn("absolute inset-x-0 bottom-0 p-5 pb-16 text-white sm:p-10", compact ? "sm:pb-16 lg:p-10 lg:pb-14" : "sm:pb-20 lg:p-14 lg:pb-16")}>
                   <span className="md-eyebrow">جديد في {store.name}</span>
-                  <h2 className={cn("md-hero-title mt-4 max-w-3xl text-balance", i !== selected && "opacity-0")} style={{ transition: "opacity 600ms" }}>
+                  <h2 className={cn(compact ? "md-h1 mt-3" : "md-hero-title mt-4", "max-w-3xl text-balance", i !== selected && "opacity-0")} style={{ transition: "opacity 600ms" }}>
                     {b.title}
                   </h2>
                   {b.subtitle && <p className="mt-3 line-clamp-2 max-w-2xl text-base text-white/85 sm:text-lg">{b.subtitle}</p>}

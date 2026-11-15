@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
-import type { AboutBrandContent, CollectionsContent } from "@/types/store-theme.types";
+import type { AboutBrandContent, CategoryCardStyle, CollectionsContent } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import Rail from "../product/Rail";
 import { PlateImage, SectionHeader, Wrap, btn, delay } from "../ui";
@@ -11,18 +11,46 @@ import { PlateImage, SectionHeader, Wrap, btn, delay } from "../ui";
 /** Cello's "Top most sold" collection grid: white tiles (photo + name) two
  *  rows high, five columns on desktop and two on phones, paged with the
  *  header arrows. */
-export function CategoryGrid({ categories, storeSlug }: { categories: CategoryLink[]; storeSlug: string }) {
+/** Studio category shape: `square` (Cello's own) photo-and-name cells,
+ *  `circle` round photos with the name under them, `pill` a wrap of chips. */
+export function CategoryGrid({ categories, storeSlug, shape = "square" }: { categories: CategoryLink[]; storeSlug: string; shape?: CategoryCardStyle }) {
   const tiles = categories.filter((c) => c.productCount > 0).slice(0, 20);
   if (tiles.length === 0) return null;
+  if (shape === "pill") {
+    return (
+      <section className="ce-wrap ce-section">
+        <SectionHeader title="تسوّق حسب التصنيف" sub={`${tiles.length} تصنيف في المتجر`} href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+        <ul className="flex flex-wrap gap-2">
+          {tiles.map((c) => (
+            <li key={c.id}>
+              <Link
+                href={buildStoreUrl(storeSlug, `/categories/${c.slug}`)}
+                className="inline-flex min-h-11 items-center gap-2.5 rounded-full bg-(--ce-card) py-1 pe-5 ps-1 text-[0.9375rem] font-medium text-(--ce-ink) shadow-[inset_0_0_0_1px_var(--ce-line)] transition-colors hover:bg-(--ce-btn) hover:text-(--ce-btn-ink)"
+              >
+                <span className="relative block size-9 shrink-0 overflow-hidden rounded-full bg-(--ce-bg)">
+                  <PlateImage src={c.image} sizes="36px" />
+                </span>
+                <span className="max-w-48 truncate">{c.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+  const circle = shape === "circle";
   const columns: CategoryLink[][] = [];
   for (let i = 0; i < tiles.length; i += 2) columns.push(tiles.slice(i, i + 2));
   const tile = (c: CategoryLink) => (
     <Link
       key={c.id}
       href={buildStoreUrl(storeSlug, `/categories/${c.slug}`)}
-      className="group flex h-28 items-center gap-3 bg-(--ce-card) px-3 sm:h-34 sm:gap-5 sm:px-4 lg:px-5"
+      className={cn(
+        "group flex bg-(--ce-card) px-3 sm:px-4 lg:px-5",
+        circle ? "h-40 flex-col items-center justify-center gap-2.5 text-center sm:h-48" : "h-28 items-center gap-3 sm:h-34 sm:gap-5",
+      )}
     >
-      <span className="relative block size-14 shrink-0 overflow-hidden sm:size-24">
+      <span className={cn("relative block shrink-0 overflow-hidden", circle ? "size-20 rounded-full bg-(--ce-bg) sm:size-28" : "size-14 sm:size-24")}>
         <PlateImage src={c.image} sizes="96px" className="ce-zoom-img" />
       </span>
       <span className="line-clamp-2 min-w-0 text-[0.9375rem] font-medium text-(--ce-ink) group-hover:text-(--ce-btn) sm:text-lg">{c.name}</span>
@@ -41,7 +69,7 @@ export function CategoryGrid({ categories, storeSlug }: { categories: CategoryLi
         {columns.map((col, i) => (
           <li key={i} className="flex flex-col divide-y divide-(--ce-line) border-e border-(--ce-line) last:border-e-0">
             {col.map(tile)}
-            {col.length === 1 && <span aria-hidden className="h-28 bg-(--ce-card) sm:h-34" />}
+            {col.length === 1 && <span aria-hidden className={cn("bg-(--ce-card)", circle ? "h-40 sm:h-48" : "h-28 sm:h-34")} />}
           </li>
         ))}
       </Rail>

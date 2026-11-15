@@ -3,13 +3,13 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
-import { verifyPendingGoogleAuth } from "@/lib/auth/pending-google-auth";
+import { PENDING_GOOGLE_COOKIE, verifyPendingGoogleAuth } from "@/lib/auth/pending-google-auth";
 import { SIGNUP_REF_COOKIE, resolveFirstReferral } from "@/lib/sales/attribution";
 import { CompleteGoogleForm } from "../../_components/forms/complete-google-form";
 
 export default async function CompleteGooglePage({ searchParams }: { searchParams: Promise<{ ref?: string }> }) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("pendingGoogleAuth")?.value;
+  const token = cookieStore.get(PENDING_GOOGLE_COOKIE)?.value;
 
   if (!token) redirect("/register");
 

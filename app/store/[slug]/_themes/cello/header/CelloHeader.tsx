@@ -102,6 +102,10 @@ export default function CelloHeader({ shell }: { shell: StoreShell }) {
   }, []);
   useEffect(() => () => clearTimeout(hoverTimer.current), []);
 
+  // Studio navbar: `default` (Cello's own) logo · search · help · cart over a
+  // links row; `centered` the logo in the middle, search in the links row;
+  // `compact` one row, the links live in the menu drawer.
+  const variant = shell.navbarVariant === "centered" || shell.navbarVariant === "allaia" ? "centered" : shell.navbarVariant === "compact" ? "compact" : "default";
   const navCats = shell.categories.slice(0, 5);
   const links = [
     { href: "/products?sort=newest", label: "وصل حديثًا" },
@@ -128,13 +132,14 @@ export default function CelloHeader({ shell }: { shell: StoreShell }) {
       >
         <div className="ce-wrap">
           {/* Main row: logo · search · contact · cart */}
-          <div className="flex h-(--ce-header-h) items-center gap-3 lg:gap-6">
-            <div className="lg:hidden">
+          <div className={cn("flex h-(--ce-header-h) items-center gap-3 lg:gap-6", variant === "centered" && "lg:grid lg:grid-cols-[1fr_auto_1fr]")}>
+            <div className={cn(variant !== "compact" && "lg:hidden")}>
               <DrawerMenu shell={shell} path={path} variant="icon" />
             </div>
-            <StoreMark shell={shell} className="shrink-0" />
-            <SearchBar shell={shell} className="hidden min-w-0 flex-1 lg:block" />
-            <div className="ms-auto flex shrink-0 items-center gap-2 lg:ms-0 lg:gap-5">
+            {variant === "centered" && <SearchBar shell={shell} className="hidden w-full max-w-xs lg:block" />}
+            <StoreMark shell={shell} className={cn("shrink-0", variant === "centered" && "lg:justify-self-center")} />
+            {variant !== "centered" && <SearchBar shell={shell} className="hidden min-w-0 flex-1 lg:block" />}
+            <div className="ms-auto flex shrink-0 items-center gap-2 lg:ms-0 lg:gap-5 lg:justify-self-end">
               {wa && (
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-2.5 text-(--ce-ink) hover:text-(--ce-btn)" aria-label="كلّمنا على واتساب">
                   <MessageCircle className="size-6" strokeWidth={1.5} />
@@ -154,8 +159,8 @@ export default function CelloHeader({ shell }: { shell: StoreShell }) {
           </div>
         </div>
 
-        {/* Desktop navigation row */}
-        <nav aria-label="القائمة الرئيسية" className="hidden border-t border-(--ce-line) lg:block">
+        {/* Desktop navigation row (not in the compact bar) */}
+        <nav aria-label="القائمة الرئيسية" className={cn("hidden border-t border-(--ce-line)", variant !== "compact" && "lg:block")}>
           <div className="ce-wrap flex h-12 items-center justify-between gap-6">
             <ul className="-mx-2.5 flex min-w-0 items-center gap-1 xl:gap-2">
               <li onMouseEnter={() => hasMega && hoverMega(true)}>

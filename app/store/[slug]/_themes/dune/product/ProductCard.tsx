@@ -56,8 +56,8 @@ export default function ProductCard({
         <CardActions storeSlug={storeSlug} product={product} />
       </div>
 
-      <div className={cn("flex flex-1 flex-col pt-3.5", align === "center" ? "items-center text-center" : "items-start text-start")}>
-        <h3 className="line-clamp-2 text-[0.9375rem] leading-6">
+      <div className={cn("dn-card-body flex flex-1 flex-col pt-3.5", align === "center" ? "items-center text-center" : "items-start text-start")}>
+        <h3 className="dn-card-title line-clamp-2 text-[0.9375rem] leading-6">
           <Link
             href={href}
             className="after:absolute after:inset-0 after:z-[1] after:content-[''] focus-visible:outline-none focus-visible:after:outline-1 focus-visible:after:outline-offset-4 focus-visible:after:outline-(--dn-ink)"
@@ -65,10 +65,10 @@ export default function ProductCard({
             {product.name}
           </Link>
         </h3>
-        {(product.brand || product.categoryName) && <p className="mt-0.5 truncate text-[0.8125rem] text-(--dn-quiet)">{product.brand || product.categoryName}</p>}
-        <Price price={product.price} compareAt={product.compareAtPrice} size="sm" className={cn("mt-1.5", align === "center" && "justify-center")} />
-        {low && <p className="mt-1 text-xs text-(--dn-warn)">فاضل {num(product.stock)} بس</p>}
-        {product.colors.length > 0 && <Swatches colors={product.colors} className="mt-2.5" />}
+        {(product.brand || product.categoryName) && <p className="dn-card-meta mt-0.5 truncate text-[0.8125rem] text-(--dn-quiet)">{product.brand || product.categoryName}</p>}
+        <Price price={product.price} compareAt={product.compareAtPrice} size="sm" className={cn("dn-card-price mt-1.5", align === "center" && "justify-center")} />
+        {low && <p className="dn-card-low mt-1 text-xs text-(--dn-warn)">فاضل {num(product.stock)} بس</p>}
+        {product.colors.length > 0 && <Swatches colors={product.colors} className="dn-card-swatches mt-2.5" />}
       </div>
     </article>
   );
@@ -100,7 +100,7 @@ export function ProductGrid({
       className={cn(
         railOnMobile
           ? "dn-rail dn-bleed gap-(--dn-gap) md:mx-0 md:grid md:grid-cols-3 md:gap-y-12 md:overflow-visible md:px-0"
-          : "grid grid-cols-2 gap-x-(--dn-gap) gap-y-9 md:grid-cols-3 md:gap-y-12",
+          : "dn-grid grid grid-cols-2 gap-x-(--dn-gap) gap-y-9 md:grid-cols-3 md:gap-y-12",
         !cols && "xl:grid-cols-[repeat(var(--store-grid-cols,4),minmax(0,1fr))]",
         cols === 3 && "xl:grid-cols-3",
         cols === 4 && "xl:grid-cols-4",

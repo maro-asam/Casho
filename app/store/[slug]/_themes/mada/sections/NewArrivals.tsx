@@ -46,7 +46,7 @@ export default function NewArrivals({ latest, onSale, storeSlug }: { latest: Pro
         )}
       </header>
 
-      <ul role="tabpanel" className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-4">
+      <ul role="tabpanel" className="md-grid grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-4">
         {items.map((p, i) => (
           <li key={p.id} className="min-w-0">
             <ProductCard product={p} storeSlug={storeSlug} priority={i < 2} />

@@ -43,6 +43,22 @@ Product grids: 2 → 3 → 4 (5–6 when the sidebar is hidden on wide screens).
 ## Motion
 Durations from `--store-motion`; easing cubic-bezier(.22,.61,.36,1). Drawers 420ms, popups 300ms, menu 300ms, image hover zoom 500ms, card hover 300–400ms, section fade-up as they enter (scroll-driven CSS, no JS). All disabled under `prefers-reduced-motion`.
 
+## The Studio drives the layout
+
+Maximize's own look is what its preset sets: navbar `default`, hero `split`, card `default`, categories `circle`, buttons `rounded`, density `compact`.
+
+| Studio setting | Effect |
+|---|---|
+| Navbar `default` (own) / `centered` / `compact` | menu + mark · search · actions over the links row and utility bar / the mark in the middle, search at the end of the links row / one slim row, links in the menu drawer, no utility bar |
+| Hero `split` (own) / `fullscreen` / `compact` / `minimal` | the promotion grid / the lead tile alone and tall / one short row of three tiles / the store's name and pitch on a tint band |
+| Product card `default` (own) / `minimal` / `bold` / `elegant` | the card as built / plate, name, price / a framed tile, two-line display name, price large in the brand color / centered (`[data-card]`) |
+| Category shape `circle` (own) / `square` / `pill` | round photos / rounded square photos / chips with counts |
+| Buttons | `.mx-btn` radius = `--store-btn-radius × 0.75` (rounded → its own 6px) |
+| Image ratio, grid columns | `--store-img-ratio`, `--store-grid-cols` |
+| Density | `[data-density]` → `--mx-section`, `--mx-gap` |
+| Motion `none` | `[data-motion="none"]` drops the reveals, the ticker and image swaps |
+| Colors, font | primary re-tints links and bands (`brandAccent`); headings use the Studio font (`--store-font`) |
+
 ## Not done / constraints
 - No customer accounts, wishlist, product comparison, store locator, B2B login or newsletter backend in Casho, so none of them appear. The shared newsletter section only simulates a submit, so Maximize renders nothing for it.
 - Categories are flat (no sub-collections), so the mega menu is "tabbed" by category instead of multi-level columns.

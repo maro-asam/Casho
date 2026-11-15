@@ -58,7 +58,7 @@ export default function ProductCard({
       <div className="relative shrink-0 in-data-[view=list]:w-32 sm:in-data-[view=list]:w-56">
         <div className="relative z-[2] flex min-h-6 items-start justify-between gap-2">
           <CardBadge product={product} />
-          <QuickLook slug={product.slug} name={product.name} />
+          <QuickLook slug={product.slug} name={product.name} className="ce-card-look" />
         </div>
         <div className="ce-media mt-1.5 !bg-transparent" style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}>
           <PlateImage
@@ -72,9 +72,9 @@ export default function ProductCard({
         <CardCartButton storeSlug={storeSlug} product={product} className="relative z-[2] -mt-6 sm:-mt-7" />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col pt-3 sm:pt-4 in-data-[view=list]:pt-8">
-        {(product.brand || product.categoryName) && <p className="truncate text-xs text-(--ce-quiet)">{product.brand || product.categoryName}</p>}
-        <h3 className="mt-1 line-clamp-2 text-[0.9375rem] leading-snug font-medium text-(--ce-ink) sm:text-base">
+      <div className="ce-card-body flex min-w-0 flex-1 flex-col pt-3 sm:pt-4 in-data-[view=list]:pt-8">
+        {(product.brand || product.categoryName) && <p className="ce-card-meta truncate text-xs text-(--ce-quiet)">{product.brand || product.categoryName}</p>}
+        <h3 className="ce-card-title mt-1 line-clamp-2 text-[0.9375rem] leading-snug font-medium text-(--ce-ink) sm:text-base">
           <Link
             href={href}
             title={product.name}
@@ -83,9 +83,9 @@ export default function ProductCard({
             {product.name}
           </Link>
         </h3>
-        {product.rating && <Rating value={product.rating.average} count={product.rating.count} className="mt-1.5" />}
-        <Price price={product.price} compareAt={product.compareAtPrice} className="mt-1.5" />
-        {product.colors.length > 0 && <Swatches colors={product.colors} className="mt-2" />}
+        {product.rating && <Rating value={product.rating.average} count={product.rating.count} className="ce-card-rating mt-1.5" />}
+        <Price price={product.price} compareAt={product.compareAtPrice} className="ce-card-price mt-1.5" />
+        {product.colors.length > 0 && <Swatches colors={product.colors} className="ce-card-swatches mt-2" />}
       </div>
     </article>
   );

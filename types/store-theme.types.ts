@@ -324,6 +324,10 @@ export type ThemePreset = {
   /** Built for both appearances: shoppers switch light/dark, so the merchant's
    *  brand colors apply to both while their surface colors stay in light mode. */
   adaptive?: boolean;
+  /** The accent is a tint of the primary (soft panels, deep links). When the
+   *  merchant picks another primary and no accent of their own, the accent and
+   *  its text color are derived from their primary, so no preset hue lingers. */
+  brandAccent?: boolean;
   layout: ThemeLayout;
   sections: ThemeSections;
 };

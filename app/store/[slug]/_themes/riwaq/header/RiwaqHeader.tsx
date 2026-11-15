@@ -49,18 +49,48 @@ function PrimaryLinks({ shell, path }: { shell: StoreShell; path: string }) {
   );
 }
 
-function Actions({ shell, count, onSearch }: { shell: StoreShell; count: number; onSearch: () => void }) {
+/** Navbar `compact`: the search is a wide field instead of a link. */
+function SearchField({ shell, onSearch, className }: { shell: StoreShell; onSearch: () => void; className?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onSearch}
+      aria-haspopup="dialog"
+      className={cn(
+        "flex h-12 w-full items-center gap-3 rounded-(--rq-btn-r) border border-(--rq-rule-strong) bg-(--rq-sheet) px-4 text-start text-[0.9375rem] text-(--rq-quiet) transition-colors duration-(--rq-dur) hover:border-(--rq-ink)",
+        className,
+      )}
+    >
+      <Search className="size-[1.125rem] shrink-0 text-(--rq-ink)" />
+      <span className="truncate">ابحث في {shell.name}…</span>
+    </button>
+  );
+}
+
+function Actions({
+  shell,
+  count,
+  onSearch,
+  search = true,
+}: {
+  shell: StoreShell;
+  count: number;
+  onSearch: () => void;
+  search?: boolean;
+}) {
   return (
     <div className="flex items-center justify-end gap-5">
-      <button
-        type="button"
-        onClick={onSearch}
-        className="group inline-flex min-h-11 items-center gap-2 text-[0.9375rem] font-semibold"
-        aria-haspopup="dialog"
-      >
-        <Search className="size-[1.125rem]" />
-        <span className="rq-link">بحث</span>
-      </button>
+      {search && (
+        <button
+          type="button"
+          onClick={onSearch}
+          className="group inline-flex min-h-11 items-center gap-2 text-[0.9375rem] font-semibold"
+          aria-haspopup="dialog"
+        >
+          <Search className="size-[1.125rem]" />
+          <span className="rq-link">بحث</span>
+        </button>
+      )}
       <Link
         href={buildStoreUrl(shell.slug, "/cart")}
         aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"}
@@ -92,6 +122,9 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
     return () => io.disconnect();
   }, []);
 
+  // Studio navbar: `centered` is Riwaq's own masthead; `default` sets the mark
+  // at the start beside the links; `compact` trades the links for a search field.
+  const variant = shell.navbarVariant === "compact" ? "compact" : shell.navbarVariant === "default" ? "default" : "centered";
   const announcement = shell.announcementText?.trim();
   const categories = shell.categories;
   const href = (p: string) => buildStoreUrl(shell.slug, p);
@@ -135,6 +168,11 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
             </Link>
           </div>
         </div>
+        {variant === "compact" && (
+          <div className="rq-wrap pb-3">
+            <SearchField shell={shell} onSearch={() => setSearchOpen(true)} className="h-11" />
+          </div>
+        )}
       </header>
 
       {/* ── Desktop masthead ─────────────────────────────────────────────── */}
@@ -160,13 +198,29 @@ export default function RiwaqHeader({ shell }: { shell: StoreShell }) {
           </div>
         </div>
 
-        <div className="rq-wrap grid h-24 grid-cols-[1fr_auto_1fr] items-center gap-10">
-          <nav aria-label="القائمة الرئيسية">
-            <PrimaryLinks shell={shell} path={path} />
-          </nav>
-          <StoreMark shell={shell} size="lg" className="max-w-[28rem]" />
-          <Actions shell={shell} count={count} onSearch={() => setSearchOpen(true)} />
-        </div>
+        {variant === "centered" ? (
+          <div className="rq-wrap grid h-24 grid-cols-[1fr_auto_1fr] items-center gap-10">
+            <nav aria-label="القائمة الرئيسية">
+              <PrimaryLinks shell={shell} path={path} />
+            </nav>
+            <StoreMark shell={shell} size="lg" className="max-w-[28rem]" />
+            <Actions shell={shell} count={count} onSearch={() => setSearchOpen(true)} />
+          </div>
+        ) : variant === "default" ? (
+          <div className="rq-wrap flex h-20 items-center gap-12">
+            <StoreMark shell={shell} size="lg" className="max-w-[22rem]" />
+            <nav aria-label="القائمة الرئيسية" className="me-auto">
+              <PrimaryLinks shell={shell} path={path} />
+            </nav>
+            <Actions shell={shell} count={count} onSearch={() => setSearchOpen(true)} />
+          </div>
+        ) : (
+          <div className="rq-wrap grid h-20 grid-cols-[minmax(0,1fr)_minmax(0,40rem)_minmax(0,1fr)] items-center gap-10">
+            <StoreMark shell={shell} size="lg" className="max-w-[22rem]" />
+            <SearchField shell={shell} onSearch={() => setSearchOpen(true)} />
+            <Actions shell={shell} count={count} onSearch={() => setSearchOpen(true)} search={false} />
+          </div>
+        )}
 
         {categories.length > 0 && (
           <nav aria-label="التصنيفات" className="border-y border-(--rq-ink)">

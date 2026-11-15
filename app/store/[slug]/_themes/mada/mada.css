@@ -39,6 +39,9 @@
   --md-control: 3rem;
   --md-control-sm: 2.75rem;
 
+  /* Buttons follow the Studio's button shape (Mada's own is the pill) */
+  --md-btn-r: var(--store-btn-radius, 999px);
+
   --md-dur: var(--store-motion, 250ms);
   --md-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --md-start-x: 100%;
@@ -204,7 +207,7 @@
   gap: 0.5rem;
   min-height: var(--md-control);
   padding-inline: 1.5rem;
-  border-radius: 999px;
+  border-radius: var(--md-btn-r);
   border: 1px solid transparent;
   font-size: 0.9375rem;
   font-weight: 600;
@@ -734,4 +737,138 @@ textarea.md-field {
 }
 .md-toast--error [data-icon] {
   background: #ff8a7a;
+}
+
+/* ═══ The Studio drives the layout ═══════════════════════════════════════════
+   [data-density] / [data-motion] / [data-card] on the store root. Mada's own
+   look is `default` for all three. Unlayered so it beats component utilities. */
+
+/* المسافات */
+.theme-mada[data-density="compact"] {
+  --md-section: 2rem;
+  --md-grid-x: 0.5rem;
+  --md-grid-y: 1.25rem;
+}
+.theme-mada[data-density="spacious"] {
+  --md-section: 4.5rem;
+  --md-grid-x: 1rem;
+  --md-grid-y: 2.5rem;
+}
+@media (min-width: 640px) {
+  .theme-mada[data-density="compact"] {
+    --md-section: 2.75rem;
+    --md-grid-x: 0.875rem;
+    --md-grid-y: 1.75rem;
+  }
+  .theme-mada[data-density="spacious"] {
+    --md-section: 6rem;
+    --md-grid-x: 1.75rem;
+    --md-grid-y: 3.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .theme-mada[data-density="compact"] {
+    --md-section: 3.5rem;
+  }
+  .theme-mada[data-density="spacious"] {
+    --md-section: 8rem;
+  }
+}
+.theme-mada:is([data-density="compact"], [data-density="spacious"]) .md-grid {
+  column-gap: var(--md-grid-x);
+  row-gap: var(--md-grid-y);
+}
+
+/* الحركة: بدون — no slides, marquee, reveals or image swaps */
+.theme-mada[data-motion="none"] *,
+.theme-mada[data-motion="none"] *::before,
+.theme-mada[data-motion="none"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-timeline: auto !important;
+  transition-duration: 0.01ms !important;
+}
+.theme-mada[data-motion="none"] .md-marquee-track {
+  animation: none !important;
+}
+.theme-mada[data-motion="none"] .md-card:hover :is(.md-card-img-1, .md-card-img-2) {
+  transform: none;
+}
+
+/* كارت المنتج — `default` is Mada's tile as built */
+
+/* بسيط — the photo and the essentials; no badges stack, wishlist or swatches */
+.theme-mada[data-card="minimal"] .md-media {
+  border-radius: var(--md-radius-sm);
+}
+.theme-mada[data-card="minimal"] .md-card-badges > :not(.md-badge--sale, .md-badge--ink),
+.theme-mada[data-card="minimal"] .md-card-wish,
+.theme-mada[data-card="minimal"] .md-card-meta,
+.theme-mada[data-card="minimal"] .md-card-rating {
+  display: none;
+}
+.theme-mada[data-card="minimal"] .md-card-body {
+  padding-top: 0.75rem;
+}
+.theme-mada[data-card="minimal"] .md-card-title {
+  margin-top: 0;
+  -webkit-line-clamp: 1;
+}
+.theme-mada[data-card="minimal"] .md-card-price {
+  padding-top: 0.25rem;
+}
+
+/* بارز — a raised surface tile, display name, the price on a signal chip */
+.theme-mada[data-card="bold"] .md-card {
+  padding: 0.5rem 0.5rem 0.875rem;
+  border-radius: calc(var(--md-radius) + 0.5rem);
+  background: var(--md-surface);
+  box-shadow: 0 0 0 1px var(--md-line);
+  transition: box-shadow var(--md-dur) var(--md-ease), transform var(--md-dur) var(--md-ease);
+}
+.theme-mada[data-card="bold"] .md-card:hover {
+  box-shadow: 0 0 0 1px var(--md-line-strong), var(--md-shadow-pop);
+  transform: translateY(-3px);
+}
+.theme-mada[data-card="bold"] .md-card-body {
+  padding-inline: 0.375rem;
+}
+.theme-mada[data-card="bold"] .md-card-title {
+  font-family: var(--md-display);
+  font-weight: 700;
+}
+.theme-mada[data-card="bold"] .md-card-price {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--md-signal);
+  color: var(--md-signal-ink);
+}
+.theme-mada[data-card="bold"] .md-card-price :is(s, del, [class*="line-through"]) {
+  color: inherit;
+  opacity: 0.7;
+}
+.theme-mada[data-card="bold"] .md-card-body > .md-card-price {
+  margin-top: 0.75rem;
+}
+
+/* أنيق — centered, quiet copy under the photo */
+.theme-mada[data-card="elegant"] .md-card-body {
+  align-items: center;
+  padding-top: 1.125rem;
+  text-align: center;
+}
+.theme-mada[data-card="elegant"] .md-card-meta {
+  justify-content: center;
+}
+.theme-mada[data-card="elegant"] .md-card-meta > p {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.theme-mada[data-card="elegant"] .md-card-title {
+  font-weight: 400;
+}
+.theme-mada[data-card="elegant"] .md-card-price {
+  justify-content: center;
 }

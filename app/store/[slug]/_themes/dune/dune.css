@@ -45,6 +45,9 @@
   --dn-control: 3rem;
   --dn-control-sm: 2.5rem;
 
+  /* Buttons follow the Studio's button shape (Dune's own is the pill) */
+  --dn-btn-r: var(--store-btn-radius, 999px);
+
   /* Motion */
   --dn-dur: var(--store-motion, 250ms);
   --dn-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -281,7 +284,7 @@
   gap: 0.5rem;
   min-height: var(--dn-control);
   padding-inline: 1.75rem;
-  border-radius: 999px;
+  border-radius: var(--dn-btn-r);
   border: 1px solid transparent;
   font-size: 0.875rem;
   font-weight: 700;
@@ -1018,4 +1021,112 @@ select.dn-field {
 }
 .dn-toast--error [data-icon] {
   background: #f19a8c;
+}
+
+/* ═══ The Studio drives the layout ═══════════════════════════════════════════
+   [data-density] / [data-motion] / [data-card] on the store root. Dune's own
+   look is spacious + the minimal editorial tile. Unlayered on purpose. */
+
+/* المسافات */
+.theme-dune[data-density="default"] {
+  --dn-section: 3rem;
+}
+.theme-dune[data-density="compact"] {
+  --dn-section: 2.25rem;
+  --dn-gap: 0.625rem;
+}
+@media (min-width: 768px) {
+  .theme-dune[data-density="default"] {
+    --dn-section: 4rem;
+  }
+  .theme-dune[data-density="compact"] {
+    --dn-section: 2.75rem;
+    --dn-gap: 0.875rem;
+  }
+}
+@media (min-width: 1280px) {
+  .theme-dune[data-density="default"] {
+    --dn-section: 4.75rem;
+  }
+  .theme-dune[data-density="compact"] {
+    --dn-section: 3.5rem;
+  }
+}
+.theme-dune[data-density="compact"] :is(.dn-grid, .dn-pgrid) {
+  row-gap: 1.5rem;
+}
+.theme-dune[data-density="default"] :is(.dn-grid, .dn-pgrid) {
+  row-gap: 2.25rem;
+}
+
+/* الحركة: بدون — no reveals, crops, parallax, slides or tickers */
+.theme-dune[data-motion="none"] *,
+.theme-dune[data-motion="none"] *::before,
+.theme-dune[data-motion="none"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+.theme-dune[data-motion="none"] :is(.dn-appear, .dn-fade, .dn-crop, .dn-crop > *, [data-parallax]) {
+  animation: none !important;
+}
+.theme-dune[data-motion="none"] .dn-card:hover :is(.dn-card-img-1, .dn-card-img-2),
+.theme-dune[data-motion="none"] .group:hover .dn-zoom-img {
+  transform: none;
+}
+
+/* كارت المنتج — `minimal` is Dune's editorial tile as built */
+
+/* افتراضي — details set to the start, a firmer name and price */
+.theme-dune[data-card="default"] .dn-card-body {
+  align-items: flex-start;
+  text-align: start;
+}
+.theme-dune[data-card="default"] .dn-card-price {
+  justify-content: flex-start;
+}
+.theme-dune[data-card="default"] .dn-card-title {
+  font-weight: 600;
+}
+.theme-dune[data-card="default"] .dn-card-price > :first-child {
+  font-weight: 700;
+}
+
+/* بارز — a plate on the surface color, the name in the serif */
+.theme-dune[data-card="bold"] .dn-card {
+  padding: 0.625rem 0.625rem 1.125rem;
+  background: var(--dn-plate);
+  box-shadow: 0 0 0 1px var(--dn-line);
+  transition: box-shadow var(--dn-dur) var(--dn-ease);
+}
+.theme-dune[data-card="bold"] .dn-card:hover {
+  box-shadow: 0 0 0 1px var(--dn-ink);
+}
+.theme-dune[data-card="bold"] .dn-card-title {
+  font-family: var(--dn-serif);
+  font-size: 1.1875rem;
+  line-height: 1.5;
+}
+.theme-dune[data-card="bold"] .dn-card-price > :first-child {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* أنيق — serif name, spaced label, nothing else */
+.theme-dune[data-card="elegant"] .dn-card-body {
+  padding-top: 1.125rem;
+}
+.theme-dune[data-card="elegant"] .dn-card-title {
+  font-family: var(--dn-serif);
+  font-size: 1.125rem;
+}
+.theme-dune[data-card="elegant"] .dn-card-meta {
+  order: -1;
+  margin: 0 0 0.25rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.theme-dune[data-card="elegant"] :is(.dn-card-swatches, .dn-card-low) {
+  display: none;
 }

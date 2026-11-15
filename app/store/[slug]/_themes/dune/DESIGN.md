@@ -53,6 +53,21 @@ Durations from `--store-motion`. Easing cubic-bezier(.165,.84,.44,1).
 - All disabled under `prefers-reduced-motion`.
 - ⚠ A `position: fixed` element must not sit inside an animated `.dn-appear`/`.dn-crop`: the active transform makes that ancestor its containing block.
 
+## The Studio drives the layout
+
+Dune's own look is what its preset sets: navbar `default`, hero `fullscreen`, card `minimal`, categories `square`, buttons `pill`, density `spacious`.
+
+| Studio setting | Effect |
+|---|---|
+| Navbar `default` (own) / `centered` / `compact` | mark · links · actions / links · mark · actions / mark · shop menu + a wide search field · actions |
+| Hero `fullscreen` (own) / `compact` / `split` / `minimal` | the slideshow under the transparent header / the same at a band's height / the editorial spread with the lead banner's photo / the name set large and centered. No banners → the spread with the store's products |
+| Product card `minimal` (own) / `default` / `bold` / `elegant` | the editorial tile, centered / details set to the start, firmer name and price / a plate on the card color, serif name / serif name and a spaced label only (`[data-card]`) |
+| Category shape `square` (own) / `circle` / `pill` | square photos / round crops in a row / outlined capsules |
+| Buttons | `--dn-btn-r` ← `--store-btn-radius` |
+| Image ratio, grid columns | `--store-img-ratio`, `--store-grid-cols` |
+| Density | `[data-density]` → `--dn-section`, `--dn-gap`, grid row gaps |
+| Motion `none` | `[data-motion="none"]` drops the reveals, crops, parallax, slide autoplay and the rotating announcement (`shared/motion.ts`) |
+
 ## Not done / constraints
 - No customer accounts, wishlist or newsletter backend in Casho, so none of them appear. The newsletter section reuses the shared component (it simulates a submit).
 - Banners carry only image and title, so slide links go to the product listing.

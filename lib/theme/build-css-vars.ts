@@ -197,6 +197,8 @@ export function buildThemeCSSString(
     `  --store-motion: ${motion};`,
     `  --store-grid-cols: ${gridColsLg};`,
     fontFamily ? `  font-family: ${fontFamily};` : "",
+    // Themes whose headings should follow the store font read it from here.
+    fontFamily ? `  --store-font: ${fontFamily};` : "",
   ].filter(Boolean).join("\n");
 
   const baseVars = tokensToVars(tokens);

@@ -31,3 +31,25 @@ export function contrastRatio(a: string, b: string) {
 export function readableOn(bg: string) {
   return contrastRatio(bg, "#ffffff") >= contrastRatio(bg, "#0a0a0a") ? "#ffffff" : "#0a0a0a";
 }
+
+/** `a` mixed into `b`: weight 1 = all `a`. Null when either isn't a 6-digit hex. */
+export function mixHex(a: string, b: string, weight: number): string | null {
+  const ra = hexToRgb(a);
+  const rb = hexToRgb(b);
+  if (!ra || !rb) return null;
+  return rgbToHex(...(ra.map((v, i) => v * weight + rb[i] * (1 - weight)) as [number, number, number]));
+}
+
+/**
+ * `color` as text on `bg`: the color itself when it already reads, otherwise
+ * stepped toward black (light bg) or white (dark bg) until it reaches `min`.
+ */
+export function inkOn(color: string, bg: string, min = 4.5): string | null {
+  if (!hexToRgb(color) || !hexToRgb(bg)) return null;
+  const toward = readableOn(bg) === "#ffffff" ? "#ffffff" : "#000000";
+  for (let w = 1; w >= 0; w -= 0.05) {
+    const candidate = mixHex(color, toward, w)!;
+    if (contrastRatio(candidate, bg) >= min) return candidate;
+  }
+  return toward;
+}

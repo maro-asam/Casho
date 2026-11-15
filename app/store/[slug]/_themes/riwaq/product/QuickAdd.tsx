@@ -22,7 +22,7 @@ type Props = {
 };
 
 const BASE =
-  "relative z-[2] grid size-11 shrink-0 place-items-center border border-(--rq-rule-strong) text-(--rq-ink) " +
+  "relative z-[2] grid size-11 shrink-0 place-items-center rounded-(--rq-btn-r) border border-(--rq-rule-strong) text-(--rq-ink) " +
   "transition-[background-color,color,border-color] duration-(--rq-dur) hover:border-(--rq-ink) hover:bg-(--rq-ink) hover:text-(--rq-paper) " +
   "active:translate-y-px disabled:pointer-events-none [&_svg]:size-[1.125rem]";
 

@@ -57,7 +57,7 @@ export default function FeaturedCollection({ products, storeSlug }: { products: 
         </article>
 
         {grid.length > 0 && (
-          <ul className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5">
+          <ul className="md-grid grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5">
             {grid.map((p) => (
               <li key={p.id} className="min-w-0">
                 <ProductCard product={p} storeSlug={storeSlug} variant="compact" sizes="(max-width: 1024px) 46vw, 23vw" />

@@ -69,6 +69,39 @@
   }
 }
 
+/* ─── Studio: density (المسافات) ─────────────────────────────────────────────
+   `default` is Classic's own rhythm; the store root carries [data-density]. */
+.theme-classic[data-density="compact"] {
+  --c-section-y: 1.5rem;
+  --c-grid-x: 0.5rem;
+  --c-grid-y: 1.25rem;
+}
+.theme-classic[data-density="spacious"] {
+  --c-section-y: 3.5rem;
+  --c-grid-x: 1rem;
+  --c-grid-y: 2.25rem;
+}
+@media (min-width: 640px) {
+  .theme-classic[data-density="compact"] {
+    --c-section-y: 2rem;
+    --c-grid-x: 0.875rem;
+    --c-grid-y: 1.5rem;
+  }
+  .theme-classic[data-density="spacious"] {
+    --c-section-y: 4.5rem;
+    --c-grid-x: 1.75rem;
+    --c-grid-y: 3rem;
+  }
+}
+@media (min-width: 1024px) {
+  .theme-classic[data-density="compact"] {
+    --c-section-y: 2.25rem;
+  }
+  .theme-classic[data-density="spacious"] {
+    --c-section-y: 5.5rem;
+  }
+}
+
 .dark .theme-classic {
   --c-sale: #f97066;
   --c-sale-soft: rgb(217 45 32 / 0.14);
@@ -145,14 +178,14 @@
 .c-product-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 0.75rem;
-  row-gap: 1.75rem;
+  column-gap: var(--c-grid-x, 0.75rem);
+  row-gap: var(--c-grid-y, 1.75rem);
 }
 @media (min-width: 640px) {
   .c-product-grid {
     grid-template-columns: repeat(min(var(--store-grid-cols, 4), 3), minmax(0, 1fr));
-    column-gap: 1.25rem;
-    row-gap: 2.25rem;
+    column-gap: var(--c-grid-x, 1.25rem);
+    row-gap: var(--c-grid-y, 2.25rem);
   }
 }
 @media (min-width: 1024px) {
@@ -214,5 +247,98 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Studio: motion "none" (الحركة: بدون) ────────────────────────────────────
+   --store-motion is already 0ms; this also stops the fixed-duration bits
+   (card image zoom, fade-ups). */
+.theme-classic[data-motion="none"] *,
+.theme-classic[data-motion="none"] *::before,
+.theme-classic[data-motion="none"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+.theme-classic[data-motion="none"] .c-card:hover .c-card-img {
+  transform: none;
+}
+
+/* ─── Studio: product card (كارت المنتج) ──────────────────────────────────────
+   Unlayered so it beats the card's utilities. `default` is the card as built. */
+
+/* بسيط — no frame, square image, quiet type */
+.theme-classic[data-card="minimal"] .c-card-media {
+  border-radius: 0;
+}
+.theme-classic[data-card="minimal"] .c-card-body {
+  padding-top: 0.625rem;
+}
+.theme-classic[data-card="minimal"] .c-card-title {
+  min-height: 0;
+  -webkit-line-clamp: 1;
+  color: var(--muted-foreground);
+}
+.theme-classic[data-card="minimal"] .c-card-price {
+  padding-top: 0.125rem;
+}
+.theme-classic[data-card="minimal"] .c-card:hover .c-card-img {
+  transform: none;
+}
+
+/* بارز — the whole card is a raised tile; the price takes the brand color */
+.theme-classic[data-card="bold"] .c-card {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--c-radius-lg);
+  background: var(--card);
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
+  transition: box-shadow var(--c-motion) var(--c-ease), transform var(--c-motion) var(--c-ease);
+}
+.theme-classic[data-card="bold"] .c-card:hover {
+  box-shadow: var(--c-shadow-pop);
+  transform: translateY(-2px);
+}
+.theme-classic[data-card="bold"] .c-card-body {
+  padding: 0.75rem 0.25rem 0.25rem;
+}
+.theme-classic[data-card="bold"] .c-card-title {
+  font-weight: 600;
+}
+.theme-classic[data-card="bold"] .c-card-price > span:first-child:not([class*="--c-sale"]) {
+  color: var(--primary);
+}
+.theme-classic[data-card="bold"] .c-card-price > span:first-child {
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+/* أنيق — centered, airy, the add button only on hover (always on touch) */
+.theme-classic[data-card="elegant"] .c-card-body {
+  align-items: center;
+  padding-top: 1rem;
+  text-align: center;
+}
+.theme-classic[data-card="elegant"] .c-card-title {
+  min-height: 0;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.theme-classic[data-card="elegant"] .c-card-price {
+  justify-content: center;
+}
+.theme-classic[data-card="elegant"] .c-card-price > span:first-child {
+  font-weight: 500;
+}
+@media (hover: hover) {
+  .theme-classic[data-card="elegant"] .c-card-add {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity var(--c-motion) var(--c-ease), transform var(--c-motion) var(--c-ease);
+  }
+  .theme-classic[data-card="elegant"] .c-card:hover .c-card-add,
+  .theme-classic[data-card="elegant"] .c-card:focus-within .c-card-add {
+    opacity: 1;
+    transform: none;
   }
 }

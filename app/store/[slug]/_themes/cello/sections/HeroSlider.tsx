@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
+import { motionOff } from "../../shared/motion";
 
 const INTERVAL = 6000;
 const RM = "(prefers-reduced-motion: reduce)";
@@ -19,9 +20,21 @@ const subscribeRM = (cb: () => void) => {
  *  start side, and a centered control bar (previous, dots, next, pause) at
  *  the bottom. Autoplays only when motion is allowed, pauses on hover/focus
  *  and while the tab is hidden. Swipe on touch. */
-export default function HeroSlider({ banners, storeSlug, storeName }: { banners: BannerData[]; storeSlug: string; storeName: string }) {
+export default function HeroSlider({
+  banners,
+  storeSlug,
+  storeName,
+  compact,
+}: {
+  banners: BannerData[];
+  storeSlug: string;
+  storeName: string;
+  /** The Studio's `compact` hero: the same slideshow at a band's height. */
+  compact?: boolean;
+}) {
   const [index, setIndex] = useState(0);
-  const reduced = useSyncExternalStore(subscribeRM, () => window.matchMedia(RM).matches, () => false);
+  // Still under reduced motion or the Studio's motion "none".
+  const reduced = useSyncExternalStore(subscribeRM, motionOff, () => false);
   const [paused, setPaused] = useState(false);
   const playing = !paused && !reduced;
   const [hold, setHold] = useState(false);
@@ -59,7 +72,7 @@ export default function HeroSlider({ banners, storeSlug, storeName }: { banners:
         step((dx < 0) !== rtl ? 1 : -1);
       }}
     >
-      <div className="relative h-[26rem] sm:h-[28rem] lg:h-[clamp(28rem,36.5vw,40rem)]">
+      <div className={cn("relative", compact ? "h-[18rem] sm:h-[20rem] lg:h-[clamp(18rem,22vw,24rem)]" : "h-[26rem] sm:h-[28rem] lg:h-[clamp(28rem,36.5vw,40rem)]")}>
         {banners.map((b, i) => (
           <div
             key={b.id}
@@ -74,7 +87,7 @@ export default function HeroSlider({ banners, storeSlug, storeName }: { banners:
             <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_left,rgb(0_16_48/0.7),rgb(0_16_48/0.1)_65%)] ltr:bg-[linear-gradient(to_right,rgb(0_16_48/0.7),rgb(0_16_48/0.1)_65%)]" />
             <div className="ce-wrap relative flex h-full flex-col items-start justify-center pb-14">
               <p className="text-sm text-white/85">{storeName}</p>
-              <h2 className="ce-hero mt-3 max-w-[18ch] text-balance text-white">{b.title}</h2>
+              <h2 className={cn("mt-3 max-w-[18ch] text-balance text-white", compact ? "ce-h1" : "ce-hero")}>{b.title}</h2>
               {b.subtitle && <p className="mt-3 line-clamp-2 max-w-[48ch] text-base text-white/85">{b.subtitle}</p>}
               {b.link && (
                 <BannerLink banner={b} storeSlug={storeSlug} className="ce-btn ce-btn--white mt-7 bg-white/90 backdrop-blur-sm">

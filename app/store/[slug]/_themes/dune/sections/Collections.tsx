@@ -3,23 +3,56 @@ import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
-import type { CollectionsContent } from "@/types/store-theme.types";
+import type { CategoryCardStyle, CollectionsContent } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import { Arrow, PlateImage, SectionHeader, Wrap, delay, num } from "../ui";
 
-/** "Shop by category": square images with the name centered underneath. */
-export function CollectionList({ categories, storeSlug, title = "تسوّق حسب التصنيف" }: { categories: CategoryLink[]; storeSlug: string; title?: string }) {
+/** "Shop by category": square images with the name centered underneath.
+ *  Studio category shape: `square` (Dune's own) as above, `circle` round
+ *  crops in a row, `pill` a line of outlined capsules. */
+export function CollectionList({
+  categories,
+  storeSlug,
+  title = "تسوّق حسب التصنيف",
+  shape = "square",
+}: {
+  categories: CategoryLink[];
+  storeSlug: string;
+  title?: string;
+  shape?: CategoryCardStyle;
+}) {
   const tiles = categories.slice(0, 8);
   const cols = tiles.length % 3 === 0 && tiles.length <= 6 ? "md:grid-cols-3" : "md:grid-cols-4";
+  if (shape === "pill") {
+    return (
+      <Wrap data-reveal className="dn-section">
+        <SectionHeader title={title} href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+        <ul className="flex flex-wrap justify-center gap-2.5">
+          {categories.map((c) => (
+            <li key={c.id}>
+              <Link
+                href={buildStoreUrl(storeSlug, `/categories/${c.slug}`)}
+                className="inline-flex min-h-12 items-center gap-2.5 rounded-full border border-(--dn-line-ink) px-6 text-sm transition-colors duration-(--dn-dur) hover:border-(--dn-ink) hover:bg-(--dn-ink) hover:text-(--dn-bg)"
+              >
+                <span className="max-w-56 truncate">{c.name}</span>
+                <span className="text-xs opacity-60">{num(c.productCount)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Wrap>
+    );
+  }
+  const circle = shape === "circle";
   return (
     <Wrap data-reveal className="dn-section">
       <SectionHeader title={title} href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
-      <ul className={cn("grid grid-cols-2 gap-x-(--dn-gap) gap-y-8", cols)}>
+      <ul className={cn("grid grid-cols-2 gap-x-(--dn-gap) gap-y-8", circle ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-8" : cols)}>
         {tiles.map((c, i) => (
           <li key={c.id}>
             <Link href={buildStoreUrl(storeSlug, `/categories/${c.slug}`)} className="group block text-center">
               <span className="dn-crop block" style={delay(Math.min(i, 5))}>
-                <span className="dn-media block aspect-square">
+                <span className={cn("dn-media block aspect-square", circle && "rounded-full")}>
                   <PlateImage src={c.image} sizes="(max-width: 768px) 50vw, 25vw" className="dn-zoom-img" />
                 </span>
               </span>

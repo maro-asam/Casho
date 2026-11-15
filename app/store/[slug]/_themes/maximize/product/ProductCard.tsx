@@ -54,15 +54,15 @@ export default function ProductCard({
           className={cn("mx-card-img-1", product.hoverImage && "has-swap", soldOut && "opacity-50 grayscale")}
         />
         {product.hoverImage && <Image src={product.hoverImage} alt="" fill sizes={sizes} loading="lazy" className="mx-card-img-2 mx-product-img" />}
-        <div className="pointer-events-none absolute start-2 top-2 z-[2] flex flex-col items-start gap-1.5">
+        <div className="mx-card-badges pointer-events-none absolute start-2 top-2 z-[2] flex flex-col items-start gap-1.5">
           <Badges product={product} />
         </div>
         <CardActions storeSlug={storeSlug} product={product} />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col pt-3 in-data-[view=list]:pt-1">
-        {(product.brand || product.categoryName) && <p className="truncate text-[0.8125rem] text-(--mx-quiet)">{product.brand || product.categoryName}</p>}
-        <h3 className="mt-0.5 truncate text-[0.9375rem] font-semibold text-(--mx-ink) in-data-[view=list]:line-clamp-2 in-data-[view=list]:whitespace-normal">
+      <div className="mx-card-body flex min-w-0 flex-1 flex-col pt-3 in-data-[view=list]:pt-1">
+        {(product.brand || product.categoryName) && <p className="mx-card-meta truncate text-[0.8125rem] text-(--mx-quiet)">{product.brand || product.categoryName}</p>}
+        <h3 className="mx-card-title mt-0.5 truncate text-[0.9375rem] font-semibold text-(--mx-ink) in-data-[view=list]:line-clamp-2 in-data-[view=list]:whitespace-normal">
           <Link
             href={href}
             title={product.name}
@@ -71,10 +71,10 @@ export default function ProductCard({
             {product.name}
           </Link>
         </h3>
-        {product.rating && <Rating value={product.rating.average} count={product.rating.count} className="mt-1.5" />}
-        <Price price={product.price} compareAt={product.compareAtPrice} className="mt-2" />
-        {product.colors.length > 0 && <Swatches colors={product.colors} className="mt-2.5" />}
-        <StockLine stock={product.stock} className="mt-2.5" />
+        {product.rating && <Rating value={product.rating.average} count={product.rating.count} className="mx-card-rating mt-1.5" />}
+        <Price price={product.price} compareAt={product.compareAtPrice} className="mx-card-price mt-2" />
+        {product.colors.length > 0 && <Swatches colors={product.colors} className="mx-card-swatches mt-2.5" />}
+        <StockLine stock={product.stock} className="mx-card-stock mt-2.5" />
       </div>
     </article>
   );

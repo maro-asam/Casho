@@ -24,6 +24,7 @@ export default function RiwaqHome({
   bestSellers,
   sections,
   sectionContent,
+  layout,
 }: HomeViewProps) {
   const url = (p: string) => buildStoreUrl(store.slug, p);
 
@@ -47,9 +48,13 @@ export default function RiwaqHome({
             banners={banners}
             products={featured.length ? featured : latest}
             hasCategories={categories.length > 0}
+            style={layout.heroStyle}
           />
           <Ticker words={categories.length >= 2 ? categories.slice(0, 8).map((c) => c.name) : [store.name, "وصل حديثًا", "مختارات المتجر"]} />
-          {banners.length > 0 && <Plates banners={banners} storeSlug={store.slug} />}
+          {/* A full-screen hero already shows the lead banner. */}
+          {(layout.heroStyle === "fullscreen" ? banners.slice(1) : banners).length > 0 && (
+            <Plates banners={layout.heroStyle === "fullscreen" ? banners.slice(1) : banners} storeSlug={store.slug} />
+          )}
         </>
       ) : null,
 
@@ -57,7 +62,7 @@ export default function RiwaqHome({
       sections.showCategories && categories.length > 0 ? (
         <Wrap className="rq-section rq-reveal">
           <SectionHead index={next()} title="التصنيفات" href={url("/categories")} linkLabel="الفهرس الكامل" />
-          <Arcade categories={categories.slice(0, 10)} storeSlug={store.slug} />
+          <Arcade categories={categories.slice(0, 10)} storeSlug={store.slug} shape={layout.categoryCardStyle} />
         </Wrap>
       ) : null,
 

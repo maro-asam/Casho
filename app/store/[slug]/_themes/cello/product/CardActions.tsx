@@ -11,13 +11,16 @@ import { ceToast } from "../toast";
 type CardProduct = { id: string; name: string; slug: string; hasOptions: boolean; stock: number };
 
 /** Underlined "Quick look" text link (an eye icon on phones). */
-export function QuickLook({ slug, name }: { slug: string; name: string }) {
+export function QuickLook({ slug, name, className }: { slug: string; name: string; className?: string }) {
   return (
     <button
       type="button"
       onClick={() => openQuickView(slug)}
       aria-label={`نظرة سريعة على ${name}`}
-      className="-m-1.5 inline-flex min-h-8 shrink-0 items-center p-1.5 text-[0.8125rem] text-(--ce-ink) underline underline-offset-[3px] hover:text-(--ce-btn) max-sm:no-underline"
+      className={cn(
+        "-m-1.5 inline-flex min-h-8 shrink-0 items-center p-1.5 text-[0.8125rem] text-(--ce-ink) underline underline-offset-[3px] hover:text-(--ce-btn) max-sm:no-underline",
+        className,
+      )}
     >
       <span className="max-sm:hidden">نظرة سريعة</span>
       <Eye aria-hidden className="size-[1.125rem] sm:hidden" />

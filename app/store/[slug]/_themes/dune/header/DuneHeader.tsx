@@ -66,12 +66,18 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
   }, []);
   useEffect(() => () => clearTimeout(hoverTimer.current), []);
 
+  // Studio navbar: `default` (Dune's own) logo · links · actions; `centered`
+  // links · logo · actions; `compact` logo · shop menu + a wide search · actions.
+  const variant = shell.navbarVariant === "centered" || shell.navbarVariant === "allaia" ? "centered" : shell.navbarVariant === "compact" ? "compact" : "default";
+
   const links = [
     { href: "/products?sort=newest", match: "", label: "وصل حديثًا" },
     { href: "/products?featured=true", match: "", label: "اختيارات المتجر" },
     { href: "/about", match: "/about", label: "عن المتجر" },
     { href: "/contact", match: "/contact", label: "تواصل معنا" },
   ];
+  // Beside a centered mark only half the bar is free: the shop menu + two links.
+  const navLinks = variant === "compact" ? [] : variant === "centered" ? links.slice(0, 2) : links;
 
   return (
     <>
@@ -85,7 +91,12 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
           if (mega && !e.currentTarget.contains(e.relatedTarget as Node | null)) closeMega();
         }}
       >
-        <div className="dn-wrap grid h-(--dn-header-h) grid-cols-[1fr_auto_1fr] items-center gap-4">
+        <div
+          className={cn(
+            "dn-wrap grid h-(--dn-header-h) grid-cols-[1fr_auto_1fr] items-center gap-4",
+            variant === "compact" && "lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-10",
+          )}
+        >
           {/* Start: menu + search (phones) / logo (desktop) */}
           <div className="flex items-center gap-0.5 lg:hidden">
             <MobileNav shell={shell} path={path} />
@@ -93,10 +104,13 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
               <Search />
             </button>
           </div>
-          <StoreMark shell={shell} className="justify-self-center lg:justify-self-start" />
+          <StoreMark shell={shell} className={cn("justify-self-center", variant === "centered" ? "lg:order-2" : "lg:justify-self-start")} />
 
           {/* Desktop navigation */}
-          <nav aria-label="القائمة الرئيسية" className="hidden h-full lg:block">
+          <nav
+            aria-label="القائمة الرئيسية"
+            className={cn("hidden h-full lg:flex lg:items-center lg:gap-8", variant === "centered" && "lg:order-1 lg:justify-self-start")}
+          >
             <ul className="flex h-full items-stretch gap-7 xl:gap-9">
               <li className="flex items-center" onMouseEnter={() => hasMega && hoverMega(true)}>
                 {hasMega ? (
@@ -116,7 +130,7 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
                   </Link>
                 )}
               </li>
-              {links.map((l) => (
+              {navLinks.map((l) => (
                 <li key={l.href} className="flex items-center" onMouseEnter={() => hasMega && hoverMega(false)}>
                   <Link href={url(l.href)} aria-current={l.match && isActivePath(path, l.match) ? "page" : undefined} className="dn-link dn-label">
                     {l.label}
@@ -124,11 +138,28 @@ export default function DuneHeader({ shell }: { shell: StoreShell }) {
                 </li>
               ))}
             </ul>
+            {variant === "compact" && (
+              <button
+                type="button"
+                onClick={() => setSearch(true)}
+                aria-haspopup="dialog"
+                className="flex h-11 w-full max-w-2xl items-center gap-3 rounded-(--dn-btn-r) border border-current/25 px-5 text-start text-sm opacity-90 transition-[border-color,opacity] duration-(--dn-dur) hover:border-current/60 hover:opacity-100"
+              >
+                <Search className="size-4 shrink-0" />
+                <span className="truncate">ابحث في {shell.name}…</span>
+              </button>
+            )}
           </nav>
 
           {/* End: actions */}
-          <div className="flex items-center justify-self-end gap-0.5">
-            <button type="button" onClick={() => setSearch(true)} aria-label="بحث" aria-haspopup="dialog" className="dn-icon max-lg:hidden">
+          <div className={cn("flex items-center justify-self-end gap-0.5", variant === "centered" && "lg:order-3")}>
+            <button
+              type="button"
+              onClick={() => setSearch(true)}
+              aria-label="بحث"
+              aria-haspopup="dialog"
+              className={cn("dn-icon max-lg:hidden", variant === "compact" && "lg:hidden")}
+            >
               <Search />
             </button>
             <button type="button" onClick={openCart} aria-label={count > 0 ? `السلة، فيها ${count} منتج` : "السلة"} aria-haspopup="dialog" className="dn-icon -me-2.5">

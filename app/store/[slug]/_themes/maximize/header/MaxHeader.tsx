@@ -91,6 +91,10 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
   }, []);
   useEffect(() => () => clearTimeout(hoverTimer.current), []);
 
+  // Studio navbar: `default` (Maximize's own) menu + logo · search · actions
+  // over a links row; `centered` the logo in the middle and the search in the
+  // links row; `compact` one slim row, the links live in the menu drawer.
+  const variant = shell.navbarVariant === "centered" || shell.navbarVariant === "allaia" ? "centered" : shell.navbarVariant === "compact" ? "compact" : "default";
   const navCats = shell.categories.slice(0, 4);
   const links = [
     { href: "/products?sort=newest", label: "وصل حديثًا", tag: "جديد" },
@@ -113,7 +117,13 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
       >
         <div className="mx-wrap">
           {/* Main row */}
-          <div className="grid h-(--mx-header-h) grid-cols-[auto_1fr_auto] items-center gap-3 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-10 xl:gap-16">
+          <div
+            className={cn(
+              "grid h-(--mx-header-h) grid-cols-[auto_1fr_auto] items-center gap-3 lg:gap-10 xl:gap-16",
+              variant === "centered" ? "lg:grid-cols-[1fr_auto_1fr]" : "lg:grid-cols-[auto_minmax(0,1fr)_auto]",
+              variant === "compact" && "lg:h-[4.25rem]",
+            )}
+          >
             <div className="flex items-center gap-1 lg:gap-4">
               <div className="lg:hidden">
                 <DrawerMenu shell={shell} path={path} variant="icon" />
@@ -121,10 +131,10 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
               <div className="hidden lg:block">
                 <DrawerMenu shell={shell} path={path} variant="button" />
               </div>
-              <StoreMark shell={shell} className="hidden lg:flex" />
+              {variant !== "centered" && <StoreMark shell={shell} className="hidden lg:flex" />}
             </div>
-            <StoreMark shell={shell} className="justify-self-center lg:hidden" />
-            <SearchBar shell={shell} className="hidden w-full max-w-[40rem] justify-self-center lg:block" />
+            <StoreMark shell={shell} className={cn("justify-self-center", variant !== "centered" && "lg:hidden")} />
+            {variant !== "centered" && <SearchBar shell={shell} className="hidden w-full max-w-[40rem] justify-self-center lg:block" />}
             <div className="flex items-center justify-end gap-1">
               {wa && (
                 <a href={wa} target="_blank" rel="noopener noreferrer" aria-label="كلّمنا على واتساب" className="mx-icon hidden lg:grid">
@@ -140,9 +150,9 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
             <SearchBar shell={shell} />
           </div>
 
-          {/* Desktop navigation */}
-          <nav aria-label="القائمة الرئيسية" className="hidden lg:block">
-            <ul className="-mx-3 flex h-12 items-center gap-1 xl:gap-3">
+          {/* Desktop navigation (not in the compact bar) */}
+          <nav aria-label="القائمة الرئيسية" className={cn("hidden", variant !== "compact" && "lg:flex lg:items-center lg:gap-6")}>
+            <ul className="-mx-3 flex h-12 min-w-0 flex-1 items-center gap-1 xl:gap-3">
               <li onMouseEnter={() => hasMega && hoverMega(true)}>
                 {hasMega ? (
                   <button
@@ -183,6 +193,7 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
                 </li>
               ))}
             </ul>
+            {variant === "centered" && <SearchBar shell={shell} className="w-full max-w-sm shrink-0" />}
           </nav>
         </div>
 
@@ -190,7 +201,7 @@ export default function MaxHeader({ shell }: { shell: StoreShell }) {
       </header>
 
       {/* Utility bar (desktop): store pages on the start, contact on the end */}
-      <div className="hidden border-y border-(--mx-line) bg-(--mx-bg) lg:block">
+      <div className={cn("hidden border-y border-(--mx-line) bg-(--mx-bg)", variant !== "compact" && "lg:block")}>
         <div className="mx-wrap flex h-11 items-center justify-between gap-6 text-[0.8125rem] text-(--mx-ink)">
           <ul className="flex items-center gap-5">
             {[

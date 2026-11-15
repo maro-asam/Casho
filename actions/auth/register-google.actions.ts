@@ -6,7 +6,11 @@ import { cookies } from "next/headers";
 
 import { prisma } from "@/lib/prisma";
 import { createUserSession } from "@/lib/auth/session";
-import { verifyPendingGoogleAuth } from "@/lib/auth/pending-google-auth";
+import {
+  PENDING_GOOGLE_COOKIE,
+  pendingGoogleCookieDelete,
+  verifyPendingGoogleAuth,
+} from "@/lib/auth/pending-google-auth";
 import { normalizeStoreSlug } from "@/lib/store/slug";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
@@ -17,8 +21,6 @@ import { generateReferralCode } from "@/lib/referral";
 import { SIGNUP_REF_COOKIE, createSignupAttribution, readSignupFormReferral } from "@/lib/sales/attribution";
 import { queueSignupNotice } from "@/lib/sales/notify";
 import { signupRefCookieDelete } from "@/lib/sales/ref-cookie";
-
-const PENDING_COOKIE = "pendingGoogleAuth";
 
 const completeGoogleSchema = z.object({
   storeName: z.string().min(2, "اسم المتجر قصير جداً"),
@@ -52,7 +54,7 @@ export async function RegisterGoogleAction(
   formData: FormData,
 ): Promise<CompleteGoogleState> {
   const cookieStore = await cookies();
-  const pendingToken = cookieStore.get(PENDING_COOKIE)?.value;
+  const pendingToken = cookieStore.get(PENDING_GOOGLE_COOKIE)?.value;
 
   if (!pendingToken) {
     return { error: "انتهت صلاحية جلسة Google، ابدأ من جديد" };
@@ -149,7 +151,7 @@ export async function RegisterGoogleAction(
       return user;
     });
 
-    cookieStore.delete(PENDING_COOKIE);
+    cookieStore.delete(pendingGoogleCookieDelete());
     cookieStore.delete(signupRefCookieDelete());
     if (referral?.salesRepId) queueSignupNotice(created.id);
     await createUserSession(created.id);

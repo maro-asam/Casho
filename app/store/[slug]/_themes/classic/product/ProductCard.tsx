@@ -26,9 +26,9 @@ export default function ProductCard({
   const discount = discountPercent(product.price, product.compareAtPrice);
 
   return (
-    <article className="group relative flex h-full flex-col">
+    <article className="c-card group relative flex h-full flex-col">
       <div
-        className="c-img-bg relative overflow-hidden rounded-(--c-radius)"
+        className="c-card-media c-img-bg relative overflow-hidden rounded-(--c-radius)"
         style={{ aspectRatio: "var(--store-img-ratio, 1 / 1)" }}
       >
         <Image
@@ -38,7 +38,7 @@ export default function ProductCard({
           priority={priority}
           sizes={sizes}
           className={cn(
-            "object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]",
+            "c-card-img object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]",
             soldOut && "opacity-60 grayscale-[35%]",
           )}
         />
@@ -67,13 +67,13 @@ export default function ProductCard({
             productName={product.name}
             productHref={href}
             hasOptions={product.hasOptions}
-            className="absolute bottom-2 end-2"
+            className="c-card-add absolute bottom-2 end-2"
           />
         )}
       </div>
 
-      <div className="flex flex-1 flex-col pt-3">
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-[0.875rem] font-medium leading-5 sm:text-[0.9375rem] sm:leading-[1.375rem] sm:min-h-[2.75rem]">
+      <div className="c-card-body flex flex-1 flex-col pt-3">
+        <h3 className="c-card-title line-clamp-2 min-h-[2.5rem] text-[0.875rem] font-medium leading-5 sm:text-[0.9375rem] sm:leading-[1.375rem] sm:min-h-[2.75rem]">
           {/* Stretched link: the whole card is one target, one tab stop */}
           <Link
             href={href}
@@ -87,7 +87,7 @@ export default function ProductCard({
           <Stars value={product.rating.average} count={product.rating.count} className="mt-1.5" />
         )}
 
-        <Price price={product.price} compareAt={product.compareAtPrice} className="mt-auto pt-1.5" />
+        <Price price={product.price} compareAt={product.compareAtPrice} className="c-card-price mt-auto pt-1.5" />
       </div>
     </article>
   );

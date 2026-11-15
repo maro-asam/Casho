@@ -53,6 +53,22 @@ arrow nudge, hero arch wipe, slow-turning stamp, category ticker, scroll-driven 
 (`animation-timeline: view()`, static fallback), staggered menu/search lists, cart-count bump.
 All disabled under `prefers-reduced-motion`.
 
+## The Studio drives the layout
+
+Riwaq's own look is what its preset sets: navbar `centered`, hero `split`, card `elegant`, categories `square`, buttons `sharp`, density `spacious`.
+
+| Studio setting | Effect |
+|---|---|
+| Navbar `centered` (own) / `default` / `compact` | links · mark · actions masthead / the mark at the start beside the links / mark · a wide search field · actions (phones get the field under the bar) |
+| Hero `split` (own) / `fullscreen` / `compact` / `minimal` | headline beside the product arch / the lead banner full-bleed under a paper arch of copy (the plates then skip that banner) / one short band with a small arch / type only, centered |
+| Product card `elegant` (own) / `default` / `minimal` / `bold` | the catalogue entry / the photo under an arch, status on the plate, centered copy / photo, name, price, add on hover / a printed slip: sheet, ink frame and offset shadow, display name, price in the accent (`[data-card]`) |
+| Category shape `square` (own) / `circle` / `pill` | the arcade of arches / round medallions with a hairline ring / capsules with counts |
+| Buttons | `--rq-btn-r` ← `--store-btn-radius` (`.rq-btn`, the square add button, the search field) |
+| Image ratio, grid columns | `--store-img-ratio`, `--store-grid-cols` |
+| Density | `[data-density]` → `--rq-section` and the ruled cells' padding |
+| Motion `none` | `[data-motion="none"]` stops the ticker, the turning stamp, wipes and scroll reveals |
+| Colors | the merchant's primary also re-tints `--accent` / `--accent-foreground` (`brandAccent` preset) |
+
 ## Not done / constraints
 - Merchant funnel sections (`_components/sections/*`) are shared with Classic and keep their own look (they inherit Riwaq tokens).
 - No wishlist (no data model). No newsletter backend.

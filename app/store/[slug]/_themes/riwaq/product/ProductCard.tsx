@@ -30,9 +30,9 @@ export default function ProductCard({
   const discount = discountPercent(product.price, product.compareAtPrice);
 
   return (
-    <article className="group relative flex h-full flex-col">
-      <div className="mb-2.5 flex min-h-[1.625rem] items-center justify-between gap-2">
-        {index !== undefined ? <span className="rq-num text-xs text-(--rq-quiet)">{idx(index)}</span> : <span />}
+    <article className="rq-card group relative flex h-full flex-col">
+      <div className="rq-card-meta mb-2.5 flex min-h-[1.625rem] items-center justify-between gap-2">
+        {index !== undefined ? <span className="rq-card-num rq-num text-xs text-(--rq-quiet)">{idx(index)}</span> : <span className="rq-card-num" />}
         {soldOut ? (
           <span className="rq-badge rq-badge--ink">نفدت الكمية</span>
         ) : discount > 0 ? (
@@ -45,21 +45,21 @@ export default function ProductCard({
         ) : null}
       </div>
 
-      <div className="rq-plate relative overflow-hidden" style={{ aspectRatio: "var(--store-img-ratio, 3 / 4)" }}>
+      <div className="rq-card-plate rq-plate relative overflow-hidden" style={{ aspectRatio: "var(--store-img-ratio, 3 / 4)" }}>
         <PlateImage
           src={product.image}
           priority={priority}
           sizes={sizes}
           className={cn(
-            "object-cover transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.045]",
+            "rq-card-img object-cover transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.045]",
             soldOut && "opacity-55 grayscale",
           )}
         />
       </div>
 
-      <div className="mt-3.5 flex flex-1 flex-col">
-        {product.categoryName && <p className="rq-caption truncate">{product.categoryName}</p>}
-        <h3 className="mt-0.5 line-clamp-2 text-[0.9375rem] font-medium leading-6 sm:text-base">
+      <div className="rq-card-body mt-3.5 flex flex-1 flex-col">
+        {product.categoryName && <p className="rq-card-cap rq-caption truncate">{product.categoryName}</p>}
+        <h3 className="rq-card-title mt-0.5 line-clamp-2 text-[0.9375rem] font-medium leading-6 sm:text-base">
           {/* Stretched link: the whole entry is one target and one tab stop */}
           <Link
             href={href}
@@ -69,10 +69,10 @@ export default function ProductCard({
           </Link>
         </h3>
         {product.rating && product.rating.count > 0 && (
-          <Stars value={product.rating.average} count={product.rating.count} className="mt-1.5" />
+          <Stars value={product.rating.average} count={product.rating.count} className="rq-card-stars mt-1.5" />
         )}
-        <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-          <Price price={product.price} compareAt={product.compareAtPrice} className="min-w-0" />
+        <div className="rq-card-foot mt-auto flex items-end justify-between gap-2 pt-3">
+          <Price price={product.price} compareAt={product.compareAtPrice} className="rq-card-price min-w-0" />
           {!soldOut && (
             <QuickAdd
               storeSlug={storeSlug}
@@ -80,6 +80,7 @@ export default function ProductCard({
               productName={product.name}
               productHref={href}
               hasOptions={product.hasOptions}
+              className="rq-card-add"
             />
           )}
         </div>

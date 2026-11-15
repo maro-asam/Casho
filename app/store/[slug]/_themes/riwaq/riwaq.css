@@ -46,6 +46,9 @@
   --rq-control: 3rem;                /* 48px */
   --rq-control-lg: 3.5rem;           /* 56px */
 
+  /* Buttons follow the Studio's button shape (Riwaq's own is sharp) */
+  --rq-btn-r: var(--store-btn-radius, 0px);
+
   /* Motion (merchant "animations" setting → --store-motion) */
   --rq-dur: var(--store-motion, 250ms);
   --rq-ease: cubic-bezier(0.2, 0.7, 0.1, 1);
@@ -291,6 +294,7 @@
 
 .rq-btn {
   --rq-sweep: var(--rq-accent);
+  border-radius: var(--rq-btn-r);
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -810,4 +814,144 @@
 }
 .rq-toast--error {
   border-inline-start-color: #f07a6a;
+}
+
+/* ═══ The Studio drives the layout ═══════════════════════════════════════════
+   The store root carries the Studio's choices as [data-density], [data-motion]
+   and [data-card]. Riwaq's own look is spacious + elegant; the other values
+   are variations in its vocabulary (see DESIGN.md). Unlayered on purpose, so
+   they beat the utilities on the components. */
+
+/* المسافات — spacious is Riwaq's own rhythm */
+.theme-riwaq[data-density="default"] {
+  --rq-section: 3rem;
+}
+.theme-riwaq[data-density="compact"] {
+  --rq-section: 2rem;
+}
+@media (min-width: 640px) {
+  .theme-riwaq[data-density="default"] {
+    --rq-section: 3.75rem;
+  }
+  .theme-riwaq[data-density="compact"] {
+    --rq-section: 2.5rem;
+  }
+}
+.theme-riwaq[data-density="compact"] .rq-ruled > * {
+  padding: 0.5rem 0.5rem 0.875rem;
+}
+@media (min-width: 640px) {
+  .theme-riwaq[data-density="compact"] .rq-ruled > * {
+    padding: 0.875rem 0.875rem 1.25rem;
+  }
+}
+
+/* الحركة: بدون — nothing moves: no marquee, stamp, wipes or scroll reveals */
+.theme-riwaq[data-motion="none"] *,
+.theme-riwaq[data-motion="none"] *::before,
+.theme-riwaq[data-motion="none"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-timeline: auto !important;
+  transition-duration: 0.01ms !important;
+}
+.theme-riwaq[data-motion="none"] .rq-marquee-track,
+.theme-riwaq[data-motion="none"] .rq-spin-slow {
+  animation: none !important;
+}
+.theme-riwaq[data-motion="none"] .rq-card:hover .rq-card-img {
+  transform: none;
+}
+
+/* كارت المنتج — أنيق (elegant) is Riwaq's catalogue entry as built. */
+
+/* افتراضي — the product under an arch, its status set on the plate */
+.theme-riwaq[data-card="default"] .rq-card-num,
+.theme-riwaq[data-card="minimal"] .rq-card-num,
+.theme-riwaq[data-card="bold"] .rq-card-num {
+  display: none;
+}
+.theme-riwaq[data-card="default"] .rq-card-meta,
+.theme-riwaq[data-card="minimal"] .rq-card-meta {
+  position: absolute;
+  inset-inline: 0.625rem;
+  top: 0.625rem;
+  z-index: 2;
+  min-height: 0;
+  margin: 0;
+  pointer-events: none;
+}
+.theme-riwaq[data-card="default"] .rq-card-meta {
+  top: 22%;
+  justify-content: center;
+}
+.theme-riwaq[data-card="default"] .rq-card-plate {
+  border-radius: 9999px 9999px 0 0;
+}
+.theme-riwaq[data-card="default"] .rq-card-body {
+  align-items: center;
+  text-align: center;
+}
+.theme-riwaq[data-card="default"] .rq-card-foot {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.theme-riwaq[data-card="default"] .rq-card-price {
+  justify-content: center;
+}
+
+/* بسيط — plate, name, price; the add button waits for a hover */
+.theme-riwaq[data-card="minimal"] .rq-card-cap,
+.theme-riwaq[data-card="minimal"] .rq-card-stars {
+  display: none;
+}
+.theme-riwaq[data-card="minimal"] .rq-card-body {
+  margin-top: 0.75rem;
+}
+.theme-riwaq[data-card="minimal"] .rq-card-title {
+  -webkit-line-clamp: 1;
+}
+.theme-riwaq[data-card="minimal"] .rq-card-foot {
+  padding-top: 0.25rem;
+}
+@media (hover: hover) {
+  .theme-riwaq[data-card="minimal"] .rq-card-add {
+    opacity: 0;
+    transition: opacity var(--rq-dur) var(--rq-ease);
+  }
+  .theme-riwaq[data-card="minimal"] .rq-card:hover .rq-card-add,
+  .theme-riwaq[data-card="minimal"] .rq-card:focus-within .rq-card-add {
+    opacity: 1;
+  }
+}
+
+/* بارز — a printed slip: sheet, ink frame, display name, price in the accent */
+.theme-riwaq[data-card="bold"] .rq-ruled > * {
+  border-color: transparent;
+}
+.theme-riwaq[data-card="bold"] .rq-card {
+  padding: 0.75rem;
+  border: 1px solid var(--rq-ink);
+  background: var(--rq-sheet);
+  box-shadow: 4px 4px 0 var(--rq-ink);
+  transition: box-shadow var(--rq-dur) var(--rq-ease), transform var(--rq-dur) var(--rq-ease);
+}
+.theme-riwaq[dir="rtl"][data-card="bold"] .rq-card {
+  box-shadow: -4px 4px 0 var(--rq-ink);
+}
+.theme-riwaq[data-card="bold"] .rq-card:hover {
+  transform: translateY(-2px);
+}
+.theme-riwaq[data-card="bold"] .rq-card-meta {
+  margin-bottom: 0.625rem;
+}
+.theme-riwaq[data-card="bold"] .rq-card-title {
+  font-family: var(--rq-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.theme-riwaq[data-card="bold"] .rq-card-price .rq-price {
+  color: var(--rq-accent);
 }

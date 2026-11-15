@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
-import type { AboutBrandContent, CollectionsContent } from "@/types/store-theme.types";
+import type { AboutBrandContent, CategoryCardStyle, CollectionsContent } from "@/types/store-theme.types";
 import type { CategoryLink } from "../../types";
 import Rail from "../product/Rail";
 import { Chevron, PlateImage, SectionHeader, Wrap, btn, delay, num } from "../ui";
@@ -38,10 +38,43 @@ export function CollectionStrip({ categories, storeSlug }: { categories: Categor
   );
 }
 
-/** "Top categories for you": round photos with names, a rail on phones. */
-export function CategoryCircles({ categories, storeSlug, title = "تصنيفات مختارة ليك" }: { categories: CategoryLink[]; storeSlug: string; title?: string }) {
+/** "Top categories for you": round photos with names, a rail on phones.
+ *  Studio category shape: `circle` (Maximize's own), `square` rounded photo
+ *  tiles, `pill` a wrap of chips. */
+export function CategoryCircles({
+  categories,
+  storeSlug,
+  title = "تصنيفات مختارة ليك",
+  shape = "circle",
+}: {
+  categories: CategoryLink[];
+  storeSlug: string;
+  title?: string;
+  shape?: CategoryCardStyle;
+}) {
   const tiles = categories.slice(0, 12);
   if (tiles.length === 0) return null;
+  if (shape === "pill") {
+    return (
+      <Wrap className="mx-section">
+        <SectionHeader title={title} center href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
+        <ul className="flex flex-wrap justify-center gap-2">
+          {categories.map((c) => (
+            <li key={c.id}>
+              <Link
+                href={buildStoreUrl(storeSlug, `/categories/${c.slug}`)}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-(--mx-line) bg-(--mx-bg) px-5 text-sm font-semibold text-(--mx-ink) transition-colors hover:border-(--mx-btn) hover:text-(--mx-link)"
+              >
+                <span className="max-w-48 truncate">{c.name}</span>
+                <span className="text-xs font-normal text-(--mx-quiet)">{num(c.productCount)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Wrap>
+    );
+  }
+  const square = shape === "square";
   return (
     <Wrap className="mx-section">
       <SectionHeader title={title} center href={buildStoreUrl(storeSlug, "/categories")} linkLabel="كل التصنيفات" />
@@ -49,7 +82,7 @@ export function CategoryCircles({ categories, storeSlug, title = "تصنيفات
         {tiles.map((c, i) => (
           <li key={c.id} className="mx-reveal w-24 shrink-0 sm:w-32" style={delay(Math.min(i, 5))}>
             <Link href={buildStoreUrl(storeSlug, `/categories/${c.slug}`)} className="group block text-center">
-              <span className="mx-media block aspect-square rounded-full">
+              <span className={cn("mx-media block aspect-square", square ? "rounded-(--mx-r-lg)" : "rounded-full")}>
                 <PlateImage src={c.image} sizes="128px" fit="cover" className="mx-zoom-img" />
               </span>
               <span className="mt-2.5 line-clamp-2 block text-sm font-semibold text-(--mx-ink) group-hover:text-(--mx-link)">{c.name}</span>

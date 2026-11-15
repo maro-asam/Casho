@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import type { BannerData, HomeViewProps } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { btn, delay, num } from "../ui";
+import { motionOff } from "../../shared/motion";
 
 const SLIDE_MS = 7000;
 
@@ -22,12 +23,15 @@ export default function Hero({
   dir,
   hasCategories,
   underHeader,
+  compact,
 }: {
   banners: BannerData[];
   store: HomeViewProps["store"];
   dir: "rtl" | "ltr";
   hasCategories: boolean;
   underHeader: boolean;
+  /** The Studio's `compact` hero: the same slideshow at a band's height. */
+  compact?: boolean;
 }) {
   const multiple = banners.length > 1;
   const [ref, embla] = useEmblaCarousel({ loop: multiple, direction: dir, duration: 38, active: multiple });
@@ -53,7 +57,7 @@ export default function Hero({
 
   // Autoplay (never under reduced motion; pauses on hover/focus or by the button).
   useEffect(() => {
-    if (!embla || !multiple || paused || hovered || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!embla || !multiple || paused || hovered || motionOff()) return;
     const t = setTimeout(() => embla.scrollNext(), SLIDE_MS);
     return () => clearTimeout(t);
   }, [embla, multiple, paused, hovered, selected]);
@@ -82,7 +86,11 @@ export default function Hero({
                 aria-roledescription={multiple ? "slide" : undefined}
                 aria-label={multiple ? `${num(i + 1)} من ${num(banners.length)}` : undefined}
                 aria-hidden={multiple && i !== selected ? true : undefined}
-                className={cn("dn-slide relative h-[100svh] min-h-[34rem] max-h-[68rem] min-w-0 shrink-0 grow-0 basis-full overflow-hidden", active && "is-active")}
+                className={cn(
+                  "dn-slide relative min-w-0 shrink-0 grow-0 basis-full overflow-hidden",
+                  compact ? "h-[64svh] min-h-[26rem] max-h-[40rem]" : "h-[100svh] min-h-[34rem] max-h-[68rem]",
+                  active && "is-active",
+                )}
               >
                 <div data-parallax className="absolute inset-x-0 -inset-y-[12%]">
                   <BannerImage banner={b} priority={i === 0} sizes="100vw" className="dn-hero-img object-cover" />
@@ -90,12 +98,12 @@ export default function Hero({
                 <span aria-hidden className="absolute inset-0 bg-[rgb(42_42_40/0.22)]" />
                 <span aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgb(20_20_18/0.62),transparent_55%)]" />
 
-                <div className="dn-wrap relative flex h-full flex-col items-center justify-end pb-24 text-center sm:pb-28 lg:pb-32">
+                <div className={cn("dn-wrap relative flex h-full flex-col items-center justify-end text-center", compact ? "pb-20 sm:pb-24" : "pb-24 sm:pb-28 lg:pb-32")}>
                   <div className="dn-hero-copy flex max-w-4xl flex-col items-center [text-shadow:0_1px_24px_rgb(0_0_0/0.18)]">
                     <p className="dn-label" style={delay(0)}>
                       {store.name}
                     </p>
-                    <h2 className="dn-hero mt-4 text-balance" style={delay(1)}>
+                    <h2 className={cn("mt-4 text-balance", compact ? "dn-h1" : "dn-hero")} style={delay(1)}>
                       {b.title}
                     </h2>
                     {b.subtitle && (

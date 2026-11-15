@@ -33,7 +33,8 @@
   --ce-sale: #e02424;
   --ce-sale-tint: #fde8e8;
   --ce-sale-badge: #e02424;
-  --ce-new: #1a6fe6;
+  --ce-new: var(--primary);                 /* "new" badge: the store's blue, or the merchant's color */
+  --ce-new-ink: var(--primary-foreground);
   --ce-new-tint: #1a6fe6;
   --ce-pick: #5b4500;
   --ce-pick-tint: #fdf0bf;
@@ -53,7 +54,7 @@
 
   /* Type: Cairo for Arabic, Inter for Latin headings (both loaded by the root
      layout). Body text keeps the merchant's chosen store font. */
-  --ce-display: var(--font-cairo), "Cairo", system-ui, sans-serif;
+  --ce-display: var(--store-font, var(--font-cairo)), "Cairo", system-ui, sans-serif; /* the Studio font */
 
   /* Shape */
   --ce-r: 0.5rem;            /* 8px cards, tiles */
@@ -84,7 +85,7 @@
 .theme-cello[dir="ltr"],
 .ce-portal[dir="ltr"] {
   --ce-dir: -1;
-  --ce-display: var(--font-sans), "Inter", system-ui, sans-serif;
+  --ce-display: var(--store-font, var(--font-sans)), "Inter", system-ui, sans-serif;
 }
 
 @media (min-width: 768px) {
@@ -110,7 +111,7 @@
   --ce-sale: #ff6b6b;
   --ce-sale-tint: #3a1d22;
   --ce-sale-badge: #d63131;
-  --ce-new: #2f7cf0;
+  --ce-new: var(--primary);
   --ce-new-tint: #2f7cf0;
   --ce-pick: #f3dc85;
   --ce-pick-tint: #3a3216;
@@ -317,7 +318,8 @@
   gap: 0.5rem;
   min-height: var(--ce-control);
   padding-inline: 1.5rem;
-  border-radius: var(--ce-r-sm);
+  /* Studio button shape: rounded → Cello's own 4px, sharp → 0, pill → pill */
+  border-radius: calc(var(--store-btn-radius, 0.5rem) * 0.5);
   border: 1px solid transparent;
   font-size: 0.875rem;
   font-weight: 600;
@@ -580,7 +582,7 @@ select.ce-field,
 }
 .ce-badge--new {
   background: var(--ce-new);
-  color: #fff;
+  color: var(--ce-new-ink, #fff);
 }
 .ce-badge--pick {
   background: var(--ce-cta);
@@ -1218,4 +1220,96 @@ select.ce-field,
 }
 .ce-toast--error [data-icon] {
   background: #d0202e;
+}
+
+/* ═══ The Studio drives the layout ═══════════════════════════════════════════
+   [data-density] / [data-motion] / [data-card] on the store root. Cello's own
+   look is `default` for all three. Unlayered on purpose. */
+
+/* المسافات */
+.theme-cello[data-density="compact"] {
+  --ce-section: 1.75rem;
+  --ce-gap: 0.5rem;
+}
+.theme-cello[data-density="spacious"] {
+  --ce-section: 3.5rem;
+  --ce-gap: 1rem;
+}
+@media (min-width: 768px) {
+  .theme-cello[data-density="compact"] {
+    --ce-section: 2.25rem;
+  }
+  .theme-cello[data-density="spacious"] {
+    --ce-section: 4.5rem;
+    --ce-gap: 1.25rem;
+  }
+}
+@media (min-width: 1280px) {
+  .theme-cello[data-density="compact"] {
+    --ce-section: 3rem;
+    --ce-gap: 0.75rem;
+  }
+  .theme-cello[data-density="spacious"] {
+    --ce-section: 6rem;
+    --ce-gap: 1.5rem;
+  }
+}
+
+/* الحركة: بدون — no reveals, ticker, slide fades or image swaps */
+.theme-cello[data-motion="none"] *,
+.theme-cello[data-motion="none"] *::before,
+.theme-cello[data-motion="none"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+.theme-cello[data-motion="none"] :is(.ce-reveal, .ce-marquee-track) {
+  animation: none !important;
+}
+.theme-cello[data-motion="none"] .ce-card:hover :is(.ce-card-img-1, .ce-card-img-2),
+.theme-cello[data-motion="none"] .group:hover .ce-zoom-img {
+  transform: none;
+}
+
+/* كارت المنتج — `default` is Cello's white card as built */
+
+/* بسيط — no card: the shot, name and price on the page */
+.theme-cello[data-card="minimal"] .ce-card {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.theme-cello[data-card="minimal"] :is(.ce-card-look, .ce-card-meta, .ce-card-rating, .ce-card-swatches) {
+  display: none;
+}
+
+/* بارز — a framed card, the name set heavy and the price in the brand color */
+.theme-cello[data-card="bold"] .ce-card {
+  box-shadow: inset 0 0 0 2px var(--ce-ink);
+}
+.theme-cello[data-card="bold"] .ce-card:hover {
+  box-shadow: inset 0 0 0 2px var(--ce-btn), 0 10px 28px -16px rgb(16 24 40 / 0.35);
+}
+.theme-cello[data-card="bold"] .ce-card-title {
+  font-family: var(--ce-display);
+  font-weight: 700;
+}
+.theme-cello[data-card="bold"] .ce-card-price > :first-child {
+  color: var(--ce-btn);
+  font-size: 1.1875rem;
+}
+
+/* أنيق — centered and quiet */
+.theme-cello[data-card="elegant"] .ce-card-body {
+  align-items: center;
+  text-align: center;
+}
+.theme-cello[data-card="elegant"] .ce-card-title {
+  font-weight: 400;
+}
+.theme-cello[data-card="elegant"] :is(.ce-card-price, .ce-card-swatches) {
+  justify-content: center;
+}
+.theme-cello[data-card="elegant"] .ce-card-rating {
+  display: none;
 }

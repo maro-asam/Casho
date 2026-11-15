@@ -107,6 +107,25 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
     { href: "/contact", label: "تواصل معنا" },
   ];
   const pinned = mega || search;
+  // Studio navbar: `default` (Mada's own) logo · links · actions; `centered`
+  // links · logo · actions; `compact` logo · a wide search field · actions.
+  const variant = shell.navbarVariant === "centered" || shell.navbarVariant === "allaia" ? "centered" : shell.navbarVariant === "compact" ? "compact" : "default";
+  // Beside a centered mark only half the bar is free: the shop menu + two links.
+  const navLinks = variant === "compact" ? [] : variant === "centered" ? links.slice(0, 2) : links;
+  const searchField = (className?: string) => (
+    <button
+      type="button"
+      onClick={() => setSearch(true)}
+      aria-haspopup="dialog"
+      className={cn(
+        "flex h-11 w-full items-center gap-2.5 rounded-(--md-btn-r) bg-(--md-studio) px-4 text-start text-[0.9375rem] text-(--md-quiet) transition-shadow duration-(--md-dur) hover:shadow-[0_0_0_1px_var(--md-line-strong)]",
+        className,
+      )}
+    >
+      <Search className="size-[1.125rem] shrink-0 text-(--md-ink)" />
+      <span className="truncate">ابحث في {shell.name}…</span>
+    </button>
+  );
 
   return (
     <>
@@ -120,15 +139,27 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
         )}
         onMouseLeave={() => setMega(false)}
       >
-        <div className="md-wrap grid h-(--md-header-h) grid-cols-[1fr_auto_1fr] items-center gap-4 lg:grid-cols-[auto_1fr_auto] lg:gap-10">
+        <div
+          className={cn(
+            "md-wrap grid h-(--md-header-h) grid-cols-[1fr_auto_1fr] items-center gap-4 lg:gap-10",
+            variant === "default" && "lg:grid-cols-[auto_1fr_auto]",
+            variant === "compact" && "lg:grid-cols-[auto_minmax(0,1fr)_auto]",
+          )}
+        >
           {/* Start: menu (phones) / logo (desktop) */}
           <div className="flex items-center lg:hidden">
             <MobileDrawer shell={shell} path={path} onSearch={() => setSearch(true)} />
           </div>
-          <StoreMark shell={shell} className="justify-self-center lg:justify-self-start" />
+          <StoreMark
+            shell={shell}
+            className={cn("justify-self-center", variant === "centered" ? "lg:order-2" : "lg:justify-self-start")}
+          />
 
-          {/* Desktop navigation */}
-          <nav aria-label="القائمة الرئيسية" className="hidden min-w-0 lg:block">
+          {/* Desktop navigation (compact: only the shop menu, beside the search field) */}
+          <nav
+            aria-label="القائمة الرئيسية"
+            className={cn("hidden min-w-0 lg:flex lg:items-center lg:gap-4", variant === "centered" && "lg:order-1")}
+          >
             <ul className="flex items-center gap-1">
               <li>
                 <button
@@ -143,7 +174,7 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
                   <ChevronDown className={cn("size-4 transition-transform duration-300", mega && "rotate-180")} />
                 </button>
               </li>
-              {links.map((l) => (
+              {navLinks.map((l) => (
                 <li key={l.href} onMouseEnter={() => setMega(false)}>
                   <Link
                     href={url(l.href)}
@@ -155,11 +186,18 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
                 </li>
               ))}
             </ul>
+            {variant === "compact" && searchField("max-w-2xl")}
           </nav>
 
           {/* End: actions */}
-          <div className="flex items-center justify-self-end gap-0.5 sm:gap-1.5">
-            <button type="button" onClick={() => setSearch(true)} aria-label="بحث" aria-haspopup="dialog" className="md-btn md-btn--ghost md-btn--icon">
+          <div className={cn("flex items-center justify-self-end gap-0.5 sm:gap-1.5", variant === "centered" && "lg:order-3")}>
+            <button
+              type="button"
+              onClick={() => setSearch(true)}
+              aria-label="بحث"
+              aria-haspopup="dialog"
+              className={cn("md-btn md-btn--ghost md-btn--icon", variant === "compact" && "lg:hidden")}
+            >
               <Search />
             </button>
             <button type="button" onClick={openWishlist} aria-label={saved.length ? `المفضلة، فيها ${saved.length}` : "المفضلة"} className="md-btn md-btn--ghost md-btn--icon relative max-sm:hidden">
@@ -187,6 +225,8 @@ export default function MadaHeader({ shell }: { shell: StoreShell }) {
             </button>
           </div>
         </div>
+
+        {variant === "compact" && <div className="md-wrap pb-3 lg:hidden">{searchField()}</div>}
 
         <MegaMenu shell={shell} open={mega} onClose={() => setMega(false)} />
       </header>

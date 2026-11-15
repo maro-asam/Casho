@@ -14,7 +14,7 @@ function Badges({ product }: { product: ProductCardData }) {
   const soldOut = product.stock <= 0;
   const low = !soldOut && product.stock <= 3;
   return (
-    <div className="pointer-events-none absolute start-3 top-3 z-[2] flex flex-col items-start gap-1.5">
+    <div className="md-card-badges pointer-events-none absolute start-3 top-3 z-[2] flex flex-col items-start gap-1.5">
       {soldOut ? (
         <span className="md-badge md-badge--ink">نفدت الكمية</span>
       ) : (
@@ -60,16 +60,16 @@ export default function ProductCard({
           <Image src={product.hoverImage} alt="" fill sizes={sizes} loading="lazy" className="md-card-img-2 object-cover" />
         )}
         <Badges product={product} />
-        <WishlistButton storeSlug={storeSlug} product={product} className="absolute end-2.5 top-2.5 size-10" />
+        <WishlistButton storeSlug={storeSlug} product={product} className="md-card-wish absolute end-2.5 top-2.5 size-10" />
         <CardActions storeSlug={storeSlug} product={product} />
       </div>
 
-      <div className={cn("flex flex-1 flex-col", compact ? "pt-3" : "pt-4")}>
-        <div className="flex min-h-5 items-center justify-between gap-2">
+      <div className={cn("md-card-body flex flex-1 flex-col", compact ? "pt-3" : "pt-4")}>
+        <div className="md-card-meta flex min-h-5 items-center justify-between gap-2">
           <p className="truncate text-xs text-(--md-quiet)">{product.brand || product.categoryName}</p>
           {!compact && <Swatches colors={product.colors} />}
         </div>
-        <h3 className={cn("mt-1 line-clamp-2 font-medium leading-6", compact ? "text-sm" : "text-[0.9375rem]")}>
+        <h3 className={cn("md-card-title mt-1 line-clamp-2 font-medium leading-6", compact ? "text-sm" : "text-[0.9375rem]")}>
           <Link
             href={href}
             className="after:absolute after:inset-0 after:z-[1] after:content-[''] focus-visible:outline-none focus-visible:after:rounded-(--md-radius) focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-(--md-brand)"
@@ -78,9 +78,9 @@ export default function ProductCard({
           </Link>
         </h3>
         {!compact && product.rating && product.rating.count > 0 && (
-          <Rating value={product.rating.average} count={product.rating.count} className="mt-1.5" />
+          <Rating value={product.rating.average} count={product.rating.count} className="md-card-rating mt-1.5" />
         )}
-        <Price price={product.price} compareAt={product.compareAtPrice} size={compact ? "sm" : "md"} className="mt-auto pt-2" />
+        <Price price={product.price} compareAt={product.compareAtPrice} size={compact ? "sm" : "md"} className="md-card-price mt-auto pt-2" />
       </div>
     </article>
   );
@@ -106,7 +106,7 @@ export function ProductGrid({
   return (
     <ul
       className={cn(
-        "grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10",
+        "md-grid grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10",
         !cols && "lg:grid-cols-[repeat(var(--store-grid-cols,4),minmax(0,1fr))]",
         cols === 2 && "lg:grid-cols-2",
         cols === 3 && "lg:grid-cols-3",

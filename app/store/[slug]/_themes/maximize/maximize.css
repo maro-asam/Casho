@@ -47,7 +47,7 @@
 
   /* Type: Cairo for Arabic, Inter for Latin headings (both loaded by the root
      layout). Body text keeps the merchant's chosen store font. */
-  --mx-display: var(--font-cairo), "Cairo", system-ui, sans-serif;
+  --mx-display: var(--store-font, var(--font-cairo)), "Cairo", system-ui, sans-serif; /* the Studio font */
 
   /* Shape */
   --mx-r: 0.625rem;          /* 10px cards, tiles */
@@ -78,7 +78,7 @@
 .theme-maximize[dir="ltr"],
 .mx-portal[dir="ltr"] {
   --mx-dir: -1;
-  --mx-display: var(--font-sans), "Inter", system-ui, sans-serif;
+  --mx-display: var(--store-font, var(--font-sans)), "Inter", system-ui, sans-serif;
 }
 
 @media (min-width: 768px) {
@@ -302,7 +302,8 @@
   gap: 0.5rem;
   min-height: var(--mx-control);
   padding-inline: 1.5rem;
-  border-radius: var(--mx-r-sm);
+  /* Studio button shape: rounded → Maximize's own 6px, sharp → 0, pill → pill */
+  border-radius: calc(var(--store-btn-radius, 0.5rem) * 0.75);
   border: 1px solid transparent;
   font-size: 0.875rem;
   font-weight: 600;
@@ -1130,4 +1131,104 @@ select.mx-field,
 }
 .mx-toast--error [data-icon] {
   background: #d0202e;
+}
+
+/* ═══ The Studio drives the layout ═══════════════════════════════════════════
+   [data-density] / [data-motion] / [data-card] on the store root. Maximize's
+   own look is compact + the default card. Unlayered on purpose. */
+
+/* المسافات */
+.theme-maximize[data-density="default"] {
+  --mx-section: 3.25rem;
+  --mx-gap: 1rem;
+}
+.theme-maximize[data-density="spacious"] {
+  --mx-section: 4rem;
+  --mx-gap: 1.25rem;
+}
+@media (min-width: 768px) {
+  .theme-maximize[data-density="default"] {
+    --mx-section: 4.25rem;
+  }
+  .theme-maximize[data-density="spacious"] {
+    --mx-section: 5.5rem;
+    --mx-gap: 1.5rem;
+  }
+}
+@media (min-width: 1280px) {
+  .theme-maximize[data-density="default"] {
+    --mx-section: 5rem;
+  }
+  .theme-maximize[data-density="spacious"] {
+    --mx-section: 6.5rem;
+  }
+}
+
+/* الحركة: بدون — no reveals, ticker or image swaps */
+.theme-maximize[data-motion="none"] *,
+.theme-maximize[data-motion="none"] *::before,
+.theme-maximize[data-motion="none"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+.theme-maximize[data-motion="none"] :is(.mx-reveal, .mx-marquee-track) {
+  animation: none !important;
+}
+.theme-maximize[data-motion="none"] .mx-card:hover :is(.mx-card-img-1, .mx-card-img-2),
+.theme-maximize[data-motion="none"] .group:hover .mx-zoom-img {
+  transform: none;
+}
+
+/* كارت المنتج — `default` is Maximize's card as built */
+
+/* بسيط — the plate, name and price */
+.theme-maximize[data-card="minimal"] .mx-card-badges > :not(.mx-badge--out, .mx-badge--drop),
+.theme-maximize[data-card="minimal"] :is(.mx-card-meta, .mx-card-rating, .mx-card-swatches, .mx-card-stock) {
+  display: none;
+}
+
+/* بارز — a framed tile with the price set large in the brand color */
+.theme-maximize[data-card="bold"] .mx-card {
+  padding: 0.5rem 0.5rem 0.875rem;
+  border: 1px solid var(--mx-line);
+  border-radius: var(--mx-r-lg);
+  background: var(--mx-bg);
+  transition: box-shadow var(--mx-dur) var(--mx-ease), border-color var(--mx-dur) var(--mx-ease);
+}
+.theme-maximize[data-card="bold"] .mx-card:hover {
+  border-color: transparent;
+  box-shadow: var(--mx-shadow);
+}
+.theme-maximize[data-card="bold"] .mx-card-body {
+  padding-inline: 0.25rem;
+}
+.theme-maximize[data-card="bold"] .mx-card-title {
+  font-family: var(--mx-display);
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.theme-maximize[data-card="bold"] .mx-card-price > :first-child {
+  color: var(--mx-btn);
+  font-size: 1.1875rem;
+}
+
+/* أنيق — centered and quiet */
+.theme-maximize[data-card="elegant"] .mx-card-body {
+  align-items: center;
+  padding-top: 0.875rem;
+  text-align: center;
+}
+.theme-maximize[data-card="elegant"] .mx-card-title {
+  font-weight: 500;
+}
+.theme-maximize[data-card="elegant"] :is(.mx-card-price, .mx-card-swatches) {
+  justify-content: center;
+}
+.theme-maximize[data-card="elegant"] :is(.mx-card-stock, .mx-card-rating) {
+  display: none;
 }

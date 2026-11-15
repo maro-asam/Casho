@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
+import type { HeroStyle } from "@/types/store-theme.types";
 import type { BannerData, CategoryLink, HomeViewProps, ProductCardData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { Chevron, PlateImage, Price, btn, discountPercent, num } from "../ui";
@@ -156,12 +157,64 @@ function TileView({ tile, slot, storeSlug, storeName }: { tile: Tile; slot: Slot
   );
 }
 
+/** The Studio's `minimal` hero: the store's name and pitch on a tint band. */
+function HeroBand({ store, hasCategories }: { store: HomeViewProps["store"]; hasCategories: boolean }) {
+  const url = (p: string) => buildStoreUrl(store.slug, p);
+  return (
+    <section aria-label="المتجر" className="mx-wrap mx-section">
+      <div className="flex flex-col items-center rounded-(--mx-r-lg) bg-(--mx-band) px-6 py-12 text-center sm:py-16 lg:py-20">
+        <h1 className="mx-display mx-hero text-balance text-(--mx-ink)">{store.name}</h1>
+        <p className="mt-4 max-w-[52ch] text-base text-(--mx-text) sm:text-lg">
+          {store.description?.trim() || "منتجات مختارة بعناية، وطلب سهل في دقيقة."}
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-2.5">
+          <Link href={url("/products")} className={btn({ size: "lg" })}>
+            تسوّق الآن
+          </Link>
+          {hasCategories && (
+            <Link href={url("/categories")} className={btn({ variant: "outline", size: "lg" })}>
+              كل التصنيفات
+            </Link>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /** Maximize's hero "promotion grid": a large lead tile with a column of
  *  smaller tiles beside it and two more beneath — filled from the store's
- *  banners, best deals and categories. */
-export default function PromotionGrid(props: HomeViewProps) {
+ *  banners, best deals and categories. Studio hero style: `split` (Maximize's
+ *  own) the full grid, `fullscreen` the lead tile alone and tall, `compact`
+ *  one short row of three, `minimal` the store's name on a tint band. */
+export default function PromotionGrid({ style = "split", ...props }: HomeViewProps & { style?: HeroStyle }) {
   const tiles = buildTiles(props);
-  if (!tiles.a) return null;
+  if (style === "minimal" || !tiles.a) {
+    return style === "minimal" ? <HeroBand store={props.store} hasCategories={props.categories.length > 0} /> : null;
+  }
+  const one = (slot: Slot) => tiles[slot] && <TileView tile={tiles[slot]!} slot={slot} storeSlug={props.store.slug} storeName={props.store.name} />;
+  if (style === "fullscreen") {
+    return (
+      <section aria-label="العروض" className="mx-wrap mx-section">
+        <div className="h-[30rem] sm:h-[34rem] lg:h-[min(76svh,44rem)]">{one("a")}</div>
+      </section>
+    );
+  }
+  if (style === "compact") {
+    const side = (["c", "b"] as const).filter((k) => tiles[k]);
+    return (
+      <section aria-label="العروض" className="mx-wrap mx-section">
+        <div className={cn("grid grid-cols-2 gap-(--mx-gap)", side.length === 2 ? "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]" : side.length === 1 && "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]")}>
+          <div className="col-span-2 h-64 sm:h-72 lg:col-span-1">{one("a")}</div>
+          {side.map((k) => (
+            <div key={k} className={cn("h-44 sm:h-56 lg:h-72", side.length === 1 && "col-span-2 lg:col-span-1")}>
+              {one(k)}
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
   const right = !!(tiles.b || tiles.c);
   const bottom = !!(tiles.d || tiles.e);
   const view = (slot: Slot) => tiles[slot] && <TileView tile={tiles[slot]!} slot={slot} storeSlug={props.store.slug} storeName={props.store.name} />;

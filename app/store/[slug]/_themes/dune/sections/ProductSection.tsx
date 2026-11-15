@@ -10,6 +10,7 @@ export default function ProductSection({
   subtitle,
   href,
   max = 8,
+  cols = 4,
 }: {
   products: ProductCardData[];
   storeSlug: string;
@@ -17,15 +18,17 @@ export default function ProductSection({
   subtitle?: string;
   href?: string;
   max?: number;
+  /** Desktop columns (the Studio's "products per row"). */
+  cols?: 3 | 4 | 5;
 }) {
   if (products.length === 0) return null;
-  // Whole desktop rows only (4 per row) so a section never ends ragged.
+  // Whole desktop rows only so a section never ends ragged.
   const n = Math.min(products.length, max);
-  const shown = products.slice(0, n >= 4 ? n - (n % 4) : n);
+  const shown = products.slice(0, n >= cols ? n - (n % cols) : n);
   return (
     <Wrap data-reveal className="dn-section">
       <SectionHeader title={title} subtitle={subtitle} href={href} />
-      <ProductGrid products={shown} storeSlug={storeSlug} railOnMobile cols={4} />
+      <ProductGrid products={shown} storeSlug={storeSlug} railOnMobile cols={cols} />
     </Wrap>
   );
 }

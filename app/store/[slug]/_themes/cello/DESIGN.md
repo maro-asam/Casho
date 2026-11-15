@@ -43,6 +43,22 @@ Product grids: 2 → 3 (3 with the filter sidebar, 4 on very wide screens; 4–5
 ## Motion
 Durations from `--store-motion`; easing cubic-bezier(.22,.61,.36,1). Slides cross-fade 700ms with a slow zoom, drawers 420ms, popups 300ms, card hover lift 300ms, sections fade up as they enter (scroll-driven CSS). All disabled under `prefers-reduced-motion`.
 
+## The Studio drives the layout
+
+Cello's own look is what its preset sets: navbar `default`, hero `fullscreen`, card `default`, categories `square`, buttons `rounded`, density `default`.
+
+| Studio setting | Effect |
+|---|---|
+| Navbar `default` (own) / `centered` / `compact` | mark · search · help · cart over the links row / search · mark (centered) · help + cart / one row, links in the menu drawer |
+| Hero `fullscreen` (own) / `compact` / `split` / `minimal` | the full-width slideshow / the same at a band's height / the lead banner's copy on navy beside its photo / the navy band with words only (also used without banners) |
+| Product card `default` (own) / `minimal` / `bold` / `elegant` | the white card / no card: shot, name, price / a 2px ink frame, heavy name, price in the brand color / centered (`[data-card]`) |
+| Category shape `square` (own) / `circle` / `pill` | photo-and-name cells / round photos over the names / chips |
+| Buttons | `.ce-btn` radius = `--store-btn-radius × 0.5` (rounded → its own 4px) |
+| Image ratio, grid columns | `--store-img-ratio`, `--store-grid-cols` |
+| Density | `[data-density]` → `--ce-section`, `--ce-gap` |
+| Motion `none` | `[data-motion="none"]` drops the reveals, ticker and slide autoplay (`shared/motion.ts`) |
+| Colors, font | primary re-tints links/tints (`brandAccent`) and fills the "جديد" badge; the secondary is the yellow search/buy; headings use the Studio font (`--store-font`) |
+
 ## Not done / constraints
 - No customer accounts, wishlist, compare, language/currency switchers, blog, brand logos or newsletter backend in Casho, so none appear.
 - Categories are flat, so the mega menu lists categories (with photos and counts) instead of nested link columns.

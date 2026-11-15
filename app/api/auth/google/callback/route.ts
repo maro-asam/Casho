@@ -9,9 +9,11 @@ import {
   googleStateCookieOptions,
 } from "@/lib/auth/google";
 import { logSecurityEvent } from "@/lib/auth/security-log";
-import { signPendingGoogleAuth } from "@/lib/auth/pending-google-auth";
-
-const PENDING_COOKIE = "pendingGoogleAuth";
+import {
+  PENDING_GOOGLE_COOKIE,
+  pendingGoogleCookieOptions,
+  signPendingGoogleAuth,
+} from "@/lib/auth/pending-google-auth";
 
 function getMerchantAppUrl() {
   const appUrl = process.env.APP_URL || "http://localhost:3000";
@@ -19,7 +21,7 @@ function getMerchantAppUrl() {
   try {
     const u = new URL(appUrl);
     if (u.hostname === rootDomain) {
-      return `${u.protocol}//app.${rootDomain}`;
+      return `${u.protocol}//app.${rootDomain}${u.port ? `:${u.port}` : ""}`;
     }
   } catch {
     // fall through
@@ -119,13 +121,7 @@ async function handleCallback(request: NextRequest) {
     });
 
     const response = NextResponse.redirect(`${merchantUrl}/register/complete-google`);
-    response.cookies.set(PENDING_COOKIE, pendingToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 10, // 10 minutes
-      path: "/",
-    });
+    response.cookies.set(PENDING_GOOGLE_COOKIE, pendingToken, pendingGoogleCookieOptions());
     return response;
   } catch (err) {
     console.error("Google OAuth callback error:", err);

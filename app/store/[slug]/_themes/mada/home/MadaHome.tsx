@@ -9,7 +9,7 @@ import CategoryTiles from "../sections/CategoryTiles";
 import Countdown from "../sections/Countdown";
 import FeaturedCollection from "../sections/FeaturedCollection";
 import Hero from "../sections/Hero";
-import HeroEditorial from "../sections/HeroEditorial";
+import HeroEditorial, { HeroMinimal } from "../sections/HeroEditorial";
 import { Benefits, ImageBanner, ImageWithText, Marquee, PromoGrid, RichText, Stats, Testimonials } from "../sections/Merch";
 import NewArrivals from "../sections/NewArrivals";
 import ProductRail from "../sections/ProductRail";
@@ -20,12 +20,26 @@ type Ctx = HomeViewProps & { onSale: ProductCardData[] };
 
 /** Mada's section registry: every merchant section key → a Mada section. */
 const REGISTRY: SectionRegistry<Ctx> = {
-  showHero: (c) =>
-    c.banners.length > 0 ? (
-      <Hero banners={c.banners} store={c.store} dir={c.dir} hasCategories={c.categories.length > 0} />
-    ) : (
-      <HeroEditorial store={c.store} products={[...c.featured, ...c.latest.filter((p) => !c.featured.some((f) => f.id === p.id))]} hasCategories={c.categories.length > 0} />
-    ),
+  // Studio hero: `fullscreen` (Mada's own) the banner slideshow, `compact` the
+  // same at a band's height, `split` the pine panel beside a photo, `minimal`
+  // type only. Without banners the panel carries a collage of real products.
+  showHero: (c) => {
+    const style = c.layout.heroStyle;
+    const hasCategories = c.categories.length > 0;
+    if (style === "minimal") return <HeroMinimal store={c.store} banner={c.banners[0]} hasCategories={hasCategories} />;
+    if (c.banners.length > 0 && style !== "split") {
+      return <Hero banners={c.banners} store={c.store} dir={c.dir} hasCategories={hasCategories} compact={style === "compact"} />;
+    }
+    return (
+      <HeroEditorial
+        store={c.store}
+        products={[...c.featured, ...c.latest.filter((p) => !c.featured.some((f) => f.id === p.id))]}
+        hasCategories={hasCategories}
+        banner={c.banners[0]}
+        compact={style === "compact"}
+      />
+    );
+  },
   showHeroBanner: (c) => <ImageBanner content={c.sectionContent.heroBanner} storeSlug={c.store.slug} />,
   showOfferStrip: (c) => <Marquee content={c.sectionContent.offerStrip} />,
   showSocialProof: (c) => <Stats content={c.sectionContent.socialProof} />,
@@ -40,7 +54,8 @@ const REGISTRY: SectionRegistry<Ctx> = {
         href={buildStoreUrl(c.store.slug, "/products")}
       />
     ) : null,
-  showCategories: (c) => (c.categories.length > 0 ? <CategoryTiles categories={c.categories} storeSlug={c.store.slug} /> : null),
+  showCategories: (c) =>
+    c.categories.length > 0 ? <CategoryTiles categories={c.categories} storeSlug={c.store.slug} shape={c.layout.categoryCardStyle} /> : null,
   showFeaturedProducts: (c) => (c.featured.length > 0 ? <FeaturedCollection products={c.featured} storeSlug={c.store.slug} /> : null),
   showCollections: (c) => <PromoGrid content={c.sectionContent.collections} storeSlug={c.store.slug} />,
   showWhyChooseUs: (c) => <Benefits content={c.sectionContent.whyChooseUs} />,

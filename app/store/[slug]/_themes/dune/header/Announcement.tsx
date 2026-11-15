@@ -6,6 +6,7 @@ import { Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { StoreShell } from "../../types";
 import { getSocialLinks } from "../../shared/social";
+import { motionOff } from "../../shared/motion";
 
 /** Announcement bar. Several messages (separated by "|" or new lines in the
  *  merchant's text) rotate with a pause control; socials sit at the end on
@@ -21,7 +22,7 @@ export default function Announcement({ shell }: { shell: StoreShell }) {
   const rotating = messages.length > 1;
 
   useEffect(() => {
-    if (!rotating || paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!rotating || paused || motionOff()) return;
     const t = setInterval(() => setI((v) => (v + 1) % messages.length), 5000);
     return () => clearInterval(t);
   }, [rotating, paused, messages.length]);

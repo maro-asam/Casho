@@ -29,7 +29,7 @@ const REGISTRY: SectionRegistry<Ctx> = {
   showHero: (c) => (
     <>
       {c.sections.showCategories && <CollectionStrip categories={c.categories} storeSlug={c.store.slug} />}
-      <PromotionGrid {...c} />
+      <PromotionGrid {...c} style={c.layout.heroStyle} />
     </>
   ),
   showHeroBanner: (c) => <MediaBanner content={c.sectionContent.heroBanner} storeSlug={c.store.slug} />,
@@ -45,7 +45,7 @@ const REGISTRY: SectionRegistry<Ctx> = {
       href={buildStoreUrl(c.store.slug, "/products")}
     />
   ),
-  showCategories: (c) => <CategoryCircles categories={c.categories} storeSlug={c.store.slug} />,
+  showCategories: (c) => <CategoryCircles categories={c.categories} storeSlug={c.store.slug} shape={c.layout.categoryCardStyle} />,
   showFeaturedProducts: (c) => (
     <ProductRow products={c.featured} storeSlug={c.store.slug} eyebrow="مختارات" title="اختيارات المتجر" href={buildStoreUrl(c.store.slug, "/products?featured=true")} band />
   ),

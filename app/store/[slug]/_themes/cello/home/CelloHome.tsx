@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { cn } from "@/lib/utils";
+import { BannerImage, BannerLink } from "../../shared/banner";
 import { renderSections, type SectionRegistry } from "../../shared/sections";
 import type { HomeViewProps, ProductCardData } from "../../types";
 import { CategoryGrid, PromoTiles, StoryWithCategories } from "../sections/Collections";
@@ -23,16 +25,54 @@ function deals(c: Ctx): ProductCardData[] {
 }
 
 /** Without banners the hero is a navy band with the store's own name and
- *  description (no stock imagery or invented copy). */
-function PlainHero({ c }: { c: Ctx }) {
+ *  description (no stock imagery or invented copy). It is also the Studio's
+ *  `minimal` hero, carrying the lead banner's copy when there is one. */
+function PlainHero({ c, compact }: { c: Ctx; compact?: boolean }) {
+  const lead = c.layout.heroStyle === "minimal" ? c.banners[0] : undefined;
+  const text = lead?.subtitle || c.store.description;
   return (
     <section className="bg-(--ce-navy) text-white">
-      <div className="ce-wrap flex min-h-72 flex-col items-start justify-center py-14 sm:min-h-96">
-        <h1 className="ce-hero max-w-[20ch] text-balance text-white">{c.store.name}</h1>
-        {c.store.description && <p className="mt-4 line-clamp-3 max-w-2xl text-[0.9375rem] leading-7 text-white/85">{c.store.description}</p>}
-        <Link href={buildStoreUrl(c.store.slug, "/products")} className="ce-btn ce-btn--cta mt-7">
-          تسوّق الآن
-        </Link>
+      <div className={cn("ce-wrap flex flex-col items-start justify-center", compact ? "min-h-56 py-10" : "min-h-72 py-14 sm:min-h-96")}>
+        <h1 className="ce-hero max-w-[20ch] text-balance text-white">{lead?.title || c.store.name}</h1>
+        {text && <p className="mt-4 line-clamp-3 max-w-2xl text-[0.9375rem] leading-7 text-white/85">{text}</p>}
+        {lead?.link ? (
+          <BannerLink banner={lead} storeSlug={c.store.slug} className="ce-btn ce-btn--cta mt-7">
+            {lead.cta}
+          </BannerLink>
+        ) : (
+          <Link href={buildStoreUrl(c.store.slug, "/products")} className="ce-btn ce-btn--cta mt-7">
+            تسوّق الآن
+          </Link>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** The Studio's `split` hero: the lead banner's copy on the navy band beside
+ *  its photo. */
+function SplitHero({ c }: { c: Ctx }) {
+  const b = c.banners[0];
+  return (
+    <section className="bg-(--ce-navy) text-white">
+      <div className="ce-wrap grid items-center gap-6 py-6 sm:py-8 lg:grid-cols-2 lg:gap-12 lg:py-10">
+        <div className="flex flex-col items-start lg:py-6">
+          <p className="text-sm text-white/85">{c.store.name}</p>
+          <h1 className="ce-hero mt-3 max-w-[18ch] text-balance text-white">{b.title}</h1>
+          {b.subtitle && <p className="mt-3 line-clamp-3 max-w-[48ch] text-base text-white/85">{b.subtitle}</p>}
+          {b.link ? (
+            <BannerLink banner={b} storeSlug={c.store.slug} className="ce-btn ce-btn--cta mt-7">
+              {b.cta}
+            </BannerLink>
+          ) : (
+            <Link href={buildStoreUrl(c.store.slug, "/products")} className="ce-btn ce-btn--cta mt-7">
+              تسوّق الآن
+            </Link>
+          )}
+        </div>
+        <div className="relative aspect-[16/10] overflow-hidden rounded-(--ce-r-lg) bg-white/5">
+          <BannerImage banner={b} priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+        </div>
       </div>
     </section>
   );
@@ -41,16 +81,21 @@ function PlainHero({ c }: { c: Ctx }) {
 /** Cello's section registry: every merchant section key → a Cello
  *  section, following the reference demo's composition. */
 const REGISTRY: SectionRegistry<Ctx> = {
-  showHero: (c) =>
-    c.banners.length > 0 ? (
+  // Studio hero: `fullscreen` (Cello's own) the full-width slideshow,
+  // `compact` the same at a band's height, `split` copy beside the lead
+  // banner's photo, `minimal` the navy band with words only.
+  showHero: (c) => {
+    const style = c.layout.heroStyle;
+    if (c.banners.length === 0 || style === "minimal") return <PlainHero c={c} compact={style === "compact"} />;
+    if (style === "split") return <SplitHero c={c} />;
+    return (
       <>
         <h1 className="sr-only">{c.store.name}</h1>
-        <HeroSlider banners={c.banners} storeName={c.store.name} storeSlug={c.store.slug} />
+        <HeroSlider banners={c.banners} storeName={c.store.name} storeSlug={c.store.slug} compact={style === "compact"} />
       </>
-    ) : (
-      <PlainHero c={c} />
-    ),
-  showCategories: (c) => <CategoryGrid categories={c.categories} storeSlug={c.store.slug} />,
+    );
+  },
+  showCategories: (c) => <CategoryGrid categories={c.categories} storeSlug={c.store.slug} shape={c.layout.categoryCardStyle} />,
   showOfferStrip: (c) => <OfferBand content={c.sectionContent.offerStrip} />,
   showBestSellers: (c) => (
     <ProductRow

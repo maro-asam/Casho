@@ -12,6 +12,7 @@ import type { HeroStyle } from "@/types/store-theme.types";
 import type { BannerData } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import { btn } from "../ui";
+import { motionOff } from "../../shared/motion";
 
 type Props = {
   banners: BannerData[];
@@ -24,7 +25,7 @@ type Props = {
 export default function HeroCarousel({ banners, storeSlug, heroStyle, dir, hasCategories }: Props) {
   const multiple = banners.length > 1;
   const [reducedMotion] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    motionOff,
   );
   const [emblaRef, embla] = useEmblaCarousel(
     { loop: multiple, direction: dir, duration: 28, active: multiple },
