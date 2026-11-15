@@ -20,7 +20,7 @@ import { signupRefCookieDelete } from "@/lib/sales/ref-cookie";
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
 import { sendVerificationCode } from "@/lib/auth/email-verification";
 import { isMailConfigured } from "@/lib/mail";
-import { canReusePhone } from "@/lib/auth/multi-account";
+import { canReusePhone, phoneHeldByMultiAccountInbox } from "@/lib/auth/multi-account";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -78,29 +78,26 @@ export async function RegisterAction(
   const { storeName, name, country, businessType, email, phoneNumber, password } = parsed.data;
 
   try {
-    const checkPhone = phoneNumber && !canReusePhone(email, phoneNumber);
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, ...(checkPhone ? [{ phone_number: phoneNumber }] : [])],
-      },
-      select: {
-        id: true,
-        email: true,
-        phone_number: true,
-      },
-    });
+    const emailTaken = await prisma.user.findUnique({ where: { email }, select: { id: true } });
 
-    if (existingUser) {
-      if (existingUser.email === email) {
-        return {
-          error: "البريد الإلكتروني مستخدم بالفعل",
-          fieldErrors: {
-            email: "هذا البريد مستخدم بالفعل",
-          },
-        };
-      }
+    if (emailTaken) {
+      return {
+        error: "البريد الإلكتروني مستخدم بالفعل",
+        fieldErrors: {
+          email: "هذا البريد مستخدم بالفعل",
+        },
+      };
+    }
 
-      if (existingUser.phone_number === phoneNumber) {
+    if (phoneNumber && !canReusePhone(email, phoneNumber)) {
+      // A taken phone is still fine when it's on an allow-listed person's account.
+      const holders = await prisma.user.findMany({
+        where: { phone_number: phoneNumber },
+        select: { email: true },
+        take: 50,
+      });
+
+      if (holders.length && !phoneHeldByMultiAccountInbox(holders.map((holder) => holder.email))) {
         return {
           error: "رقم الموبايل مستخدم بالفعل",
           fieldErrors: {

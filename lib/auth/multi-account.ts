@@ -3,7 +3,9 @@
 // inbox's "+tag" aliases (mmcasho823+2@gmail.com lands in the same inbox).
 // What may repeat is the phone. An entry with both only matches them together;
 // a phone-only entry lets that phone sign up with any email; an email-only entry
-// lets that inbox (and its aliases) sign up with any phone.
+// lets that inbox (and its aliases) sign up with any phone — and makes the
+// phones already on that inbox's accounts reusable with any email, so the person
+// can open more accounts under other addresses too.
 
 type MultiAccountIdentity = { phone: string; email?: string } | { email: string; phone?: undefined };
 
@@ -25,4 +27,13 @@ export function canReusePhone(email: string, phone: string) {
   return MULTI_ACCOUNT_IDENTITIES.some(
     (identity) => (!identity.phone || identity.phone === phone.trim()) && (!identity.email || identity.email === inbox),
   );
+}
+
+/**
+ * Whether a phone that's already taken may be reused because one of the accounts
+ * holding it belongs to an email-only allow-listed inbox (it's that person's phone).
+ */
+export function phoneHeldByMultiAccountInbox(holderEmails: string[]) {
+  const inboxes = new Set(holderEmails.map(inboxOf));
+  return MULTI_ACCOUNT_IDENTITIES.some((identity) => !identity.phone && !!identity.email && inboxes.has(identity.email));
 }
