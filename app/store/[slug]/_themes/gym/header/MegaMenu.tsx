@@ -79,7 +79,7 @@ export default function MegaMenu({ id, shell, open, onClose }: { id: string; she
           <a href={waWith(wa, COACH_MESSAGE)} target="_blank" rel="noopener noreferrer" className="gy-knurl flex flex-col justify-end rounded-(--gy-r) bg-(--gy-btn) p-6 text-(--gy-btn-ink)">
             <MessageCircle className="size-9" strokeWidth={1.75} />
             <span className="gy-h3 mt-4 !text-current">{st("محتار تبدأ بإيه؟")}</span>
-            <span className="mt-1 text-sm leading-6 opacity-90">{st("قولنا هدفك على واتساب، ونرشحلك اللي يناسبك.")}</span>
+            <span className="mt-1 text-sm leading-6 opacity-90">{st("قولنا محتاج إيه على واتساب، ونرشحلك اللي يناسبك.")}</span>
           </a>
         ) : null}
       </div>

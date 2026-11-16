@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Dumbbell } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
@@ -8,11 +7,13 @@ import type { StoreShell } from "../../types";
 import { st } from "@/lib/i18n/storefront";
 
 /** Store logo and/or name (Studio → الهوية: logo, size, corners, show name).
- *  Without a logo the name sits beside a leaning red dumbbell block. */
+ *  Without a logo the name sits beside a leaning red block with its first
+ *  letter, so the mark fits any field. */
 export default function StoreMark({ shell, className, onClick }: { shell: StoreShell; className?: string; onClick?: () => void }) {
   const height = Math.max(32, Math.min(shell.logoSize, 56));
   const isSvg = !!shell.logo && (shell.logo.endsWith(".svg") || shell.logo.includes("/svg"));
   const nameVisible = shell.showStoreName || !shell.logo;
+  const initial = [...shell.name.trim()][0]?.toLocaleUpperCase() ?? "";
   return (
     <Link href={buildStoreUrl(shell.slug)} onClick={onClick} aria-label={st("{0} — الصفحة الرئيسية", shell.name)} className={cn("flex min-w-0 items-center gap-2.5", className)}>
       {shell.logo ? (
@@ -26,7 +27,7 @@ export default function StoreMark({ shell, className, onClick }: { shell: StoreS
         </span>
       ) : (
         <span aria-hidden className="grid size-9 shrink-0 skew-x-(--gy-slant) place-items-center bg-(--gy-btn) text-(--gy-btn-ink)">
-          <Dumbbell className="size-5 -skew-x-(--gy-slant)" />
+          <span className="gy-display -skew-x-(--gy-slant) text-xl leading-none">{initial}</span>
         </span>
       )}
       {nameVisible && <span className="gy-display truncate text-[1.375rem] leading-none sm:text-[1.625rem]">{shell.name}</span>}

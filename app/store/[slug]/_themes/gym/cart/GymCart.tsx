@@ -127,7 +127,7 @@ export default function GymCart({ storeSlug, cart, notice }: CartViewProps) {
                         <Link href={href} className="line-clamp-2 text-[0.9375rem] font-semibold leading-6 text-(--gy-ink) hover:text-(--gy-link)">
                           {item.product.name}
                         </Link>
-                        {features.length > 0 && <p className="mt-1 text-xs text-(--gy-quiet)">{features.map(([k, v]) => featureLabel(k, v)).join(" · ")}</p>}
+                        {features.length > 0 && <p className="mt-1 text-xs text-(--gy-quiet)">{features.map(([k, v]) => featureLabel(k, v, item.product.name)).join(" · ")}</p>}
                         <p className="mt-1 text-xs text-(--gy-quiet)">
                           {st("{0} للقطعة", formatPrice(unit))}
                           {wholesale && <span className="ms-1.5 font-bold text-(--gy-ok)">{st("· سعر الكمية")}</span>}

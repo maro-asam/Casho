@@ -53,7 +53,7 @@ function CoachShortcut({ whatsapp }: { whatsapp: string }) {
       <MessageCircle className="size-8 shrink-0" strokeWidth={1.75} />
       <span className="min-w-0 flex-1">
         <span className="block font-extrabold">{st("محتار تبدأ بإيه؟")}</span>
-        <span className="block text-sm opacity-90">{st("قولنا هدفك على واتساب ونرشحلك اللي يناسبك.")}</span>
+        <span className="block text-sm opacity-90">{st("قولنا محتاج إيه على واتساب ونرشحلك اللي يناسبك.")}</span>
       </span>
       <Chevron />
     </a>

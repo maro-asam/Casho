@@ -67,6 +67,8 @@ export default function FilterPanel({
   const apply = () => formRef.current && push(filtersQueryString(query, new FormData(formRef.current)));
   const instant = mode === "sidebar" ? apply : undefined;
   const ranges = buckets(priceBounds);
+  // Flavors only on a supplement shelf, or when every value is plainly a flavor.
+  const flavors = isFlavor(facets.colors, categories.find((c) => c.slug === query.category)?.name);
 
   return (
     <form
@@ -157,14 +159,14 @@ export default function FilterPanel({
         </Group>
 
         {facets.colors.length > 0 && (
-          <Group title={isFlavor(facets.colors) ? st("النكهة") : st("اللون")}>
+          <Group title={flavors ? st("النكهة") : st("اللون")}>
             <div role="radiogroup" aria-label={st("الاختيارات")} className="flex flex-wrap gap-1.5">
               <label className="gy-opt min-h-10 px-3 text-xs">
                 <input type="radio" name="color" value="" defaultChecked={!query.color} onChange={instant} className="sr-only" />
                 {st("الكل")}
               </label>
               {facets.colors.map((c) => {
-                const sw = isFlavor(facets.colors) ? null : swatchColor(c);
+                const sw = flavors ? null : swatchColor(c);
                 return sw ? (
                   <label key={c} title={c} className="gy-swatch-btn cursor-pointer">
                     <input type="radio" name="color" value={c} defaultChecked={query.color === c} onChange={instant} className="sr-only" />

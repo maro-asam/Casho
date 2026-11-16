@@ -18,6 +18,7 @@ import { formatPrice, st } from "@/lib/i18n/storefront";
 export type BuyProduct = {
   id: string;
   name: string;
+  categoryName?: string | null;
   price: number;
   compareAtPrice: number | null;
   stock: number;
@@ -33,6 +34,7 @@ function OptionGroup({
   id,
   kind,
   values,
+  names,
   selected,
   onSelect,
   error,
@@ -40,11 +42,13 @@ function OptionGroup({
   id: string;
   kind: OptionKey;
   values: string[];
+  /** Product + category names, to tell flavors from colors. */
+  names: (string | null | undefined)[];
   selected: string | null;
   onSelect: (v: string) => void;
   error: boolean;
 }) {
-  const flavor = kind === "color" && isFlavor(values);
+  const flavor = kind === "color" && isFlavor(values, ...names);
   const label = flavor ? st("النكهة") : OPTION_LABEL[kind];
   return (
     <fieldset id={id} className="scroll-mt-40">
@@ -190,6 +194,7 @@ export default function BuyForm({
           id={`buy-${product.id}-${k}`}
           kind={k}
           values={k === "color" ? product.colors : product.sizes}
+          names={[product.name, product.categoryName]}
           selected={selected[k]}
           onSelect={(v) => choose(k, v)}
           error={missing.includes(k)}

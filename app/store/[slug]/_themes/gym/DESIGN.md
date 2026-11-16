@@ -1,7 +1,8 @@
 # Casho Gym (كاشو جيم) — design system
 
-Storefront for gym supplements and equipment. Built from scratch for Casho (no
-reference theme). Iron, chalk and one hot color: a black gym floor, the store's
+Storefront built for gym supplements and equipment, and picked by stores in
+every other field for its look, so it has to fit any store. Built from scratch
+for Casho (no reference theme). Iron, chalk and one hot color: a black gym floor, the store's
 red, light chalk plates under the product shots, knurled steel texture and a
 forward slant on everything that moves.
 
@@ -11,6 +12,7 @@ forward slant on everything that moves.
 3. **Signature objects, real data.** The bumper plate (`sections/WeightPlate.tsx`) is drawn in code from the store colors with the store's name cast into it; it opens even an empty new store. Everything claimed comes from real data: rankings from real sales order, badges from real discounts, `isNew`, `isFeatured` and stock, poster numbers from real product counts, delivery from real shipping methods, the countdown from the merchant's own date.
 4. **Every section the merchant adds shows up.** All 16 section keys render in the theme's language. A section with nothing to show yet renders nothing for shoppers but a dashed marker in the Studio canvas (`sections/StudioEmpty.tsx`, only when framed), so it can be clicked and filled. Collections fall back to the store's top categories (the Studio has no editor for it), About to the store description.
 5. **Nothing fake.** The newsletter section has no backend anywhere in Casho, so `JoinBand` hands off to WhatsApp (or the contact page) with the merchant's copy instead of pretending to subscribe.
+6. **Fits any field.** The look is the theme; the gym is only in the data. Shopper copy is neutral (the search hint lists the store's own shelves, "اختار قسمك", "ممكن يعجبك كمان", "الباقة فيها", WhatsApp "قولنا محتاج إيه"), the mark without a logo is the store's initial, a product without a photo shows a box. Supplement features switch on from the merchant's own names only (`lib/coach.ts`): flavors, the care note and the protein calculator never appear in a fashion, book or kitchen store. The weight plate stays as the signature object in every store, with the store's name cast in.
 
 ## The Studio drives the layout
 
@@ -31,13 +33,13 @@ forward slant on everything that moves.
 | Custom banner: image, copy, align, overlay, link · Rich text: width, align, background | honored as set; rich text picks a readable color on any background |
 
 ## Gym-specific
-- **Protein calculator** (`showCalculator`, a section only this theme offers: `themes` in the Studio's `SECTION_META`): weight + goal → daily protein range, creatine, water, ending on the store's protein shelf (`lib/coach.ts`). General ranges with a visible note that it isn't medical advice.
-- **Flavors.** Supplements sell flavors through the "color" option. `isFlavor` relabels it "النكهة" and shows pills instead of swatches (product page, filters, cart rows).
-- **Category icons** come from the name (`lib/category-icon.tsx`: protein, creatine, pre-workout, burners, gloves, shakers…).
-- **Supplement care note** on product pages of consumables only (`isSupplement`). "محتار؟" hand-offs go to the store's WhatsApp and only appear when it has one.
+- **Protein calculator** (`showCalculator`, a section only this theme offers: `themes` in the Studio's `SECTION_META`): weight + goal → daily protein range, creatine, water, ending on the store's protein shelf (`lib/coach.ts`). General ranges with a visible note that it isn't medical advice. It renders only when `sellsSupplements` (a supplement shelf with products, or supplement products on the page for shops that shelve by brand); otherwise a Studio marker explains why.
+- **Flavors.** Supplements sell flavors through the "color" option. `isFlavor(values, ...names)` relabels it "النكهة" and shows pills instead of swatches (product page, filters, cart rows, card swatches). With a supplement product / category name, a flavor word or no real color is enough; without one, only an unmistakable flavor (strawberry, cookies, mango…) with no plain color beside it, so a bag in "كراميل" keeps "اللون".
+- **Category icons** come from the name (`lib/category-icon.tsx`): gym shelves first (protein, creatine, pre-workout, burners, plates, gloves, shakers…), then the common shelves of other fields (phones, perfume, kids, books, kitchen…), a plain tag otherwise.
+- **Supplement care note** on product pages of consumables only (`isSupplement`: "واي" as a whole word, so "روايات" / "شواية" / "واي فاي" don't count, and never for hair / skin products like "بروتين الشعر"). "محتار؟" hand-offs go to the store's WhatsApp and only appear when it has one.
 
 ## Tokens (preset `gym` in constants/store-themes.ts)
-Dark by default (`colorScheme: "dark"`, no `darkTokens`).
+Dark by default (`colorScheme: "dark"`, no `darkTokens`). Theme gallery fields: sports, health, general.
 
 | Role | Value | Alias |
 |---|---|---|
@@ -53,9 +55,9 @@ Radii follow `--radius` (4px). Fonts: the store's, weight 900 for display.
 - **Header:** red utility bar (rotating announcement; desktop: track order, WhatsApp) · main row per navbar setting · slanted cart · mega menu (shelves + newest banner or ask-us card) · phone drawer · sticky on scroll-up · back-to-top.
 - **Home (default order):** hero + shelf tape → custom banner → offer tape → category wall → leaderboard → deals poster → store picks → collections → calculator → new arrivals → scoreboard → spec plates → quotes → about → text → join band.
 - **Listing / categories / about / contact / track / cart / checkout:** shared actions and forms in the theme's panels; page heads are knurled steel with a slanted window.
-- **Product page:** sticky gallery on the chalk plate (zoom, lightbox) · brand, heavy title, stock, price · flavor/size pills, wholesale tiers, qty, add + buy now · stack contents for bundles · delivery facts · ask on WhatsApp · care note · tabs · reviews · "كمّل عدّتك" rail · recently viewed.
+- **Product page:** sticky gallery on the chalk plate (zoom, lightbox) · brand, heavy title, stock, price · flavor/size pills, wholesale tiers, qty, add + buy now · bundle contents ("الباقة فيها") · delivery facts · ask on WhatsApp · care note · tabs · reviews · "ممكن يعجبك كمان" rail · recently viewed.
 - **Footer:** steel, contact and link columns (accordions on phones), payment logos, the store's name as one huge outlined line.
 
 ## Not done / constraints
 - No nutrition facts, servings or goal fields exist on products, so the theme doesn't show them; sizes are options on one price, so they don't change it (wholesale tiers do).
-- Copy is Arabic like the other themes; `dir="ltr"` stores mirror correctly.
+- Text goes through `st()` (English in `lib/i18n/storefront/en/gym.json`); `dir="ltr"` stores mirror correctly.

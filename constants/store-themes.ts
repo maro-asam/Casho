@@ -561,15 +561,15 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
   },
 
-  // ── 8. Casho Gym (supplements & equipment · iron, chalk & gym red) ─────────
+  // ── 8. Casho Gym (gyms & supplements, fits any store · iron, chalk & red) ─
   // Dark by default. gym.css mixes every surface from background / foreground /
   // primary, so these tokens only seed the look; the Studio repaints all of it.
   gym: {
     id: "gym",
     get name() { return tr("كاشو جيم"); },
-    get description() { return tr("ثيم جيم قوي للمكملات والأدوات: أسود وأحمر، هيرو ضخم، أقسام زي الأوزان، ترتيب الأكثر مبيعًا، عروض بعدّاد، وحاسبة بروتين."); },
+    get description() { return tr("ثيم قوي بالأسود والأحمر، معمول للجيم والمكملات وينفع لأي متجر: هيرو ضخم، ترتيب الأكثر مبيعًا، عروض بعدّاد، وحاسبة بروتين بتظهر لمتاجر المكملات بس."); },
     colorScheme: "dark",
-    categories: ["sports", "health"],
+    categories: ["sports", "health", "general"],
     tokens: {
       primary: "#e10600",
       primaryForeground: "#ffffff",

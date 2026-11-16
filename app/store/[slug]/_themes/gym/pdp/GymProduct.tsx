@@ -86,7 +86,7 @@ export default function GymProduct({ store, product, reviews, related, shipping,
     product.sku ? { label: st("كود المنتج"), value: product.sku, ltr: true } : null,
     product.weight !== null ? { label: st("الوزن"), value: st("{0} كجم", num(product.weight)) } : null,
     product.sizes.length ? { label: OPTION_LABEL.size, value: product.sizes.join("، ") } : null,
-    product.colors.length ? { label: isFlavor(product.colors) ? st("النكهة") : OPTION_LABEL.color, value: product.colors.join("، ") } : null,
+    product.colors.length ? { label: isFlavor(product.colors, product.name, product.category.name) ? st("النكهة") : OPTION_LABEL.color, value: product.colors.join("، ") } : null,
   ].filter(Boolean) as { label: string; value: string; href?: string; ltr?: boolean }[];
 
   // Service facts from the store's real shipping methods only.
@@ -158,6 +158,7 @@ export default function GymProduct({ store, product, reviews, related, shipping,
               product={{
                 id: product.id,
                 name: product.name,
+                categoryName: product.category.name,
                 price: product.price,
                 compareAtPrice: product.compareAtPrice,
                 stock: product.stock,
@@ -170,7 +171,7 @@ export default function GymProduct({ store, product, reviews, related, shipping,
 
             {product.type === "BUNDLE" && product.bundleItems && product.bundleItems.length > 0 && (
               <div className="gy-panel mt-5 p-4">
-                <p className="gy-h4 mb-3">{st("الستاك ده فيه")}</p>
+                <p className="gy-h4 mb-3">{st("الباقة فيها")}</p>
                 <ul className="space-y-2.5">
                   {product.bundleItems.map((item, i) => (
                     <li key={i} className="flex items-center gap-3">
@@ -241,7 +242,7 @@ export default function GymProduct({ store, product, reviews, related, shipping,
 
         {related.length > 0 && (
           <section className="gy-section">
-            <Rail label={st("منتجات مشابهة")} eyebrow={product.category.name} title={st("كمّل عدّتك")} href={categoryHref} linkLabel={st("كل القسم")}>
+            <Rail label={st("منتجات مشابهة")} eyebrow={product.category.name} title={st("ممكن يعجبك كمان")} href={categoryHref} linkLabel={st("كل القسم")}>
               {related.slice(0, 12).map((p, i) => (
                 <li key={p.id} className="min-w-0">
                   <ProductCard product={p} storeSlug={store.slug} index={i} sizes="(max-width: 768px) 46vw, 22vw" />

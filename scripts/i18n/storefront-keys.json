@@ -857,14 +857,14 @@
   "إيه المقاس المناسب ليك؟": [
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "ابحث عن {0}…": [
+   "app/store/[slug]/_themes/gym/header/SearchBar.tsx"
+  ],
   "ابحث عن أي منتج…": [
    "app/store/[slug]/_themes/medical/header/SearchBar.tsx"
   ],
   "ابحث عن اللي محتاجه أو تصفّح الأقسام.": [
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx"
-  ],
-  "ابحث عن بروتين، كرياتين، دمبل…": [
-   "app/store/[slug]/_themes/gym/header/SearchBar.tsx"
   ],
   "ابحث عن دواء، فيتامين أو أي منتج…": [
    "app/store/[slug]/_themes/medical/header/SearchBar.tsx"
@@ -874,6 +874,7 @@
   ],
   "ابحث عن منتج…": [
    "app/store/[slug]/_themes/classic/header/SearchCombobox.tsx",
+   "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
    "app/store/[slug]/_themes/mada/header/MobileDrawer.tsx"
   ],
   "ابحث في": [
@@ -916,6 +917,9 @@
   ],
   "ابدأ بالمنتجات اللي تحت أو لفّ في المتجر.": [
    "app/store/[slug]/_themes/mada/cart/CartDrawer.tsx"
+  ],
+  "ابدأ تسوّق وضيف اللي يعجبك.": [
+   "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx"
   ],
   "ابعت الروشتة": [
    "app/store/[slug]/_themes/medical/lib/rx.ts",
@@ -1140,6 +1144,9 @@
   ],
   "اختار طريقك": [
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx"
+  ],
+  "اختار قسمك": [
+   "app/store/[slug]/_themes/gym/sections/CategoryShelf.tsx"
   ],
   "اختار لون": [
    "app/store/[slug]/_themes/mada/product/BuyForm.tsx"
@@ -1400,7 +1407,7 @@
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
-  "اضغط هنا واكتب عروضك وهتجري في شريط الجيم.": [
+  "اضغط هنا واكتب عروضك وهتجري في الشريط.": [
    "app/store/[slug]/_themes/gym/home/GymHome.tsx"
   ],
   "اضغط هنا واكتب عروضك.": [
@@ -1713,6 +1720,7 @@
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
+   "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/mada/pdp/MadaProduct.tsx",
    "app/store/[slug]/_themes/maximize/pdp/MaxProduct.tsx",
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx",
@@ -2157,7 +2165,6 @@
    "app/store/[slug]/_themes/stage/product/Rail.tsx"
   ],
   "الستاك ده فيه": [
-   "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx"
   ],
   "السعر": [
@@ -2232,7 +2239,7 @@
   "السلام عليكم، عندي استفسار.": [
    "app/store/[slug]/_themes/medical/lib/rx.ts"
   ],
-  "السلام عليكم، محتاج أسأل عن المكملات والأدوات اللي تناسب هدفي.": [
+  "السلام عليكم، محتاج مساعدة أختار المنتج اللي يناسبني.": [
    "app/store/[slug]/_themes/gym/lib/coach.ts"
   ],
   "السلام عليكم، محتاج مساعدة أختار هدية من {0}{1}.": [
@@ -2409,13 +2416,11 @@
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx",
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
-  "الصفحة دي راحت الجيم ومرجعتش": [
-   "app/store/[slug]/_themes/gym/states.tsx"
-  ],
   "الصفحة دي مش موجودة": [
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
+   "app/store/[slug]/_themes/gym/states.tsx",
    "app/store/[slug]/_themes/mada/states.tsx",
    "app/store/[slug]/_themes/market/states.tsx",
    "app/store/[slug]/_themes/maximize/states.tsx",
@@ -3256,6 +3261,9 @@
   "بتدوّر على إيه؟": [
    "app/store/[slug]/_themes/maximize/header/SearchBar.tsx",
    "app/store/[slug]/_themes/riwaq/header/SearchOverlay.tsx"
+  ],
+  "بتظهر لوحدها لما يكون عندك قسم بروتين أو مكملات فيه منتجات.": [
+   "app/store/[slug]/_themes/gym/home/GymHome.tsx"
   ],
   "بحث": [
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
@@ -4169,17 +4177,14 @@
    "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx",
    "app/store/[slug]/order/[orderId]/_components/ShipmentTracking.tsx"
   ],
-  "جهّز عدّتك": [
-   "app/store/[slug]/_themes/gym/sections/CategoryShelf.tsx"
-  ],
-  "جهّز عدّتك وابدأ.": [
-   "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx"
-  ],
   "جوّه العلبة": [
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
   ],
   "جوّه العلبة.": [
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
+  ],
+  "حاسبة البروتين": [
+   "app/store/[slug]/_themes/gym/home/GymHome.tsx"
   ],
   "حالة الدفع": [
    "app/store/[slug]/order/[orderId]/page.tsx"
@@ -5518,13 +5523,13 @@
   "قلّل الكمية": [
    "app/store/[slug]/_themes/market/product/Stepper.tsx"
   ],
-  "قولنا هدفك على واتساب": [
+  "قولنا محتاج إيه على واتساب": [
    "app/store/[slug]/_themes/gym/header/DrawerMenu.tsx"
   ],
-  "قولنا هدفك على واتساب ونرشحلك اللي يناسبك.": [
+  "قولنا محتاج إيه على واتساب ونرشحلك اللي يناسبك.": [
    "app/store/[slug]/_themes/gym/info/GymInfo.tsx"
   ],
-  "قولنا هدفك على واتساب، ونرشحلك اللي يناسبك.": [
+  "قولنا محتاج إيه على واتساب، ونرشحلك اللي يناسبك.": [
    "app/store/[slug]/_themes/gym/header/MegaMenu.tsx"
   ],
   "قيد المراجعة": [
@@ -5803,9 +5808,6 @@
   ],
   "كمّل طلبك بالسعر ده — العرض بيتطبق طول ما المنتج الأساسي في السلة.": [
    "app/store/[slug]/_components/offers/CartOffers.tsx"
-  ],
-  "كمّل عدّتك": [
-   "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx"
   ],
   "كمّل من مكان ما وقفت.": [
    "app/store/[slug]/_themes/stage/sections/RecentlyViewed.tsx"
@@ -6621,6 +6623,7 @@
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/dune/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
+   "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/mada/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/mada/pdp/MadaProduct.tsx",
    "app/store/[slug]/_themes/maximize/cart/CartDrawer.tsx",

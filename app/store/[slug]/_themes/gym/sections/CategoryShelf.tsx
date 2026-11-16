@@ -26,7 +26,7 @@ export default function CategoryShelf({ categories, storeSlug, style }: { catego
   const shelves = categories.filter((c) => c.productCount > 0).slice(0, style === "square" ? 9 : 16);
   if (shelves.length === 0) return null;
   const url = (c: CategoryLink) => buildStoreUrl(storeSlug, `/categories/${c.slug}`);
-  const header = <SectionHeader eyebrow={st("تسوّق بالقسم")} title={st("جهّز عدّتك")} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل الأقسام")} />;
+  const header = <SectionHeader eyebrow={st("تسوّق بالقسم")} title={st("اختار قسمك")} href={buildStoreUrl(storeSlug, "/categories")} linkLabel={st("كل الأقسام")} />;
 
   if (style === "pill") {
     return (

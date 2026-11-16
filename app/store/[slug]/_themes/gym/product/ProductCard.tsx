@@ -74,7 +74,7 @@ export default function ProductCard({
         {product.rating && <Rating value={product.rating.average} count={product.rating.count} className="mt-1.5" />}
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
           <Price price={product.price} compareAt={product.compareAtPrice} />
-          {product.colors.length > 0 && <Swatches colors={product.colors} />}
+          {product.colors.length > 0 && <Swatches colors={product.colors} names={[product.name, product.categoryName]} />}
         </div>
         <div className="gy-card-cta in-data-[view=list]:max-w-56">
           <CardAddButton storeSlug={storeSlug} product={product} />

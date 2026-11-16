@@ -73,7 +73,7 @@ export default function GymCheckout({ storeSlug, cart, paymentMethods, createOrd
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="line-clamp-1 text-sm font-semibold text-(--gy-ink)">{item.product.name}</span>
-                          {features.length > 0 && <span className="block text-xs text-(--gy-quiet)">{features.map(([k, v]) => featureLabel(k, v)).join(" · ")}</span>}
+                          {features.length > 0 && <span className="block text-xs text-(--gy-quiet)">{features.map(([k, v]) => featureLabel(k, v, item.product.name)).join(" · ")}</span>}
                         </span>
                         <span className="gy-num shrink-0 text-sm font-bold text-(--gy-ink)">{formatPrice(unit * item.quantity)}</span>
                       </li>

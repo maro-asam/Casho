@@ -65,7 +65,7 @@ export default function DrawerMenu({ shell, path }: { shell: StoreShell; path: s
                 <MessageCircle className="size-7 shrink-0" strokeWidth={1.75} />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-extrabold">{st("محتار تبدأ بإيه؟")}</span>
-                  <span className="block text-xs opacity-90">{st("قولنا هدفك على واتساب")}</span>
+                  <span className="block text-xs opacity-90">{st("قولنا محتاج إيه على واتساب")}</span>
                 </span>
                 <Chevron />
               </a>

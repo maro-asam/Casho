@@ -5,7 +5,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ComponentProps, ReactNode } from "react";
-import { ArrowLeft, ChevronLeft, Dumbbell, Star } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Package, Star } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { swatchColor } from "../shared/colors";
@@ -31,8 +31,8 @@ export { discountPercent, isFlavor };
 export const OPTION_LABEL: Record<string, string> = { get size() { return st("الحجم"); }, get color() { return st("اللون"); } };
 
 /** "اللون: أحمر" / "النكهة: شوكولاتة" for a chosen option on cart rows. */
-export function featureLabel(key: string, value: string) {
-  return `${key === "color" && isFlavor([value]) ? st("النكهة") : (OPTION_LABEL[key] ?? key)}: ${value}`;
+export function featureLabel(key: string, value: string, productName?: string) {
+  return `${key === "color" && isFlavor([value], productName) ? st("النكهة") : (OPTION_LABEL[key] ?? key)}: ${value}`;
 }
 
 /** Stagger index for reveal / drawer animations. */
@@ -246,8 +246,8 @@ export function Rating({ value, count, size = "sm", className }: { value: number
 }
 
 /** Round swatches with the color names in a tooltip; unknown names collapse into "+N". */
-export function Swatches({ colors, max = 5, className }: { colors: string[]; max?: number; className?: string }) {
-  if (isFlavor(colors)) return null;
+export function Swatches({ colors, names = [], max = 5, className }: { colors: string[]; names?: (string | null | undefined)[]; max?: number; className?: string }) {
+  if (isFlavor(colors, ...names)) return null;
   const known = colors.map((c) => ({ label: c, color: swatchColor(c) })).filter((c) => c.color);
   if (known.length === 0) return null;
   const shown = known.slice(0, max);
@@ -294,7 +294,7 @@ export function PlateImage({
   if (!src || src.includes("product-placeholder")) {
     return (
       <span aria-hidden className="absolute inset-0 grid place-items-center text-(--gy-plate-quiet) opacity-50">
-        <Dumbbell className="size-[26%] min-w-6 max-w-14" strokeWidth={1.5} />
+        <Package className="size-[26%] min-w-6 max-w-14" strokeWidth={1.5} />
       </span>
     );
   }

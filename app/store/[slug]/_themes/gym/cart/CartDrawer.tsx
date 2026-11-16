@@ -117,7 +117,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                   <ShoppingBag className="size-7" />
                 </span>
                 <p className="gy-h3 mt-5">{st("سلتك فاضية")}</p>
-                <p className="mt-2 text-sm text-(--gy-quiet)">{st("جهّز عدّتك وابدأ.")}</p>
+                <p className="mt-2 text-sm text-(--gy-quiet)">{st("ابدأ تسوّق وضيف اللي يعجبك.")}</p>
                 <Dialog.Close asChild>
                   <Link href={buildStoreUrl(storeSlug, "/products")} className={btn({ className: "mt-6" })}>
                     {st("تسوّق المنتجات")}
@@ -140,7 +140,7 @@ export default function CartDrawer({ storeSlug, dir }: { storeSlug: string; dir:
                         <Link href={href} onClick={close} className="line-clamp-2 text-sm font-semibold leading-6 text-(--gy-ink) hover:text-(--gy-link)">
                           {item.product.name}
                         </Link>
-                        {features.length > 0 && <p className="mt-0.5 text-xs text-(--gy-quiet)">{features.map(([k, v]) => featureLabel(k, v)).join(" · ")}</p>}
+                        {features.length > 0 && <p className="mt-0.5 text-xs text-(--gy-quiet)">{features.map(([k, v]) => featureLabel(k, v, item.product.name)).join(" · ")}</p>}
                         <div className="mt-2 flex items-center justify-between gap-2">
                           <div className="flex items-center rounded-(--gy-r-sm) border border-(--gy-line)">
                             <button

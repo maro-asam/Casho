@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Dumbbell, Store } from "lucide-react";
+import { SearchX, Store } from "lucide-react";
 
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { cn } from "@/lib/utils";
@@ -27,10 +27,10 @@ export function GymNotFound({ storeSlug }: { storeSlug?: string }) {
   return (
     <Wrap className="flex flex-col items-center py-16 text-center sm:py-24">
       <span aria-hidden className="grid size-28 skew-x-(--gy-slant) place-items-center bg-(--gy-btn) text-(--gy-btn-ink) sm:size-36">
-        <Dumbbell className="size-12 -skew-x-(--gy-slant) sm:size-16" />
+        <SearchX className="size-12 -skew-x-(--gy-slant) sm:size-16" />
       </span>
       <p className="gy-display mt-6 text-7xl">٤٠٤</p>
-      <h1 className="gy-h2 mt-2">{st("الصفحة دي راحت الجيم ومرجعتش")}</h1>
+      <h1 className="gy-h2 mt-2">{st("الصفحة دي مش موجودة")}</h1>
       <p className="mt-2 max-w-md text-[0.9375rem] leading-7 text-(--gy-quiet)">{st("ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر. جرّب تدوّر عليه من البحث.")}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link href={home} className={btn({ size: "lg" })}>

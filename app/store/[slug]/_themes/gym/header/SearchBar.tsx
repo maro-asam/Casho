@@ -15,7 +15,22 @@ import { storeHref } from "../../shared/store-path";
 import { CategoryIcon } from "../lib/category-icon";
 import { searchesKey } from "../lib/events";
 import { Chevron, PlateImage, Price } from "../ui";
-import { st } from "@/lib/i18n/storefront";
+import { st, storeLocale } from "@/lib/i18n/storefront";
+
+/** "ابحث عن فساتين، شنط، أحذية…" from the store's own shelves, so the hint
+ *  fits whatever the store sells. Short names only, so it fits on a phone. */
+function searchHint(shelves: { name: string }[]) {
+  const sep = storeLocale() === "en" ? ", " : "، ";
+  const names: string[] = [];
+  for (const { name } of shelves) {
+    const n = name.trim();
+    if (!n || [...n].length > 16) continue;
+    if ([...[...names, n].join(sep)].length > 34) break;
+    names.push(n);
+    if (names.length === 3) break;
+  }
+  return names.length ? st("ابحث عن {0}…", names.join(sep)) : st("ابحث عن منتج…");
+}
 
 type Item = Pick<SearchSuggestion, "id" | "name" | "slug" | "image" | "price" | "compareAtPrice">;
 
@@ -172,7 +187,7 @@ export default function SearchBar({
           aria-controls={listId}
           aria-activedescendant={active >= 0 ? `${id}-opt-${active}` : undefined}
           aria-autocomplete="list"
-          placeholder={st("ابحث عن بروتين، كرياتين، دمبل…")}
+          placeholder={searchHint(shelves)}
           value={value}
           onFocus={() => setOpen(true)}
           onChange={(e) => {

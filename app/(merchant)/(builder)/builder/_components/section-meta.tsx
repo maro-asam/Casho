@@ -153,7 +153,7 @@ export const SECTION_META: Record<SectionKey, SectionMeta> = {
     icon: Calculator,
     tint: "bg-(--sys-red)",
     get label() { return tr("حاسبة البروتين"); },
-    get description() { return tr("وزن وهدف، والعميل يعرف احتياجه ويدخل على قسم البروتين."); },
+    get description() { return tr("وزن وهدف، والعميل يعرف احتياجه ويدخل على قسم البروتين. بتظهر لمتاجر المكملات بس."); },
     group: "sales",
     themes: ["gym"],
   },

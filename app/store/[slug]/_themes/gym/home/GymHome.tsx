@@ -5,7 +5,7 @@ import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { renderSections, type SectionRegistry } from "../../shared/sections";
 import { whatsappHref } from "../../shared/social";
 import type { HomeViewProps, ProductCardData } from "../../types";
-import { proteinCategory } from "../lib/coach";
+import { proteinCategory, sellsSupplements } from "../lib/coach";
 import { ProductGrid } from "../product/ProductCard";
 import Calculator from "../sections/Calculator";
 import CategoryShelf from "../sections/CategoryShelf";
@@ -41,7 +41,7 @@ const orEmpty = (node: React.ReactNode, title: string, hint: string) => node ?? 
 const REGISTRY: SectionRegistry<Ctx> = {
   showHero: (c) => <Hero style={c.layout.heroStyle} store={c.store} banners={c.banners} categories={c.categories} products={unique(c).filter((p) => p.stock > 0)} />,
   showCategories: (c) => orEmpty(c.categories.some((k) => k.productCount > 0) ? <CategoryShelf categories={c.categories} storeSlug={c.store.slug} style={c.layout.categoryCardStyle} /> : null, st("التصنيفات"), st("هتظهر هنا أول ما تضيف تصنيف فيه منتجات.")),
-  showOfferStrip: (c) => orEmpty(c.sectionContent.offerStrip?.items?.some((s) => s.trim()) ? <OfferStrip content={c.sectionContent.offerStrip} /> : null, st("شريط العروض"), st("اضغط هنا واكتب عروضك وهتجري في شريط الجيم.")),
+  showOfferStrip: (c) => orEmpty(c.sectionContent.offerStrip?.items?.some((s) => s.trim()) ? <OfferStrip content={c.sectionContent.offerStrip} /> : null, st("شريط العروض"), st("اضغط هنا واكتب عروضك وهتجري في الشريط.")),
   showBestSellers: (c) =>
     orEmpty(
       c.bestSellers.length > 0 ? (
@@ -115,7 +115,9 @@ const REGISTRY: SectionRegistry<Ctx> = {
   showRichText: (c) => orEmpty(c.sectionContent.richText?.heading?.trim() || c.sectionContent.richText?.paragraph?.trim() ? <RichText content={c.sectionContent.richText} /> : null, st("نص"), st("اضغط هنا واكتب عنوان وفقرة.")),
   showWhyChooseUs: (c) => orEmpty(c.sectionContent.whyChooseUs?.cards?.some((k) => k.title?.trim()) ? <TrustRow content={c.sectionContent.whyChooseUs} /> : null, st("ليه تشتري مننا؟"), st("اضغط هنا واكتب مميزات متجرك.")),
   showNewsletter: (c) => <JoinBand content={c.sectionContent.newsletter} storeName={c.store.name} storeSlug={c.store.slug} whatsappHref={whatsappHref(c.whatsapp)} />,
+  // Protein is for supplement shops only: a store in another field never shows it.
   showCalculator: (c) => {
+    if (!sellsSupplements(c.categories, unique(c))) return <StudioEmpty title={st("حاسبة البروتين")} hint={st("بتظهر لوحدها لما يكون عندك قسم بروتين أو مكملات فيه منتجات.")} />;
     const shelf = proteinCategory(c.categories);
     return <Calculator shopHref={buildStoreUrl(c.store.slug, shelf ? `/categories/${shelf.slug}` : "/products")} shopLabel={shelf ? st("تسوّق {0}", shelf.name) : st("تسوّق المنتجات")} />;
   },
