@@ -10,6 +10,7 @@ import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notification
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
 import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
 import { quotePlanChange, type PlanQuote } from "@/lib/billing/plan-quote";
+import { readMainVisit, recordServerEvent } from "@/lib/analytics/server-events";
 
 const STORE_BILLING_SELECT = {
   id: true,
@@ -198,6 +199,14 @@ export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycle
     }
 
     const { store, quote } = outcome;
+    await recordServerEvent({
+      name: "subscription_selected",
+      scope: "APP",
+      dedupeKey: `subscription_selected_${store.id}`,
+      refId: store.id,
+      props: { via: "change_plan", plan: target.key, cycle: billingCycle },
+      visit: await readMainVisit(),
+    });
     revalidatePath("/dashboard", "layout");
     revalidateStorefront(store.slug);
 

@@ -11,6 +11,7 @@ import { normalizeStoreSlug } from "@/lib/store/slug";
 import { createUserSession } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
 import { TrackStoreRegistrationAction } from "@/actions/tracking/tracking.actions";
+import { recordSignup } from "@/lib/analytics/server-events";
 import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { generateReferralCode } from "@/lib/referral";
 import { cookies } from "next/headers";
@@ -199,6 +200,8 @@ export async function RegisterAction(
     await sendVerificationCode(created.id).catch((error) => console.error("[register] verification code", error));
 
     const createdStore = created.stores[0];
+    // Analytics Center: tie this visit to the new account (verified signup + store).
+    await recordSignup({ userId: created.id, storeId: createdStore?.id ?? null, method: "email" });
 
     if (createdStore) {
       await TrackStoreRegistrationAction({

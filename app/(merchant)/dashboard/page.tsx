@@ -5,7 +5,7 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { prisma } from "@/lib/prisma";
 
-import StarterGuideBar, { type StarterGuideStep } from "../_components/main/StarterGuideCard";
+import StarterGuideBar, { type GuideSubscription } from "../_components/main/StarterGuideCard";
 import AttentionPanel, { buildAttentionItems } from "./_components/overview/AttentionPanel";
 import ChannelBreakdown from "./_components/overview/ChannelBreakdown";
 import KpiGrid from "./_components/overview/KpiGrid";
@@ -15,7 +15,7 @@ import RecentOrdersTable from "./_components/overview/RecentOrdersTable";
 import StoreStatus, { type StatusRow } from "./_components/overview/StoreStatus";
 import WelcomeBanner from "./_components/overview/WelcomeBanner";
 import DemoDataBanner from "./_components/overview/DemoDataBanner";
-import { hasDemoData } from "@/lib/demo-data/seed";
+import { loadStoreSetup } from "@/lib/store-setup/server";
 import { getDailyQuote, getGreeting } from "./_components/overview/daily-quote";
 import { formatMoneyFromPiasters } from "@/lib/subscriptions";
 import { formatMoney, formatNumber } from "./_components/overview/format";
@@ -43,28 +43,7 @@ const MerchantDashboardRoute = async () => {
   const store = await prisma.store.findFirst({
     where: { userId },
     include: {
-      _count: { select: { categories: true, banners: true } },
-      settings: {
-        select: {
-          shippingPrice: true,
-          seoTitle: true,
-          seoDescription: true,
-          seoKeywords: true,
-        },
-      },
-      storePaymentSettings: {
-        select: {
-          cashOnDeliveryEnabled: true,
-          vodafoneCashEnabled: true,
-          vodafoneCashNumber: true,
-          instapayEnabled: true,
-          instapayAddress: true,
-          bankTransferEnabled: true,
-          bankTransferDetails: true,
-          kashierEnabled: true,
-          kashierMerchantId: true,
-        },
-      },
+      settings: { select: { shippingPrice: true } },
       orders: {
         orderBy: { createdAt: "desc" },
         take: 6,
@@ -85,21 +64,14 @@ const MerchantDashboardRoute = async () => {
     );
   }
 
-  const [data, demoData] = await Promise.all([getOverviewData(store.id), hasDemoData(store.id)]);
+  const [data, setup] = await Promise.all([getOverviewData(store.id), loadStoreSetup(store.id)]);
 
-  const payments = store.storePaymentSettings;
-  const hasPaymentMethods =
-    store.paymentMethods.length > 0 ||
-    Boolean(payments?.cashOnDeliveryEnabled) ||
-    Boolean(payments?.vodafoneCashEnabled && payments?.vodafoneCashNumber) ||
-    Boolean(payments?.instapayEnabled && payments?.instapayAddress) ||
-    Boolean(payments?.bankTransferEnabled && payments?.bankTransferDetails) ||
-    Boolean(payments?.kashierEnabled && payments?.kashierMerchantId);
+  const stepDone = (id: string) => Boolean(setup?.steps.find((s) => s.id === id)?.done);
+  const hasPaymentMethods = stepDone("payment");
+  const hasShipping = stepDone("shipping");
   const shippingPrice = store.settings?.shippingPrice ?? 0;
-  const hasShippingPrice = shippingPrice > 0;
-  const hasSeoSettings = Boolean(
-    store.settings?.seoTitle?.trim() || store.settings?.seoDescription?.trim() || store.settings?.seoKeywords?.length,
-  );
+  const shippingMethods = setup?.shippingMethods ?? 0;
+  const demoData = Boolean(setup?.steps.some((s) => s.id === "demo"));
 
   const subscription =
     store.subscriptionStatus === SubscriptionStatus.ACTIVE
@@ -108,64 +80,11 @@ const MerchantDashboardRoute = async () => {
         ? "grace"
         : "inactive";
 
-  const starterSteps: StarterGuideStep[] = [
-    {
-      id: "balance",
-      title: tr("فعّل الاشتراك"),
-      description: tr("اشحن رصيد واختار باقة عشان متجرك يشتغل."),
-      href: "/balance",
-      completed: subscription === "active",
-      icon: "wallet",
-    },
-    {
-      id: "categories",
-      title: tr("أضف تصنيفاتك"),
-      description: tr("قسّم منتجاتك عشان العملاء يلاقوا اللي عايزينه بسرعة."),
-      href: "/categories",
-      completed: store._count.categories > 0,
-      icon: "category",
-    },
-    {
-      id: "products",
-      title: tr("أضف أول منتج"),
-      description: tr("بالصور والسعر والوصف والكمية المتاحة."),
-      href: "/products/new",
-      completed: data.productCount > 0,
-      icon: "product",
-    },
-    {
-      id: "banners",
-      title: tr("أضف بانر"),
-      description: tr("اعرض عروضك ومنتجاتك المميزة في واجهة المتجر."),
-      href: "/banners",
-      completed: store._count.banners > 0,
-      icon: "banner",
-    },
-    {
-      id: "payment",
-      title: tr("جهّز طرق الدفع"),
-      description: tr("الدفع عند الاستلام، فودافون كاش، InstaPay أو غيرهم."),
-      href: "/payment-methods",
-      completed: hasPaymentMethods,
-      icon: "payment",
-    },
-    {
-      id: "shipping",
-      title: tr("حدد سعر الشحن"),
-      description: tr("عشان إجمالي الطلب يطلع مظبوط للعميل."),
-      href: "/settings",
-      completed: hasShippingPrice,
-      icon: "shipping",
-    },
-    {
-      id: "seo",
-      title: tr("إعدادات الـ SEO"),
-      description: tr("حسّن ظهور متجرك في جوجل وعلى السوشيال."),
-      href: "/seo",
-      completed: hasSeoSettings,
-      icon: "seo",
-    },
-  ];
+  const guideSubscription: GuideSubscription | null = setup
+    ? setup.subscription.state === "trial"
+      ? { ...setup.subscription, endsAt: setup.subscription.endsAt.toISOString() }
+      : setup.subscription
+    : null;
 
   const statusRows: StatusRow[] = [
     {
@@ -188,9 +107,16 @@ const MerchantDashboardRoute = async () => {
     },
     {
       label: tr("الشحن"),
-      value: hasShippingPrice ? formatMoney(shippingPrice) : tr("مش محدد"),
-      ok: hasShippingPrice,
-      href: "/settings",
+      value:
+        shippingMethods > 0
+          ? tr("{0} طريقة شحن", formatNumber(shippingMethods))
+          : shippingPrice > 0
+            ? formatMoney(shippingPrice)
+            : hasShipping
+              ? tr("مجاني")
+              : tr("مش محدد"),
+      ok: hasShipping,
+      href: "/shipping",
     },
   ];
 
@@ -224,9 +150,17 @@ const MerchantDashboardRoute = async () => {
         onboarding={onboarding}
       />
 
-      {demoData && <DemoDataBanner />}
-
-      <StarterGuideBar steps={starterSteps} />
+      {setup && guideSubscription ? (
+        <StarterGuideBar
+          steps={setup.steps}
+          subscription={guideSubscription}
+          logo={setup.logo}
+          storeUrl={storePublicUrl(store)}
+          fallback={demoData ? <DemoDataBanner /> : null}
+        />
+      ) : (
+        demoData && <DemoDataBanner />
+      )}
 
       <KpiGrid kpis={data.kpis} />
 

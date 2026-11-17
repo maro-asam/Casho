@@ -246,16 +246,16 @@ export async function getReportsData(
     // Visits can be large, so they are bucketed in the database.
     prisma.$queryRaw<{ bucket: string; visitors: bigint }[]>`
       SELECT to_char(${cairoTs}, ${visitBucketFormat[range.granularity]}) AS bucket,
-             COUNT(DISTINCT COALESCE("ip", "id"))::bigint AS visitors
+             COUNT(DISTINCT COALESCE("visitorId", "ip", "id"))::bigint AS visitors
       FROM "Visit"
       WHERE "storeId" = ${storeId} AND "createdAt" >= ${range.from} AND "createdAt" < ${range.to}
       GROUP BY 1
     `,
     prisma.$queryRaw<{ visits: bigint; visitors: bigint; prev_visits: bigint; prev_visitors: bigint }[]>`
       SELECT COUNT(*) FILTER (WHERE "createdAt" >= ${range.from})::bigint AS visits,
-             COUNT(DISTINCT COALESCE("ip", "id")) FILTER (WHERE "createdAt" >= ${range.from})::bigint AS visitors,
+             COUNT(DISTINCT COALESCE("visitorId", "ip", "id")) FILTER (WHERE "createdAt" >= ${range.from})::bigint AS visitors,
              COUNT(*) FILTER (WHERE "createdAt" < ${range.from})::bigint AS prev_visits,
-             COUNT(DISTINCT COALESCE("ip", "id")) FILTER (WHERE "createdAt" < ${range.from})::bigint AS prev_visitors
+             COUNT(DISTINCT COALESCE("visitorId", "ip", "id")) FILTER (WHERE "createdAt" < ${range.from})::bigint AS prev_visitors
       FROM "Visit"
       WHERE "storeId" = ${storeId} AND "createdAt" >= ${range.prevFrom} AND "createdAt" < ${range.to}
     `,

@@ -5,6 +5,7 @@ import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import { prisma } from "@/lib/prisma";
 import { countUnseenStores } from "@/lib/admin/new-stores";
 import AdminShell from "./_components/admin-shell";
+import { TeamTrafficMarker } from "@/components/analytics/TeamTrafficMarker";
 
 export const metadata: Metadata = {
   title: { default: "لوحة الإدارة — كاشو", template: "%s — إدارة كاشو" },
@@ -24,7 +25,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const admin = await requireAdminPage();
 
   // Queue sizes for the sidebar badges — the work waiting on an admin — plus stores new since the last visit.
-  const [viewer, stores, topups, services, support, sharks] = await Promise.all([
+  const [viewer, stores, topups, services, support, sharks, sales] = await Promise.all([
     prisma.user.findUnique({ where: { id: admin.id }, select: { id: true, name: true, email: true, role: true } }),
     countUnseenStores(),
     prisma.topupRequest.count({ where: { status: "PENDING" } }),
@@ -32,10 +33,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     prisma.supportRequest.count({ where: { status: "PENDING" } }),
     // A badge must never take the whole panel down (e.g. code deployed before its migration).
     prisma.sharksApplication.count({ where: { status: "SUBMITTED" } }).catch(() => 0),
+    prisma.salesWithdrawalRequest.count({ where: { status: "PENDING" } }).catch(() => 0),
   ]);
 
   return (
-    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ stores, topups, services, support, sharks }}>
+    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ stores, topups, services, support, sharks, sales }}>
+      {/* Staff browsers are left out of the Analytics Center's numbers. */}
+      <TeamTrafficMarker rootDomain={process.env.ROOT_DOMAIN || "casho.store"} />
       {children}
     </AdminShell>
   );

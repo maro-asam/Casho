@@ -27,7 +27,14 @@ export type SecurityEvent =
   | "BRANCH_DELETED"
   | "MEMBER_BRANCHES_CHANGED"
   /** Written by lib/orders/track-order (awaited there, for its rate limit). */
-  | "ORDER_TRACK_FAILED";
+  | "ORDER_TRACK_FAILED"
+  /** Analytics Center (lib/analytics/access): who looked at / exported / changed what. */
+  | "ANALYTICS_JOURNEY_VIEWED"
+  | "ANALYTICS_EXPORTED"
+  | "ANALYTICS_SETTINGS_CHANGED"
+  | "ANALYTICS_DATA_DELETED"
+  | "ANALYTICS_FUNNEL_CHANGED"
+  | "ANALYTICS_COST_CHANGED";
 
 export function logSecurityEvent(opts: {
   event: SecurityEvent;

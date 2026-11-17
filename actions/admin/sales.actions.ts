@@ -6,6 +6,7 @@ import {
   SalesAttributionSource,
   SalesCommissionStatus,
   SalesRepStatus,
+  SalesWithdrawalStatus,
   UserRole,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -22,6 +23,7 @@ import {
   validateAdjustment,
 } from "@/lib/sales/workflow";
 import { SALES_CURRENCY } from "@/lib/sales/rules";
+import { queuePayoutNotice, queueWithdrawalRejectedNotice } from "@/lib/sales/notify";
 import {
   assignCustomerSchema,
   cancelRepAdjustmentSchema,
@@ -30,6 +32,7 @@ import {
   commissionRuleSchema,
   createSalesRepSchema,
   recordPayoutSchema,
+  rejectWithdrawalSchema,
   repAdjustmentSchema,
   setSalesRepStatusSchema,
   updateSalesRepSchema,
@@ -561,6 +564,18 @@ export async function recordSalesPayoutAction(input: unknown): Promise<SalesActi
       if (res.count !== payable.repAdjustmentIds.length) throw new Error("Bonuses/deductions changed during payout");
     }
 
+    // The rep's open withdrawal request (at most one), answered by this payout.
+    const request = await tx.salesWithdrawalRequest.findFirst({
+      where: { salesRepId, status: SalesWithdrawalStatus.PENDING },
+      select: { id: true },
+    });
+    if (request) {
+      await tx.salesWithdrawalRequest.update({
+        where: { id: request.id },
+        data: { status: SalesWithdrawalStatus.PAID, payoutId: payout.id, decidedAt: new Date(), decidedById: admin.id },
+      });
+    }
+
     await audit(tx, {
       actorUserId: admin.id,
       action: "payout_recorded",
@@ -576,15 +591,52 @@ export async function recordSalesPayoutAction(input: unknown): Promise<SalesActi
         commissions: payable.commissionIds.length,
         adjustments: payable.adjustmentIds.length,
         repAdjustments: payable.repAdjustmentIds.length,
+        withdrawalRequestId: request?.id ?? null,
       },
       reason: note || null,
     });
-    return { error: null };
+    return { error: null, payoutId: payout.id };
   });
 
   if (result.error) return { success: false, message: result.error };
+  if (result.payoutId) queuePayoutNotice(result.payoutId);
   revalidateSales();
+  revalidatePath("/admin", "layout"); // the sidebar's open-requests badge
   return { success: true, message: "تم تسجيل الصرف" };
+}
+
+/** Turns down a rep's open withdrawal request; the rep sees the reason. Nothing they're owed changes. */
+export async function rejectWithdrawalRequestAction(input: unknown): Promise<SalesActionResult> {
+  const admin = await requireAdmin();
+  const parsed = rejectWithdrawalSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { requestId, reason } = parsed.data;
+
+  const done = await prisma.$transaction(async (tx) => {
+    const request = await tx.salesWithdrawalRequest.findUnique({ where: { id: requestId }, select: { salesRepId: true, amount: true } });
+    if (!request) return false;
+    const { count } = await tx.salesWithdrawalRequest.updateMany({
+      where: { id: requestId, status: SalesWithdrawalStatus.PENDING },
+      data: { status: SalesWithdrawalStatus.REJECTED, decidedAt: new Date(), decidedById: admin.id, decisionReason: reason },
+    });
+    if (!count) return false;
+    await audit(tx, {
+      actorUserId: admin.id,
+      action: "withdrawal_rejected",
+      entityType: "SalesWithdrawalRequest",
+      entityId: requestId,
+      salesRepId: request.salesRepId,
+      after: { amount: request.amount },
+      reason,
+    });
+    return true;
+  });
+
+  if (!done) return { success: false, message: "الطلب ده اتقفل بالفعل — حدّث الصفحة" };
+  queueWithdrawalRejectedNotice(requestId);
+  revalidateSales();
+  revalidatePath("/admin", "layout");
+  return { success: true, message: "اترفض الطلب وهيوصل المندوب السبب" };
 }
 
 // ─── Commission rules ───────────────────────────────────────────────────────

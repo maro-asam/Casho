@@ -191,6 +191,17 @@ async function route(req: NextRequest) {
       return NextResponse.redirect(url);
     }
 
+    // Analytics Center heatmap viewer: Casho's own site pages, served on the app
+    // host so the viewer's iframe is same-origin and can draw on the page.
+    // Signed-in only (checked above); never indexed.
+    if (pathname === "/_site" || pathname.startsWith("/_site/")) {
+      const url = req.nextUrl.clone();
+      url.pathname = pathname.slice("/_site".length) || "/";
+      const res = NextResponse.rewrite(url);
+      res.headers.set("X-Robots-Tag", "noindex, nofollow");
+      return withPathname(res, url.pathname);
+    }
+
     // Rewrite clean paths → /dashboard prefix (internal Next.js routing)
     // e.g. /orders → /dashboard/orders, / → /dashboard
     // Paths that map directly to their own top-level routes (no rewrite needed)

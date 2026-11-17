@@ -7,15 +7,16 @@ import { SalesAdminNav } from "./_components/sales-admin-nav";
 
 export default async function AdminSalesLayout({ children }: { children: ReactNode }) {
   await requireAdmin();
-  // Commissions waiting on a decision — the one count worth showing in the tabs.
-  const toReview = await prisma.salesCommission
-    .count({ where: { status: { in: [SalesCommissionStatus.PENDING, SalesCommissionStatus.ON_HOLD] } } })
-    .catch(() => 0);
+  // Work waiting on an admin: commissions to decide, reps asking to be paid.
+  const [toReview, toPay] = await Promise.all([
+    prisma.salesCommission.count({ where: { status: { in: [SalesCommissionStatus.PENDING, SalesCommissionStatus.ON_HOLD] } } }).catch(() => 0),
+    prisma.salesWithdrawalRequest.count({ where: { status: "PENDING" } }).catch(() => 0),
+  ]);
 
   return (
     <div className="space-y-6">
       <LargeTitle title="فريق المبيعات" subtitle="المندوبين وعملاؤهم، العمولات وصرفها. كل المبالغ بالجنيه ومصدرها دفتر رصيد المتاجر." />
-      <SalesAdminNav toReview={toReview} />
+      <SalesAdminNav toReview={toReview} toPay={toPay} />
       {children}
     </div>
   );

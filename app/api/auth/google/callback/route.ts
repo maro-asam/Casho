@@ -2,6 +2,7 @@ import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createUserSession } from "@/lib/auth/session";
+import { recordLogin } from "@/lib/analytics/server-events";
 import {
   exchangeGoogleCode,
   getGoogleUserInfo,
@@ -110,6 +111,7 @@ async function handleCallback(request: NextRequest) {
         }
       }
       await createUserSession(existingUser.id);
+      await recordLogin({ userId: existingUser.id, method: "google" });
       return NextResponse.redirect(`${merchantUrl}/dashboard`);
     }
 

@@ -94,7 +94,8 @@ const STATUS_HINT: Partial<Record<SalesCommissionStatus, string>> = {
   PAID: "وصلتلك",
 };
 
-export function EarningsCard({ summary }: { summary: SalesSummary }) {
+/** `withdraw` = the withdrawal action under the payable figure. */
+export function EarningsCard({ summary, withdraw }: { summary: SalesSummary; withdraw?: ReactNode }) {
   const { byStatus } = summary.commissions;
   const parts = EARNED_STATUSES.map((status) => ({ status, amount: byStatus[status] })).filter(
     (p) => p.amount > 0 || p.status !== "ON_HOLD",
@@ -118,8 +119,9 @@ export function EarningsCard({ summary }: { summary: SalesSummary }) {
         <p className="text-[13px] text-muted-foreground">
           {summary.payouts.count > 0
             ? `اتصرف لك لحد دلوقتي ${fmtMoney(summary.payouts.total)} على ${fmtNum(summary.payouts.count)} تحويل`
-            : "بيتصرف لما الإدارة تحوّل وتسجل التحويل"}
+            : "اطلب سحبه والإدارة بتحوّله لك"}
         </p>
+        {withdraw}
 
         {/* Segmented bar: 2px surface gaps between parts; a gray track when empty. */}
         <div

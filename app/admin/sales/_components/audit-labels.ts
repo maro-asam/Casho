@@ -16,5 +16,8 @@ export const AUDIT_LABELS: Record<string, string> = {
   rep_deduction_added: "تسجيل خصم",
   rep_adjustment_canceled: "إلغاء مكافأة/خصم",
   payout_recorded: "تسجيل صرف",
+  withdrawal_requested: "طلب سحب من المندوب",
+  withdrawal_canceled: "المندوب ألغى طلب السحب",
+  withdrawal_rejected: "رفض طلب سحب",
   commission_rules_updated: "تحديث قواعد العمولات",
 };

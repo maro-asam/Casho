@@ -5,7 +5,7 @@
  * net for any missed billing hook — lib/sales/engine), alerts reps about trials
  * ending unpaid and paid stores that closed (lib/sales/notify), releases stock held
  * by unpaid online (Paymob) orders, and renews domains Casho registered for stores
- * (lib/domains). Trigger from an external scheduler (e.g. cron-job.org, every hour)
+ * (lib/domains), and applies analytics retention (lib/analytics/retention). Trigger from an external scheduler (e.g. cron-job.org, every hour)
  * with `Authorization: Bearer <CRON_SECRET>`.
  */
 import { NextRequest, NextResponse } from "next/server";
@@ -14,6 +14,7 @@ import { sweepSalesCommissions } from "@/lib/sales/engine";
 import { sweepRepAlerts } from "@/lib/sales/notify";
 import { releaseUnpaidOnlineOrders } from "@/lib/inventory/order-stock";
 import { sweepDomainRegistrations } from "@/lib/domains/purchase";
+import { sweepAnalytics } from "@/lib/analytics/retention";
 
 async function handler(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -41,7 +42,12 @@ async function handler(req: NextRequest) {
     console.error("[cron] domains", error);
     return { error: "domains sweep failed" };
   });
-  return NextResponse.json({ ...subscriptions, sales, salesAlerts, unpaidOrders, domains });
+  // Analytics Center retention: drop raw events / visits past the configured age.
+  const analytics = await sweepAnalytics().catch((error) => {
+    console.error("[cron] analytics retention", error);
+    return { error: "analytics retention failed" };
+  });
+  return NextResponse.json({ ...subscriptions, sales, salesAlerts, unpaidOrders, domains, analytics });
 }
 
 export const GET = handler;

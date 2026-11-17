@@ -83,6 +83,10 @@ model User {
   salesRep         SalesRep?         @relation("SalesRepUser")
   salesAttribution SalesAttribution? @relation("SalesAttributionCustomer")
 
+  // Analytics Center: visits linked to this account (lib/analytics/identity).
+  analyticsSessions   AnalyticsSession[]  @relation("AnalyticsSessionUser")
+  analyticsIdentities AnalyticsIdentity[] @relation("AnalyticsIdentityUser")
+
   @@index([phone_number])
 }
 
@@ -317,6 +321,10 @@ model Store {
 
   apps StoreApp[]
 
+  analyticsSessions  AnalyticsSession[]
+  analyticsPageViews AnalyticsPageView[]
+  analyticsEvents    AnalyticsEvent[]
+
   @@index([userId])
   @@index([subscriptionStatus])
   @@index([subscriptionEndsAt])
@@ -422,8 +430,11 @@ model Visit {
 
   createdAt DateTime @default(now())
 
+  /// Legacy rows only — new visits come from the analytics collector and keep no IP/UA.
   ip        String?
   userAgent String?
+  /// Analytics visitor id (random, per store) — counts unique visitors without an IP.
+  visitorId String?
 
   @@index([storeId, createdAt])
 }
@@ -2913,6 +2924,7 @@ model SalesRep {
   payouts        SalesPayout[]
   campaigns      SalesCampaignMember[]
   repAdjustments SalesRepAdjustment[]
+  withdrawals    SalesWithdrawalRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -3073,10 +3085,55 @@ model SalesPayout {
   commissions    SalesCommission[]
   adjustments    SalesCommissionAdjustment[]
   repAdjustments SalesRepAdjustment[]
+  /// The rep's withdrawal request this payout answered, if one was open.
+  withdrawal     SalesWithdrawalRequest?
 
   createdAt DateTime @default(now())
 
   @@index([salesRepId, paidAt])
+}
+
+enum SalesWithdrawalStatus {
+  PENDING
+  PAID // settled by a recorded SalesPayout
+  REJECTED // by an admin, with a reason the rep sees
+  CANCELED // by the rep
+}
+
+/// A rep asking to be paid what they're owed ("طلب سحب الأرباح" on
+/// /sales/commissions). It doesn't move money: the admin transfers outside
+/// Casho and records a SalesPayout as usual, which settles the open request.
+/// At most one PENDING per rep (checked under the SalesRep row lock).
+model SalesWithdrawalRequest {
+  id         String                @id @default(uuid())
+  salesRepId String
+  salesRep   SalesRep              @relation(fields: [salesRepId], references: [id])
+  status     SalesWithdrawalStatus @default(PENDING)
+
+  /// The payable total (piasters) when asked. The payout settles whatever is
+  /// payable when it's recorded, which can differ.
+  amount   Int
+  currency String @default("EGP")
+
+  /// Where to send it: the method (إنستا باي / فودافون كاش / …) and the
+  /// account on it (phone, InstaPay address, IBAN).
+  method  String
+  account String
+  note    String?
+
+  payoutId String?      @unique
+  payout   SalesPayout? @relation(fields: [payoutId], references: [id])
+
+  /// Paid, rejected or canceled: when, by whom (admin or the rep's user), why.
+  decidedAt      DateTime?
+  decidedById    String?
+  decisionReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([salesRepId, createdAt])
+  @@index([status, createdAt])
 }
 
 enum SalesRepAdjustmentKind {
@@ -3482,4 +3539,247 @@ model ShowcaseSite {
 
   @@index([published, sortOrder])
   @@index([storeId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Casho Analytics Center — first-party visitor analytics
+// (lib/analytics, /api/e, /admin/analytics; docs/analytics/README.md)
+// ─────────────────────────────────────────────────────────────
+//
+// No IP address, raw user agent or form content is stored. Visitor and
+// session ids are random first-party ids (no fingerprinting). Storefront ids
+// are per store, so a shopper can't be followed from one store to another.
+
+enum AnalyticsScope {
+  /// casho.store pages and the signup / login pages (acquisition).
+  MARKETING
+  /// The merchant dashboard on app.casho.store (product usage).
+  APP
+  /// A merchant's storefront — always carries storeId.
+  STOREFRONT
+}
+
+enum AnalyticsConsentMode {
+  /// Collect without asking (ids are random and pseudonymous).
+  NONE
+  /// Ask every visitor; nothing is collected until they accept.
+  BANNER
+  /// Ask only visitors from GDPR countries (EU/EEA, UK, CH); others as NONE.
+  REGION
+}
+
+/// Singleton (id = "default"), edited at /admin/analytics/settings.
+model AnalyticsSettings {
+  id                   String               @id @default("default")
+  enabled              Boolean              @default(true)
+  trackMarketing       Boolean              @default(true)
+  trackApp             Boolean              @default(true)
+  trackStorefronts     Boolean              @default(true)
+  consentMode          AnalyticsConsentMode @default(REGION)
+  /// Honour Do Not Track / Global Privacy Control.
+  respectDnt           Boolean              @default(true)
+  sessionTimeoutMin    Int                  @default(30)
+  /// "Active now" = seen within this many minutes.
+  realtimeWindowMin    Int                  @default(5)
+  /// Page views, events, clicks: deleted after this many days.
+  rawRetentionDays     Int                  @default(90)
+  /// Session summaries (and visitor ↔ account links): deleted after this many days.
+  sessionRetentionDays Int                  @default(395)
+  /// Path prefixes never collected ("/checkout/secret", "/print").
+  excludedPaths        String[]             @default([])
+  /// Query parameters stripped from every recorded URL (added to the built-in list).
+  excludedQueryParams  String[]             @default([])
+  /// Exact IPv4/IPv6 addresses or IPv4 CIDR ranges whose traffic is dropped.
+  internalIps          String[]             @default([])
+  /// Drop traffic from Casho staff (admins, sales reps) and store owners on their own store.
+  excludeTeam          Boolean              @default(true)
+  heatmapsEnabled      Boolean              @default(true)
+  /// % of sessions whose click positions are collected (1–100).
+  heatmapSampleRate    Int                  @default(100)
+  /// Also collect click positions on the merchant dashboard (private pages).
+  heatmapPrivatePages  Boolean              @default(false)
+  trackClicks          Boolean              @default(true)
+  trackScroll          Boolean              @default(true)
+  trackForms           Boolean              @default(true)
+  trackErrors          Boolean              @default(true)
+  trackVitals          Boolean              @default(true)
+  trackCustomEvents    Boolean              @default(true)
+  updatedById          String?
+  updatedAt            DateTime             @updatedAt
+}
+
+/// One visit: a run of activity with no gap longer than the session timeout.
+/// Counters are recomputed from its page views/events on every batch, so a
+/// retried batch never counts twice.
+model AnalyticsSession {
+  /// Random id made by the browser.
+  id           String         @id
+  visitorId    String
+  /// Scope of the first page of the session.
+  scope        AnalyticsScope
+  storeId      String?
+  store        Store?         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  startedAt    DateTime
+  lastSeenAt   DateTime
+  pageviews    Int            @default(0)
+  events       Int            @default(0)
+  /// Foreground time with recent activity, summed over the session's pages.
+  engagedMs    Int            @default(0)
+  /// ≥ 2 pages, ≥ 10 s engaged, or a conversion (bounce = not engaged).
+  engaged      Boolean        @default(false)
+  /// Signup (Casho) or order (storefront) recorded in this session.
+  converted    Boolean        @default(false)
+  isReturning  Boolean        @default(false)
+  entryPath    String
+  exitPath     String
+  /// direct | organic_search | paid_search | organic_social | paid_social | email | referral | campaign
+  channel      String
+  /// Normalised source: utm_source or the referrer's network/host ("facebook", "google", "(direct)").
+  source       String         @default("(direct)")
+  referrerHost String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  utmContent   String?
+  utmTerm      String?
+  /// desktop | tablet | mobile (from the browser, not the IP).
+  device       String
+  browser      String?
+  os           String?
+  screen       String?
+  viewportW    Int?
+  viewportH    Int?
+  language     String?
+  /// Approximate, from the hosting provider's IP geolocation; the IP itself is never stored.
+  country      String?
+  region       String?
+  city         String?
+  /// The Casho account behind the visit once known (signup, login, dashboard).
+  userId       String?
+  user         User?          @relation("AnalyticsSessionUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([scope, startedAt])
+  @@index([storeId, startedAt])
+  @@index([lastSeenAt])
+  @@index([visitorId, startedAt])
+  @@index([userId])
+}
+
+model AnalyticsPageView {
+  /// Random id made by the browser.
+  id           String         @id
+  sessionId    String
+  visitorId    String
+  scope        AnalyticsScope
+  storeId      String?
+  store        Store?         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  /// Normalised path: no query, ids replaced by ":id", store-relative on storefronts.
+  path         String
+  title        String?
+  /// Query string left after removing excluded / sensitive parameters.
+  query        String?
+  /// Previous page in the same session.
+  prevPath     String?
+  seq          Int
+  startedAt    DateTime
+  engagedMs    Int            @default(0)
+  /// Deepest point seen, as % of the page height (0–100).
+  scrollPct    Int            @default(0)
+  docHeight    Int?
+  viewportW    Int
+  viewportH    Int?
+  device       String
+
+  @@index([scope, startedAt])
+  @@index([storeId, startedAt])
+  @@index([path, startedAt])
+  @@index([sessionId, seq])
+}
+
+/// Everything that isn't a page view: clicks (with heatmap geometry), CTA and
+/// form events, errors, web vitals, custom and server-verified events.
+model AnalyticsEvent {
+  /// Random id made by the browser (or the server) — retries are dropped.
+  id        String         @id
+  sessionId String?
+  visitorId String?
+  scope     AnalyticsScope
+  storeId   String?
+  store     Store?         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  path      String?
+  ts        DateTime
+  device    String?
+  /// Clicks: pageX / page width (0–1), pageY in CSS px, viewport width, page height.
+  x         Float?
+  y         Int?
+  vw        Int?
+  dh        Int?
+  /// Clicks: element selector and the click's position inside it (0–1).
+  sel       String?
+  ex        Float?
+  ey        Float?
+  /// Numeric payload: a web vital's value, an order total (piasters)…
+  value     Float?
+  /// Server events: the record they stand for (user, store, order id).
+  refId     String?
+  /// Small, sanitised properties (no form values, no personal data).
+  props     Json?
+
+  @@index([scope, ts])
+  @@index([storeId, ts])
+  @@index([name, ts])
+  @@index([path, name, ts])
+  @@index([sessionId, ts])
+  @@index([refId])
+}
+
+/// A browser (visitor id) that signed up as or logged in to a Casho account —
+/// the link from traffic to verified signups, stores and payments.
+model AnalyticsIdentity {
+  id        String   @id @default(uuid())
+  visitorId String
+  userId    String
+  user      User     @relation("AnalyticsIdentityUser", fields: [userId], references: [id], onDelete: Cascade)
+  /// "signup" | "login"
+  kind      String
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  @@unique([visitorId, userId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+/// A funnel an admin built in /admin/analytics/funnels. The built-in Casho
+/// acquisition funnel lives in code (lib/analytics/funnels).
+model AnalyticsFunnel {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  scope       AnalyticsScope @default(MARKETING)
+  /// [{ type, value?, label }] — see FunnelStep in lib/analytics/funnels.
+  steps       Json
+  /// A visitor counts for a step only within this many days of entering.
+  windowDays  Int            @default(30)
+  createdById String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+/// Ad spend typed in by an admin, for cost per acquisition and ROAS. Matched to
+/// sessions by utm_campaign (and utm_source when set).
+model AnalyticsCampaignCost {
+  id          String   @id @default(uuid())
+  campaign    String
+  source      String?
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  /// Piasters.
+  amount      Int
+  note        String?
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  @@index([campaign])
 }

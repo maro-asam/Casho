@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { WITHDRAWAL_METHODS } from "@/lib/sales/withdrawal";
 
 const reason = z.string().trim().min(5, "اكتب سبب واضح (5 أحرف على الأقل)").max(500, "السبب طويل جدًا");
 const percent = z.coerce.number().min(0, "النسبة لازم تكون 0 أو أكتر").max(100, "النسبة لازم تكون 100 أو أقل");
@@ -91,6 +92,18 @@ export const recordPayoutSchema = z.object({
   method: z.string().trim().min(2, "اكتب طريقة الدفع").max(100),
   reference: z.string().trim().max(200).optional(),
   note: z.string().trim().max(1000).optional(),
+});
+
+/** A rep asking to be paid (/sales/commissions). The amount is always the whole payable, read server-side. */
+export const requestWithdrawalSchema = z.object({
+  method: z.enum(WITHDRAWAL_METHODS, { message: "اختار طريقة الاستلام" }),
+  account: z.string().trim().min(5, "اكتب بيانات الاستلام كاملة").max(200),
+  note: z.string().trim().max(500).optional(),
+});
+
+export const rejectWithdrawalSchema = z.object({
+  requestId: z.string().uuid(),
+  reason,
 });
 
 export const commissionRuleSchema = z

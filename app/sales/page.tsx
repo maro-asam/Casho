@@ -3,22 +3,25 @@ import { requireSalesRep } from "@/lib/sales/guard";
 import { isWithinCampaign } from "@/lib/sales/campaign";
 import { getRepCampaign, listActiveAnnouncements } from "@/lib/sales/campaign-queries";
 import { listCallList } from "@/lib/sales/call-list-queries";
-import { getRepMonthlyTrend, getSalesSummary } from "@/lib/sales/queries";
+import { getRepMonthlyTrend, getSalesSummary, listRepWithdrawals } from "@/lib/sales/queries";
 import { AnnouncementsBoard } from "./_components/announcements-board";
 import { CampaignCard } from "./_components/campaign-card";
 import { CallListCard, EarningsCard, FunnelCard, LevelCard, RepHero, TrendCard } from "./_components/overview";
 import { ReferralCard } from "./_components/referral-card";
+import { WithdrawalInline } from "./_components/withdrawal-card";
 
 export default async function SalesOverviewPage() {
   const rep = await requireSalesRep();
   const name = rep.name?.trim() || rep.email.split("@")[0];
   const now = new Date();
-  const [summary, trend, calls, campaign, announcements] = await Promise.all([
+  const [summary, trend, calls, campaign, announcements, withdrawals] = await Promise.all([
     getSalesSummary({ salesRepId: rep.salesRepId }),
     getRepMonthlyTrend(rep.salesRepId, 6),
     listCallList(rep.salesRepId, { take: 5, now }),
     getRepCampaign(rep.salesRepId, now),
     listActiveAnnouncements(now),
+    // Newest only: an open request is always the newest (one at a time), and it prefills the next one.
+    listRepWithdrawals(rep.salesRepId, 1),
   ]);
   const promo = campaign && isWithinCampaign(campaign, now) ? { rateBps: campaign.baseRateBps, name: campaign.name } : null;
 
@@ -32,7 +35,7 @@ export default async function SalesOverviewPage() {
 
       <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
         <ReferralCard link={buildReferralLink(rep.referralCode)} code={rep.referralCode} repName={name} />
-        <EarningsCard summary={summary} />
+        <EarningsCard summary={summary} withdraw={<WithdrawalInline payable={summary.payable ?? 0} withdrawals={withdrawals} />} />
       </div>
 
       <div className="grid gap-4 md:gap-5 lg:grid-cols-2">

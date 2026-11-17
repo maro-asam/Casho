@@ -20,6 +20,7 @@ import {
   listAttributedCustomers,
   listCommissions,
   listPayouts,
+  listPendingWithdrawals,
   listRepAdjustments,
   listSalesAuditLog,
 } from "@/lib/sales/queries";
@@ -36,6 +37,7 @@ import {
   RepStatusDialog,
 } from "../../_components/sales-dialogs";
 import { TeamTrendCard } from "../../_components/team";
+import { WithdrawalRequests } from "../../_components/withdrawal-requests";
 
 /** Card header action: "See All" in the tint, chevron trailing. */
 function SeeAll({ href, children }: { href: string; children: ReactNode }) {
@@ -65,7 +67,7 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
   if (!rep) notFound();
 
   const scope = { salesRepId: rep.id };
-  const [summary, trend, customers, commissions, payouts, adjustments, audit] = await Promise.all([
+  const [summary, trend, customers, commissions, payouts, adjustments, audit, requests] = await Promise.all([
     getSalesSummary(scope),
     getRepMonthlyTrend(rep.id, 6),
     listAttributedCustomers(scope, { page: 1 }),
@@ -73,6 +75,7 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
     listPayouts(scope, 10),
     listRepAdjustments(scope, 30),
     listSalesAuditLog({ salesRepId: rep.id }, 20),
+    listPendingWithdrawals(rep.id),
   ]);
   const repName = rep.user.name ?? rep.user.email;
   const active = rep.status === "ACTIVE";
@@ -203,6 +206,8 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
         <ExpiringCohorts summary={summary} />
       </div>
 
+      <WithdrawalRequests requests={requests} payables={new Map([[rep.id, payable]])} showRep={false} />
+
       <Card
         title="الصرف"
         subtitle={
@@ -212,7 +217,7 @@ export default async function AdminSalesRepPage({ params }: { params: Promise<{ 
               ? `عليه ${fmtMoney(-payable)} خصومات أكبر من المستحق — هتتخصم من عمولاته الجاية`
               : "مفيش مستحقات دلوقتي"
         }
-        action={<RecordPayoutDialog salesRepId={rep.id} repName={repName} payable={payable} />}
+        action={<RecordPayoutDialog salesRepId={rep.id} repName={repName} payable={payable} request={requests[0]} />}
       >
         {payouts.length === 0 ? (
           <CardEmpty>مفيش صرف متسجل.</CardEmpty>

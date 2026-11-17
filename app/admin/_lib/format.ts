@@ -122,6 +122,12 @@ export const SECURITY_EVENT_META: Record<string, Meta> = {
   BRANCH_DELETED: { label: "حذف فرع", tone: "neutral" },
   MEMBER_BRANCHES_CHANGED: { label: "تعديل فروع عضو", tone: "neutral" },
   ORDER_TRACK_FAILED: { label: "بحث فاشل عن طلب", tone: "warning" },
+  ANALYTICS_JOURNEY_VIEWED: { label: "فتح رحلة زائر (التحليلات)", tone: "info" },
+  ANALYTICS_EXPORTED: { label: "تصدير تقرير تحليلات", tone: "info" },
+  ANALYTICS_SETTINGS_CHANGED: { label: "تعديل إعدادات التحليلات", tone: "accent" },
+  ANALYTICS_DATA_DELETED: { label: "حذف بيانات تحليلات", tone: "danger" },
+  ANALYTICS_FUNNEL_CHANGED: { label: "تعديل funnel", tone: "neutral" },
+  ANALYTICS_COST_CHANGED: { label: "تعديل تكلفة حملة", tone: "neutral" },
   // TEMP: plans bought from the landing pricing cards (lib/payments/plan-checkout.ts).
   PLAN_CHECKOUT_STARTED: { label: "بدأ دفع باقة من الموقع", tone: "neutral" },
   PLAN_CHECKOUT_PAID: { label: "دفع باقة من الموقع", tone: "success" },

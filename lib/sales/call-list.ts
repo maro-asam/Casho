@@ -56,29 +56,7 @@ export function activationOf(input: ActivationInput): Activation {
 }
 
 /** Same rule as the merchant dashboard's "جهّز طرق الدفع" step. */
-export function hasPaymentSetup(store: {
-  paymentMethods: string[];
-  storePaymentSettings: {
-    cashOnDeliveryEnabled: boolean;
-    vodafoneCashEnabled: boolean;
-    vodafoneCashNumber: string | null;
-    instapayEnabled: boolean;
-    instapayAddress: string | null;
-    bankTransferEnabled: boolean;
-    bankTransferDetails: string | null;
-    paymobEnabled?: boolean;
-  } | null;
-}) {
-  const p = store.storePaymentSettings;
-  return (
-    store.paymentMethods.length > 0 ||
-    Boolean(p?.cashOnDeliveryEnabled) ||
-    Boolean(p?.vodafoneCashEnabled && p.vodafoneCashNumber) ||
-    Boolean(p?.instapayEnabled && p.instapayAddress) ||
-    Boolean(p?.bankTransferEnabled && p.bankTransferDetails) ||
-    Boolean(p?.paymobEnabled)
-  );
-}
+export { hasPaymentSetup } from "@/lib/store-setup/checklist";
 
 // ─── Call reasons ───────────────────────────────────────────────────────────
 

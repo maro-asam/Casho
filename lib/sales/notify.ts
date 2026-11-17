@@ -5,7 +5,7 @@ import { createNotification } from "@/lib/notifications/in-app";
 import { deliver, inBackground } from "@/lib/notifications/email/deliver";
 import { infoRows, renderEmail } from "@/lib/notifications/email/layout";
 import { prisma } from "@/lib/prisma";
-import { fmtMoney, fmtWhen } from "./format";
+import { fmtDate, fmtMoney, fmtWhen } from "./format";
 import { formatRateBps } from "./rules";
 
 /**
@@ -132,6 +132,45 @@ export function storeClosedNotice(c: Customer, storeId: string, endedAt: Date): 
   };
 }
 
+/** The admins recorded a transfer to the rep (answers an open withdrawal request, if any). */
+export function payoutNotice(p: { id: string; amount: number; method: string; reference: string | null; paidAt: Date }): RepNotice {
+  const amount = fmtMoney(p.amount);
+  return {
+    key: `payout:${p.id}`,
+    title: `اتصرف لك ${amount}`,
+    message: `الإدارة حوّلت لك ${amount} (${p.method}). العمولات اللي اتصرفت بقت «مدفوعة» في صفحة عمولاتك.`,
+    href: "/sales/commissions",
+    email: {
+      subject: `اتصرف لك ${amount} من كاشو`,
+      rows: [
+        { label: "المبلغ", value: amount },
+        { label: "الطريقة", value: p.method },
+        { label: "رقم مرجعي", value: p.reference, ltr: true },
+        { label: "تاريخ التحويل", value: fmtDate(p.paidAt) },
+      ],
+      cta: "شوف عمولاتك",
+    },
+  };
+}
+
+export function withdrawalRejectedNotice(r: { id: string; amount: number; reason: string }): RepNotice {
+  const amount = fmtMoney(r.amount);
+  return {
+    key: `withdrawal_rejected:${r.id}`,
+    title: `طلب سحب ${amount} اترفض`,
+    message: `السبب: ${r.reason.replace(/[.!؟،\s]+$/u, "")}. مستحقاتك زي ما هي، وتقدر تطلب تاني بعد ما تظبط اللي محتاج.`,
+    href: "/sales/commissions",
+    email: {
+      subject: `طلب سحب ${amount} اترفض`,
+      rows: [
+        { label: "المبلغ", value: amount },
+        { label: "السبب", value: r.reason },
+      ],
+      cta: "افتح عمولاتك",
+    },
+  };
+}
+
 // ─── Delivery ───────────────────────────────────────────────────────────────
 
 type Rep = { userId: string; email: string; name: string | null };
@@ -229,6 +268,30 @@ export function queueCommissionNotices(commissionIds: string[]) {
       const c = row.attribution.customer;
       await sendRepNotice(rep, commissionNotice({ id: c.id, name: c.name, phone: c.phone_number, storeName: storeName.get(row.storeId) ?? null }, row));
     }
+  });
+}
+
+/** After an admin recorded a payout. */
+export function queuePayoutNotice(payoutId: string) {
+  inBackground(async () => {
+    const p = await prisma.salesPayout.findUnique({
+      where: { id: payoutId },
+      select: { id: true, amount: true, method: true, reference: true, paidAt: true, salesRep: { select: REP_SELECT } },
+    });
+    const rep = activeRep(p?.salesRep ?? null);
+    if (p && rep) await sendRepNotice(rep, payoutNotice(p));
+  });
+}
+
+/** After an admin rejected a withdrawal request. */
+export function queueWithdrawalRejectedNotice(requestId: string) {
+  inBackground(async () => {
+    const r = await prisma.salesWithdrawalRequest.findUnique({
+      where: { id: requestId },
+      select: { id: true, amount: true, decisionReason: true, salesRep: { select: REP_SELECT } },
+    });
+    const rep = activeRep(r?.salesRep ?? null);
+    if (r && rep) await sendRepNotice(rep, withdrawalRejectedNotice({ id: r.id, amount: r.amount, reason: r.decisionReason ?? "—" }));
   });
 }
 

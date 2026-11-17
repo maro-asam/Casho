@@ -9,7 +9,7 @@ const TABS = [
   { href: "/admin/sales", label: "الفريق" },
   { href: "/admin/sales/customers", label: "العملاء" },
   { href: "/admin/sales/commissions", label: "العمولات", badge: "review" as const },
-  { href: "/admin/sales/payouts", label: "الصرف" },
+  { href: "/admin/sales/payouts", label: "الصرف", badge: "pay" as const },
   { href: "/admin/sales/campaign", label: "العرض" },
   { href: "/admin/sales/announcements", label: "الإعلانات" },
   { href: "/admin/sales/rules", label: "القواعد" },
@@ -18,7 +18,7 @@ const TABS = [
 const nf = new Intl.NumberFormat("ar-EG");
 
 /** iPad-style top tab bar: a capsule track, the current section lifted onto a white thumb. */
-export function SalesAdminNav({ toReview = 0 }: { toReview?: number }) {
+export function SalesAdminNav({ toReview = 0, toPay = 0 }: { toReview?: number; toPay?: number }) {
   const pathname = usePathname();
   return (
     <nav aria-label="أقسام المبيعات" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
@@ -26,7 +26,7 @@ export function SalesAdminNav({ toReview = 0 }: { toReview?: number }) {
         {TABS.map((tab) => {
           const active =
             tab.href === "/admin/sales" ? pathname === tab.href || pathname.startsWith("/admin/sales/reps") : pathname.startsWith(tab.href);
-          const count = tab.badge === "review" ? toReview : 0;
+          const count = tab.badge === "review" ? toReview : tab.badge === "pay" ? toPay : 0;
           return (
             <li key={tab.href}>
               <Link

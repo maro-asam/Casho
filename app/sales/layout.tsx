@@ -6,6 +6,7 @@ import { LogoutButton } from "@/app/(auth)/_components/LogoutBtn";
 import { buildReferralLink } from "@/lib/sales/attribution";
 import { getSalesRepContext } from "@/lib/sales/guard";
 import { SalesTabBar, SalesTopbar } from "./_components/sales-nav";
+import { TeamTrafficMarker } from "@/components/analytics/TeamTrafficMarker";
 
 export const metadata: Metadata = {
   title: "لوحة المبيعات — كاشو",
@@ -36,6 +37,7 @@ export default async function SalesLayout({ children }: { children: ReactNode })
 
   return (
     <div dir="rtl" className="apple-ui min-h-screen bg-background text-foreground">
+      <TeamTrafficMarker rootDomain={process.env.ROOT_DOMAIN || "casho.store"} />
       <SalesTopbar name={name} email={rep.email} referralLink={buildReferralLink(rep.referralCode)} notifications={notifications} />
       <main id="main-content" className="apple-form mx-auto w-full max-w-screen-xl px-4 pt-5 pb-32 sm:px-6 md:pt-7 md:pb-14">
         {children}

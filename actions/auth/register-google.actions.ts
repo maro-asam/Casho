@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 
 import { prisma } from "@/lib/prisma";
 import { createUserSession } from "@/lib/auth/session";
+import { recordLogin, recordSignup } from "@/lib/analytics/server-events";
 import {
   PENDING_GOOGLE_COOKIE,
   pendingGoogleCookieDelete,
@@ -92,6 +93,7 @@ export async function RegisterGoogleAction(
         return { error: "الإيميل ده عليه حساب بالفعل. سجّل دخول بجوجل من صفحة تسجيل الدخول." };
       }
       await createUserSession(existingUser.id);
+      await recordLogin({ userId: existingUser.id, method: "google" });
       return { success: true, message: "تم تسجيل الدخول" };
     }
 
@@ -145,7 +147,7 @@ export async function RegisterGoogleAction(
             },
           },
         },
-        select: { id: true },
+        select: { id: true, stores: { select: { id: true }, take: 1 } },
       });
       await createSignupAttribution(tx, { customerUserId: user.id, referral, signedUpAt: now });
       return user;
@@ -155,6 +157,7 @@ export async function RegisterGoogleAction(
     cookieStore.delete(signupRefCookieDelete());
     if (referral?.salesRepId) queueSignupNotice(created.id);
     await createUserSession(created.id);
+    await recordSignup({ userId: created.id, storeId: created.stores[0]?.id ?? null, method: "google" });
 
     return { success: true, message: "تم إنشاء الحساب بنجاح" };
   } catch (err: unknown) {

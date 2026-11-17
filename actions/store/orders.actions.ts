@@ -1,5 +1,6 @@
 "use server";
 
+import { recordStoreOrder } from "@/lib/analytics/server-events";
 import { randomUUID } from "crypto";
 import { markCartConverted } from "@/lib/cart-recovery/abandoned";
 
@@ -591,6 +592,8 @@ export async function CreateOrderAction(
 
   await notifyLowStock(store.id, [...cartQtyByProduct.keys()]);
   await markCartConverted(store.id, guestSessionId, { id: order.id, total, fullName: data.fullName, phone: data.phone });
+  // Analytics Center: the shopper's visit converted (revenue by traffic source).
+  await recordStoreOrder({ storeId: store.id, orderId: order.id, total });
 
   // Award loyalty points after order creation (reuse loyaltySettings + appliedLoyalty from above)
   try {

@@ -1,0 +1,33 @@
+/* Analytics Center chart tokens (dataviz reference palette, light + dark steps). */
+.analytics-ui {
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-prev: #a1a1a6;
+  --viz-track: rgba(118, 118, 128, 0.12);
+  --viz-good: #0ca30c;
+  --viz-warn: #fab219;
+  --viz-bad: #d03b3b;
+}
+.dark .analytics-ui {
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-4: #c98500;
+  --viz-prev: #6e6e73;
+  --viz-track: rgba(118, 118, 128, 0.24);
+}
+
+/* Live dot (real-time). */
+@keyframes analytics-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--sys-green), transparent 40%); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.analytics-live-dot {
+  animation: analytics-pulse 2s var(--ease-apple) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .analytics-live-dot { animation: none; }
+}

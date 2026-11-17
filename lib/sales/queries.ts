@@ -3,6 +3,7 @@ import {
   Prisma,
   SalesCommissionKind,
   SalesCommissionStatus,
+  SalesWithdrawalStatus,
   type SalesRepAdjustmentKind,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -502,6 +503,35 @@ export async function listPayouts(scope: SalesScope, take = 50) {
       salesRep: { select: { id: true, user: { select: { name: true, email: true } } } },
       _count: { select: { commissions: true, adjustments: true, repAdjustments: true } },
     },
+  });
+}
+
+const WITHDRAWAL_SELECT = {
+  id: true,
+  status: true,
+  amount: true,
+  method: true,
+  account: true,
+  note: true,
+  decisionReason: true,
+  decidedAt: true,
+  createdAt: true,
+  payout: { select: { amount: true, paidAt: true } },
+} as const;
+
+/** A rep's withdrawal requests, newest first (the open one, if any, is the first). */
+export async function listRepWithdrawals(salesRepId: string, take = 10) {
+  return prisma.salesWithdrawalRequest.findMany({ where: { salesRepId }, orderBy: { createdAt: "desc" }, take, select: WITHDRAWAL_SELECT });
+}
+
+export type RepWithdrawal = Awaited<ReturnType<typeof listRepWithdrawals>>[number];
+
+/** Open withdrawal requests, oldest first (admin: who's been waiting longest). */
+export async function listPendingWithdrawals(salesRepId?: string) {
+  return prisma.salesWithdrawalRequest.findMany({
+    where: { status: SalesWithdrawalStatus.PENDING, ...(salesRepId && { salesRepId }) },
+    orderBy: { createdAt: "asc" },
+    select: { ...WITHDRAWAL_SELECT, salesRepId: true, salesRep: { select: { id: true, status: true, user: { select: { name: true, email: true } } } } },
   });
 }
 

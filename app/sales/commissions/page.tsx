@@ -17,10 +17,11 @@ import {
 import { prisma } from "@/lib/prisma";
 import { COMMISSION_STATUS_META, KIND_LABELS, fmtDate, fmtMoney, fmtNum } from "@/lib/sales/format";
 import { requireSalesRep } from "@/lib/sales/guard";
-import { PAGE_SIZE, getSalesSummary, listCommissions, listPayouts, listRepAdjustments } from "@/lib/sales/queries";
+import { PAGE_SIZE, getSalesSummary, listCommissions, listPayouts, listRepAdjustments, listRepWithdrawals } from "@/lib/sales/queries";
 import { RepAdjustmentRows } from "@/components/sales/rep-adjustments";
 import { cn } from "@/lib/utils";
 import { CommissionRows } from "../_components/commission-rows";
+import { WithdrawalCard, WithdrawalHistory } from "../_components/withdrawal-card";
 
 const BASE_PATH = "/sales/commissions";
 const STATUSES = Object.values(SalesCommissionStatus);
@@ -47,7 +48,7 @@ export default async function SalesCommissionsPage({ searchParams }: { searchPar
   const kind = KINDS.find((k) => k === readParam(params, "kind"));
 
   const scope = { salesRepId: rep.salesRepId };
-  const [summary, list, statusCounts, payouts, adjustments] = await Promise.all([
+  const [summary, list, statusCounts, payouts, adjustments, withdrawals] = await Promise.all([
     getSalesSummary(scope),
     listCommissions(scope, { q, status, kind, page: readPage(params) }),
     prisma.salesCommission.groupBy({
@@ -57,6 +58,7 @@ export default async function SalesCommissionsPage({ searchParams }: { searchPar
     }),
     listPayouts(scope, 50),
     listRepAdjustments(scope, 50),
+    listRepWithdrawals(rep.salesRepId, 20),
   ]);
   const countOf = (s?: SalesCommissionStatus) =>
     statusCounts.filter((g) => !s || g.status === s).reduce((sum, g) => sum + g._count._all, 0);
@@ -71,10 +73,12 @@ export default async function SalesCommissionsPage({ searchParams }: { searchPar
       />
 
       <section aria-label="ملخص الفلوس" className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>:first-child]:col-span-2 sm:[&>:first-child]:col-span-1">
-        <MoneyTile prominent icon={Wallet} label="مستحق ليك دلوقتي" value={fmtMoney(summary.payable ?? 0)} hint="بيتصرف لما الإدارة تحوّل وتسجل التحويل" />
+        <MoneyTile prominent icon={Wallet} label="مستحق ليك دلوقتي" value={fmtMoney(summary.payable ?? 0)} hint="اطلب سحبه والإدارة بتحوّله لك" />
         <MoneyTile icon={Clock} label="قيد المراجعة" value={fmtMoney(byStatus.PENDING)} hint={countByStatus.PENDING > 0 ? `${fmtNum(countByStatus.PENDING)} عمولة مستنية الاعتماد` : "مفيش حاجة مستنية"} />
         <MoneyTile icon={Banknote} label="اتصرف لك" value={fmtMoney(summary.payouts.total)} hint={summary.payouts.count > 0 ? `على ${fmtNum(summary.payouts.count)} تحويل` : "لسه مفيش تحويلات"} />
       </section>
+
+      <WithdrawalCard payable={summary.payable ?? 0} withdrawals={withdrawals} />
 
       {countOf() === 0 && !kind ? (
         <div className="apple-card">
@@ -147,6 +151,8 @@ export default async function SalesCommissionsPage({ searchParams }: { searchPar
           <RepAdjustmentRows rows={adjustments} empty={null} />
         </Card>
       )}
+
+      <WithdrawalHistory withdrawals={withdrawals} />
 
       <Card title="التحويلات" subtitle="كل مرة الإدارة صرفتلك فيها" icon={Banknote}>
         {payouts.length === 0 ? (

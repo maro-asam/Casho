@@ -6,7 +6,7 @@ vi.mock("@/lib/notifications/in-app", () => ({ createNotification: vi.fn(async (
 vi.mock("@/lib/mail", () => ({ isMailConfigured: vi.fn(() => true) }));
 vi.mock("@/lib/notifications/email/deliver", () => ({ deliver: vi.fn(async () => true), inBackground: (task: () => Promise<void>) => void task() }));
 
-const { commissionNotice, sendRepNotice, signupNotice, storeClosedNotice, trialEndingNotice } = await import("./notify");
+const { commissionNotice, payoutNotice, sendRepNotice, signupNotice, storeClosedNotice, trialEndingNotice, withdrawalRejectedNotice } = await import("./notify");
 const { createNotification } = await import("@/lib/notifications/in-app");
 const { deliver } = await import("@/lib/notifications/email/deliver");
 
@@ -28,6 +28,17 @@ describe("notice copy", () => {
     expect(commissionNotice(customer, { ...base, kind: "ACQUISITION" }).email).toBeDefined();
     expect(commissionNotice(customer, { ...base, kind: "BONUS" }).email).toBeDefined();
     expect(commissionNotice(customer, { ...base, kind: "RENEWAL" }).email).toBeUndefined();
+  });
+
+  it("payouts and rejected withdrawals email the rep, keyed once each", () => {
+    const paid = payoutNotice({ id: "p1", amount: 12_500, method: "إنستا باي", reference: "TRX", paidAt: new Date("2026-11-17T10:00:00Z") });
+    expect(paid.key).toBe("payout:p1");
+    expect(paid.href).toBe("/sales/commissions");
+    expect(paid.email).toBeDefined();
+    const rejected = withdrawalRejectedNotice({ id: "w1", amount: 12_500, reason: "رقم المحفظة غلط." });
+    expect(rejected.key).toBe("withdrawal_rejected:w1");
+    expect(rejected.message).toContain("رقم المحفظة غلط.");
+    expect(rejected.message).not.toContain("..");
   });
 
   it("links to the rep's own pages", () => {

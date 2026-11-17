@@ -1,4 +1,5 @@
 import {
+  Activity,
   ArrowLeftRight,
   Bell,
   BriefcaseBusiness,
@@ -22,7 +23,7 @@ import {
 } from "lucide-react";
 
 /** Live counters shown as sidebar badges (filled by the layout). */
-export type AdminBadgeKey = "stores" | "topups" | "services" | "support" | "sharks";
+export type AdminBadgeKey = "stores" | "topups" | "services" | "support" | "sharks" | "sales";
 export type AdminBadges = Partial<Record<AdminBadgeKey, number>>;
 
 export type AdminNavItem = {
@@ -38,7 +39,10 @@ export type AdminNavSection = { title?: string; items: AdminNavItem[] };
 
 export const ADMIN_NAV: AdminNavSection[] = [
   {
-    items: [{ name: "نظرة عامة", href: "/admin", icon: LayoutDashboard }],
+    items: [
+      { name: "نظرة عامة", href: "/admin", icon: LayoutDashboard },
+      { name: "مركز التحليلات", href: "/admin/analytics", icon: Activity },
+    ],
   },
   {
     title: "العملاء",
@@ -70,7 +74,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   {
     title: "النمو والتواصل",
     items: [
-      { name: "فريق المبيعات", href: "/admin/sales", icon: Handshake },
+      { name: "فريق المبيعات", href: "/admin/sales", icon: Handshake, badge: "sales" },
       { name: "Casho Sharks", href: "/admin/sharks", icon: Telescope, badge: "sharks" },
       { name: "أمثلة كاشو", href: "/admin/showcase", icon: LayoutTemplate },
       { name: "المدونة", href: "/admin/blog", icon: FileText },

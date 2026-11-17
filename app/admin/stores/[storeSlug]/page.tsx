@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, ExternalLink, Mail, MessageCircle, RefreshCcw, RotateCw } from "lucide-react";
 
+import { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/actions/admin/admin-guard.actions";
 import {
   adminActivateStoreSubscriptionAction,
   adminCancelStoreSubscriptionAction,
@@ -58,6 +60,7 @@ const AUDIT_LABELS: Record<string, string> = {
 
 export default async function AdminStoreDetailsPage({ params }: PageProps) {
   const { storeSlug } = await params;
+  const viewer = await requireAdmin();
 
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
@@ -427,6 +430,12 @@ export default async function AdminStoreDetailsPage({ params }: PageProps) {
             confirmValue={store.slug}
             confirmLabel="رابط المتجر"
             blockers={deleteBlockers}
+            canForce={viewer.role === UserRole.SUPER_ADMIN}
+            forceConsequences={[
+              "سجل الرصيد كله وعمولات المندوبين عليه — تقارير الإيرادات والأرباح والعمولات هتتحسب من غيره",
+              "الدومين اللي اشتراه من كاشو بيتفصل ويفضل على حساب كاشو في Vercel لحد ما يخلص",
+              "ملخص الفلوس اللي اتمسحت بيتسجل في سجل الأمان",
+            ]}
             alternative="بدل الحذف: ألغِ الاشتراك من فوق — المتجر بيقف عن العملاء وسجله المالي بيفضل."
             consequences={[
               `${fmtNum(store._count.products)} منتج و${fmtNum(store._count.orders)} طلب و${fmtNum(store._count.customers)} عميل`,

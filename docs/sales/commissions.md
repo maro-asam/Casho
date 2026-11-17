@@ -17,6 +17,7 @@ Engine and rules: `lib/sales/`. Admin mutations: `actions/admin/sales.actions.ts
 | Correction | `SalesCommissionAdjustment` (signed piasters, reason, actor). Refund-credit clawbacks are unique per ledger row. |
 | Bonus / deduction | `SalesRepAdjustment` (kind `BONUS`/`DEDUCTION`, signed piasters, reason the rep sees, actor). On the rep, not on a commission. |
 | Payout | `SalesPayout`: a transfer that already happened outside Casho, recorded by an admin. |
+| Withdrawal request | `SalesWithdrawalRequest`: a rep asking to be paid (طلب سحب الأرباح), with where to send it. Moves no money. |
 | Audit | `SalesAuditLog`: every admin action, plus automatic commission and adjustment creation. |
 
 ## Rules (approved 2026-10-12)
@@ -36,6 +37,7 @@ Engine and rules: `lib/sales/`. Admin mutations: `actions/admin/sales.actions.ts
   - Review: hold, release, reject, reverse. A reason is required, except for release (approve), where it's optional.
   - `PAID` is terminal for status changes. A paid commission is corrected with an adjustment, which is deducted from the next payout.
 - **Bonuses and deductions** (rep page → المكافآت والخصومات): a fixed amount an admin adds to or takes off a rep's account, with a reason the rep sees on `/sales/commissions`. Payable at once and settled by the next payout. A deduction bigger than what's owed carries over (the payable goes negative and no payout can be recorded until commissions cover it). Cancelable with a reason until a payout settles it; after that, enter the opposite kind.
+- **Withdrawal requests** (`/sales/commissions` → طلب سحب الأرباح, also on the overview's فلوسك card): the rep asks for their whole payable (read server-side, never a typed amount) and picks where to get it — إنستا باي, فودافون كاش, another wallet or a bank transfer — plus the account/number and an optional note. One open request per rep (checked under the `SalesRep` row lock, the same one payouts take); nothing payable = no request. The rep can cancel it while it's open. Admins see open requests at the top of الصرف (and on the rep page), with a badge on the sidebar and the الصرف tab. The admin transfers outside Casho and records the payout as usual: the payout settles whatever is payable then (it can differ from the amount asked) and closes the request as `PAID`. Or they reject it with a reason the rep sees; what's owed doesn't change. The rep gets a bell notice + email for each payout and each rejection (`lib/sales/notify.ts`). Audited as `withdrawal_requested` / `withdrawal_canceled` / `withdrawal_rejected`.
 - **Rep email**: admins can change it (تعديل البيانات). The new address is the login from that moment (same password, sessions stay); it starts unverified, the Google account linked to the old address is unlinked, and reset links/codes sent to the old inbox stop working. Audited as `sales_rep_email_changed` with old → new. The referral code never changes.
 - **Reassignment**: earned commissions stay with the rep who earned them. A charge goes to the rep who owned the customer *at the time of the charge* (the history is replayed). An attribution an admin creates for a customer who already paid gets no retroactive commissions.
 - **Rule changes**: each change appends a new `SalesCommissionRule` version, effective from the moment it's saved. Existing snapshots and customers' `eligibleUntil` never change.
@@ -132,6 +134,7 @@ Duplicate deliveries, retries and concurrent hooks hit the unique keys (P2002) a
 6. **Review**:
    - Hold, release, reverse and adjust a commission. Each action is listed under القواعد والسجل.
    - Record a payout: the payable total goes to 0, and the commissions become مدفوعة.
+   - As the rep, request a withdrawal → it shows under الصرف → طلبات سحب مستنية; a second request is refused while it's open. Record the payout → the request shows اتصرف on the rep's side and the rep gets a notice. Reject another one → the rep sees the reason.
 7. **Disable**:
    - Disable the rep → they're logged out and `/sales` refuses them.
    - A new signup through their link is not attributed.

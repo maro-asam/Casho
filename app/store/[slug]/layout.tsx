@@ -15,7 +15,7 @@ import { StoreBuilderBridge } from "./_components/StoreBuilderBridge";
 import { CustomDomainLinks } from "./_components/CustomDomainLinks";
 import { CouponLinkCapture } from "./_components/CouponLinkCapture";
 import { Suspense } from "react";
-import { StoreVisitTracker } from "@/components/tracking/store-visit-tracker";
+import { CashoAnalytics } from "@/components/analytics/CashoAnalytics";
 import { StoreConversionLayer } from "./_components/conversion/StoreConversionLayer";
 import { StorePixels } from "./_components/pixels/StorePixels";
 import { hasAnyPixel, isValidPixelId, type StorePixelConfig } from "@/lib/pixels/shared";
@@ -287,7 +287,8 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         <Suspense fallback={null}>
           <CouponLinkCapture storeSlug={store.slug} />
         </Suspense>
-        <StoreVisitTracker storeId={store.id} />
+        {/* Visits (the merchant's counter) + the Analytics Center, scoped to this store. */}
+        <CashoAnalytics rootDomain={process.env.ROOT_DOMAIN || "casho.store"} storeId={store.id} />
         {hasAnyPixel(pixelConfig) && <StorePixels config={pixelConfig} />}
         {/* Studio layout choices that themes style globally (card style, spacing, motion,
             Casho Medical's pharmacy features). */}

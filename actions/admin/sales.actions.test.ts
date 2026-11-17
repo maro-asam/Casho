@@ -15,6 +15,12 @@ const tx = {
   salesRepAdjustment: { create: vi.fn(async () => ({ id: "radj1" })), updateMany: vi.fn(async () => ({ count: 1 })) },
   passwordResetToken: { deleteMany: vi.fn() },
   emailVerificationCode: { deleteMany: vi.fn() },
+  salesWithdrawalRequest: {
+    findFirst: vi.fn(async () => null as { id: string } | null),
+    findUnique: vi.fn(async () => null as { salesRepId: string; amount: number } | null),
+    update: vi.fn(),
+    updateMany: vi.fn(async () => ({ count: 1 })),
+  },
 };
 const prismaMock = {
   ...tx,
@@ -31,9 +37,11 @@ vi.mock("./admin-guard.actions", () => ({ requireAdmin: vi.fn() }));
 vi.mock("@/lib/auth/password", () => ({ hashPassword: vi.fn(async () => "hashed") }));
 vi.mock("@/lib/sales/engine", () => ({ syncSalesCommissionsForCustomer: vi.fn(async () => ({ commissions: 0, adjustments: 0 })) }));
 vi.mock("@/lib/sales/queries", () => ({ getPayableItems: vi.fn() }));
+vi.mock("@/lib/sales/notify", () => ({ queuePayoutNotice: vi.fn(), queueWithdrawalRejectedNotice: vi.fn() }));
 
 const { requireAdmin } = await import("./admin-guard.actions");
 const { getPayableItems } = await import("@/lib/sales/queries");
+const notify = await import("@/lib/sales/notify");
 const actions = await import("./sales.actions");
 
 const REP_A = "11111111-1111-4111-8111-111111111111";
@@ -57,6 +65,7 @@ describe("every admin sales action requires an admin", () => {
     ["createRepAdjustmentAction", () => actions.createRepAdjustmentAction({ salesRepId: REP_A, kind: "BONUS", amountEgp: 100, reason: "best month" })],
     ["cancelRepAdjustmentAction", () => actions.cancelRepAdjustmentAction({ adjustmentId: COMMISSION, reason: "entered twice" })],
     ["recordSalesPayoutAction", () => actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 100, paidAt: "2026-10-01", method: "bank" })],
+    ["rejectWithdrawalRequestAction", () => actions.rejectWithdrawalRequestAction({ requestId: COMMISSION, reason: "wrong number" })],
     ["updateCommissionRulesAction", () => actions.updateCommissionRulesAction({})],
   ];
 
@@ -335,6 +344,56 @@ describe("recordSalesPayoutAction — actual payouts only", () => {
     vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1", "c2"], adjustmentIds: [], repAdjustmentIds: [], total: 5_000 });
     tx.salesCommission.updateMany.mockResolvedValue({ count: 1 });
     await expect(actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 5_000, paidAt: "2026-10-01", method: "bank" })).rejects.toThrow();
+  });
+
+  it("settles the rep's open withdrawal request and notifies the rep", async () => {
+    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1"], adjustmentIds: [], repAdjustmentIds: [], total: 5_000 });
+    tx.salesCommission.updateMany.mockResolvedValue({ count: 1 });
+    tx.salesWithdrawalRequest.findFirst.mockResolvedValueOnce({ id: "wr1" });
+    const res = await actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 5_000, paidAt: "2026-10-01", method: "إنستا باي" });
+    expect(res.success).toBe(true);
+    expect(tx.salesWithdrawalRequest.findFirst).toHaveBeenCalledWith({ where: { salesRepId: REP_A, status: "PENDING" }, select: { id: true } });
+    expect(tx.salesWithdrawalRequest.update).toHaveBeenCalledWith({
+      where: { id: "wr1" },
+      data: expect.objectContaining({ status: "PAID", payoutId: "payout1", decidedById: "admin1" }),
+    });
+    expect(notify.queuePayoutNotice).toHaveBeenCalledWith("payout1");
+  });
+
+  it("records a payout with no open request without touching requests", async () => {
+    vi.mocked(getPayableItems).mockResolvedValue({ commissionIds: ["c1"], adjustmentIds: [], repAdjustmentIds: [], total: 5_000 });
+    tx.salesCommission.updateMany.mockResolvedValue({ count: 1 });
+    const res = await actions.recordSalesPayoutAction({ salesRepId: REP_A, expectedTotal: 5_000, paidAt: "2026-10-01", method: "bank" });
+    expect(res.success).toBe(true);
+    expect(tx.salesWithdrawalRequest.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("rejectWithdrawalRequestAction", () => {
+  it("needs a reason the rep can read", async () => {
+    const res = await actions.rejectWithdrawalRequestAction({ requestId: COMMISSION, reason: "no" });
+    expect(res.success).toBe(false);
+    expect(res.fieldErrors?.reason).toBeTruthy();
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("rejects only a still-open request, then tells the rep", async () => {
+    tx.salesWithdrawalRequest.findUnique.mockResolvedValueOnce({ salesRepId: REP_A, amount: 5_000 });
+    const res = await actions.rejectWithdrawalRequestAction({ requestId: COMMISSION, reason: "رقم المحفظة غلط" });
+    expect(res.success).toBe(true);
+    expect(tx.salesWithdrawalRequest.updateMany).toHaveBeenCalledWith({
+      where: { id: COMMISSION, status: "PENDING" },
+      data: expect.objectContaining({ status: "REJECTED", decidedById: "admin1", decisionReason: "رقم المحفظة غلط" }),
+    });
+    expect(notify.queueWithdrawalRejectedNotice).toHaveBeenCalledWith(COMMISSION);
+  });
+
+  it("refuses a request that was already paid, rejected or canceled", async () => {
+    tx.salesWithdrawalRequest.findUnique.mockResolvedValueOnce({ salesRepId: REP_A, amount: 5_000 });
+    tx.salesWithdrawalRequest.updateMany.mockResolvedValueOnce({ count: 0 });
+    const res = await actions.rejectWithdrawalRequestAction({ requestId: COMMISSION, reason: "رقم المحفظة غلط" });
+    expect(res.success).toBe(false);
+    expect(notify.queueWithdrawalRejectedNotice).not.toHaveBeenCalled();
   });
 });
 

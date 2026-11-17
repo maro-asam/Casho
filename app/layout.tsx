@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/theme/theme-provider";
 import { MetaPixel } from "@/components/meta/meta-pixel";
 import { Analytics } from "@vercel/analytics/next";
+import { CashoAnalytics } from "@/components/analytics/CashoAnalytics";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -124,6 +125,8 @@ export default function RootLayout({
       >
         <Analytics />
         <MetaPixel />
+        {/* First-party analytics (lib/analytics) — Casho site + dashboard; storefronts mount their own. */}
+        <CashoAnalytics rootDomain={process.env.ROOT_DOMAIN || "casho.store"} />
 
         <ThemeProvider
           attribute="class"

@@ -35,6 +35,7 @@ import {
   createRepAdjustmentAction,
   createSalesRepAction,
   recordSalesPayoutAction,
+  rejectWithdrawalRequestAction,
   setSalesRepStatusAction,
   updateCommissionStatusAction,
   updateSalesRepAction,
@@ -500,7 +501,20 @@ export function CancelRepAdjustmentButton({ adjustmentId, kind }: { adjustmentId
 
 // ─── Payouts ────────────────────────────────────────────────────────────────
 
-export function RecordPayoutDialog({ salesRepId, repName, payable }: { salesRepId: string; repName: string; payable: number }) {
+/** The rep's open withdrawal request, shown in the payout dialog (the payout settles it). */
+export type PayoutRequestInfo = { amount: number; method: string; account: string; note: string | null };
+
+export function RecordPayoutDialog({
+  salesRepId,
+  repName,
+  payable,
+  request,
+}: {
+  salesRepId: string;
+  repName: string;
+  payable: number;
+  request?: PayoutRequestInfo | null;
+}) {
   const [open, setOpen] = useState(false);
   const { submit, pending, errors } = useSalesForm(recordSalesPayoutAction, () => setOpen(false));
   const today = new Date().toISOString().slice(0, 10);
@@ -519,12 +533,27 @@ export function RecordPayoutDialog({ salesRepId, repName, payable }: { salesRepI
             سجّل التحويل بعد ما يتم فعلًا. هيتسوّى كل المستحق ({formatMoneyFromPiasters(payable)}) — العمولات المعتمدة هتتحول لـ &quot;مدفوعة&quot;، والمكافآت والخصومات المفتوحة هتتقفل معاه.
           </DialogDescription>
         </DialogHeader>
+        {request && (
+          <div className="space-y-0.5 rounded-[12px] bg-(--fill-3) p-3 text-[14px] leading-6">
+            <p className="font-semibold">
+              طالب سحب {formatMoneyFromPiasters(request.amount)} على {request.method}
+            </p>
+            <p dir="auto" className="font-mono text-[13px] select-all">
+              {request.account}
+            </p>
+            {request.note && <p className="text-[13px] text-muted-foreground">{request.note}</p>}
+            {request.amount !== payable && (
+              <p className="text-[13px] text-muted-foreground">المستحق اتغيّر من وقت الطلب — الصرف بيتسجّل بالمستحق دلوقتي.</p>
+            )}
+            <p className="text-[13px] text-muted-foreground">تسجيل الصرف بيقفل الطلب ويبعتله إشعار.</p>
+          </div>
+        )}
         <form className="space-y-4" onSubmit={(e) => submit({ ...formValues(e), salesRepId, expectedTotal: payable })}>
           <Field label="تاريخ التحويل" name="paidAt" error={errors.paidAt}>
             <Input id="paidAt" name="paidAt" type="date" dir="ltr" defaultValue={today} max={today} required />
           </Field>
           <Field label="طريقة الدفع" name="method" error={errors.method}>
-            <Input id="method" name="method" placeholder="تحويل بنكي / فودافون كاش / إنستا باي" required />
+            <Input id="method" name="method" placeholder="تحويل بنكي / فودافون كاش / إنستا باي" defaultValue={request?.method} required />
           </Field>
           <Field label="رقم مرجعي للتحويل" name="reference" error={errors.reference}>
             <Input id="reference" name="reference" dir="ltr" />
@@ -533,6 +562,35 @@ export function RecordPayoutDialog({ salesRepId, repName, payable }: { salesRepI
             <Textarea id="note" name="note" rows={2} />
           </Field>
           <SubmitRow pending={pending} label={`تأكيد صرف ${formatMoneyFromPiasters(payable)}`} />
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** Turns down a rep's withdrawal request; the reason goes to the rep (bell + email). */
+export function RejectWithdrawalDialog({ requestId, repName, amount }: { requestId: string; repName: string; amount: number }) {
+  const [open, setOpen] = useState(false);
+  const { submit, pending, errors } = useSalesForm(rejectWithdrawalRequestAction, () => setOpen(false));
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button type="button" className={appleButton.destructive}>
+          رفض
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>رفض طلب سحب {repName}</DialogTitle>
+          <DialogDescription>
+            طلب سحب {formatMoneyFromPiasters(amount)}. مستحقاته مش هتتغيّر، والمندوب هيشوف السبب ويقدر يطلب تاني.
+          </DialogDescription>
+        </DialogHeader>
+        <form className="space-y-4" onSubmit={(e) => submit({ ...formValues(e), requestId })}>
+          <Field label="السبب" name="reason" error={errors.reason}>
+            <Textarea id="reason" name="reason" rows={3} placeholder="مثلًا: رقم المحفظة مش صحيح، ابعته تاني" required />
+          </Field>
+          <SubmitRow pending={pending} label="رفض الطلب" destructive />
         </form>
       </DialogContent>
     </Dialog>

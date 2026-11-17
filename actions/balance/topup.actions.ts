@@ -1,5 +1,6 @@
 "use server";
 
+import { readMainVisit, recordServerEvent } from "@/lib/analytics/server-events";
 import {
   NotificationType,
   TopupMethod,
@@ -41,6 +42,19 @@ const methodLabels: Record<TopupMethod, string> = {
 
 function isValidTopupAmount(amount: number) {
   return Number.isInteger(amount) && amount >= 1000; // أقل حاجة 10 جنيه
+}
+
+/** Analytics Center: a merchant started paying Casho (the payment itself is verified from the ledger). */
+async function recordPaymentInitiated(storeId: string, topupRequestId: string, amount: number, method: TopupMethod) {
+  await recordServerEvent({
+    name: "payment_initiated",
+    scope: "APP",
+    dedupeKey: `payment_initiated_${topupRequestId}`,
+    refId: storeId,
+    value: amount,
+    props: { method: method.toLowerCase() },
+    visit: await readMainVisit(),
+  });
 }
 
 export async function CreateTopupRequestAction({
@@ -86,6 +100,7 @@ export async function CreateTopupRequestAction({
       },
       select: { id: true },
     });
+    await recordPaymentInitiated(storeId, topupRequest.id, amount, method);
 
     await createNotification({
       storeId,
@@ -169,6 +184,7 @@ export async function InitiatePaymobTopupAction(
       },
       select: { id: true },
     });
+    await recordPaymentInitiated(storeId, topupRequest.id, amountInPiasters, TopupMethod.PAYMOB);
 
     const callbackUrl = `${paymobCallbackBaseUrl()}/api/payments/paymob/topup`;
     ({ url: checkoutUrl } = await createPaymobCheckout(creds, {

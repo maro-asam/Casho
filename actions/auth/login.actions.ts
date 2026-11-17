@@ -6,6 +6,7 @@ import type { LoginState } from "./auth.types";
 import { loginSchema } from "@/validations/auth.schema";
 import { getFieldErrors } from "@/lib/zod";
 import { createUserSession } from "@/lib/auth/session";
+import { recordLogin } from "@/lib/analytics/server-events";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
 import { checkLoginRateLimit, recordLoginAttempt, formatRetryAfter } from "@/lib/auth/rate-limit";
 import { logSecurityEvent } from "@/lib/auth/security-log";
@@ -92,6 +93,7 @@ export async function LoginAction(
     await recordLoginAttempt({ email, ipAddress, success: true, userId: user.id });
     await createUserSession(user.id);
     logSecurityEvent({ event: "LOGIN_SUCCESS", userId: user.id, ipAddress, metadata: { email } });
+    await recordLogin({ userId: user.id, method: "email" });
 
     return {
       success: true,

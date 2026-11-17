@@ -277,6 +277,12 @@ export default async function AdminUserPage({ params }: PageProps) {
             confirmValue={user.email}
             confirmLabel="البريد"
             blockers={deletion.blockers}
+            hardBlockers={deletion.hardBlockers}
+            canForce={viewer.role === UserRole.SUPER_ADMIN}
+            forceConsequences={[
+              "سجل رصيد متاجره وعمولات المندوب ومكافآت الإحالة — التقارير هتتحسب من غيرها",
+              "ملخص الفلوس اللي اتمسحت بيتسجل في سجل الأمان",
+            ]}
             alternative="بدل الحذف: اقفل كل الجلسات، وألغِ اشتراك متاجره من صفحة المتجر."
             consequences={[
               "الحساب وجلساته وإشعاراته",

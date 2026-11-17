@@ -1,7 +1,8 @@
 import { SubscriptionStatus, type Prisma } from "@prisma/client";
 import { getEntryPlan } from "@/lib/billing/renewal";
 import { resolveRenewal } from "@/lib/billing/plan-quote";
-import { DEMO_SESSION_PREFIX, DEMO_SKU_PREFIX } from "@/lib/demo-data/kits";
+import { REAL_ORDERS, REAL_PRODUCTS } from "@/lib/demo-data/where";
+import { hasShippingSetup } from "@/lib/store-setup/checklist";
 import { prisma } from "@/lib/prisma";
 import {
   CALL_PRIORITY,
@@ -23,10 +24,6 @@ import {
 
 const DAY = 86_400_000;
 
-/** The onboarding demo catalog and its sample orders aren't the merchant's own. */
-const REAL_PRODUCTS: Prisma.ProductWhereInput = { OR: [{ sku: null }, { NOT: { sku: { startsWith: DEMO_SKU_PREFIX } } }] };
-const REAL_ORDERS: Prisma.OrderWhereInput = { NOT: { guestSessionId: { startsWith: DEMO_SESSION_PREFIX } } };
-
 /** Everything the rules and the activation checklist read from a store. */
 export const ACTIVATION_STORE_SELECT = {
   id: true,
@@ -41,6 +38,7 @@ export const ACTIVATION_STORE_SELECT = {
   billingCycle: true,
   monthlyPrice: true,
   paymentMethods: true,
+  onboardingCompleted: true,
   plan: { select: { id: true, key: true, name: true, monthlyPrice: true, yearlyPrice: true } },
   storePaymentSettings: {
     select: {
@@ -55,7 +53,7 @@ export const ACTIVATION_STORE_SELECT = {
     },
   },
   settings: { select: { shippingPrice: true } },
-  _count: { select: { products: { where: REAL_PRODUCTS }, orders: { where: REAL_ORDERS }, shippingMethods: true } },
+  _count: { select: { products: { where: REAL_PRODUCTS }, orders: { where: REAL_ORDERS }, shippingMethods: { where: { isActive: true } } } },
 } satisfies Prisma.StoreSelect;
 
 type ActivationStoreRow = Prisma.StoreGetPayload<{ select: typeof ACTIVATION_STORE_SELECT }>;
@@ -70,7 +68,11 @@ export function storeActivation(store: ActivationStoreRow): StoreActivation {
       products,
       orders,
       hasPayment: hasPaymentSetup(store),
-      hasShipping: (store.settings?.shippingPrice ?? 0) > 0 || store._count.shippingMethods > 0,
+      hasShipping: hasShippingSetup({
+        shippingPrice: store.settings?.shippingPrice ?? 0,
+        shippingMethods: store._count.shippingMethods,
+        onboardingCompleted: store.onboardingCompleted,
+      }),
     }),
     products,
     orders,

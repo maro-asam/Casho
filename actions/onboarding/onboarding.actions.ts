@@ -9,6 +9,7 @@ import { getThemePreset, isThemePresetId, type ThemePresetId } from "@/constants
 import { mutateAppearance } from "@/lib/studio/mutate";
 import { clearDemoData, seedDemoData } from "@/lib/demo-data/seed";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { readMainVisit, recordServerEvent } from "@/lib/analytics/server-events";
 
 const handle = z.string().trim().max(255).optional().default("");
 
@@ -131,6 +132,15 @@ export async function CompleteOnboardingAction(input: OnboardingInput): Promise<
         onboardingCompleted: true,
         planSelected: true,
       },
+    });
+    // Analytics Center funnel: the store picked its plan (first selection only).
+    await recordServerEvent({
+      name: "subscription_selected",
+      scope: "APP",
+      dedupeKey: `subscription_selected_${store.id}`,
+      refId: store.id,
+      props: { via: "onboarding" },
+      visit: await readMainVisit(),
     });
 
     return { success: true, storeUrl, seeded: seeded && { products: seeded.products, orders: seeded.orders } };

@@ -19,6 +19,8 @@ export function MetaPixel() {
     <>
       <Script id="meta-pixel" strategy="afterInteractive">
         {`
+          // Not inside iframes (Studio preview, heatmap viewer): those aren't real visits.
+          if (window.self === window.top) {
           !function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
           n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -30,6 +32,7 @@ export function MetaPixel() {
 
           fbq('init', '${pixelId}');
           fbq('track', 'PageView');
+          }
         `}
       </Script>
 

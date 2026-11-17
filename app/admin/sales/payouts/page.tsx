@@ -6,8 +6,9 @@ import { Card, StatusText, Unavailable } from "@/components/saas-page";
 import { CardEmpty, Monogram } from "@/components/sales/sales-summary";
 import { prisma } from "@/lib/prisma";
 import { fmtDate, fmtDateTime, fmtMoney, fmtNum } from "@/lib/sales/format";
-import { getPayableItems, listPayouts } from "@/lib/sales/queries";
+import { getPayableItems, listPayouts, listPendingWithdrawals } from "@/lib/sales/queries";
 import { RecordPayoutDialog } from "../_components/sales-dialogs";
+import { WithdrawalRequests } from "../_components/withdrawal-requests";
 
 export default async function AdminSalesPayoutsPage() {
   await requireAdmin();
@@ -16,14 +17,19 @@ export default async function AdminSalesPayoutsPage() {
     orderBy: { createdAt: "asc" },
     select: { id: true, status: true, user: { select: { name: true, email: true } } },
   });
-  const [payables, payouts, paid] = await Promise.all([
+  const [payables, payouts, paid, requests] = await Promise.all([
     Promise.all(reps.map((r) => getPayableItems(prisma, r.id))),
     listPayouts({ all: true }, 100),
     prisma.salesPayout.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
+    listPendingWithdrawals(),
   ]);
+  const payableByRep = new Map(reps.map((r, i) => [r.id, payables[i].total]));
+  const requestByRep = new Map(requests.map((r) => [r.salesRepId, r]));
 
-  // Who's owed the most comes first; nothing owed sinks to the bottom.
-  const rows = reps.map((rep, i) => ({ rep, payable: payables[i] })).sort((a, b) => b.payable.total - a.payable.total);
+  // Who asked to be paid comes first, then who's owed the most; nothing owed sinks to the bottom.
+  const rows = reps
+    .map((rep, i) => ({ rep, payable: payables[i], request: requestByRep.get(rep.id) ?? null }))
+    .sort((a, b) => Number(!!b.request) - Number(!!a.request) || b.payable.total - a.payable.total);
   const owedTotal = rows.reduce((s, r) => s + Math.max(0, r.payable.total), 0);
   const owedCount = rows.filter((r) => r.payable.total > 0).length;
   const last = payouts[0];
@@ -50,6 +56,8 @@ export default async function AdminSalesPayoutsPage() {
         ]}
       />
 
+      <WithdrawalRequests requests={requests} payables={payableByRep} />
+
       <Card
         title="المستحق لكل مندوب"
         subtitle="العمولات المعتمدة اللي لسه متصرفتش ± التسويات والمكافآت والخصومات. سجّل الصرف بعد التحويل الفعلي — تغيير الحالة لوحده مش معناه إن الفلوس وصلت."
@@ -58,7 +66,7 @@ export default async function AdminSalesPayoutsPage() {
           <CardEmpty>مفيش مندوبين لسه.</CardEmpty>
         ) : (
           <ul className="apple-rows pb-2 [--row-inset:72px]">
-            {rows.map(({ rep, payable }) => {
+            {rows.map(({ rep, payable, request }) => {
               const name = rep.user.name ?? rep.user.email;
               const owed = payable.total > 0;
               return (
@@ -77,6 +85,11 @@ export default async function AdminSalesPayoutsPage() {
                           موقوف
                         </StatusText>
                       )}
+                      {request && (
+                        <StatusText tone="warning" className="text-[12px]">
+                          طالب سحب
+                        </StatusText>
+                      )}
                     </div>
                     <p className="text-[13px] text-muted-foreground tabular-nums">
                       {owed
@@ -89,7 +102,7 @@ export default async function AdminSalesPayoutsPage() {
                   <span className={owed ? "text-[17px] font-bold tabular-nums" : "text-[15px] text-muted-foreground tabular-nums"}>
                     {fmtMoney(payable.total)}
                   </span>
-                  <RecordPayoutDialog salesRepId={rep.id} repName={name} payable={payable.total} />
+                  <RecordPayoutDialog salesRepId={rep.id} repName={name} payable={payable.total} request={request} />
                 </li>
               );
             })}
