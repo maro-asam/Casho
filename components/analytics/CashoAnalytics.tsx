@@ -72,7 +72,8 @@ export function CashoAnalytics({ rootDomain, storeId }: { rootDomain: string; st
         })
         .catch(() => {});
     };
-    const idle = window.requestIdleCallback;
+    // Not every browser has it (Safari), though the DOM types say it always exists.
+    const idle = "requestIdleCallback" in window ? window.requestIdleCallback : undefined;
     const handle = idle ? idle(start, { timeout: 4_000 }) : window.setTimeout(start, 1_500);
     return () => {
       cancelled = true;

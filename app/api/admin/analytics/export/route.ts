@@ -14,7 +14,7 @@ import { isStorefrontView, parseAnalyticsFilter, type AnalyticsFilter } from "@/
 import { BUILT_IN_FUNNELS, readSteps, type FunnelDefinition } from "@/lib/analytics/funnels";
 import { deriveRates, pctChange, ratio } from "@/lib/analytics/metrics";
 import { getEvents, getJourneys, getPerformance } from "@/lib/analytics/queries/activity";
-import { getAcquisition, getStoresTable, getVisitorBreakdowns, type AttributionModel, type Dimension, type TouchDimension } from "@/lib/analytics/queries/breakdowns";
+import { getAcquisition, getStoresTable, getVisitorBreakdowns, type AttributedRow, type AttributionModel, type Dimension, type OrderRow, type TouchDimension } from "@/lib/analytics/queries/breakdowns";
 import { getCampaigns } from "@/lib/analytics/queries/campaigns";
 import { getFunnelReport } from "@/lib/analytics/queries/funnels";
 import { getHeatmapPages } from "@/lib/analytics/queries/heatmaps";
@@ -31,6 +31,11 @@ const egp = (piasters: number) => Math.round(piasters) / 100;
 const pct = (r: number | null) => (r === null ? null : Math.round(r * 1000) / 10);
 const sec = (ms: number | null) => (ms === null ? null : Math.round(ms / 1000));
 const channel = (c: string | null) => (c ? (CHANNEL_LABELS[c as Channel] ?? c) : "");
+
+/** Casho conversions (signups/paid) and storefront ones (orders) as one shape. */
+type ConvCounts = { orders: number; signups: number; paid: number; revenue: number };
+const convCounts = (c: AttributedRow | OrderRow): ConvCounts =>
+  "orders" in c ? { orders: c.orders, signups: 0, paid: 0, revenue: c.revenue } : { orders: 0, signups: c.signups, paid: c.paid, revenue: c.revenue };
 
 function header(f: AnalyticsFilter, title: string): Cell[][] {
   return [[title], ["الفترة", `${f.fromKey} → ${f.toKey}`], ["مقارنة بـ", f.prevFromKey ? `${f.prevFromKey} → ${f.prevToKey}` : "—"], ["النطاق", f.storeId ? `متجر ${f.storeId}` : f.scope], ["الجهاز", f.device], []];
@@ -109,7 +114,7 @@ async function buildReport(report: string, f: AnalyticsFilter): Promise<{ title:
       const dim = (a || "channel") as Dimension & TouchDimension;
       const model: AttributionModel = b === "last" ? "last" : "first";
       const { traffic, conversions } = await getAcquisition(f, dim, model);
-      const conv = new Map(conversions.map((c) => [c.key ?? "", c as Record<string, number>]));
+      const conv = new Map(conversions.map((c) => [c.key ?? "", convCounts(c)]));
       const rows: Cell[][] = [
         ...header(f, `مصادر الزيارات — ${dim}${isStorefrontView(f) ? "" : ` (نسب: ${model === "first" ? "أول زيارة" : "آخر زيارة"})`}`),
         isStorefrontView(f)
@@ -185,7 +190,7 @@ async function buildReport(report: string, f: AnalyticsFilter): Promise<{ title:
     case "campaigns": {
       const model: AttributionModel = a === "last" ? "last" : "first";
       const d = await getCampaigns(f, model);
-      const conv = new Map(d.conversions.map((c) => [c.key ?? "", c as Record<string, number>]));
+      const conv = new Map(d.conversions.map((c) => [c.key ?? "", convCounts(c)]));
       const rows: Cell[][] = [
         ...header(f, "الحملات"),
         ["الحملة", "زيارات", "زوار", d.storefront ? "طلبات" : "تسجيلات", d.storefront ? "—" : "دفعوا", "الإيراد (ج.م)", "التكلفة (ج.م)", "ROAS"],

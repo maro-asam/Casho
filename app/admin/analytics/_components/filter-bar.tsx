@@ -97,13 +97,13 @@ export function FilterBar({
       <Popover open={customOpen} onOpenChange={setCustomOpen}>
       <PopoverAnchor asChild>
       <span className="inline-flex">
-      <DropdownMenu>
+      <DropdownMenu dir="rtl">
         <DropdownMenuTrigger className={pill}>
           <CalendarDays className="size-4 text-muted-foreground" />
           {rangeText}
           <ChevronDown className="size-3.5 text-muted-foreground" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className={appleMenu} dir="rtl">
+        <DropdownMenuContent align="start" className={appleMenu}>
           <DropdownMenuRadioGroup value={range} onValueChange={(v) => apply({ range: v === "30d" ? null : v, from: null, to: null })}>
             {RANGE_OPTIONS.map((r) => (
               <DropdownMenuRadioItem key={r.value} value={r.value}>
@@ -144,13 +144,13 @@ export function FilterBar({
       </Popover>
 
       {/* Comparison */}
-      <DropdownMenu>
+      <DropdownMenu dir="rtl">
         <DropdownMenuTrigger className={pill}>
           <span className="text-muted-foreground">مقارنة:</span>
           {COMPARE.find((c) => c.value === compare)?.label}
           <ChevronDown className="size-3.5 text-muted-foreground" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className={appleMenu} dir="rtl">
+        <DropdownMenuContent align="start" className={appleMenu}>
           <DropdownMenuRadioGroup value={compare} onValueChange={(v) => apply({ compare: v === "previous" ? null : v })}>
             {COMPARE.map((c) => (
               <DropdownMenuRadioItem key={c.value} value={c.value}>
@@ -166,12 +166,12 @@ export function FilterBar({
       {!hideScope && (
         <>
           {/* Scope */}
-          <DropdownMenu>
+          <DropdownMenu dir="rtl">
             <DropdownMenuTrigger className={pill}>
               {store ? "متجر واحد" : SCOPE_OPTIONS.find((s) => s.value === scope)?.label}
               <ChevronDown className="size-3.5 text-muted-foreground" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className={cn(appleMenu, "w-64")} dir="rtl">
+            <DropdownMenuContent align="start" className={cn(appleMenu, "w-64")}>
               <DropdownMenuLabel className="text-[12px] font-normal text-muted-foreground">أنهي جزء من كاشو؟</DropdownMenuLabel>
               <DropdownMenuRadioGroup value={store ? "store" : scope} onValueChange={(v) => apply({ scope: v === "marketing" ? null : v, store: null })}>
                 {SCOPE_OPTIONS.map((s) => (
@@ -235,13 +235,13 @@ export function FilterBar({
 
       {/* Device */}
       {!hideDevice && (
-      <DropdownMenu>
+      <DropdownMenu dir="rtl">
         <DropdownMenuTrigger className={pill}>
           <Monitor className="size-4 text-muted-foreground" />
           {DEVICE_OPTIONS.find((d) => d.value === device)?.label}
           <ChevronDown className="size-3.5 text-muted-foreground" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className={appleMenu} dir="rtl">
+        <DropdownMenuContent align="start" className={appleMenu}>
           <DropdownMenuRadioGroup value={device} onValueChange={(v) => apply({ device: v === "all" ? null : v })}>
             {DEVICE_OPTIONS.map((d) => (
               <DropdownMenuRadioItem key={d.value} value={d.value}>
@@ -254,12 +254,12 @@ export function FilterBar({
       )}
 
       {exportReport && (
-        <DropdownMenu>
+        <DropdownMenu dir="rtl">
           <DropdownMenuTrigger className={cn(pill, "ms-auto")}>
             <Download className="size-4 text-muted-foreground" />
             تصدير
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className={appleMenu} dir="rtl">
+          <DropdownMenuContent align="end" className={appleMenu}>
             <DropdownMenuItem asChild>
               <a href={exportHref("csv")} download>
                 ملف CSV
