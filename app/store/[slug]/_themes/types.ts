@@ -210,12 +210,26 @@ export type CartViewProps = {
   };
 };
 
+export type CheckoutPaymentMethod = {
+  key: string;
+  label: string;
+  /**
+   * Manual transfer: where the shopper sends the money (the merchant's number,
+   * InstaPay address or account). Set → CheckoutForm asks for "paid from" and a
+   * screenshot before placing the order (lib/payments/manual-proof.ts).
+   */
+  transferTo?: string | null;
+};
+
+/** What the order action answers when it can't place the order (it redirects when it can). */
+export type CheckoutResult = { error?: string };
+
 export type CheckoutViewProps = {
   storeSlug: string;
   cart: CartViewProps["cart"];
-  paymentMethods: { key: string; label: string }[];
-  /** Server action that validates the form and places the order. */
-  createOrder: (formData: FormData) => Promise<void>;
+  paymentMethods: CheckoutPaymentMethod[];
+  /** Server action that validates the form and places the order — redirects on success. */
+  createOrder: (formData: FormData) => Promise<CheckoutResult>;
   /** Terms / return policy links shown before the order button (forward to CheckoutForm). */
   legal: CheckoutLegal;
 };

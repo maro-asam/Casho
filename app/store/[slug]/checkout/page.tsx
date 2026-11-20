@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_rethrow } from "next/navigation";
 
 import { CreateOrderAction } from "@/actions/store/orders.actions";
 import { GetStoreCheckoutPaymentMethodsAction } from "@/actions/payment-methods/payment-methods.actions";
@@ -8,9 +9,9 @@ import { isGovernorateCode } from "@/constants/egypt-governorates";
 import { buildStoreUrl } from "@/helpers/BuildStoreURL";
 import { POLICY_LABELS, consentPolicyTypes, policyPath } from "@/lib/store-policies";
 import { loadPolicySettings } from "@/lib/store-policies/server";
-import type { CheckoutLegal } from "../_themes/types";
+import type { CheckoutLegal, CheckoutResult } from "../_themes/types";
 import { getStorefrontTheme } from "../_themes";
-import { getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
+import { getManualTransferDetails, getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
 import { PixelEvent } from "../_components/pixels/PixelEvent";
 import { st } from "@/lib/i18n/storefront";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
@@ -31,6 +32,18 @@ function isValidPaymentMethod(
   return enabledMethods.some((method) => method.key === value);
 }
 
+/**
+ * The checkout's own refusals are Arabic sentences meant for the shopper (the
+ * form translates them); anything else — a database or network failure —
+ * stays in the logs and the shopper gets a plain "try again".
+ */
+function shopperMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : "";
+  if (/[\u0600-\u06FF]/.test(message)) return message;
+  console.error("[checkout] order failed", error);
+  return st("حصلت مشكلة واحنا بنأكد طلبك. جرّب تاني بعد شوية.");
+}
+
 /** The terms and return policy the shopper agrees to by ordering (terms first). */
 async function checkoutLegal(storeId: string, slug: string): Promise<CheckoutLegal> {
   const data = await loadPolicySettings(storeId);
@@ -38,6 +51,54 @@ async function checkoutLegal(storeId: string, slug: string): Promise<CheckoutLeg
     .sort((a, b) => (a === "terms" ? -1 : b === "terms" ? 1 : 0))
     .map((type) => ({ label: st(POLICY_LABELS[type].title), href: buildStoreUrl(slug, policyPath(type)) }));
   return { requireConsent: data.requireTermsAtCheckout && links.length > 0, links };
+}
+
+/** Validates the form and places the order (CreateOrderAction redirects to the order page). */
+async function placeOrder(slug: string, formData: FormData) {
+  const [enabledPaymentMethods, cart] = await Promise.all([
+    GetStoreCheckoutPaymentMethodsAction(slug),
+    GetCartItemsAction(slug),
+  ]);
+
+  const fullName = String(formData.get("fullName") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const address = String(formData.get("address") ?? "").trim();
+  const governorate = String(formData.get("governorate") ?? "").trim();
+
+  const defaultPaymentMethod =
+    enabledPaymentMethods[0]?.key ?? "cash_on_delivery";
+
+  const paymentMethodValue = String(
+    formData.get("paymentMethod") ?? defaultPaymentMethod,
+  ).trim();
+
+  if (!fullName) throw new Error(st("الاسم بالكامل مطلوب"));
+  if (!phone) throw new Error(st("رقم الموبايل مطلوب"));
+  if (!cart.digitalOnly) {
+    if (!isGovernorateCode(governorate)) throw new Error(st("اختر المحافظة"));
+    if (!address) throw new Error(st("العنوان مطلوب"));
+  }
+
+  if (!isValidPaymentMethod(paymentMethodValue, enabledPaymentMethods)) {
+    throw new Error(st("طريقة الدفع غير متاحة"));
+  }
+
+  // Re-read the setting: the page may have been open since the merchant changed it.
+  const { requireConsent } = await checkoutLegal(cart.store.id, slug);
+  const termsAccepted = formData.get("acceptTerms") === "on";
+  if (requireConsent && !termsAccepted) throw new Error(st("لازم توافق على الشروط عشان تكمّل الطلب"));
+
+  await CreateOrderAction(slug, {
+    fullName,
+    phone,
+    email,
+    address,
+    governorate,
+    paymentMethod: paymentMethodValue,
+    termsAccepted: requireConsent && termsAccepted,
+    paymentProof: { payer: formData.get("paymentPayer"), image: formData.get("paymentProof") },
+  });
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -58,59 +119,24 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const closure = await getStorefrontClosure(cartData.store.id);
   if (closure) return <theme.StoreClosed storeSlug={slug} pause={closure.pause} />;
 
-  const legal = await checkoutLegal(cartData.store.id, slug);
-
   // Digital-only carts can't be paid on delivery — there is no delivery.
-  const checkoutMethods = (
-    cartData.digitalOnly ? paymentMethods.filter((method) => method.key !== "cash_on_delivery") : paymentMethods
-  ).map((method) => ({ ...method, label: st(method.label) }));
+  const offered = cartData.digitalOnly ? paymentMethods.filter((method) => method.key !== "cash_on_delivery") : paymentMethods;
+  const [legal, transferDetails] = await Promise.all([
+    checkoutLegal(cartData.store.id, slug),
+    getManualTransferDetails(cartData.store.id, offered.map((method) => method.key)),
+  ]);
+  // A manual method with details asks for "paid from" + a screenshot before the order is placed.
+  const checkoutMethods = offered.map((method) => ({ ...method, label: st(method.label), transferTo: transferDetails[method.key] ?? null }));
 
-  async function handleCreateOrder(formData: FormData) {
+  async function handleCreateOrder(formData: FormData): Promise<CheckoutResult> {
     "use server";
-
-    const [enabledPaymentMethods, cart] = await Promise.all([
-      GetStoreCheckoutPaymentMethodsAction(slug),
-      GetCartItemsAction(slug),
-    ]);
-
-    const fullName = String(formData.get("fullName") ?? "").trim();
-    const phone = String(formData.get("phone") ?? "").trim();
-    const email = String(formData.get("email") ?? "").trim();
-    const address = String(formData.get("address") ?? "").trim();
-    const governorate = String(formData.get("governorate") ?? "").trim();
-
-    const defaultPaymentMethod =
-      enabledPaymentMethods[0]?.key ?? "cash_on_delivery";
-
-    const paymentMethodValue = String(
-      formData.get("paymentMethod") ?? defaultPaymentMethod,
-    ).trim();
-
-    if (!fullName) throw new Error(st("الاسم بالكامل مطلوب"));
-    if (!phone) throw new Error(st("رقم الموبايل مطلوب"));
-    if (!cart.digitalOnly) {
-      if (!isGovernorateCode(governorate)) throw new Error(st("اختر المحافظة"));
-      if (!address) throw new Error(st("العنوان مطلوب"));
+    try {
+      await placeOrder(slug, formData);
+    } catch (error) {
+      unstable_rethrow(error); // the redirect to the order page (or Paymob)
+      return { error: shopperMessage(error) };
     }
-
-    if (!isValidPaymentMethod(paymentMethodValue, enabledPaymentMethods)) {
-      throw new Error(st("طريقة الدفع غير متاحة"));
-    }
-
-    // Re-read the setting: the page may have been open since the merchant changed it.
-    const { requireConsent } = await checkoutLegal(cart.store.id, slug);
-    const termsAccepted = formData.get("acceptTerms") === "on";
-    if (requireConsent && !termsAccepted) throw new Error(st("لازم توافق على الشروط عشان تكمّل الطلب"));
-
-    await CreateOrderAction(slug, {
-      fullName,
-      phone,
-      email,
-      address,
-      governorate,
-      paymentMethod: paymentMethodValue,
-      termsAccepted: requireConsent && termsAccepted,
-    });
+    return {};
   }
 
   return (

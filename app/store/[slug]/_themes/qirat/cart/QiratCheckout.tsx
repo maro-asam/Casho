@@ -48,7 +48,7 @@ export default function QiratCheckout({ storeSlug, cart, paymentMethods, createO
       ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-12">
           <div className="qr-checkout qr-panel order-2 min-w-0 p-4 sm:p-7 lg:order-1">
-            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} />
+            <CheckoutForm paymentMethods={paymentMethods} action={createOrder} legal={legal} storeSlug={storeSlug} defaultGovernorate={cart.selectedGovernorate} digitalOnly={cart.digitalOnly} total={cart.summary.total} />
           </div>
           <aside aria-label={st("ملخص الطلب")} className="order-1 lg:sticky lg:top-[calc(var(--qr-head-h)+1.5rem)] lg:order-2 lg:self-start">
             <details className="qr-details qr-panel" open>

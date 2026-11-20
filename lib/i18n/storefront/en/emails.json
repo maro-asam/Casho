@@ -3,6 +3,7 @@
  "أهلًا {0}، ": "Hi {0}, ",
  "استلمنا الدفع": "Payment received",
  "استلمنا الدفع لطلبك": "We've received payment for your order",
+ "استلمنا صورة التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.": "We got your transfer screenshot. The store will check it and start preparing your order.",
  "الإجمالي: {0}": "Total: {0}",
  "الدفع اتأكد وبدأنا نجهّز طلبك. هنبعتلك أول ما يتشحن.": "Your payment is confirmed and we've started preparing your order. We'll let you know as soon as it ships.",
  "الدفع وصل وبدأنا نجهّز طلبك.": "Your payment arrived and we've started preparing your order.",

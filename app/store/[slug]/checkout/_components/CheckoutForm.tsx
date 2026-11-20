@@ -6,8 +6,8 @@ import { useMemo, useRef, useState, useTransition } from "react";
 import { SaveCheckoutContactAction } from "@/actions/store/cart-recovery.actions";
 import { EGYPT_GOVERNORATES } from "@/constants/egypt-governorates";
 import { selectGovernorateAction } from "../../cart/actions";
-import { useFormStatus } from "react-dom";
 import {
+  AlertCircle,
   CheckCircle2,
   CreditCard,
   Loader2,
@@ -28,13 +28,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import type { CheckoutLegal } from "../../_themes/types";
-import { st, storeDir, storeLocale } from "@/lib/i18n/storefront";
-
-type PaymentMethod = {
-  key: string;
-  label: string;
-};
+import type { CheckoutLegal, CheckoutPaymentMethod, CheckoutResult } from "../../_themes/types";
+import { st, storeDir, storeLocale, stv } from "@/lib/i18n/storefront";
+import { ManualPaymentDialog, type PaymentProof } from "./ManualPaymentDialog";
 
 const NO_LEGAL: CheckoutLegal = { requireConsent: false, links: [] };
 
@@ -87,9 +83,7 @@ function LegalConsent({ legal }: { legal: CheckoutLegal }) {
   );
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
+function SubmitButton({ pending, toPayment }: { pending: boolean; toPayment: boolean }) {
   return (
     <Button
       type="submit"
@@ -102,6 +96,8 @@ function SubmitButton() {
           {st("جاري تأكيد الطلب...")}
           <Loader2 className="size-4 animate-spin" />
         </>
+      ) : toPayment ? (
+        st("كمّل للدفع")
       ) : (
         st("تأكيد الطلب الآن")
       )}
@@ -149,9 +145,13 @@ export default function CheckoutForm({
   defaultGovernorate,
   digitalOnly = false,
   legal = NO_LEGAL,
+  total,
 }: {
-  paymentMethods: PaymentMethod[];
-  action: (formData: FormData) => void;
+  paymentMethods: CheckoutPaymentMethod[];
+  /** Places the order and redirects; answers `{ error }` when it can't. */
+  action: (formData: FormData) => Promise<CheckoutResult>;
+  /** What the shopper pays, in EGP (the cart summary's total) — shown in the transfer window. */
+  total: number;
   /** Terms / return policy consent (CheckoutViewProps.legal). */
   legal?: CheckoutLegal;
   storeSlug: string;
@@ -199,8 +199,48 @@ export default function CheckoutForm({
   const [paymentMethod, setPaymentMethod] =
     useState<string>(defaultPaymentMethod);
 
+  // Placing the order: a manual transfer opens the payment window first; the
+  // order is created only from its "confirm payment", with the proof attached.
+  const selected = paymentMethods.find((method) => method.key === paymentMethod);
+  const transferTo = selected?.transferTo ?? null;
+  const [isPlacing, startPlacing] = useTransition();
+  const [redirecting, setRedirecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [payOpen, setPayOpen] = useState(false);
+  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
+  const pending = isPlacing || redirecting;
+
+  function place(proof?: PaymentProof) {
+    const form = formRef.current;
+    if (!form) return;
+    const data = new FormData(form);
+    if (proof) {
+      data.set("paymentPayer", proof.payer);
+      data.set("paymentProof", proof.image, proof.image.name);
+    }
+    setError(null);
+    startPlacing(async () => {
+      const result = await action(data);
+      // No answer = the action redirected: keep the spinner until the order page opens.
+      if (result?.error) setError(stv(result.error));
+      else setRedirecting(true);
+    });
+  }
+
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); // the browser already checked the required fields
+    if (pending) return;
+    if (transferTo) {
+      setError(null);
+      setPortalRoot(formRef.current?.closest<HTMLElement>(".store-theme-root") ?? null);
+      setPayOpen(true);
+      return;
+    }
+    place();
+  }
+
   return (
-    <form ref={formRef} action={action} onBlur={captureContact} className="space-y-6" dir="rtl">
+    <form ref={formRef} onSubmit={onSubmit} onBlur={captureContact} className="space-y-6" dir="rtl">
       <div className="space-y-2 text-start">
         <h2 className="text-2xl font-semibold">{st("بيانات الطلب")}</h2>
 
@@ -375,7 +415,11 @@ export default function CheckoutForm({
                         st("اختر الوسيلة المناسبة لإتمام الطلب")}
                     </p>
 
-                    {manual ? (
+                    {method.transferTo ? (
+                      <p className="text-xs font-medium text-primary">
+                        {st("هتحوّل المبلغ وترفع صورة التحويل قبل تأكيد الطلب")}
+                      </p>
+                    ) : manual ? (
                       <p className="text-xs font-medium text-primary">
                         {st("سيتم عرض بيانات التحويل بعد تأكيد الطلب")}
                       </p>
@@ -419,7 +463,30 @@ export default function CheckoutForm({
 
       <LegalConsent legal={legal} />
 
-      <SubmitButton />
+      {error && !payOpen && (
+        <p role="alert" className="flex items-start gap-2 rounded-xl bg-destructive/10 p-3 text-sm leading-6 text-destructive">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+          {error}
+        </p>
+      )}
+
+      <SubmitButton pending={pending && !payOpen} toPayment={!!transferTo} />
+
+      {transferTo && selected && (
+        <ManualPaymentDialog
+          key={selected.key}
+          open={payOpen}
+          onOpenChange={setPayOpen}
+          container={portalRoot}
+          method={selected.key}
+          methodLabel={getPaymentMethodByKey(selected.key)?.label ?? selected.label}
+          transferTo={transferTo}
+          total={total}
+          pending={pending}
+          error={payOpen ? error : null}
+          onConfirm={(proof) => place(proof)}
+        />
+      )}
     </form>
   );
 }

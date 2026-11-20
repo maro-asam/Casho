@@ -15,6 +15,8 @@ export type OrderRow = {
   source: OrderSource;
   total: number;
   paymentMethod: string;
+  /** The shopper sent "paid from" + a transfer screenshot at checkout. */
+  proofSent?: boolean;
   createdAt: Date;
   itemCount: number;
   firstProduct: string | null;
@@ -155,6 +157,9 @@ export function OrdersTable({ orders, storeId, storeName }: { orders: OrderRow[]
                 <td className={`${td} text-end`}>
                   <p className="text-[15px] font-semibold tabular-nums">{money.format(order.total / 100)}</p>
                   <p className="text-[13px] text-muted-foreground">{paymentMethodLabel(order.paymentMethod)}</p>
+                  {order.proofSent && order.status === "PENDING" && (
+                    <p className="text-[12px] font-medium text-primary">{tr("بعت إثبات التحويل")}</p>
+                  )}
                 </td>
                 <td className={`${td} pe-4`}>
                   {order.confirmUrl ? (

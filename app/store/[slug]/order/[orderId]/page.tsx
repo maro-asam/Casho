@@ -44,6 +44,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn, formatDate } from "@/lib/utils";
 import { st, stList, storeIntlLocale } from "@/lib/i18n/storefront";
+import { manualTransferDetail, type ManualPaymentSettings } from "@/lib/payments/manual-proof";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 function formatEGPFromCents(cents: number) {
@@ -186,13 +187,6 @@ function getPaymentBanner(payment?: string) {
   }
 }
 
-type ManualPaymentSettings = {
-  manualPaymentDetails?: unknown;
-  vodafoneCashNumber?: string | null;
-  instapayAddress?: string | null;
-  bankTransferDetails?: string | null;
-} | null;
-
 const MANUAL_ICONS: Record<string, typeof Smartphone> = {
   vodafone_cash: Smartphone,
   stc_pay: Smartphone,
@@ -201,18 +195,8 @@ const MANUAL_ICONS: Record<string, typeof Smartphone> = {
   saudi_bank_transfer: Landmark,
 };
 
-function manualDetailFor(method: string, settings?: ManualPaymentSettings) {
-  const map = settings?.manualPaymentDetails;
-  const fromMap = map && typeof map === "object" && !Array.isArray(map) ? (map as Record<string, unknown>)[method] : null;
-  if (typeof fromMap === "string" && fromMap.trim()) return fromMap.trim();
-  // Legacy columns, from before the per-method map existed.
-  if (method === "vodafone_cash") return settings?.vodafoneCashNumber ?? null;
-  if (method === "instapay") return settings?.instapayAddress ?? null;
-  if (method === "bank_transfer") return settings?.bankTransferDetails ?? null;
-  return null;
-}
-
-function manualInstructionFor(method?: string | null, settings?: ManualPaymentSettings) {
+/** `payer`: the shopper already sent "paid from" + a screenshot at checkout. */
+function manualInstructionFor(method?: string | null, settings?: ManualPaymentSettings, payer?: string | null) {
   if (!method) return null;
 
   if (method === "cash_on_delivery") {
@@ -225,12 +209,14 @@ function manualInstructionFor(method?: string | null, settings?: ManualPaymentSe
   }
 
   if (!isManualPaymentMethod(method)) return null;
-  const value = manualDetailFor(method, settings);
+  const value = manualTransferDetail(method, settings);
   if (!value) return null;
 
   return {
-    title: st("ادفع عن طريق {0}", getCatalogueLabel(method)),
-    description: st("استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال لحد ما المتجر يأكد طلبك."),
+    title: payer ? st("الدفع عن طريق {0}", getCatalogueLabel(method)) : st("ادفع عن طريق {0}", getCatalogueLabel(method)),
+    description: payer
+      ? st("استلمنا صورة التحويل من {0}. المتجر هيراجعها ويأكد طلبك.", payer)
+      : st("استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال لحد ما المتجر يأكد طلبك."),
     value,
     icon: MANUAL_ICONS[method] ?? Banknote,
   };
@@ -239,11 +225,13 @@ function manualInstructionFor(method?: string | null, settings?: ManualPaymentSe
 function ManualPaymentInstructions({
   paymentMethod,
   settings,
+  payer,
 }: {
   paymentMethod?: string | null;
   settings?: ManualPaymentSettings;
+  payer?: string | null;
 }) {
-  const instruction = manualInstructionFor(paymentMethod, settings);
+  const instruction = manualInstructionFor(paymentMethod, settings, payer);
 
   if (!instruction) return null;
 
@@ -663,6 +651,7 @@ export default async function OrderDetailsPage({
             <ManualPaymentInstructions
               paymentMethod={order.paymentMethod}
               settings={order.store.storePaymentSettings}
+              payer={order.paymentProofUrl ? order.paymentPayer : null}
             />
 
             <Card className="rounded-[28px]">

@@ -35,6 +35,8 @@ import {
 import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
 import { DIGITAL_ADDRESS, stockOf } from "@/lib/products/digital";
 import { isPaused } from "@/lib/store/pause";
+import { PROOF_FOLDER, isAcceptableProof, needsPaymentProof, normalizePayer } from "@/lib/payments/manual-proof";
+import { uploadImageFromServer } from "@/lib/cloudinary/server-upload";
 
 // Retired methods (Kashier) can't be chosen any more.
 const isPaymentMethodKey = isAvailablePaymentMethod;
@@ -192,6 +194,11 @@ export async function CreateOrderAction(
     paymentMethod: PaymentMethodKey;
     /** Ticked "I agree to the terms" — only asked when the store requires it. */
     termsAccepted?: boolean;
+    /**
+     * Manual transfer with the merchant's details set: what the shopper paid from
+     * and their screenshot (required then — lib/payments/manual-proof.ts).
+     */
+    paymentProof?: { payer: unknown; image: unknown } | null;
   },
 ) {
   const { guestSessionId } = await MustSession();
@@ -248,6 +255,10 @@ export async function CreateOrderAction(
           paymobHmacSecretEncrypted: true,
           paymobCardIntegrationId: true,
           paymobWalletIntegrationId: true,
+          manualPaymentDetails: true,
+          vodafoneCashNumber: true,
+          instapayAddress: true,
+          bankTransferDetails: true,
         },
       },
     },
@@ -293,6 +304,14 @@ export async function CreateOrderAction(
         : "مش هنقدر نكمل الطلب ده. تواصل مع المتجر مباشرة.",
     );
   }
+  // Manual transfer: the shopper pays first, then sends what they paid from and a
+  // screenshot. Checked here, not only in the form, since this action is public.
+  const proofRequired = needsPaymentProof(data.paymentMethod, store.storePaymentSettings);
+  const payer = proofRequired ? normalizePayer(data.paymentProof?.payer) : null;
+  const proofImage = proofRequired ? data.paymentProof?.image : null;
+  if (proofRequired && !payer) throw new Error("اكتب الرقم أو الحساب اللي حوّلت منه.");
+  if (proofRequired && !isAcceptableProof(proofImage)) throw new Error("ارفع صورة التحويل (سكرين شوت) عشان نأكد طلبك.");
+
   const otpMode = fraudSettings?.orderOtpMode ?? OrderOtpMode.OFF;
   const needsConfirmation =
     isManualPayment &&
@@ -454,6 +473,17 @@ export async function CreateOrderAction(
 
   const total = Math.max(0, subtotal + shipping - discount);
 
+  // Uploaded last, once everything that could still turn the order away has passed.
+  let paymentProofUrl: string | null = null;
+  if (proofRequired && isAcceptableProof(proofImage)) {
+    try {
+      paymentProofUrl = await uploadImageFromServer(proofImage, PROOF_FOLDER);
+    } catch (error) {
+      console.error("[checkout] payment proof upload", error);
+      throw new Error("مقدرناش نرفع صورة التحويل دلوقتي. جرّب تاني بعد شوية.");
+    }
+  }
+
   // Online payment: open the Paymob checkout first, under an id the order is
   // then created with — if Paymob is down the customer can still pick
   // another method, and nothing was written. An unpaid intention just expires.
@@ -481,6 +511,8 @@ export async function CreateOrderAction(
         paymentMethod: data.paymentMethod,
         paymentProvider: data.paymentMethod === "paymob" ? "PAYMOB" : "MANUAL",
         paymentStatus: "PENDING",
+        paymentPayer: payer,
+        paymentProofUrl,
         status: OrderStatus.PENDING,
         subtotal,
         shipping,

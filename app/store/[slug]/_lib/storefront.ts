@@ -9,6 +9,7 @@ import { BANNER_DEFAULT_CTA, BANNER_LINK_SELECT, liveBannerWhere, resolveBannerL
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import type { BannerData, ProductCardData } from "../_themes/types";
 import { stockOf } from "@/lib/products/digital";
+import { manualTransferDetail, needsPaymentProof } from "@/lib/payments/manual-proof";
 import { st, storeIntlLocale } from "@/lib/i18n/storefront";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -130,6 +131,21 @@ export const getStoreThemeId = cache(async (slug: string) => {
  * the merchant paused it (the closed page shows their message / countdown);
  * a lapsed subscription closes it with the generic page.
  */
+/** Where the shopper sends a manual transfer, per method (only methods the merchant filled in). */
+export async function getManualTransferDetails(storeId: string, methods: string[]): Promise<Record<string, string>> {
+  const settings = await prisma.storePaymentSettings.findUnique({
+    where: { storeId },
+    select: { manualPaymentDetails: true, vodafoneCashNumber: true, instapayAddress: true, bankTransferDetails: true },
+  });
+  const details: Record<string, string> = {};
+  for (const method of methods) {
+    if (!needsPaymentProof(method, settings)) continue;
+    const detail = manualTransferDetail(method, settings);
+    if (detail) details[method] = detail;
+  }
+  return details;
+}
+
 export const getStorefrontClosure = cache(async (storeId: string): Promise<{ pause: StorePause | null } | null> => {
   const store = await prisma.store.findUnique({
     where: { id: storeId },

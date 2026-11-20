@@ -1,7 +1,7 @@
 "use server";
 
-import { createHash } from "crypto";
 import { requireUserId } from "@/actions/auth/require-user-id.actions";
+import { cloudinarySignature } from "@/lib/cloudinary/sign";
 
 export type CloudinaryUploadAuth = {
   cloudName: string;
@@ -36,14 +36,9 @@ export async function GetCloudinaryUploadAuthAction(folder: string): Promise<Clo
   }
 
   const timestamp = Math.floor(Date.now() / 1000);
-  // Cloudinary signature: every signed param sorted by name, "k=v" joined by "&", + secret, SHA-1.
   const params: Record<string, string> = { folder, timestamp: String(timestamp) };
   if (uploadPreset) params.upload_preset = uploadPreset;
-  const toSign = Object.keys(params)
-    .sort()
-    .map((key) => `${key}=${params[key]}`)
-    .join("&");
-  const signature = createHash("sha1").update(toSign + apiSecret).digest("hex");
+  const signature = cloudinarySignature(params, apiSecret);
 
   return { cloudName, uploadPreset, signed: { apiKey, timestamp, signature } };
 }

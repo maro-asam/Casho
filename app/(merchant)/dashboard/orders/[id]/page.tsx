@@ -451,9 +451,25 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
               <Row label={tr("الطريقة")}>{paymentMethodLabel(order.paymentMethod)}</Row>
               <Row label={tr("الحالة")}>
                 <StatusText tone={isPaid ? "success" : "warning"}>
-                  {isPaid ? tr("مدفوع") : order.paymentMethod === "cash_on_delivery" ? tr("هيتدفع عند الاستلام") : tr("مستني الدفع")}
+                  {isPaid
+                    ? tr("مدفوع")
+                    : order.paymentMethod === "cash_on_delivery"
+                      ? tr("هيتدفع عند الاستلام")
+                      : order.paymentProofUrl
+                        ? tr("العميل بعت إثبات التحويل — راجعه")
+                        : tr("مستني الدفع")}
                 </StatusText>
               </Row>
+              {order.paymentPayer && (
+                <Row label={tr("حوّل من")}>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="font-mono text-[13px]" dir="ltr">
+                      {order.paymentPayer}
+                    </span>
+                    <CopyButton value={order.paymentPayer} label={tr("الرقم اللي حوّل منه")} />
+                  </span>
+                </Row>
+              )}
               {order.paidAt && <Row label={tr("اتدفع في")}>{shortDate.format(order.paidAt)}</Row>}
               {order.paymentReference && (
                 <Row label={tr("المرجع")}>
@@ -463,6 +479,27 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                 </Row>
               )}
             </Rows>
+            {order.paymentProofUrl && (
+              <div className="border-t-[0.5px] border-border px-5 py-4">
+                <p className="mb-2 text-[13px] text-muted-foreground">{tr("صورة التحويل")}</p>
+                <a
+                  href={order.paymentProofUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group block overflow-hidden rounded-[14px] border-[0.5px] border-border bg-muted/40"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary screenshot, any size */}
+                  <img
+                    src={order.paymentProofUrl}
+                    alt={tr("صورة التحويل")}
+                    className="max-h-80 w-full object-contain transition-opacity group-hover:opacity-90"
+                  />
+                </a>
+                <p className="mt-2 text-[12px] leading-5 text-muted-foreground">
+                  {tr("اتأكد إن المبلغ وصلك، وبعدها غيّر حالة الطلب لمدفوع.")}
+                </p>
+              </div>
+            )}
           </Card>
 
           <Card title={tr("تفاصيل إضافية")}>

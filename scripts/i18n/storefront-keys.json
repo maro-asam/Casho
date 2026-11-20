@@ -733,6 +733,7 @@
    "components/storefront/popup-view.tsx",
    "app/store/[slug]/_components/CouponLinkCapture.tsx",
    "app/store/[slug]/_components/offers/OfferHost.tsx",
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
@@ -853,6 +854,9 @@
   "إيميل": [
    "app/store/[slug]/_themes/dune/footer/DuneFooter.tsx",
    "app/store/[slug]/_themes/mada/footer/MadaFooter.tsx"
+  ],
+  "إيميل PayPal اللي دفعت منه": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "إيه المقاس المناسب ليك؟": [
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
@@ -984,6 +988,9 @@
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
   ],
+  "اتأكد إن المبلغ والتاريخ باينين فيها.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "اتأكد من الكتابة أو جرب كلمة أبسط.": [
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
    "app/store/[slug]/_themes/mada/listing/MadaListing.tsx"
@@ -1049,6 +1056,7 @@
   ],
   "اتنسخ": [
    "components/storefront/popup-view.tsx",
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx",
    "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx"
   ],
   "اتنسخ رابط المنتج": [
@@ -1251,10 +1259,17 @@
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx"
   ],
   "ادفع عن طريق {0}": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx",
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "ارجع للمنتج ده قريب، أو شوف منتجات قريبة منه تحت.": [
    "app/store/[slug]/_themes/dune/product/BuyForm.tsx"
+  ],
+  "ارفع سكرين شوت التحويل": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
+  "ارفع صورة التحويل عشان نأكد طلبك.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "اسأل": [
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
@@ -1329,6 +1344,12 @@
    "lib/notifications/email/order-emails.ts"
   ],
   "استلمنا الدفع لطلبك": [
+   "lib/notifications/email/order-emails.ts"
+  ],
+  "استلمنا صورة التحويل من {0}. المتجر هيراجعها ويأكد طلبك.": [
+   "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "استلمنا صورة التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.": [
    "lib/notifications/email/order-emails.ts"
   ],
   "اسمك": [
@@ -1486,6 +1507,9 @@
    "app/store/[slug]/_themes/maximize/header/SearchBar.tsx",
    "app/store/[slug]/_themes/medical/header/SearchBar.tsx",
    "app/store/[slug]/_themes/stage/header/SearchBar.tsx"
+  ],
+  "اكتب الرقم أو الحساب اللي حوّلت منه.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "اكتب الطول بالمليمتر هنا، ونقولك مقاسك.": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
@@ -2029,6 +2053,9 @@
   "الدفع اتأكد وبدأنا نجهّز طلبك. هنبعتلك أول ما يتشحن.": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "الدفع عن طريق {0}": [
+   "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
   "الدفع عند الاستلام": [
    "app/store/[slug]/order/[orderId]/page.tsx",
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
@@ -2152,6 +2179,9 @@
    "app/store/[slug]/_themes/stage/states.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/riwaq/listing/RiwaqListing.tsx"
+  ],
+  "الرقم أو الحساب اللي حوّلت منه": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "السابق": [
    "app/store/[slug]/_themes/cello/product/Rail.tsx",
@@ -2474,6 +2504,9 @@
    "app/store/[slug]/_themes/qirat/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/stage/pdp/Gallery.tsx"
   ],
+  "الصورة جاهزة": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "الطلب": [
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCheckout.tsx"
   ],
@@ -2763,6 +2796,9 @@
   "اللي بننصحك بيه.": [
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
+  "المبلغ المطلوب": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "المتجر": [
    "app/store/[slug]/order/[orderId]/page.tsx",
    "app/store/[slug]/_themes/maximize/sections/PromotionGrid.tsx",
@@ -2875,6 +2911,9 @@
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
+  ],
+  "المتجر هيراجع التحويل ويأكد طلبك.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "المتجر واخد استراحة": [
    "app/store/[slug]/_themes/riwaq/states.tsx"
@@ -3037,6 +3076,9 @@
   ],
   "المكملات مكمّلة لأكل متوازن ومش بديل عنه. لو عندك حالة صحية أو بتاخد دوا، اسأل دكتورك الأول، واقرا الجرعة المكتوبة على العبوة.": [
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx"
+  ],
+  "الملف ده مش صورة. ارفع سكرين شوت للتحويل.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "المميزة فقط": [
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx"
@@ -3322,6 +3364,9 @@
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
+  "بنجهّز الصورة...": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "بنستنى تأكيد العملية من بوابة الدفع — حالة الطلب هتتحدث أول ما يوصل.": [
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
@@ -3357,6 +3402,9 @@
   ],
   "تأكد إن الاسم، رقم الموبايل، والعنوان مكتوبين بشكل صحيح لتجنب أي تأخير في التواصل أو الشحن.": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "تأكيد الدفع": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "تأكيد الطلب": [
    "app/store/[slug]/order/[orderId]/approve/ApproveOrderForm.tsx",
@@ -3823,6 +3871,9 @@
   "تعرّف على {0} وطرق التواصل معانا.": [
    "app/store/[slug]/about/page.tsx"
   ],
+  "تغيير": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "تفاصيل {0}": [
    "app/store/[slug]/_themes/dune/sections/Hotspot.tsx"
   ],
@@ -4107,6 +4158,9 @@
    "app/store/[slug]/_themes/riwaq/states.tsx",
    "app/store/[slug]/_themes/stage/states.tsx"
   ],
+  "جاري تأكيد الدفع...": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "جاري تأكيد الطلب...": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
@@ -4213,6 +4267,9 @@
   "حصريًا في {0}": [
    "app/store/[slug]/_themes/maximize/sections/Collections.tsx"
   ],
+  "حصلت مشكلة واحنا بنأكد طلبك. جرّب تاني بعد شوية.": [
+   "app/store/[slug]/checkout/page.tsx"
+  ],
   "حصلت مشكلة، جرّب تاني.": [
    "app/store/[slug]/_components/conversion/PopupHost.tsx"
   ],
@@ -4265,6 +4322,12 @@
    "app/store/[slug]/_themes/mada/sections/Merch.tsx",
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
+  ],
+  "حوّل المبلغ": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
+  "حوّل المبلغ، وبعدها ابعتلنا الرقم اللي حوّلت منه وصورة التحويل.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "حول على فودافون كاش": [
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
@@ -4465,6 +4528,9 @@
   "رقم {0}:": [
    "app/store/[slug]/_themes/stage/sections/ProductRow.tsx"
   ],
+  "رقم الحساب أو اسم صاحبه اللي حوّلت منه": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "رقم الشحنة": [
    "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx"
   ],
@@ -4479,6 +4545,9 @@
    "app/store/[slug]/order/[orderId]/page.tsx",
    "app/store/[slug]/_themes/shared/track/OrderTracker.tsx",
    "app/store/[slug]/order/[orderId]/success/page.tsx"
+  ],
+  "رقم المحفظة اللي حوّلت منه": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "رقم الموبايل": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx",
@@ -4498,11 +4567,17 @@
   "رقم الموبايل — 01xxxxxxxxx": [
    "components/storefront/popup-view.tsx"
   ],
+  "رقم الموبايل أو رقم العملية في فوري": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "رقم الموبايل اللي طلبت بيه": [
    "app/store/[slug]/_themes/shared/track/OrderTracker.tsx"
   ],
   "رقم الموبايل مطلوب": [
    "app/store/[slug]/checkout/page.tsx"
+  ],
+  "رقمك أو عنوان InstaPay اللي حوّلت منه": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "روابط التحميل هتظهر هنا أول ما الدفع يتأكد.": [
    "app/store/[slug]/order/[orderId]/_components/DigitalDownloads.tsx"
@@ -4790,6 +4865,12 @@
   "صورة {0} من {1}": [
    "app/store/[slug]/_themes/classic/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/Gallery.tsx"
+  ],
+  "صورة التحويل": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
+  "صورة من تطبيق المحفظة أو البنك فيها المبلغ": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "صوّرها وابعتها على واتساب المتجر، واسأل عن المتاح والسعر قبل ما تطلب.": [
    "app/store/[slug]/_themes/medical/lib/rx.ts"
@@ -5181,6 +5262,9 @@
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
+  ],
+  "على": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "على الرقبة": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
@@ -5809,6 +5893,9 @@
   "كمّل طلبك بالسعر ده — العرض بيتطبق طول ما المنتج الأساسي في السلة.": [
    "app/store/[slug]/_components/offers/CartOffers.tsx"
   ],
+  "كمّل للدفع": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
   "كمّل من مكان ما وقفت.": [
    "app/store/[slug]/_themes/stage/sections/RecentlyViewed.tsx"
   ],
@@ -6118,7 +6205,14 @@
    "app/store/[slug]/order/[orderId]/_components/ShipmentTracking.tsx"
   ],
   "مثال: 01012345678": [
-   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx",
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
+  "مثال: 01012345678 أو name@instapay": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
+  "مثال: محمد أحمد — 1234": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "مثال: محمد أحمد علي": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
@@ -6570,6 +6664,9 @@
    "app/store/[slug]/_themes/maximize/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx"
   ],
+  "مقدرناش نقرأ الصورة دي. جرّب سكرين شوت JPG أو PNG.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "مقدرناش ننسخ الرابط": [
    "app/store/[slug]/_themes/classic/pdp/ShareButton.tsx",
    "app/store/[slug]/_themes/mada/pdp/ShareButton.tsx",
@@ -6861,6 +6958,9 @@
   "نزّلها دلوقتي واحتفظ بنسخة — اللينك هيفضل موجود هنا في صفحة الطلب.": [
    "app/store/[slug]/order/[orderId]/_components/DigitalDownloads.tsx"
   ],
+  "نسخ": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "نص": [
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
@@ -6961,6 +7061,9 @@
   ],
   "هتتفتح واتساب والقايمة جاهزة بروابط القطع.": [
    "app/store/[slug]/_themes/qirat/cart/WishlistDrawer.tsx"
+  ],
+  "هتحوّل المبلغ وترفع صورة التحويل قبل تأكيد الطلب": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
   "هتدفع قيمة الطلب لمندوب الشحن عند الاستلام.": [
    "app/store/[slug]/order/[orderId]/page.tsx",
@@ -7230,6 +7333,9 @@
   ],
   "اختار كود الخصم اللي هيظهر للعميل.": [
    "actions/store/popups.actions.ts"
+  ],
+  "ارفع صورة التحويل (سكرين شوت) عشان نأكد طلبك.": [
+   "actions/store/orders.actions.ts"
   ],
   "استخدم الكود قبل ما العرض يخلص.": [
    "lib/popups/popup-config.ts"
@@ -7816,6 +7922,9 @@
   ],
   "مقدرناش نبعت الكود دلوقتي. جرّب كمان شوية أو تواصل مع المتجر.": [
    "actions/store/order-confirmation.actions.ts"
+  ],
+  "مقدرناش نرفع صورة التحويل دلوقتي. جرّب تاني بعد شوية.": [
+   "actions/store/orders.actions.ts"
   ],
   "مقدرناش نفتح صفحة الدفع دلوقتي. جرّب تاني أو اختار طريقة دفع تانية.": [
    "actions/store/orders.actions.ts"

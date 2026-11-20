@@ -35,6 +35,8 @@ async function loadOrder(orderId: string) {
       address: true,
       notes: true,
       paymentMethod: true,
+      paymentPayer: true,
+      paymentProofUrl: true,
       status: true,
       returnedAt: true,
       riskLevel: true,
@@ -160,6 +162,8 @@ export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: stri
       { label: "الإيميل", value: order.email, ltr: true },
       { label: "العنوان", value: shippingAddress(order) },
       { label: "طريقة الدفع", value: getPaymentMethodLabel(order.paymentMethod) },
+      { label: "حوّل من", value: order.paymentPayer, ltr: true },
+      { label: "صورة التحويل", value: order.paymentProofUrl ? "العميل بعتها — راجعها في صفحة الطلب" : null },
       { label: "ملاحظات", value: order.notes },
     ]) +
     sectionTitle(`المنتجات (${count})`) +
@@ -181,6 +185,7 @@ export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: stri
     shippingAddress(order),
     `الإجمالي: ${money(order.total)}`,
     `طريقة الدفع: ${getPaymentMethodLabel(order.paymentMethod)}`,
+    order.paymentPayer ? `حوّل من: ${order.paymentPayer} (بعت صورة التحويل)` : "",
     `افتح الطلب: ${dashboardUrl}`,
   ]
     .filter(Boolean)
@@ -198,8 +203,10 @@ export function buildCustomerConfirmationEmail(order: EmailOrder) {
   const intro =
     order.status === OrderStatus.PAID
       ? t("الدفع اتأكد وبدأنا نجهّز طلبك. هنبعتلك أول ما يتشحن.")
-      : isManualPaymentMethod(order.paymentMethod)
-        ? t("علشان نبدأ نجهّز طلبك، كمّل تحويل المبلغ على بيانات التحويل اللي ظهرتلك بعد الطلب.")
+      : order.paymentProofUrl
+        ? t("استلمنا صورة التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.")
+        : isManualPaymentMethod(order.paymentMethod)
+          ? t("علشان نبدأ نجهّز طلبك، كمّل تحويل المبلغ على بيانات التحويل اللي ظهرتلك بعد الطلب.")
         : t("هنتواصل معاك قريب لتأكيد الطلب وميعاد التوصيل.");
 
   const body =

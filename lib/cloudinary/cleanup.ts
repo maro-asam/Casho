@@ -45,6 +45,7 @@ const SOURCES: Source[] = [
   { table: "Banner", text: ["image", "mobileImage"], owner: byStore },
   { table: "StorePopup", json: ["config"], owner: byStore },
   { table: "TopupRequest", text: ["receiptImage"], owner: byStore },
+  { table: "Order", text: ["paymentProofUrl"], owner: byStore }, // shoppers' transfer screenshots
   { table: "ProductReview", text: ["customerAvatar"], owner: byStore },
   {
     table: "SharksStory", // goes with the store: story → application → store all cascade

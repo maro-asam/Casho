@@ -18,6 +18,8 @@ function makeOrder(overrides: Partial<EmailOrder> = {}): EmailOrder {
     address: "القاهرة - شارع التحرير",
     notes: null,
     paymentMethod: "cash_on_delivery",
+    paymentPayer: null,
+    paymentProofUrl: null,
     status: "PENDING",
     returnedAt: null,
     riskLevel: null,
@@ -56,6 +58,16 @@ describe("order emails", () => {
     expect(mail.html).toContain("المقاس: L");
   });
 
+  it("tells the merchant what a manual transfer was paid from", () => {
+    const mail = buildMerchantNewOrderEmail(
+      makeOrder({ paymentMethod: "vodafone_cash", paymentPayer: "01098765432", paymentProofUrl: "https://res.cloudinary.com/x/image/upload/casho/uploads/payment-proofs/a.jpg" }),
+      "https://casho.store/dashboard/orders/x",
+    );
+    expect(mail.html).toContain("01098765432");
+    expect(mail.html).toContain("صورة التحويل");
+    expect(mail.text).toContain("حوّل من: 01098765432");
+  });
+
   it("flags risky numbers in the merchant subject", () => {
     const mail = buildMerchantNewOrderEmail(makeOrder({ riskLevel: "HIGH", riskSignals: ["اتلغى له 3 طلبات"] }), "https://x");
     expect(mail.subject.startsWith("⚠️")).toBe(true);
@@ -64,6 +76,10 @@ describe("order emails", () => {
 
   it("tells a transfer customer to finish paying, and a paid one that it's confirmed", () => {
     expect(buildCustomerConfirmationEmail(makeOrder({ paymentMethod: "instapay" })).text).toContain("كمّل تحويل المبلغ");
+    // Paid before ordering (screenshot sent at checkout): don't ask again.
+    const proofSent = buildCustomerConfirmationEmail(makeOrder({ paymentMethod: "instapay", paymentPayer: "01012345678", paymentProofUrl: "https://res.cloudinary.com/x/image/upload/casho/uploads/payment-proofs/a.jpg" }));
+    expect(proofSent.text).toContain("استلمنا صورة التحويل");
+    expect(proofSent.text).not.toContain("كمّل تحويل المبلغ");
     expect(buildCustomerConfirmationEmail(makeOrder({ paymentMethod: "paymob", status: "PAID" })).text).toContain("الدفع اتأكد");
   });
 
