@@ -17,7 +17,8 @@ import { getFreeTrialEndDate } from "@/lib/subscriptions";
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
 import { getFieldErrors } from "@/lib/zod";
 import { z } from "zod";
-import type { ActionState } from "./auth.types";
+import type { ActionState, WithMetaEvents } from "./auth.types";
+import { TrackStoreRegistrationAction } from "@/actions/tracking/tracking.actions";
 import { generateReferralCode } from "@/lib/referral";
 import { SIGNUP_REF_COOKIE, createSignupAttribution, readSignupFormReferral } from "@/lib/sales/attribution";
 import { queueSignupNotice } from "@/lib/sales/notify";
@@ -29,7 +30,7 @@ const completeGoogleSchema = z.object({
   businessType: z.string().min(1, "اختر نوع النشاط"),
 });
 
-export type CompleteGoogleState = ActionState<{
+export type CompleteGoogleState = WithMetaEvents & ActionState<{
   storeName?: string;
   country?: string;
   businessType?: string;
@@ -147,7 +148,7 @@ export async function RegisterGoogleAction(
             },
           },
         },
-        select: { id: true, stores: { select: { id: true }, take: 1 } },
+        select: { id: true, stores: { select: { id: true, slug: true, name: true }, take: 1 } },
       });
       await createSignupAttribution(tx, { customerUserId: user.id, referral, signedUpAt: now });
       return user;
@@ -157,9 +158,21 @@ export async function RegisterGoogleAction(
     cookieStore.delete(signupRefCookieDelete());
     if (referral?.salesRepId) queueSignupNotice(created.id);
     await createUserSession(created.id);
-    await recordSignup({ userId: created.id, storeId: created.stores[0]?.id ?? null, method: "google" });
+    const createdStore = created.stores[0];
+    await recordSignup({ userId: created.id, storeId: createdStore?.id ?? null, method: "google" });
 
-    return { success: true, message: "تم إنشاء الحساب بنجاح" };
+    const tracked = createdStore
+      ? await TrackStoreRegistrationAction({
+          storeId: createdStore.id,
+          storeSlug: createdStore.slug,
+          storeName: createdStore.name,
+          userEmail: googleData.email,
+          userName: googleData.name,
+          method: "google",
+        })
+      : null;
+
+    return { success: true, message: "تم إنشاء الحساب بنجاح", metaEvents: tracked?.events };
   } catch (err: unknown) {
     console.error("RegisterGoogleAction error:", err);
     return { error: "حدث خطأ أثناء إنشاء الحساب، حاول مرة أخرى" };

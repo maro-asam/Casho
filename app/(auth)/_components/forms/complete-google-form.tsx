@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ReferralCodeField } from "../referral-code-field";
 import { FIELD_CLASS, FormField, PRIMARY_BUTTON_CLASS } from "./form-field";
+import { trackMetaBrowserEvents } from "@/components/meta/meta-pixel";
 
 const COUNTRIES = [
   "مصر",
@@ -76,9 +77,12 @@ export function CompleteGoogleForm({ email, name, refCode }: Props) {
   useEffect(() => {
     if (state?.error) toast.error(state.error);
     if (state?.success) {
+      trackMetaBrowserEvents(state.metaEvents);
       toast.success("تم إنشاء الحساب بنجاح 🎉");
       // Full page load: the action just set the session cookie (see login-form).
-      window.location.replace("/onboarding");
+      // A short pause lets the pixel's request leave before the page unloads.
+      const timer = window.setTimeout(() => window.location.replace("/onboarding"), state.metaEvents?.length ? 400 : 0);
+      return () => window.clearTimeout(timer);
     }
   }, [state]);
   const busy = isPending || !!state?.success;

@@ -1,4 +1,3 @@
-import { LandingPageTracker } from "@/components/meta/meta-pixel";
 import { ComingSoon } from "./_components/ComingSoon";
 
 // TEMP: "Coming soon" until launch (20 Oct 2026).
@@ -6,7 +5,6 @@ import { ComingSoon } from "./_components/ComingSoon";
 // export default function Page() {
 //   return (
 //     <>
-//       <LandingPageTracker />
 //       <ComingSoon />
 //     </>
 //   );
@@ -64,7 +62,6 @@ export default async function Page() {
   // one idea per section. Tokens + glass recipes in _components/apple/apple.css.
   return (
     <div className="al">
-      <LandingPageTracker />
       <HeroClaim />
       <PosStage />
       <Bento />

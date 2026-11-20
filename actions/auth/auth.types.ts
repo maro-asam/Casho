@@ -7,7 +7,10 @@ export type ActionState<TFields extends FieldErrorMap = FieldErrorMap> = {
   fieldErrors?: TFields;
 };
 
-export type RegisterState = ActionState<{
+/** Signup conversions the browser pixel repeats (same ids as the CAPI events). */
+export type WithMetaEvents = { metaEvents?: { name: string; eventId: string; data?: Record<string, unknown> }[] };
+
+export type RegisterState = WithMetaEvents & ActionState<{
   storeName?: string;
   name?: string;
   country?: string;

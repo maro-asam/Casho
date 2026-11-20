@@ -203,19 +203,21 @@ export async function RegisterAction(
     // Analytics Center: tie this visit to the new account (verified signup + store).
     await recordSignup({ userId: created.id, storeId: createdStore?.id ?? null, method: "email" });
 
-    if (createdStore) {
-      await TrackStoreRegistrationAction({
-        storeId: createdStore.id,
-        storeSlug: createdStore.slug,
-        storeName: createdStore.name,
-        userEmail: created.email,
-        userPhone: created.phone_number,
-        userName: storeName.trim(),
-      });
-    }
+    const tracked = createdStore
+      ? await TrackStoreRegistrationAction({
+          storeId: createdStore.id,
+          storeSlug: createdStore.slug,
+          storeName: createdStore.name,
+          userEmail: created.email,
+          userPhone: created.phone_number,
+          userName: storeName.trim(),
+          method: "email",
+        })
+      : null;
 
     return {
       success: true,
+      metaEvents: tracked?.events,
       message: "تم إنشاء الحساب والمتجر بنجاح، لديك 3 أيام تجريبية مجانية",
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

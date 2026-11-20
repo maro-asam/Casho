@@ -18,6 +18,7 @@ import { GoogleButton, OrDivider, PasswordInput } from "../auth-controls";
 import { ReferralCodeField } from "../referral-code-field";
 import { StorePreview } from "../store-preview";
 import { FIELD_CLASS, FormAlert, FormField, PRIMARY_BUTTON_CLASS, SECONDARY_BUTTON_CLASS } from "./form-field";
+import { trackMetaBrowserEvents } from "@/components/meta/meta-pixel";
 
 type Step = 1 | 2 | 3;
 
@@ -105,6 +106,8 @@ export function RegisterForm({
   const [state, formAction, isPending] = useActionState(async (prev: RegisterState | null, formData: FormData) => {
     const result = await RegisterAction(prev, formData);
     if (result.success) {
+      // The server already sent these through CAPI; same ids, so Meta counts each once.
+      trackMetaBrowserEvents(result.metaEvents);
       setDone(true);
       window.setTimeout(() => {
         // Confirms the email first; the page passes accounts that don't need it to onboarding.

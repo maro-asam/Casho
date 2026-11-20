@@ -1,6 +1,7 @@
 "use server";
 
-import { createMetaEventId, sendMetaCapiEvent } from "@/lib/meta-capi";
+import { createMetaEventId, sendMetaCapiEvent, type MetaStandardEventName } from "@/lib/meta-capi";
+import type { MetaBrowserEvent } from "@/components/meta/meta-pixel";
 import { getMetaRequestContext } from "@/lib/meta-request";
 
 // ─── Purchase ─────────────────────────────────────────────────────────────────
@@ -86,11 +87,19 @@ type TrackStoreRegistrationInput = {
   userEmail?: string | null;
   userPhone?: string | null;
   userName?: string | null;
+  method?: "email" | "google";
 };
 
-export async function TrackStoreRegistrationAction(input: TrackStoreRegistrationInput) {
+/**
+ * A new merchant signed up: CompleteRegistration + Lead to Casho's own pixel
+ * through CAPI. Returns the same events (with their ids) for the browser
+ * pixel to repeat, so Meta counts each signup once with both signals.
+ */
+export async function TrackStoreRegistrationAction(
+  input: TrackStoreRegistrationInput,
+): Promise<{ success: boolean; events: MetaBrowserEvent[]; message?: string }> {
   try {
-    if (!input.storeId) return { success: false, message: "Missing storeId" };
+    if (!input.storeId) return { success: false, events: [], message: "Missing storeId" };
 
     const { ip, userAgent, eventSourceUrl, fbp, fbc } = await getMetaRequestContext();
 
@@ -98,6 +107,7 @@ export async function TrackStoreRegistrationAction(input: TrackStoreRegistration
       store_id: input.storeId,
       store_slug: input.storeSlug || undefined,
       store_name: input.storeName || undefined,
+      registration_method: input.method || "email",
     };
 
     const userData = {
@@ -106,31 +116,30 @@ export async function TrackStoreRegistrationAction(input: TrackStoreRegistration
       firstName: input.userName,
     };
 
-    const result = await sendMetaCapiEvent({
-      eventName: "CompleteRegistration",
-      eventSourceUrl,
-      ip,
-      userAgent,
-      fbp,
-      fbc,
-      ...userData,
-      customData,
-    });
+    const events: MetaBrowserEvent[] = [
+      { name: "CompleteRegistration", eventId: createMetaEventId(`signup_${input.storeId}`), data: { status: true, registration_method: customData.registration_method } },
+      { name: "Lead", eventId: createMetaEventId(`lead_${input.storeId}`) },
+    ];
 
-    await sendMetaCapiEvent({
-      eventName: "Lead",
-      eventSourceUrl,
-      ip,
-      userAgent,
-      fbp,
-      fbc,
-      ...userData,
-      customData,
-    });
+    const results = await Promise.all(
+      events.map((event) =>
+        sendMetaCapiEvent({
+          eventName: event.name as MetaStandardEventName,
+          eventId: event.eventId,
+          eventSourceUrl,
+          ip,
+          userAgent,
+          fbp,
+          fbc,
+          ...userData,
+          customData,
+        }),
+      ),
+    );
 
-    return { success: result.ok };
+    return { success: results[0].ok, events };
   } catch (error) {
     console.error("TrackStoreRegistrationAction error:", error);
-    return { success: false, message: "Failed to track registration" };
+    return { success: false, events: [], message: "Failed to track registration" };
   }
 }

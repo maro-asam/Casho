@@ -124,7 +124,7 @@ export default function RootLayout({
         smooth-scroll="true"
       >
         <Analytics />
-        <MetaPixel />
+        <MetaPixel rootDomain={process.env.ROOT_DOMAIN || "casho.store"} />
         {/* First-party analytics (lib/analytics) — Casho site + dashboard; storefronts mount their own. */}
         <CashoAnalytics rootDomain={process.env.ROOT_DOMAIN || "casho.store"} />
 
