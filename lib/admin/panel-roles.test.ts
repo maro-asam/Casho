@@ -28,7 +28,7 @@ describe("who opens the admin panel", () => {
 
 describe("a media buyer's filters never reach a storefront", () => {
   const STORE = "0b4c9c3e-6a7d-4c8e-9f12-3456789abcde";
-  const pin = (params: Record<string, string>) => withoutStorefronts(parseAnalyticsFilter(params));
+  const pin = (params: Record<string, string | undefined>) => withoutStorefronts(parseAnalyticsFilter(params));
 
   it("keeps Casho's own scopes", () => {
     expect(pin({}).scope).toBe("marketing");
