@@ -1,4 +1,4 @@
-import { parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
 import { getRealtime } from "@/lib/analytics/queries/activity";
 import { getAnalyticsSettings } from "@/lib/analytics/settings";
 import { Toolbar } from "../_components/toolbar";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function RealtimePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
+  const { f } = await readAnalyticsFilter(sp);
   const settings = await getAnalyticsSettings();
   const initial = await getRealtime(f, settings.realtimeWindowMin);
   const query = new URLSearchParams();

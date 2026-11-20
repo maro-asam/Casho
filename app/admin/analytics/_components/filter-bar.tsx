@@ -18,7 +18,7 @@ import {
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { appleMenu } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
-import { DEVICE_OPTIONS, RANGE_OPTIONS, SCOPE_OPTIONS } from "@/lib/analytics/filters";
+import { CASHO_SCOPES, DEVICE_OPTIONS, RANGE_OPTIONS, SCOPE_OPTIONS, type ScopeFilter } from "@/lib/analytics/filters";
 
 export type StoreOption = { id: string; name: string; slug: string };
 
@@ -43,8 +43,11 @@ export function FilterBar({
   hideScope = false,
   hideDevice = false,
   live = false,
+  storefronts = true,
 }: {
   stores: StoreOption[];
+  /** false for a media buyer: Casho's own scopes only, no store picker (the server pins it too). */
+  storefronts?: boolean;
   rangeLabel: string;
   exportReport?: string;
   hideScope?: boolean;
@@ -62,8 +65,10 @@ export function FilterBar({
 
   const range = params.get("range") ?? "30d";
   const compare = params.get("compare") ?? "previous";
-  const store = params.get("store");
-  const scope = store ? "storefront" : (params.get("scope") ?? "marketing");
+  const store = storefronts ? params.get("store") : null;
+  const rawScope = store ? "storefront" : (params.get("scope") ?? "marketing");
+  const scope = storefronts || CASHO_SCOPES.includes(rawScope as ScopeFilter) ? rawScope : "marketing";
+  const scopeOptions = storefronts ? SCOPE_OPTIONS : SCOPE_OPTIONS.filter((s) => CASHO_SCOPES.includes(s.value));
   const device = params.get("device") ?? "all";
   const storeName = stores.find((s) => s.id === store)?.name;
 
@@ -168,13 +173,13 @@ export function FilterBar({
           {/* Scope */}
           <DropdownMenu dir="rtl">
             <DropdownMenuTrigger className={pill}>
-              {store ? "متجر واحد" : SCOPE_OPTIONS.find((s) => s.value === scope)?.label}
+              {store ? "متجر واحد" : scopeOptions.find((s) => s.value === scope)?.label}
               <ChevronDown className="size-3.5 text-muted-foreground" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className={cn(appleMenu, "w-64")}>
               <DropdownMenuLabel className="text-[12px] font-normal text-muted-foreground">أنهي جزء من كاشو؟</DropdownMenuLabel>
               <DropdownMenuRadioGroup value={store ? "store" : scope} onValueChange={(v) => apply({ scope: v === "marketing" ? null : v, store: null })}>
-                {SCOPE_OPTIONS.map((s) => (
+                {scopeOptions.map((s) => (
                   <DropdownMenuRadioItem key={s.value} value={s.value} className="h-auto! py-1.5">
                     <span className="flex flex-col">
                       <span>{s.label}</span>

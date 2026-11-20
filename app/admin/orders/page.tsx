@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { KpiStrip, th, theadRow } from "../_components/admin-ui";
 import { ORDER_STATUS_META, fmtDateTime, fmtMoney, fmtNum, fmtRelative, pickEnum } from "../_lib/format";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "طلبات المتاجر" };
 
@@ -29,6 +30,7 @@ const SOURCE_LABELS: Record<OrderSource, string> = { ONLINE: "أونلاين", P
 const RANGES = { "7": "آخر ٧ أيام", "30": "آخر ٣٠ يوم", "90": "آخر ٩٠ يوم" } as const;
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const status = pickEnum(OrderStatus, readParam(params, "status"));

@@ -21,6 +21,7 @@ import {
 import { ActionButton } from "../_components/action-button";
 import { StatusMenu } from "../_components/status-menu";
 import { SERVICE_STATUS_META, fmtDateTime, fmtRelative, pickEnum } from "../_lib/format";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "طلبات الخدمات" };
 
@@ -34,6 +35,7 @@ function waLink(n: string) {
 }
 
 export default async function AdminServiceRequestsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const status = pickEnum(ServiceRequestStatus, readParam(params, "status"));

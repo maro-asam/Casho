@@ -6,11 +6,13 @@ import { ExternalLink, PanelRightClose, PanelRightOpen, ShieldCheck } from "luci
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { ADMIN_NAV, type AdminBadges, type AdminNavItem } from "./admin-nav";
+import { ADMIN_NAV, ANALYTICS_ONLY_NAV, type AdminBadges, type AdminNavItem } from "./admin-nav";
 
 type Props = {
   activeHref: string | null;
   badges: AdminBadges;
+  /** A media buyer's panel: the Analytics Center only. */
+  analyticsOnly?: boolean;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
   /** Called after following a link (closes the mobile sheet). */
@@ -25,7 +27,8 @@ const itemBase =
 const itemIdle = "text-sidebar-foreground/80 hover:bg-sidebar-accent";
 const itemActive = "bg-sidebar-accent font-semibold text-sidebar-foreground";
 
-export default function AdminSidebar({ activeHref, badges, collapsed = false, onToggleCollapsed, onNavigate }: Props) {
+export default function AdminSidebar({ activeHref, badges, analyticsOnly = false, collapsed = false, onToggleCollapsed, onNavigate }: Props) {
+  const nav = analyticsOnly ? ANALYTICS_ONLY_NAV : ADMIN_NAV;
   const renderItem = (item: AdminNavItem) => {
     const Icon = item.icon;
     const isActive = activeHref === item.href;
@@ -85,7 +88,7 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
         {!collapsed && (
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold leading-tight">كاشو</p>
-            <p className="truncate text-[11px] font-normal text-muted-foreground">لوحة الإدارة</p>
+            <p className="truncate text-[11px] font-normal text-muted-foreground">{analyticsOnly ? "مركز التحليلات" : "لوحة الإدارة"}</p>
           </div>
         )}
         {onToggleCollapsed && !collapsed && (
@@ -119,7 +122,7 @@ export default function AdminSidebar({ activeHref, badges, collapsed = false, on
         )}
 
         <div className={cn(collapsed ? "space-y-2" : "space-y-5")}>
-          {ADMIN_NAV.map((section, i) => (
+          {nav.map((section, i) => (
             <div key={section.title ?? i}>
               {section.title &&
                 (collapsed ? (

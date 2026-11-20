@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { th, theadRow } from "../_components/admin-ui";
 import { ROLE_META, fmtDate, fmtRelative, pickEnum } from "../_lib/format";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "المستخدمين" };
 
@@ -28,6 +29,7 @@ const BASE_PATH = "/admin/users";
 const STORE_FILTER = { with: "عنده متجر", without: "من غير متجر", unverified: "بريد مش متأكد" } as const;
 
 export default async function AdminUsersPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const role = pickEnum(UserRole, readParam(params, "role"));

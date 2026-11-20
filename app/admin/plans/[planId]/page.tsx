@@ -8,6 +8,7 @@ import { BackLink, Panel, PanelEmpty } from "../../_components/admin-ui";
 import { fmtNum, fmtRelative } from "../../_lib/format";
 import { PlanFeatureMatrix } from "./_components/PlanFeatureMatrix";
 import { PlanMetadataForm } from "./_components/PlanMetadataForm";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "تعديل الباقة" };
 
@@ -22,6 +23,7 @@ const AUDIT_LABELS: Record<string, string> = {
 };
 
 export default async function AdminPlanEditorPage({ params }: { params: Promise<{ planId: string }> }) {
+  await requireAdminPage();
   const { planId } = await params;
   const data = await GetPlanWithFeaturesForAdminAction(planId).catch(() => null);
   if (!data) notFound();

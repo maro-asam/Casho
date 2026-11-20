@@ -5,7 +5,7 @@ import { ArrowUpRight, LogOut, MailCheck, Monitor } from "lucide-react";
 import { UserRole } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { markUserEmailVerifiedAction, revokeUserSessionsAction, setUserRoleAction } from "@/actions/admin/admin-users.actions";
 import { StatusText } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
@@ -20,16 +20,17 @@ import { ROLE_META, SUBSCRIPTION_META, deviceLabel, fmtDate, fmtDateTime, fmtMon
 type PageProps = { params: Promise<{ userId: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  await requireAdminPage(); // the title names the account / store
   const { userId } = await params;
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } });
   return { title: user ? (user.name ?? user.email) : "مستخدم" };
 }
 
-const ROLE_OPTIONS = ([UserRole.USER, UserRole.ADMIN, UserRole.SUPER_ADMIN] as const).map((value) => ({ value, ...ROLE_META[value] }));
+const ROLE_OPTIONS = ([UserRole.USER, UserRole.MEDIA_BUYER, UserRole.ADMIN, UserRole.SUPER_ADMIN] as const).map((value) => ({ value, ...ROLE_META[value] }));
 
 export default async function AdminUserPage({ params }: PageProps) {
   const { userId } = await params;
-  const viewer = await requireAdmin();
+  const viewer = await requireAdminPage();
 
   const user = await prisma.user.findUnique({
     where: { id: userId },

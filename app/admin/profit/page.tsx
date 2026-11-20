@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { KpiStrip, Panel, PanelEmpty, th, theadRow } from "../_components/admin-ui";
 import { EARNED_COMMISSION, cairoMonthStart, getFinanceTotals, getMonthlyFinance, margin } from "../_lib/finance";
 import { fmtMoney, fmtNum } from "../_lib/format";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "الأرباح" };
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ const pctFmt = new Intl.NumberFormat("ar-EG", { style: "percent", maximumFractio
 const fmtPct = (r: number | null) => (r === null ? "—" : pctFmt.format(r));
 
 export default async function AdminProfitPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const rangeParam = readParam(params, "months");
   const range = rangeParam && rangeParam in RANGES ? (rangeParam as keyof typeof RANGES) : "12";

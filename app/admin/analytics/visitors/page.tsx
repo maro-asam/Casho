@@ -1,4 +1,4 @@
-import { parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
 import { ratio } from "@/lib/analytics/metrics";
 import { getVisitorBreakdowns, type BreakdownRow } from "@/lib/analytics/queries/breakdowns";
 import { BarList } from "../_components/bar-list";
@@ -13,7 +13,7 @@ const items = (rows: BreakdownRow[], label: (r: BreakdownRow) => React.ReactNode
   rows.map((r) => ({ key: `${r.key ?? "none"}-${r.sub ?? ""}`, label: label(r), value: r.sessions, extra: engaged(r) }));
 
 export default async function VisitorsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const f = parseAnalyticsFilter(await searchParams);
+  const { f } = await readAnalyticsFilter(await searchParams);
   const b = await getVisitorBreakdowns(f);
   const geoNote = "المكان من عنوان الـ IP عن طريق الاستضافة — تقريبي (ممكن يطلع مدينة الشبكة مش مدينة الزائر)، والـ IP نفسه مش بيتخزن.";
 

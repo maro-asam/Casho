@@ -71,7 +71,7 @@ export async function readViewer(sessionToken: string | undefined, storeId: stri
   const user = session.user as typeof session.user & { stores?: unknown[]; storeMembers?: unknown[] };
   return {
     userId: user.id,
-    staff: user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN || user.role === UserRole.SALES,
+    staff: user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN || user.role === UserRole.SALES || user.role === UserRole.MEDIA_BUYER,
     ownsStore: !!storeId && ((user.stores?.length ?? 0) > 0 || (user.storeMembers?.length ?? 0) > 0),
   };
 }

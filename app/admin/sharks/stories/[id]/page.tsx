@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check, ExternalLink, X } from "lucide-react";
 
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { prisma } from "@/lib/prisma";
 import { StatusText } from "@/components/saas-page";
 import { STORY_STATUS } from "@/lib/sharks/catalog";
@@ -13,7 +13,7 @@ import { fmtDate, fmtDateTime } from "../../../_lib/format";
 import { ConsentForm, RevokeConsentButton, StoryEditor, StoryWorkflow, VideoPublishSwitch } from "../../_components/story-controls";
 
 export default async function SharksStoryEditorPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
 

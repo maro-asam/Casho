@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Lock, Route } from "lucide-react";
 import { Pager, Segmented, Unavailable } from "@/components/saas-page";
-import { requireAnalyticsViewer } from "@/lib/analytics/access";
-import { filterParams, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams } from "@/lib/analytics/filters";
 import { getJourneys, listSessions } from "@/lib/analytics/queries/activity";
 import { getAnalyticsSettings } from "@/lib/analytics/settings";
 import { BarList } from "../_components/bar-list";
@@ -22,8 +22,7 @@ function stepLabel(step: string) {
 
 export default async function JourneysPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
-  const viewer = await requireAnalyticsViewer();
+  const { viewer, f } = await readAnalyticsFilter(sp);
   const settings = await getAnalyticsSettings();
   const page = Math.max(1, Number(sp.page) || 1);
   const onlyConverted = sp.list === "converted";

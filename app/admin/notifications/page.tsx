@@ -6,10 +6,12 @@ import { PageHeader } from "@/components/saas-page";
 import { Panel, PanelEmpty } from "../_components/admin-ui";
 import { fmtDateTime, fmtNum } from "../_lib/format";
 import { BroadcastForm } from "./_components/broadcast-form";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "الإشعارات" };
 
 export default async function AdminNotificationsPage() {
+  await requireAdminPage();
   const broadcastWhere = { type: NotificationType.SYSTEM, data: { path: ["broadcast"], equals: true } };
 
   // Each send is one INSERT, so rows of one broadcast share title/message/createdAt.

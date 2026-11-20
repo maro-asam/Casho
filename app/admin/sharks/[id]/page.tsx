@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { prisma } from "@/lib/prisma";
 import { StatusText } from "@/components/saas-page";
 import { APPLICATION_STATUS, OPERATING_SINCE, RUBRIC, STORY_STATUS, TRACKS, type OperatingSince } from "@/lib/sharks/catalog";
@@ -27,7 +27,7 @@ const EVENT_LABEL: Record<string, string> = {
 };
 
 export default async function SharksApplicationPage({ params }: { params: Promise<{ id: string }> }) {
-  const admin = await requireAdmin();
+  const admin = await requireAdminPage();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
 

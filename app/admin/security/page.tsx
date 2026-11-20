@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { KpiStrip, th, theadRow } from "../_components/admin-ui";
 import { SECURITY_EVENT_META, deviceLabel, fmtDateTime, fmtNum, securityEventMeta } from "../_lib/format";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "سجل الأمان" };
 
@@ -27,6 +28,7 @@ const BASE_PATH = "/admin/security";
 const DAY = 86_400_000;
 
 export default async function AdminSecurityPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const eventParam = readParam(params, "event");

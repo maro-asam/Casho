@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { KpiStrip } from "@/app/admin/_components/admin-ui";
 import { CommissionBreakdown, ExpiringCohorts } from "@/components/sales/sales-summary";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +14,7 @@ async function listRepsWithPayable() {
 }
 
 export default async function AdminSalesPage() {
-  await requireAdmin();
+  await requireAdminPage();
   const [summary, reps, campaign, trend] = await Promise.all([
     getSalesSummary({ all: true }),
     listRepsWithPayable(),

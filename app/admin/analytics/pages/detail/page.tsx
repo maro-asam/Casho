@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { Flame } from "lucide-react";
 import { appleButton } from "@/components/saas-page";
 import { BackLink } from "@/app/admin/_components/admin-ui";
-import { filterParams, isStorefrontView, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams, isStorefrontView } from "@/lib/analytics/filters";
 import { depthReachedBy, ratio, scrollReach } from "@/lib/analytics/metrics";
 import { getPageDetail, getPagesTable } from "@/lib/analytics/queries/pages";
 import { BarList } from "../../_components/bar-list";
@@ -18,7 +19,7 @@ export default async function PageDetailPage({ searchParams }: { searchParams: P
   const sp = await searchParams;
   const path = typeof sp.path === "string" ? sp.path : null;
   if (!path || !path.startsWith("/") || path.length > 300) notFound();
-  const f = parseAnalyticsFilter(sp);
+  const { f } = await readAnalyticsFilter(sp);
   const [detail, table] = await Promise.all([getPageDetail(f, path), getPagesTable(f)]);
   const row = table.find((r) => r.path === path);
   const reach = scrollReach(detail.scroll, 25);

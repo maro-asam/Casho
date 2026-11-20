@@ -1,6 +1,7 @@
 import { Segmented } from "@/components/saas-page";
 import { CHANNEL_DESCRIPTIONS, CHANNEL_LABELS, CHANNELS } from "@/lib/analytics/channel";
-import { filterParams, isStorefrontView, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams, isStorefrontView } from "@/lib/analytics/filters";
 import { ratio } from "@/lib/analytics/metrics";
 import { getAcquisition, getBreakdown, type AttributionModel, type Dimension, type TouchDimension } from "@/lib/analytics/queries/breakdowns";
 import { BarList } from "../_components/bar-list";
@@ -23,7 +24,7 @@ const DIMS: { value: Dimension & TouchDimension; label: string }[] = [
 
 export default async function AcquisitionPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
+  const { f } = await readAnalyticsFilter(sp);
   const storefront = isStorefrontView(f);
   const dim = (DIMS.find((d) => d.value === sp.dim)?.value ?? "channel") as Dimension & TouchDimension;
   const model: AttributionModel = sp.model === "last" ? "last" : "first";

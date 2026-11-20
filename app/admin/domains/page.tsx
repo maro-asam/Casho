@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Globe, Hourglass, Wallet } from "lucide-react";
 import { BalanceTransactionType, type DomainRegistrationStatus } from "@prisma/client";
 
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { PageHeader, StatusText } from "@/components/saas-page";
 import { registrarConfigured } from "@/lib/domains/registrar";
 import { getDomainSettings } from "@/lib/domains/settings";
@@ -25,7 +25,7 @@ const STATUS: Record<DomainRegistrationStatus, { label: string; tone: "success" 
 const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
 export default async function AdminDomainsPage() {
-  await requireAdmin();
+  await requireAdminPage();
   const now = new Date();
 
   const [settings, grouped, money, registrations] = await Promise.all([

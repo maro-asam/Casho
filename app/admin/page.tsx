@@ -18,6 +18,7 @@ import { KpiStrip, PanelEmpty } from "./_components/admin-ui";
 import { OverviewTrend } from "./_components/overview-trend";
 import { SUBSCRIPTION_META, TX_TYPE_META, fmtDate, fmtMoney, fmtNum, fmtRelative } from "./_lib/format";
 import { getAdminOverview } from "./_lib/overview-data";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,7 @@ function CardHeader({ title, href, linkLabel }: { title: string; href?: string; 
 }
 
 export default async function AdminOverviewPage() {
+  await requireAdminPage();
   const data = await getAdminOverview();
   const q = data.queues;
   const active = data.statusCounts.ACTIVE ?? 0;

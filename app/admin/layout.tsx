@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { notFound, unstable_rethrow } from "next/navigation";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { notFound } from "next/navigation";
+import { getPanelUser } from "@/lib/admin/page-guard";
+import { isMediaBuyer } from "@/lib/admin/panel-roles";
 import { prisma } from "@/lib/prisma";
 import { countUnseenStores } from "@/lib/admin/new-stores";
 import AdminShell from "./_components/admin-shell";
@@ -12,17 +13,24 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-async function requireAdminPage() {
-  try {
-    return await requireAdmin();
-  } catch (error) {
-    unstable_rethrow(error); // keep the /login redirect
-    notFound(); // signed in but not an admin: don't reveal the panel exists
-  }
-}
-
+/**
+ * Who gets the shell: admins, and media buyers (Analytics Center only — see
+ * lib/admin/panel-roles.ts). This layout doesn't re-render on client navigation,
+ * so it isn't what keeps a media buyer out of the rest: every page checks itself.
+ */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const admin = await requireAdminPage();
+  const admin = await getPanelUser(); // signed out → /login
+  if (!admin) notFound(); // signed in but not staff: don't reveal the panel exists
+
+  if (isMediaBuyer(admin.role)) {
+    const viewer = await prisma.user.findUnique({ where: { id: admin.id }, select: { id: true, name: true, email: true, role: true } });
+    return (
+      <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{}} analyticsOnly>
+        <TeamTrafficMarker rootDomain={process.env.ROOT_DOMAIN || "casho.store"} />
+        {children}
+      </AdminShell>
+    );
+  }
 
   // Queue sizes for the sidebar badges — the work waiting on an admin — plus stores new since the last visit.
   const [viewer, stores, topups, services, support, sharks, sales] = await Promise.all([

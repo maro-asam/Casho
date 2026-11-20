@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { Card, Tag } from "@/components/saas-page";
 import { AuditRows, CardEmpty, TierLadder } from "@/components/sales/sales-summary";
 import { prisma } from "@/lib/prisma";
@@ -31,7 +31,7 @@ function PolicyCard({ policy }: { policy: string[] }) {
 }
 
 export default async function AdminSalesRulesPage() {
-  await requireAdmin();
+  await requireAdminPage();
   const [current, history, audit] = await Promise.all([
     getCommissionRuleAt(prisma),
     prisma.salesCommissionRule.findMany({ orderBy: { effectiveFrom: "desc" }, take: 20 }),

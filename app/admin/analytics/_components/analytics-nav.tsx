@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { mediaBuyerMayOpen } from "@/lib/admin/panel-roles";
 import { cn } from "@/lib/utils";
 
 export const ANALYTICS_TABS = [
@@ -23,7 +24,8 @@ export const ANALYTICS_TABS = [
 /** Keep the filters (range, scope, store, device) when switching sections. */
 const KEEP = ["range", "from", "to", "compare", "scope", "store", "device"];
 
-export function AnalyticsNav() {
+export function AnalyticsNav({ mediaBuyer = false }: { mediaBuyer?: boolean }) {
+  const tabs = mediaBuyer ? ANALYTICS_TABS.filter((tab) => mediaBuyerMayOpen(tab.href)) : ANALYTICS_TABS;
   const pathname = usePathname();
   const params = useSearchParams();
   const keep = new URLSearchParams();
@@ -36,7 +38,7 @@ export function AnalyticsNav() {
   return (
     <nav aria-label="أقسام التحليلات" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
       <ul className="inline-flex min-w-max items-center gap-0.5 rounded-full bg-(--sys-gray)/14 p-[3px]">
-        {ANALYTICS_TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = tab.href === "/admin/analytics" ? pathname === tab.href : pathname.startsWith(tab.href);
           return (
             <li key={tab.href}>

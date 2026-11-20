@@ -11,6 +11,7 @@ enum UserRole {
   ADMIN
   SUPER_ADMIN
   SALES // sales representative — created only by an admin (actions/admin/sales.actions.ts)
+  MEDIA_BUYER // Casho's ad buyer — the admin panel's Analytics Center only, Casho's own traffic (lib/admin/panel-roles.ts)
 }
 
 enum StoreRole {

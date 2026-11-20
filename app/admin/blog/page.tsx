@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { th, theadRow } from "../_components/admin-ui";
 import { fmtDate, fmtNum, pickEnum } from "../_lib/format";
 import BlogActions from "./_components/BlogActions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "المدونة" };
 
@@ -35,6 +36,7 @@ const STATUS_META: Record<BlogStatus, { label: string; tone: PillTone }> = {
 };
 
 export default async function AdminBlogPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const status = pickEnum(BlogStatus, readParam(params, "status"));

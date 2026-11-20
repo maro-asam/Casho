@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SearchX, Users } from "lucide-react";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import {
   ListCard,
   Unavailable,
@@ -22,7 +22,7 @@ const BASE_PATH = "/admin/sales/customers";
 const FILTERS: CustomerFilter[] = ["signup", "eligible", "expired"];
 
 export default async function AdminSalesCustomersPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const rawState = readParam(params, "state");

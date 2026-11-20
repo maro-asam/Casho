@@ -2,9 +2,9 @@ import { notFound } from "next/navigation";
 import { Lock } from "lucide-react";
 import { Unavailable } from "@/components/saas-page";
 import { BackLink } from "@/app/admin/_components/admin-ui";
-import { auditAnalytics, requireAnalyticsViewer } from "@/lib/analytics/access";
+import { auditAnalytics, readAnalyticsFilter } from "@/lib/analytics/access";
 import { ID_PATTERN } from "@/lib/analytics/constants";
-import { filterParams, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { filterParams } from "@/lib/analytics/filters";
 import { getSessionTimeline } from "@/lib/analytics/queries/activity";
 import { Section, Stat } from "../../_components/ui";
 import { SCOPE_LABELS, channelLabel, countryName, deviceLabel, eventLabel, flagOf, fmtDateTime, fmtDuration, fmtNum, fmtTime, pathLabel } from "../../_lib/format";
@@ -21,9 +21,8 @@ export default async function SessionPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { sessionId } = await params;
-  const f = parseAnalyticsFilter(await searchParams);
+  const { viewer, f } = await readAnalyticsFilter(await searchParams);
   const back = `/admin/analytics/journeys${filterParams(f)}`;
-  const viewer = await requireAnalyticsViewer();
   if (!viewer.superAdmin) {
     return (
       <div className="space-y-4">

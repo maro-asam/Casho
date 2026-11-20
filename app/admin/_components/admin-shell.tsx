@@ -27,7 +27,18 @@ function readCollapsed() {
   }
 }
 
-export default function AdminShell({ viewer, badges, children }: { viewer: AdminViewer; badges: AdminBadges; children: ReactNode }) {
+export default function AdminShell({
+  viewer,
+  badges,
+  analyticsOnly = false,
+  children,
+}: {
+  viewer: AdminViewer;
+  badges: AdminBadges;
+  /** A media buyer: the Analytics Center is the whole panel. */
+  analyticsOnly?: boolean;
+  children: ReactNode;
+}) {
   const pathname = usePathname();
   const active = findAdminNav(pathname);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -51,7 +62,7 @@ export default function AdminShell({ viewer, badges, children }: { viewer: Admin
       </SheetTrigger>
       <SheetContent side="right" className="apple-ui w-72 border-none bg-transparent p-3 shadow-none [&>button]:hidden">
         <SheetTitle className="sr-only">قائمة الإدارة</SheetTitle>
-        <AdminSidebar activeHref={active?.href ?? null} badges={badges} onNavigate={() => setMobileOpen(false)} />
+        <AdminSidebar activeHref={active?.href ?? null} badges={badges} analyticsOnly={analyticsOnly} onNavigate={() => setMobileOpen(false)} />
       </SheetContent>
     </Sheet>
   );
@@ -66,11 +77,11 @@ export default function AdminShell({ viewer, badges, children }: { viewer: Admin
             isCollapsed ? "w-16" : "w-64",
           )}
         >
-          <AdminSidebar activeHref={active?.href ?? null} badges={badges} collapsed={isCollapsed} onToggleCollapsed={toggleCollapsed} />
+          <AdminSidebar activeHref={active?.href ?? null} badges={badges} analyticsOnly={analyticsOnly} collapsed={isCollapsed} onToggleCollapsed={toggleCollapsed} />
         </aside>
 
         <div className={cn("flex min-h-screen flex-col transition-[padding] duration-300 ease-(--ease-apple)", isCollapsed ? "md:ps-22" : "md:ps-70")}>
-          <AdminTopbar active={active} viewer={viewer} menuSlot={mobileMenu} />
+          <AdminTopbar active={active} viewer={viewer} analyticsOnly={analyticsOnly} menuSlot={mobileMenu} />
           <main id="main-content" className="admin-ui apple-auto apple-form mx-auto w-full max-w-385 flex-1 px-4 pt-4 pb-10 sm:px-6 md:px-8 md:pt-6">
             {children}
           </main>

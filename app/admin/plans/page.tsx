@@ -8,10 +8,12 @@ import { Unavailable, PageHeader, StatusText } from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
 import { SUBSCRIPTION_META, fmtMoney, fmtNum } from "../_lib/format";
 import { CreatePlanDialog } from "./_components/create-plan-dialog";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "الباقات" };
 
 export default async function AdminPlansPage() {
+  await requireAdminPage();
   const [plans, overview] = await Promise.all([GetPlansForAdminAction(), GetPlanSubscriptionsOverviewAction()]);
 
   const statsByPlan = new Map(

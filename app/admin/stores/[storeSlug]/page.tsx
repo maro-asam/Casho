@@ -5,7 +5,7 @@ import { ArrowUpRight, ExternalLink, Mail, MessageCircle, RefreshCcw, RotateCw }
 
 import { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import {
   adminActivateStoreSubscriptionAction,
   adminCancelStoreSubscriptionAction,
@@ -42,6 +42,7 @@ import { DangerDelete } from "../../_components/danger-delete";
 type PageProps = { params: Promise<{ storeSlug: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  await requireAdminPage(); // the title names the account / store
   const { storeSlug } = await params;
   const store = await prisma.store.findUnique({ where: { slug: storeSlug }, select: { name: true } });
   return { title: store?.name ?? "متجر" };
@@ -60,7 +61,7 @@ const AUDIT_LABELS: Record<string, string> = {
 
 export default async function AdminStoreDetailsPage({ params }: PageProps) {
   const { storeSlug } = await params;
-  const viewer = await requireAdmin();
+  const viewer = await requireAdminPage();
 
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },

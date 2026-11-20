@@ -4,6 +4,7 @@ import { BlogStatus } from "@prisma/client";
 import { PageHeader } from "@/components/saas-page";
 import EditBlogForm from "../../_components/EditBlogForm";
 import { BackLink } from "../../../_components/admin-ui";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 
 type EditBlogRouteProps = {
@@ -13,6 +14,7 @@ type EditBlogRouteProps = {
 };
 
 const EditBlogRoute = async ({ params }: EditBlogRouteProps) => {
+  await requireAdminPage();
   const { blogSlug } = await params;
 
   const blog = await prisma.blogPost.findUnique({

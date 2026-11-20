@@ -1,6 +1,7 @@
 /**
  * Analytics Center exports: CSV (UTF-8 with BOM, opens in Excel with Arabic
- * intact) or Excel (xlsx, already used by the merchant reports). Admin only;
+ * intact) or Excel (xlsx, already used by the merchant reports). Admins and
+ * media buyers (pinned to Casho's own traffic, lib/analytics/access.ts);
  * every export is written to the security log. Exports contain aggregates —
  * never individual visitors (the event export has no visitor or session ids).
  */
@@ -8,9 +9,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { unstable_rethrow } from "next/navigation";
 import * as XLSX from "xlsx";
 
-import { auditAnalytics, requireAnalyticsViewer } from "@/lib/analytics/access";
+import { analyticsFilterFor, auditAnalytics, canSeeStorefronts, requireAnalyticsViewer } from "@/lib/analytics/access";
 import { CHANNEL_LABELS, type Channel } from "@/lib/analytics/channel";
-import { isStorefrontView, parseAnalyticsFilter, type AnalyticsFilter } from "@/lib/analytics/filters";
+import { isStorefrontView, type AnalyticsFilter } from "@/lib/analytics/filters";
 import { BUILT_IN_FUNNELS, readSteps, type FunnelDefinition } from "@/lib/analytics/funnels";
 import { deriveRates, pctChange, ratio } from "@/lib/analytics/metrics";
 import { getEvents, getJourneys, getPerformance } from "@/lib/analytics/queries/activity";
@@ -41,7 +42,8 @@ function header(f: AnalyticsFilter, title: string): Cell[][] {
   return [[title], ["الفترة", `${f.fromKey} → ${f.toKey}`], ["مقارنة بـ", f.prevFromKey ? `${f.prevFromKey} → ${f.prevToKey}` : "—"], ["النطاق", f.storeId ? `متجر ${f.storeId}` : f.scope], ["الجهاز", f.device], []];
 }
 
-async function buildReport(report: string, f: AnalyticsFilter): Promise<{ title: string; sheets: Sheet[] }> {
+/** `storefronts: false` (a media buyer): no Stores report, no storefront funnel — the filter is already pinned to Casho. */
+async function buildReport(report: string, f: AnalyticsFilter, storefronts: boolean): Promise<{ title: string; sheets: Sheet[] } | null> {
   const [kind, a, b] = report.split(":");
   switch (kind) {
     case "overview": {
@@ -167,6 +169,7 @@ async function buildReport(report: string, f: AnalyticsFilter): Promise<{ title:
         if (row) def = { id: row.id, name: row.name, description: row.description, scope: row.scope, steps: readSteps(row.steps), windowDays: row.windowDays, builtIn: false };
       }
       def ??= BUILT_IN_FUNNELS[0];
+      if (def.scope === "STOREFRONT" && !storefronts) return null;
       const r = await getFunnelReport(def, f);
       const rows: Cell[][] = [
         ...header(f, `Funnel — ${def.name}`),
@@ -227,6 +230,7 @@ async function buildReport(report: string, f: AnalyticsFilter): Promise<{ title:
       return { title: "events", sheets: [{ name: "الأحداث", rows }] };
     }
     case "stores": {
+      if (!storefronts) return null;
       const rows = await getStoresTable({ ...f, scope: "storefront", storeId: null });
       return {
         title: "stores",
@@ -270,12 +274,14 @@ export async function GET(req: NextRequest) {
   }
 
   const sp = Object.fromEntries(req.nextUrl.searchParams);
-  const f = parseAnalyticsFilter(sp);
+  const f = analyticsFilterFor(viewer, sp);
   const report = (sp.report || "overview").slice(0, 80);
   const format = sp.format === "xlsx" ? "xlsx" : "csv";
 
   try {
-    const { title, sheets } = await buildReport(report, f);
+    const built = await buildReport(report, f, canSeeStorefronts(viewer));
+    if (!built) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    const { title, sheets } = built;
     await auditAnalytics(viewer, "ANALYTICS_EXPORTED", { report, format, from: f.fromKey, to: f.toKey, scope: f.storeId ? `store:${f.storeId}` : f.scope });
     const base = `casho-analytics-${title}-${f.fromKey}_${f.toKey}`;
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { filterParams, isStorefrontView, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams, isStorefrontView } from "@/lib/analytics/filters";
 import { ratio } from "@/lib/analytics/metrics";
 import { getPagesTable, pageInsights, type PageRow } from "@/lib/analytics/queries/pages";
 import { Toolbar } from "../_components/toolbar";
@@ -48,7 +49,7 @@ function InsightCard({ title, info, rows, metric, href }: { title: string; info:
 
 export default async function PagesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
+  const { f } = await readAnalyticsFilter(sp);
   const storefront = isStorefrontView(f);
   const rows = await getPagesTable(f);
   const insights = pageInsights(rows);

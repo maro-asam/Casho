@@ -100,6 +100,7 @@ export const ROLE_META: Record<UserRole, Meta> = {
   ADMIN: { label: "أدمن", tone: "info" },
   SUPER_ADMIN: { label: "سوبر أدمن", tone: "accent" },
   SALES: { label: "مندوب مبيعات", tone: "success" },
+  MEDIA_BUYER: { label: "ميديا باير", tone: "warning" },
 };
 
 export const SECURITY_EVENT_META: Record<string, Meta> = {

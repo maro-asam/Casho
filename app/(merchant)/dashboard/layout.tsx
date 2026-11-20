@@ -12,6 +12,7 @@ import { countNavBadges } from "@/lib/dashboard/nav-badges";
 import { isSubscriptionCurrentlyActive } from "@/lib/subscriptions";
 import { renewIfDue } from "@/lib/billing/renewal";
 import { needsEmailVerification } from "@/lib/auth/email-verification";
+import { MEDIA_BUYER_HOME, isMediaBuyer } from "@/lib/admin/panel-roles";
 import { tr } from "@/lib/i18n/dashboard";
 import DashboardI18nProvider from "@/lib/i18n/dashboard/provider";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
@@ -49,7 +50,7 @@ export default async function DashboardLayout({
 }) {
   const locale = await loadDashboardLocale();
   const userId = await requireUserId();
-  const account = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, emailVerified: true, mustVerifyEmail: true } });
+  const account = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, emailVerified: true, mustVerifyEmail: true, role: true } });
   if (account && needsEmailVerification(account)) redirect("/verify-email");
   const storeQuery = {
     where: { userId },
@@ -88,9 +89,9 @@ export default async function DashboardLayout({
   }
 
   if (!store) {
-    // Sales reps have their own workspace.
-    const account = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+    // Sales reps have their own workspace; media buyers have the Analytics Center.
     if (account?.role === "SALES") redirect("/sales");
+    if (account && isMediaBuyer(account.role)) redirect(MEDIA_BUYER_HOME);
     // Team members (cashiers) don't own a store: their workspace is the POS.
     const membership = await prisma.storeMember.findFirst({ where: { userId }, select: { id: true } });
     redirect(membership ? "/pos" : "/");
@@ -105,6 +106,8 @@ export default async function DashboardLayout({
   const isOnOnboarding = pathname.includes("/onboarding");
 
   if (!onboardingDone && !isOnChangePlan && !isOnOnboarding) {
+    // A media buyer who never set up a store came for the Analytics Center, not onboarding.
+    if (account && isMediaBuyer(account.role)) redirect(MEDIA_BUYER_HOME);
     redirect("/onboarding");
   }
 

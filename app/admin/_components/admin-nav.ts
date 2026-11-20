@@ -87,6 +87,9 @@ export const ADMIN_NAV: AdminNavSection[] = [
   },
 ];
 
+/** A media buyer's sidebar (lib/admin/panel-roles.ts): the Analytics Center is the whole panel. */
+export const ANALYTICS_ONLY_NAV: AdminNavSection[] = [{ items: ADMIN_NAV[0].items.filter((item) => item.href === "/admin/analytics") }];
+
 const ALL_ITEMS = ADMIN_NAV.flatMap((s) => s.items);
 
 /** Longest matching nav item for a pathname ("/admin" only matches itself). */

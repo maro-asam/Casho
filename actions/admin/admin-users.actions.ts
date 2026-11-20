@@ -9,7 +9,7 @@ import { logSecurityEvent } from "@/lib/auth/security-log";
 type ActionResult = { success: boolean; message: string };
 
 /** Roles assignable here. SALES is managed from the sales team page (it needs a SalesRep row). */
-const ASSIGNABLE_ROLES: UserRole[] = [UserRole.USER, UserRole.ADMIN, UserRole.SUPER_ADMIN];
+const ASSIGNABLE_ROLES: UserRole[] = [UserRole.USER, UserRole.MEDIA_BUYER, UserRole.ADMIN, UserRole.SUPER_ADMIN];
 
 /** Signs a user out everywhere (e.g. a stolen device or a compromised account). */
 export async function revokeUserSessionsAction(userId: string): Promise<ActionResult> {

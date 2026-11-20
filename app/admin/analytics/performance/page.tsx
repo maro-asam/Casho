@@ -1,6 +1,6 @@
 import { Bug, Gauge } from "lucide-react";
 import { Unavailable } from "@/components/saas-page";
-import { parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
 import { VITAL_THRESHOLDS, ratio, vitalRating } from "@/lib/analytics/metrics";
 import { getPerformance } from "@/lib/analytics/queries/activity";
 import { cn } from "@/lib/utils";
@@ -38,7 +38,7 @@ function RatingText({ metric, value }: { metric: string; value: number | null })
 }
 
 export default async function PerformancePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const f = parseAnalyticsFilter(await searchParams);
+  const { f } = await readAnalyticsFilter(await searchParams);
   const d = await getPerformance(f);
   const byMetric = new Map(d.vitals.map((v) => [v.metric, v]));
   const devices = [...new Set(d.byDevice.map((r) => r.device))];

@@ -172,6 +172,15 @@ export function parseAnalyticsFilter(params: Params, now = new Date()): Analytic
   };
 }
 
+/** Scopes that are Casho's own traffic (what a media buyer may see). */
+export const CASHO_SCOPES: ScopeFilter[] = ["marketing", "app"];
+
+/** Casho's own traffic only: a storefront, one store or "all" falls back to the Casho site. */
+export function withoutStorefronts(f: AnalyticsFilter): AnalyticsFilter {
+  if (!f.storeId && CASHO_SCOPES.includes(f.scope)) return f;
+  return { ...f, scope: "marketing", storeId: null };
+}
+
 /** The filter as URL params (for links that keep the current view). */
 export function filterParams(f: AnalyticsFilter, overrides: Record<string, string | null> = {}): string {
   const p = new URLSearchParams();

@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { th, theadRow } from "../_components/admin-ui";
 import { TOPUP_METHOD_LABELS, TOPUP_STATUS_META, fmtDateTime, fmtMoney, fmtRelative, pickEnum } from "../_lib/format";
 import { TopupReview } from "./_components/topup-review";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "طلبات الشحن" };
 
@@ -29,6 +30,7 @@ const PAGE_SIZE = 20;
 const BASE_PATH = "/admin/topup-requests";
 
 export default async function AdminTopupRequestsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const status = pickEnum(TopupRequestStatus, readParam(params, "status"));

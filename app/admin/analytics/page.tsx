@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Activity } from "lucide-react";
 import { Unavailable, appleButton } from "@/components/saas-page";
-import { parseAnalyticsFilter, filterParams, isStorefrontView, type AnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams, isStorefrontView, type AnalyticsFilter } from "@/lib/analytics/filters";
 import { deriveRates, ratio } from "@/lib/analytics/metrics";
 import { getOverview, type Series } from "@/lib/analytics/queries/overview";
 import { getBreakdown } from "@/lib/analytics/queries/breakdowns";
@@ -27,7 +28,7 @@ function compareLabelOf(f: AnalyticsFilter) {
 }
 
 export default async function AnalyticsOverviewPage({ searchParams }: { searchParams: SP }) {
-  const f = parseAnalyticsFilter(await searchParams);
+  const { f } = await readAnalyticsFilter(await searchParams);
   const storefront = isStorefrontView(f);
   const [data, channels, devices, pages, started] = await Promise.all([
     getOverview(f),

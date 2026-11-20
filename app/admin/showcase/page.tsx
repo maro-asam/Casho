@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ExternalLink, LayoutTemplate, Plus } from "lucide-react";
 
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { ListCard, PageHeader, Unavailable } from "@/components/saas-page";
 import { Button } from "@/components/ui/button";
 import { storePublicUrl } from "@/helpers/BuildStoreURL";
@@ -14,7 +14,7 @@ import { ShowcaseRow, type ShowcaseAdminRow } from "./_components/showcase-row";
 export const metadata: Metadata = { title: "أمثلة كاشو" };
 
 export default async function AdminShowcasePage() {
-  await requireAdmin();
+  await requireAdminPage();
   const rows = await prisma.showcaseSite.findMany({
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     select: {

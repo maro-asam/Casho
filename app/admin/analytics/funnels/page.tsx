@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Filter, TriangleAlert } from "lucide-react";
 import { Tag, Unavailable } from "@/components/saas-page";
-import { requireAnalyticsViewer } from "@/lib/analytics/access";
-import { filterParams, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { canSeeStorefronts, readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams } from "@/lib/analytics/filters";
 import { BUILT_IN_FUNNELS, VERIFIED_STEPS, readSteps, type FunnelDefinition } from "@/lib/analytics/funnels";
 import { getFunnelReport, listCustomFunnels } from "@/lib/analytics/queries/funnels";
 import { cn } from "@/lib/utils";
@@ -21,13 +21,12 @@ function stepSource(step: FunnelDefinition["steps"][number]) {
 
 export default async function FunnelsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
-  const viewer = await requireAnalyticsViewer();
+  const { viewer, f } = await readAnalyticsFilter(sp);
   const custom = await listCustomFunnels();
   const all: FunnelDefinition[] = [
     ...BUILT_IN_FUNNELS,
     ...custom.map((c) => ({ id: c.id, name: c.name, description: c.description, scope: c.scope, steps: readSteps(c.steps), windowDays: c.windowDays, builtIn: false })),
-  ].filter((d) => d.steps.length >= 2);
+  ].filter((d) => d.steps.length >= 2 && (d.scope !== "STOREFRONT" || canSeeStorefronts(viewer)));
   const selected = all.find((d) => d.id === sp.funnel) ?? all[0];
   const report = await getFunnelReport(selected, f);
   const first = report.steps[0]?.entered ?? 0;

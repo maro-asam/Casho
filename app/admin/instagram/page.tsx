@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { PageHeader, StatusText } from "@/components/saas-page";
 import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { KpiStrip, Panel, PanelEmpty } from "../_components/admin-ui";
 import { fmtDateTime, fmtNum } from "../_lib/format";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Instagram AI" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminInstagramPage() {
-  await requireAdmin();
+  await requireAdminPage();
 
   const now   = new Date();
   const h24   = new Date(now.getTime() - 24 * 60 * 60 * 1000);

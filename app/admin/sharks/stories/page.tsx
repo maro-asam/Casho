@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Video } from "lucide-react";
 
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { prisma } from "@/lib/prisma";
 import { ListCard, Unavailable, StatusText } from "@/components/saas-page";
 import { STORY_STATUS } from "@/lib/sharks/catalog";
@@ -9,7 +9,7 @@ import { hasValidConsent } from "@/lib/sharks/workflow";
 import { fmtDate } from "../../_lib/format";
 
 export default async function SharksStoriesPage() {
-  await requireAdmin();
+  await requireAdminPage();
   const stories = await prisma.sharksStory.findMany({
     orderBy: { updatedAt: "desc" },
     select: {

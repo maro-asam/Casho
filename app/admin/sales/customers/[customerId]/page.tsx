@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { BackLink } from "@/app/admin/_components/admin-ui";
 import { CustomerDetail } from "@/components/sales/customer-detail";
 import { prisma } from "@/lib/prisma";
@@ -7,7 +7,7 @@ import { getAttributedCustomer } from "@/lib/sales/queries";
 import { AssignCustomerDialog } from "../../_components/sales-dialogs";
 
 export default async function AdminSalesCustomerPage({ params }: { params: Promise<{ customerId: string }> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const { customerId } = await params;
 
   const detail = await getAttributedCustomer({ all: true }, customerId);

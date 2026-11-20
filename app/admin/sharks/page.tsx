@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SearchX, Telescope } from "lucide-react";
 import { Prisma, SharksApplicationStatus, SharksTrack } from "@prisma/client";
 
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { prisma } from "@/lib/prisma";
 import {
   ListCard,
@@ -24,7 +24,7 @@ const BASE_PATH = "/admin/sharks";
 const STATUSES = Object.keys(APPLICATION_STATUS) as SharksApplicationStatus[];
 
 export default async function AdminSharksApplicationsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const status = pickEnum(SharksApplicationStatus, readParam(params, "status"));

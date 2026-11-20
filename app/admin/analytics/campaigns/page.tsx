@@ -1,7 +1,6 @@
 import { Megaphone } from "lucide-react";
 import { Segmented, Unavailable } from "@/components/saas-page";
-import { requireAnalyticsViewer } from "@/lib/analytics/access";
-import { parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { canEditCampaignCosts, readAnalyticsFilter } from "@/lib/analytics/access";
 import { ratio } from "@/lib/analytics/metrics";
 import type { AttributedRow, OrderRow } from "@/lib/analytics/queries/breakdowns";
 import { getCampaigns } from "@/lib/analytics/queries/campaigns";
@@ -14,8 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function CampaignsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
-  const viewer = await requireAnalyticsViewer();
+  const { viewer, f } = await readAnalyticsFilter(sp);
   const model = sp.model === "last" ? "last" : "first";
   const data = await getCampaigns(f, model);
 
@@ -103,7 +101,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
         )}
       </Section>
 
-      <CostManager costs={data.costs} canEdit={viewer.superAdmin} />
+      <CostManager costs={data.costs} canEdit={canEditCampaignCosts(viewer)} />
 
       <Note className="px-1">
         ربط Meta Ads API (لسحب الصرف تلقائيًا) مش متفعل — محتاج حساب إعلانات وتوكن ads_read. لحد ما يتعمل، الصرف بيتكتب يدويًا هنا، والتحليلات بتقرا UTM إعلانات Meta (fb / ig / an بيتجمعوا كـ facebook / instagram / meta_audience_network).

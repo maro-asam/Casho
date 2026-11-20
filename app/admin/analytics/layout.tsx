@@ -8,15 +8,19 @@ import "./analytics.css";
 export const metadata: Metadata = { title: "مركز التحليلات" };
 
 export default async function AnalyticsLayout({ children }: { children: ReactNode }) {
-  await requireAnalyticsViewer();
+  const viewer = await requireAnalyticsViewer();
   return (
     <div className="analytics-ui space-y-6">
       <LargeTitle
         title="مركز التحليلات"
-        subtitle="زوار كاشو ومتاجر التجار: منين جايين، بيعملوا إيه، وفين بيقفوا. بيانات حقيقية من كاشو نفسها، من غير أدوات خارجية."
+        subtitle={
+          viewer.mediaBuyer
+            ? "زوار موقع كاشو ولوحة التاجر: منين جايين، بيعملوا إيه، وفين بيقفوا. بيانات حقيقية من كاشو نفسها، من غير أدوات خارجية."
+            : "زوار كاشو ومتاجر التجار: منين جايين، بيعملوا إيه، وفين بيقفوا. بيانات حقيقية من كاشو نفسها، من غير أدوات خارجية."
+        }
       />
       <Suspense fallback={<div className="h-[42px]" />}>
-        <AnalyticsNav />
+        <AnalyticsNav mediaBuyer={viewer.mediaBuyer} />
       </Suspense>
       {children}
     </div>

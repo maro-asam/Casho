@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { KpiStrip, th, theadRow } from "../_components/admin-ui";
 import { TX_TYPE_META, fmtDateTime, fmtMoney, fmtNum, pickEnum } from "../_lib/format";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "الحركات المالية" };
 
@@ -28,6 +29,7 @@ const BASE_PATH = "/admin/transactions";
 const RANGES = { "7": "آخر ٧ أيام", "30": "آخر ٣٠ يوم", "90": "آخر ٩٠ يوم", "365": "آخر سنة" } as const;
 
 export default async function AdminTransactionsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const type = pickEnum(BalanceTransactionType, readParam(params, "type"));

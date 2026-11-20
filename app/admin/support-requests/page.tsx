@@ -19,6 +19,7 @@ import {
 } from "@/components/saas-page";
 import { StatusMenu } from "../_components/status-menu";
 import { SUPPORT_STATUS_META, fmtDateTime, fmtRelative, pickEnum } from "../_lib/format";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "الدعم الفني" };
 
@@ -27,6 +28,7 @@ const BASE_PATH = "/admin/support-requests";
 const STATUS_OPTIONS = (Object.keys(SUPPORT_STATUS_META) as SupportRequestStatus[]).map((value) => ({ value, ...SUPPORT_STATUS_META[value] }));
 
 export default async function AdminSupportPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const status = pickEnum(SupportRequestStatus, readParam(params, "status"));

@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
-import { auditAnalytics, requireAnalyticsSuperAdmin } from "@/lib/analytics/access";
+import { auditAnalytics, canEditCampaignCosts, requireAnalyticsSuperAdmin, requireAnalyticsViewer } from "@/lib/analytics/access";
 import { isValidIpRule } from "@/lib/analytics/guard";
 import { funnelInputSchema, type FunnelInput } from "@/lib/analytics/funnels";
 import { ANALYTICS_CACHE_TAG } from "@/lib/analytics/queries/shared";
@@ -23,6 +23,16 @@ function refresh() {
 async function guard() {
   try {
     return await requireAnalyticsSuperAdmin();
+  } catch {
+    return null;
+  }
+}
+
+/** Campaign costs: super admins and media buyers (they know what they spent). */
+async function costGuard() {
+  try {
+    const viewer = await requireAnalyticsViewer();
+    return canEditCampaignCosts(viewer) ? viewer : null;
   } catch {
     return null;
   }
@@ -193,8 +203,8 @@ const costSchema = z
   .refine((v) => v.startDate <= v.endDate, "تاريخ النهاية قبل البداية");
 
 export async function SaveCampaignCostAction(input: z.input<typeof costSchema>): Promise<Result> {
-  const viewer = await guard();
-  if (!viewer) return fail("للسوبر أدمن بس.");
+  const viewer = await costGuard();
+  if (!viewer) return fail("للسوبر أدمن والميديا باير بس.");
   const parsed = costSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "راجع البيانات");
   const d = parsed.data;
@@ -221,8 +231,8 @@ export async function SaveCampaignCostAction(input: z.input<typeof costSchema>):
 }
 
 export async function DeleteCampaignCostAction(id: string): Promise<Result> {
-  const viewer = await guard();
-  if (!viewer) return fail("للسوبر أدمن بس.");
+  const viewer = await costGuard();
+  if (!viewer) return fail("للسوبر أدمن والميديا باير بس.");
   try {
     await prisma.analyticsCampaignCost.delete({ where: { id } });
     await auditAnalytics(viewer, "ANALYTICS_COST_CHANGED", { action: "delete", costId: id });

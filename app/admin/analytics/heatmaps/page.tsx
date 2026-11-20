@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Flame } from "lucide-react";
 import { Unavailable } from "@/components/saas-page";
 import type { DeviceBucket } from "@/lib/analytics/constants";
-import { filterParams, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { canSeeStorefronts, readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams } from "@/lib/analytics/filters";
 import { ratio } from "@/lib/analytics/metrics";
 import { getStoreOptions } from "@/lib/analytics/queries/breakdowns";
 import { getHeatmap, getHeatmapPages } from "@/lib/analytics/queries/heatmaps";
@@ -19,9 +20,9 @@ const BUCKETS: DeviceBucket[] = ["desktop", "tablet", "mobile"];
 
 export default async function HeatmapsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
+  const { viewer, f } = await readAnalyticsFilter(sp);
   const bucket: DeviceBucket = BUCKETS.includes(sp.bucket as DeviceBucket) ? (sp.bucket as DeviceBucket) : "desktop";
-  const [pages, settings, stores] = await Promise.all([getHeatmapPages(f), getAnalyticsSettings(), getStoreOptions()]);
+  const [pages, settings, stores] = await Promise.all([getHeatmapPages(f), getAnalyticsSettings(), canSeeStorefronts(viewer) ? getStoreOptions() : []]);
   const requested = typeof sp.path === "string" && sp.path.startsWith("/") ? sp.path : null;
   const path = requested ?? pages.find((p) => p.clicks > 0)?.path ?? pages[0]?.path ?? null;
 

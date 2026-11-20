@@ -2,7 +2,8 @@ import Link from "next/link";
 import { ListFilter } from "lucide-react";
 import { Pager, SearchInput, Unavailable } from "@/components/saas-page";
 import { EVENT_NAME_PATTERN, KNOWN_EVENTS, SERVER_ONLY_EVENTS } from "@/lib/analytics/constants";
-import { filterParams, parseAnalyticsFilter } from "@/lib/analytics/filters";
+import { readAnalyticsFilter } from "@/lib/analytics/access";
+import { filterParams } from "@/lib/analytics/filters";
 import { getEvents } from "@/lib/analytics/queries/activity";
 import { cn } from "@/lib/utils";
 import { Toolbar } from "../_components/toolbar";
@@ -29,7 +30,7 @@ function Props({ props }: { props: Record<string, unknown> | null }) {
 
 export default async function EventsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
-  const f = parseAnalyticsFilter(sp);
+  const { f } = await readAnalyticsFilter(sp);
   const name = typeof sp.name === "string" && EVENT_NAME_PATTERN.test(sp.name) ? sp.name : null;
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 80) || null : null;
   const page = Math.max(1, Number(sp.page) || 1);

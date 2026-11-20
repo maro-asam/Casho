@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Banknote } from "lucide-react";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { KpiStrip } from "@/app/admin/_components/admin-ui";
 import { Card, StatusText, Unavailable } from "@/components/saas-page";
 import { CardEmpty, Monogram } from "@/components/sales/sales-summary";
@@ -11,7 +11,7 @@ import { RecordPayoutDialog } from "../_components/sales-dialogs";
 import { WithdrawalRequests } from "../_components/withdrawal-requests";
 
 export default async function AdminSalesPayoutsPage() {
-  await requireAdmin();
+  await requireAdminPage();
 
   const reps = await prisma.salesRep.findMany({
     orderBy: { createdAt: "asc" },

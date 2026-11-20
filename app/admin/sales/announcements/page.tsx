@@ -1,5 +1,5 @@
 import { Megaphone } from "lucide-react";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { Unavailable } from "@/components/saas-page";
 import { AnnouncementCard } from "@/components/sales/announcement-card";
 import { campaignDaysFromWindow } from "@/lib/sales/campaign";
@@ -7,7 +7,7 @@ import { listAllAnnouncements } from "@/lib/sales/campaign-queries";
 import { AnnouncementDialog, DeleteAnnouncement } from "../_components/campaign-dialogs";
 
 export default async function AdminSalesAnnouncementsPage() {
-  await requireAdmin();
+  await requireAdminPage();
   const items = await listAllAnnouncements();
   const now = new Date();
 

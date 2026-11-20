@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { th, theadRow } from "../_components/admin-ui";
 import { SUBSCRIPTION_META, fmtDate, fmtMoney, fmtRelative, pickEnum } from "../_lib/format";
 import MarkStoresSeen from "./_components/mark-stores-seen";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "المتاجر" };
 
@@ -31,6 +32,7 @@ const EXPIRING = "EXPIRING"; // pseudo-status: active, renews within 7 days
 const SORTS = { newest: "الأحدث", balance: "الرصيد الأعلى", ending: "ينتهي أولًا" } as const;
 
 export default async function AdminStoresPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const rawStatus = readParam(params, "status");

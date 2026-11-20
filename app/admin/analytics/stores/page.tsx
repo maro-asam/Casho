@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Store } from "lucide-react";
 import { Unavailable } from "@/components/saas-page";
+import { requireStorefrontViewer } from "@/lib/analytics/access";
 import { filterParams, parseAnalyticsFilter } from "@/lib/analytics/filters";
 import { ratio } from "@/lib/analytics/metrics";
 import { getStoresTable, type StoreRow } from "@/lib/analytics/queries/breakdowns";
@@ -22,6 +23,7 @@ const SORTS = {
 type SortKey = keyof typeof SORTS;
 
 export default async function StoresAnalyticsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  await requireStorefrontViewer(); // merchants' stores: never a media buyer
   const sp = await searchParams;
   const f = parseAnalyticsFilter({ ...sp, scope: "storefront", store: undefined });
   const rows = await getStoresTable(f);

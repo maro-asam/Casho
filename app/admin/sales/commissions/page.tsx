@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BadgeDollarSign, SearchX } from "lucide-react";
 import { SalesCommissionKind, SalesCommissionStatus } from "@prisma/client";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import {
   ListCard,
   Unavailable,
@@ -42,7 +42,7 @@ function recentMonths(count = 18): string[] {
 }
 
 export default async function AdminSalesCommissionsPage({ searchParams }: { searchParams?: Promise<SearchParamsRecord> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const params = await searchParams;
   const q = readParam(params, "q");
   const status = STATUSES.find((s) => s === readParam(params, "status"));

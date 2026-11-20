@@ -35,7 +35,7 @@ function ThemeToggle() {
   );
 }
 
-function AccountMenu({ viewer }: { viewer: AdminViewer }) {
+function AccountMenu({ viewer, analyticsOnly }: { viewer: AdminViewer; analyticsOnly: boolean }) {
   const [isLoggingOut, startLogout] = useTransition();
   const display = viewer.name?.trim() || viewer.email;
 
@@ -56,19 +56,24 @@ function AccountMenu({ viewer }: { viewer: AdminViewer }) {
           </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href={`/admin/users/${viewer.id}`}>
-            <UserRound />
-            حسابي
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/admin/security">
-            <ShieldCheck />
-            سجل الأمان
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {/* Admin pages: a media buyer only has the Analytics Center. */}
+        {!analyticsOnly && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/users/${viewer.id}`}>
+                <UserRound />
+                حسابي
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/security">
+                <ShieldCheck />
+                سجل الأمان
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         {/* Not a <form>: selecting an item unmounts the menu before the browser submits. */}
         <DropdownMenuItem
           variant="destructive"
@@ -89,10 +94,12 @@ function AccountMenu({ viewer }: { viewer: AdminViewer }) {
 export default function AdminTopbar({
   active,
   viewer,
+  analyticsOnly = false,
   menuSlot,
 }: {
   active: AdminNavItem | null;
   viewer: AdminViewer;
+  analyticsOnly?: boolean;
   menuSlot?: React.ReactNode;
 }) {
   const title = active && active.href !== "/admin" ? active.name : "نظرة عامة";
@@ -120,7 +127,7 @@ export default function AdminTopbar({
         <div className="flex shrink-0 items-center gap-1">
           <ThemeToggle />
           <span aria-hidden className="mx-1 hidden h-5 border-s-[0.5px] border-border sm:block" />
-          <AccountMenu viewer={viewer} />
+          <AccountMenu viewer={viewer} analyticsOnly={analyticsOnly} />
         </div>
       </header>
     </div>

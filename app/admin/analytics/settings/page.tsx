@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { Lock } from "lucide-react";
 import { Unavailable } from "@/components/saas-page";
+import { MEDIA_BUYER_HOME } from "@/lib/admin/panel-roles";
 import { requireAnalyticsViewer } from "@/lib/analytics/access";
 import { getAnalyticsSettings } from "@/lib/analytics/settings";
 import { prisma } from "@/lib/prisma";
@@ -10,6 +12,8 @@ export const dynamic = "force-dynamic";
 
 export default async function AnalyticsSettingsPage() {
   const viewer = await requireAnalyticsViewer();
+  // Internal IPs, exclusions and who edited them: admins only.
+  if (viewer.mediaBuyer) redirect(MEDIA_BUYER_HOME);
   const settings = await getAnalyticsSettings();
   const [counts, editor] = await Promise.all([
     prisma.$queryRaw<{ sessions: number; pageviews: number; events: number }[]>`

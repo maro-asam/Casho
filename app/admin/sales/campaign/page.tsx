@@ -1,5 +1,5 @@
 import { Gift, Pill, ShoppingCart, Sparkles, Users } from "lucide-react";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { KpiStrip } from "@/app/admin/_components/admin-ui";
 import { Card, StatusText, Unavailable, initialOf } from "@/components/saas-page";
 import { campaignDaysFromWindow, campaignDaysLeft } from "@/lib/sales/campaign";
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { AddCampaignMember, EditCampaignDialog, RemoveCampaignMember } from "../_components/campaign-dialogs";
 
 export default async function AdminSalesCampaignPage() {
-  await requireAdmin();
+  await requireAdminPage();
   const data = await getCampaignAdmin();
 
   if (!data) {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { Banknote, ChevronLeft, KeyRound, Link2 } from "lucide-react";
-import { requireAdmin } from "@/actions/admin/admin-guard.actions";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 import { BackLink, KpiStrip } from "@/app/admin/_components/admin-ui";
 import { Card, StatusText, appleButton } from "@/components/saas-page";
 import { LinkField, ReferralLinkBox } from "@/components/sales/copy-button";
@@ -50,7 +50,7 @@ function SeeAll({ href, children }: { href: string; children: ReactNode }) {
 }
 
 export default async function AdminSalesRepPage({ params }: { params: Promise<{ repId: string }> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const { repId } = await params;
 
   const rep = await prisma.salesRep.findUnique({

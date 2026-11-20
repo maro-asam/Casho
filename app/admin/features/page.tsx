@@ -8,10 +8,12 @@ import { cn } from "@/lib/utils";
 import { th, theadRow } from "../_components/admin-ui";
 import { CreateFeatureDialog } from "./_components/create-feature-dialog";
 import { FeatureRow } from "./_components/FeatureRow";
+import { requireAdminPage } from "@/lib/admin/page-guard";
 
 export const metadata: Metadata = { title: "الميزات" };
 
 export default async function AdminFeaturesPage() {
+  await requireAdminPage();
   const [features, usage] = await Promise.all([
     GetFeaturesForAdminAction(),
     prisma.planFeature.groupBy({ by: ["featureId"], where: { enabled: true }, _count: { _all: true } }),
