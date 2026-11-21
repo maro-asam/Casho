@@ -11,6 +11,14 @@ import type { PrismaClient } from "@prisma/client";
 
 vi.setConfig({ testTimeout: 60_000, hookTimeout: 120_000 });
 
+// PGlite comes with prisma (@prisma/dev), not as a direct dependency: load it untyped so the
+// app's type check never depends on its version, and skip the suite where it isn't installed.
+const load = (specifier: string) => import(/* @vite-ignore */ specifier);
+const hasPglite = await load("@electric-sql/pglite-socket").then(
+  () => true,
+  () => false,
+);
+
 const state = vi.hoisted(() => ({
   prisma: null as unknown as PrismaClient,
   userId: null as string | null,
@@ -42,6 +50,7 @@ const flush = async () => {
 };
 
 beforeAll(async () => {
+  if (!hasPglite) return;
   const ddl = spawnSync("npx", ["prisma", "migrate", "diff", "--from-empty", "--to-schema", "prisma/schema.prisma", "--script"], { encoding: "utf8" });
   if (ddl.status !== 0) throw new Error(ddl.stderr);
   const sql = ddl.stdout
@@ -49,8 +58,8 @@ beforeAll(async () => {
     .filter((l) => !l.startsWith("Loaded Prisma config"))
     .join("\n");
 
-  const { PGlite } = await import("@electric-sql/pglite");
-  const { PGLiteSocketServer } = await import("@electric-sql/pglite-socket");
+  const { PGlite } = await load("@electric-sql/pglite");
+  const { PGLiteSocketServer } = await load("@electric-sql/pglite-socket");
   const pg = await import("pg");
   const { PrismaPg } = await import("@prisma/adapter-pg");
   const { PrismaClient } = await import("@prisma/client");
@@ -94,7 +103,7 @@ const as = (userId: string | null) => {
   state.userId = userId;
 };
 
-describe("lead management (in-memory Postgres)", () => {
+describe.skipIf(!hasPglite)("lead management (in-memory Postgres)", () => {
   let leadA = "";
   let leadB = "";
 
