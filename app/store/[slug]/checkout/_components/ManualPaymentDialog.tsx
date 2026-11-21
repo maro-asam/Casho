@@ -13,7 +13,8 @@ import { PROOF_MAX_BYTES, normalizePayer } from "@/lib/payments/manual-proof";
 import { cn } from "@/lib/utils";
 import { formatPrice, st } from "@/lib/i18n/storefront";
 
-export type PaymentProof = { payer: string; image: File };
+/** What the shopper sent — either can be missing when the merchant made it optional. */
+export type PaymentProof = { payer: string; image: File | null };
 
 /** "Paid from" asks for what the shopper can see in their own app for that method. */
 function payerField(method: string): { label: string; placeholder: string; inputMode: "tel" | "email" | "text" } {
@@ -35,7 +36,7 @@ function payerField(method: string): { label: string; placeholder: string; input
   }
 }
 
-function Step({ n, title, done, children }: { n: number; title: string; done: boolean; children: React.ReactNode }) {
+function Step({ n, title, done, optional = false, children }: { n: number; title: string; done: boolean; optional?: boolean; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
       <h3 className="flex items-center gap-2.5 text-[15px] font-semibold">
@@ -49,6 +50,7 @@ function Step({ n, title, done, children }: { n: number; title: string; done: bo
           {done ? <Check className="size-3.5" strokeWidth={3} /> : n}
         </span>
         {title}
+        {optional && <span className="font-normal text-muted-foreground">{st("(اختياري)")}</span>}
       </h3>
       {children}
     </section>
@@ -57,8 +59,9 @@ function Step({ n, title, done, children }: { n: number; title: string; done: bo
 
 /**
  * Manual transfer, before the order exists: shows the amount and where to send
- * it, then asks what the shopper paid from and for a screenshot. "Confirm
- * payment" hands both back to the checkout form, which places the order.
+ * it, then asks what the shopper paid from and for a screenshot — each required
+ * or optional as the merchant set it. "Confirm payment" hands them back to the
+ * checkout form, which places the order.
  *
  * Rendered inside the store root (`container`) so it keeps the theme's colors,
  * font and direction. Keyed by method in CheckoutForm: another method is
@@ -72,6 +75,8 @@ export function ManualPaymentDialog({
   methodLabel,
   transferTo,
   total,
+  requirePayer,
+  requireScreenshot,
   pending,
   error,
   onConfirm,
@@ -84,6 +89,9 @@ export function ManualPaymentDialog({
   transferTo: string;
   /** EGP, as the cart summary shows it. */
   total: number;
+  /** The merchant's rules (StorePaymentSettings) — the other piece is optional. */
+  requirePayer: boolean;
+  requireScreenshot: boolean;
   pending: boolean;
   error: string | null;
   onConfirm: (proof: PaymentProof) => void;
@@ -103,7 +111,17 @@ export function ManualPaymentDialog({
 
   const field = payerField(method);
   const logo = getPaymentMethodByKey(method)?.logo;
-  const payerOk = normalizePayer(payer) !== null;
+  const payerGiven = normalizePayer(payer) !== null;
+  const payerOk = payerGiven || !requirePayer;
+  const imageOk = !!image || !requireScreenshot;
+  const intro =
+    requirePayer && requireScreenshot
+      ? st("حوّل المبلغ، وبعدها ابعتلنا الرقم اللي حوّلت منه وصورة التحويل.")
+      : requirePayer
+        ? st("حوّل المبلغ، وبعدها اكتب الرقم اللي حوّلت منه.")
+        : requireScreenshot
+          ? st("حوّل المبلغ، وبعدها ارفع صورة التحويل.")
+          : st("حوّل المبلغ وأكّد الدفع.");
   const shortDetail = !transferTo.includes("\n") && transferTo.length <= 40;
 
   useEffect(
@@ -153,7 +171,7 @@ export function ManualPaymentDialog({
 
   function confirm() {
     setTriedSubmit(true);
-    if (!payerOk || !image || pending || reading) return;
+    if (!payerOk || !imageOk || pending || reading) return;
     onConfirm({ payer: payer.trim(), image });
   }
 
@@ -179,7 +197,7 @@ export function ManualPaymentDialog({
             <div className="min-w-0 flex-1 space-y-0.5 text-start">
               <DialogPrimitive.Title className="text-lg font-semibold leading-7">{st("ادفع عن طريق {0}", methodLabel)}</DialogPrimitive.Title>
               <DialogPrimitive.Description className="text-sm leading-6 text-muted-foreground">
-                {st("حوّل المبلغ، وبعدها ابعتلنا الرقم اللي حوّلت منه وصورة التحويل.")}
+                {intro}
               </DialogPrimitive.Description>
             </div>
             <DialogPrimitive.Close
@@ -192,7 +210,7 @@ export function ManualPaymentDialog({
           </div>
 
           <div className="flex-1 space-y-6 overflow-y-auto overscroll-contain px-5 py-5">
-            <Step n={1} title={st("حوّل المبلغ")} done={payerOk || !!image}>
+            <Step n={1} title={st("حوّل المبلغ")} done={payerGiven || !!image}>
               <div className="overflow-hidden rounded-2xl border">
                 <div className="flex items-baseline justify-between gap-3 bg-muted/50 px-4 py-3">
                   <span className="text-sm text-muted-foreground">{st("المبلغ المطلوب")}</span>
@@ -217,7 +235,7 @@ export function ManualPaymentDialog({
               </div>
             </Step>
 
-            <Step n={2} title={field.label} done={payerOk}>
+            <Step n={2} title={field.label} done={payerGiven} optional={!requirePayer}>
               <Input
                 id={`${ids}-payer`}
                 aria-label={field.label}
@@ -233,7 +251,7 @@ export function ManualPaymentDialog({
               {triedSubmit && !payerOk && <p className="text-xs text-destructive">{st("اكتب الرقم أو الحساب اللي حوّلت منه.")}</p>}
             </Step>
 
-            <Step n={3} title={st("صورة التحويل")} done={!!image}>
+            <Step n={3} title={st("صورة التحويل")} done={!!image} optional={!requireScreenshot}>
               <input
                 ref={fileInput}
                 type="file"
@@ -266,7 +284,7 @@ export function ManualPaymentDialog({
                   onClick={() => fileInput.current?.click()}
                   className={cn(
                     "flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-7 text-center transition-colors hover:border-primary/60 hover:bg-primary/5",
-                    triedSubmit && !image ? "border-destructive/60" : "border-border",
+                    triedSubmit && !imageOk ? "border-destructive/60" : "border-border",
                   )}
                 >
                   {reading ? <Loader2 className="size-6 animate-spin text-primary" /> : <ImageUp className="size-6 text-primary" />}
@@ -277,7 +295,7 @@ export function ManualPaymentDialog({
               {fileError ? (
                 <p className="text-xs text-destructive">{fileError}</p>
               ) : (
-                triedSubmit && !image && <p className="text-xs text-destructive">{st("ارفع صورة التحويل عشان نأكد طلبك.")}</p>
+                triedSubmit && !imageOk && <p className="text-xs text-destructive">{st("ارفع صورة التحويل عشان نأكد طلبك.")}</p>
               )}
             </Step>
           </div>

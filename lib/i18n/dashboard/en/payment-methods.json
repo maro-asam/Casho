@@ -171,5 +171,15 @@
  "Paymob رفض الـ Secret Key": "Paymob rejected the Secret Key",
  "المفتاح ده مش شغال — انسخه تاني من API Keys": "This key doesn't work — copy it again from API Keys",
  "Paymob مش لاقي رقم الـ Integration ده": "Paymob can't find this integration ID",
- "الرقم ده مش موجود أو مش متفعّل على حسابك في نفس الوضع (test/live)": "This ID doesn't exist or isn't active on your account in the same mode (test/live)"
+ "الرقم ده مش موجود أو مش متفعّل على حسابك في نفس الوضع (test/live)": "This ID doesn't exist or isn't active on your account in the same mode (test/live)",
+ "{0} طريقة تحويل — العميل بيحوّل ويبعت الإثبات قبل ما يأكد الطلب.": "{0} transfer methods — customers transfer and send proof before placing the order.",
+ "من غير بوابة: العميل يحوّل على رقمك أو حسابك ويبعت إثبات التحويل قبل ما يأكد الطلب، وإنت تراجعه من صفحة الطلب.": "No gateway: the customer transfers to your number or account and sends proof before placing the order, and you review it on the order page.",
+ "إثبات التحويل": "Transfer proof",
+ "العميل بيحوّل الأول وبعدين يأكد طلبه. اختار إيه اللي لازم يبعته — اللي تقفله بيفضل ظاهر له كاختياري.": "Customers transfer first, then place the order. Choose what they must send — anything you turn off stays available as optional.",
+ "رقم التحويل إجباري": "Transfer number required",
+ "الرقم أو الحساب اللي العميل حوّل منه": "The number or account the customer paid from",
+ "سكرين شوت التحويل إجباري": "Transfer screenshot required",
+ "صورة التحويل من تطبيق المحفظة أو البنك": "A screenshot from their wallet or bank app",
+ "العميل يقدر يأكد الطلب من غير أي إثبات — هتحتاج تتأكد من التحويل بنفسك.": "Customers can place orders without any proof — you will need to check the transfer yourself.",
+ "اتحفظ وصفحة الدفع اتحدثت": "Saved — your checkout is updated"
 }

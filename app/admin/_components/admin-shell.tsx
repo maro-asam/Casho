@@ -62,7 +62,7 @@ export default function AdminShell({
       </SheetTrigger>
       <SheetContent side="right" className="apple-ui w-72 border-none bg-transparent p-3 shadow-none [&>button]:hidden">
         <SheetTitle className="sr-only">قائمة الإدارة</SheetTitle>
-        <AdminSidebar activeHref={active?.href ?? null} badges={badges} analyticsOnly={analyticsOnly} onNavigate={() => setMobileOpen(false)} />
+        <AdminSidebar activeHref={active?.href ?? null} badges={badges} role={viewer.role} analyticsOnly={analyticsOnly} onNavigate={() => setMobileOpen(false)} />
       </SheetContent>
     </Sheet>
   );
@@ -77,7 +77,7 @@ export default function AdminShell({
             isCollapsed ? "w-16" : "w-64",
           )}
         >
-          <AdminSidebar activeHref={active?.href ?? null} badges={badges} analyticsOnly={analyticsOnly} collapsed={isCollapsed} onToggleCollapsed={toggleCollapsed} />
+          <AdminSidebar activeHref={active?.href ?? null} badges={badges} role={viewer.role} analyticsOnly={analyticsOnly} collapsed={isCollapsed} onToggleCollapsed={toggleCollapsed} />
         </aside>
 
         <div className={cn("flex min-h-screen flex-col transition-[padding] duration-300 ease-(--ease-apple)", isCollapsed ? "md:ps-22" : "md:ps-70")}>

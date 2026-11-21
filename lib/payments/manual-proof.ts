@@ -6,6 +6,8 @@
  *
  * A method asks for proof only when the merchant gave transfer details for it;
  * without them there is nothing to transfer to, so it places the order as before.
+ * The merchant decides which of the two is required (`proofRules`); the other
+ * is still asked for, as optional.
  */
 import { isManualPaymentMethod } from "@/constants/payment-methods";
 
@@ -14,7 +16,16 @@ export type ManualPaymentSettings = {
   vodafoneCashNumber?: string | null;
   instapayAddress?: string | null;
   bankTransferDetails?: string | null;
+  requireTransferPayer?: boolean | null;
+  requireTransferScreenshot?: boolean | null;
 } | null | undefined;
+
+/** What a manual transfer must come with (StorePaymentSettings; both by default). */
+export type ProofRules = { payer: boolean; screenshot: boolean };
+
+export function proofRules(settings: ManualPaymentSettings): ProofRules {
+  return { payer: settings?.requireTransferPayer ?? true, screenshot: settings?.requireTransferScreenshot ?? true };
+}
 
 /** Where the shopper sends the money for `method` (the merchant's number, address or account), or null. */
 export function manualTransferDetail(method: string, settings: ManualPaymentSettings): string | null {
@@ -33,7 +44,7 @@ export function manualTransferDetail(method: string, settings: ManualPaymentSett
   return legacy?.trim() || null;
 }
 
-/** The order needs "paid from" + a screenshot before it's placed. */
+/** The order goes through the transfer window ("paid from" + screenshot) before it's placed. */
 export function needsPaymentProof(method: string, settings: ManualPaymentSettings): boolean {
   return isManualPaymentMethod(method) && manualTransferDetail(method, settings) !== null;
 }
@@ -65,4 +76,21 @@ export function isAcceptableProof(file: unknown): file is Blob {
     file.type.startsWith("image/") &&
     file.type !== "image/svg+xml"
   );
+}
+
+export type CheckedProof = { payer: string | null; image: Blob | null } | { error: string };
+
+/**
+ * What the shopper sent, against the store's rules: a required piece must be
+ * there; an optional one is kept when it's usable. A screenshot that was sent
+ * but can't be used is refused either way (better than silently dropping it).
+ */
+export function checkProof(rules: ProofRules, sent: { payer: unknown; image: unknown } | null | undefined): CheckedProof {
+  const payer = normalizePayer(sent?.payer);
+  const image = sent?.image;
+  const hasImage = typeof Blob !== "undefined" && image instanceof Blob && image.size > 0;
+  if (rules.payer && !payer) return { error: "اكتب الرقم أو الحساب اللي حوّلت منه." };
+  if (hasImage && !isAcceptableProof(image)) return { error: "الصورة دي مش هينفع ترفعها. ارفع سكرين شوت JPG أو PNG أقل من ١ ميجا." };
+  if (rules.screenshot && !hasImage) return { error: "ارفع صورة التحويل (سكرين شوت) عشان نأكد طلبك." };
+  return { payer, image: hasImage ? (image as Blob) : null };
 }

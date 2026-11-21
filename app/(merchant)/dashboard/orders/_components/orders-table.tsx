@@ -15,7 +15,7 @@ export type OrderRow = {
   source: OrderSource;
   total: number;
   paymentMethod: string;
-  /** The shopper sent "paid from" + a transfer screenshot at checkout. */
+  /** The shopper sent "paid from" and/or a transfer screenshot at checkout. */
   proofSent?: boolean;
   createdAt: Date;
   itemCount: number;

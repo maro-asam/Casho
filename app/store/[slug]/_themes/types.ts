@@ -219,6 +219,8 @@ export type CheckoutPaymentMethod = {
    * screenshot before placing the order (lib/payments/manual-proof.ts).
    */
   transferTo?: string | null;
+  /** With `transferTo`: which of the two the merchant requires (the other is optional). */
+  proof?: { payer: boolean; screenshot: boolean } | null;
 };
 
 /** What the order action answers when it can't place the order (it redirects when it can). */

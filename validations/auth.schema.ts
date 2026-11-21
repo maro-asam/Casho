@@ -6,7 +6,8 @@ const passwordSchema = z
   .max(100, "كلمة المرور طويلة جدًا")
   .refine((p) => /\d/.test(p), "كلمة المرور لازم تحتوي على رقم واحد على الأقل");
 
-const egyptianPhoneSchema = z
+/** Every new account gives one (email signup and Google signup alike). */
+export const egyptianPhoneSchema = z
   .string()
   .trim()
   .min(1, "رقم الموبايل مطلوب")

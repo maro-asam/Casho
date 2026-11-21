@@ -34,7 +34,14 @@ export type SecurityEvent =
   | "ANALYTICS_SETTINGS_CHANGED"
   | "ANALYTICS_DATA_DELETED"
   | "ANALYTICS_FUNNEL_CHANGED"
-  | "ANALYTICS_COST_CHANGED";
+  | "ANALYTICS_COST_CHANGED"
+  /** Lead Management (lib/leads/audit.ts): bulk and sensitive actions on the leads database. */
+  | "LEADS_EXPORTED"
+  | "LEADS_IMPORTED"
+  | "LEADS_BULK_ASSIGNED"
+  | "LEADS_BULK_STATUS"
+  | "LEAD_DELETED"
+  | "LEAD_LINKED";
 
 export function logSecurityEvent(opts: {
   event: SecurityEvent;

@@ -21,7 +21,7 @@ const nf = new Intl.NumberFormat("ar-EG");
 export function SalesAdminNav({ toReview = 0, toPay = 0 }: { toReview?: number; toPay?: number }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="أقسام المبيعات" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
+    <nav aria-label="أقسام المبيعات" className="relative -mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
       <ul className="inline-flex min-w-max items-center gap-0.5 rounded-full bg-(--sys-gray)/14 p-[3px]">
         {TABS.map((tab) => {
           const active =

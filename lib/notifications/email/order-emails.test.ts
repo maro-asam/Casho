@@ -80,6 +80,9 @@ describe("order emails", () => {
     const proofSent = buildCustomerConfirmationEmail(makeOrder({ paymentMethod: "instapay", paymentPayer: "01012345678", paymentProofUrl: "https://res.cloudinary.com/x/image/upload/casho/uploads/payment-proofs/a.jpg" }));
     expect(proofSent.text).toContain("استلمنا صورة التحويل");
     expect(proofSent.text).not.toContain("كمّل تحويل المبلغ");
+    // Only the number (the merchant made the screenshot optional).
+    const payerOnly = buildCustomerConfirmationEmail(makeOrder({ paymentMethod: "instapay", paymentPayer: "01012345678" }));
+    expect(payerOnly.text).toContain("استلمنا بيانات التحويل");
     expect(buildCustomerConfirmationEmail(makeOrder({ paymentMethod: "paymob", status: "PAID" })).text).toContain("الدفع اتأكد");
   });
 

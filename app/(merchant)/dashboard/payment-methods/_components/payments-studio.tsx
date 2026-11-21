@@ -7,6 +7,7 @@ import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronUp, Info, Lock, 
 
 import {
   ReorderPaymentMethodsAction,
+  SaveTransferProofRulesAction,
   TogglePaymentMethodAction,
   type PaymentMethodsSettingsData,
 } from "@/actions/payment-methods/payment-methods.actions";
@@ -33,6 +34,8 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
   const [details, setDetails] = useState<Record<string, string>>(initial.manualPaymentDetails);
   const [region, setRegion] = useState<PaymentRegion>("egypt");
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [proof, setProof] = useState(initial.transferProof);
+  const [proofBusy, setProofBusy] = useState(false);
   const [, startTransition] = useTransition();
 
   const setupParam = searchParams.get("setup");
@@ -72,6 +75,24 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
     });
   }
 
+  // What a manual transfer must come with before the order is placed.
+  function setProofRule(rule: "payer" | "screenshot", value: boolean) {
+    const before = proof;
+    const next = { ...proof, [rule]: value };
+    setProof(next);
+    setProofBusy(true);
+    startTransition(async () => {
+      const res = await SaveTransferProofRulesAction(next).catch(() => null);
+      setProofBusy(false);
+      if (!res?.success) {
+        setProof(before);
+        toast.error(res?.message ? trv(res.message) : tr("مقدرناش نحفظ. جرّب تاني."));
+        return;
+      }
+      toast.success(trv(res.message));
+    });
+  }
+
   function move(key: PaymentMethodKey, dir: -1 | 1) {
     const i = enabled.indexOf(key);
     const j = i + dir;
@@ -98,7 +119,7 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
   else checks.push({ tone: "tip", text: tr("مفيش دفع أونلاين. الدفع المسبق بالكارت أو المحفظة بيقلل الطلبات اللي بتترفض عند الاستلام."), action: { label: paymobConnected ? tr("فعّل Paymob") : tr("اربط Paymob"), key: "paymob" } });
   if (isOn("cash_on_delivery")) checks.push({ tone: "ok", text: tr("الدفع عند الاستلام متاح.") });
   const manualOn = enabled.filter((k) => PAYMENT_METHODS_BY_KEY[k]?.manual);
-  if (manualOn.length) checks.push({ tone: "ok", text: tr("{0} طريقة تحويل — بياناتها بتظهر للعميل بعد الطلب.", nf.format(manualOn.length)) });
+  if (manualOn.length) checks.push({ tone: "ok", text: tr("{0} طريقة تحويل — العميل بيحوّل ويبعت الإثبات قبل ما يأكد الطلب.", nf.format(manualOn.length)) });
 
   const regionMethods = PAYMENT_METHODS.filter((m) => m.region === region && m.manual);
   const regionOnCount = (r: PaymentRegion) => PAYMENT_METHODS.filter((m) => m.region === r && m.manual && isOn(m.key)).length;
@@ -184,7 +205,7 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
         {/* ── Manual transfers ────────────────────────────────── */}
         <Card
           title={tr("تحويلات مباشرة — InstaPay وفودافون كاش")}
-          subtitle={tr("من غير بوابة: العميل يطلب، يحوّل على رقمك أو حسابك، وإنت تأكد الدفع من صفحة الطلب.")}
+          subtitle={tr("من غير بوابة: العميل يحوّل على رقمك أو حسابك ويبعت إثبات التحويل قبل ما يأكد الطلب، وإنت تراجعه من صفحة الطلب.")}
         >
           <div className="px-5 pb-3">
             <SegmentedButtons
@@ -237,6 +258,36 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
               );
             })}
           </ul>
+
+          {/* What the shopper sends with the transfer, before the order is placed. */}
+          <div className="border-t-[0.5px] border-border px-5 pt-4">
+            <p className="text-[15px] font-semibold">{tr("إثبات التحويل")}</p>
+            <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">
+              {tr("العميل بيحوّل الأول وبعدين يأكد طلبه. اختار إيه اللي لازم يبعته — اللي تقفله بيفضل ظاهر له كاختياري.")}
+            </p>
+          </div>
+          <div className="apple-rows pb-2">
+            <ProofRuleRow
+              label={tr("رقم التحويل إجباري")}
+              hint={tr("الرقم أو الحساب اللي العميل حوّل منه")}
+              checked={proof.payer}
+              busy={proofBusy}
+              onChange={(v) => setProofRule("payer", v)}
+            />
+            <ProofRuleRow
+              label={tr("سكرين شوت التحويل إجباري")}
+              hint={tr("صورة التحويل من تطبيق المحفظة أو البنك")}
+              checked={proof.screenshot}
+              busy={proofBusy}
+              onChange={(v) => setProofRule("screenshot", v)}
+            />
+          </div>
+          {!proof.payer && !proof.screenshot && (
+            <p className="mx-5 mb-4 flex items-start gap-2 rounded-[12px] bg-(--sys-orange)/8 p-3 text-[13px] leading-5">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-(--sys-orange)" />
+              {tr("العميل يقدر يأكد الطلب من غير أي إثبات — هتحتاج تتأكد من التحويل بنفسك.")}
+            </p>
+          )}
         </Card>
       </div>
 
@@ -362,6 +413,18 @@ export function PaymentsStudio({ initial }: { initial: PaymentMethodsSettingsDat
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+function ProofRuleRow({ label, hint, checked, busy, onChange }: { label: string; hint: string; checked: boolean; busy: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex cursor-pointer items-center gap-4 px-5 py-3">
+      <span className="min-w-0 flex-1">
+        <span className="block text-[15px] font-medium">{label}</span>
+        <span className="block text-[13px] text-muted-foreground">{hint}</span>
+      </span>
+      <Switch className="apple-switch" checked={checked} disabled={busy} onCheckedChange={onChange} aria-label={label} />
+    </label>
   );
 }
 

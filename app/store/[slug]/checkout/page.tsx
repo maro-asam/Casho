@@ -121,12 +121,16 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
 
   // Digital-only carts can't be paid on delivery — there is no delivery.
   const offered = cartData.digitalOnly ? paymentMethods.filter((method) => method.key !== "cash_on_delivery") : paymentMethods;
-  const [legal, transferDetails] = await Promise.all([
+  const [legal, transfers] = await Promise.all([
     checkoutLegal(cartData.store.id, slug),
     getManualTransferDetails(cartData.store.id, offered.map((method) => method.key)),
   ]);
-  // A manual method with details asks for "paid from" + a screenshot before the order is placed.
-  const checkoutMethods = offered.map((method) => ({ ...method, label: st(method.label), transferTo: transferDetails[method.key] ?? null }));
+  // A manual method with details asks for "paid from" + a screenshot (required as the
+  // merchant set) before the order is placed.
+  const checkoutMethods = offered.map((method) => {
+    const transferTo = transfers.details[method.key] ?? null;
+    return { ...method, label: st(method.label), transferTo, proof: transferTo ? transfers.rules : null };
+  });
 
   async function handleCreateOrder(formData: FormData): Promise<CheckoutResult> {
     "use server";

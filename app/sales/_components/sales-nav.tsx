@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, LayoutGrid, Link2, LogOut, Moon, PhoneCall, Sun, Users, Wallet, type LucideIcon } from "lucide-react";
+import { ChevronDown, LayoutGrid, Link2, LogOut, Moon, PhoneCall, Sun, Target, Users, Wallet, type LucideIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 
@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 const TABS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/sales", label: "الرئيسية", icon: LayoutGrid },
   { href: "/sales/calls", label: "المتابعة", icon: PhoneCall },
+  { href: "/sales/leads", label: "ليداتي", icon: Target },
   { href: "/sales/customers", label: "عملائي", icon: Users },
   { href: "/sales/commissions", label: "عمولاتي", icon: Wallet },
 ];
@@ -199,7 +200,7 @@ export function SalesTabBar() {
         aria-label="أقسام المبيعات"
         className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(14px,env(safe-area-inset-bottom))] md:hidden"
       >
-        <ul className="apple-glass pointer-events-auto flex items-center gap-1 rounded-full p-1.5">
+        <ul className="apple-glass pointer-events-auto flex items-center gap-0.5 rounded-full p-1.5">
           {TABS.map((tab) => {
             const active = isActive(tab.href);
             const Icon = tab.icon;
@@ -209,7 +210,7 @@ export function SalesTabBar() {
                   href={tab.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "apple-press flex h-[52px] w-[76px] flex-col items-center justify-center gap-0.5 rounded-full text-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "apple-press flex h-[52px] w-[62px] flex-col items-center justify-center gap-0.5 rounded-full text-[11px] min-[400px]:w-[70px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     active ? "bg-(--fill-3) font-semibold text-primary" : "text-foreground/70",
                   )}
                 >

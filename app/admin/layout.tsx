@@ -5,6 +5,8 @@ import { getPanelUser } from "@/lib/admin/page-guard";
 import { isMediaBuyer } from "@/lib/admin/panel-roles";
 import { prisma } from "@/lib/prisma";
 import { countUnseenStores } from "@/lib/admin/new-stores";
+import { isLeadAdminRole } from "@/lib/leads/access";
+import { countLeadAttention } from "@/lib/leads/queries";
 import AdminShell from "./_components/admin-shell";
 import { TeamTrafficMarker } from "@/components/analytics/TeamTrafficMarker";
 
@@ -33,7 +35,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   }
 
   // Queue sizes for the sidebar badges — the work waiting on an admin — plus stores new since the last visit.
-  const [viewer, stores, topups, services, support, sharks, sales] = await Promise.all([
+  const [viewer, stores, topups, services, support, sharks, sales, leads] = await Promise.all([
     prisma.user.findUnique({ where: { id: admin.id }, select: { id: true, name: true, email: true, role: true } }),
     countUnseenStores(),
     prisma.topupRequest.count({ where: { status: "PENDING" } }),
@@ -42,10 +44,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     // A badge must never take the whole panel down (e.g. code deployed before its migration).
     prisma.sharksApplication.count({ where: { status: "SUBMITTED" } }).catch(() => 0),
     prisma.salesWithdrawalRequest.count({ where: { status: "PENDING" } }).catch(() => 0),
+    // Leads (super admins): ambiguous conversion matches, leads stuck with a disabled rep, the admins' own overdue follow-ups.
+    isLeadAdminRole(admin.role) ? countLeadAttention().then((c) => c.total).catch(() => 0) : 0,
   ]);
 
   return (
-    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ stores, topups, services, support, sharks, sales }}>
+    <AdminShell viewer={viewer ?? { ...admin, name: null }} badges={{ stores, topups, services, support, sharks, sales, leads }}>
       {/* Staff browsers are left out of the Analytics Center's numbers. */}
       <TeamTrafficMarker rootDomain={process.env.ROOT_DOMAIN || "casho.store"} />
       {children}

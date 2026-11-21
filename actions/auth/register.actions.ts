@@ -21,7 +21,7 @@ import { signupRefCookieDelete } from "@/lib/sales/ref-cookie";
 import { getDefaultTrialPlanId } from "@/lib/entitlements";
 import { sendVerificationCode } from "@/lib/auth/email-verification";
 import { isMailConfigured } from "@/lib/mail";
-import { canReusePhone, phoneHeldByMultiAccountInbox } from "@/lib/auth/multi-account";
+import { isSignupPhoneTaken } from "@/lib/auth/signup-phone";
 
 async function getAvailableSlug(tx: typeof prisma, baseSlug: string) {
   const existingStore = await tx.store.findUnique({
@@ -90,22 +90,13 @@ export async function RegisterAction(
       };
     }
 
-    if (phoneNumber && !canReusePhone(email, phoneNumber)) {
-      // A taken phone is still fine when it's on an allow-listed person's account.
-      const holders = await prisma.user.findMany({
-        where: { phone_number: phoneNumber },
-        select: { email: true },
-        take: 50,
-      });
-
-      if (holders.length && !phoneHeldByMultiAccountInbox(holders.map((holder) => holder.email))) {
-        return {
-          error: "رقم الموبايل مستخدم بالفعل",
-          fieldErrors: {
-            phoneNumber: "هذا الرقم مستخدم بالفعل",
-          },
-        };
-      }
+    if (await isSignupPhoneTaken(email, phoneNumber)) {
+      return {
+        error: "رقم الموبايل مستخدم بالفعل",
+        fieldErrors: {
+          phoneNumber: "هذا الرقم مستخدم بالفعل",
+        },
+      };
     }
 
     const baseSlug = normalizeStoreSlug(storeName);
@@ -142,7 +133,7 @@ export async function RegisterAction(
           email,
           password: hashedPassword,
           passwordAlgo: "argon2id",
-          phone_number: phoneNumber || null,
+          phone_number: phoneNumber,
           name: name || null,
           country: country || null,
           businessType: businessType || null,

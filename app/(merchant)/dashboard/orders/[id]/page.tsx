@@ -455,7 +455,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                     ? tr("مدفوع")
                     : order.paymentMethod === "cash_on_delivery"
                       ? tr("هيتدفع عند الاستلام")
-                      : order.paymentProofUrl
+                      : order.paymentProofUrl || order.paymentPayer
                         ? tr("العميل بعت إثبات التحويل — راجعه")
                         : tr("مستني الدفع")}
                 </StatusText>

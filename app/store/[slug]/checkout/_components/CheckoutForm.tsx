@@ -214,10 +214,8 @@ export default function CheckoutForm({
     const form = formRef.current;
     if (!form) return;
     const data = new FormData(form);
-    if (proof) {
-      data.set("paymentPayer", proof.payer);
-      data.set("paymentProof", proof.image, proof.image.name);
-    }
+    if (proof?.payer) data.set("paymentPayer", proof.payer);
+    if (proof?.image) data.set("paymentProof", proof.image, proof.image.name);
     setError(null);
     startPlacing(async () => {
       const result = await action(data);
@@ -482,6 +480,8 @@ export default function CheckoutForm({
           methodLabel={getPaymentMethodByKey(selected.key)?.label ?? selected.label}
           transferTo={transferTo}
           total={total}
+          requirePayer={selected.proof?.payer ?? true}
+          requireScreenshot={selected.proof?.screenshot ?? true}
           pending={pending}
           error={payOpen ? error : null}
           onConfirm={(proof) => place(proof)}

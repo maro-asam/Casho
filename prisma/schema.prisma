@@ -88,6 +88,11 @@ model User {
   analyticsSessions   AnalyticsSession[]  @relation("AnalyticsSessionUser")
   analyticsIdentities AnalyticsIdentity[] @relation("AnalyticsIdentityUser")
 
+  // Lead Management (lib/leads): the lead this merchant account was converted
+  // from, and conversion matches an admin still has to decide.
+  lead        Lead?                 @relation("LeadCustomer")
+  leadMatches LeadConversionMatch[] @relation("LeadConversionMatchUser")
+
   @@index([phone_number])
 }
 
@@ -321,6 +326,9 @@ model Store {
   showcaseSites      ShowcaseSite[]
 
   apps StoreApp[]
+
+  /// Lead Management: the lead converted into this store (lib/leads/conversion.ts).
+  leads Lead[]
 
   analyticsSessions  AnalyticsSession[]
   analyticsPageViews AnalyticsPageView[]
@@ -1166,6 +1174,11 @@ model StorePaymentSettings {
 
   bankTransferEnabled Boolean @default(false)
   bankTransferDetails String?
+
+  /// Manual transfers at checkout (lib/payments/manual-proof.ts): what the shopper must send
+  /// before the order is placed. Off = still asked for, but optional.
+  requireTransferPayer      Boolean @default(true)
+  requireTransferScreenshot Boolean @default(true)
 
   kashierEnabled         Boolean     @default(false)
   kashierMode            KashierMode @default(TEST)
@@ -2930,6 +2943,8 @@ model SalesRep {
   campaigns      SalesCampaignMember[]
   repAdjustments SalesRepAdjustment[]
   withdrawals    SalesWithdrawalRequest[]
+  leads          Lead[]
+  leadFollowUps  LeadFollowUp[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -3787,4 +3802,349 @@ model AnalyticsCampaignCost {
   createdAt   DateTime @default(now())
 
   @@index([campaign])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Lead Management — prospects before they sign up (lib/leads,
+// /admin/leads, /sales/leads; docs/sales/leads.md)
+// ─────────────────────────────────────────────────────────────
+//
+// Super admins create, import and assign leads; a rep works only the leads
+// assigned to them. A lead is never a Casho account: conversion links it to
+// the merchant's existing User + Store once that store pays its first
+// subscription (the first SUBSCRIPTION_CHARGE ledger row). Leads never touch
+// SalesAttribution or commissions — the referral link stays authoritative.
+// Nothing is hard-deleted: archive hides, delete is a soft delete. Actor ids
+// are plain strings (like SalesAuditLog) so history survives account removal.
+
+enum LeadStatus {
+  NEW
+  ASSIGNED
+  CONTACTED
+  INTERESTED
+  DEMO_SCHEDULED
+  NEGOTIATION
+  CONVERTED // only through conversion (lib/leads/conversion.ts)
+  LOST // with a reason
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+  HOT
+}
+
+enum LeadSource {
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+  GOOGLE_MAPS
+  WEBSITE
+  REFERRAL
+  EVENT
+  COLD_OUTREACH
+  WALK_IN
+  OTHER
+}
+
+enum LeadBusinessSize {
+  STARTING // just starting / online only
+  SMALL // one shop
+  MEDIUM // established, a few staff or branches
+  LARGE // chain / brand
+}
+
+enum LeadActivityType {
+  CREATED
+  IMPORTED
+  UPDATED
+  ASSIGNED
+  REASSIGNED
+  UNASSIGNED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  CALL
+  WHATSAPP
+  EMAIL
+  MEETING
+  DEMO
+  NOTE
+  FOLLOW_UP_SCHEDULED
+  FOLLOW_UP_COMPLETED
+  FOLLOW_UP_RESCHEDULED
+  FOLLOW_UP_CANCELED
+  LINKED
+  UNLINKED
+  CONVERTED
+  LOST
+  REOPENED
+  ARCHIVED
+  RESTORED
+  DELETED
+}
+
+enum LeadFollowUpStatus {
+  PENDING
+  DONE
+  CANCELED
+}
+
+enum LeadLinkSource {
+  AUTO_EMAIL // the account's verified email matched
+  AUTO_PHONE // the account's signup phone matched
+  ADMIN // linked by a super admin
+}
+
+enum LeadImportStatus {
+  DRAFT // rows still being uploaded
+  READY // analyzed, waiting for confirmation
+  RUNNING
+  COMPLETED
+  CANCELED
+}
+
+enum LeadImportRowStatus {
+  VALID
+  INVALID
+  DUPLICATE_FILE // same phone/email earlier in the same file
+  DUPLICATE_EXISTING // matches a lead already in Casho
+  IMPORTED
+  UPDATED // FILL_BLANKS: empty fields of the existing lead filled
+  SKIPPED
+  FAILED
+}
+
+enum LeadDuplicateMode {
+  SKIP // duplicates are left alone
+  FILL_BLANKS // fill only the existing lead's empty fields — never overwrite
+}
+
+enum LeadMatchStatus {
+  OPEN
+  LINKED
+  DISMISSED
+}
+
+model Lead {
+  id                 String            @id @default(uuid())
+  businessName       String
+  ownerName          String?
+  /// As typed; `normalizedPhone` (01xxxxxxxxx or +international) is what duplicates and conversion compare.
+  phone              String
+  normalizedPhone    String
+  whatsapp           String?
+  normalizedWhatsapp String?
+  /// Lowercased.
+  email              String?
+  category           String?
+  city               String?
+  website            String?
+  instagram          String?
+  facebook           String?
+  businessSize       LeadBusinessSize?
+  source             LeadSource?
+  sourceDetails      String?
+  /// Initial notes from whoever added the lead; later notes are NOTE activities.
+  notes              String?
+
+  status          LeadStatus   @default(NEW)
+  statusChangedAt DateTime     @default(now())
+  /// The score's band (lib/leads/scoring.ts) unless a super admin picked one (`priorityLocked`).
+  priority        LeadPriority @default(LOW)
+  priorityLocked  Boolean      @default(false)
+  /// 0–100, recomputed after every change (lib/leads/scoring.ts).
+  score           Int          @default(0)
+
+  assignedRepId String?
+  assignedRep   SalesRep? @relation(fields: [assignedRepId], references: [id], onDelete: SetNull)
+  assignedAt    DateTime?
+
+  lastContactedAt DateTime?
+  /// Earliest pending follow-up (denormalized for sorting and filters).
+  nextFollowUpAt  DateTime?
+
+  /// LOST_REASONS key (lib/leads/constants.ts); `lostNote` carries "other".
+  lostReason String?
+  lostNote   String?
+  lostAt     DateTime?
+
+  /// The Casho merchant this lead became. Unique: one lead per account, so a
+  /// conversion is never counted twice.
+  customerUserId  String?         @unique
+  customerUser    User?           @relation("LeadCustomer", fields: [customerUserId], references: [id], onDelete: SetNull)
+  customerStoreId String?
+  customerStore   Store?          @relation(fields: [customerStoreId], references: [id], onDelete: SetNull)
+  linkSource      LeadLinkSource?
+  linkedAt        DateTime?
+  linkedById      String?
+  /// Set from the store's first SUBSCRIPTION_CHARGE (`conversionTxId`).
+  convertedAt     DateTime?
+  conversionTxId  String?         @unique
+
+  importId String?
+  import   LeadImport? @relation(fields: [importId], references: [id], onDelete: SetNull)
+
+  createdById  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  archivedAt   DateTime?
+  archivedById String?
+  deletedAt    DateTime?
+  deletedById  String?
+
+  activities  LeadActivity[]
+  followUps   LeadFollowUp[]
+  assignments LeadAssignment[]
+  matches     LeadConversionMatch[]
+
+  @@index([normalizedPhone])
+  @@index([normalizedWhatsapp])
+  @@index([email])
+  @@index([assignedRepId, status])
+  @@index([status, createdAt])
+  @@index([createdAt])
+  @@index([nextFollowUpAt])
+  @@index([convertedAt])
+  @@index([customerStoreId])
+  @@index([importId])
+}
+
+/// Append-only timeline of a lead: every change and every interaction.
+model LeadActivity {
+  id            String           @id @default(uuid())
+  leadId        String
+  lead          Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type          LeadActivityType
+  description   String?
+  previousValue String?
+  newValue      String?
+  /// Calls / WhatsApp / email: did they answer (feeds the "responded" score criterion).
+  reached       Boolean?
+  actorUserId   String?
+  /// ADMIN | SALES | SYSTEM — snapshot, survives role changes.
+  actorRole     String
+  createdAt     DateTime         @default(now())
+
+  @@index([leadId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([type, createdAt])
+}
+
+model LeadFollowUp {
+  id             String             @id @default(uuid())
+  leadId         String
+  lead           Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  /// The rep who owns it (the lead's rep when scheduled; moves on reassignment). Null = a super admin's own.
+  salesRepId     String?
+  salesRep       SalesRep?          @relation(fields: [salesRepId], references: [id], onDelete: SetNull)
+  dueAt          DateTime
+  note           String?
+  status         LeadFollowUpStatus @default(PENDING)
+  outcome        String?
+  closedAt       DateTime?
+  closedById     String?
+  /// The one reminder (bell + email) went out — the hourly cron never sends twice.
+  reminderSentAt DateTime?
+  createdById    String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([salesRepId, status, dueAt])
+  @@index([status, dueAt])
+  @@index([leadId, status])
+}
+
+model LeadAssignment {
+  id           String   @id @default(uuid())
+  leadId       String
+  lead         Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  fromRepId    String?
+  toRepId      String?
+  assignedById String
+  reason       String?
+  createdAt    DateTime @default(now())
+
+  @@index([leadId, createdAt])
+  @@index([toRepId, createdAt])
+}
+
+/// One upload in the Import Center. The browser parses the file; rows arrive
+/// in chunks and are validated here, then imported in batches (resumable).
+model LeadImport {
+  id                    String            @id @default(uuid())
+  fileName              String
+  /// SHA-256 of the file bytes — warns before the same file is imported twice.
+  fileHash              String
+  fileType              String
+  status                LeadImportStatus  @default(DRAFT)
+  duplicateMode         LeadDuplicateMode @default(SKIP)
+  assignRepId           String?
+  defaultSource         LeadSource?
+  /// Column header → lead field, as mapped by the admin.
+  mapping               Json?
+  totalRows             Int               @default(0)
+  validRows             Int               @default(0)
+  invalidRows           Int               @default(0)
+  fileDuplicateRows     Int               @default(0)
+  existingDuplicateRows Int               @default(0)
+  importedRows          Int               @default(0)
+  updatedRows           Int               @default(0)
+  skippedRows           Int               @default(0)
+  failedRows            Int               @default(0)
+  uploadedById          String
+  startedAt             DateTime?
+  completedAt           DateTime?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  rows  LeadImportRow[]
+  leads Lead[]
+
+  @@index([createdAt])
+  @@index([fileHash])
+}
+
+model LeadImportRow {
+  id              String              @id @default(uuid())
+  importId        String
+  import          LeadImport          @relation(fields: [importId], references: [id], onDelete: Cascade)
+  /// 1-based data row (row 2 of the sheet = 1).
+  rowNumber       Int
+  /// The mapped, cleaned values (lib/leads/import.ts).
+  data            Json
+  normalizedPhone String?
+  email           String?
+  status          LeadImportRowStatus
+  errors          String[]            @default([])
+  existingLeadId  String?
+  leadId          String?
+  createdAt       DateTime            @default(now())
+
+  @@unique([importId, rowNumber])
+  @@index([importId, status])
+}
+
+/// A paying merchant who might be a lead, but not certainly enough to link
+/// automatically (several leads, or the phone matched while the email didn't).
+/// A super admin links or dismisses it.
+model LeadConversionMatch {
+  id           String          @id @default(uuid())
+  leadId       String
+  lead         Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User            @relation("LeadConversionMatchUser", fields: [userId], references: [id], onDelete: Cascade)
+  storeId      String?
+  /// PHONE | EMAIL | PHONE_EMAIL
+  matchedBy    String
+  /// Why it wasn't linked automatically (lib/leads/conversion-rules.ts).
+  reason       String
+  status       LeadMatchStatus @default(OPEN)
+  resolvedById String?
+  resolvedAt   DateTime?
+  createdAt    DateTime        @default(now())
+
+  @@unique([leadId, userId])
+  @@index([status, createdAt])
+  @@index([userId])
 }

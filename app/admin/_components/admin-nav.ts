@@ -13,6 +13,7 @@ import {
   LayoutTemplate,
   ListChecks,
   ShieldAlert,
+  Target,
   ShoppingCart,
   Telescope,
   TrendingUp,
@@ -23,7 +24,7 @@ import {
 } from "lucide-react";
 
 /** Live counters shown as sidebar badges (filled by the layout). */
-export type AdminBadgeKey = "stores" | "topups" | "services" | "support" | "sharks" | "sales";
+export type AdminBadgeKey = "stores" | "topups" | "services" | "support" | "sharks" | "sales" | "leads";
 export type AdminBadges = Partial<Record<AdminBadgeKey, number>>;
 
 export type AdminNavItem = {
@@ -33,6 +34,8 @@ export type AdminNavItem = {
   badge?: AdminBadgeKey;
   /** "news" counts something to look at, not work waiting on an admin (those stay red). */
   badgeTone?: "news";
+  /** Only these roles see it (the page itself enforces the same rule — lib/leads/access.ts). */
+  roles?: readonly string[];
 };
 
 export type AdminNavSection = { title?: string; items: AdminNavItem[] };
@@ -75,6 +78,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
     title: "النمو والتواصل",
     items: [
       { name: "فريق المبيعات", href: "/admin/sales", icon: Handshake, badge: "sales" },
+      { name: "الليدز", href: "/admin/leads", icon: Target, badge: "leads", roles: ["SUPER_ADMIN"] },
       { name: "Casho Sharks", href: "/admin/sharks", icon: Telescope, badge: "sharks" },
       { name: "أمثلة كاشو", href: "/admin/showcase", icon: LayoutTemplate },
       { name: "المدونة", href: "/admin/blog", icon: FileText },
@@ -89,6 +93,12 @@ export const ADMIN_NAV: AdminNavSection[] = [
 
 /** A media buyer's sidebar (lib/admin/panel-roles.ts): the Analytics Center is the whole panel. */
 export const ANALYTICS_ONLY_NAV: AdminNavSection[] = [{ items: ADMIN_NAV[0].items.filter((item) => item.href === "/admin/analytics") }];
+
+/** The sidebar for a viewer: items limited to some roles are dropped for everyone else. */
+export function adminNavFor(role: string | undefined, analyticsOnly: boolean): AdminNavSection[] {
+  if (analyticsOnly) return ANALYTICS_ONLY_NAV;
+  return ADMIN_NAV.map((s) => ({ ...s, items: s.items.filter((i) => !i.roles || (role !== undefined && i.roles.includes(role))) })).filter((s) => s.items.length > 0);
+}
 
 const ALL_ITEMS = ADMIN_NAV.flatMap((s) => s.items);
 

@@ -35,7 +35,7 @@ import {
 import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
 import { DIGITAL_ADDRESS, stockOf } from "@/lib/products/digital";
 import { isPaused } from "@/lib/store/pause";
-import { PROOF_FOLDER, isAcceptableProof, needsPaymentProof, normalizePayer } from "@/lib/payments/manual-proof";
+import { PROOF_FOLDER, checkProof, needsPaymentProof, proofRules } from "@/lib/payments/manual-proof";
 import { uploadImageFromServer } from "@/lib/cloudinary/server-upload";
 
 // Retired methods (Kashier) can't be chosen any more.
@@ -196,7 +196,7 @@ export async function CreateOrderAction(
     termsAccepted?: boolean;
     /**
      * Manual transfer with the merchant's details set: what the shopper paid from
-     * and their screenshot (required then — lib/payments/manual-proof.ts).
+     * and their screenshot (each required or optional per the merchant — lib/payments/manual-proof.ts).
      */
     paymentProof?: { payer: unknown; image: unknown } | null;
   },
@@ -259,6 +259,8 @@ export async function CreateOrderAction(
           vodafoneCashNumber: true,
           instapayAddress: true,
           bankTransferDetails: true,
+          requireTransferPayer: true,
+          requireTransferScreenshot: true,
         },
       },
     },
@@ -304,13 +306,16 @@ export async function CreateOrderAction(
         : "مش هنقدر نكمل الطلب ده. تواصل مع المتجر مباشرة.",
     );
   }
-  // Manual transfer: the shopper pays first, then sends what they paid from and a
-  // screenshot. Checked here, not only in the form, since this action is public.
-  const proofRequired = needsPaymentProof(data.paymentMethod, store.storePaymentSettings);
-  const payer = proofRequired ? normalizePayer(data.paymentProof?.payer) : null;
-  const proofImage = proofRequired ? data.paymentProof?.image : null;
-  if (proofRequired && !payer) throw new Error("اكتب الرقم أو الحساب اللي حوّلت منه.");
-  if (proofRequired && !isAcceptableProof(proofImage)) throw new Error("ارفع صورة التحويل (سكرين شوت) عشان نأكد طلبك.");
+  // Manual transfer: the shopper pays first, then sends what they paid from and/or a
+  // screenshot, as the merchant requires. Checked here, not only in the form, since
+  // this action is public.
+  let payer: string | null = null;
+  let proofImage: Blob | null = null;
+  if (needsPaymentProof(data.paymentMethod, store.storePaymentSettings)) {
+    const proof = checkProof(proofRules(store.storePaymentSettings), data.paymentProof);
+    if ("error" in proof) throw new Error(proof.error);
+    ({ payer, image: proofImage } = proof);
+  }
 
   const otpMode = fraudSettings?.orderOtpMode ?? OrderOtpMode.OFF;
   const needsConfirmation =
@@ -475,7 +480,7 @@ export async function CreateOrderAction(
 
   // Uploaded last, once everything that could still turn the order away has passed.
   let paymentProofUrl: string | null = null;
-  if (proofRequired && isAcceptableProof(proofImage)) {
+  if (proofImage) {
     try {
       paymentProofUrl = await uploadImageFromServer(proofImage, PROOF_FOLDER);
     } catch (error) {

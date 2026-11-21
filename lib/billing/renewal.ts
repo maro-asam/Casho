@@ -6,6 +6,7 @@ import { addDays } from "@/lib/subscriptions";
 import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
 import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
+import { recordLeadConversionForStore } from "@/lib/leads/conversion";
 import { nextPeriodEnd, resolveRenewal, type RenewalPlan } from "./plan-quote";
 
 export type RenewalOutcome = "none" | "renewed" | "past_due";
@@ -119,6 +120,8 @@ async function chargePeriod(store: BillingStore, anchor: Date, now: Date, note: 
   await grantReferralRewardIfEligible(store.id).catch((e) => console.error("[billing] referral", e));
   await trackPaidReferralLevel(store.id).catch((e) => console.error("[billing] referral level", e));
   await recordSalesCommissionsForStore(store.id);
+  // A first paid subscription converts the lead this merchant came from (never throws, never touches commissions).
+  await recordLeadConversionForStore(store.id);
   safeRevalidate(store.slug);
   return { ok: true as const, price, newEnd, plan };
 }

@@ -195,8 +195,17 @@ const MANUAL_ICONS: Record<string, typeof Smartphone> = {
   saudi_bank_transfer: Landmark,
 };
 
-/** `payer`: the shopper already sent "paid from" + a screenshot at checkout. */
-function manualInstructionFor(method?: string | null, settings?: ManualPaymentSettings, payer?: string | null) {
+type SentProof = { payer: string | null; screenshot: boolean };
+
+/** What the store got with the transfer at checkout, in the shopper's words. */
+function sentProofText(sent: SentProof) {
+  if (sent.payer && sent.screenshot) return st("استلمنا صورة التحويل من {0}. المتجر هيراجعها ويأكد طلبك.", sent.payer);
+  if (sent.payer) return st("استلمنا بيانات التحويل من {0}. المتجر هيراجعها ويأكد طلبك.", sent.payer);
+  return st("استلمنا صورة التحويل. المتجر هيراجعها ويأكد طلبك.");
+}
+
+/** `sent`: the shopper already sent "paid from" and/or a screenshot at checkout. */
+function manualInstructionFor(method?: string | null, settings?: ManualPaymentSettings, sent?: SentProof | null) {
   if (!method) return null;
 
   if (method === "cash_on_delivery") {
@@ -213,9 +222,9 @@ function manualInstructionFor(method?: string | null, settings?: ManualPaymentSe
   if (!value) return null;
 
   return {
-    title: payer ? st("الدفع عن طريق {0}", getCatalogueLabel(method)) : st("ادفع عن طريق {0}", getCatalogueLabel(method)),
-    description: payer
-      ? st("استلمنا صورة التحويل من {0}. المتجر هيراجعها ويأكد طلبك.", payer)
+    title: sent ? st("الدفع عن طريق {0}", getCatalogueLabel(method)) : st("ادفع عن طريق {0}", getCatalogueLabel(method)),
+    description: sent
+      ? sentProofText(sent)
       : st("استخدم البيانات دي لإتمام الدفع، واحتفظ بصورة الإيصال لحد ما المتجر يأكد طلبك."),
     value,
     icon: MANUAL_ICONS[method] ?? Banknote,
@@ -225,13 +234,13 @@ function manualInstructionFor(method?: string | null, settings?: ManualPaymentSe
 function ManualPaymentInstructions({
   paymentMethod,
   settings,
-  payer,
+  sent,
 }: {
   paymentMethod?: string | null;
   settings?: ManualPaymentSettings;
-  payer?: string | null;
+  sent?: SentProof | null;
 }) {
-  const instruction = manualInstructionFor(paymentMethod, settings, payer);
+  const instruction = manualInstructionFor(paymentMethod, settings, sent);
 
   if (!instruction) return null;
 
@@ -651,7 +660,7 @@ export default async function OrderDetailsPage({
             <ManualPaymentInstructions
               paymentMethod={order.paymentMethod}
               settings={order.store.storePaymentSettings}
-              payer={order.paymentProofUrl ? order.paymentPayer : null}
+              sent={order.paymentProofUrl || order.paymentPayer ? { payer: order.paymentPayer, screenshot: !!order.paymentProofUrl } : null}
             />
 
             <Card className="rounded-[28px]">

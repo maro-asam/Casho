@@ -5,7 +5,8 @@
  * net for any missed billing hook — lib/sales/engine), alerts reps about trials
  * ending unpaid and paid stores that closed (lib/sales/notify), releases stock held
  * by unpaid online (Paymob) orders, and renews domains Casho registered for stores
- * (lib/domains), and applies analytics retention (lib/analytics/retention). Trigger from an external scheduler (e.g. cron-job.org, every hour)
+ * (lib/domains), applies analytics retention (lib/analytics/retention), and for Lead
+ * Management converts leads whose merchant paid and sends follow-up reminders (lib/leads). Trigger from an external scheduler (e.g. cron-job.org, every hour)
  * with `Authorization: Bearer <CRON_SECRET>`.
  */
 import { NextRequest, NextResponse } from "next/server";
@@ -15,6 +16,8 @@ import { sweepRepAlerts } from "@/lib/sales/notify";
 import { releaseUnpaidOnlineOrders } from "@/lib/inventory/order-stock";
 import { sweepDomainRegistrations } from "@/lib/domains/purchase";
 import { sweepAnalytics } from "@/lib/analytics/retention";
+import { sweepLeadConversions } from "@/lib/leads/conversion";
+import { sweepLeadFollowUpReminders } from "@/lib/leads/notify";
 
 async function handler(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -47,7 +50,17 @@ async function handler(req: NextRequest) {
     console.error("[cron] analytics retention", error);
     return { error: "analytics retention failed" };
   });
-  return NextResponse.json({ ...subscriptions, sales, salesAlerts, unpaidOrders, domains, analytics });
+  // Lead Management: link paying merchants to the lead they came from (safety net for the billing
+  // hook), then remind reps of follow-ups due within the hour (each one once).
+  const leadConversions = await sweepLeadConversions().catch((error) => {
+    console.error("[cron] lead conversions", error);
+    return { error: "lead conversions sweep failed" };
+  });
+  const leadReminders = await sweepLeadFollowUpReminders().catch((error) => {
+    console.error("[cron] lead follow-up reminders", error);
+    return { error: "lead reminders sweep failed" };
+  });
+  return NextResponse.json({ ...subscriptions, sales, salesAlerts, unpaidOrders, domains, analytics, leadConversions, leadReminders });
 }
 
 export const GET = handler;

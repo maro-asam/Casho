@@ -22,17 +22,22 @@ import { generateReferralCode } from "@/lib/referral";
 import { SIGNUP_REF_COOKIE, createSignupAttribution, readSignupFormReferral } from "@/lib/sales/attribution";
 import { queueSignupNotice } from "@/lib/sales/notify";
 import { signupRefCookieDelete } from "@/lib/sales/ref-cookie";
+import { isSignupPhoneTaken } from "@/lib/auth/signup-phone";
+import { egyptianPhoneSchema } from "@/validations/auth.schema";
 
 const completeGoogleSchema = z.object({
   storeName: z.string().min(2, "اسم المتجر قصير جداً"),
   country: z.string().min(1, "اختر البلد"),
   businessType: z.string().min(1, "اختر نوع النشاط"),
+  // Google gives no phone: asked here, required like the email signup.
+  phoneNumber: egyptianPhoneSchema,
 });
 
 export type CompleteGoogleState = ActionState<{
   storeName?: string;
   country?: string;
   businessType?: string;
+  phoneNumber?: string;
   refCode?: string;
 }>;
 
@@ -70,6 +75,7 @@ export async function RegisterGoogleAction(
     storeName: formData.get("storeName")?.toString() ?? "",
     country: formData.get("country")?.toString() ?? "",
     businessType: formData.get("businessType")?.toString() ?? "",
+    phoneNumber: formData.get("phoneNumber")?.toString() ?? "",
   };
 
   const parsed = completeGoogleSchema.safeParse(rawData);
@@ -77,7 +83,7 @@ export async function RegisterGoogleAction(
     return { error: "يرجى مراجعة البيانات", fieldErrors: getFieldErrors(parsed.error) };
   }
 
-  const { storeName, country, businessType } = parsed.data;
+  const { storeName, country, businessType, phoneNumber } = parsed.data;
 
   try {
     const existingUser = await prisma.user.findFirst({
@@ -95,6 +101,10 @@ export async function RegisterGoogleAction(
       await createUserSession(existingUser.id);
       await recordLogin({ userId: existingUser.id, method: "google" });
       return { success: true, message: "تم تسجيل الدخول" };
+    }
+
+    if (await isSignupPhoneTaken(googleData.email, phoneNumber)) {
+      return { error: "رقم الموبايل مستخدم بالفعل", fieldErrors: { phoneNumber: "هذا الرقم مستخدم بالفعل" } };
     }
 
     // Resolve referrer (merchant referral or sales rep) — validated server-side.
@@ -126,6 +136,7 @@ export async function RegisterGoogleAction(
           googleId: googleData.googleId,
           // Google only hands out verified emails (checked in the callback).
           emailVerified: true,
+          phone_number: phoneNumber,
           country,
           businessType,
           referralCode: generateReferralCode(),

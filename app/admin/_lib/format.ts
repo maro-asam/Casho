@@ -129,6 +129,12 @@ export const SECURITY_EVENT_META: Record<string, Meta> = {
   ANALYTICS_DATA_DELETED: { label: "حذف بيانات تحليلات", tone: "danger" },
   ANALYTICS_FUNNEL_CHANGED: { label: "تعديل funnel", tone: "neutral" },
   ANALYTICS_COST_CHANGED: { label: "تعديل تكلفة حملة", tone: "neutral" },
+  LEADS_EXPORTED: { label: "تصدير ليدز", tone: "info" },
+  LEADS_IMPORTED: { label: "استيراد ليدز", tone: "info" },
+  LEADS_BULK_ASSIGNED: { label: "إسناد ليدز بالجملة", tone: "neutral" },
+  LEADS_BULK_STATUS: { label: "تغيير حالة ليدز بالجملة", tone: "neutral" },
+  LEAD_DELETED: { label: "مسح ليد", tone: "danger" },
+  LEAD_LINKED: { label: "ربط ليد بحساب تاجر", tone: "accent" },
   // TEMP: plans bought from the landing pricing cards (lib/payments/plan-checkout.ts).
   PLAN_CHECKOUT_STARTED: { label: "بدأ دفع باقة من الموقع", tone: "neutral" },
   PLAN_CHECKOUT_PAID: { label: "دفع باقة من الموقع", tone: "success" },

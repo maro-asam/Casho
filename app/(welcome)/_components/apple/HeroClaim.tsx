@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
-import { Check, ChevronLeft, ChevronRight, Globe } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, Timer, Truck, Wallet } from "lucide-react";
 import { checkStoreSlugAvailability, type StoreSlugAvailabilityState } from "@/actions/auth/check-store-slug.actions";
 import { cn } from "@/lib/utils";
 import { useLang } from "../../_i18n/LanguageContext";
@@ -22,6 +22,8 @@ import "./hero-claim.css";
 /** Bar heights (%) of the chart beside "grow": a steady climb, brighter as it rises. */
 const BARS = [34, 46, 58, 72, 86, 100];
 const ROOT = "casho.store";
+/** One icon per fact, in copy order: live in minutes, local payments, shipping. */
+const FACT_ICONS = [Timer, Wallet, Truck];
 
 type Check = { state: "idle" } | { state: "checking" } | { state: "done"; result: StoreSlugAvailabilityState };
 
@@ -80,17 +82,20 @@ export default function HeroClaim() {
       <div aria-hidden className="hc-bg" />
 
       <div className="al-container-wide hc-inner">
-        <p className="hc-in hc-badge" style={delay(0)}>
+        {/* Same target as "Move from Shopify" in the navbar's Product menu. */}
+        <Link href="/compare/shopify" className="hc-in hc-badge" style={delay(0)}>
           <span className="hc-badge-new">{c.badgeNew}</span>
-          {c.badge}
-        </p>
+          {/* No truncate: overflow clipping would cut the dots under ي. */}
+          <span>{c.badge}</span>
+          <Chevron aria-hidden className="hc-nudge hc-badge-arrow" strokeWidth={2.25} />
+        </Link>
 
         <h1 id="hero-title" className="hc-title text-(--al-text)">
           {c.title.map((line, i) => (
             <span
               key={line.a}
               // The brand line carries one gradient across both words (and past the mark).
-              className={cn("hc-line hc-rise", i === 2 && "hc-brand al-gradient-text")}
+              className={cn("hc-line hc-rise", i === 2 && "hc-brand")}
               style={{ animationDelay: `${0.05 + i * 0.09}s` }}
             >
               <span>{line.a}</span>
@@ -100,7 +105,7 @@ export default function HeroClaim() {
                   {BARS.map((h, k) => (
                     <span
                       key={h}
-                      style={{ height: `${h}%`, opacity: 0.4 + (0.6 * k) / (BARS.length - 1), animationDelay: `${0.7 + k * 0.07}s` }}
+                      style={{ height: `${h}%`, opacity: 0.55 + (0.45 * k) / (BARS.length - 1), animationDelay: `${0.7 + k * 0.07}s` }}
                     />
                   ))}
                 </span>
@@ -151,8 +156,10 @@ export default function HeroClaim() {
               .{ROOT}
             </span>
           </label>
-          <button type="submit" className="hc-submit">
+          {/* The bar is ltr (address first); the button keeps the reading direction so the arrow leads. */}
+          <button type="submit" className="hc-submit" dir={lang === "ar" ? "rtl" : "ltr"}>
             {c.cta}
+            <Chevron aria-hidden className="hc-nudge size-4" strokeWidth={2.25} />
           </button>
         </form>
 
@@ -179,14 +186,17 @@ export default function HeroClaim() {
         </p>
 
         <ul className="hc-in hc-facts" style={delay(0.6)}>
-          {c.facts.map((f) => (
-            <li key={f}>
-              <span aria-hidden className="hc-check">
-                <Check strokeWidth={3} />
-              </span>
-              {f}
-            </li>
-          ))}
+          {c.facts.map((f, i) => {
+            const Icon = FACT_ICONS[i % FACT_ICONS.length];
+            return (
+              <li key={f}>
+                <span aria-hidden className="hc-fact-icon">
+                  <Icon strokeWidth={1.75} />
+                </span>
+                {f}
+              </li>
+            );
+          })}
         </ul>
       </div>
     </section>

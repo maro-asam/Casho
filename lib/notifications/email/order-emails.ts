@@ -185,7 +185,8 @@ export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: stri
     shippingAddress(order),
     `الإجمالي: ${money(order.total)}`,
     `طريقة الدفع: ${getPaymentMethodLabel(order.paymentMethod)}`,
-    order.paymentPayer ? `حوّل من: ${order.paymentPayer} (بعت صورة التحويل)` : "",
+    order.paymentPayer ? `حوّل من: ${order.paymentPayer}` : "",
+    order.paymentProofUrl ? "بعت صورة التحويل — راجعها في صفحة الطلب" : "",
     `افتح الطلب: ${dashboardUrl}`,
   ]
     .filter(Boolean)
@@ -205,9 +206,11 @@ export function buildCustomerConfirmationEmail(order: EmailOrder) {
       ? t("الدفع اتأكد وبدأنا نجهّز طلبك. هنبعتلك أول ما يتشحن.")
       : order.paymentProofUrl
         ? t("استلمنا صورة التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.")
-        : isManualPaymentMethod(order.paymentMethod)
-          ? t("علشان نبدأ نجهّز طلبك، كمّل تحويل المبلغ على بيانات التحويل اللي ظهرتلك بعد الطلب.")
-        : t("هنتواصل معاك قريب لتأكيد الطلب وميعاد التوصيل.");
+        : order.paymentPayer
+          ? t("استلمنا بيانات التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.")
+          : isManualPaymentMethod(order.paymentMethod)
+            ? t("علشان نبدأ نجهّز طلبك، كمّل تحويل المبلغ على بيانات التحويل اللي ظهرتلك بعد الطلب.")
+            : t("هنتواصل معاك قريب لتأكيد الطلب وميعاد التوصيل.");
 
   const body =
     infoRows(

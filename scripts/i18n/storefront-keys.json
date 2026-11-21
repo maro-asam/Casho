@@ -98,7 +98,8 @@
    "app/store/[slug]/_themes/classic/pdp/PurchasePanel.tsx"
   ],
   "(اختياري)": [
-   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx",
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "(ج.م)": [
    "app/store/[slug]/_themes/riwaq/listing/PricePopover.tsx"
@@ -1346,7 +1347,16 @@
   "استلمنا الدفع لطلبك": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "استلمنا بيانات التحويل من {0}. المتجر هيراجعها ويأكد طلبك.": [
+   "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "استلمنا بيانات التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.": [
+   "lib/notifications/email/order-emails.ts"
+  ],
   "استلمنا صورة التحويل من {0}. المتجر هيراجعها ويأكد طلبك.": [
+   "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "استلمنا صورة التحويل. المتجر هيراجعها ويأكد طلبك.": [
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "استلمنا صورة التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.": [
@@ -4326,7 +4336,16 @@
   "حوّل المبلغ": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
+  "حوّل المبلغ وأكّد الدفع.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
   "حوّل المبلغ، وبعدها ابعتلنا الرقم اللي حوّلت منه وصورة التحويل.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
+  "حوّل المبلغ، وبعدها ارفع صورة التحويل.": [
+   "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
+  ],
+  "حوّل المبلغ، وبعدها اكتب الرقم اللي حوّلت منه.": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "حول على فودافون كاش": [
@@ -7333,9 +7352,6 @@
   ],
   "اختار كود الخصم اللي هيظهر للعميل.": [
    "actions/store/popups.actions.ts"
-  ],
-  "ارفع صورة التحويل (سكرين شوت) عشان نأكد طلبك.": [
-   "actions/store/orders.actions.ts"
   ],
   "استخدم الكود قبل ما العرض يخلص.": [
    "lib/popups/popup-config.ts"

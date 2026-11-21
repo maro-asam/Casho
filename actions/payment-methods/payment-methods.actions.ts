@@ -11,6 +11,7 @@ import { storePublicUrl } from "@/helpers/BuildStoreURL";
 import { decryptSecret, encryptSecret, maskSecret } from "@/lib/secrets";
 import { PaymobError, createPaymobCheckout, paymobKeyMode, type PaymobMode } from "@/lib/paymob";
 import { PAYMENT_METHODS, isAvailablePaymentMethod, type PaymentMethodKey } from "@/constants/welcome/payment-methods";
+import { proofRules } from "@/lib/payments/manual-proof";
 
 const manualPaymentMethodKeys = PAYMENT_METHODS.filter((method) => method.manual).map((method) => method.key);
 
@@ -26,6 +27,8 @@ export type PaymentMethodsSettingsData = {
   /** Ordered — the first one is preselected at checkout. */
   enabledPaymentMethods: PaymentMethodKey[];
   manualPaymentDetails: ManualPaymentDetails;
+  /** What a manual transfer must come with at checkout (the other is optional). */
+  transferProof: { payer: boolean; screenshot: boolean };
 
   paymob: {
     connected: boolean;
@@ -86,6 +89,8 @@ async function getOwnedStore() {
           vodafoneCashNumber: true,
           instapayAddress: true,
           bankTransferDetails: true,
+          requireTransferPayer: true,
+          requireTransferScreenshot: true,
           paymobSecretKeyEncrypted: true,
           paymobSecretKeyHint: true,
           paymobPublicKey: true,
@@ -120,6 +125,7 @@ export async function GetPaymentMethodsSettingsAction(): Promise<PaymentMethodsS
     storeUrl: storePublicUrl(store),
     enabledPaymentMethods,
     manualPaymentDetails,
+    transferProof: proofRules(settings),
     paymob: {
       connected: paymobReady(settings),
       mode: settings?.paymobPublicKey ? paymobKeyMode(settings.paymobPublicKey, "public") : null,
@@ -276,6 +282,26 @@ export async function SaveManualMethodAction(key: string, value: string): Promis
     return { success: true, message: "اتحفظ وظاهر في صفحة الدفع" };
   } catch (error) {
     console.error("SaveManualMethodAction error:", error);
+    return { success: false, message: "مقدرناش نحفظ. جرّب تاني." };
+  }
+}
+
+const transferProofSchema = z.object({ payer: z.boolean(), screenshot: z.boolean() });
+
+/** What a manual transfer must come with at checkout: the number paid from, the screenshot, both or neither. */
+export async function SaveTransferProofRulesAction(input: z.input<typeof transferProofSchema>): Promise<PaymentActionResult> {
+  try {
+    const parsed = transferProofSchema.safeParse(input);
+    if (!parsed.success) return { success: false, message: "مقدرناش نحفظ. جرّب تاني." };
+    const store = await getOwnedStore();
+    if (!store) return { success: false, message: "مش لاقيين متجرك" };
+
+    const fields = { requireTransferPayer: parsed.data.payer, requireTransferScreenshot: parsed.data.screenshot };
+    await prisma.storePaymentSettings.upsert({ where: { storeId: store.id }, update: fields, create: { storeId: store.id, ...fields } });
+    revalidateStorePayments(store.slug);
+    return { success: true, message: "اتحفظ وصفحة الدفع اتحدثت" };
+  } catch (error) {
+    console.error("SaveTransferProofRulesAction error:", error);
     return { success: false, message: "مقدرناش نحفظ. جرّب تاني." };
   }
 }

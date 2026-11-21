@@ -9,6 +9,7 @@ import { previewPlanChange, type PlanChangePreview } from "@/lib/entitlements";
 import { createStoreNotification, formatPiastersAsEgp } from "@/lib/notifications/in-app";
 import { grantReferralRewardIfEligible, trackPaidReferralLevel } from "@/lib/referral";
 import { recordSalesCommissionsForStore } from "@/lib/sales/engine";
+import { recordLeadConversionForStore } from "@/lib/leads/conversion";
 import { quotePlanChange, type PlanQuote } from "@/lib/billing/plan-quote";
 import { readMainVisit, recordServerEvent } from "@/lib/analytics/server-events";
 
@@ -233,6 +234,8 @@ export async function ConfirmPlanChangeAction(targetPlanId: string, billingCycle
     }
     // Charges earn sales commissions; refund credits claw them back.
     if (quote.charge !== 0) await recordSalesCommissionsForStore(store.id);
+    // A first paid subscription converts the lead this merchant came from (lib/leads/conversion.ts).
+    if (quote.charge > 0) await recordLeadConversionForStore(store.id);
 
     const message =
       quote.mode === "trial"

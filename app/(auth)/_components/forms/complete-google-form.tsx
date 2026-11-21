@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { ReferralCodeField } from "../referral-code-field";
 import { FIELD_CLASS, FormField, PRIMARY_BUTTON_CLASS } from "./form-field";
 
+const PHONE_RE = /^(010|011|012|015)\d{8}$/;
+
 const COUNTRIES = [
   "مصر",
   "السعودية",
@@ -72,6 +74,13 @@ export function CompleteGoogleForm({ email, name, refCode }: Props) {
   );
   const [country, setCountry] = useState("");
   const [businessType, setBusinessType] = useState("");
+  // Google gives no phone — asked here, required like the email signup.
+  const [phone, setPhone] = useState("");
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const phoneOk = PHONE_RE.test(phone.trim());
+  const phoneError =
+    state?.fieldErrors?.phoneNumber ??
+    (phoneTouched && !phoneOk ? (phone ? "رقم مصري من ١١ رقم يبدأ بـ 010 أو 011 أو 012 أو 015" : "رقم الموبايل مطلوب") : undefined);
 
   useEffect(() => {
     if (state?.error) toast.error(state.error);
@@ -103,6 +112,24 @@ export function CompleteGoogleForm({ email, name, refCode }: Props) {
           placeholder="مثال: Maro Store"
           className={FIELD_CLASS}
           required
+        />
+      </FormField>
+
+      <FormField htmlFor="phoneNumber" label="رقم الموبايل" error={phoneError} hint="هنكلمك عليه لو احتجت مساعدة في متجرك.">
+        <Input
+          id="phoneNumber"
+          name="phoneNumber"
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value.replace(/[^\d]/g, "").slice(0, 11))}
+          onBlur={() => setPhoneTouched(true)}
+          placeholder="01xxxxxxxxx"
+          dir="ltr"
+          autoComplete="tel"
+          inputMode="numeric"
+          required
+          aria-invalid={!!phoneError}
+          className={cn(FIELD_CLASS, "tabular-nums")}
         />
       </FormField>
 
@@ -166,7 +193,7 @@ export function CompleteGoogleForm({ email, name, refCode }: Props) {
 
       <Button
         type="submit"
-        disabled={busy || !country || !businessType}
+        disabled={busy || !country || !businessType || !phoneOk}
         className={cn(PRIMARY_BUTTON_CLASS, "w-full")}
       >
         {busy ? (

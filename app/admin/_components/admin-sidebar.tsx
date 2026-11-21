@@ -6,13 +6,15 @@ import { ExternalLink, PanelRightClose, PanelRightOpen, ShieldCheck } from "luci
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { ADMIN_NAV, ANALYTICS_ONLY_NAV, type AdminBadges, type AdminNavItem } from "./admin-nav";
+import { adminNavFor, type AdminBadges, type AdminNavItem } from "./admin-nav";
 
 type Props = {
   activeHref: string | null;
   badges: AdminBadges;
   /** A media buyer's panel: the Analytics Center only. */
   analyticsOnly?: boolean;
+  /** The viewer's role: role-limited items (lib/leads) are hidden from the others. */
+  role?: string;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
   /** Called after following a link (closes the mobile sheet). */
@@ -27,8 +29,8 @@ const itemBase =
 const itemIdle = "text-sidebar-foreground/80 hover:bg-sidebar-accent";
 const itemActive = "bg-sidebar-accent font-semibold text-sidebar-foreground";
 
-export default function AdminSidebar({ activeHref, badges, analyticsOnly = false, collapsed = false, onToggleCollapsed, onNavigate }: Props) {
-  const nav = analyticsOnly ? ANALYTICS_ONLY_NAV : ADMIN_NAV;
+export default function AdminSidebar({ activeHref, badges, role, analyticsOnly = false, collapsed = false, onToggleCollapsed, onNavigate }: Props) {
+  const nav = adminNavFor(role, analyticsOnly);
   const renderItem = (item: AdminNavItem) => {
     const Icon = item.icon;
     const isActive = activeHref === item.href;
