@@ -96,6 +96,16 @@ export async function deleteCurrentSession() {
   });
 }
 
+/**
+ * Signs this browser into another account (store-family switch): the current
+ * session row goes, and the new session takes over the same cookie.
+ */
+export async function replaceCurrentSession(userId: string) {
+  const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+  if (token) await prisma.session.deleteMany({ where: { tokenHash: sha256(token) } });
+  await createUserSession(userId);
+}
+
 export async function deleteAllUserSessions(userId: string) {
   await prisma.session.deleteMany({ where: { userId } });
 }

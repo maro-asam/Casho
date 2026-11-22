@@ -19,6 +19,7 @@ import DashboardSidebar from "./DashboardSidebar";
 import DashboardTopbar from "./DashboardTopbar";
 import { findActiveNav, type NavBadges } from "./dashboard-nav";
 import { isRtl, tdir, tr } from "@/lib/i18n/dashboard";
+import type { StoreFamilyEntry } from "@/lib/store-family/rules";
 
 interface DashboardShellProps {
   store: {
@@ -33,6 +34,8 @@ interface DashboardShellProps {
   initialNavBadges: NavBadges;
   /** Account-level notice above every page (e.g. "confirm your email"). */
   notice?: ReactNode;
+  /** Sandbox accounts that may open several stores (lib/store-family). */
+  storeFamily?: StoreFamilyEntry[] | null;
   children: ReactNode;
 }
 
@@ -84,6 +87,7 @@ export default function DashboardShell({
   initialUnreadCount,
   initialNavBadges,
   notice,
+  storeFamily,
   children,
 }: DashboardShellProps) {
   const pathname = usePathname();
@@ -165,6 +169,7 @@ export default function DashboardShell({
             initialNotifications={initialNotifications}
             initialUnreadCount={initialUnreadCount}
             menuSlot={mobileMenu}
+            storeFamily={storeFamily}
           />
 
           <main

@@ -245,5 +245,16 @@
   "امسح التجريبي": "Remove samples",
   "اتنسخ رابط متجرك": "Store link copied",
   "مقدرناش ننسخ — انسخه من شريط المتصفح": "Couldn't copy — copy it from the address bar",
-  "انسخ رابط المتجر": "Copy store link"
+  "انسخ رابط المتجر": "Copy store link",
+  "إنشاء المتجر": "Create store",
+  "اتعمل المتجر، يلا نجهّزه": "Store created — let's set it up",
+  "الحساب الأساسي مش موجود": "The main account wasn't found",
+  "المتجر ده مش من متاجرك": "This store isn't one of yours",
+  "جارٍ الإنشاء…": "Creating…",
+  "حصلت مشكلة في إنشاء المتجر، جرّب تاني": "Something went wrong creating the store, try again",
+  "متاجرك": "Your stores",
+  "متجر جديد": "New store",
+  "متجر جديد بتجربة مجانية 3 أيام، وهتبدأ إعداده من الأول. متاجرك القديمة بتفضل زي ما هي وتقدر ترجعلها من القائمة دي.": "A new store with a 3-day free trial, set up from scratch. Your other stores stay as they are — switch back to them from this menu.",
+  "مثال: متجر الأناقة": "e.g. Elegance Store",
+  "وصلت للحد الأقصى لعدد المتاجر": "You've reached the maximum number of stores"
 }

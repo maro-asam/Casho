@@ -16,6 +16,8 @@ import { MEDIA_BUYER_HOME, isMediaBuyer } from "@/lib/admin/panel-roles";
 import { tr } from "@/lib/i18n/dashboard";
 import DashboardI18nProvider from "@/lib/i18n/dashboard/provider";
 import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
+import { storeFamilyOf } from "@/lib/store-family/rules";
+import { loadStoreFamily } from "@/lib/store-family/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   await loadDashboardLocale();
@@ -125,7 +127,12 @@ export default async function DashboardLayout({
     redirect("/dashboard/trial-expired");
   }
 
-  const [{ notifications, unreadCount }, navBadges] = await Promise.all([GetNotificationsAction(10), countNavBadges(store.id)]);
+  const familyInbox = storeFamilyOf(account?.email);
+  const [{ notifications, unreadCount }, navBadges, storeFamily] = await Promise.all([
+    GetNotificationsAction(10),
+    countNavBadges(store.id),
+    familyInbox ? loadStoreFamily(familyInbox, userId) : null,
+  ]);
 
   return (
     <DashboardI18nProvider locale={locale}>
@@ -135,6 +142,7 @@ export default async function DashboardLayout({
       initialUnreadCount={unreadCount}
       initialNavBadges={navBadges}
       notice={account && !account.emailVerified ? <VerifyEmailNotice email={account.email} /> : undefined}
+      storeFamily={storeFamily}
     >
       {children}
     </DashboardShell>

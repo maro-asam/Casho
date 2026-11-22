@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { ChevronLeft, ExternalLink, Headset, Languages, LogOut, Moon, Settings, Sun, Wallet } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -19,6 +19,8 @@ import {
 import { displayHost } from "@/helpers/BuildStoreURL";
 import NotificationsBell from "../notifications/NotificationsBell";
 import DashboardSearch from "./DashboardSearch";
+import { NewFamilyStoreDialog, StoreFamilyItems } from "./StoreFamilyMenu";
+import type { StoreFamilyEntry } from "@/lib/store-family/rules";
 import type { ActiveNav } from "./dashboard-nav";
 import { currentLocale, tdir, tr } from "@/lib/i18n/dashboard";
 import { useSwitchLocale } from "@/lib/i18n/dashboard/use-switch-locale";
@@ -30,6 +32,8 @@ type Props = {
   initialUnreadCount: number;
   /** Mobile menu trigger, rendered at the start of the bar. */
   menuSlot?: React.ReactNode;
+  /** Sandbox accounts that may open several stores (lib/store-family). */
+  storeFamily?: StoreFamilyEntry[] | null;
 };
 
 function ThemeToggle() {
@@ -48,13 +52,15 @@ function ThemeToggle() {
   );
 }
 
-function AccountMenu({ store }: { store: Props["store"] }) {
+function AccountMenu({ store, storeFamily }: { store: Props["store"]; storeFamily?: Props["storeFamily"] }) {
   const initials = store.name.trim().slice(0, 1).toUpperCase();
   const [isLoggingOut, startLogout] = useTransition();
+  const [creatingStore, setCreatingStore] = useState(false);
   const locale = currentLocale();
   const { switchTo, pending: switching } = useSwitchLocale();
 
   return (
+    <>
     <DropdownMenu dir={tdir()} modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label={tr("قائمة الحساب")} className="size-10 rounded-full">
@@ -70,6 +76,7 @@ function AccountMenu({ store }: { store: Props["store"] }) {
             {displayHost(store.url)}
           </p>
         </DropdownMenuLabel>
+        {storeFamily && <StoreFamilyItems stores={storeFamily} onCreate={() => setCreatingStore(true)} />}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href={store.url} target="_blank" rel="noreferrer">
@@ -122,10 +129,12 @@ function AccountMenu({ store }: { store: Props["store"] }) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    {storeFamily && <NewFamilyStoreDialog open={creatingStore} onOpenChange={setCreatingStore} />}
+    </>
   );
 }
 
-export default function DashboardTopbar({ store, active, initialNotifications, initialUnreadCount, menuSlot }: Props) {
+export default function DashboardTopbar({ store, active, initialNotifications, initialUnreadCount, menuSlot, storeFamily }: Props) {
   return (
     <div className="sticky top-0 z-30 px-3 pt-3 sm:px-5">
       {/* Scroll edge effect: content softens as it slides under the floating bar. */}
@@ -166,7 +175,7 @@ export default function DashboardTopbar({ store, active, initialNotifications, i
         <NotificationsBell initialNotifications={initialNotifications} initialUnreadCount={initialUnreadCount} />
         <ThemeToggle />
         <span aria-hidden className="mx-1 hidden h-5 border-s-[0.5px] border-border sm:block" />
-        <AccountMenu store={store} />
+        <AccountMenu store={store} storeFamily={storeFamily} />
       </div>
     </header>
     </div>

@@ -41,7 +41,10 @@ export type SecurityEvent =
   | "LEADS_BULK_ASSIGNED"
   | "LEADS_BULK_STATUS"
   | "LEAD_DELETED"
-  | "LEAD_LINKED";
+  | "LEAD_LINKED"
+  /** Store families (lib/store-family): a sandbox account opened another store / switched between its stores. */
+  | "STORE_FAMILY_STORE_CREATED"
+  | "STORE_FAMILY_SWITCHED";
 
 export function logSecurityEvent(opts: {
   event: SecurityEvent;

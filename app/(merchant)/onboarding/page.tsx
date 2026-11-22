@@ -7,6 +7,8 @@ import { loadDashboardLocale } from "@/lib/i18n/dashboard/server";
 import { DEMO_CUSTOMERS, demoKitFor } from "@/lib/demo-data/kits";
 import { isThemePresetId, type ThemePresetId } from "@/constants/store-themes";
 import { DEMO_ORDER_COUNT } from "@/lib/demo-data/seed";
+import { storeFamilyOf } from "@/lib/store-family/rules";
+import { loadStoreFamily } from "@/lib/store-family/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   await loadDashboardLocale();
@@ -55,6 +57,8 @@ export default async function OnboardingPage() {
   const kit = demoKitFor(businessType);
   const suggested = SUGGESTED_THEME[kit.id] ?? "default";
   const trialDaysLeft = store?.trialEndDate ? daysUntil(store.trialEndDate) : null;
+  const familyInbox = storeFamilyOf(user.email);
+  const storeFamily = familyInbox ? await loadStoreFamily(familyInbox, user.id) : null;
 
   return (
     <OnboardingWizard
@@ -67,6 +71,7 @@ export default async function OnboardingPage() {
       initialLanguage={store?.settings?.storeLanguage === "en" ? "en" : "ar"}
       suggestedTheme={isThemePresetId(suggested) ? suggested : "default"}
       trialDaysLeft={trialDaysLeft}
+      storeFamily={storeFamily}
       demo={{
         products: kit.products.length,
         orders: DEMO_ORDER_COUNT,

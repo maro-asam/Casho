@@ -16,7 +16,7 @@ const MULTI_ACCOUNT_IDENTITIES: MultiAccountIdentity[] = [
 ];
 
 /** "name+tag@domain" → "name@domain", lowercased. */
-function inboxOf(email: string) {
+export function inboxOf(email: string) {
   const [local = "", domain = ""] = email.trim().toLowerCase().split("@");
   return `${local.split("+")[0]}@${domain}`;
 }

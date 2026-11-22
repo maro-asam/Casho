@@ -39,6 +39,8 @@ import { cn } from "@/lib/utils";
 import { lazyIntl, tdir, tr, trv } from "@/lib/i18n/dashboard";
 import { ProviderMark } from "@/app/(merchant)/dashboard/integrations/_import/provider-ui";
 import { StorePreview } from "./StorePreview";
+import { StoreFamilySwitch } from "@/app/(merchant)/_components/main/StoreFamilyMenu";
+import type { StoreFamilyEntry } from "@/lib/store-family/rules";
 
 const nf = lazyIntl.number();
 
@@ -72,12 +74,14 @@ type Props = {
     customers: number;
     preview: { name: string; image: string; price: number }[];
   };
+  /** Sandbox accounts with several stores (lib/store-family): a way back to the others. */
+  storeFamily?: StoreFamilyEntry[] | null;
 };
 
 const VODAFONE_RE = /^01[0125]\d{8}$/;
 
 export default function OnboardingWizard(props: Props) {
-  const { storeName, slug, ownerName, businessType, suggestedTheme, trialDaysLeft, demo } = props;
+  const { storeName, slug, ownerName, businessType, suggestedTheme, trialDaysLeft, demo, storeFamily } = props;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -224,6 +228,8 @@ export default function OnboardingWizard(props: Props) {
               </div>
             )}
             {counted < 0 && <span className="flex-1" />}
+
+            {storeFamily && storeFamily.length > 1 && <StoreFamilySwitch stores={storeFamily} />}
 
             {trialDaysLeft !== null && step !== "done" && (
               <span className="shrink-0 rounded-full bg-(--sys-green)/12 px-3 py-1 text-[12px] font-semibold text-[#248a3d] dark:text-(--sys-green)">
