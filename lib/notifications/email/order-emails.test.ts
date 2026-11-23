@@ -128,6 +128,17 @@ describe("order emails", () => {
     expect(shipped?.text).toContain("Tracking number: BOS-123");
   });
 
+  it("writes amounts in the store's currency and labels a top-up's player ID", () => {
+    const order = makeOrder({ items: [{ quantity: 1, price: 1270000, selectedFeatures: { playerId: "5123456789" }, product: { name: "110 جوهرة" } }] } as Partial<EmailOrder>);
+    (order.store.settings as Record<string, unknown>).storeCurrency = "SDG";
+    const merchant = buildMerchantNewOrderEmail(order, "https://x");
+    expect(merchant.html).toContain("ج.س");
+    expect(merchant.html).not.toContain("ج.م");
+    expect(merchant.html).toContain("معرّف اللاعب: 5123456789");
+    const customer = buildCustomerConfirmationEmail(order);
+    expect(customer.html).toContain("ج.س");
+  });
+
   it("keeps the merchant's email in Arabic whatever the store language", () => {
     const order = makeOrder();
     order.store.settings!.storeLanguage = "en";

@@ -14,6 +14,7 @@ export {
   storeRelativeFormat,
   lazyStoreIntl,
   formatPrice,
+  storeCurrency,
   formatStoreDate,
   type StoreLocale,
 } from "./runtime";

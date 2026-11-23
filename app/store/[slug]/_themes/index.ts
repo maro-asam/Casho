@@ -16,6 +16,7 @@ import { maximizeTheme } from "./maximize";
 import { medicalTheme } from "./medical";
 import { celloTheme } from "./cello";
 import { qiratTheme } from "./qirat";
+import { arenaTheme } from "./arena";
 import { riwaqTheme } from "./riwaq";
 import type { StorefrontTheme } from "./types";
 
@@ -31,6 +32,7 @@ const THEMES: Record<ThemePresetId, StorefrontTheme> = {
   market: marketTheme,
   stage: stageTheme,
   qirat: qiratTheme,
+  arena: arenaTheme,
 };
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {

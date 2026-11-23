@@ -137,6 +137,9 @@
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx"
   ],
+  "{0} أقسام": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
+  ],
   "{0} ألوان": [
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
@@ -149,6 +152,12 @@
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/stage/ui.tsx"
+  ],
+  "{0} باقات": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
+  ],
+  "{0} باقة": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
   ],
   "{0} بيجهّز طلبك أو شحنه خلاص.": [
    "app/store/[slug]/order/[orderId]/approve/page.tsx"
@@ -186,6 +195,12 @@
   ],
   "{0} في {1}.": [
    "app/store/[slug]/policies/[type]/page.tsx"
+  ],
+  "{0} في السلة": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx"
+  ],
+  "{0} قسم": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
   ],
   "{0} قسم — اختار القسم اللي محتاجه": [
    "app/store/[slug]/_themes/gym/categories/GymCategories.tsx",
@@ -260,10 +275,17 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "{0} متاحة دلوقتي": [
+   "app/store/[slug]/_themes/arena/sections/Games.tsx"
+  ],
+  "{0} متاحة للشحن": [
+   "app/store/[slug]/_themes/arena/sections/Hero.tsx"
+  ],
   "{0} مجموعة": [
    "app/store/[slug]/_themes/qirat/categories/QiratCategories.tsx"
   ],
   "{0} من {1}": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
    "app/store/[slug]/_themes/cello/sections/HeroSlider.tsx",
    "app/store/[slug]/_themes/classic/home/HeroCarousel.tsx",
    "app/store/[slug]/_themes/dune/sections/Hero.tsx",
@@ -272,6 +294,10 @@
    "app/store/[slug]/_themes/market/sections/HeroSlider.tsx",
    "app/store/[slug]/_themes/medical/sections/HeroSlider.tsx",
    "app/store/[slug]/_themes/riwaq/home/Plates.tsx"
+  ],
+  "{0} من ٥": [
+   "app/store/[slug]/_themes/arena/pdp/ArenaProduct.tsx",
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
   ],
   "{0} منتج": [
    "app/store/[slug]/_themes/cello/categories/CelloCategories.tsx",
@@ -323,6 +349,9 @@
    "app/store/[slug]/_themes/market/listing/MarketListing.tsx",
    "app/store/[slug]/_themes/medical/listing/MedicalListing.tsx",
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
+  ],
+  "{0} نتيجة": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
   ],
   "{0} يوم": [
    "app/store/[slug]/_themes/gym/ui.tsx",
@@ -408,6 +437,9 @@
    "app/store/[slug]/_themes/mada/sections/Merch.tsx"
   ],
   "آراء العملاء": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/arena/pdp/ArenaProduct.tsx",
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
    "app/store/[slug]/_themes/dune/sections/Testimonials.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
@@ -439,6 +471,7 @@
    "app/store/[slug]/_components/sections/NewsletterSection.tsx"
   ],
   "أرقام الثقة": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -543,12 +576,17 @@
    "app/store/[slug]/order/[orderId]/confirm/ConfirmOrderForm.tsx"
   ],
   "أكّد طلبك": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
    "app/store/[slug]/order/[orderId]/confirm/page.tsx"
+  ],
+  "ألعاب تانية": [
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx"
   ],
   "ألغي الطلب": [
    "app/store/[slug]/order/[orderId]/approve/ApproveOrderForm.tsx"
   ],
   "أنا {0}.\n": [
+   "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -571,6 +609,9 @@
    "app/store/[slug]/_themes/market/sections/Hero.tsx",
    "app/store/[slug]/_themes/qirat/sections/Hero.tsx"
   ],
+  "أهلاً بيك 🎮": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
   "أهلاً بيك في": [
    "app/store/[slug]/_themes/classic/home/ClassicHome.tsx"
   ],
@@ -582,6 +623,9 @@
   ],
   "أهلًا بيك في {0}. اختار القطعة اللي تشبهك واطلبها بسهولة، وإحنا هنتواصل معاك نأكد كل التفاصيل.": [
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx"
+  ],
+  "أهلاً بيك في {0}. اختار لعبتك وباقتك واطلب بسهولة، والمتجر هيتابع طلبك لحد ما يوصلك.": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
   ],
   "أهلاً بيك في {0}. تصفح منتجاتنا واطلب بسهولة، وإحنا هنتواصل معاك لتأكيد طلبك.": [
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
@@ -612,6 +656,9 @@
   ],
   "أول من يعرف": [
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
+  ],
+  "أول واحد يعرف العروض": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
   ],
   "أونلاين": [
    "app/store/[slug]/order/[orderId]/approve/page.tsx"
@@ -678,6 +725,7 @@
    "app/store/[slug]/_components/sections/WhyChooseUsSection.tsx"
   ],
   "إزالة": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/CartDrawer.tsx",
@@ -720,6 +768,9 @@
    "app/store/[slug]/_themes/riwaq/listing/RiwaqListing.tsx",
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
+  "إزاي بيتم الطلب؟": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
   "إظهار الفلاتر": [
    "app/store/[slug]/_themes/dune/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/mada/listing/ListingControls.tsx"
@@ -735,6 +786,7 @@
    "app/store/[slug]/_components/CouponLinkCapture.tsx",
    "app/store/[slug]/_components/offers/OfferHost.tsx",
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx",
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
@@ -862,6 +914,9 @@
   "إيه المقاس المناسب ليك؟": [
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "ابحث": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
   "ابحث عن {0}…": [
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx"
   ],
@@ -873,6 +928,14 @@
   ],
   "ابحث عن دواء، فيتامين أو أي منتج…": [
    "app/store/[slug]/_themes/medical/header/SearchBar.tsx"
+  ],
+  "ابحث عن لعبة أو باقة": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
+  "ابحث عن لعبة أو باقة…": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
   ],
   "ابحث عن منتج، تصنيف…": [
    "app/store/[slug]/_themes/mada/header/SearchPanel.tsx"
@@ -891,6 +954,7 @@
    "app/store/[slug]/_themes/riwaq/header/RiwaqHeader.tsx"
   ],
   "ابحث في المتجر": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/classic/header/SearchCombobox.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
@@ -937,6 +1001,7 @@
    "app/store/[slug]/_themes/qirat/cart/WishlistDrawer.tsx"
   ],
   "ابعت بالإيميل": [
+   "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -958,6 +1023,7 @@
    "app/store/[slug]/_themes/medical/header/MedicalHeader.tsx"
   ],
   "ابعت على واتساب": [
+   "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -973,10 +1039,17 @@
   "ابعت كود جديد بعد {0} ثانية": [
    "app/store/[slug]/order/[orderId]/confirm/ConfirmOrderForm.tsx"
   ],
+  "ابعت لـ {0} على واتساب وهنبعتلك الباقات الجديدة والخصومات.": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
+  "ابعت معرّفك": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
   "ابعتلنا إيميل": [
    "app/store/[slug]/_themes/maximize/footer/MaxFooter.tsx"
   ],
   "ابعتلنا رسالة": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -988,6 +1061,9 @@
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
+  ],
+  "ابعتلنا على واتساب وهنرد عليك في أقرب وقت.": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
   ],
   "اتأكد إن المبلغ والتاريخ باينين فيها.": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
@@ -1108,6 +1184,9 @@
    "app/store/[slug]/_themes/qirat/product/BuyForm.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "اختار الباقة": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "اختار الحجم أو اللون لـ {0}": [
    "app/store/[slug]/_themes/medical/product/CardActions.tsx"
   ],
@@ -1124,6 +1203,12 @@
   "اختار الطريقة اللي تناسبك.": [
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
+  "اختار اللعبة": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
+  "اختار اللون": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "اختار اللون الأول": [
    "app/store/[slug]/_themes/mada/product/BuyForm.tsx"
   ],
@@ -1135,6 +1220,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "اختار المقاس": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
    "app/store/[slug]/_themes/qirat/product/QuickAdd.tsx"
   ],
   "اختار المقاس أو اللون لـ {0}": [
@@ -1151,11 +1237,41 @@
   "اختار المقاس الأول": [
    "app/store/[slug]/_themes/mada/product/BuyForm.tsx"
   ],
+  "اختار باقة": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
+  "اختار باقة الأول": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
+  "اختار باقتك": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
+  "اختار باقتك، اكتب معرّفك، وتابع طلبك برقم الطلب.": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
   "اختار طريقك": [
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx"
   ],
+  "اختار عدد الجواهر أو الشدات أو العملات اللي تناسبك.": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
   "اختار قسمك": [
    "app/store/[slug]/_themes/gym/sections/CategoryShelf.tsx"
+  ],
+  "اختار لعبتك": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
+  ],
+  "اختار لعبتك أو تطبيقك": [
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx",
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
+  ],
+  "اختار لعبتك وحدّد الباقة الأول، وبعدين كمّل طلبك.": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
+  ],
+  "اختار لعبتك وحدّد الباقة اللي تناسبك.": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx"
   ],
   "اختار لون": [
    "app/store/[slug]/_themes/mada/product/BuyForm.tsx"
@@ -1280,6 +1396,9 @@
   "اسأل الصيدلي على واتساب قبل ما تطلب": [
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
   ],
+  "اسأل المتجر": [
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx"
+  ],
   "اسأل المتجر على واتساب ›": [
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
@@ -1294,6 +1413,7 @@
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
   ],
   "استخدام": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -1316,6 +1436,7 @@
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
   ],
   "استخدم نقاط المكافآت": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -1329,6 +1450,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "استخدمت {0} نقطة": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -1362,8 +1484,15 @@
   "استلمنا صورة التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "اسم اللاعب": [
+   "app/store/[slug]/_themes/shared/commerce.ts"
+  ],
+  "اسم اللاعب (اختياري)": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "اسمك": [
    "components/storefront/popup-view.tsx",
+   "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -1427,12 +1556,14 @@
    "app/store/[slug]/_themes/riwaq/pdp/Purchase.tsx"
   ],
   "اضغط هنا واحكي قصة متجرك.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "اضغط هنا واكتب أرقامك الحقيقية.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -1442,11 +1573,13 @@
    "app/store/[slug]/_themes/gym/home/GymHome.tsx"
   ],
   "اضغط هنا واكتب عروضك.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "اضغط هنا واكتب عنوان وفقرة.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -1459,22 +1592,28 @@
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "اضغط هنا وحط صورتك وكلامك.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "اضغط هنا وضيف آراء عملائك.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
+  ],
+  "اطلب الباقة": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
   ],
   "اطلب على واتساب": [
    "app/store/[slug]/_themes/gym/header/UtilityBar.tsx",
    "app/store/[slug]/_themes/medical/header/UtilityBar.tsx"
   ],
   "اعرف أكتر": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
    "app/store/[slug]/_themes/dune/sections/Editorial.tsx",
    "app/store/[slug]/_themes/mada/sections/Merch.tsx",
    "app/store/[slug]/_themes/market/sections/Editorial.tsx",
@@ -1518,6 +1657,9 @@
    "app/store/[slug]/_themes/medical/header/SearchBar.tsx",
    "app/store/[slug]/_themes/stage/header/SearchBar.tsx"
   ],
+  "اكتب اسمك ورقمك واختار طريقة الدفع، والمتجر هيأكد طلبك ويشحنه.": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
+  ],
   "اكتب الرقم أو الحساب اللي حوّلت منه.": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
@@ -1536,6 +1678,9 @@
   "اكتب اللي محتاجه زي ما بتكتبه في الورقة، وابعته للمتجر على واتساب.": [
    "app/store/[slug]/_themes/market/sections/ShoppingList.tsx"
   ],
+  "اكتب المعرّف زي ما هو في اللعبة: أرقام أو حروف من غير مسافات": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "اكتب بياناتك والمتجر هيتواصل معاك لتأكيد الطلب.": [
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx"
   ],
@@ -1553,6 +1698,9 @@
   "اكتب بياناتك، والمتجر هيتواصل معاك يأكد الطلب.": [
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCheckout.tsx"
   ],
+  "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع شحنتك خطوة بخطوة.": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
+  ],
   "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.": [
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
@@ -1569,7 +1717,11 @@
   "اكتب رقم بين ٣٨ و٨٠ مم.": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
+  "اكتب رقمك وتابع طلبك من «طلباتي».": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
   "اكتب سؤالك أو استفسارك…": [
+   "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -1581,6 +1733,12 @@
    "app/store/[slug]/_themes/qirat/info/ContactForm.tsx",
    "app/store/[slug]/_themes/riwaq/info/ContactForm.tsx",
    "app/store/[slug]/_themes/stage/info/ContactForm.tsx"
+  ],
+  "اكتب معرّف اللاعب (ID) عشان نشحن على حسابك": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
+  "اكتب معرّف اللاعب وتابع طلبك من «طلباتي».": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
   ],
   "اكتشف": [
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
@@ -1603,7 +1761,11 @@
    "app/store/[slug]/_themes/mada/sections/FeaturedCollection.tsx"
   ],
   "الأحدث": [
-   "app/store/[slug]/_themes/shared/commerce.ts"
+   "app/store/[slug]/_themes/shared/commerce.ts",
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
+  "الأرخص": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
   ],
   "الأساور": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
@@ -1613,6 +1775,9 @@
   ],
   "الأسعار من {0} إلى {1}": [
    "app/store/[slug]/_themes/classic/listing/FilterForm.tsx"
+  ],
+  "الأغلى": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
   ],
   "الأقدم": [
    "app/store/[slug]/_themes/shared/commerce.ts"
@@ -1651,7 +1816,11 @@
    "app/store/[slug]/_themes/cello/header/MegaMenu.tsx",
    "app/store/[slug]/_themes/maximize/header/MegaMenu.tsx"
   ],
+  "الأكتر طلبًا": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
+  ],
   "الأكثر طلبًا": [
+   "app/store/[slug]/_themes/arena/sections/Games.tsx",
    "app/store/[slug]/_themes/gym/sections/ProductRow.tsx",
    "app/store/[slug]/_themes/mada/home/MadaHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
@@ -1663,6 +1832,9 @@
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "الأكثر مبيعًا": [
+   "app/store/[slug]/_themes/arena/ui.tsx",
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx",
    "app/store/[slug]/_themes/classic/home/ClassicHome.tsx",
    "app/store/[slug]/_themes/dune/home/DuneHome.tsx",
@@ -1674,6 +1846,17 @@
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/riwaq/home/RiwaqHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
+  ],
+  "الألعاب": [
+   "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
+  "الألعاب جاية قريب": [
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx",
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
+  ],
+  "الألعاب والتطبيقات": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
   ],
   "الألوان": [
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
@@ -1700,6 +1883,8 @@
    "lib/notifications/email/layout.ts",
    "lib/notifications/email/order-emails.ts",
    "app/store/[slug]/order/[orderId]/page.tsx",
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
@@ -1749,6 +1934,17 @@
   ],
   "الاسم: ي – أ": [
    "app/store/[slug]/_themes/shared/commerce.ts"
+  ],
+  "الباقات اللي الناس بتطلبها أكتر.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
+  ],
+  "الباقات جاية قريب": [
+   "app/store/[slug]/_themes/arena/ui.tsx",
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx",
+   "app/store/[slug]/_themes/arena/sections/Games.tsx"
+  ],
+  "الباقات في السلة": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx"
   ],
   "الباقة فيها": [
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
@@ -1820,6 +2016,7 @@
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
   "البريد الإلكتروني": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -1960,9 +2157,11 @@
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx"
   ],
   "التنقل": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/market/header/TabBar.tsx"
   ],
   "التوصيل": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/cart/MarketCart.tsx",
@@ -2036,6 +2235,7 @@
   ],
   "الخصم": [
    "lib/notifications/email/layout.ts",
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
@@ -2091,6 +2291,7 @@
    "app/store/[slug]/_themes/qirat/sections/Quotes.tsx"
   ],
   "الرئيسية": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/cello/categories/CelloCategories.tsx",
@@ -2176,6 +2377,7 @@
    "app/store/[slug]/_themes/medical/header/MedicalHeader.tsx"
   ],
   "الرجوع للرئيسية": [
+   "app/store/[slug]/_themes/arena/states.tsx",
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
@@ -2287,6 +2489,8 @@
   ],
   "السلة": [
    "app/store/[slug]/cart/page.tsx",
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
@@ -2320,6 +2524,9 @@
    "app/store/[slug]/_themes/riwaq/pdp/Purchase.tsx",
    "app/store/[slug]/_themes/riwaq/product/QuickAdd.tsx"
   ],
+  "السلة ({0})": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
   "السلة فاضية": [
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCheckout.tsx"
   ],
@@ -2337,6 +2544,9 @@
    "app/store/[slug]/_themes/maximize/header/MaxHeader.tsx",
    "app/store/[slug]/_themes/medical/header/MedicalHeader.tsx",
    "app/store/[slug]/_themes/riwaq/header/RiwaqHeader.tsx"
+  ],
+  "السياسات": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
   ],
   "الشحن": [
    "lib/notifications/email/layout.ts",
@@ -2407,6 +2617,7 @@
    "app/store/[slug]/_themes/medical/sections/HeroSlider.tsx"
   ],
   "الصفحات": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -2456,7 +2667,14 @@
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx",
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
+  "الصفحة اللي بعد": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
+  "الصفحة اللي قبل": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
   "الصفحة دي مش موجودة": [
+   "app/store/[slug]/_themes/arena/states.tsx",
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
@@ -2611,6 +2829,7 @@
    "app/store/[slug]/_themes/riwaq/home/RiwaqHome.tsx"
   ],
   "القائمة": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
    "app/store/[slug]/_themes/maximize/header/DrawerMenu.tsx",
    "app/store/[slug]/_themes/qirat/header/QiratHeader.tsx",
@@ -2683,6 +2902,7 @@
    "app/store/[slug]/_themes/qirat/product/QuickView.tsx"
   ],
   "الكل": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -2724,6 +2944,7 @@
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
   "الكمية {0}": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -2767,6 +2988,7 @@
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/shared/commerce.ts",
    "app/store/[slug]/_themes/stage/ui.tsx",
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
    "app/store/[slug]/_themes/classic/pdp/PurchasePanel.tsx",
@@ -2828,6 +3050,10 @@
   "المتجر بيتواصل معاك قبل الشحن": [
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx"
   ],
+  "المتجر بيجهز باقاته دلوقتي. ارجع تاني قريب.": [
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx",
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
+  ],
   "المتجر بيجهز مجموعته دلوقتي. ارجع تاني قريب.": [
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx"
   ],
@@ -2865,6 +3091,7 @@
    "app/store/[slug]/_themes/shared/pause/StorePauseDetails.tsx"
   ],
   "المتجر لسه مضافش وسيلة تواصل": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -2881,6 +3108,7 @@
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx"
   ],
   "المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCheckout.tsx",
@@ -2893,6 +3121,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCheckout.tsx"
   ],
   "المتجر مقفول مؤقتًا": [
+   "app/store/[slug]/_themes/arena/states.tsx",
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
@@ -2910,6 +3139,7 @@
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
   ],
   "المتجر هيتواصل معاك على رقمك بعد ما تطلب.": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -2965,6 +3195,7 @@
    "app/store/[slug]/_themes/stage/listing/FilterPanel.tsx"
   ],
   "المجموع": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx",
@@ -3051,6 +3282,7 @@
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/shared/commerce.ts",
    "app/store/[slug]/_themes/stage/ui.tsx",
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
    "app/store/[slug]/_themes/classic/pdp/PurchasePanel.tsx",
@@ -3150,6 +3382,7 @@
    "app/store/[slug]/_themes/medical/home/MedicalHome.tsx"
   ],
   "المنتجات المميزة": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
@@ -3266,6 +3499,7 @@
    "app/store/[slug]/_themes/mada/sections/Countdown.tsx"
   ],
   "الوقت المتبقي على نهاية العرض": [
+   "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
    "app/store/[slug]/_themes/market/sections/Countdown.tsx",
@@ -3286,6 +3520,15 @@
   "انسخ رقم الشحنة": [
    "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx"
   ],
+  "باقة": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
+  ],
+  "باقة واحدة": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
+  ],
+  "باقتين": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
+  ],
   "باقي {0}": [
    "app/store/[slug]/_themes/gym/sections/ProductRow.tsx"
   ],
@@ -3302,6 +3545,7 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "بانر مخصص": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -3318,6 +3562,7 @@
    "app/store/[slug]/_themes/gym/home/GymHome.tsx"
   ],
   "بحث": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/classic/header/MobileSearch.tsx",
    "app/store/[slug]/_themes/dune/header/DuneHeader.tsx",
@@ -3383,11 +3628,20 @@
   "بيانات التحويل البنكي": [
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
   ],
+  "بيانات الحساب": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "بيانات الطلب": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
   "بيانات العميل": [
    "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "بياناتك بتروح للمتجر بس": [
+   "app/store/[slug]/_themes/arena/sections/Hero.tsx"
+  ],
+  "بياناتك بتروح للمتجر بس عشان يشحن طلبك ويتواصل معاك.": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
   ],
   "بياناتك بتروح للمتجر بس عشان يوصلك الطلب.": [
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
@@ -3400,12 +3654,21 @@
    "app/store/[slug]/_themes/qirat/cart/QiratCheckout.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCheckout.tsx"
   ],
+  "بياناتك والدفع": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
+  ],
+  "بيتشحن على حسابك بعد تأكيد الطلب": [
+   "app/store/[slug]/_themes/arena/game/AccountNote.tsx"
+  ],
   "بيرجع يفتح": [
    "app/store/[slug]/_themes/shared/pause/StorePauseDetails.tsx"
   ],
   "بيقولوا عننا": [
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx",
    "app/store/[slug]/_themes/stage/sections/Editorial.tsx"
+  ],
+  "بيوصلك بعد تأكيد الطلب": [
+   "app/store/[slug]/_themes/arena/game/AccountNote.tsx"
   ],
   "تأكد إن الاسم ورقم الموبايل صح عشان نقدر نتواصل معاك لو احتجنا.": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
@@ -3417,6 +3680,8 @@
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "تأكيد الطلب": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/order/[orderId]/approve/ApproveOrderForm.tsx",
    "app/store/[slug]/order/[orderId]/approve/page.tsx",
    "app/store/[slug]/order/[orderId]/confirm/page.tsx"
@@ -3431,9 +3696,15 @@
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
   ],
   "تابع طلبك": [
+   "app/store/[slug]/_themes/arena/sections/Hero.tsx",
    "app/store/[slug]/_themes/medical/sections/Hero.tsx"
   ],
+  "تابع طلبك برقمه في أي وقت": [
+   "app/store/[slug]/_themes/arena/sections/Hero.tsx"
+  ],
   "تابعنا": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -3448,6 +3719,7 @@
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
   ],
   "تابعنا على واتساب": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx",
    "app/store/[slug]/_themes/market/sections/Editorial.tsx",
    "app/store/[slug]/_themes/stage/sections/Editorial.tsx"
@@ -3472,6 +3744,7 @@
   "تتبّع طلبك": [
    "lib/notifications/email/order-emails.ts",
    "app/store/[slug]/track/page.tsx",
+   "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx",
@@ -3559,6 +3832,7 @@
    "app/store/[slug]/_themes/stage/listing/ListingControls.tsx"
   ],
   "ترتيب:": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
    "app/store/[slug]/_themes/mada/listing/ListingControls.tsx"
   ],
   "تسوق": [
@@ -3610,6 +3884,9 @@
    "app/store/[slug]/_themes/maximize/sections/Editorial.tsx",
    "app/store/[slug]/_themes/maximize/sections/PromotionGrid.tsx",
    "app/store/[slug]/_themes/medical/sections/Editorial.tsx"
+  ],
+  "تسوّق الباقات": [
+   "app/store/[slug]/_themes/arena/sections/Hero.tsx"
   ],
   "تسوّق الكل": [
    "app/store/[slug]/_themes/stage/sections/Hero.tsx"
@@ -3707,6 +3984,9 @@
   "تشغيل شريط الإعلانات": [
    "app/store/[slug]/_themes/cello/header/Ticker.tsx",
    "app/store/[slug]/_themes/maximize/header/Ticker.tsx"
+  ],
+  "تشكيلتنا": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
   ],
   "تصفّح": [
    "app/store/[slug]/_themes/mada/header/MegaMenu.tsx",
@@ -3834,6 +4114,7 @@
    "app/store/[slug]/_themes/gym/sections/Calculator.tsx"
   ],
   "تطبيق": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -3887,6 +4168,9 @@
   "تفاصيل {0}": [
    "app/store/[slug]/_themes/dune/sections/Hotspot.tsx"
   ],
+  "تفاصيل الباقة": [
+   "app/store/[slug]/_themes/arena/pdp/ArenaProduct.tsx"
+  ],
   "تفاصيل الطلب": [
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
@@ -3924,6 +4208,7 @@
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
   "تقليل الكمية": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
@@ -3980,6 +4265,9 @@
   "تكمّل الطلّة": [
    "app/store/[slug]/_themes/qirat/cart/CartDrawer.tsx"
   ],
+  "تلاقيه في الملف الشخصي جوه اللعبة أو التطبيق.": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "تلاقيه في رسالة أو إيميل تأكيد الطلب، زي": [
    "app/store/[slug]/_themes/shared/track/OrderTracker.tsx"
   ],
@@ -4032,6 +4320,9 @@
    "app/store/[slug]/contact/page.tsx"
   ],
   "تواصل مع المتجر": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx",
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
@@ -4054,6 +4345,9 @@
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "تواصل معانا": [
+   "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/qirat/footer/QiratFooter.tsx",
    "app/store/[slug]/_themes/qirat/header/QiratHeader.tsx",
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
@@ -4135,6 +4429,7 @@
   ],
   "ثانية": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx",
+   "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -4231,6 +4526,9 @@
   "جرب كلمة أبسط، أو تصفّح التصنيفات تحت.": [
    "app/store/[slug]/_themes/riwaq/header/SearchOverlay.tsx"
   ],
+  "جرّب كلمة تانية أو اختار لعبة من فوق.": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
   "جسمك محتاج كام جرام بروتين؟": [
    "app/store/[slug]/_themes/gym/sections/Calculator.tsx"
   ],
@@ -4262,7 +4560,11 @@
    "app/store/[slug]/_themes/qirat/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx"
   ],
+  "حدّد الباقة": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
   "حذف {0}": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -4300,6 +4602,9 @@
    "app/store/[slug]/_themes/riwaq/product/QuickAdd.tsx",
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/stage/lib/cart-lines.ts"
+  ],
+  "حط سعر قبل الخصم على باقاتك وهتظهر هنا، واضبط العداد من هنا.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
   ],
   "حط سعر قبل الخصم على منتجاتك وهتظهر هنا، واضبط العداد من هنا.": [
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
@@ -4364,6 +4669,7 @@
    "app/store/[slug]/_themes/gym/home/GymHome.tsx"
   ],
   "خصم {0}": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -4382,10 +4688,12 @@
    "app/store/[slug]/_themes/classic/product/ProductCard.tsx"
   ],
   "خصم {0}٪": [
+   "app/store/[slug]/_themes/arena/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/medical/ui.tsx",
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
@@ -4422,6 +4730,9 @@
   "خصومات حقيقية على منتجات المتجر": [
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx"
   ],
+  "خطوة أخيرة": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
+  ],
   "خطوة بخطوة.": [
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
   ],
@@ -4457,6 +4768,7 @@
   ],
   "دقيقة": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx",
+   "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -4509,7 +4821,17 @@
   "رجوع": [
    "app/store/[slug]/order/[orderId]/approve/ApproveOrderForm.tsx"
   ],
+  "رجوع لـ {0}": [
+   "app/store/[slug]/_themes/arena/pdp/ArenaProduct.tsx"
+  ],
+  "رجوع للألعاب": [
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx"
+  ],
+  "رجوع للسلة": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
+  ],
   "رسالة لـ {0}": [
+   "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -4523,6 +4845,7 @@
    "app/store/[slug]/_themes/stage/info/ContactForm.tsx"
   ],
   "رسالتك": [
+   "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -4571,6 +4894,7 @@
   "رقم الموبايل": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx",
    "app/store/[slug]/order/[orderId]/page.tsx",
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -4601,6 +4925,9 @@
   "روابط التحميل هتظهر هنا أول ما الدفع يتأكد.": [
    "app/store/[slug]/order/[orderId]/_components/DigitalDownloads.tsx"
   ],
+  "روابط المتجر": [
+   "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx"
+  ],
   "روابط المتجر والتصنيفات": [
    "app/store/[slug]/_themes/classic/header/MobileMenu.tsx"
   ],
@@ -4622,6 +4949,7 @@
    "lib/notifications/email/order-emails.ts"
   ],
   "زيادة الكمية": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
@@ -4662,6 +4990,7 @@
   ],
   "ساعة": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx",
+   "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -4703,6 +5032,8 @@
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx"
   ],
   "سلتك فاضية": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
@@ -4743,6 +5074,9 @@
   "شحن سريع": [
    "app/store/[slug]/_components/sections/WhyChooseUsSection.tsx"
   ],
+  "شحن سريع وآمن": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
   "شحن مجاني متاح": [
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
@@ -4756,6 +5090,7 @@
    "lib/notifications/email/order-emails.ts"
   ],
   "شريط العروض": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -4810,7 +5145,12 @@
   "شكرًا، طلبك وصلنا": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "شوف الألعاب": [
+   "app/store/[slug]/_themes/arena/states.tsx",
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
   "شوف التفاصيل": [
+   "app/store/[slug]/_themes/arena/ui.tsx",
    "app/store/[slug]/_themes/qirat/sections/ProductSections.tsx",
    "app/store/[slug]/_themes/riwaq/home/EditorsPick.tsx"
   ],
@@ -4840,6 +5180,7 @@
    "app/store/[slug]/_themes/mada/listing/MadaListing.tsx"
   ],
   "شيل {0}": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/market/sections/ShoppingList.tsx"
   ],
   "شيل {0} من السلة": [
@@ -4916,8 +5257,14 @@
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx"
   ],
+  "ضيف باقة تانية": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx"
+  ],
   "ضيف رقم واتساب المتجر وهتظهر هنا.": [
    "app/store/[slug]/_themes/market/home/MarketHome.tsx"
+  ],
+  "ضيف رقم واتساب المتجر وهيظهر هنا.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
   ],
   "ضيف قطع للحقيبة الأول وبعدين كمّل طلبك.": [
    "app/store/[slug]/_themes/qirat/cart/QiratCheckout.tsx"
@@ -4943,6 +5290,7 @@
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
   "طرق التواصل": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -4967,6 +5315,7 @@
    "app/store/[slug]/_themes/stage/footer/StageFooter.tsx"
   ],
   "طريقة التوصيل": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
    "app/store/[slug]/_themes/market/cart/MarketCart.tsx",
    "app/store/[slug]/_themes/medical/cart/MedicalCart.tsx"
@@ -4995,8 +5344,13 @@
   "طلب {0} — {1}": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "طلباتي": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
+  ],
   "طلبك": [
    "lib/notifications/email/order-emails.ts",
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCheckout.tsx",
@@ -5060,6 +5414,7 @@
    "app/store/[slug]/order/[orderId]/success/page.tsx"
   ],
   "عدد النقاط": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -5072,6 +5427,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "عدد النقاط (أقل حاجة {0})": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -5152,6 +5508,7 @@
    "app/store/[slug]/_themes/stage/pdp/Gallery.tsx"
   ],
   "عرض الكل": [
+   "app/store/[slug]/_themes/arena/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/classic/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
@@ -5227,6 +5584,7 @@
    "app/store/[slug]/_themes/riwaq/header/SearchOverlay.tsx"
   ],
   "عرض لفترة محدودة": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/mada/sections/Countdown.tsx",
@@ -5247,6 +5605,7 @@
    "app/store/[slug]/_themes/maximize/sections/Editorial.tsx"
   ],
   "عروض المتجر": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx",
    "app/store/[slug]/_themes/market/sections/Editorial.tsx",
    "app/store/[slug]/_themes/market/sections/HeroSlider.tsx",
@@ -5260,6 +5619,7 @@
    "app/store/[slug]/_themes/market/home/MarketHome.tsx"
   ],
   "عروض لفترة محدودة": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/maximize/home/MaxHome.tsx",
    "app/store/[slug]/_themes/medical/home/MedicalHome.tsx"
@@ -5267,8 +5627,14 @@
   "عروض ما تتفوتش.": [
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
+  "عشان نتأكد إنه الحساب الصح": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "علشان نبدأ نجهّز طلبك، كمّل تحويل المبلغ على بيانات التحويل اللي ظهرتلك بعد الطلب.": [
    "lib/notifications/email/order-emails.ts"
+  ],
+  "علّم باقاتك كمميزة وهتظهر هنا.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
   ],
   "علّم مكان ما الطرفين بيتقابلوا، وافرده على مسطرة.": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
@@ -5305,6 +5671,8 @@
    "app/store/[slug]/_components/sections/SocialProofSection.tsx"
   ],
   "عن {0}": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/cello/sections/Collections.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
@@ -5337,6 +5705,9 @@
   ],
   "عن المتجر": [
    "app/store/[slug]/_components/sections/AboutBrandSection.tsx",
+   "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
@@ -5396,6 +5767,9 @@
   ],
   "عندك سؤال عن المنتج ده؟": [
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
+  ],
+  "عندك سؤال عن باقة أو طلب؟ ابعتلنا وهنرد عليك.": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
   ],
   "عندك سؤال عن منتج أو طلب؟ إحنا معاك.": [
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
@@ -5538,8 +5912,14 @@
   "فلترة:": [
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx"
   ],
+  "في الخطوة الجاية بتكتب اسمك ورقمك وتختار طريقة الدفع، والطلب بيوصل للمتجر على طول. تقدر تتابعه من «طلباتي».": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "في الصورة:": [
    "app/store/[slug]/_themes/riwaq/home/Hero.tsx"
+  ],
+  "في باقات خلصت أو الكمية المتاحة منها قلّت، فعدّلنا السلة على حسب المتاح.": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx"
   ],
   "في قايمة أمنياتك": [
    "app/store/[slug]/_themes/qirat/product/WishButton.tsx"
@@ -5589,6 +5969,9 @@
   "قرأت وأوافق على": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
+  "قريبًا": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
+  ],
   "قريبة من الرقبة، تحت الذقن بشوية": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
@@ -5597,6 +5980,12 @@
    "app/store/[slug]/_themes/market/info/MarketInfo.tsx",
    "app/store/[slug]/_themes/medical/info/MedicalInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
+  ],
+  "قسم واحد": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
+  ],
+  "قسمين": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
   ],
   "قصتنا مع {0}": [
    "app/store/[slug]/_components/sections/AboutBrandSection.tsx"
@@ -5684,6 +6073,13 @@
   ],
   "كل الأقسام.": [
    "app/store/[slug]/_themes/stage/categories/StageCategories.tsx"
+  ],
+  "كل الألعاب والتطبيقات في مكان واحد.": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
+  "كل الباقات": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
   ],
   "كل البراندات": [
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
@@ -5879,6 +6275,7 @@
    "app/store/[slug]/_components/conversion/WhatsAppButton.tsx"
   ],
   "كلّمنا واتساب": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/medical/lib/rx.ts"
   ],
@@ -5886,6 +6283,7 @@
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
   "كمّل الطلب": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx",
@@ -5946,6 +6344,7 @@
    "app/store/[slug]/order/[orderId]/confirm/ConfirmOrderForm.tsx"
   ],
   "كود الخصم": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -5971,6 +6370,9 @@
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
+  ],
+  "كود خصم؟": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx"
   ],
   "كود:": [
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
@@ -6025,6 +6427,9 @@
    "app/store/[slug]/_themes/mada/cart/MadaCart.tsx",
    "app/store/[slug]/_themes/maximize/cart/MaxCart.tsx"
   ],
+  "لسه مفيش باقات للعبة دي. كلّم المتجر يقولك المتاح والأسعار.": [
+   "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx"
+  ],
   "لسه مفيش تصنيفات — تقدر تتصفح كل المنتجات.": [
    "app/store/[slug]/_themes/mada/header/MegaMenu.tsx"
   ],
@@ -6076,6 +6481,9 @@
    "app/store/[slug]/_themes/riwaq/categories/RiwaqCategories.tsx",
    "app/store/[slug]/_themes/stage/categories/StageCategories.tsx"
   ],
+  "لعبة وتطبيق": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
+  ],
   "لفّ خيط أو شريط ورق رفيع حوالين صباعك عند العُقلة الأخيرة، مش مشدود ومش واسع.": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
@@ -6104,6 +6512,7 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -6158,6 +6567,9 @@
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
+  "ليه تشحن مننا؟": [
+   "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
   "ماذا يقول عملاؤنا؟": [
    "app/store/[slug]/_components/sections/TestimonialsSection.tsx"
   ],
@@ -6172,6 +6584,7 @@
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx"
   ],
   "متجر مبني على": [
+   "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx",
    "app/store/[slug]/_themes/dune/footer/DuneFooter.tsx",
@@ -6230,6 +6643,9 @@
   "مثال: 01012345678 أو name@instapay": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
+  "مثال: 1234567890": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
   "مثال: محمد أحمد — 1234": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
@@ -6244,6 +6660,7 @@
   ],
   "مجاني": [
    "lib/notifications/email/layout.ts",
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
@@ -6286,6 +6703,7 @@
    "app/store/[slug]/_themes/mada/footer/MadaFooter.tsx"
   ],
   "محتاج مساعدة؟": [
+   "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/dune/footer/DuneFooter.tsx",
    "app/store/[slug]/_themes/maximize/footer/MaxFooter.tsx",
@@ -6531,10 +6949,17 @@
    "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx"
   ],
   "معرض المجموعات": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
+  ],
+  "معرّف اللاعب": [
+   "app/store/[slug]/_themes/shared/commerce.ts"
+  ],
+  "معرّف اللاعب (ID)": [
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
   ],
   "معلومات": [
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
@@ -6552,6 +6977,9 @@
    "app/store/[slug]/_themes/medical/categories/MedicalCategories.tsx",
    "app/store/[slug]/_themes/stage/categories/StageCategories.tsx"
   ],
+  "مفيش باقات بالشكل ده": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
   "مفيش تصنيف بالاسم ده.": [
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx"
   ],
@@ -6564,6 +6992,7 @@
    "app/store/[slug]/_themes/riwaq/categories/RiwaqCategories.tsx"
   ],
   "مفيش طرق دفع متاحة دلوقتي": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
@@ -6698,6 +7127,8 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "ملخص الطلب": [
+   "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
@@ -6752,6 +7183,9 @@
   ],
   "ممكن يكون الرابط غلط أو المنتج اتشال من المتجر.": [
    "app/store/[slug]/_themes/classic/states.tsx"
+  ],
+  "ممكن يكون الرابط غلط، أو الباقة اتشالت من المتجر.": [
+   "app/store/[slug]/_themes/arena/states.tsx"
   ],
   "ممكن يكون الرابط غلط، أو القطعة اتشالت من المتجر. جرّب تدوّر عليها من البحث.": [
    "app/store/[slug]/_themes/qirat/states.tsx"
@@ -6968,6 +7402,9 @@
    "app/store/[slug]/_themes/maximize/listing/MaxListing.tsx",
    "app/store/[slug]/_themes/medical/listing/MedicalListing.tsx"
   ],
+  "نتايج «{0}»": [
+   "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
+  ],
   "نتمنى المنتجات تعجبك، ويسعدنا نشوفك تاني.": [
    "lib/notifications/email/order-emails.ts"
   ],
@@ -6981,6 +7418,7 @@
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "نص": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -7029,6 +7467,8 @@
    "app/store/[slug]/_themes/classic/product/ProductCard.tsx"
   ],
   "نفدت": [
+   "app/store/[slug]/_themes/arena/ui.tsx",
+   "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
    "app/store/[slug]/_themes/qirat/cart/WishlistDrawer.tsx",
    "app/store/[slug]/_themes/qirat/product/ProductCard.tsx"
   ],
@@ -7066,6 +7506,7 @@
    "app/store/[slug]/_themes/qirat/sections/GiftFinder.tsx"
   ],
   "هتتفتح محادثة واتساب ورسالتك جاهزة.": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -7095,6 +7536,7 @@
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "هتظهر هنا لوحدها أول ما المتجر يبدأ يبيع.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -7107,6 +7549,7 @@
    "lib/notifications/email/order-emails.ts"
   ],
   "هيتفتح الإيميل ورسالتك جاهزة.": [
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -7118,6 +7561,9 @@
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
+  ],
+  "هيتملى من ألعابك أول ما يبقى عندك لعبتين بصور.": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
   ],
   "هيتملى من تصنيفاتك أول ما تضيف منتجات.": [
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
@@ -7134,6 +7580,8 @@
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
   "واتساب": [
+   "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
+   "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
@@ -7163,6 +7611,7 @@
    "app/store/[slug]/_themes/maximize/pdp/MaxProduct.tsx"
   ],
   "وصل حديثًا": [
+   "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
@@ -7239,6 +7688,12 @@
    "app/store/[slug]/_themes/stage/product/ProductCard.tsx",
    "app/store/[slug]/_themes/stage/product/QuickView.tsx"
   ],
+  "يبدأ من": [
+   "app/store/[slug]/_themes/arena/ui.tsx"
+  ],
+  "يبدأ من {0}": [
+   "app/store/[slug]/_themes/arena/sections/Games.tsx"
+  ],
   "يبدو أن الطلب غير موجود أو لا تملك صلاحية عرض تفاصيله.": [
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
@@ -7256,6 +7711,7 @@
    "app/store/[slug]/_themes/maximize/pdp/MaxProduct.tsx"
   ],
   "يوم": [
+   "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -7346,9 +7802,6 @@
   ],
   "اجمع أرقام الموبايل لعروض الواتساب الحصرية — من غير خصم.": [
    "lib/popups/popup-config.ts"
-  ],
-  "اختار اللون": [
-   "actions/store/offers.actions.ts"
   ],
   "اختار كود الخصم اللي هيظهر للعميل.": [
    "actions/store/popups.actions.ts"

@@ -15,6 +15,7 @@ import { requireUserId } from "@/actions/auth/require-user-id.actions";
 import { calculateCouponDiscount } from "@/helpers/coupon";
 import { isAvailablePaymentMethod, isOnlinePaymentMethod, type PaymentMethodKey } from "@/constants/welcome/payment-methods";
 import { createPaymobCheckout, paymobCallbackBaseUrl } from "@/lib/paymob";
+import { supportsOnlinePayment } from "@/lib/store/currency";
 import { governorateName, isGovernorateCode } from "@/constants/egypt-governorates";
 import { shippingPriceFor } from "@/lib/shipping/governorate-pricing";
 import { decryptSecret } from "@/lib/secrets";
@@ -241,6 +242,7 @@ export async function CreateOrderAction(
           telegramChatId: true,
           primaryColor: true,
           pausedUntil: true,
+          storeCurrency: true,
         },
       },
       storePaymentSettings: {
@@ -280,6 +282,10 @@ export async function CreateOrderAction(
   if (!enabledPaymentMethods.includes(data.paymentMethod)) {
     throw new Error("This payment method is not available for this store");
   }
+  // Paymob charges in EGP: never for a store priced in another currency.
+  if (data.paymentMethod === "paymob" && !supportsOnlinePayment(store.settings?.storeCurrency)) {
+    throw new Error("الدفع الأونلاين مش متاح في المتجر دلوقتي. اختار طريقة دفع تانية.");
+  }
 
   const ipAddress = await getClientIp();
   if (await isOrderRateLimited({ storeId: store.id, guestSessionId, phone: data.phone, ipAddress })) {
@@ -301,7 +307,7 @@ export async function CreateOrderAction(
   }
   if (isManualPayment && risk.level === OrderRiskLevel.HIGH && fraudSettings?.blockHighRiskOrders) {
     throw new Error(
-      enabledPaymentMethods.includes("paymob")
+      enabledPaymentMethods.includes("paymob") && supportsOnlinePayment(store.settings?.storeCurrency)
         ? "مش هنقدر نكمل الطلب ده بالدفع عند الاستلام. اختار الدفع أونلاين، أو تواصل مع المتجر."
         : "مش هنقدر نكمل الطلب ده. تواصل مع المتجر مباشرة.",
     );

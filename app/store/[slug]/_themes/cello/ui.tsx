@@ -8,6 +8,7 @@ import type { CSSProperties, ComponentProps, ReactNode } from "react";
 import { ChevronLeft, ChevronsLeft, ImageIcon, Star } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { DIGITAL_STOCK } from "@/lib/products/digital";
 import { swatchColor } from "../shared/colors";
 import { discountPercent } from "../shared/commerce";
 import { formatPrice, lazyStoreIntl, st } from "@/lib/i18n/storefront";
@@ -261,7 +262,9 @@ export function Swatches({ colors, max = 6, className, label = true }: { colors:
 
 /** "● In stock" / "● Low stock" / "● Out of stock" from real stock. */
 export function StockLine({ stock, count, className }: { stock: number; /** Show the real unit count. */ count?: boolean; className?: string }) {
-  const n = count ? st(" ({0} قطعة)", num(stock)) : "";
+  // Digital products report DIGITAL_STOCK (they never run out), not a real count.
+  const showCount = count && stock < DIGITAL_STOCK;
+  const n = showCount ? st(" ({0} قطعة)", num(stock)) : "";
   if (stock <= 0) return <p className={cn("ce-stock text-(--ce-quiet)", className)}>{st("نفدت الكمية")}</p>;
   if (stock <= 5) return <p className={cn("ce-stock font-medium text-(--ce-low)", className)}>{st("كمية قليلة{0}", n)}</p>;
   return <p className={cn("ce-stock font-medium text-(--ce-stock)", className)}>{st("متوفر{0}", n)}</p>;

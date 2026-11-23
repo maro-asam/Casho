@@ -11,7 +11,7 @@ import { OrderStatus } from "@prisma/client";
 
 import { getPaymentMethodLabel, isManualPaymentMethod } from "@/constants/payment-methods";
 import { isMailConfigured } from "@/lib/mail";
-import { formatPiastersAsEgp } from "@/lib/notifications/in-app";
+import { toStoreCurrency } from "@/lib/store/currency";
 import { orderNumber as formatOrderNumber, orderTrackUrl } from "@/lib/orders/tracking";
 import { prisma } from "@/lib/prisma";
 import { DIGITAL_ADDRESS } from "@/lib/products/digital";
@@ -21,7 +21,7 @@ import { stIn, toStoreLocale, type StoreLocale } from "@/lib/i18n/storefront";
 import { ensureStoreEnglish } from "@/lib/i18n/storefront/load-english";
 import { emailMoney, esc, infoRows, itemsTable, notice, renderEmail, sectionTitle, type EmailBrand } from "./layout";
 
-const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون" };
+const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون", playerId: "معرّف اللاعب", playerName: "اسم اللاعب" };
 
 async function loadOrder(orderId: string) {
   return prisma.order.findUnique({
@@ -70,6 +70,7 @@ async function loadOrder(orderId: string) {
               emailCustomerOrders: true,
               emailStoreAlerts: true,
               storeLanguage: true,
+              storeCurrency: true,
             },
           },
         },
@@ -82,7 +83,6 @@ export type EmailOrder = NonNullable<Awaited<ReturnType<typeof loadOrder>>>;
 
 const orderNumber = (order: { id: string }) => formatOrderNumber(order.id);
 const firstName = (fullName: string) => fullName.trim().split(/\s+/)[0] ?? "";
-const money = formatPiastersAsEgp;
 
 function brandOf(order: EmailOrder): EmailBrand {
   return {
@@ -99,6 +99,10 @@ function brandOf(order: EmailOrder): EmailBrand {
  * dictionary — loaded before a customer email is built (prepareCustomerEmail).
  */
 const langOf = (order: EmailOrder): StoreLocale => toStoreLocale(order.store.settings?.storeLanguage);
+/** Amounts are written in the store's currency (StoreSettings.storeCurrency). */
+const currencyOf = (order: EmailOrder) => toStoreCurrency(order.store.settings?.storeCurrency);
+/** The merchant's emails stay Arabic. */
+const ownerMoney = (order: EmailOrder) => (piasters: number) => emailMoney(piasters, "ar", currencyOf(order));
 
 async function prepareCustomerEmail(order: EmailOrder) {
   if (langOf(order) === "en") await ensureStoreEnglish();
@@ -142,6 +146,7 @@ const wantsCustomerEmails = (order: EmailOrder) => Boolean(order.email && order.
 // ─── Builders (exported for tests) ──────────────────────────────────────────
 
 export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: string) {
+  const money = ownerMoney(order);
   const risk = order.riskLevel === "HIGH" || order.riskLevel === "MEDIUM";
   const count = order.items.reduce((sum, item) => sum + item.quantity, 0);
   const subject = `${risk ? "⚠️ " : ""}طلب جديد ${orderNumber(order)} — ${money(order.total)}`;
@@ -167,7 +172,7 @@ export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: stri
       { label: "ملاحظات", value: order.notes },
     ]) +
     sectionTitle(`المنتجات (${count})`) +
-    itemsTable(lines(order), order);
+    itemsTable(lines(order), order, "ar", currencyOf(order));
 
   const html = renderEmail({
     brand: { ...brandOf(order), url: dashboardUrl },
@@ -198,7 +203,7 @@ export function buildMerchantNewOrderEmail(order: EmailOrder, dashboardUrl: stri
 export function buildCustomerConfirmationEmail(order: EmailOrder) {
   const lang = langOf(order);
   const t = (source: string, ...args: unknown[]) => stIn(lang, source, ...args);
-  const money = (piasters: number) => emailMoney(piasters, lang);
+  const money = (piasters: number) => emailMoney(piasters, lang, currencyOf(order));
   const name = firstName(order.fullName);
   const trackUrl = orderTrackUrl(order.store, order.id);
   const intro =
@@ -222,7 +227,7 @@ export function buildCustomerConfirmationEmail(order: EmailOrder) {
       lang,
     ) +
     sectionTitle(t("طلبك")) +
-    itemsTable(lines(order, lang), order, lang);
+    itemsTable(lines(order, lang), order, lang, currencyOf(order));
 
   const html = renderEmail({
     brand: brandOf(order),
@@ -263,7 +268,7 @@ export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus)
   if (!source) return null;
   const lang = langOf(order);
   const t = (text: string, ...args: unknown[]) => stIn(lang, text, ...args);
-  const money = (piasters: number) => emailMoney(piasters, lang);
+  const money = (piasters: number) => emailMoney(piasters, lang, currencyOf(order));
   const copy = { subject: t(source.subject), heading: t(source.heading), intro: t(source.intro) };
 
   const shipment = order.shipments[0];
@@ -314,6 +319,7 @@ export function buildCustomerStatusEmail(order: EmailOrder, status: OrderStatus)
 }
 
 export function buildPaymentFailedEmail(order: EmailOrder, orderUrl: string) {
+  const money = ownerMoney(order);
   const html = renderEmail({
     brand: { ...brandOf(order), url: orderUrl },
     preheader: `${order.fullName} — ${money(order.total)}`,

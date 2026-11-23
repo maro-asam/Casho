@@ -46,7 +46,12 @@ const shortDate = lazyIntl.date({
 
 const formatMoney = (piasters: number) => money.format(piasters / 100);
 
-const FEATURE_LABELS: Record<string, string> = { get size() { return tr("المقاس"); }, get color() { return tr("اللون"); } };
+const FEATURE_LABELS: Record<string, string> = {
+  get size() { return tr("المقاس"); },
+  get color() { return tr("اللون"); },
+  get playerId() { return tr("معرّف اللاعب"); },
+  get playerName() { return tr("اسم اللاعب"); },
+};
 
 /** Egyptian mobile → international digits for wa.me (01xxxxxxxxx → 201xxxxxxxxx). */
 function whatsappNumber(phone: string) {

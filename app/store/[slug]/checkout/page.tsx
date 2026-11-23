@@ -13,7 +13,7 @@ import type { CheckoutLegal, CheckoutResult } from "../_themes/types";
 import { getStorefrontTheme } from "../_themes";
 import { getManualTransferDetails, getStoreThemeId, getStorefrontClosure } from "../_lib/storefront";
 import { PixelEvent } from "../_components/pixels/PixelEvent";
-import { st } from "@/lib/i18n/storefront";
+import { st, storeCurrency } from "@/lib/i18n/storefront";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 type CheckoutPageProps = {
@@ -150,7 +150,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
           name="InitiateCheckout"
           payload={{
             value: cartData.summary.total,
-            currency: "EGP",
+            currency: storeCurrency(),
             contents: cartData.items.map((item) => ({
               id: item.product.id,
               quantity: item.quantity,

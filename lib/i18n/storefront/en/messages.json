@@ -79,7 +79,6 @@
  "العرض ده خلص.": "This offer has ended.",
  "العرض ده مش للمنتج ده": "This offer isn't for this product",
  "العميل غير موجود": "Customer not found",
- "العميل يحول على الحساب البنكي المصري الخاص بالتاجر.": "Transfer to the store's Egyptian bank account.",
  "العميل يحول على رقم STC Pay الخاص بالتاجر.": "Transfer to the store's STC Pay number.",
  "العميل يحول على رقم فودافون كاش الخاص بالتاجر.": "Transfer to the store's Vodafone Cash number.",
  "العميل يحول على عنوان InstaPay أو رقم الحساب.": "Transfer to the store's InstaPay address or account number.",
@@ -243,5 +242,6 @@
  "وسائل دفع مناسبة للعملاء من خارج مصر والسعودية أو للمدفوعات الدولية.": "Payment methods for customers outside Egypt and Saudi Arabia, or for international payments.",
  "وصلت لأقصى عدد مرات إرسال. تواصل مع المتجر لتأكيد طلبك.": "You've reached the maximum number of resends. Contact the store to confirm your order.",
  "يجب أن يكون لديك على الأقل {0} نقطة": "You need at least {0} {0|point|points}",
- "يجب استرداد نقطة واحدة على الأقل": "You must redeem at least 1 point"
+ "يجب استرداد نقطة واحدة على الأقل": "You must redeem at least 1 point",
+ "العميل يحول على الحساب البنكي الخاص بالتاجر.": "Transfer to the store's bank account."
 }

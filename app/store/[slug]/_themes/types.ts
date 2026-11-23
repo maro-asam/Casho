@@ -51,6 +51,8 @@ export type CategoryLink = {
   slug: string;
   image: string | null;
   productCount: number;
+  /** Cheapest active product in it (store currency, whole units) — "From X". */
+  fromPrice?: number | null;
 };
 
 export type StoreContact = {

@@ -21,7 +21,13 @@ export function unitPriceFor(price: number, tiers: unknown, qty: number) {
 }
 
 /** Labels for the selected product options stored on cart items. */
-export const FEATURE_LABEL: Record<string, string> = { get size() { return st("المقاس"); }, get color() { return st("اللون"); } };
+export const FEATURE_LABEL: Record<string, string> = {
+  get size() { return st("المقاس"); },
+  get color() { return st("اللون"); },
+  // What a top-up is sent to (themes that sell game/app top-ups ask for it, see lib/orders/account-fields).
+  get playerId() { return st("معرّف اللاعب"); },
+  get playerName() { return st("اسم اللاعب"); },
+};
 
 export const SORT_OPTIONS: { value: ProductsQuery["sort"]; label: string }[] = [
   { value: "newest", get label() { return st("الأحدث"); } },

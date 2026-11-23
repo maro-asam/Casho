@@ -12,6 +12,7 @@ import { decryptSecret, encryptSecret, maskSecret } from "@/lib/secrets";
 import { PaymobError, createPaymobCheckout, paymobKeyMode, type PaymobMode } from "@/lib/paymob";
 import { PAYMENT_METHODS, isAvailablePaymentMethod, type PaymentMethodKey } from "@/constants/welcome/payment-methods";
 import { proofRules } from "@/lib/payments/manual-proof";
+import { supportsOnlinePayment } from "@/lib/store/currency";
 
 const manualPaymentMethodKeys = PAYMENT_METHODS.filter((method) => method.manual).map((method) => method.key);
 
@@ -144,6 +145,7 @@ export async function GetStoreCheckoutPaymentMethodsAction(storeSlug: string) {
     where: { slug: storeSlug },
     select: {
       paymentMethods: true,
+      settings: { select: { storeCurrency: true } },
       storePaymentSettings: {
         select: {
           enabledPaymentMethods: true,
@@ -161,8 +163,10 @@ export async function GetStoreCheckoutPaymentMethodsAction(storeSlug: string) {
   const s = store.storePaymentSettings;
   const enabledKeys = normalizeEnabledPaymentMethods(s?.enabledPaymentMethods?.length ? s.enabledPaymentMethods : store.paymentMethods);
 
+  // Paymob charges in EGP — a store priced in another currency can't offer it.
+  const online = supportsOnlinePayment(store.settings?.storeCurrency);
   return enabledKeys
-    .filter((key) => key !== "paymob" || paymobReady(s))
+    .filter((key) => key !== "paymob" || (online && paymobReady(s)))
     .map((key) => PAYMENT_METHODS.find((m) => m.key === key)!)
     .map((method) => ({ key: method.key, label: method.label }));
 }

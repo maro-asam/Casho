@@ -25,7 +25,8 @@ import type { StoreShell } from "./_themes/types";
 import { getStoreCategoryLinks, liveBannersQuery, toBannerData } from "./_lib/storefront";
 import { POLICY_LABELS, readStoredPolicies, visiblePolicyTypes } from "@/lib/store-policies";
 import StorefrontI18nProvider from "@/lib/i18n/storefront/provider";
-import { applyStoreLocale, loadStoreLocale } from "@/lib/i18n/storefront/server";
+import { applyStoreCurrency, applyStoreLocale, loadStoreLocale } from "@/lib/i18n/storefront/server";
+import { toStoreCurrency } from "@/lib/store/currency";
 import { st, toStoreLocale } from "@/lib/i18n/storefront";
 
 type LayoutProps = {
@@ -165,6 +166,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
             themeId: true,
             fontId: true,
             storeLanguage: true,
+            storeCurrency: true,
             primaryColor: true,
             secondaryColor: true,
             navbarVariant: true,
@@ -213,6 +215,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
 
   // ── Language & Font ────────────────────────────────────────────────────
   const storeLanguage = await applyStoreLocale(toStoreLocale(store.settings?.storeLanguage));
+  const storeCurrency = applyStoreCurrency(toStoreCurrency(store.settings?.storeCurrency));
   const storeDir = storeLanguage === "en" ? "ltr" : "rtl";
   const font = getStoreFont(store.settings?.fontId);
 
@@ -280,7 +283,7 @@ export default async function StoreLayout({ children, params }: LayoutProps) {
         // (the provider keeps it in sync after hydration).
         <script dangerouslySetInnerHTML={{ __html: 'document.documentElement.dir="ltr";document.documentElement.lang="en"' }} />
       )}
-      <StorefrontI18nProvider locale={storeLanguage}>
+      <StorefrontI18nProvider locale={storeLanguage} currency={storeCurrency}>
       <StoreThemeProvider theme={resolvedTheme}>
         <StoreBuilderBridge />
         <CustomDomainLinks storeSlug={store.slug} />

@@ -175,23 +175,29 @@ export const getStorefrontClosure = cache(async (storeId: string): Promise<{ pau
 
 /** Categories with active-product counts — shared by header, footer and pages. */
 export const getStoreCategoryLinks = cache(async (storeId: string) => {
-  const categories = await prisma.category.findMany({
-    where: { storeId },
-    orderBy: { createdAt: "asc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      image: true,
-      _count: { select: { products: { where: { isActive: true } } } },
-    },
-  });
+  const [categories, cheapest] = await Promise.all([
+    prisma.category.findMany({
+      where: { storeId },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        image: true,
+        _count: { select: { products: { where: { isActive: true } } } },
+      },
+    }),
+    // "From X" on category cards (top-up packages, price-led shelves).
+    prisma.product.groupBy({ by: ["categoryId"], where: { storeId, isActive: true }, _min: { price: true } }),
+  ]);
+  const fromPrice = new Map(cheapest.map((row) => [row.categoryId, row._min.price]));
   return categories.map((c) => ({
     id: c.id,
     name: c.name,
     slug: c.slug,
     image: c.image,
     productCount: c._count.products,
+    fromPrice: fromPrice.get(c.id) ?? null,
   }));
 });
 

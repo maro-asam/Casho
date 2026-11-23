@@ -17,13 +17,13 @@ import { orderNumber, orderTrackPath } from "@/lib/orders/tracking";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { st, storeCurrency, storeIntlLocale } from "@/lib/i18n/storefront";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 function formatEGPFromCents(cents: number) {
   return new Intl.NumberFormat(storeIntlLocale(), {
     style: "currency",
-    currency: "EGP",
+    currency: storeCurrency(),
     maximumFractionDigits: 2,
   }).format(cents / 100);
 }
@@ -87,7 +87,7 @@ export default async function OrderSuccessPage({
           payload={{
             eventId: purchaseEventId(order.id),
             value: order.total / 100,
-            currency: "EGP",
+            currency: storeCurrency(),
             orderId: order.id,
             contents: order.items.map((item) => ({
               id: item.productId,

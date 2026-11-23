@@ -8,6 +8,7 @@ import type { CSSProperties, ComponentProps, ReactNode } from "react";
 import { ArrowLeft, ChevronLeft, ShoppingBasket, Star } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { DIGITAL_STOCK } from "@/lib/products/digital";
 import { swatchColor } from "../shared/colors";
 import { discountPercent } from "../shared/commerce";
 import { aisleOf, CategoryIcon } from "./lib/category-icon";
@@ -264,9 +265,11 @@ export function Swatches({ colors, max = 5, className }: { colors: string[]; max
 
 /** "متوفر" / "كمية محدودة" / "غير متوفر حاليًا" from real stock. */
 export function StockLine({ stock, count, className }: { stock: number; /** Show the real unit count. */ count?: boolean; className?: string }) {
+  // Digital products report DIGITAL_STOCK (they never run out), not a real count.
+  const showCount = count && stock < DIGITAL_STOCK;
   if (stock <= 0) return <p className={cn("mk-stock text-(--mk-label-2)", className)}>{st("غير متوفر حاليًا")}</p>;
-  if (stock <= 5) return <p className={cn("mk-stock text-(--mk-low)", className)}>{st("كمية محدودة")}{count ? st(" — باقي {0} بس", num(stock)) : ""}</p>;
-  return <p className={cn("mk-stock text-(--mk-ok)", className)}>{st("متوفر")}{count ? st(" ({0} قطعة)", num(stock)) : ""}</p>;
+  if (stock <= 5) return <p className={cn("mk-stock text-(--mk-low)", className)}>{st("كمية محدودة")}{showCount ? st(" — باقي {0} بس", num(stock)) : ""}</p>;
+  return <p className={cn("mk-stock text-(--mk-ok)", className)}>{st("متوفر")}{showCount ? st(" ({0} قطعة)", num(stock)) : ""}</p>;
 }
 
 /** Image that fills its media box; without a src it shows a quiet basket.

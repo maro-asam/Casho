@@ -106,6 +106,15 @@ import {
   QiratPageSkeleton,
   QiratProductSkeleton,
 } from "./qirat/states";
+import {
+  ArenaCategoriesSkeleton,
+  ArenaGameSkeleton,
+  ArenaHomeSkeleton,
+  ArenaListingSkeleton,
+  ArenaNotFound,
+  ArenaPageSkeleton,
+  ArenaProductSkeleton,
+} from "./arena/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -208,6 +217,16 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     categories: QiratCategoriesSkeleton,
     grid: QiratGridPageSkeleton,
     "not-found": QiratNotFound,
+  },
+  arena: {
+    home: ArenaHomeSkeleton,
+    listing: ArenaListingSkeleton,
+    product: ArenaProductSkeleton,
+    page: ArenaPageSkeleton,
+    categories: ArenaCategoriesSkeleton,
+    // The category page (kind "grid") is Arena's game page.
+    grid: ArenaGameSkeleton,
+    "not-found": ArenaNotFound,
   },
 };
 

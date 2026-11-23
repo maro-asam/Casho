@@ -348,6 +348,8 @@ model StoreSettings {
   themeId        String  @default("default")
   fontId         String  @default("cairo")
   storeLanguage  String  @default("ar")
+  /// ISO 4217 code the storefront shows prices in (lib/store/currency.ts). Online payment (Paymob) is EGP only.
+  storeCurrency  String  @default("EGP")
   logo           String?
   logoRadius     Int     @default(8)
   logoSize       Int     @default(80)

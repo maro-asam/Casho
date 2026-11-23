@@ -10,7 +10,7 @@ import type { BundleItem, WholesaleTier } from "../../_themes/types";
 import { PRODUCT_CARD_SELECT, getStoreThemeId, getStorefrontClosure, toProductCards } from "../../_lib/storefront";
 import { PixelEvent } from "../../_components/pixels/PixelEvent";
 import { stockOf } from "@/lib/products/digital";
-import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { st, storeCurrency, storeIntlLocale } from "@/lib/i18n/storefront";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 // ISR: revalidate every 120 seconds — product data (price, stock, description) changes occasionally
@@ -158,7 +158,7 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
       offers: {
         "@type": "Offer",
         url: productUrl,
-        priceCurrency: "EGP",
+        priceCurrency: storeCurrency(),
         price: product.price.toFixed(2),
         availability: stockOf(product) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
         itemCondition: "https://schema.org/NewCondition",
@@ -195,7 +195,7 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
         name="ViewContent"
         payload={{
           value: product.price,
-          currency: "EGP",
+          currency: storeCurrency(),
           contents: [{ id: product.id, quantity: 1, price: product.price, name: product.name }],
         }}
       />

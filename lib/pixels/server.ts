@@ -10,6 +10,7 @@ import { decryptSecret } from "@/lib/secrets";
 import { FEATURE_KEYS, hasFeature } from "@/lib/entitlements";
 import { normalizePhone, sendMetaCapiEvent, sha256 } from "@/lib/meta-capi";
 import type { PixelEventName, PixelEventPayload } from "./shared";
+import { toStoreCurrency } from "@/lib/store/currency";
 
 const TIKTOK_EVENTS_URL = "https://business-api.tiktok.com/open_api/v1.3/event/track/";
 
@@ -191,6 +192,9 @@ export async function sendStoreServerEvent(
   try {
     const resolved = targets === undefined ? await loadServerTargets(event.storeId) : targets;
     if (!resolved) return {};
+    // Values are in the store's own currency (StoreSettings.storeCurrency), whatever the caller assumed.
+    const row = await prisma.storeSettings.findUnique({ where: { storeId: event.storeId }, select: { storeCurrency: true } });
+    event = { ...event, payload: { ...event.payload, currency: toStoreCurrency(row?.storeCurrency) } };
     const [meta, tiktok] = await Promise.all([
       resolved.meta ? sendMeta(resolved.meta, event, ctx) : undefined,
       resolved.tiktok ? sendTikTok(resolved.tiktok, event, ctx) : undefined,

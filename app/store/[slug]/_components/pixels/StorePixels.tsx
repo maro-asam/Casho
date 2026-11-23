@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 import { isValidPixelId, type StorePixelConfig } from "@/lib/pixels/shared";
+import { storeCurrency } from "@/lib/i18n/storefront";
 import { CART_UPDATED_EVENT, type CartAddedDetail } from "../../_themes/shared/cart-events";
 import { markPixelsInstalled, trackPixelEvent } from "./pixel-events";
 
@@ -63,7 +64,7 @@ export function StorePixels({ config }: { config: StorePixelConfig }) {
       trackPixelEvent("AddToCart", {
         eventId: added.eventId,
         value: added.price * added.quantity,
-        currency: "EGP",
+        currency: storeCurrency(),
         contents: [{ id: added.productId, quantity: added.quantity, price: added.price, name: added.name }],
       });
     }

@@ -4,6 +4,7 @@
 // Pure — every value a customer or merchant typed goes through esc().
 
 import { formatPiastersAsEgp } from "@/lib/notifications/in-app";
+import type { StoreCurrency } from "@/lib/store/currency";
 import { stIn, storeNumberFormat, type StoreLocale } from "@/lib/i18n/storefront";
 
 export type EmailBrand = {
@@ -36,11 +37,11 @@ function accentOf(brand: EmailBrand) {
   return brand.accent && /^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i.test(brand.accent) ? brand.accent : "#111827";
 }
 
-/** Piasters as EGP in the email's language ("١٬٢٥٠ ج.م.‏" / "EGP 1,250"). */
-export function emailMoney(amountInPiasters: number, lang: StoreLocale = "ar") {
-  if (lang === "ar") return formatPiastersAsEgp(amountInPiasters);
+/** Hundredths in the store's currency and the email's language ("١٬٢٥٠ ج.م.‏" / "EGP 1,250" / "١٢٬٧٠٠ ج.س."). */
+export function emailMoney(amountInPiasters: number, lang: StoreLocale = "ar", currency: StoreCurrency = "EGP") {
+  if (lang === "ar" && currency === "EGP") return formatPiastersAsEgp(amountInPiasters);
   const digits = amountInPiasters % 100 === 0 ? 0 : 2;
-  return storeNumberFormat({ style: "currency", currency: "EGP", minimumFractionDigits: digits, maximumFractionDigits: digits }, "en").format(
+  return storeNumberFormat({ style: "currency", currency, minimumFractionDigits: digits, maximumFractionDigits: digits }, lang).format(
     amountInPiasters / 100,
   );
 }
@@ -63,8 +64,8 @@ export function infoRows(rows: { label: string; value: string | null | undefined
 }
 
 /** What was ordered, with the bill under it. */
-export function itemsTable(lines: EmailLine[], totals: EmailTotals, lang: StoreLocale = "ar") {
-  const money = (piasters: number) => emailMoney(piasters, lang);
+export function itemsTable(lines: EmailLine[], totals: EmailTotals, lang: StoreLocale = "ar", currency: StoreCurrency = "EGP") {
+  const money = (piasters: number) => emailMoney(piasters, lang, currency);
   const t = (source: string) => stIn(lang, source);
   const rows = lines
     .map(

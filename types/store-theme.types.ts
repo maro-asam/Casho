@@ -5,7 +5,7 @@
 
 // ─── Preset IDs ──────────────────────────────────────────────────────────────
 
-export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym", "market", "stage", "qirat"] as const;
+export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym", "market", "stage", "qirat", "arena"] as const;
 
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 
@@ -26,6 +26,7 @@ export const THEME_CATEGORY_IDS = [
   "sports",
   "grocery",
   "jewelry",
+  "digital",
 ] as const;
 
 export type ThemeCategoryId = (typeof THEME_CATEGORY_IDS)[number];
@@ -82,6 +83,10 @@ export type ThemeLayout = {
    *  category icons). Off = the same theme for a store that isn't medical.
    *  Missing = on. */
   pharmacy?: boolean;
+  /** Casho Arena only: game pages ask for the player's ID (and name) and send
+   *  it with the order (lib/orders/account-fields). Off = a store selling codes
+   *  or gift cards, where nothing needs to be charged to an account. Missing = on. */
+  playerId?: boolean;
 };
 
 // ─── Section Content Types ────────────────────────────────────────────────────

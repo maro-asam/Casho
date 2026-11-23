@@ -15,7 +15,7 @@ const when = lazyStoreIntl.date({
   hour: "numeric",
   minute: "2-digit",
 });
-const money = lazyStoreIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const money = lazyStoreIntl.money({ maximumFractionDigits: 2 });
 
 /**
  * Customer-facing shipment tracking, hosted by Casho for every carrier. Shows

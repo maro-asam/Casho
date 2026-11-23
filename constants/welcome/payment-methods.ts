@@ -112,7 +112,7 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     key: "bank_transfer",
     get label() { return tr("تحويل بنكي"); },
-    get description() { return tr("العميل يحول على الحساب البنكي المصري الخاص بالتاجر."); },
+    get description() { return tr("العميل يحول على الحساب البنكي الخاص بالتاجر."); },
     region: "egypt",
     logo: "/payment-logos/bank-transfer.svg",
     manual: true,

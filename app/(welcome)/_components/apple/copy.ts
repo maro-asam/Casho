@@ -237,6 +237,7 @@ const ar = {
       { id: "market", name: "كاشو ماركت", note: "برتقالي، فاتح وغامق. سوبر ماركت وأكشاك." },
       { id: "stage", name: "كاشو ستيدج", note: "روح Apple. براندات وأي مجال." },
       { id: "qirat", name: "كاشو قيراط", note: "سيريف ودهبي. مجوهرات وإكسسوارات." },
+      { id: "arena", name: "كاشو أرينا", note: "بنفسجي متوهج. شحن ألعاب وتطبيقات." },
     ],
   },
   showcase: {
@@ -559,6 +560,7 @@ const en: LandingCopy = {
       { id: "market", name: "Casho Market", note: "Orange, light and dark. Supermarkets and kiosks." },
       { id: "stage", name: "Casho Stage", note: "Apple's spirit. Brands and any field." },
       { id: "qirat", name: "Casho Qirat", note: "Serif and gold. Jewelry and accessories." },
+      { id: "arena", name: "Casho Arena", note: "Glowing violet. Game and app top-ups." },
     ],
   },
   showcase: {

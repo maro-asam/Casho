@@ -13,6 +13,8 @@ import ActiveSessions from "./_components/ActiveSessions";
 import StoreMembers from "./_components/StoreMembers";
 import LanguageSettings from "./_components/LanguageSettings";
 import StoreLanguageSettings from "./_components/StoreLanguageSettings";
+import StoreCurrencySettings from "./_components/StoreCurrencySettings";
+import { toStoreCurrency } from "@/lib/store/currency";
 import OrderEmailSettings from "./_components/OrderEmailSettings";
 import StorePauseSettings from "./_components/StorePauseSettings";
 import DeleteAccount from "./_components/DeleteAccount";
@@ -76,6 +78,7 @@ export default async function SettingsRoute() {
           pauseMessage: true,
           pauseCountdown: true,
           storeLanguage: true,
+          storeCurrency: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -207,6 +210,7 @@ export default async function SettingsRoute() {
             }}
           />
           <StoreLanguageSettings storeId={store.id} initial={store.settings?.storeLanguage === "en" ? "en" : "ar"} />
+          <StoreCurrencySettings storeId={store.id} initial={toStoreCurrency(store.settings?.storeCurrency)} />
           <LanguageSettings />
           <div>
             <StoreMembers

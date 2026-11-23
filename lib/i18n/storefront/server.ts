@@ -3,16 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { withStudioDraft } from "@/lib/studio/storefront-draft";
 import { ensureStoreEnglish } from "./load-english";
 import { getStoreRscStore, toStoreLocale, type StoreLocale } from "./runtime";
+import { toStoreCurrency, type StoreCurrency } from "@/lib/store/currency";
 
-/** The store's language — the Studio draft's while its owner previews. */
-const readStoreLocale = cache(async (slug: string): Promise<StoreLocale> => {
+/** The store's language (the Studio draft's while its owner previews) and price currency. */
+const readStoreI18n = cache(async (slug: string): Promise<{ locale: StoreLocale; currency: StoreCurrency }> => {
   const row = await prisma.storeSettings.findFirst({
     where: { store: { slug } },
-    select: { storeId: true, storeLanguage: true },
+    select: { storeId: true, storeLanguage: true, storeCurrency: true },
   });
-  if (!row) return "ar";
+  if (!row) return { locale: "ar", currency: toStoreCurrency(null) };
   const settings = await withStudioDraft(row.storeId, row);
-  return toStoreLocale(settings?.storeLanguage);
+  return { locale: toStoreLocale(settings?.storeLanguage), currency: toStoreCurrency(row.storeCurrency) };
 });
 
 /**
@@ -26,13 +27,29 @@ export async function applyStoreLocale(locale: StoreLocale): Promise<StoreLocale
   return locale;
 }
 
+/** Make a store's price currency current for the rest of this request's server render. */
+export function applyStoreCurrency(currency: StoreCurrency): StoreCurrency {
+  const store = getStoreRscStore();
+  if (store) store.currency = currency;
+  return currency;
+}
+
 /**
- * Resolve a store's language and make it current for this request's server
- * render. The store layout, every storefront page and their generateMetadata
- * await this before rendering text (cached: one query per request).
+ * Resolve a store's language (and price currency) and make them current for
+ * this request's server render. The store layout, every storefront page and
+ * their generateMetadata await this before rendering text (cached: one query
+ * per request).
  */
 export async function loadStoreLocale(slug: string): Promise<StoreLocale> {
-  return applyStoreLocale(await readStoreLocale(slug));
+  const { locale, currency } = await readStoreI18n(slug);
+  applyStoreCurrency(currency);
+  return applyStoreLocale(locale);
+}
+
+/** The price currency of a store by id — for emails and server actions (no render). */
+export async function getStoreCurrencyById(storeId: string): Promise<StoreCurrency> {
+  const row = await prisma.storeSettings.findUnique({ where: { storeId }, select: { storeCurrency: true } });
+  return toStoreCurrency(row?.storeCurrency);
 }
 
 /** The language of a store by id — for emails and server actions (no render). */

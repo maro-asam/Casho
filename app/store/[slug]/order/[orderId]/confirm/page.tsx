@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { maskPhone } from "@/lib/fraud/phone";
 import { prisma } from "@/lib/prisma";
 import { ConfirmOrderForm } from "./ConfirmOrderForm";
-import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { st, storeCurrency, storeIntlLocale } from "@/lib/i18n/storefront";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function formatEGP(piasters: number) {
-  return new Intl.NumberFormat(storeIntlLocale(), { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(piasters / 100);
+  return new Intl.NumberFormat(storeIntlLocale(), { style: "currency", currency: storeCurrency(), maximumFractionDigits: 2 }).format(piasters / 100);
 }
 
 export default async function ConfirmOrderPage({ params }: { params: Promise<{ slug: string; orderId: string }> }) {

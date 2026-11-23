@@ -89,7 +89,8 @@ export function BannerImage({ banner, sizes, priority, className }: BannerImageP
 
   return (
     <picture>
-      <source media="(max-width: 639px)" srcSet={mobile.srcSet} sizes={mobile.sizes} />
+      {/* With `images.unoptimized` (next.config) getImageProps gives no srcSet, only src. */}
+      <source media="(max-width: 639px)" srcSet={mobile.srcSet ?? mobile.src} sizes={mobile.sizes} />
       {/* eslint-disable-next-line jsx-a11y/alt-text -- alt="" comes from getImageProps */}
       <img {...desktop} />
     </picture>

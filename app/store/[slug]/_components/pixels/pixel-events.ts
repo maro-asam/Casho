@@ -5,6 +5,7 @@
 // installed wait in a small queue (see StorePixels).
 
 import type { PixelEventName, PixelEventPayload } from "@/lib/pixels/shared";
+import { storeCurrency } from "@/lib/i18n/storefront";
 
 type PixelFn = (...args: unknown[]) => void;
 
@@ -53,7 +54,7 @@ export function trackPixelEvent(name: PixelEventName, payload: PixelEventPayload
 
 function send(name: PixelEventName, p: PixelEventPayload) {
   const contents = p.contents ?? [];
-  const currency = p.currency ?? "EGP";
+  const currency = p.currency ?? storeCurrency();
   const numItems = contents.reduce((sum, c) => sum + c.quantity, 0);
 
   try {

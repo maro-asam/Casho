@@ -10,6 +10,8 @@ import { queueStoreServerEvent } from "@/lib/pixels/server";
 import { governorateCookieKey, shippingPriceFor } from "@/lib/shipping/governorate-pricing";
 import { isGovernorateCode } from "@/constants/egypt-governorates";
 import { CART_OFFER_SELECT, priceOfferLines } from "@/lib/offers/cart-offers";
+import { toStoreCurrency } from "@/lib/store/currency";
+import { cleanSelectedFeatures } from "@/lib/orders/account-fields";
 
 function shippingCookieKey(storeId: string) {
   return `ship_${storeId}`;
@@ -94,10 +96,8 @@ export async function AddToCartAction(
     return { success: false, message: "اللون المختار غير متاح" };
   }
 
-  const normalizedFeatures =
-    selectedFeatures && Object.keys(selectedFeatures).length > 0
-      ? selectedFeatures
-      : null;
+  // Short plain values only (sizes, colors, a top-up's player ID — lib/orders/account-fields).
+  const normalizedFeatures = cleanSelectedFeatures(selectedFeatures);
 
   // Find existing cart item with same product + same feature combination
   // (offer lines are priced by their offer — a normal add never merges into one).
@@ -177,7 +177,7 @@ export async function ApplyCouponAction(storeSlug: string, formData: FormData) {
 
   const store = await prisma.store.findUnique({
     where: { slug: storeSlug },
-    select: { id: true, slug: true, name: true },
+    select: { id: true, slug: true, name: true, settings: { select: { storeCurrency: true } } },
   });
 
   if (!store) {
@@ -260,7 +260,7 @@ export async function ApplyCouponAction(storeSlug: string, formData: FormData) {
       success: false,
       error: `الحد الأدنى لتفعيل الكوبون هو ${new Intl.NumberFormat("ar-EG", {
         style: "currency",
-        currency: "EGP",
+        currency: toStoreCurrency(store.settings?.storeCurrency),
         maximumFractionDigits: 0,
       }).format(coupon.minSubtotal)}`,
     };

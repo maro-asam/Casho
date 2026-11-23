@@ -24,7 +24,12 @@ const dateFormat = lazyIntl.date({ timeZone: "Africa/Cairo", dateStyle: "long" }
 const timeFormat = lazyIntl.date({ timeZone: "Africa/Cairo", timeStyle: "short" });
 
 const formatMoney = (piasters: number) => money.format(piasters / 100);
-const FEATURE_LABELS: Record<string, string> = { get size() { return tr("المقاس"); }, get color() { return tr("اللون"); } };
+const FEATURE_LABELS: Record<string, string> = {
+  get size() { return tr("المقاس"); },
+  get color() { return tr("اللون"); },
+  get playerId() { return tr("معرّف اللاعب"); },
+  get playerName() { return tr("اسم اللاعب"); },
+};
 
 function MetaRow({ label, children }: { label: string; children: ReactNode }) {
   return (

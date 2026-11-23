@@ -353,7 +353,7 @@
   "{0} صورة": [
    "app/(merchant)/dashboard/image-compressor/_components/image-compressor.tsx"
   ],
-  "{0} طريقة تحويل — بياناتها بتظهر للعميل بعد الطلب.": [
+  "{0} طريقة تحويل — العميل بيحوّل ويبعت الإثبات قبل ما يأكد الطلب.": [
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "{0} طريقة شحن": [
@@ -1275,6 +1275,9 @@
   "أكواد شغّالة": [
    "app/(merchant)/dashboard/coupons/page.tsx"
   ],
+  "ألعاب وشحن رقمي": [
+   "constants/store-themes.ts"
+  ],
   "ألوان": [
    "app/(merchant)/_components/main/QuickCustomizeSheet.tsx"
   ],
@@ -1521,6 +1524,9 @@
   ],
   "إبراز مميزات المنتج": [
    "app/(merchant)/dashboard/services/page.tsx"
+  ],
+  "إثبات التحويل": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "إجراءات": [
    "app/(merchant)/dashboard/categories/_components/categories-table.tsx",
@@ -1910,6 +1916,7 @@
   ],
   "إلغاء": [
    "app/(merchant)/_components/main/StarterGuideCard.tsx",
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx",
    "app/(merchant)/dashboard/_components/overview/DemoDataBanner.tsx",
    "app/(merchant)/dashboard/api-keys/_components/create-key-form.tsx",
    "app/(merchant)/dashboard/balance/_components/RenewSubscriptionModal.tsx",
@@ -2045,6 +2052,9 @@
   ],
   "إنشاء الكود": [
    "app/(merchant)/dashboard/coupons/_components/coupon-form-dialog.tsx"
+  ],
+  "إنشاء المتجر": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
   ],
   "إنشاء المفتاح": [
    "app/(merchant)/dashboard/api-keys/_components/create-key-form.tsx"
@@ -2255,6 +2265,9 @@
   "ات": [
    "app/(merchant)/dashboard/referral/_components/ReferralPageClient.tsx"
   ],
+  "اتأكد إن المبلغ وصلك، وبعدها غيّر حالة الطلب لمدفوع.": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx"
+  ],
   "اتأكد إنك لغيتها من حسابك في {0}. هنا هتتسجّل ملغية وتقدر تشحن الطلب تاني.": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
   ],
@@ -2398,6 +2411,9 @@
   ],
   "اتعلّم عليها في صفحة الطلبات": [
    "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
+  "اتعمل المتجر، يلا نجهّزه": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
   ],
   "اتعمل عرض {0}": [
    "app/(merchant)/dashboard/offers/_components/offer-form.tsx"
@@ -2980,11 +2996,19 @@
   "اسم الفرع مطلوب": [
    "app/(merchant)/dashboard/inventory/branches/_components/NewBranchDialog.tsx"
   ],
+  "اسم اللاعب": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx",
+   "app/(merchant)/print/orders/[id]/invoice/page.tsx"
+  ],
   "اسم المتجر": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx",
    "app/(merchant)/dashboard/settings/_components/StoreSettingsForm.tsx"
   ],
   "اسم المتجر جنب اللوجو": [
    "app/(merchant)/(builder)/builder/_components/panels/IdentityPanel.tsx"
+  ],
+  "اسم المتجر قصير جدًا": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
   ],
   "اسم المخزن (Warehouse)": [
    "lib/shipping/carriers.ts"
@@ -3270,6 +3294,9 @@
   "اقفل المعاينة": [
    "app/(merchant)/(builder)/builder/_components/BuilderShell.tsx",
    "app/(merchant)/(builder)/builder/_components/panels/PopupsPanel.tsx"
+  ],
+  "اقفلها لو بتبيع أكواد أو كروت هدايا مش محتاجة حساب: الطلب بيتأكد من غير خانة المعرّف.": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
   "اقفلها لو متجرك مش صيدلية: الشكل زي ما هو، وزراير الروشتة بتبقى «كلّمنا واتساب».": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
@@ -4439,6 +4466,9 @@
    "app/(merchant)/(builder)/builder/_components/section-editors.tsx",
    "app/(merchant)/dashboard/loyalty/_components/LoyaltyDashboardClient.tsx"
   ],
+  "الرقم أو الحساب اللي العميل حوّل منه": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
+  ],
   "الرقم الضريبي": [
    "app/(merchant)/dashboard/inventory/suppliers/_components/SupplierForm.tsx",
    "app/(merchant)/dashboard/inventory/suppliers/[supplierId]/page.tsx"
@@ -4448,6 +4478,9 @@
   ],
   "الرقم اللي بيكرر الرفض تحظره ومش هيقدر يطلب تاني.": [
    "app/(merchant)/dashboard/fraud/page.tsx"
+  ],
+  "الرقم اللي حوّل منه": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx"
   ],
   "الرقم اللي رفض استلام قبل كده لازم يأكد بكود على واتساب أو SMS. العملاء العاديين مش هيحسوا بحاجة.": [
    "app/(merchant)/dashboard/fraud/_components/fraud-settings-form.tsx"
@@ -4879,7 +4912,11 @@
    "app/(merchant)/dashboard/products/_components/product-form/product-form.tsx"
   ],
   "العملة": [
-   "app/(merchant)/dashboard/integrations/_import/ShopCard.tsx"
+   "app/(merchant)/dashboard/integrations/_import/ShopCard.tsx",
+   "app/(merchant)/dashboard/settings/_components/StoreCurrencySettings.tsx"
+  ],
+  "العملة اللي أسعارك بتظهر بيها للعملاء في المتجر وفي إيميلات الطلبات. الأرقام نفسها مش بتتغير. الدفع الأونلاين (Paymob) بيشتغل بالجنيه المصري بس، فمش هيظهر في صفحة الدفع مع أي عملة تانية.": [
+   "app/(merchant)/dashboard/settings/_components/StoreCurrencySettings.tsx"
   ],
   "العمليات": [
    "app/(merchant)/_components/main/dashboard-nav.ts"
@@ -4902,6 +4939,12 @@
   ],
   "العميل اللي بيرجع تاني أغلى من عشرة جداد — اهتم بيه.": [
    "app/(merchant)/dashboard/_components/overview/daily-quote.ts"
+  ],
+  "العميل بعت إثبات التحويل — راجعه": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx"
+  ],
+  "العميل بيحوّل الأول وبعدين يأكد طلبه. اختار إيه اللي لازم يبعته — اللي تقفله بيفضل ظاهر له كاختياري.": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "العميل بيختار منها في صفحة الدفع.": [
    "app/(merchant)/dashboard/shipping/_components/ShippingMethodsClient.tsx"
@@ -4977,6 +5020,9 @@
   ],
   "العميل يسيب رقمه عشان يشوف الكود — بيتسجل في عملائك.": [
    "app/(merchant)/(builder)/builder/_components/popups/popup-editor.tsx"
+  ],
+  "العميل يقدر يأكد الطلب من غير أي إثبات — هتحتاج تتأكد من التحويل بنفسك.": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "العميل يكتب طلباته زي الورقة ويبعتها للمتجر على واتساب.": [
    "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
@@ -6210,6 +6256,9 @@
    "app/(merchant)/pos/returns/page.tsx",
    "app/(merchant)/dashboard/orders/_components/order-meta.ts",
    "app/(merchant)/pos/returns/_components/ReturnsClient.tsx"
+  ],
+  "بعت إثبات التحويل": [
+   "app/(merchant)/dashboard/orders/_components/orders-table.tsx"
   ],
   "بعتهاله بطريقة تانية؟ علّمها إنك تواصلت": [
    "app/(merchant)/dashboard/abandoned-carts/_components/recover-dialog.tsx"
@@ -7644,6 +7693,9 @@
   "ثيم سوبر ماركت وأكشاك بروح Apple: فاتح وغامق، أقسام زي أيقونات الموبايل، زرار + بيتحول لعدّاد على الكارت، شريط سفلي زي التطبيقات، وقايمة مشتريات تتبعت واتساب.": [
    "constants/store-themes.ts"
   ],
+  "ثيم شحن ألعاب وتطبيقات بروح التطبيق: بنفسجي غامق بتوهج، قايمة جانبية وشريط تابات على الموبايل، كروت ألعاب بسعر «يبدأ من»، وصفحة لعبة تختار فيها الباقة وتكتب معرّف اللاعب وتأكد الطلب على طول. ينفع للشحن والبطاقات الرقمية والاشتراكات.": [
+   "constants/store-themes.ts"
+  ],
   "ثيم طبي احترافي للصيدليات: بحث كبير، أقسام بأيقونات، روشتة على واتساب، اسأل الصيدلي، كروت منتجات واضحة، وسلة جانبية.": [
    "constants/store-themes.ts"
   ],
@@ -7682,6 +7734,9 @@
   ],
   "ج.م للقطعة": [
    "app/(merchant)/dashboard/offers/_components/offer-form.tsx"
+  ],
+  "جارٍ الإنشاء…": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
   ],
   "جارٍ الشحن": [
    "app/(merchant)/dashboard/crm/customers/[id]/_components/CustomerProfileClient.tsx"
@@ -8269,6 +8324,9 @@
   ],
   "حوّل لل{0}": [
    "app/(merchant)/dashboard/change-plan/_components/plan-picker.tsx"
+  ],
+  "حوّل من": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx"
   ],
   "حيوية": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
@@ -8945,6 +9003,9 @@
   "رقم التتبع، اسم العميل أو موبايله": [
    "app/(merchant)/dashboard/shipping/shipments/page.tsx"
   ],
+  "رقم التحويل إجباري": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
+  ],
   "رقم الحساب": [
    "lib/shipping/carriers.ts"
   ],
@@ -9235,6 +9296,9 @@
   "سعر ثابت، سعر لكل محافظة أو شحن مجاني — عشان إجمالي الطلب يطلع مظبوط.": [
    "app/(merchant)/_components/main/StarterGuideCard.tsx"
   ],
+  "سكرين شوت التحويل إجباري": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
+  ],
   "سلة": [
    "app/(merchant)/dashboard/abandoned-carts/page.tsx"
   ],
@@ -9353,6 +9417,9 @@
   ],
   "شحن {0} ج.م": [
    "app/(merchant)/onboarding/_components/StorePreview.tsx"
+  ],
+  "شحن ألعاب، بطاقات رقمية، اشتراكات، وخدمات أونلاين": [
+   "constants/store-themes.ts"
   ],
   "شحن الرصيد": [
    "app/(merchant)/dashboard/_components/overview/StoreStatus.tsx",
@@ -9680,6 +9747,9 @@
   "صفحة التتبع": [
    "app/(merchant)/dashboard/shipping/shipments/_components/shipments-table.tsx"
   ],
+  "صفحة اللعبة بتطلب معرّف اللاعب (ID) واسمه، ويظهرولك في الطلب.": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
+  ],
   "صفحة رئيسية غنية بتطوّل وقت الزيارة.": [
    "app/(merchant)/(builder)/builder/page.tsx"
   ],
@@ -9721,6 +9791,12 @@
   ],
   "صورة الإيصال": [
    "app/(merchant)/dashboard/balance/_components/topup-studio.tsx"
+  ],
+  "صورة التحويل": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx"
+  ],
+  "صورة التحويل من تطبيق المحفظة أو البنك": [
+   "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "صورة التصنيف": [
    "app/(merchant)/dashboard/categories/_components/category-form-dialog.tsx"
@@ -10328,6 +10404,9 @@
   ],
   "عملاءك يدفعوا بالكارت أو بأي محفظة إلكترونية، والفلوس توصل حسابك على Paymob.": [
    "app/(merchant)/dashboard/payment-methods/_components/paymob-sheet.tsx"
+  ],
+  "عملة المتجر": [
+   "app/(merchant)/dashboard/settings/_components/StoreCurrencySettings.tsx"
   ],
   "عملة متجرك على Shopify {0}. الأسعار هتتنقل بنفس الأرقام من غير تحويل لعملة الجنيه — راجعها بعد الاستيراد.": [
    "app/(merchant)/dashboard/integrations/_import/provider-ui.tsx"
@@ -11028,6 +11107,9 @@
   ],
   "كــاشو | لوحة تحكم التاجر": [
    "app/(merchant)/dashboard/layout.tsx"
+  ],
+  "كاشو أرينا": [
+   "constants/store-themes.ts"
   ],
   "كاشو بتظبط الـ DNS": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
@@ -11997,6 +12079,9 @@
   "متابعة واسترجاع السلات المتروكة مش متاحة في باقتك الحالية.": [
    "app/(merchant)/dashboard/abandoned-carts/page.tsx"
   ],
+  "متاجرك": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
+  ],
   "متاح": [
    "app/(merchant)/dashboard/change-plan/page.tsx",
    "app/(merchant)/dashboard/integrations/page.tsx"
@@ -12018,6 +12103,12 @@
   ],
   "متجر إلكتروني": [
    "app/(merchant)/dashboard/layout.tsx"
+  ],
+  "متجر جديد": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
+  ],
+  "متجر جديد بتجربة مجانية 3 أيام، وهتبدأ إعداده من الأول. متاجرك القديمة بتفضل زي ما هي وتقدر ترجعلها من القائمة دي.": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
   ],
   "متجر عام": [
    "constants/store-themes.ts"
@@ -12223,6 +12314,9 @@
   ],
   "مثال: لحد آخر الشهر أو لحد ما الكمية تخلص": [
    "app/(merchant)/dashboard/banners/_components/banner-form.tsx"
+  ],
+  "مثال: متجر الأناقة": [
+   "app/(merchant)/_components/main/StoreFamilyMenu.tsx"
   ],
   "مثال: متجر متخصص في الملابس الكاجوال بأفضل جودة وسعر": [
    "app/(merchant)/(builder)/builder/_components/panels/IdentityPanel.tsx"
@@ -12803,6 +12897,11 @@
   ],
   "معرض المجموعات": [
    "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
+  ],
+  "معرّف اللاعب": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx",
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx",
+   "app/(merchant)/print/orders/[id]/invoice/page.tsx"
   ],
   "معلق": [
    "app/(merchant)/dashboard/inventory/transfers/page.tsx",
@@ -13388,7 +13487,7 @@
   "من غير": [
    "app/(merchant)/(builder)/builder/_components/panels/SocialProofPanel.tsx"
   ],
-  "من غير بوابة: العميل يطلب، يحوّل على رقمك أو حسابك، وإنت تأكد الدفع من صفحة الطلب.": [
+  "من غير بوابة: العميل يحوّل على رقمك أو حسابك ويبعت إثبات التحويل قبل ما يأكد الطلب، وإنت تراجعه من صفحة الطلب.": [
    "app/(merchant)/dashboard/payment-methods/_components/payments-studio.tsx"
   ],
   "من غير تاريخ": [
@@ -14568,6 +14667,9 @@
   "0 أو أكتر": [
    "validations/sales.schema.ts"
   ],
+  "500 ليد بالكتير في المرة": [
+   "validations/leads.schema.ts"
+  ],
   "Confirm It اتوقف مؤقتاً": [
    "actions/apps/confirm-it.actions.ts"
   ],
@@ -14649,6 +14751,9 @@
   "أعد ربط موقعك على {0} الأول ثم استكمل": [
    "actions/integrations/store-import.actions.ts"
   ],
+  "أعمدة كتير": [
+   "actions/leads/lead-import.actions.ts"
+  ],
   "أقصى حد قرشين بعد العلامة العشرية": [
    "validations/sales.schema.ts"
   ],
@@ -14721,6 +14826,9 @@
   "اتحظر {0} — مش هيقدر يطلب من متجرك تاني": [
    "actions/store/fraud.actions.ts"
   ],
+  "اتحفظ وصفحة الدفع اتحدثت": [
+   "actions/payment-methods/payment-methods.actions.ts"
+  ],
   "اتحفظ وظاهر في صفحة الدفع": [
    "actions/payment-methods/payment-methods.actions.ts"
   ],
@@ -14753,6 +14861,9 @@
   ],
   "اتضاف القسم": [
    "actions/settings/theme.actions.ts"
+  ],
+  "اتضاف الليد — بس الرقم أو الإيميل ده بتاع حساب كاشو موجود{0}. تقدر تربطه من صفحة الليد.": [
+   "actions/leads/admin-leads.actions.ts"
   ],
   "اتضاف للسلة": [
    "actions/store/offers.actions.ts"
@@ -14811,6 +14922,9 @@
   "اختار تاريخ": [
    "validations/sales.schema.ts"
   ],
+  "اختار سبب الخسارة": [
+   "validations/leads.schema.ts"
+  ],
   "اختار شحنات": [
    "actions/store/shipments.actions.ts"
   ],
@@ -14822,6 +14936,9 @@
   ],
   "اختار كود الخصم اللي هيظهر للعميل.": [
    "actions/store/popups.actions.ts"
+  ],
+  "اختار ليد واحد على الأقل": [
+   "validations/leads.schema.ts"
   ],
   "اختار متجر من متاجرك": [
    "actions/sharks/apply.actions.ts"
@@ -14920,20 +15037,19 @@
    "actions/products/reviews.actions.ts"
   ],
   "اسم المتجر طويل جدًا": [
-   "validations/auth.schema.ts"
+   "validations/auth.schema.ts",
+   "actions/store/store-family.actions.ts"
   ],
   "اسم المتجر غير صالح": [
    "actions/auth/check-store-slug.actions.ts",
    "actions/auth/register-google.actions.ts",
    "actions/auth/register.actions.ts",
    "actions/store/check-store-name.actions.ts",
-   "actions/store/settings.actions.ts"
+   "actions/store/settings.actions.ts",
+   "actions/store/store-family.actions.ts"
   ],
   "اسم المتجر قصير جداً": [
    "actions/auth/register-google.actions.ts"
-  ],
-  "اسم المتجر قصير جدًا": [
-   "validations/auth.schema.ts"
   ],
   "اسم المتجر كبير جدًا": [
    "actions/store/settings.actions.ts"
@@ -14949,6 +15065,9 @@
   ],
   "اسم المنتج مطلوب": [
    "actions/products/products.actions.ts"
+  ],
+  "اسم النشاط مطلوب (حرفين على الأقل)": [
+   "validations/leads.schema.ts"
   ],
   "اسم طريقة الشحن مطلوب": [
    "actions/store/shipping.actions.ts"
@@ -14974,6 +15093,9 @@
   "افتح وردية الأول عشان تقدر تبيع": [
    "actions/pos/pos.actions.ts"
   ],
+  "اكتب 3 حروف على الأقل": [
+   "validations/leads.schema.ts"
+  ],
   "اكتب اسم العميل (حرفين على الأقل).": [
    "actions/products/reviews.actions.ts"
   ],
@@ -14986,7 +15108,8 @@
   "اكتب اسم متجر صالح": [
    "actions/auth/register-google.actions.ts",
    "actions/auth/register.actions.ts",
-   "actions/store/settings.actions.ts"
+   "actions/store/settings.actions.ts",
+   "actions/store/store-family.actions.ts"
   ],
   "اكتب الإيميل": [
    "actions/auth/email-verification.actions.ts"
@@ -15015,11 +15138,17 @@
   "اكتب الرقم بالصيغة الدولية — مثال: ‎+201001234567": [
    "lib/domains/registrant.ts"
   ],
+  "اكتب السبب": [
+   "validations/leads.schema.ts"
+  ],
   "اكتب الكود كامل — 6 أرقام.": [
    "actions/auth/email-verification.actions.ts"
   ],
   "اكتب المبلغ": [
    "validations/sales.schema.ts"
+  ],
+  "اكتب الملاحظة": [
+   "validations/leads.schema.ts"
   ],
   "اكتب بيانات الاستلام كاملة": [
    "validations/sales.schema.ts"
@@ -15050,6 +15179,9 @@
   ],
   "اكتب قيمة الخصم.": [
    "actions/coupons/coupons.actions.ts"
+  ],
+  "اكتب كلمة البحث": [
+   "actions/leads/admin-leads.actions.ts"
   ],
   "اكتب مبلغ أكبر من صفر": [
    "validations/sales.schema.ts"
@@ -15101,6 +15233,9 @@
   "الإيميل غير صحيح": [
    "actions/auth/email-verification.actions.ts",
    "actions/store/orders.actions.ts"
+  ],
+  "الإيميل مش صحيح": [
+   "validations/leads.schema.ts"
   ],
   "الاستيراد ده خلص بالفعل": [
    "actions/integrations/store-import.actions.ts"
@@ -15275,6 +15410,9 @@
   ],
   "الحد الأقصى 500 منتج في المرة الواحدة": [
    "actions/products/import-products.actions.ts"
+  ],
+  "الحساب الأساسي مش موجود": [
+   "actions/store/store-family.actions.ts"
   ],
   "الحساب محظور مؤقتاً بسبب المحاولات المتكررة. حاول بعد {0}.": [
    "actions/auth/login.actions.ts"
@@ -15658,6 +15796,9 @@
   "المتجر المربوط حالياً مختلف عن متجر الاستيراد ده": [
    "actions/integrations/store-import.actions.ts"
   ],
+  "المتجر ده مش من متاجرك": [
+   "actions/store/store-family.actions.ts"
+  ],
   "المتجر رجع يشتغل": [
    "actions/store/store-pause.actions.ts"
   ],
@@ -15821,6 +15962,9 @@
   "المورد غير موجود": [
    "actions/inventory/suppliers.actions.ts"
   ],
+  "الميعاد مش صحيح": [
+   "validations/leads.schema.ts"
+  ],
   "النافذة مش موجودة.": [
    "actions/store/popups.actions.ts"
   ],
@@ -15946,6 +16090,9 @@
   ],
   "بيانات الطلب غير صحيحة": [
    "actions/store/orders.actions.ts"
+  ],
+  "بيانات الملف غير صحيحة": [
+   "actions/leads/lead-import.actions.ts"
   ],
   "بيانات حساب أرامكس غلط (اسم المستخدم أو الباسورد أو رقم الحساب أو الـ PIN). راجعها من صفحة شركات الشحن.": [
    "lib/shipping/providers/aramex.ts"
@@ -16327,6 +16474,12 @@
   "جنوب سيناء": [
    "lib/integrations/woocommerce/mappers.ts"
   ],
+  "جنيه سوداني": [
+   "lib/store/currency.ts"
+  ],
+  "جنيه مصري": [
+   "lib/store/currency.ts"
+  ],
   "حاولت كتير بالكود ده. ابعت كود جديد.": [
    "actions/auth/email-verification.actions.ts"
   ],
@@ -16356,6 +16509,7 @@
    "actions/balance/topup.actions.ts"
   ],
   "حدث خطأ أثناء الحفظ": [
+   "actions/settings/store-currency.actions.ts",
    "actions/settings/theme.actions.ts",
    "actions/store/store-identity.actions.ts"
   ],
@@ -16388,6 +16542,9 @@
   ],
   "حدد العميل": [
    "validations/sales.schema.ts"
+  ],
+  "حساب الإنستجرام مش صحيح": [
+   "validations/leads.schema.ts"
   ],
   "حساب مايلرز مفيهوش مخزن (Warehouse). ضيف واحد من لوحة مايلرز.": [
    "lib/shipping/providers/mylerz.ts"
@@ -16431,6 +16588,9 @@
   "حصل خطأ أثناء حفظ المحتوى": [
    "actions/settings/theme.actions.ts"
   ],
+  "حصلت مشكلة في إنشاء المتجر، جرّب تاني": [
+   "actions/store/store-family.actions.ts"
+  ],
   "حصلت مشكلة وإحنا بنغيّر الباقة. جرّب تاني.": [
    "actions/subscription/change-plan.actions.ts"
   ],
@@ -16467,6 +16627,12 @@
   "خليها أقل من ١٠٠٠ حرف": [
    "actions/payment-methods/payment-methods.actions.ts"
   ],
+  "درهم إماراتي": [
+   "lib/store/currency.ts"
+  ],
+  "دفعة صفوف غير صحيحة": [
+   "actions/leads/lead-import.actions.ts"
+  ],
   "دمياط": [
    "lib/integrations/woocommerce/mappers.ts"
   ],
@@ -16476,6 +16642,9 @@
   "ده نفس رابط متجرك الحالي": [
    "actions/store/check-store-name.actions.ts"
   ],
+  "دولار أمريكي": [
+   "lib/store/currency.ts"
+  ],
   "دومينك اتجدد": [
    "lib/domains/purchase.ts"
   ],
@@ -16484,6 +16653,21 @@
   ],
   "دومينك شغّال 🎉": [
    "lib/custom-domain/verify.ts"
+  ],
+  "دينار أردني": [
+   "lib/store/currency.ts"
+  ],
+  "دينار بحريني": [
+   "lib/store/currency.ts"
+  ],
+  "دينار عراقي": [
+   "lib/store/currency.ts"
+  ],
+  "دينار كويتي": [
+   "lib/store/currency.ts"
+  ],
+  "دينار ليبي": [
+   "lib/store/currency.ts"
   ],
   "رابط إعادة التعيين غير صالح أو منتهي.": [
    "actions/auth/forgot-password.actions.ts"
@@ -16499,6 +16683,9 @@
   ],
   "رابط التتبع لازم يبدأ بـ https:// ويكون فيه {tracking} مكان رقم الشحنة": [
    "actions/shipping-integrations.actions.ts"
+  ],
+  "رابط الموقع مش صحيح": [
+   "validations/leads.schema.ts"
   ],
   "رابط انستجرام غير صالح": [
    "actions/store/settings.actions.ts"
@@ -16588,13 +16775,16 @@
    "lib/store/order-input.ts"
   ],
   "رقم الموبايل مستخدم بالفعل": [
+   "actions/auth/register-google.actions.ts",
    "actions/auth/register.actions.ts"
   ],
   "رقم الموبايل مش صحيح": [
+   "validations/leads.schema.ts",
    "actions/store/fraud.actions.ts"
   ],
   "رقم الموبايل مطلوب": [
-   "validations/auth.schema.ts"
+   "validations/auth.schema.ts",
+   "validations/leads.schema.ts"
   ],
   "رقم الهاتف مسجل بالفعل": [
    "actions/crm/customers.actions.ts"
@@ -16609,6 +16799,7 @@
    "actions/services/services.actions.ts"
   ],
   "رقم الواتساب مش صحيح": [
+   "validations/leads.schema.ts",
    "actions/onboarding/onboarding.actions.ts",
    "actions/onboarding/setup-guide.actions.ts"
   ],
@@ -16617,6 +16808,15 @@
   ],
   "رقم فودافون كاش لازم يكون ١١ رقم": [
    "actions/onboarding/onboarding.actions.ts"
+  ],
+  "ريال سعودي": [
+   "lib/store/currency.ts"
+  ],
+  "ريال عماني": [
+   "lib/store/currency.ts"
+  ],
+  "ريال قطري": [
+   "lib/store/currency.ts"
   ],
   "زيادة": [
    "actions/pos/shift.actions.ts"
@@ -16676,6 +16876,9 @@
   "شمال سيناء": [
    "lib/integrations/woocommerce/mappers.ts"
   ],
+  "صفحة الفيسبوك مش صحيحة": [
+   "validations/leads.schema.ts"
+  ],
   "صلاحيتك على الفرع ده اتشالت — اقفل الوردية وكلم صاحب المتجر": [
    "lib/pos/pos-context.ts"
   ],
@@ -16724,6 +16927,10 @@
   "طلب شحن بقيمة {0} قيد المراجعة.": [
    "actions/balance/topup.actions.ts"
   ],
+  "طلب غير صحيح": [
+   "validations/leads.schema.ts",
+   "actions/leads/lead-import.actions.ts"
+  ],
   "طلبات الكاشير مابتتشحنش": [
    "actions/store/shipments.actions.ts"
   ],
@@ -16766,6 +16973,12 @@
   "عملاء متكررون": [
    "actions/crm/customer-segments.actions.ts"
   ],
+  "عملة المتجر اتغيرت": [
+   "actions/settings/store-currency.actions.ts"
+  ],
+  "عملة غير مدعومة": [
+   "actions/settings/store-currency.actions.ts"
+  ],
   "عميل جديد من النافذة المنبثقة": [
    "actions/store/popups.actions.ts"
   ],
@@ -16796,6 +17009,7 @@
   ],
   "غير مصرح": [
    "actions/store/members.actions.ts",
+   "actions/store/store-family.actions.ts",
    "actions/store/workspace.actions.ts",
    "lib/store/branch-context.ts"
   ],
@@ -16929,6 +17143,7 @@
    "lib/custom-domain/shared.ts"
   ],
   "لا": [
+   "validations/leads.schema.ts",
    "actions/products/import-products.actions.ts"
   ],
   "لا توجد منتجات صالحة للاستيراد": [
@@ -16978,6 +17193,9 @@
   ],
   "لازم تسيب طريقة دفع واحدة على الأقل": [
    "actions/payment-methods/payment-methods.actions.ts"
+  ],
+  "لايوجد": [
+   "validations/leads.schema.ts"
   ],
   "لديه {0} نقطة ولاء لم تُستخدم — ذكّره باستردادها": [
    "actions/crm/customers.actions.ts"
@@ -17074,8 +17292,15 @@
   "مش متاح.": [
    "actions/store/cart-recovery.actions.ts"
   ],
+  "مش مسموح أو حصلت مشكلة — جرّب تاني": [
+   "actions/leads/lead-import.actions.ts"
+  ],
   "مش مسموح لك بالفرع ده": [
    "lib/store/branch-context.ts"
+  ],
+  "مش مسموح لك تعمل ده": [
+   "actions/leads/admin-leads.actions.ts",
+   "actions/leads/shared.ts"
   ],
   "مش هنقدر نكمل الطلب ده بالدفع عند الاستلام. اختار الدفع أونلاين، أو تواصل مع المتجر.": [
    "actions/store/orders.actions.ts"
@@ -17111,12 +17336,18 @@
   "مفتاح الربط مع {0} اتلغى أو اتغيرت صلاحياته — أعد ربط الموقع ثم استكمل الاستيراد": [
    "lib/integrations/import/errors.ts"
   ],
+  "مفيش": [
+   "validations/leads.schema.ts"
+  ],
   "مفيش تعديلات جديدة تتنشر": [
    "actions/settings/theme.actions.ts",
    "actions/studio/studio.actions.ts"
   ],
   "مفيش تغيير": [
    "actions/store/shipments.actions.ts"
+  ],
+  "مفيش حسابات تجار بالبحث ده": [
+   "actions/leads/admin-leads.actions.ts"
   ],
   "مفيش خطوة بعدها": [
    "actions/studio/studio.actions.ts"
@@ -17182,6 +17413,9 @@
   "مقدرناش نربط الدومين دلوقتي.": [
    "actions/store/domain-purchase.actions.ts"
   ],
+  "مقدرناش نرفع صورة التحويل دلوقتي. جرّب تاني بعد شوية.": [
+   "actions/store/orders.actions.ts"
+  ],
   "مقدرناش نضيف النطاق للاستضافة دلوقتي. جرّب تاني بعد شوية.": [
    "lib/custom-domain/vercel.ts"
   ],
@@ -17218,6 +17452,9 @@
   ],
   "مكتبش سبب": [
    "actions/auth/account-deletion.actions.ts"
+  ],
+  "ملف غير صحيح": [
+   "actions/leads/lead-import.actions.ts"
   ],
   "مميز": [
    "actions/products/import-products.actions.ts"
@@ -17298,6 +17535,7 @@
    "actions/blog/blog.actions.ts"
   ],
   "هذا الرقم مستخدم بالفعل": [
+   "actions/auth/register-google.actions.ts",
    "actions/auth/register.actions.ts"
   ],
   "هذا المستخدم عضو بالفعل في المتجر": [
@@ -17335,6 +17573,9 @@
   ],
   "وصلت للحد الأقصى ({0} مراجعة) للمنتج ده.": [
    "actions/products/reviews.actions.ts"
+  ],
+  "وصلت للحد الأقصى لعدد المتاجر": [
+   "actions/store/store-family.actions.ts"
   ],
   "وصلت للحد الأقصى لعدد المنتجات في باقتك — رقِّ الباقة ثم أعد محاولة العناصر الفاشلة": [
    "lib/integrations/import/sink.ts"

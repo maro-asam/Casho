@@ -17,7 +17,8 @@
  * browser, in event handlers too (toasts, confirm dialogs).
  */
 import * as React from "react";
-import { StoreLocaleContext } from "./context";
+import { StoreCurrencyContext, StoreLocaleContext } from "./context";
+import { DEFAULT_STORE_CURRENCY, type StoreCurrency } from "@/lib/store/currency";
 import { createCatalog, interpolate, type Dictionary } from "../catalog";
 
 export type StoreLocale = "ar" | "en";
@@ -39,7 +40,7 @@ export function toStoreLocale(value: unknown): StoreLocale {
 // The react-server build has no createContext: that's how we know we're in RSC.
 const IS_RSC = typeof (React as { createContext?: unknown }).createContext !== "function";
 
-type RscStore = { locale: StoreLocale | null };
+type RscStore = { locale: StoreLocale | null; currency: StoreCurrency | null };
 let rscStore: (() => RscStore) | null = null;
 
 /** Per-request store (RSC only). */
@@ -47,16 +48,39 @@ export function getStoreRscStore(): RscStore | null {
   if (!IS_RSC) return null;
   if (!rscStore) {
     const cache = (React as unknown as { cache: <T>(fn: () => T) => () => T }).cache;
-    rscStore = cache(() => ({ locale: null }));
+    rscStore = cache(() => ({ locale: null, currency: null }));
   }
   return rscStore();
 }
 
 let browserLocale: StoreLocale = "ar";
+let browserCurrency: StoreCurrency = DEFAULT_STORE_CURRENCY;
 
 /** Called by the provider while it renders (browser only). */
 export function setBrowserStoreLocale(locale: StoreLocale) {
   browserLocale = locale;
+}
+
+/** Called by the provider while it renders (browser only). */
+export function setBrowserStoreCurrency(currency: StoreCurrency) {
+  browserCurrency = currency;
+}
+
+/**
+ * The currency the store shows prices in (StoreSettings.storeCurrency),
+ * resolved like the locale: RSC request store → React context → browser.
+ */
+export function storeCurrency(): StoreCurrency {
+  if (IS_RSC) return getStoreRscStore()?.currency ?? DEFAULT_STORE_CURRENCY;
+  if (typeof window === "undefined") {
+    try {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return React.use(StoreCurrencyContext);
+    } catch {
+      return DEFAULT_STORE_CURRENCY;
+    }
+  }
+  return browserCurrency;
 }
 
 export function storeLocale(): StoreLocale {
@@ -222,11 +246,17 @@ export const lazyStoreIntl = {
       format: (value: number, unit: Intl.RelativeTimeFormatUnit) => storeRelativeFormat(opts).format(value, unit),
     };
   },
+  /** Amounts in the store's currency (resolved at call time): `money({ maximumFractionDigits: 2 })`. */
+  money(opts?: Omit<Intl.NumberFormatOptions, "style" | "currency">) {
+    return {
+      format: (value: number | bigint) => storeNumberFormat({ ...opts, style: "currency", currency: storeCurrency() }).format(value),
+    };
+  },
 };
 
-/** A price in EGP (whole pounds) — "١٬٢٠٠ ج.م.‏" / "EGP 1,200". */
+/** A price in the store's currency (whole units) — "١٬٢٠٠ ج.م.‏" / "EGP 1,200" / "١٢٬٧٠٠ ج.س.". */
 export function formatPrice(value: number) {
-  return storeNumberFormat({ style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(value);
+  return storeNumberFormat({ style: "currency", currency: storeCurrency(), maximumFractionDigits: 0 }).format(value);
 }
 
 /** A date in the store language (same defaults as lib/utils `formatDate`). */

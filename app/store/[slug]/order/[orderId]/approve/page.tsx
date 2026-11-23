@@ -5,7 +5,7 @@ import { CheckCircle2, Package, Truck, XCircle } from "lucide-react";
 import { verifyOrderConfirmToken } from "@/lib/orders/whatsapp-confirm";
 import { prisma } from "@/lib/prisma";
 import { ApproveOrderForm } from "./ApproveOrderForm";
-import { st, storeIntlLocale } from "@/lib/i18n/storefront";
+import { st, storeCurrency, storeIntlLocale } from "@/lib/i18n/storefront";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function formatEGP(piasters: number) {
-  return new Intl.NumberFormat(storeIntlLocale(), { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(piasters / 100);
+  return new Intl.NumberFormat(storeIntlLocale(), { style: "currency", currency: storeCurrency(), maximumFractionDigits: 2 }).format(piasters / 100);
 }
 
 /** Opened from the WhatsApp message: the customer confirms or cancels with one tap. */

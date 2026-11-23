@@ -18,7 +18,7 @@ const when = lazyStoreIntl.date({
   minute: "2-digit",
 });
 const day = lazyStoreIntl.date({ timeZone: "Africa/Cairo", day: "numeric", month: "long", year: "numeric" });
-const money = lazyStoreIntl.number({ style: "currency", currency: "EGP", maximumFractionDigits: 2 });
+const money = lazyStoreIntl.money({ maximumFractionDigits: 2 });
 const nf = lazyStoreIntl.number();
 
 const TONE_ICON = { progress: Truck, attention: AlertTriangle, done: CheckCircle2, ended: XCircle } as const;

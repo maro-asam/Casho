@@ -43,14 +43,14 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn, formatDate } from "@/lib/utils";
-import { st, stList, storeIntlLocale } from "@/lib/i18n/storefront";
+import { st, stList, storeCurrency, storeIntlLocale } from "@/lib/i18n/storefront";
 import { manualTransferDetail, type ManualPaymentSettings } from "@/lib/payments/manual-proof";
 import { loadStoreLocale } from "@/lib/i18n/storefront/server";
 
 function formatEGPFromCents(cents: number) {
   return new Intl.NumberFormat(storeIntlLocale(), {
     style: "currency",
-    currency: "EGP",
+    currency: storeCurrency(),
     maximumFractionDigits: 2,
   }).format(cents / 100);
 }
@@ -378,7 +378,7 @@ export default async function OrderDetailsPage({
           payload={{
             eventId: purchaseEventId(order.id),
             value: order.total / 100,
-            currency: "EGP",
+            currency: storeCurrency(),
             orderId: order.id,
             contents: order.items.map((item) => ({
               id: item.productId,

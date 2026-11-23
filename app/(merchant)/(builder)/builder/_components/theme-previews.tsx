@@ -349,6 +349,36 @@ function QiratThemePreview() {
   );
 }
 
+// ─── 12. Casho Arena ──────────────────────────────────────────────
+function ArenaThemePreview() {
+  return (
+    <div className="relative flex overflow-hidden rounded-xl border bg-[#080512] bg-[radial-gradient(circle_at_20%_0%,rgba(168,85,247,0.3),transparent_60%)]">
+      <div className="flex w-1/4 flex-col gap-1 border-e border-[#a855f7]/20 bg-[#0c0719] p-1.5">
+        <div className="mb-1 size-3 rounded-[4px] bg-gradient-to-br from-[#a855f7] to-[#e879f9]" />
+        {[0, 1, 2].map((i) => (
+          <div key={i} className={`h-2 rounded-[3px] ${i === 0 ? "bg-[#a855f7]/40" : "bg-white/10"}`} />
+        ))}
+      </div>
+      <div className="flex-1 p-1.5">
+        <div className="flex h-11 flex-col justify-center gap-1 rounded-lg bg-gradient-to-br from-[#2a0b5e] via-[#3d1187] to-[#6d24d6] px-2">
+          <div className="h-1.5 w-2/3 rounded-full bg-white/90" />
+          <div className="h-1.5 w-1/2 rounded-full bg-[#f0abfc]" />
+          <div className="mt-0.5 h-1.5 w-6 rounded-full bg-white" />
+        </div>
+        <div className="mt-1.5 grid grid-cols-3 gap-1">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-md border border-[#a855f7]/20 bg-[#1e1036] p-1">
+              <div className="size-2.5 rounded-[3px] bg-gradient-to-br from-[#f97316] to-[#e879f9]" />
+              <div className="mt-1 h-1 w-3/4 rounded-full bg-white/60" />
+              <div className="mt-0.5 h-1 w-1/2 rounded-full bg-[#f0abfc]" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 /** Schematic thumbnail of each theme (no images, so it renders instantly). */
 export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
@@ -363,4 +393,5 @@ export const THEME_PREVIEWS: Record<StoreThemeId, React.FC> = {
   market: MarketThemePreview,
   stage: StageThemePreview,
   qirat: QiratThemePreview,
+  arena: ArenaThemePreview,
 };

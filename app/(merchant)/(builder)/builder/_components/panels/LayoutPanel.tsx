@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ClipboardPlus } from "lucide-react";
+import { ClipboardPlus, Gamepad2 } from "lucide-react";
 import { UpdateThemeLayoutAction } from "@/actions/settings/theme.actions";
 import { SegmentedButtons } from "@/components/saas-page";
 import type { ThemeLayout } from "@/types/store-theme.types";
@@ -157,6 +157,19 @@ export default function LayoutPanel() {
 
   return (
     <PanelBody>
+      {theme.presetId === "arena" && (
+        <Group title={tr("خاص بالثيم")} footer={tr("اقفلها لو بتبيع أكواد أو كروت هدايا مش محتاجة حساب: الطلب بيتأكد من غير خانة المعرّف.")}>
+          <SwitchRow
+            icon={Gamepad2}
+            tint="bg-(--sys-indigo)"
+            label={tr("معرّف اللاعب")}
+            description={tr("صفحة اللعبة بتطلب معرّف اللاعب (ID) واسمه، ويظهرولك في الطلب.")}
+            checked={layout.playerId !== false}
+            onCheckedChange={(v) => set("playerId", v)}
+          />
+        </Group>
+      )}
+
       {theme.presetId === "medical" && (
         <Group title={tr("خاص بالثيم")} footer={tr("اقفلها لو متجرك مش صيدلية: الشكل زي ما هو، وزراير الروشتة بتبقى «كلّمنا واتساب».")}>
           <SwitchRow
