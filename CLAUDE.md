@@ -21,6 +21,7 @@ npm run lint       # ESLint
 npx prisma generate          # regenerate Prisma client (required after schema changes)
 npx prisma migrate dev --name <name>   # create and apply a migration
 npx prisma db push           # push schema without migration history (dev only)
+npm run db:migrate:deploy    # apply pending migrations (production runs this automatically: `npm run build` on Vercel production calls scripts/migrate-on-build.mjs first)
 ```
 
 Tests: `npm test` (Vitest, `**/*.test.ts`).
