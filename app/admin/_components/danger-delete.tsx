@@ -22,7 +22,7 @@ type Props = {
   blockers: string[];
   /** Reasons nobody can override (yourself, an admin, a sales rep). */
   hardBlockers?: string[];
-  /** The viewer (a super admin) may delete past `blockers`: they're then listed as what's lost. */
+  /** The viewer is a super admin: the server deletes past `blockers` for them, so they're listed as what's lost. */
   canForce?: boolean;
   /** Extra lines the dialog shows for a forced delete. */
   forceConsequences?: string[];

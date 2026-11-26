@@ -10,7 +10,8 @@ import { prisma } from "@/lib/prisma";
 // stores get their subscription canceled instead. Everything else (test, spam,
 // never-paid accounts) is removed completely.
 //
-// A super admin can force past those money blockers: the store's ledger, its
+// A super admin always deletes past those money blockers (the role decides,
+// not a flag from the page): the store's ledger, its
 // sales commissions and referral history go with it (a summary is written to
 // the security log first — see getMoneySnapshot). Hard blockers (deleting
 // yourself, an admin, a sales rep) can't be forced.

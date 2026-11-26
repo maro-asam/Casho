@@ -33,13 +33,15 @@ async function registeredDomains(storeIds: string[]) {
 }
 
 /**
- * Permanently deletes a store. `confirmSlug` must match. Without `force` a
- * store with money history is refused; `force` (super admin only) deletes
- * that history too, after logging a summary of it.
+ * Permanently deletes a store. `confirmSlug` must match. An admin is refused a
+ * store with money history; a super admin always deletes past it (the role
+ * decides, not a flag from the page), after logging a summary of that history.
+ * `force` from a plain admin is refused outright.
  */
 export async function adminDeleteStoreAction(storeId: string, confirmSlug: string, force = false): Promise<ActionResult> {
   const admin = await requireAdmin();
   if (force && admin.role !== UserRole.SUPER_ADMIN) return FORCE_DENIED;
+  const forced = admin.role === UserRole.SUPER_ADMIN;
 
   const store = await prisma.store.findUnique({
     where: { id: storeId },
@@ -52,13 +54,13 @@ export async function adminDeleteStoreAction(storeId: string, confirmSlug: strin
   const [media, boughtDomains, money] = await Promise.all([
     collectStoreMedia([store.id]),
     registeredDomains([store.id]),
-    force ? getMoneySnapshot([store.id]) : null,
+    forced ? getMoneySnapshot([store.id]) : null,
   ]);
 
   try {
     await prisma.$transaction(async (tx) => {
       // Re-check inside the transaction: a top-up could have landed since the page loaded.
-      if (!force) {
+      if (!forced) {
         const blockers = await getStoreDeletionBlockers(store.id, tx);
         if (blockers.length) throw new BlockedError(blockers);
       }
@@ -81,7 +83,7 @@ export async function adminDeleteStoreAction(storeId: string, confirmSlug: strin
       name: store.name,
       ownerId: store.userId,
       mediaFiles: media.length,
-      forced: force,
+      forced,
       ...money,
     },
   });
@@ -92,31 +94,33 @@ export async function adminDeleteStoreAction(storeId: string, confirmSlug: strin
 
 /**
  * Permanently deletes an account and its stores. `confirmEmail` must match.
- * `force` (super admin only) goes past money / work history, never past the
- * hard blockers (yourself, an admin, a sales rep).
+ * A super admin always goes past money / work history (the role decides, not a
+ * flag from the page), never past the hard blockers (yourself, an admin, a
+ * sales rep). `force` from a plain admin is refused outright.
  */
 export async function adminDeleteUserAction(userId: string, confirmEmail: string, force = false): Promise<ActionResult> {
   const admin = await requireAdmin();
   if (force && admin.role !== UserRole.SUPER_ADMIN) return FORCE_DENIED;
+  const forced = admin.role === UserRole.SUPER_ADMIN;
 
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true } });
   if (!user) return { success: false, message: "الحساب مش موجود" };
   if (confirmEmail.trim().toLowerCase() !== user.email.toLowerCase()) return { success: false, message: "البريد اللي كتبته مش مطابق" };
 
   const check = await getUserDeletionCheck(user.id, admin.id);
-  const refusing = force ? check.hardBlockers : [...check.hardBlockers, ...check.blockers];
+  const refusing = forced ? check.hardBlockers : [...check.hardBlockers, ...check.blockers];
   if (refusing.length) return { success: false, message: `مينفعش يتحذف: ${refusing.join("، ")}` };
 
   const storeIds = check.stores.map((s) => s.id);
   const [media, boughtDomains, money] = await Promise.all([
     collectStoreMedia(storeIds),
     registeredDomains(storeIds),
-    force ? getMoneySnapshot(storeIds, user.id) : null,
+    forced ? getMoneySnapshot(storeIds, user.id) : null,
   ]);
 
   try {
     await prisma.$transaction(async (tx) => {
-      if (!force) {
+      if (!forced) {
         for (const store of check.stores) {
           const blockers = await getStoreDeletionBlockers(store.id, tx);
           if (blockers.length) throw new BlockedError([`متجر «${store.name}»: ${blockers.join("، ")}`]);
@@ -140,7 +144,7 @@ export async function adminDeleteUserAction(userId: string, confirmEmail: string
       email: user.email,
       stores: check.stores.map((s) => s.slug).join(",") || null,
       mediaFiles: media.length,
-      forced: force,
+      forced,
       ...money,
     },
   });

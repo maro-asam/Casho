@@ -42,11 +42,20 @@ beforeEach(() => {
 });
 
 describe("adminDeleteStoreAction", () => {
-  it("refuses a store with money history without force", async () => {
-    asRole("SUPER_ADMIN");
+  it("refuses an admin a store with money history", async () => {
+    asRole("ADMIN");
     const res = await adminDeleteStoreAction("s1", "shop");
     expect(res.success).toBe(false);
     expect(deletion.deleteStoreTree).not.toHaveBeenCalled();
+  });
+
+  it("lets a super admin delete past money history even without the force flag", async () => {
+    asRole("SUPER_ADMIN");
+    const res = await adminDeleteStoreAction("s1", "shop");
+    expect(res.success).toBe(true);
+    expect(deletion.getStoreDeletionBlockers).not.toHaveBeenCalled();
+    expect(deletion.deleteStoreTree).toHaveBeenCalledWith(tx, "s1");
+    expect(logSecurityEvent).toHaveBeenCalledWith(expect.objectContaining({ metadata: expect.objectContaining({ forced: true, balance: 5000 }) }));
   });
 
   it("refuses force from a plain admin before touching anything", async () => {
@@ -77,8 +86,8 @@ describe("adminDeleteStoreAction", () => {
 });
 
 describe("adminDeleteUserAction", () => {
-  it("refuses an account with money history without force", async () => {
-    asRole("SUPER_ADMIN");
+  it("refuses an admin an account with money history", async () => {
+    asRole("ADMIN");
     const res = await adminDeleteUserAction("u1", "m@x.com");
     expect(res.success).toBe(false);
     expect(deletion.deleteUserTree).not.toHaveBeenCalled();
@@ -97,6 +106,13 @@ describe("adminDeleteUserAction", () => {
     expect(res.success).toBe(true);
     expect(deletion.deleteUserTree).toHaveBeenCalledWith(tx, "u1");
     expect(deletion.getMoneySnapshot).toHaveBeenCalledWith(["s1"], "u1");
+  });
+
+  it("lets a super admin delete an account with money history even without the force flag", async () => {
+    asRole("SUPER_ADMIN");
+    const res = await adminDeleteUserAction("u1", "m@x.com");
+    expect(res.success).toBe(true);
+    expect(deletion.deleteUserTree).toHaveBeenCalledWith(tx, "u1");
   });
 
   it("never forces past hard blockers", async () => {
