@@ -1,5 +1,6 @@
-// Catalog of the "Casho Store" example (casho-games.casho.store): a game and
-// app top-up shop on the Casho Arena theme, priced in Sudanese pounds.
+// Catalog of "Cash Story" (cashstory.casho.store): a game and app top-up
+// store on the Casho Arena theme, priced in Sudanese pounds. Started on
+// 2026-11-23 as a Casho example, then made the merchant's real store.
 //
 // The packages and prices are exactly the four lists the user sent on
 // 2026-11-23 (Free Fire diamonds, PUBG UC, eFootball coins, TikTok coins).
@@ -7,8 +8,8 @@
 // with no packages yet ("قريبًا"). Product.price is whole units of the store
 // currency (SDG), like EGP elsewhere.
 
-export const SLUG = "casho-games";
-export const STORE_NAME = "Casho Store";
+export const SLUG = "cashstory";
+export const STORE_NAME = "Cash Story";
 export const CURRENCY = "SDG";
 
 /** Source posters (the user's WhatsApp images), by game. */
@@ -20,6 +21,18 @@ export const ART = {
   tiktok: "WhatsApp Image 2026-11-23 at 5.45.28 PM (1).jpeg",
   yallaludo: "WhatsApp Image 2026-11-23 at 5.45.28 PM (2).jpeg",
 };
+
+/** The merchant's own designed banners (their words and logo are in the image). */
+export const BANNER_ART = {
+  banner1: "WhatsApp Image 2026-11-23 at 9.58.11 PM.jpeg",
+  banner2: "WhatsApp Image 2026-11-23 at 9.58.11 PM (1).jpeg",
+};
+
+/** Titles repeat the banner's words (screen readers; the dashboard needs one). */
+export const BANNERS = [
+  { key: "banner1", title: "إشحن كل ألعابك يا قيمر من متجرنا", link: { type: "PAGE", value: "categories" } },
+  { key: "banner2", title: "إشحن كوينزات بيس موبايل من متجر كاش ستوري", link: { type: "CATEGORY", game: "efootball" } },
+];
 
 /** Games (categories), in the order they show. */
 export const GAMES = [
@@ -91,9 +104,3 @@ export const PACKAGES = Object.entries(LISTS).flatMap(([game, rows]) => {
     featured: FEATURED[game] === amount,
   }));
 });
-
-export const HERO = {
-  title: "اشحن لعبتك بنفسك، بدون وسطاء وبدون انتظار",
-  subtitle: "اختار الباقة، اكتب معرّف اللاعب، وابعت الطلب. Casho Store بيتابع طلبك لحد ما الشحن يوصل لحسابك.",
-  cta: "تسوّق الباقات",
-};

@@ -10,7 +10,7 @@ A storefront for game and app top-ups (diamonds, UC, coins, gift cards, subscrip
 5. **Nothing fake.** The hero chip counts the games that really have packages; badges come from featured / discounts / stock; the hero's small facts are true of every Casho store (details go to the store only, tracking by order number). "Why us" defaults to the real order steps, not claims.
 
 ## Signature pieces
-- **Hero** (`sections/Hero.tsx`): the gradient card with the dot noise, a chip, a two-line headline (the second line glows — `splitHeadline` splits on a line break or the first comma), a white button and a glass "تابع طلبك". The first banner gives the words and its art fades in at the card's end; without banners the store's name and description fill it.
+- **Hero** (`sections/Hero.tsx`, `sections/BannerSlider.tsx` for designed banners): the gradient card with the dot noise, a chip, a two-line headline (the second line glows — `splitHeadline` splits on a line break or the first comma), a white button and a glass "تابع طلبك". The first banner gives the words and its art fades in at the card's end; without banners the store's name and description fill it.
 - **Game cards** (`ui.tsx › GameCard`): icon tile, a blurred glow of the game art in the corner, badge, name, package count, "يبدأ من X", round arrow.
 - **Package tiles** (`game/PackagePicker.tsx`): black-glass tiles that light up orchid with a check when chosen.
 - **Prices** (`ui.tsx › Price`): the amount in the display face, the currency small (`priceParts` splits the store-currency format).
@@ -24,7 +24,7 @@ A storefront for game and app top-ups (diamonds, UC, coins, gift cards, subscrip
 | Studio setting | Effect |
 |---|---|
 | Navbar `default` (theme default) / `compact` / `centered` | side menu with labels and a help card / icon rail / no side menu, links in the top bar |
-| Hero `split` (default) / `fullscreen` / `compact` / `minimal` | art beside the words / taller card with the art behind / shorter card / words only, centered, no art |
+| Hero `split` (default) / `fullscreen` / `compact` / `minimal` | the first banner's words with its art beside them / the banners shown whole in a swipeable slider with dots (for designed banners that carry their own words and logo; the title stays for screen readers) — a taller card when there are none / shorter card / words only, centered, no art |
 | Product card `default` / `minimal` / `bold` / `elegant` | glass card / no card / gradient card / centered game cards (`[data-card]` on the store root) |
 | Category shape `square` (default) / `circle` / `pill` | icon tiles / round icons / full-width pill rows |
 | Buttons `sharp` / `rounded` (default) / `pill` | `--store-btn-radius` × 2 |

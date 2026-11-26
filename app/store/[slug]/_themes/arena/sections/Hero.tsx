@@ -7,6 +7,7 @@ import type { BannerData, CategoryLink } from "../../types";
 import { BannerImage, BannerLink } from "../../shared/banner";
 import type { HeroStyle } from "@/types/store-theme.types";
 import { splitHeadline } from "../lib/arena";
+import BannerSlider from "./BannerSlider";
 import { gamesCount } from "../ui";
 import { st } from "@/lib/i18n/storefront";
 
@@ -16,8 +17,9 @@ import { st } from "@/lib/i18n/storefront";
  * one, and two small facts. The merchant's first banner supplies the words
  * (title, subtitle, button) and its art sits at the card's end; without a
  * banner the store's own name and description fill it. The Studio's hero
- * style: split (default) art beside the words · fullscreen taller with the art
- * behind · compact shorter · minimal words only, centered.
+ * style: split (default) art beside the words · fullscreen the banners shown
+ * whole in a slider (designed banners with their own words and logo) ·
+ * compact shorter · minimal words only, centered.
  */
 export default function Hero({
   style,
@@ -30,6 +32,14 @@ export default function Hero({
   banners: BannerData[];
   categories: CategoryLink[];
 }) {
+  if (style === "fullscreen" && banners.length > 0) {
+    return (
+      <section className="an-wrap an-section-first">
+        <BannerSlider banners={banners} storeSlug={store.slug} />
+      </section>
+    );
+  }
+
   const banner = banners[0] ?? null;
   const [line1, line2] = splitHeadline(banner?.title?.trim() || store.name);
   const sentence = banner ? banner.subtitle : store.description;
