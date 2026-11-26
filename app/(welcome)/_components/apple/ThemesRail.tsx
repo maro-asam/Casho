@@ -20,6 +20,7 @@ const THEME_TOKENS: Record<string, { bg: string; fg: string; primary: string; ac
   stage: { bg: "#f5f5f7", fg: "#1d1d1f", primary: "#0071e3", accent: "#000000" },
   qirat: { bg: "#fbf9f5", fg: "#1f1a14", primary: "#1f1a14", accent: "#b08d57", serif: true },
   arena: { bg: "#080512", fg: "#f6f1ff", primary: "#a855f7", accent: "#e879f9" },
+  bunn: { bg: "#f6f1e8", fg: "#22160f", primary: "#2b1a12", accent: "#c4813e" },
 };
 
 export default function ThemesRail() {

@@ -1,0 +1,44 @@
+"use client";
+
+import { Moon, Sun } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { APPEARANCE_SCRIPT, useAppearance, type Appearance } from "../lib/appearance";
+import { st } from "@/lib/i18n/storefront";
+
+/** Blocks a white flash on a dark device's first visit. Render once. */
+export function AppearanceScript() {
+  return <script dangerouslySetInnerHTML={{ __html: APPEARANCE_SCRIPT }} />;
+}
+
+/** One tap between the pearl day and the velvet night. */
+export function AppearanceToggle({ className }: { className?: string }) {
+  const { dark, set, ready } = useAppearance();
+  // Until hydration ends the server's guess (light) stands, so the markup matches.
+  const isDark = ready && dark;
+  return (
+    <button type="button" onClick={() => set(dark ? "light" : "dark")} aria-label={isDark ? st("الوضع الفاتح") : st("الوضع الغامق")} className={cn("bn-icon", className)}>
+      {isDark ? <Sun /> : <Moon />}
+    </button>
+  );
+}
+
+const OPTIONS: { value: Appearance; label: string }[] = [
+  { value: "system", get label() { return st("تلقائي"); } },
+  { value: "light", get label() { return st("فاتح"); } },
+  { value: "dark", get label() { return st("غامق"); } },
+];
+
+/** Segmented control: automatic, light or dark. */
+export function AppearanceSegments({ className }: { className?: string }) {
+  const { appearance, set, ready } = useAppearance();
+  return (
+    <div role="radiogroup" aria-label={st("مظهر المتجر")} className={cn("bn-segments", className)}>
+      {OPTIONS.map((o) => (
+        <button key={o.value} type="button" role="radio" aria-checked={ready && appearance === o.value} onClick={() => set(o.value)} className="bn-segment">
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}

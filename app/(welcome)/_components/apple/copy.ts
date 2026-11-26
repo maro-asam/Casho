@@ -238,6 +238,7 @@ const ar = {
       { id: "stage", name: "كاشو ستيدج", note: "روح Apple. براندات وأي مجال." },
       { id: "qirat", name: "كاشو قيراط", note: "سيريف ودهبي. مجوهرات وإكسسوارات." },
       { id: "arena", name: "كاشو أرينا", note: "بنفسجي متوهج. شحن ألعاب وتطبيقات." },
+      { id: "bunn", name: "كاشو بُن", note: "كرافت وإسبريسو. قهوة ومحامص." },
     ],
   },
   showcase: {
@@ -561,6 +562,7 @@ const en: LandingCopy = {
       { id: "stage", name: "Casho Stage", note: "Apple's spirit. Brands and any field." },
       { id: "qirat", name: "Casho Qirat", note: "Serif and gold. Jewelry and accessories." },
       { id: "arena", name: "Casho Arena", note: "Glowing violet. Game and app top-ups." },
+      { id: "bunn", name: "Casho Bunn", note: "Kraft and espresso. Coffee and roasters." },
     ],
   },
   showcase: {

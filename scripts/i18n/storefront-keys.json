@@ -1,6 +1,7 @@
 {
  "ui": {
   " — باقي {0} بس": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/medical/ui.tsx",
@@ -14,6 +15,7 @@
    "app/store/[slug]/order/[orderId]/_components/ShipmentTracking.tsx"
   ],
   " · وفّر {0}٪": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx",
    "app/store/[slug]/_themes/qirat/product/BuyForm.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
@@ -41,6 +43,7 @@
    "app/store/[slug]/_themes/maximize/product/BuyForm.tsx"
   ],
   "· خلال {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx",
@@ -60,6 +63,7 @@
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx"
   ],
   "· سعر الكمية": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
    "app/store/[slug]/_themes/market/cart/MarketCart.tsx",
@@ -79,6 +83,7 @@
    "app/store/[slug]/_themes/medical/header/SearchBar.tsx"
   ],
   "». جرّب كلمة أبسط.": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/maximize/header/SearchBar.tsx",
    "app/store/[slug]/_themes/qirat/header/SearchBar.tsx",
@@ -121,6 +126,7 @@
    "app/store/[slug]/_themes/gym/sections/ProductRow.tsx"
   ],
   "{0} — صورة {1}": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/classic/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/dune/pdp/Gallery.tsx",
@@ -140,6 +146,9 @@
   "{0} أقسام": [
    "app/store/[slug]/_themes/arena/ui.tsx"
   ],
+  "{0} أكياس أو أكتر": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
+  ],
   "{0} ألوان": [
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
@@ -148,6 +157,7 @@
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
   "{0} أيام": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
@@ -181,8 +191,21 @@
   "{0} جرام": [
    "app/store/[slug]/_themes/qirat/lib/qirat.ts"
   ],
+  "{0} جم": [
+   "app/store/[slug]/_themes/bunn/product/ProductCard.tsx",
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "{0} د": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
+  "{0} دقايق": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "{0} شخص يتصفح الآن": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx"
+  ],
+  "{0} شوت": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "{0} طرق شحن": [
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx"
@@ -192,6 +215,9 @@
   ],
   "{0} فاتح.": [
    "app/store/[slug]/_themes/market/sections/Hero.tsx"
+  ],
+  "{0} فناجين": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "{0} في {1}.": [
    "app/store/[slug]/policies/[type]/page.tsx"
@@ -237,6 +263,7 @@
    "app/store/[slug]/_themes/riwaq/categories/RiwaqCategories.tsx"
   ],
   "{0} كجم": [
+   "app/store/[slug]/_themes/bunn/product/ProductCard.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
@@ -250,8 +277,14 @@
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
+  "{0} كوبايات": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "{0} لتر": [
    "app/store/[slug]/_themes/gym/sections/Calculator.tsx"
+  ],
+  "{0} لكل ١٠٠ جم": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
   ],
   "{0} للقطعة": [
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
@@ -275,6 +308,10 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "{0} للواحدة": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
+  ],
   "{0} متاحة دلوقتي": [
    "app/store/[slug]/_themes/arena/sections/Games.tsx"
   ],
@@ -284,8 +321,12 @@
   "{0} مجموعة": [
    "app/store/[slug]/_themes/qirat/categories/QiratCategories.tsx"
   ],
+  "{0} مل": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "{0} من {1}": [
    "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
+   "app/store/[slug]/_themes/arena/sections/BannerSlider.tsx",
    "app/store/[slug]/_themes/cello/sections/HeroSlider.tsx",
    "app/store/[slug]/_themes/classic/home/HeroCarousel.tsx",
    "app/store/[slug]/_themes/dune/sections/Hero.tsx",
@@ -300,6 +341,12 @@
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
   ],
   "{0} منتج": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Categories.tsx",
    "app/store/[slug]/_themes/cello/categories/CelloCategories.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/cello/header/MegaMenu.tsx",
@@ -354,13 +401,30 @@
    "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
   ],
   "{0} يوم": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/stage/ui.tsx"
   ],
+  "{0}–{1} ث": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
+  "{0}–{1} ثانية": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "{0}–{1} جم": [
    "app/store/[slug]/_themes/gym/sections/Calculator.tsx"
+  ],
+  "{0}–{1} د": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
+  "{0}–{1} دقيقة": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "{0}–{1} ساعة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "{0}–{1} قطعة": [
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
@@ -375,7 +439,15 @@
    "app/store/[slug]/_themes/riwaq/pdp/Purchase.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "{0}–{1} كيس": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
+  ],
+  "{0}–{1}°": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "{0}، الصفحة الرئيسية": [
+   "app/store/[slug]/_themes/bunn/header/StoreMark.tsx",
    "app/store/[slug]/_themes/market/header/StoreMark.tsx",
    "app/store/[slug]/_themes/qirat/header/StoreMark.tsx",
    "app/store/[slug]/_themes/stage/header/StoreMark.tsx"
@@ -390,6 +462,7 @@
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx"
   ],
   "© {0} {1}. كل الحقوق محفوظة.": [
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
    "app/store/[slug]/_themes/mada/footer/MadaFooter.tsx",
    "app/store/[slug]/_themes/qirat/footer/QiratFooter.tsx",
    "app/store/[slug]/_themes/riwaq/footer/RiwaqFooter.tsx"
@@ -414,6 +487,10 @@
   ],
   "🚚 توصيل سريع لجميع المحافظات": [
    "app/store/[slug]/_components/sections/OfferStripSection.tsx"
+  ],
+  "١ : {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "٢ كيلو سكر، لبن، عيش…": [
    "app/store/[slug]/_themes/market/sections/ShoppingList.tsx"
@@ -440,6 +517,7 @@
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/arena/pdp/ArenaProduct.tsx",
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/dune/sections/Testimonials.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
@@ -457,9 +535,15 @@
   "أحدث القطع": [
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx"
   ],
+  "أحدث المنتجات": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
+  ],
   "أحدث المنتجات اللي نزلت المتجر": [
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx",
    "app/store/[slug]/_themes/medical/home/MedicalHome.tsx"
+  ],
+  "أحسن طريقة تحضّرها بيها": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
   ],
   "أحسن طريقة تشتري الحاجات اللي بتحبها.": [
    "app/store/[slug]/_themes/stage/sections/Hero.tsx"
@@ -472,6 +556,7 @@
   ],
   "أرقام الثقة": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -490,6 +575,7 @@
    "app/store/[slug]/_themes/qirat/product/QuickAdd.tsx"
   ],
   "أضف {0} للسلة": [
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx",
    "app/store/[slug]/_themes/cello/product/CardActions.tsx",
    "app/store/[slug]/_themes/classic/product/QuickAddButton.tsx",
    "app/store/[slug]/_themes/dune/product/CardActions.tsx",
@@ -508,6 +594,8 @@
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
   "أضف للسلة": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx",
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
    "app/store/[slug]/_themes/cello/product/CardActions.tsx",
    "app/store/[slug]/_themes/classic/pdp/PurchasePanel.tsx",
@@ -529,6 +617,7 @@
    "app/store/[slug]/_components/sections/TestimonialsSection.tsx"
   ],
   "أقسام": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
    "app/store/[slug]/_themes/gym/sections/Hero.tsx",
    "app/store/[slug]/_themes/market/header/SearchBar.tsx",
@@ -539,7 +628,11 @@
    "app/store/[slug]/_themes/gym/sections/Hero.tsx",
    "app/store/[slug]/_themes/medical/sections/Hero.tsx"
   ],
+  "أقل": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "أقل من {0}": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/gym/listing/FilterPanel.tsx",
@@ -557,7 +650,11 @@
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx",
    "app/store/[slug]/_themes/maximize/home/MaxHome.tsx"
   ],
+  "أكتر": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "أكتر من {0}": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/gym/listing/FilterPanel.tsx",
@@ -587,6 +684,7 @@
   ],
   "أنا {0}.\n": [
    "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
+   "app/store/[slug]/_themes/bunn/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -606,6 +704,7 @@
    "app/store/[slug]/order/[orderId]/approve/page.tsx"
   ],
   "أهلًا بيك": [
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx",
    "app/store/[slug]/_themes/market/sections/Hero.tsx",
    "app/store/[slug]/_themes/qirat/sections/Hero.tsx"
   ],
@@ -623,6 +722,9 @@
   ],
   "أهلًا بيك في {0}. اختار القطعة اللي تشبهك واطلبها بسهولة، وإحنا هنتواصل معاك نأكد كل التفاصيل.": [
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx"
+  ],
+  "أهلًا بيك في {0}. اختار قهوتك واطلبها بسهولة، وإحنا هنتواصل معاك نأكد كل التفاصيل.": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx"
   ],
   "أهلاً بيك في {0}. اختار لعبتك وباقتك واطلب بسهولة، والمتجر هيتابع طلبك لحد ما يوصلك.": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
@@ -644,8 +746,20 @@
   "أهلًا، عندي سؤال عن طلبي {0}": [
    "app/store/[slug]/_themes/shared/track/OrderTracker.tsx"
   ],
+  "أوغندا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "أول ما القهوة تبدأ تطلع وطّي النار.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "أول ما الوش يعلى ويقرب يفور شيلها من على النار.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "أول ما تنزل قطع جديدة أو عرض خاص، هنبعتلك.": [
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
+  ],
+  "أول ما ينزل بن جديد أو عرض، هنبعتلك.": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx"
   ],
   "أول ما ينزل عرض أو منتج جديد، هتعرف.": [
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx",
@@ -655,6 +769,7 @@
    "app/store/[slug]/_themes/stage/sections/Editorial.tsx"
   ],
   "أول من يعرف": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
   ],
   "أول واحد يعرف العروض": [
@@ -668,6 +783,7 @@
   ],
   "إتمام الطلب": [
    "app/store/[slug]/checkout/page.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
@@ -695,10 +811,14 @@
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx",
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCheckout.tsx"
   ],
+  "إثيوبيا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "إجمالي حقيبتك {0}": [
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "إحنا هنا": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx"
   ],
   "إحنا هنا.": [
@@ -726,6 +846,7 @@
   ],
   "إزالة": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/CartDrawer.tsx",
@@ -740,6 +861,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "إزالة {0}": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/dune/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
@@ -756,6 +878,7 @@
    "app/store/[slug]/_themes/mada/product/CardActions.tsx"
   ],
   "إزالة فلتر {0}": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -770,6 +893,9 @@
   ],
   "إزاي بيتم الطلب؟": [
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
+  "إسبريسو": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "إظهار الفلاتر": [
    "app/store/[slug]/_themes/dune/listing/ListingControls.tsx",
@@ -787,6 +913,9 @@
    "app/store/[slug]/_components/offers/OfferHost.tsx",
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx",
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
+   "app/store/[slug]/_themes/bunn/product/QuickView.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
@@ -823,6 +952,7 @@
    "app/store/[slug]/_themes/stage/product/QuickView.tsx"
   ],
   "إغلاق البحث": [
+   "app/store/[slug]/_themes/bunn/header/SearchSheet.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
    "app/store/[slug]/_themes/market/header/SearchSheet.tsx",
    "app/store/[slug]/_themes/qirat/header/SearchSheet.tsx",
@@ -833,6 +963,7 @@
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx"
   ],
   "إغلاق السلة": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/dune/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
@@ -842,6 +973,7 @@
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx"
   ],
   "إغلاق القائمة": [
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
    "app/store/[slug]/_themes/classic/header/MobileMenu.tsx",
    "app/store/[slug]/_themes/dune/header/MobileNav.tsx",
@@ -862,6 +994,7 @@
    "app/store/[slug]/order/[orderId]/approve/ApproveOrderForm.tsx"
   ],
   "إلى": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/classic/listing/FilterForm.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
@@ -876,6 +1009,9 @@
   ],
   "إلى {0}": [
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx"
+  ],
+  "إندونيسيا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "إنستجرام": [
    "app/store/[slug]/_themes/shared/social.tsx"
@@ -895,6 +1031,7 @@
    "app/store/[slug]/_themes/dune/sections/Hero.tsx"
   ],
   "إيقاف العروض": [
+   "app/store/[slug]/_themes/bunn/sections/HeroSlides.tsx",
    "app/store/[slug]/_themes/qirat/sections/HeroSlides.tsx"
   ],
   "إيقاف شريط الإعلانات": [
@@ -955,6 +1092,7 @@
   ],
   "ابحث في المتجر": [
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/classic/header/SearchCombobox.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
@@ -969,6 +1107,9 @@
   ],
   "ابحث في المتجر…": [
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx"
+  ],
+  "ابدأ الاستخلاص: هدفك ضعف وزن البن قهوة في ٢٥–٣٠ ثانية.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "ابدأ التسوق": [
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
@@ -1002,6 +1143,7 @@
   ],
   "ابعت بالإيميل": [
    "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
+   "app/store/[slug]/_themes/bunn/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -1024,6 +1166,7 @@
   ],
   "ابعت على واتساب": [
    "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
+   "app/store/[slug]/_themes/bunn/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -1050,6 +1193,7 @@
   ],
   "ابعتلنا رسالة": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -1061,6 +1205,9 @@
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
+  ],
+  "ابعتلنا على واتساب": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx"
   ],
   "ابعتلنا على واتساب وهنرد عليك في أقرب وقت.": [
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
@@ -1080,6 +1227,9 @@
    "app/store/[slug]/_themes/gym/listing/GymListing.tsx",
    "app/store/[slug]/_themes/market/listing/MarketListing.tsx",
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
+  ],
+  "اتأكد من الكتابة، أو جرّب اسم البلد أو كلمة أبسط.": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx"
   ],
   "اتأكد من الكتابة، أو جرّب اسم الخامة أو كلمة أبسط.": [
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx"
@@ -1104,6 +1254,7 @@
   ],
   "اتضاف": [
    "app/store/[slug]/_components/offers/offer-ui.tsx",
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx",
    "app/store/[slug]/_themes/gym/product/CardActions.tsx",
    "app/store/[slug]/_themes/medical/product/CardActions.tsx"
   ],
@@ -1121,6 +1272,9 @@
    "app/store/[slug]/_themes/medical/product/CardActions.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/Purchase.tsx",
    "app/store/[slug]/_themes/riwaq/product/QuickAdd.tsx"
+  ],
+  "اتضاف للسلة: {0}": [
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx"
   ],
   "اتضافت": [
    "app/store/[slug]/_themes/qirat/product/QuickAdd.tsx"
@@ -1157,6 +1311,7 @@
    "app/store/[slug]/_themes/qirat/product/WishButton.tsx"
   ],
   "اختار": [
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx",
    "app/store/[slug]/_themes/gym/product/CardActions.tsx",
    "app/store/[slug]/_themes/market/product/Stepper.tsx",
    "app/store/[slug]/_themes/medical/product/CardActions.tsx",
@@ -1181,6 +1336,7 @@
    "app/store/[slug]/_themes/riwaq/pdp/Purchase.tsx"
   ],
   "اختار {0} الأول.": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx",
    "app/store/[slug]/_themes/qirat/product/BuyForm.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
@@ -1199,6 +1355,15 @@
   "اختار الخيارات لـ {0}": [
    "app/store/[slug]/_themes/gym/product/CardActions.tsx",
    "app/store/[slug]/_themes/market/product/Stepper.tsx"
+  ],
+  "اختار الطحنة": [
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx"
+  ],
+  "اختار الطحنة أو النوع لـ {0}": [
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx"
+  ],
+  "اختار الطحنة الأول.": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
   ],
   "اختار الطريقة اللي تناسبك.": [
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
@@ -1248,6 +1413,9 @@
   ],
   "اختار باقتك، اكتب معرّفك، وتابع طلبك برقم الطلب.": [
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
+  ],
+  "اختار طريقتك وعدد الفناجين، وإحنا نحسبلك المقادير.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "اختار طريقك": [
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx"
@@ -1318,6 +1486,9 @@
    "app/store/[slug]/_themes/qirat/sections/ProductSections.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
+  "اختيار المحمصة": [
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "اختيارات المتجر": [
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
@@ -1369,10 +1540,19 @@
   "اختيارات المتجر بس": [
    "app/store/[slug]/_themes/riwaq/listing/MobileFilters.tsx"
   ],
+  "اختيارات المحمصة": [
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx"
+  ],
   "اختيارات عملائنا المفضلة": [
    "app/store/[slug]/_themes/classic/home/ClassicHome.tsx"
   ],
+  "اختيارنا": [
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "اختيارنا ليك": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx"
   ],
   "ادفع عن طريق {0}": [
@@ -1409,11 +1589,18 @@
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx"
   ],
+  "اسأل المتجر على واتساب وهيرد عليك.": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
   "اسألنا على واتساب قبل ما تطلب": [
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
   ],
+  "اسألنا وهنرشحلك البن المناسب لطريقتك.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "استخدام": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -1437,6 +1624,7 @@
   ],
   "استخدم نقاط المكافآت": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -1451,6 +1639,7 @@
   ],
   "استخدمت {0} نقطة": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -1484,6 +1673,9 @@
   "استلمنا صورة التحويل. المتجر هيراجعها ويبدأ يجهّز طلبك.": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "استنى ٤ دقايق، وشيل الطبقة اللي على الوش.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "اسم اللاعب": [
    "app/store/[slug]/_themes/shared/commerce.ts"
   ],
@@ -1493,6 +1685,7 @@
   "اسمك": [
    "components/storefront/popup-view.tsx",
    "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
+   "app/store/[slug]/_themes/bunn/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -1525,6 +1718,7 @@
    "app/store/[slug]/products/[productSlug]/page.tsx"
   ],
   "اشتري أكتر ووفّر": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx",
    "app/store/[slug]/_themes/qirat/product/BuyForm.tsx"
   ],
   "اشتري أكتر ووفّر.": [
@@ -1555,8 +1749,15 @@
    "app/store/[slug]/_themes/medical/product/BuyForm.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/Purchase.tsx"
   ],
+  "اشطف الفلتر الورق بمية سخنة وارمي المية.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "اضغط المكبس بالراحة وصب على طول.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "اضغط هنا واحكي قصة متجرك.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -1564,6 +1765,7 @@
   ],
   "اضغط هنا واكتب أرقامك الحقيقية.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -1574,18 +1776,21 @@
   ],
   "اضغط هنا واكتب عروضك.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "اضغط هنا واكتب عنوان وفقرة.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "اضغط هنا واكتب مميزات متجرك.": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -1593,6 +1798,7 @@
   ],
   "اضغط هنا وحط صورتك وكلامك.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -1600,13 +1806,26 @@
   ],
   "اضغط هنا وضيف آراء عملائك.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
+  "اضغطه (تامب) بضغطة ثابتة ومستوية.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "اطحن خشن وحط البن في برطمان.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "اطحن ناعم ووزّع البن في السلة بالتساوي.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "اطلب الباقة": [
    "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
+  ],
+  "اطلب دلوقتي": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
   ],
   "اطلب على واتساب": [
    "app/store/[slug]/_themes/gym/header/UtilityBar.tsx",
@@ -1631,6 +1850,7 @@
    "app/store/[slug]/_themes/market/sections/Editorial.tsx"
   ],
   "اعرف حكايتنا": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/cello/sections/Collections.tsx",
    "app/store/[slug]/_themes/maximize/sections/Collections.tsx",
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx",
@@ -1642,6 +1862,18 @@
   "اقتراحات البحث": [
    "app/store/[slug]/_themes/classic/header/SearchCombobox.tsx",
    "app/store/[slug]/_themes/riwaq/header/SearchOverlay.tsx"
+  ],
+  "اقفله وسيبه في التلاجة ١٢–١٨ ساعة.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "اقفلها كويس وحطها على نار متوسطة لهادية.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "اكتب «المنشأ» في خصائص منتجات البن (أو اسم البلد في اسم المنتج) وهتظهر على الخريطة.": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
+  ],
+  "اكتب اسم البن أو الأداة اللي بتدوّر عليها.": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx"
   ],
   "اكتب اسم القطعة اللي بتدوّر عليها.": [
    "app/store/[slug]/_themes/qirat/header/SearchBar.tsx"
@@ -1667,6 +1899,7 @@
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
   "اكتب الكود": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx",
@@ -1685,6 +1918,7 @@
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx"
   ],
   "اكتب بياناتك والمتجر هيتواصل معاك يأكد الطلب.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCheckout.tsx",
@@ -1702,6 +1936,7 @@
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
   ],
   "اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -1722,6 +1957,7 @@
   ],
   "اكتب سؤالك أو استفسارك…": [
    "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
+   "app/store/[slug]/_themes/bunn/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -1741,10 +1977,14 @@
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
   ],
   "اكتشف": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
   ],
   "اكتشف أفضل المنتجات بأسعار تنافسية": [
    "app/store/[slug]/_components/sections/HeroBannerSection.tsx"
+  ],
+  "اكتشف أكتر": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx"
   ],
   "اكتشف المجموعات": [
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
@@ -1786,6 +2026,14 @@
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
   "الأقسام": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Categories.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
    "app/store/[slug]/_themes/gym/categories/GymCategories.tsx",
    "app/store/[slug]/_themes/gym/footer/GymFooter.tsx",
@@ -1819,8 +2067,12 @@
   "الأكتر طلبًا": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
   ],
+  "الأكتر طلبًا عندنا": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
+  ],
   "الأكثر طلبًا": [
    "app/store/[slug]/_themes/arena/sections/Games.tsx",
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx",
    "app/store/[slug]/_themes/gym/sections/ProductRow.tsx",
    "app/store/[slug]/_themes/mada/home/MadaHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
@@ -1835,6 +2087,7 @@
    "app/store/[slug]/_themes/arena/ui.tsx",
    "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx",
    "app/store/[slug]/_themes/classic/home/ClassicHome.tsx",
    "app/store/[slug]/_themes/dune/home/DuneHome.tsx",
@@ -1885,6 +2138,7 @@
    "app/store/[slug]/order/[orderId]/page.tsx",
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/arena/game/PackagePicker.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
@@ -1911,14 +2165,22 @@
   "الإجمالي: {0}": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "الإكوادور": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "الإيميل": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
   "الاختيارات": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/gym/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/market/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/qirat/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/stage/listing/FilterPanel.tsx"
+  ],
+  "الارتفاع": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
   ],
   "الاسم": [
    "app/store/[slug]/order/[orderId]/page.tsx"
@@ -1956,7 +2218,12 @@
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx"
   ],
+  "البانر {0}": [
+   "app/store/[slug]/_themes/arena/sections/BannerSlider.tsx"
+  ],
   "البحث": [
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
@@ -1982,11 +2249,13 @@
    "app/store/[slug]/_themes/riwaq/header/SearchOverlay.tsx"
   ],
   "البحث في المتجر": [
+   "app/store/[slug]/_themes/bunn/header/SearchSheet.tsx",
    "app/store/[slug]/_themes/market/header/SearchSheet.tsx",
    "app/store/[slug]/_themes/qirat/header/SearchSheet.tsx",
    "app/store/[slug]/_themes/stage/header/SearchSheet.tsx"
   ],
   "البحث مش شغال دلوقتي، جرّب تاني.": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
    "app/store/[slug]/_themes/market/header/SearchBar.tsx",
@@ -1995,7 +2264,12 @@
    "app/store/[slug]/_themes/qirat/header/SearchBar.tsx",
    "app/store/[slug]/_themes/stage/header/SearchBar.tsx"
   ],
+  "البرازيل": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "البراند": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
@@ -2017,6 +2291,7 @@
   ],
   "البريد الإلكتروني": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -2029,7 +2304,14 @@
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
   ],
+  "البلوم: صب ضعف وزن البن مية، واستنى ٣٠–٤٥ ثانية لحد ما يهدى.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "البن": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "التالي": [
+   "app/store/[slug]/_themes/bunn/product/Rail.tsx",
    "app/store/[slug]/_themes/cello/product/Rail.tsx",
    "app/store/[slug]/_themes/gym/product/Rail.tsx",
    "app/store/[slug]/_themes/mada/product/ProductCarousel.tsx",
@@ -2040,7 +2322,15 @@
    "app/store/[slug]/_themes/riwaq/listing/RiwaqListing.tsx",
    "app/store/[slug]/_themes/stage/product/Rail.tsx"
   ],
+  "التحميص": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
+  "التحميص: {0}": [
+   "app/store/[slug]/_themes/bunn/ui.tsx"
+  ],
   "الترتيب:": [
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/qirat/listing/ListingControls.tsx"
   ],
   "التصنيف": [
@@ -2112,6 +2402,7 @@
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "التفاصيل": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
@@ -2130,6 +2421,7 @@
    "app/store/[slug]/_themes/mada/pdp/MadaProduct.tsx"
   ],
   "التقييم {0} من ٥": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
@@ -2145,6 +2437,7 @@
    "app/store/[slug]/_themes/classic/ui.tsx"
   ],
   "التقييمات": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
    "app/store/[slug]/_themes/mada/pdp/MadaProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx",
@@ -2162,6 +2455,8 @@
   ],
   "التوصيل": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/cart/MarketCart.tsx",
@@ -2174,10 +2469,12 @@
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
   "التوصيل مجاني على طلبك.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "التوصيل من {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
@@ -2185,6 +2482,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "التوفر": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/gym/listing/FilterPanel.tsx",
@@ -2196,6 +2494,7 @@
    "app/store/[slug]/_themes/stage/listing/FilterPanel.tsx"
   ],
   "الجديد": [
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
    "app/store/[slug]/_themes/qirat/header/QiratHeader.tsx",
    "app/store/[slug]/_themes/stage/header/StageHeader.tsx"
   ],
@@ -2207,6 +2506,18 @@
    "app/store/[slug]/_themes/market/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/medical/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/stage/listing/FilterPanel.tsx"
+  ],
+  "الحرارة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
+  "الحزام بين المدارين، فين البن بيتزرع": [
+   "app/store/[slug]/_themes/bunn/sections/OriginsMap.tsx"
+  ],
+  "الحساب على شوت دبل: {0} جم بن لكل شوت.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "الحصاد": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
   ],
   "الحق العرض": [
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
@@ -2236,6 +2547,7 @@
   "الخصم": [
    "lib/notifications/email/layout.ts",
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
@@ -2251,6 +2563,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "الخطوة الأخيرة": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCheckout.tsx"
   ],
   "الخواتم": [
@@ -2279,6 +2592,9 @@
   "الدفع.": [
    "app/store/[slug]/_themes/stage/cart/StageCheckout.tsx"
   ],
+  "الدومينيكان": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "الرأي {0}": [
    "app/store/[slug]/_themes/qirat/sections/Quotes.tsx"
   ],
@@ -2292,6 +2608,12 @@
   ],
   "الرئيسية": [
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/cello/categories/CelloCategories.tsx",
@@ -2378,6 +2700,7 @@
   ],
   "الرجوع للرئيسية": [
    "app/store/[slug]/_themes/arena/states.tsx",
+   "app/store/[slug]/_themes/bunn/states.tsx",
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
@@ -2396,6 +2719,7 @@
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "السابق": [
+   "app/store/[slug]/_themes/bunn/product/Rail.tsx",
    "app/store/[slug]/_themes/cello/product/Rail.tsx",
    "app/store/[slug]/_themes/gym/product/Rail.tsx",
    "app/store/[slug]/_themes/mada/product/ProductCarousel.tsx",
@@ -2410,6 +2734,7 @@
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx"
   ],
   "السعر": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/classic/listing/FilterForm.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
@@ -2424,6 +2749,7 @@
    "app/store/[slug]/_themes/stage/listing/FilterPanel.tsx"
   ],
   "السعر بعد الخصم:": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
@@ -2436,6 +2762,7 @@
    "app/store/[slug]/_themes/stage/ui.tsx"
   ],
   "السعر قبل الخصم:": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/classic/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
@@ -2457,6 +2784,10 @@
   "السلاسل": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
+  "السلالة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "السلام عليكم، عايز أتابع عروض {0} أول بأول.": [
    "app/store/[slug]/_themes/gym/lib/coach.ts",
    "app/store/[slug]/_themes/market/lib/market.ts"
@@ -2468,8 +2799,12 @@
    "app/store/[slug]/_themes/market/lib/market.ts"
   ],
   "السلام عليكم، عايز أعرف كل جديد {0} أول بأول.": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts",
    "app/store/[slug]/_themes/qirat/lib/qirat.ts",
    "app/store/[slug]/_themes/stage/lib/stage.ts"
+  ],
+  "السلام عليكم، عايز ترشيح بن من {0} يناسب {1}.": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "السلام عليكم، عندي استفسار عن: {0}": [
    "app/store/[slug]/_themes/gym/lib/coach.ts",
@@ -2481,6 +2816,9 @@
   "السلام عليكم، عندي استفسار.": [
    "app/store/[slug]/_themes/medical/lib/rx.ts"
   ],
+  "السلام عليكم، عندي سؤال عن: {0}": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "السلام عليكم، محتاج مساعدة أختار المنتج اللي يناسبني.": [
    "app/store/[slug]/_themes/gym/lib/coach.ts"
   ],
@@ -2491,6 +2829,11 @@
    "app/store/[slug]/cart/page.tsx",
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/product/QuickAdd.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
@@ -2533,6 +2876,9 @@
   "السلة لسه فاضية": [
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx"
   ],
+  "السلة، فيها {0}": [
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx"
+  ],
   "السلة، فيها {0} منتج": [
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/classic/header/ClassicHeader.tsx",
@@ -2544,6 +2890,9 @@
    "app/store/[slug]/_themes/maximize/header/MaxHeader.tsx",
    "app/store/[slug]/_themes/medical/header/MedicalHeader.tsx",
    "app/store/[slug]/_themes/riwaq/header/RiwaqHeader.tsx"
+  ],
+  "السلفادور": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "السياسات": [
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx"
@@ -2569,6 +2918,7 @@
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx"
   ],
   "الشحن وأكواد الخصم بتتحسب في السلة وصفحة الدفع.": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx"
@@ -2618,6 +2968,7 @@
   ],
   "الصفحات": [
    "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -2631,6 +2982,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "الصفحة {0}": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -2644,6 +2996,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "الصفحة التالية": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -2656,6 +3009,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "الصفحة السابقة": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -2675,6 +3029,7 @@
   ],
   "الصفحة دي مش موجودة": [
    "app/store/[slug]/_themes/arena/states.tsx",
+   "app/store/[slug]/_themes/bunn/states.tsx",
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
@@ -2688,6 +3043,8 @@
    "app/store/[slug]/_themes/stage/states.tsx"
   ],
   "الصورة {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
+   "app/store/[slug]/_themes/bunn/product/QuickView.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
    "app/store/[slug]/_themes/cello/sections/Spotlight.tsx",
@@ -2709,6 +3066,7 @@
    "app/store/[slug]/_themes/stage/product/QuickView.tsx"
   ],
   "الصورة التالية": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/classic/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/dune/pdp/Gallery.tsx",
@@ -2721,6 +3079,7 @@
    "app/store/[slug]/_themes/stage/pdp/Gallery.tsx"
   ],
   "الصورة السابقة": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/classic/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/dune/pdp/Gallery.tsx",
@@ -2735,6 +3094,18 @@
   "الصورة جاهزة": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
+  "الطحنة": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
+   "app/store/[slug]/_themes/shared/commerce.ts",
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
+  ],
+  "الطحنة: {0}": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx",
+   "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx"
+  ],
+  "الطرق اللي المحمصة بترشحها للبن ده.": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
   "الطلب": [
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCheckout.tsx"
   ],
@@ -2748,6 +3119,7 @@
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
   "العرض {0}: {1}": [
+   "app/store/[slug]/_themes/bunn/sections/HeroSlides.tsx",
    "app/store/[slug]/_themes/qirat/sections/HeroSlides.tsx"
   ],
   "العرض التالي": [
@@ -2811,6 +3183,7 @@
    "app/store/[slug]/order/[orderId]/success/page.tsx"
   ],
   "الفلاتر": [
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/ListingControls.tsx",
@@ -2822,6 +3195,9 @@
    "app/store/[slug]/_themes/qirat/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/stage/listing/ListingControls.tsx"
   ],
+  "الفلبين": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "الفهرس": [
    "app/store/[slug]/_themes/riwaq/categories/RiwaqCategories.tsx"
   ],
@@ -2830,6 +3206,7 @@
   ],
   "القائمة": [
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
    "app/store/[slug]/_themes/maximize/header/DrawerMenu.tsx",
    "app/store/[slug]/_themes/qirat/header/QiratHeader.tsx",
@@ -2837,6 +3214,7 @@
    "app/store/[slug]/_themes/stage/header/StageHeader.tsx"
   ],
   "القائمة الرئيسية": [
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
    "app/store/[slug]/_themes/classic/header/DesktopNav.tsx",
@@ -2861,6 +3239,10 @@
    "app/store/[slug]/_themes/qirat/product/WishButton.tsx"
   ],
   "القسم": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/gym/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/listing/FilterPanel.tsx",
@@ -2871,6 +3253,7 @@
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
   "القسم ده فاضي دلوقتي": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
    "app/store/[slug]/_themes/gym/categories/GymCategories.tsx",
    "app/store/[slug]/_themes/market/categories/MarketCategories.tsx",
    "app/store/[slug]/_themes/medical/categories/MedicalCategories.tsx",
@@ -2901,8 +3284,16 @@
   "القطعة دي مش متاحة دلوقتي.": [
    "app/store/[slug]/_themes/qirat/product/QuickView.tsx"
   ],
+  "القهوة جاية قريب": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
+  ],
+  "القهوة في الفنجان": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "الكل": [
    "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -2927,6 +3318,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "الكمية": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
    "app/store/[slug]/_themes/classic/pdp/PurchasePanel.tsx",
@@ -2945,6 +3337,7 @@
   ],
   "الكمية {0}": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -2968,6 +3361,9 @@
   "الكمية.": [
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "الكود": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
   "الكود صالح لمدة": [
    "components/storefront/popup-view.tsx"
   ],
@@ -2980,8 +3376,16 @@
   "الكوليكشن الجديد يوصلك الأول": [
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
   ],
+  "الكونغو": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "الكيس {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "اللون": [
    "app/store/[slug]/_components/offers/offer-ui.tsx",
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/medical/ui.tsx",
@@ -3022,17 +3426,24 @@
   "اللي الكل بيشتريه.": [
    "app/store/[slug]/_themes/stage/sections/ProductRow.tsx"
   ],
+  "اللي بننصح بيه دلوقتي.": [
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "اللي بننصحك بيه دلوقتي.": [
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "اللي بننصحك بيه.": [
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
+  "اللي تختاره هيستناك هنا.": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx"
+  ],
   "المبلغ المطلوب": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "المتجر": [
    "app/store/[slug]/order/[orderId]/page.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
    "app/store/[slug]/_themes/maximize/sections/PromotionGrid.tsx",
    "app/store/[slug]/_themes/riwaq/footer/RiwaqFooter.tsx"
   ],
@@ -3040,10 +3451,12 @@
    "app/store/[slug]/_themes/maximize/pdp/MaxProduct.tsx"
   ],
   "المتجر بيأكد معاك الطلب وميعاد التوصيل قبل الشحن.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "المتجر بيأكد معاك قبل الشحن": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
@@ -3061,6 +3474,7 @@
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx"
   ],
   "المتجر بيجهز منتجاته دلوقتي. ارجع تاني قريب.": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx",
    "app/store/[slug]/_themes/classic/home/ClassicHome.tsx",
    "app/store/[slug]/_themes/dune/home/DuneHome.tsx",
@@ -3073,6 +3487,7 @@
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "المتجر بيجهز منتجاته. ارجع تاني قريب.": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -3092,6 +3507,7 @@
   ],
   "المتجر لسه مضافش وسيلة تواصل": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -3109,6 +3525,7 @@
   ],
   "المتجر لسه مفعّلش طريقة دفع. جرب تاني بعد شوية أو كلّم المتجر.": [
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCheckout.tsx",
@@ -3122,6 +3539,7 @@
   ],
   "المتجر مقفول مؤقتًا": [
    "app/store/[slug]/_themes/arena/states.tsx",
+   "app/store/[slug]/_themes/bunn/states.tsx",
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
@@ -3140,6 +3558,7 @@
   ],
   "المتجر هيتواصل معاك على رقمك بعد ما تطلب.": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -3162,6 +3581,8 @@
    "app/store/[slug]/_themes/shared/pause/StorePauseDetails.tsx"
   ],
   "المتوفر حالًا": [
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/header/MegaMenu.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
@@ -3184,6 +3605,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "المتوفر حالًا بس": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/gym/listing/FilterPanel.tsx",
@@ -3196,6 +3618,7 @@
   ],
   "المجموع": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx",
@@ -3204,6 +3627,7 @@
   ],
   "المجموع الفرعي": [
    "lib/notifications/email/layout.ts",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
@@ -3223,6 +3647,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "المجموعات": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/qirat/categories/QiratCategories.tsx",
@@ -3244,8 +3669,14 @@
   "المحافظة": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
+  "المحصول الجديد يوصلك أول ما يتحمّص": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx"
+  ],
   "المرحلة {0}": [
    "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "المزرعة / المنتج": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
   ],
   "المزيد": [
    "app/store/[slug]/_themes/classic/header/DesktopNav.tsx",
@@ -3263,6 +3694,10 @@
   "المعادن المتاحة": [
    "app/store/[slug]/_themes/qirat/ui.tsx"
   ],
+  "المعالجة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "المعدن": [
    "app/store/[slug]/_themes/qirat/ui.tsx"
   ],
@@ -3279,6 +3714,7 @@
   ],
   "المقاس": [
    "app/store/[slug]/_components/offers/offer-ui.tsx",
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/shared/commerce.ts",
    "app/store/[slug]/_themes/stage/ui.tsx",
@@ -3316,6 +3752,9 @@
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx"
   ],
+  "المكسيك": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "المكملات مكمّلة لأكل متوازن ومش بديل عنه. لو عندك حالة صحية أو بتاخد دوا، اسأل دكتورك الأول، واقرا الجرعة المكتوبة على العبوة.": [
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx"
   ],
@@ -3324,6 +3763,9 @@
   ],
   "المميزة فقط": [
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx"
+  ],
+  "المناشئ": [
+   "app/store/[slug]/_themes/bunn/sections/OriginsMap.tsx"
   ],
   "المنتج": [
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
@@ -3350,6 +3792,7 @@
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
   "المنتج ده مش متاح دلوقتي.": [
+   "app/store/[slug]/_themes/bunn/product/QuickView.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
    "app/store/[slug]/_themes/dune/product/QuickView.tsx",
    "app/store/[slug]/_themes/gym/product/QuickView.tsx",
@@ -3383,6 +3826,7 @@
   ],
   "المنتجات المميزة": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
@@ -3408,6 +3852,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "المنتجات في السلة": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -3418,8 +3863,16 @@
    "app/store/[slug]/_themes/medical/cart/MedicalCart.tsx",
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx"
   ],
+  "المنطقة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "المنطقة - الشارع - رقم العمارة - الدور - الشقة - علامة مميزة": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "المنيو": [
+   "app/store/[slug]/_themes/bunn/sections/Categories.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx"
   ],
   "المواصفات": [
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
@@ -3429,11 +3882,26 @@
   "المواصفات.": [
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
+  "المية": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "المية (مركّز)": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "الميزانية": [
    "app/store/[slug]/_themes/qirat/sections/GiftFinder.tsx"
   ],
   "الميزانية: {0}": [
    "app/store/[slug]/_themes/qirat/lib/qirat.ts"
+  ],
+  "النسبة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "النكهات": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
+   "app/store/[slug]/_themes/bunn/sections/OriginsMap.tsx"
   ],
   "النكهة": [
    "app/store/[slug]/_themes/gym/ui.tsx",
@@ -3442,6 +3910,7 @@
    "app/store/[slug]/_themes/gym/product/BuyForm.tsx"
   ],
   "النوع": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/stage/ui.tsx",
@@ -3458,7 +3927,11 @@
   "الهدية المناسبة، في خطوتين": [
    "app/store/[slug]/_themes/qirat/sections/GiftFinder.tsx"
   ],
+  "الهند": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "الوزن": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
@@ -3471,6 +3944,9 @@
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
+  "الوزن الصافي": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
   "الوصف": [
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
@@ -3479,17 +3955,23 @@
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
   ],
   "الوضع الغامق": [
+   "app/store/[slug]/_themes/bunn/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/market/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/qirat/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/stage/header/AppearanceToggle.tsx"
   ],
   "الوضع الفاتح": [
+   "app/store/[slug]/_themes/bunn/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/market/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/qirat/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/stage/header/AppearanceToggle.tsx"
   ],
   "الوضع الليلي": [
    "app/store/[slug]/_themes/mada/header/MobileDrawer.tsx"
+  ],
+  "الوقت": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "الوقت الباقي على فتح المتجر": [
    "app/store/[slug]/_themes/shared/pause/PauseCountdown.tsx"
@@ -3500,6 +3982,7 @@
   ],
   "الوقت المتبقي على نهاية العرض": [
    "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
    "app/store/[slug]/_themes/market/sections/Countdown.tsx",
@@ -3508,8 +3991,17 @@
    "app/store/[slug]/_themes/qirat/sections/Countdown.tsx",
    "app/store/[slug]/_themes/stage/sections/Countdown.tsx"
   ],
+  "اليمن": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "املأ البيانات التالية بدقة عشان نقدر نأكد الطلب ونسلمه بدون أي تأخير.": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "املا السلة بن من غير ما تضغطه، وسوّي الوش.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "املا القاعدة مية سخنة لحد تحت الصمام.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "انتقل للمحتوى": [
    "app/store/[slug]/layout.tsx"
@@ -3519,6 +4011,9 @@
   ],
   "انسخ رقم الشحنة": [
    "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx"
+  ],
+  "بابوا غينيا الجديدة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "باقة": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
@@ -3533,6 +4028,7 @@
    "app/store/[slug]/_themes/gym/sections/ProductRow.tsx"
   ],
   "باقي {0} بس": [
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx",
    "app/store/[slug]/_themes/gym/sections/ProductRow.tsx",
    "app/store/[slug]/_themes/market/sections/ProductRow.tsx",
    "app/store/[slug]/_themes/qirat/sections/ProductSections.tsx",
@@ -3544,8 +4040,12 @@
   "بانتظار الدفع": [
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
+  "بانر": [
+   "app/store/[slug]/_themes/arena/sections/BannerSlider.tsx"
+  ],
   "بانر مخصص": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -3574,6 +4074,7 @@
    "app/store/[slug]/_themes/riwaq/header/RiwaqHeader.tsx"
   ],
   "بحثت عن": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
@@ -3595,6 +4096,10 @@
   "بروتين في اليوم": [
    "app/store/[slug]/_themes/gym/sections/Calculator.tsx"
   ],
+  "بطاقة المحصول": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx",
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
   "بعتنا كود تأكيد للرقم": [
    "app/store/[slug]/order/[orderId]/confirm/page.tsx"
   ],
@@ -3608,6 +4113,7 @@
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx"
   ],
   "بعد ما تبعت الطلب، المتجر هيتواصل معاك يأكد البيانات وميعاد التوصيل.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
@@ -3619,11 +4125,29 @@
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
+  "بن يناسب {0}": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "بن يناسب الطريقة دي": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "بنجهّز الصورة...": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
   "بنستنى تأكيد العملية من بوابة الدفع — حالة الطلب هتتحدث أول ما يوصل.": [
    "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "بنما": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "بورتوريكو": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "بوروندي": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "بوليفيا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "بيانات التحويل البنكي": [
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
@@ -3644,6 +4168,7 @@
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
   ],
   "بياناتك بتروح للمتجر بس عشان يوصلك الطلب.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCheckout.tsx",
@@ -3662,6 +4187,12 @@
   ],
   "بيرجع يفتح": [
    "app/store/[slug]/_themes/shared/pause/StorePauseDetails.tsx"
+  ],
+  "بيرو": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "بيقولوا إيه عن قهوتنا": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx"
   ],
   "بيقولوا عننا": [
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx",
@@ -3705,6 +4236,7 @@
   "تابعنا": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -3727,6 +4259,9 @@
   "تاريخ الطلب": [
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
+  "تايلاند": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "تبديل الوضع الليلي": [
    "app/store/[slug]/_themes/classic/header/ThemeToggle.tsx",
    "app/store/[slug]/_themes/mada/header/parts.tsx",
@@ -3745,6 +4280,10 @@
    "lib/notifications/email/order-emails.ts",
    "app/store/[slug]/track/page.tsx",
    "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx",
@@ -3835,10 +4374,14 @@
    "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx",
    "app/store/[slug]/_themes/mada/listing/ListingControls.tsx"
   ],
+  "تركي": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "تسوق": [
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx"
   ],
   "تسوّق": [
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/cello/header/MegaMenu.tsx",
@@ -3938,6 +4481,7 @@
    "app/store/[slug]/_themes/maximize/sections/Collections.tsx"
   ],
   "تسوّق حسب القسم": [
+   "app/store/[slug]/_themes/bunn/sections/Categories.tsx",
    "app/store/[slug]/_themes/medical/sections/CategoryShelf.tsx"
   ],
   "تسوّق حسب القطعة": [
@@ -3947,6 +4491,7 @@
    "app/store/[slug]/_components/sections/CollectionsPreviewSection.tsx"
   ],
   "تسوّق دلوقتي": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx",
    "app/store/[slug]/_themes/market/sections/Editorial.tsx",
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx",
@@ -3961,6 +4506,8 @@
    "app/store/[slug]/_themes/qirat/sections/HeroSlides.tsx"
   ],
   "تسوّق كل المنتجات": [
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx",
+   "app/store/[slug]/_themes/bunn/sections/HeroSlides.tsx",
    "app/store/[slug]/_themes/riwaq/footer/RiwaqFooter.tsx",
    "app/store/[slug]/_themes/stage/header/StageHeader.tsx"
   ],
@@ -3974,6 +4521,7 @@
    "app/store/[slug]/_themes/dune/sections/Hero.tsx"
   ],
   "تشغيل العروض": [
+   "app/store/[slug]/_themes/bunn/sections/HeroSlides.tsx",
    "app/store/[slug]/_themes/qirat/sections/HeroSlides.tsx"
   ],
   "تشغيل تلقائي": [
@@ -4115,6 +4663,7 @@
   ],
   "تطبيق": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -4139,6 +4688,9 @@
    "app/store/[slug]/_themes/medical/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/stage/listing/FilterPanel.tsx"
   ],
+  "تطحنها بنفسك قبل التحضير": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "تعديل الحقيبة": [
    "app/store/[slug]/_themes/qirat/cart/QiratCheckout.tsx"
   ],
@@ -4146,6 +4698,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCheckout.tsx"
   ],
   "تعديل السلة": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
@@ -4187,6 +4740,7 @@
    "app/store/[slug]/_themes/qirat/categories/QiratCategories.tsx"
   ],
   "تقدر تتصفح كل المنتجات مباشرةً.": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
    "app/store/[slug]/_themes/cello/categories/CelloCategories.tsx",
    "app/store/[slug]/_themes/classic/categories/ClassicCategories.tsx",
    "app/store/[slug]/_themes/dune/categories/DuneCategories.tsx",
@@ -4202,6 +4756,7 @@
    "app/store/[slug]/_themes/classic/pdp/PurchasePanel.tsx"
   ],
   "تقدر تسأل عن أي تفصيلة قبل ما توصلك": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
   ],
   "تقدر تكمّل تسوق أو تروح للسلة تخلّص طلبك.": [
@@ -4209,6 +4764,9 @@
   ],
   "تقليل الكمية": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
@@ -4241,6 +4799,9 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "تقييم التذوّق": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
   "تقييمات العملاء": [
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
@@ -4249,6 +4810,7 @@
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
   ],
   "تكبير الصورة {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/dune/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/gym/pdp/Gallery.tsx",
@@ -4260,10 +4822,14 @@
    "app/store/[slug]/_themes/stage/pdp/Gallery.tsx"
   ],
   "تكبير: {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/qirat/pdp/Gallery.tsx"
   ],
   "تكمّل الطلّة": [
    "app/store/[slug]/_themes/qirat/cart/CartDrawer.tsx"
+  ],
+  "تكمّل قهوتك": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx"
   ],
   "تلاقيه في الملف الشخصي جوه اللعبة أو التطبيق.": [
    "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
@@ -4272,6 +4838,7 @@
    "app/store/[slug]/_themes/shared/track/OrderTracker.tsx"
   ],
   "تلقائي": [
+   "app/store/[slug]/_themes/bunn/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/market/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/qirat/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/stage/header/AppearanceToggle.tsx"
@@ -4310,6 +4877,9 @@
   "تمام!": [
    "components/storefront/popup-view.tsx"
   ],
+  "تنزانيا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "تنشيف": [
    "app/store/[slug]/_themes/gym/sections/Calculator.tsx"
   ],
@@ -4323,6 +4893,8 @@
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
    "app/store/[slug]/_themes/arena/categories/ArenaCategories.tsx",
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
@@ -4348,6 +4920,10 @@
    "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/qirat/footer/QiratFooter.tsx",
    "app/store/[slug]/_themes/qirat/header/QiratHeader.tsx",
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
@@ -4402,6 +4978,7 @@
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx"
   ],
   "توصلك خلال {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
   ],
   "توصيل خلال {0} أيام": [
@@ -4411,6 +4988,7 @@
    "app/store/[slug]/_components/sections/WhyChooseUsSection.tsx"
   ],
   "توصيل مجاني": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
@@ -4427,9 +5005,13 @@
   "تيك توك": [
    "app/store/[slug]/_themes/shared/social.tsx"
   ],
+  "تيمور الشرقية": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "ثانية": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx",
    "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -4451,6 +5033,7 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "جاري التحميل": [
+   "app/store/[slug]/_themes/bunn/states.tsx",
    "app/store/[slug]/_themes/cello/states.tsx",
    "app/store/[slug]/_themes/classic/states.tsx",
    "app/store/[slug]/_themes/dune/states.tsx",
@@ -4469,6 +5052,9 @@
   "جاري تأكيد الطلب...": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
+  "جامايكا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "جاهز — هيتطبق لوحده في السلة.": [
    "app/store/[slug]/_components/CouponLinkCapture.tsx"
   ],
@@ -4476,7 +5062,11 @@
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx"
   ],
+  "جاوة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "جديد": [
+   "app/store/[slug]/_themes/bunn/product/ProductCard.tsx",
    "app/store/[slug]/_themes/cello/product/ProductCard.tsx",
    "app/store/[slug]/_themes/dune/product/ProductCard.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
@@ -4506,6 +5096,7 @@
    "app/store/[slug]/_themes/mada/listing/MadaListing.tsx"
   ],
   "جرّب تشيل فلتر أو اتنين عشان تشوف منتجات أكتر.": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/gym/listing/GymListing.tsx",
    "app/store/[slug]/_themes/market/listing/MarketListing.tsx",
@@ -4539,6 +5130,12 @@
    "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx",
    "app/store/[slug]/order/[orderId]/_components/ShipmentTracking.tsx"
   ],
+  "جواتيمالا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "جوّه البوكس": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
   "جوّه العلبة": [
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
   ],
@@ -4552,6 +5149,7 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "حاول تاني": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
@@ -4560,11 +5158,15 @@
    "app/store/[slug]/_themes/qirat/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx"
   ],
+  "حبوب كاملة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "حدّد الباقة": [
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
   ],
   "حذف {0}": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -4575,6 +5177,13 @@
    "app/store/[slug]/_themes/medical/cart/MedicalCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
+  ],
+  "حرارة المية": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "حزام البن": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Origins.tsx"
   ],
   "حصريًا في {0}": [
    "app/store/[slug]/_themes/maximize/sections/Collections.tsx"
@@ -4589,6 +5198,7 @@
    "app/store/[slug]/_components/offers/CartOffers.tsx",
    "app/store/[slug]/_components/offers/OfferHost.tsx",
    "app/store/[slug]/_themes/shared/use-add-to-cart.ts",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/classic/pdp/PurchasePanel.tsx",
    "app/store/[slug]/_themes/classic/product/QuickAddButton.tsx",
@@ -4603,14 +5213,30 @@
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/stage/lib/cart-lines.ts"
   ],
+  "حضّرها صح في البيت": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "حط البن الخشن وصب المية كلها مرة واحدة.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "حط البن واعمل حفرة صغيرة في النص.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "حط سعر قبل الخصم على باقاتك وهتظهر هنا، واضبط العداد من هنا.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
   ],
   "حط سعر قبل الخصم على منتجاتك وهتظهر هنا، واضبط العداد من هنا.": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
+  ],
+  "حط مية ساقعة في الكنكة بعدد الفناجين.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "حطها على نار هادية ومتقلّبش تاني.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "حفظ {0} في المفضلة": [
    "app/store/[slug]/_themes/mada/product/CardActions.tsx"
@@ -4633,6 +5259,8 @@
    "app/store/[slug]/_themes/stage/cart/StageCheckout.tsx"
   ],
   "حكايتنا": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/dune/sections/Editorial.tsx",
    "app/store/[slug]/_themes/mada/sections/Merch.tsx",
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
@@ -4660,16 +5288,24 @@
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
   ],
   "خدمة العملاء": [
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
    "app/store/[slug]/_themes/qirat/footer/QiratFooter.tsx"
+  ],
+  "خريطة حزام البن ومناشئ القهوة في المتجر": [
+   "app/store/[slug]/_themes/bunn/sections/OriginsMap.tsx"
   ],
   "خريف": [
    "app/store/[slug]/_themes/riwaq/home/Hero.tsx"
+  ],
+  "خشنة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "خصم": [
    "app/store/[slug]/_themes/gym/home/GymHome.tsx"
   ],
   "خصم {0}": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -4694,6 +5330,8 @@
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/medical/ui.tsx",
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/product/ProductCard.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
@@ -4730,6 +5368,9 @@
   "خصومات حقيقية على منتجات المتجر": [
    "app/store/[slug]/_themes/cello/home/CelloHome.tsx"
   ],
+  "خط الاستواء": [
+   "app/store/[slug]/_themes/bunn/sections/OriginsMap.tsx"
+  ],
   "خطوة أخيرة": [
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx"
   ],
@@ -4739,7 +5380,11 @@
   "خطوة واحدة وطلبك يوصل.": [
    "app/store/[slug]/_themes/stage/cart/StageCheckout.tsx"
   ],
+  "خفّفه بنفس كميته مية أو لبن، وحط تلج.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "خلال {0}": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
    "app/store/[slug]/_themes/market/cart/MarketCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
@@ -4755,7 +5400,18 @@
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx"
   ],
   "خلص": [
+   "app/store/[slug]/_themes/bunn/product/ProductCard.tsx",
    "app/store/[slug]/_themes/market/product/ProductCard.tsx"
+  ],
+  "خلص حاليًا": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
+  "خلص دلوقتي. اسأل المتجر على واتساب عن ميعاد رجوعه، أو شوف قهوة قريبة منه تحت.": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
+  ],
+  "خلص من المخزن حاليًا": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
   ],
   "خلصت الكمية": [
    "app/store/[slug]/_themes/stage/product/ProductCard.tsx"
@@ -4763,12 +5419,19 @@
   "خليك أول من يعرف.": [
    "app/store/[slug]/_themes/stage/sections/Editorial.tsx"
   ],
+  "درجة التحميص": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
+  "درجة التحميص: {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
   "دعم على مدار الساعة": [
    "app/store/[slug]/_components/sections/WhyChooseUsSection.tsx"
   ],
   "دقيقة": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx",
    "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -4780,8 +5443,18 @@
    "app/store/[slug]/_themes/shared/pause/PauseCountdown.tsx",
    "app/store/[slug]/_themes/stage/sections/Countdown.tsx"
   ],
+  "دليل التحضير": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "دليل التحضير الكامل": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
   "دليل المقاسات": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
+  ],
+  "دوّر على بن، أداة تحضير، مج…": [
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx"
   ],
   "دوّر على خاتم، سلسلة، ساعة…": [
    "app/store/[slug]/_themes/qirat/header/QiratHeader.tsx",
@@ -4832,6 +5505,7 @@
   ],
   "رسالة لـ {0}": [
    "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
+   "app/store/[slug]/_themes/bunn/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -4846,6 +5520,7 @@
   ],
   "رسالتك": [
    "app/store/[slug]/_themes/arena/info/ContactForm.tsx",
+   "app/store/[slug]/_themes/bunn/info/ContactForm.tsx",
    "app/store/[slug]/_themes/cello/info/ContactForm.tsx",
    "app/store/[slug]/_themes/classic/info/ContactForm.tsx",
    "app/store/[slug]/_themes/dune/info/ContactForm.tsx",
@@ -4859,6 +5534,7 @@
    "app/store/[slug]/_themes/stage/info/ContactForm.tsx"
   ],
   "رقم {0}": [
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx",
    "app/store/[slug]/_themes/qirat/sections/ProductSections.tsx"
   ],
   "رقم {0} في الأكثر مبيعًا:": [
@@ -4895,6 +5571,7 @@
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx",
    "app/store/[slug]/order/[orderId]/page.tsx",
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -4936,6 +5613,9 @@
    "app/store/[slug]/_themes/stage/header/SearchBar.tsx",
    "app/store/[slug]/_themes/stage/header/StageHeader.tsx"
   ],
+  "رواندا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "روح للسلة": [
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
@@ -4950,6 +5630,9 @@
   ],
   "زيادة الكمية": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
@@ -4982,6 +5665,9 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx",
    "app/store/[slug]/_themes/stage/product/BuyForm.tsx"
   ],
+  "سؤال عن بن، طحنة، أو طلب؟ ابعتلنا وهنرد عليك.": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx"
+  ],
   "سؤال عن مقاس، خامة، أو طلب؟ ابعتلنا وهنرد عليك.": [
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx"
   ],
@@ -4991,6 +5677,7 @@
   "ساعة": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx",
    "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -5001,6 +5688,15 @@
    "app/store/[slug]/_themes/qirat/sections/Countdown.tsx",
    "app/store/[slug]/_themes/shared/pause/PauseCountdown.tsx",
    "app/store/[slug]/_themes/stage/sections/Countdown.tsx"
+  ],
+  "ساقعة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
+  "سخّن الإبريق بمية سخنة وفضّيه.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "سخنة": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
   ],
   "سعر ممتاز مقارنة بالجودة. جربت متاجر كتير لكن ده الأفضل": [
    "app/store/[slug]/_components/sections/TestimonialsSection.tsx"
@@ -5027,6 +5723,8 @@
    "app/store/[slug]/_themes/riwaq/footer/RiwaqFooter.tsx"
   ],
   "سلتك": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx"
@@ -5034,6 +5732,9 @@
   "سلتك فاضية": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
@@ -5061,9 +5762,19 @@
   "سم": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
+  "سولاويزي": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "سومطرة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "سياسات المتجر": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
    "app/store/[slug]/_themes/shared/policies/PolicyDocument.tsx"
+  ],
+  "سيبه يصفّى — المفروض يخلص في دقيقتين ونص لتلاتة.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "سيتم عرض بيانات التحويل بعد تأكيد الطلب": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
@@ -5091,6 +5802,7 @@
   ],
   "شريط العروض": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -5106,6 +5818,7 @@
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx"
   ],
   "شفت {0} من {1} منتج": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
    "app/store/[slug]/_themes/gym/listing/GymListing.tsx",
@@ -5115,6 +5828,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "شفتها مؤخرًا": [
+   "app/store/[slug]/_themes/bunn/sections/RecentlyViewed.tsx",
    "app/store/[slug]/_themes/qirat/sections/RecentlyViewed.tsx"
   ],
   "شفتهم مؤخرًا": [
@@ -5145,6 +5859,9 @@
   "شكرًا، طلبك وصلنا": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "شوت واحد": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "شوف الألعاب": [
    "app/store/[slug]/_themes/arena/states.tsx",
    "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
@@ -5156,6 +5873,13 @@
   ],
   "شوف الجديد.": [
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
+  ],
+  "شوف القهوة": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx"
   ],
   "شوف كل الاختيارات": [
    "app/store/[slug]/_themes/qirat/sections/GiftFinder.tsx"
@@ -5192,6 +5916,15 @@
   "شيل {0} من قايمة الأمنيات": [
    "app/store/[slug]/_themes/qirat/product/WishButton.tsx"
   ],
+  "شيلها أول ما تسمع صوت الفوران.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "صب الوش في الفناجين الأول، وبعدين الباقي على مهل.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "صب مية ساقعة أو عادية وقلّب كويس.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "صباح الخير": [
    "app/store/[slug]/_themes/market/lib/market.ts"
   ],
@@ -5206,7 +5939,11 @@
   "صفحة تتبّع الطلب": [
    "app/store/[slug]/order/[orderId]/success/page.tsx"
   ],
+  "صفّيه بفلتر قماش أو ورق.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "صور {0}": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/cello/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/classic/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/dune/pdp/Gallery.tsx",
@@ -5253,6 +5990,9 @@
   "ضيف": [
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
+  "ضيف البن (والسكر لو بتحبه) وقلّب كويس.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "ضيف اللي محتاجه وهيظهر هنا.": [
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx"
@@ -5276,6 +6016,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCheckout.tsx"
   ],
   "ضيف منتجات للسلة الأول وبعدين كمّل طلبك.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
@@ -5289,8 +6030,12 @@
   "ضيفه للسلة": [
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
+  "طرق التحضير": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "طرق التواصل": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -5304,6 +6049,7 @@
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
   ],
   "طرق الدفع المتاحة": [
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/dune/footer/DuneFooter.tsx",
    "app/store/[slug]/_themes/gym/footer/GymFooter.tsx",
@@ -5313,6 +6059,9 @@
    "app/store/[slug]/_themes/medical/footer/MedicalFooter.tsx",
    "app/store/[slug]/_themes/qirat/footer/QiratFooter.tsx",
    "app/store/[slug]/_themes/stage/footer/StageFooter.tsx"
+  ],
+  "طرق بتطلّع أحسن ما في درجة التحميص دي.": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
   ],
   "طريقة التوصيل": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
@@ -5351,6 +6100,8 @@
   "طلبك": [
    "lib/notifications/email/order-emails.ts",
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCheckout.tsx",
@@ -5409,12 +6160,16 @@
   "عايز تشتري إيه النهارده؟": [
    "app/store/[slug]/_themes/market/sections/Hero.tsx"
   ],
+  "عدد الأقسام: {0}": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx"
+  ],
   "عدد المنتجات": [
    "app/store/[slug]/order/[orderId]/page.tsx",
    "app/store/[slug]/order/[orderId]/success/page.tsx"
   ],
   "عدد النقاط": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -5428,6 +6183,7 @@
   ],
   "عدد النقاط (أقل حاجة {0})": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -5445,6 +6201,7 @@
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
   "عدّلنا سلتك على حسب المتاح": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -5484,6 +6241,9 @@
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/medical/product/CardActions.tsx"
   ],
+  "عرض السلة كاملة": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx"
+  ],
   "عرض السلة وكود الخصم": [
    "app/store/[slug]/_themes/dune/cart/CartDrawer.tsx"
   ],
@@ -5509,6 +6269,7 @@
   ],
   "عرض الكل": [
    "app/store/[slug]/_themes/arena/ui.tsx",
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/classic/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
@@ -5520,6 +6281,7 @@
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/riwaq/ui.tsx",
    "app/store/[slug]/_themes/stage/ui.tsx",
+   "app/store/[slug]/_themes/bunn/product/Rail.tsx",
    "app/store/[slug]/_themes/cello/product/Rail.tsx",
    "app/store/[slug]/_themes/gym/header/MegaMenu.tsx",
    "app/store/[slug]/_themes/gym/product/Rail.tsx",
@@ -5536,6 +6298,7 @@
    "app/store/[slug]/_themes/dune/sections/Spotlight.tsx"
   ],
   "عرض النتائج": [
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/classic/listing/MobileFilterBar.tsx",
    "app/store/[slug]/_themes/dune/listing/ListingControls.tsx",
@@ -5548,6 +6311,9 @@
    "app/store/[slug]/_themes/riwaq/listing/MobileFilters.tsx",
    "app/store/[slug]/_themes/stage/listing/ListingControls.tsx"
   ],
+  "عرض بانرات": [
+   "app/store/[slug]/_themes/arena/sections/BannerSlider.tsx"
+  ],
   "عرض تفاصيل الطلب": [
    "app/store/[slug]/order/[orderId]/success/page.tsx"
   ],
@@ -5556,6 +6322,9 @@
   ],
   "عرض خاص على قطع مختارة": [
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx"
+  ],
+  "عرض خاص على قهوة مختارة": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
   ],
   "عرض كشبكة": [
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
@@ -5585,6 +6354,7 @@
   ],
   "عرض لفترة محدودة": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/mada/sections/Countdown.tsx",
@@ -5605,7 +6375,10 @@
    "app/store/[slug]/_themes/maximize/sections/Editorial.tsx"
   ],
   "عروض المتجر": [
+   "app/store/[slug]/_themes/arena/sections/BannerSlider.tsx",
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
+   "app/store/[slug]/_themes/bunn/sections/HeroSlides.tsx",
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx",
    "app/store/[slug]/_themes/market/sections/Editorial.tsx",
    "app/store/[slug]/_themes/market/sections/HeroSlider.tsx",
@@ -5643,6 +6416,7 @@
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
   "علّم منتجاتك كمميزة وهتظهر هنا.": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -5673,6 +6447,10 @@
   "عن {0}": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx",
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/cello/sections/Collections.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
@@ -5700,6 +6478,9 @@
   "عن {0}.": [
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
   ],
+  "عن البن ده": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
   "عن القطعة": [
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
   ],
@@ -5708,6 +6489,8 @@
    "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
    "app/store/[slug]/_themes/arena/header/ArenaHeader.tsx",
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
@@ -5747,6 +6530,7 @@
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
   ],
   "عن المنتج": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx"
   ],
   "عند الترقوة": [
@@ -5767,6 +6551,9 @@
   ],
   "عندك سؤال عن المنتج ده؟": [
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
+  ],
+  "عندك سؤال عن المنتج؟": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
   ],
   "عندك سؤال عن باقة أو طلب؟ ابعتلنا وهنرد عليك.": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx"
@@ -5792,6 +6579,7 @@
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx"
   ],
   "عندك كود خصم؟": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
   ],
@@ -5799,6 +6587,8 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "غامق": [
+   "app/store/[slug]/_themes/bunn/header/AppearanceToggle.tsx",
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts",
    "app/store/[slug]/_themes/market/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/qirat/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/stage/header/AppearanceToggle.tsx"
@@ -5830,9 +6620,14 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "فاتح": [
+   "app/store/[slug]/_themes/bunn/header/AppearanceToggle.tsx",
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts",
    "app/store/[slug]/_themes/market/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/qirat/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/stage/header/AppearanceToggle.tsx"
+  ],
+  "فاتح جدًا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "فاضل {0} بس": [
    "app/store/[slug]/_themes/dune/product/ProductCard.tsx"
@@ -5860,11 +6655,17 @@
    "app/store/[slug]/_themes/medical/header/DrawerMenu.tsx",
    "app/store/[slug]/_themes/riwaq/header/MenuOverlay.tsx"
   ],
+  "فرنش برس": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "فريق الدعم جاهز للرد على استفساراتك في أي وقت": [
    "app/store/[slug]/_components/sections/WhyChooseUsSection.tsx"
   ],
   "فشل الدفع": [
    "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "فلتر / V60": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "فلترة": [
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
@@ -5881,6 +6682,7 @@
    "app/store/[slug]/_themes/qirat/listing/ListingControls.tsx"
   ],
   "فلترة المنتجات": [
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/classic/listing/MobileFilterBar.tsx",
    "app/store/[slug]/_themes/gym/listing/ListingControls.tsx",
@@ -5897,6 +6699,7 @@
    "app/store/[slug]/_themes/stage/listing/ListingControls.tsx"
   ],
   "فلترة وترتيب": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
    "app/store/[slug]/_themes/cello/categories/CelloCategories.tsx",
    "app/store/[slug]/_themes/classic/categories/ClassicCategories.tsx",
    "app/store/[slug]/_themes/dune/categories/DuneCategories.tsx",
@@ -5911,6 +6714,9 @@
   ],
   "فلترة:": [
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx"
+  ],
+  "فنجان واحد": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "في الخطوة الجاية بتكتب اسمك ورقمك وتختار طريقة الدفع، والطلب بيوصل للمتجر على طول. تقدر تتابعه من «طلباتي».": [
    "app/store/[slug]/_themes/arena/game/PackagePicker.tsx"
@@ -5931,6 +6737,7 @@
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx"
   ],
   "في منتجات خلصت أو الكمية المتاحة منها قلّت، فشلناها أو قلّلنا الكمية.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
    "app/store/[slug]/_themes/gym/cart/GymCart.tsx",
@@ -5945,7 +6752,11 @@
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx"
   ],
   "في منتجات خلصت، فشلناها.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/stage/cart/StageCart.tsx"
+  ],
+  "فيتنام": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "فيسبوك": [
    "app/store/[slug]/_themes/shared/social.tsx"
@@ -5976,6 +6787,7 @@
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
   "قسم": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/gym/info/GymInfo.tsx",
    "app/store/[slug]/_themes/market/info/MarketInfo.tsx",
    "app/store/[slug]/_themes/medical/info/MedicalInfo.tsx",
@@ -6012,8 +6824,23 @@
    "app/store/[slug]/_themes/gym/header/GymHeader.tsx",
    "app/store/[slug]/_themes/medical/header/MedicalHeader.tsx"
   ],
+  "قلّب بالراحة وحط الغطا من غير ما تضغط.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "قلّل الكمية": [
    "app/store/[slug]/_themes/market/product/Stepper.tsx"
+  ],
+  "قهوة الموسم": [
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx"
+  ],
+  "قهوة تركي": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "قهوة مختارة بعناية، وكل اللي تحتاجه عشان تحضّرها صح.": [
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx"
+  ],
+  "قهوتنا جاية منين؟": [
+   "app/store/[slug]/_themes/bunn/sections/Origins.tsx"
   ],
   "قولنا محتاج إيه على واتساب": [
    "app/store/[slug]/_themes/gym/header/DrawerMenu.tsx"
@@ -6050,6 +6877,9 @@
    "app/store/[slug]/_themes/riwaq/categories/RiwaqCategories.tsx"
   ],
   "كل الأقسام": [
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx",
    "app/store/[slug]/_themes/gym/categories/GymCategories.tsx",
    "app/store/[slug]/_themes/gym/footer/GymFooter.tsx",
    "app/store/[slug]/_themes/gym/header/MegaMenu.tsx",
@@ -6082,6 +6912,7 @@
    "app/store/[slug]/_themes/arena/listing/ArenaListing.tsx"
   ],
   "كل البراندات": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/gym/listing/FilterPanel.tsx",
@@ -6123,10 +6954,14 @@
    "app/store/[slug]/_themes/cello/header/MegaMenu.tsx",
    "app/store/[slug]/_themes/maximize/header/MegaMenu.tsx"
   ],
+  "كل التفاصيل": [
+   "app/store/[slug]/_themes/bunn/product/QuickView.tsx"
+  ],
   "كل الشركات": [
    "app/store/[slug]/_themes/medical/listing/FilterPanel.tsx"
   ],
   "كل القسم": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx",
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx",
@@ -6161,6 +6996,13 @@
   ],
   "كل المنتجات": [
    "app/store/[slug]/products/page.tsx",
+   "app/store/[slug]/_themes/bunn/states.tsx",
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/cello/header/CelloHeader.tsx",
    "app/store/[slug]/_themes/cello/header/DrawerMenu.tsx",
@@ -6208,6 +7050,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "كل النتائج لـ «{0}»": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
@@ -6230,6 +7073,9 @@
   ],
   "كل منتج يمر بفحص دقيق قبل الشحن لضمان وصوله بأفضل حالة": [
    "app/store/[slug]/_components/sections/WhyChooseUsSection.tsx"
+  ],
+  "كل نقطة على الخريطة محصول عندنا دلوقتي. دوس عليها وشوف قهوتها.": [
+   "app/store/[slug]/_themes/bunn/sections/Origins.tsx"
   ],
   "كلّم {0} مباشرة وهيردوا عليك.": [
    "app/store/[slug]/_themes/dune/footer/DuneFooter.tsx",
@@ -6260,6 +7106,7 @@
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx"
   ],
   "كلّمنا مباشرة": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
    "app/store/[slug]/_themes/gym/info/GymInfo.tsx",
@@ -6282,8 +7129,13 @@
   "كمّل التسوق": [
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
+  "كمّل الصب على دفعات في دواير صغيرة لحد الكمية كلها.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "كمّل الطلب": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/qirat/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx",
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx",
@@ -6302,6 +7154,7 @@
   ],
   "كمّل تسوّق": [
    "components/storefront/popup-view.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx"
   ],
   "كمّل تسوّق ›": [
@@ -6326,6 +7179,7 @@
    "app/store/[slug]/_themes/cello/ui.tsx"
   ],
   "كمية محدودة": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/medical/ui.tsx",
@@ -6333,6 +7187,12 @@
   ],
   "كن أول من يعرف عن العروض الحصرية والمنتجات الجديدة": [
    "app/store/[slug]/_components/sections/NewsletterSection.tsx"
+  ],
+  "كوبا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "كوباية واحدة": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "كوبون خصم": [
    "app/store/[slug]/_themes/riwaq/cart/RiwaqCart.tsx"
@@ -6345,6 +7205,7 @@
   ],
   "كود الخصم": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCart.tsx",
@@ -6379,6 +7240,18 @@
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx",
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
   ],
+  "كوستاريكا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "كولد برو": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "كولومبيا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "كينيا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "لا شكرًا": [
    "app/store/[slug]/_components/offers/OfferHost.tsx"
   ],
@@ -6389,7 +7262,11 @@
    "app/store/[slug]/checkout/page.tsx",
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
+  "لاوس": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "لحد {0}": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
    "app/store/[slug]/_themes/gym/listing/GymListing.tsx",
@@ -6403,6 +7280,9 @@
   ],
   "لسه ما اخترتش أي قطعة. اكتشف المجموعة أو تصفّح الكوليكشنز.": [
    "app/store/[slug]/_themes/qirat/cart/QiratCart.tsx"
+  ],
+  "لسه ما اخترتش حاجة. شوف القهوة أو أدوات التحضير.": [
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx"
   ],
   "لسه ما حفظتش قطع": [
    "app/store/[slug]/_themes/qirat/cart/WishlistDrawer.tsx"
@@ -6458,6 +7338,7 @@
    "app/store/[slug]/_themes/qirat/categories/QiratCategories.tsx"
   ],
   "لسه مفيش منتجات": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
@@ -6468,6 +7349,9 @@
    "app/store/[slug]/_themes/medical/listing/MedicalListing.tsx",
    "app/store/[slug]/_themes/riwaq/listing/RiwaqListing.tsx",
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
+  ],
+  "لسه مفيش منتجات هنا. شوف باقي الأقسام.": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx"
   ],
   "لسه مفيش منتجات هنا. شوف باقي منتجات المتجر.": [
    "app/store/[slug]/_themes/cello/categories/CelloCategories.tsx",
@@ -6496,6 +7380,7 @@
    "app/store/[slug]/_themes/maximize/cart/CartDrawer.tsx"
   ],
   "لفترة محدودة": [
+   "app/store/[slug]/_themes/bunn/sections/ProductSections.tsx",
    "app/store/[slug]/_themes/qirat/sections/ProductSections.tsx",
    "app/store/[slug]/_themes/stage/sections/ProductRow.tsx"
   ],
@@ -6513,6 +7398,7 @@
   ],
   "لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -6562,6 +7448,7 @@
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
   ],
   "ليه تشتري مننا؟": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -6569,6 +7456,9 @@
   ],
   "ليه تشحن مننا؟": [
    "app/store/[slug]/_themes/arena/sections/Editorial.tsx"
+  ],
+  "ليه تشرب قهوتك مننا؟": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx"
   ],
   "ماذا يقول عملاؤنا؟": [
    "app/store/[slug]/_components/sections/TestimonialsSection.tsx"
@@ -6585,6 +7475,7 @@
   ],
   "متجر مبني على": [
    "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
    "app/store/[slug]/_themes/cello/footer/CelloFooter.tsx",
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx",
    "app/store/[slug]/_themes/dune/footer/DuneFooter.tsx",
@@ -6597,11 +7488,20 @@
    "app/store/[slug]/_themes/riwaq/footer/RiwaqFooter.tsx",
    "app/store/[slug]/_themes/stage/footer/StageFooter.tsx"
   ],
+  "متوسط": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "متوسط التقييم": [
    "app/store/[slug]/_components/sections/SocialProofSection.tsx"
   ],
   "متوسط التوصيل": [
    "app/store/[slug]/_components/sections/SocialProofSection.tsx"
+  ],
+  "متوسط غامق": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "متوسطة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "متوفر": [
    "app/store/[slug]/_themes/gym/ui.tsx",
@@ -6624,6 +7524,7 @@
    "app/store/[slug]/_themes/maximize/pdp/MaxProduct.tsx"
   ],
   "متوفر وجاهز للطلب": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
   "متوفر{0}": [
@@ -6661,6 +7562,8 @@
   "مجاني": [
    "lib/notifications/email/layout.ts",
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
@@ -6714,9 +7617,15 @@
    "app/store/[slug]/_themes/gym/header/MegaMenu.tsx",
    "app/store/[slug]/_themes/gym/info/GymInfo.tsx"
   ],
+  "محتار في الطحنة أو التحضير؟": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
   "محتار في المنتج ده؟": [
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx"
+  ],
+  "محتار؟ اسألنا على واتساب": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
   ],
   "محتار؟ نختار معاك على واتساب": [
    "app/store/[slug]/_themes/qirat/sections/GiftFinder.tsx"
@@ -6742,6 +7651,8 @@
    "app/store/[slug]/_themes/riwaq/home/Hero.tsx"
   ],
   "مختارات المتجر": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/qirat/footer/QiratFooter.tsx",
    "app/store/[slug]/_themes/qirat/header/QiratHeader.tsx",
    "app/store/[slug]/_themes/qirat/header/SearchBar.tsx",
@@ -6750,6 +7661,7 @@
    "app/store/[slug]/_themes/riwaq/home/RiwaqHome.tsx"
   ],
   "مختارات ليك": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/qirat/cart/CartDrawer.tsx"
   ],
   "مختارات من المتجر": [
@@ -6778,6 +7690,12 @@
   "مخزون محدود — اطلب الآن!": [
    "app/store/[slug]/_components/sections/UrgencySection.tsx"
   ],
+  "مدار الجدي": [
+   "app/store/[slug]/_themes/bunn/sections/OriginsMap.tsx"
+  ],
+  "مدار السرطان": [
+   "app/store/[slug]/_themes/bunn/sections/OriginsMap.tsx"
+  ],
   "مدفوع": [
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
@@ -6798,12 +7716,14 @@
    "app/store/[slug]/_components/sections/HeroBannerSection.tsx"
   ],
   "مرّر على الصورة للتكبير": [
+   "app/store/[slug]/_themes/bunn/pdp/Gallery.tsx",
    "app/store/[slug]/_themes/qirat/pdp/Gallery.tsx"
   ],
   "مساء الخير": [
    "app/store/[slug]/_themes/market/lib/market.ts"
   ],
   "مسار التصفح": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/classic/ui.tsx",
    "app/store/[slug]/_themes/dune/ui.tsx",
@@ -6827,6 +7747,7 @@
    "app/store/[slug]/_themes/stage/footer/StageFooter.tsx"
   ],
   "مسح": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
    "app/store/[slug]/_themes/dune/listing/ListingControls.tsx",
@@ -6843,6 +7764,7 @@
    "app/store/[slug]/_themes/stage/header/SearchBar.tsx"
   ],
   "مسح البحث": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/classic/header/SearchCombobox.tsx",
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
@@ -6855,6 +7777,7 @@
    "app/store/[slug]/_themes/stage/header/SearchBar.tsx"
   ],
   "مسح السجل": [
+   "app/store/[slug]/_themes/bunn/sections/RecentlyViewed.tsx",
    "app/store/[slug]/_themes/cello/sections/RecentlyViewed.tsx",
    "app/store/[slug]/_themes/gym/sections/RecentlyViewed.tsx",
    "app/store/[slug]/_themes/market/sections/RecentlyViewed.tsx",
@@ -6864,6 +7787,7 @@
    "app/store/[slug]/_themes/stage/sections/RecentlyViewed.tsx"
   ],
   "مسح الفلاتر": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
    "app/store/[slug]/_themes/gym/listing/GymListing.tsx",
@@ -6875,6 +7799,8 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "مسح الكل": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
@@ -6924,6 +7850,7 @@
    "app/store/[slug]/_themes/mada/pdp/ShareButton.tsx"
   ],
   "مشتري مؤكد": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
@@ -6937,6 +7864,7 @@
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
   "مظهر المتجر": [
+   "app/store/[slug]/_themes/bunn/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/market/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/qirat/header/AppearanceToggle.tsx",
    "app/store/[slug]/_themes/stage/header/AppearanceToggle.tsx"
@@ -6950,6 +7878,7 @@
   ],
   "معرض المجموعات": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -6972,6 +7901,7 @@
    "app/store/[slug]/_themes/medical/pdp/DetailTabs.tsx"
   ],
   "مفيش أقسام لسه": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
    "app/store/[slug]/_themes/gym/categories/GymCategories.tsx",
    "app/store/[slug]/_themes/market/categories/MarketCategories.tsx",
    "app/store/[slug]/_themes/medical/categories/MedicalCategories.tsx",
@@ -6993,6 +7923,7 @@
   ],
   "مفيش طرق دفع متاحة دلوقتي": [
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCheckout.tsx",
    "app/store/[slug]/_themes/dune/cart/DuneCheckout.tsx",
@@ -7024,6 +7955,7 @@
    "app/store/[slug]/_themes/riwaq/header/SearchOverlay.tsx"
   ],
   "مفيش منتجات بالفلاتر دي": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
    "app/store/[slug]/_themes/gym/listing/GymListing.tsx",
@@ -7038,6 +7970,7 @@
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx"
   ],
   "مفيش نتائج": [
+   "app/store/[slug]/_themes/bunn/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/cello/listing/ListingControls.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
@@ -7058,6 +7991,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "مفيش نتائج لـ «": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
    "app/store/[slug]/_themes/market/header/SearchBar.tsx",
@@ -7067,6 +8001,7 @@
    "app/store/[slug]/_themes/stage/header/SearchBar.tsx"
   ],
   "مفيش نتائج لـ «{0}»": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
@@ -7089,6 +8024,12 @@
   "مقاسات الأساور بتختلف من موديل للتاني، فقارن بالأطوال المكتوبة في المنتج.": [
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
+  "مقترح": [
+   "app/store/[slug]/_themes/bunn/product/BuyForm.tsx"
+  ],
+  "مقترح للتحميص ده": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
   "مقترحات ليك": [
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/dune/cart/CartDrawer.tsx",
@@ -7106,6 +8047,7 @@
    "app/store/[slug]/_themes/stage/cart/CartDrawer.tsx"
   ],
   "مقدرناش نحمّل السلة.": [
+   "app/store/[slug]/_themes/bunn/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/cello/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/gym/cart/CartDrawer.tsx",
    "app/store/[slug]/_themes/market/cart/CartDrawer.tsx",
@@ -7129,6 +8071,8 @@
   "ملخص الطلب": [
    "app/store/[slug]/_themes/arena/cart/ArenaCart.tsx",
    "app/store/[slug]/_themes/arena/cart/ArenaCheckout.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCart.tsx",
+   "app/store/[slug]/_themes/bunn/cart/BunnCheckout.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCart.tsx",
    "app/store/[slug]/_themes/cello/cart/CelloCheckout.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
@@ -7162,6 +8106,7 @@
    "app/store/[slug]/_themes/medical/cart/CartDrawer.tsx"
   ],
   "ممكن تعجبك كمان": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
   ],
   "ممكن يعجبك كمان": [
@@ -7198,6 +8143,7 @@
    "app/store/[slug]/_themes/riwaq/states.tsx"
   ],
   "ممكن يكون الرابط غلط، أو المنتج اتشال من المتجر. جرّب تدوّر عليه من البحث.": [
+   "app/store/[slug]/_themes/bunn/states.tsx",
    "app/store/[slug]/_themes/gym/states.tsx",
    "app/store/[slug]/_themes/market/states.tsx",
    "app/store/[slug]/_themes/medical/states.tsx",
@@ -7210,6 +8156,7 @@
    "app/store/[slug]/_themes/cello/sections/Editorial.tsx"
   ],
   "من": [
+   "app/store/[slug]/_themes/bunn/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/cello/listing/FilterPanel.tsx",
    "app/store/[slug]/_themes/classic/listing/FilterForm.tsx",
    "app/store/[slug]/_themes/dune/listing/FilterPanel.tsx",
@@ -7223,6 +8170,7 @@
    "app/store/[slug]/_themes/stage/listing/FilterPanel.tsx"
   ],
   "من ": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/cello/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
@@ -7231,6 +8179,10 @@
    "app/store/[slug]/_themes/stage/ui.tsx"
   ],
   "من {0}": [
+   "app/store/[slug]/_themes/bunn/categories/BunnCategories.tsx",
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Categories.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx",
    "app/store/[slug]/_themes/cello/listing/CelloListing.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/classic/listing/ClassicListing.tsx",
@@ -7245,6 +8197,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "من {0} تقييم": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/dune/pdp/DuneProduct.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
@@ -7265,16 +8218,24 @@
    "app/store/[slug]/_themes/gym/sections/Editorial.tsx"
   ],
   "من زيارتك": [
+   "app/store/[slug]/_themes/bunn/sections/RecentlyViewed.tsx",
    "app/store/[slug]/_themes/qirat/sections/RecentlyViewed.tsx"
   ],
   "من عملاء جرّبوها": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
+  ],
+  "من عملائنا": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx"
   ],
   "من عملائنا.": [
    "app/store/[slug]/_themes/stage/sections/Editorial.tsx"
   ],
   "من قسم {0}": [
    "app/store/[slug]/_themes/medical/pdp/MedicalProduct.tsx"
+  ],
+  "من محاصيل": [
+   "app/store/[slug]/_themes/bunn/sections/Hero.tsx"
   ],
   "من ناس جرّبته.": [
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
@@ -7286,6 +8247,9 @@
    "app/store/[slug]/_themes/mada/pdp/MadaProduct.tsx",
    "app/store/[slug]/_themes/maximize/pdp/MaxProduct.tsx"
   ],
+  "من نفس القسم": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx"
+  ],
   "من نفس المجموعة": [
    "app/store/[slug]/_themes/qirat/pdp/QiratProduct.tsx"
   ],
@@ -7293,6 +8257,7 @@
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx"
   ],
   "منتج": [
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -7311,6 +8276,7 @@
    "app/store/[slug]/_themes/dune/listing/ListingControls.tsx"
   ],
   "منتجات": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/classic/cart/ClassicCart.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
@@ -7344,6 +8310,7 @@
    "app/store/[slug]/_themes/maximize/sections/PromotionGrid.tsx"
   ],
   "منتجات مشابهة": [
+   "app/store/[slug]/_themes/bunn/pdp/BunnProduct.tsx",
    "app/store/[slug]/_themes/cello/pdp/CelloProduct.tsx",
    "app/store/[slug]/_themes/gym/pdp/GymProduct.tsx",
    "app/store/[slug]/_themes/market/pdp/MarketProduct.tsx",
@@ -7369,10 +8336,32 @@
   "موقع شركة الشحن: {0}": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "موكا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "ميانمار": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "مية": [
    "app/store/[slug]/_themes/gym/sections/Calculator.tsx"
   ],
+  "مية ساقعة": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "مية سخنة": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
+  "ناعمة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "ناعمة جدًا زي البودرة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "ناعمة لمتوسطة": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "نتائج «{0}»": [
+   "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/dune/listing/DuneListing.tsx",
    "app/store/[slug]/_themes/mada/listing/MadaListing.tsx",
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx"
@@ -7381,6 +8370,7 @@
    "app/store/[slug]/_themes/stage/listing/StageListing.tsx"
   ],
   "نتائج البحث": [
+   "app/store/[slug]/_themes/bunn/header/SearchBar.tsx",
    "app/store/[slug]/_themes/cello/header/SearchBar.tsx",
    "app/store/[slug]/_themes/dune/header/SearchDrawer.tsx",
    "app/store/[slug]/_themes/gym/header/SearchBar.tsx",
@@ -7411,6 +8401,9 @@
   "نحن نؤمن بأن التسوق تجربة وليست مجرد عملية شراء. لهذا نحرص على تقديم أفضل المنتجات بأعلى معايير الجودة وأسرع خدمة توصيل.": [
    "app/store/[slug]/_components/sections/AboutBrandSection.tsx"
   ],
+  "نزل أسرع؟ نعّم الطحنة. نزل أبطأ؟ خشّنها شوية.": [
+   "app/store/[slug]/_themes/bunn/sections/BrewGuide.tsx"
+  ],
   "نزّلها دلوقتي واحتفظ بنسخة — اللينك هيفضل موجود هنا في صفحة الطلب.": [
    "app/store/[slug]/order/[orderId]/_components/DigitalDownloads.tsx"
   ],
@@ -7419,6 +8412,7 @@
   ],
   "نص": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -7431,6 +8425,7 @@
    "app/store/[slug]/_themes/stage/pdp/StageProduct.tsx"
   ],
   "نظرة سريعة": [
+   "app/store/[slug]/_themes/bunn/product/QuickView.tsx",
    "app/store/[slug]/_themes/cello/product/CardActions.tsx",
    "app/store/[slug]/_themes/cello/product/QuickView.tsx",
    "app/store/[slug]/_themes/dune/product/CardActions.tsx",
@@ -7505,8 +8500,18 @@
    "app/store/[slug]/_themes/qirat/pdp/SizeGuide.tsx",
    "app/store/[slug]/_themes/qirat/sections/GiftFinder.tsx"
   ],
+  "نيكاراجوا": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "هاواي": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
+  "هايتي": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "هتتفتح محادثة واتساب ورسالتك جاهزة.": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -7522,6 +8527,9 @@
   "هتتفتح واتساب والقايمة جاهزة بروابط القطع.": [
    "app/store/[slug]/_themes/qirat/cart/WishlistDrawer.tsx"
   ],
+  "هتحس فيها بـ": [
+   "app/store/[slug]/_themes/bunn/pdp/Passport.tsx"
+  ],
   "هتحوّل المبلغ وترفع صورة التحويل قبل تأكيد الطلب": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
@@ -7535,8 +8543,12 @@
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
    "app/store/[slug]/_themes/stage/home/StageHome.tsx"
   ],
+  "هتظهر هنا أول ما تضيف قسم فيه منتجات.": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
+  ],
   "هتظهر هنا لوحدها أول ما المتجر يبدأ يبيع.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx",
    "app/store/[slug]/_themes/gym/home/GymHome.tsx",
    "app/store/[slug]/_themes/market/home/MarketHome.tsx",
    "app/store/[slug]/_themes/qirat/home/QiratHome.tsx",
@@ -7548,8 +8560,12 @@
   "هنتواصل معاك قريب لتأكيد الطلب وميعاد التوصيل.": [
    "lib/notifications/email/order-emails.ts"
   ],
+  "هندوراس": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
+  ],
   "هيتفتح الإيميل ورسالتك جاهزة.": [
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
    "app/store/[slug]/_themes/dune/info/DuneInfo.tsx",
@@ -7561,6 +8577,9 @@
    "app/store/[slug]/_themes/qirat/info/QiratInfo.tsx",
    "app/store/[slug]/_themes/riwaq/info/RiwaqInfo.tsx",
    "app/store/[slug]/_themes/stage/info/StageInfo.tsx"
+  ],
+  "هيتملى من أقسامك أول ما يبقى عندك قسمين فيهم منتجات.": [
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
   ],
   "هيتملى من ألعابك أول ما يبقى عندك لعبتين بصور.": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx"
@@ -7582,6 +8601,8 @@
   "واتساب": [
    "app/store/[slug]/_themes/arena/footer/ArenaFooter.tsx",
    "app/store/[slug]/_themes/arena/info/ArenaInfo.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/info/BunnInfo.tsx",
    "app/store/[slug]/_themes/cello/info/CelloInfo.tsx",
    "app/store/[slug]/_themes/classic/footer/ClassicFooter.tsx",
    "app/store/[slug]/_themes/classic/info/ClassicInfoPages.tsx",
@@ -7609,6 +8630,11 @@
    "app/store/[slug]/_themes/classic/pdp/ClassicProduct.tsx",
    "app/store/[slug]/_themes/mada/pdp/MadaProduct.tsx",
    "app/store/[slug]/_themes/maximize/pdp/MaxProduct.tsx"
+  ],
+  "وصل جديد": [
+   "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
+   "app/store/[slug]/_themes/bunn/header/BunnHeader.tsx",
+   "app/store/[slug]/_themes/bunn/home/BunnHome.tsx"
   ],
   "وصل حديثًا": [
    "app/store/[slug]/_themes/arena/home/ArenaHome.tsx",
@@ -7663,6 +8689,7 @@
    "app/store/[slug]/order/[orderId]/page.tsx"
   ],
   "وعد {0}": [
+   "app/store/[slug]/_themes/bunn/sections/Editorial.tsx",
    "app/store/[slug]/_themes/qirat/sections/Editorial.tsx"
   ],
   "وفّر": [
@@ -7677,6 +8704,7 @@
    "app/store/[slug]/_themes/riwaq/pdp/RiwaqProduct.tsx"
   ],
   "وفّر {0}٪": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/stage/ui.tsx",
    "app/store/[slug]/_themes/cello/product/BuyForm.tsx",
@@ -7712,6 +8740,7 @@
   ],
   "يوم": [
    "app/store/[slug]/_themes/arena/sections/Countdown.tsx",
+   "app/store/[slug]/_themes/bunn/sections/Countdown.tsx",
    "app/store/[slug]/_themes/cello/sections/Countdown.tsx",
    "app/store/[slug]/_themes/dune/sections/Countdown.tsx",
    "app/store/[slug]/_themes/gym/sections/Countdown.tsx",
@@ -7724,16 +8753,21 @@
    "app/store/[slug]/_themes/stage/sections/Countdown.tsx"
   ],
   "يوم واحد": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/stage/ui.tsx"
   ],
   "يومين": [
+   "app/store/[slug]/_themes/bunn/ui.tsx",
    "app/store/[slug]/_themes/gym/ui.tsx",
    "app/store/[slug]/_themes/market/ui.tsx",
    "app/store/[slug]/_themes/qirat/ui.tsx",
    "app/store/[slug]/_themes/stage/ui.tsx"
+  ],
+  "يونان، الصين": [
+   "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ]
  },
  "messages": {
@@ -7966,7 +9000,7 @@
   "العميل غير موجود": [
    "actions/store/loyalty.actions.ts"
   ],
-  "العميل يحول على الحساب البنكي المصري الخاص بالتاجر.": [
+  "العميل يحول على الحساب البنكي الخاص بالتاجر.": [
    "constants/welcome/payment-methods.ts"
   ],
   "العميل يحول على رقم STC Pay الخاص بالتاجر.": [

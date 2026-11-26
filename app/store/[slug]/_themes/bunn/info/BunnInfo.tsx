@@ -1,0 +1,179 @@
+import Image from "next/image";
+import Link from "next/link";
+import { Mail, MessageCircle } from "lucide-react";
+
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import type { AboutViewProps, ContactViewProps, StoreContact, PolicyViewProps, TrackViewProps } from "../../types";
+import { OrderTracker, type TrackSkin } from "../../shared/track/OrderTracker";
+import { PolicyDocument, type PolicySkin } from "../../shared/policies/PolicyDocument";
+import { getSocialLinks, whatsappHref } from "../../shared/social";
+import { Arrow, Empty, Kicker, Divider, PageHead, TextLink, Wrap, btn, num } from "../ui";
+import ContactForm from "./ContactForm";
+import { st } from "@/lib/i18n/storefront";
+
+function Channels({ contact }: { contact: StoreContact }) {
+  const wa = whatsappHref(contact.whatsapp);
+  const rows = [
+    ...(wa ? [{ label: st("واتساب"), value: contact.whatsapp!, href: wa, Icon: MessageCircle, ltr: true }] : []),
+    ...(contact.email ? [{ label: st("البريد الإلكتروني"), value: contact.email, href: `mailto:${contact.email}`, Icon: Mail, ltr: true }] : []),
+    ...getSocialLinks(contact).map((s) => ({ label: s.label, value: st("تابعنا"), href: s.href, Icon: s.Icon, ltr: false })),
+  ];
+  if (rows.length === 0) return null;
+  return (
+    <ul className="bn-group">
+      {rows.map(({ label, value, href, Icon, ltr }) => (
+        <li key={label}>
+          <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="bn-row group">
+            <span className="bn-row-icon">
+              <Icon aria-hidden />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs text-(--bn-ink-2)">{label}</span>
+              <span className="mt-0.5 block truncate text-(--bn-ink)" dir={ltr ? "ltr" : undefined}>
+                <span className="inline-block">{value}</span>
+              </span>
+            </span>
+            <Arrow className="text-(--bn-ink-3)" />
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function BunnAbout({ store, logo, coverImage, description, contact, productCount, categoryCount }: AboutViewProps) {
+  return (
+    <div className="pb-20">
+      <Wrap>
+        <PageHead kicker={st("حكايتنا")} title={st("عن {0}", store.name)} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("عن المتجر") }]} />
+      </Wrap>
+      {coverImage && (
+        <Wrap>
+          <div className="bn-frame bn-reveal relative aspect-[16/10] sm:aspect-[21/9]">
+            <Image src={coverImage} alt="" fill priority sizes="(max-width: 1200px) 100vw, 1200px" className="object-cover" />
+          </div>
+        </Wrap>
+      )}
+      <Wrap className="bn-about">
+        <div className="min-w-0">
+          {logo && (
+            <span className="relative mb-8 block size-20 overflow-hidden rounded-full ring-1 ring-(--bn-line-crema) ring-offset-4 ring-offset-(--bn-bg)">
+              <Image src={logo} alt="" fill sizes="80px" className="object-cover" />
+            </span>
+          )}
+          <p className="bn-statement whitespace-pre-line">{description?.trim() || st("أهلًا بيك في {0}. اختار قهوتك واطلبها بسهولة، وإحنا هنتواصل معاك نأكد كل التفاصيل.", store.name)}</p>
+          <dl className="bn-about-stats">
+            {[
+              { n: productCount, l: st("منتج") },
+              { n: categoryCount, l: st("قسم") },
+            ].map((s) => (
+              <div key={s.l}>
+                <dd className="bn-stat-value">{num(s.n)}</dd>
+                <dt className="mt-2 text-sm text-(--bn-ink-2)">{s.l}</dt>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ size: "lg" })}>
+              {st("شوف القهوة")}
+            </Link>
+            <TextLink href={buildStoreUrl(store.slug, "/contact")}>{st("تواصل معانا")}</TextLink>
+          </div>
+        </div>
+        <aside className="min-w-0">
+          <Kicker>{st("طرق التواصل")}</Kicker>
+          <div className="mt-4">
+            <Channels contact={contact} />
+          </div>
+          {!contact.whatsapp && !contact.email && getSocialLinks(contact).length === 0 && <p className="mt-4 text-sm text-(--bn-ink-2)">{st("المتجر هيتواصل معاك على رقمك بعد ما تطلب.")}</p>}
+        </aside>
+      </Wrap>
+    </div>
+  );
+}
+
+export function BunnContact({ store, contact }: ContactViewProps) {
+  const wa = whatsappHref(contact.whatsapp);
+  const hasAny = !!wa || !!contact.email || getSocialLinks(contact).length > 0;
+  return (
+    <Wrap className="pb-20">
+      <PageHead kicker={st("إحنا هنا")} title={st("تواصل معانا")} note={st("سؤال عن بن، طحنة، أو طلب؟ ابعتلنا وهنرد عليك.")} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تواصل معانا") }]} />
+      {!hasAny ? (
+        <Empty
+          icon={<MessageCircle />}
+          title={st("المتجر لسه مضافش وسيلة تواصل")}
+          description={st("لما تطلب، المتجر هيتواصل معاك على رقم الموبايل اللي هتكتبه.")}
+          action={
+            <Link href={buildStoreUrl(store.slug, "/products")} className={btn()}>
+              {st("كل المنتجات")}
+            </Link>
+          }
+        />
+      ) : (
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
+          <section>
+            <Kicker>{st("كلّمنا مباشرة")}</Kicker>
+            <div className="mt-4">
+              <Channels contact={contact} />
+            </div>
+          </section>
+          {(wa || contact.email) && (
+            <section className="bn-panel p-6 sm:p-8">
+              <h2 className="bn-h3">{st("ابعتلنا رسالة")}</h2>
+              <Divider className="bn-divider--start mt-4" />
+              <p className="mb-6 mt-4 text-sm text-(--bn-ink-2)">{wa ? st("هتتفتح محادثة واتساب ورسالتك جاهزة.") : st("هيتفتح الإيميل ورسالتك جاهزة.")}</p>
+              <ContactForm storeName={store.name} whatsappHref={wa} email={contact.email} />
+            </section>
+          )}
+        </div>
+      )}
+    </Wrap>
+  );
+}
+
+const TRACK_SKIN: TrackSkin = {
+  label: "text-sm text-(--bn-ink)",
+  field: "bn-field",
+  button: btn({ size: "lg", full: true }),
+  secondary: btn({ variant: "outline" }),
+  panel: "bn-panel p-5 sm:p-7",
+  ok: "var(--bn-ok)",
+  warn: "var(--bn-warn)",
+  bad: "var(--bn-error)",
+};
+
+export function BunnTrack({ store, whatsapp, initialCode, order }: TrackViewProps) {
+  return (
+    <Wrap className="pb-20">
+      <PageHead
+        kicker={st("طلبك")}
+        title={st("تتبّع طلبك")}
+        note={order ? undefined : st("اكتب رقم الطلب والموبايل اللي طلبت بيه، وتابع طلبك خطوة بخطوة.")}
+        crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: st("تتبّع طلبك") }]}
+      />
+      <div className="mx-auto max-w-3xl">
+        <OrderTracker storeSlug={store.slug} whatsapp={whatsapp} initialCode={initialCode} initialOrder={order} skin={TRACK_SKIN} />
+      </div>
+    </Wrap>
+  );
+}
+
+export function BunnPolicy({ store, policy, policies }: PolicyViewProps) {
+  return (
+    <Wrap className="pb-20">
+      <PageHead kicker={st("سياسات المتجر")} title={policy.title} crumbs={[{ label: st("الرئيسية"), href: buildStoreUrl(store.slug) }, { label: policy.title }]} />
+      <div className="mx-auto max-w-5xl">
+        <PolicyDocument storeSlug={store.slug} policy={policy} policies={policies} skin={POLICY_SKIN} />
+      </div>
+    </Wrap>
+  );
+}
+
+const POLICY_SKIN: PolicySkin = {
+  heading: "bn-h3",
+  text: "text-(--bn-ink)",
+  meta: "text-(--bn-ink-2)",
+  navItem: "rounded-full border border-(--bn-line) px-4 text-(--bn-ink-2) hover:text-(--bn-ink) lg:rounded-(--bn-r-sm) lg:border-transparent lg:px-3",
+  navActive: "border-(--bn-ink) text-(--bn-ink) font-semibold lg:border-transparent lg:bg-(--bn-fill)",
+  marker: "var(--bn-crema)",
+};

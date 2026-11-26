@@ -115,6 +115,15 @@ import {
   ArenaPageSkeleton,
   ArenaProductSkeleton,
 } from "./arena/states";
+import {
+  BunnCategoriesSkeleton,
+  BunnGridPageSkeleton,
+  BunnHomeSkeleton,
+  BunnListingSkeleton,
+  BunnNotFound,
+  BunnPageSkeleton,
+  BunnProductSkeleton,
+} from "./bunn/states";
 
 type StateKind = "home" | "listing" | "product" | "page" | "categories" | "grid" | "not-found";
 
@@ -227,6 +236,15 @@ const STATES: Record<ThemePresetId, Record<StateKind, React.ComponentType>> = {
     // The category page (kind "grid") is Arena's game page.
     grid: ArenaGameSkeleton,
     "not-found": ArenaNotFound,
+  },
+  bunn: {
+    home: BunnHomeSkeleton,
+    listing: BunnListingSkeleton,
+    product: BunnProductSkeleton,
+    page: BunnPageSkeleton,
+    categories: BunnCategoriesSkeleton,
+    grid: BunnGridPageSkeleton,
+    "not-found": BunnNotFound,
   },
 };
 

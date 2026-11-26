@@ -1,0 +1,99 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { SectionHead } from "../ui";
+import { st } from "@/lib/i18n/storefront";
+
+/** A shelf that slides sideways: the head on the start with two round arrows
+ *  on the end, the cards starting at the content column and running off the
+ *  screen's end. */
+export default function Rail({
+  children,
+  label,
+  title,
+  kicker,
+  note,
+  href,
+  linkLabel = st("عرض الكل"),
+  actions,
+  className,
+  listClassName,
+}: {
+  children: ReactNode;
+  label: string;
+  title?: string;
+  kicker?: string;
+  note?: string;
+  href?: string;
+  linkLabel?: string;
+  actions?: ReactNode;
+  className?: string;
+  listClassName?: string;
+}) {
+  const ref = useRef<HTMLUListElement>(null);
+  const [state, setState] = useState({ start: true, end: true });
+
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    const pos = Math.abs(el.scrollLeft);
+    setState({ start: pos <= 2, end: pos >= max - 2 });
+  }, []);
+
+  useEffect(() => {
+    measure();
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [measure]);
+
+  const page = (step: 1 | -1) => {
+    const el = ref.current;
+    if (!el) return;
+    const rtl = getComputedStyle(el).direction === "rtl";
+    el.scrollBy({ left: el.clientWidth * 0.8 * step * (rtl ? -1 : 1), behavior: "smooth" });
+  };
+
+  const scrollable = !(state.start && state.end);
+  const arrows = scrollable && (
+    <div className="flex gap-2 max-sm:hidden">
+      <button type="button" onClick={() => page(-1)} disabled={state.start} aria-label={st("السابق")} className="bn-paddle">
+        <ChevronRight className="ltr:rotate-180" />
+      </button>
+      <button type="button" onClick={() => page(1)} disabled={state.end} aria-label={st("التالي")} className="bn-paddle">
+        <ChevronLeft className="ltr:rotate-180" />
+      </button>
+    </div>
+  );
+
+  return (
+    <div className={cn("relative", className)}>
+      {title && (
+        <div className="bn-wrap">
+          <SectionHead
+            kicker={kicker}
+            title={title}
+            note={note}
+            href={href}
+            linkLabel={linkLabel}
+            actions={
+              <>
+                {actions}
+                {arrows}
+              </>
+            }
+          />
+        </div>
+      )}
+      <ul ref={ref} onScroll={measure} aria-label={label} className={cn("bn-shelf", listClassName)}>
+        {children}
+      </ul>
+    </div>
+  );
+}

@@ -1,0 +1,51 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { Dialog } from "radix-ui";
+
+import { cn } from "@/lib/utils";
+import type { StoreShell } from "../../types";
+import { SEARCH_EVENT } from "../lib/events";
+import { BN_PORTAL } from "../ui";
+import SearchBar from "./SearchBar";
+import { st } from "@/lib/i18n/storefront";
+
+/** Search drops from the top over a softened page. Every search button in the
+ *  theme (and ⌘K) opens this one. */
+export default function SearchSheet({ shell }: { shell: StoreShell }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen(true);
+      }
+    };
+    window.addEventListener(SEARCH_EVENT, onOpen);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener(SEARCH_EVENT, onOpen);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  return (
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Portal>
+        <Dialog.Overlay className={cn(BN_PORTAL, "bn-scrim bn-scrim--soft fixed inset-0 z-50")} />
+        <Dialog.Content dir={shell.dir} aria-describedby={undefined} className={cn(BN_PORTAL, "bn-searchsheet fixed inset-x-0 top-0 z-50 outline-none")}>
+          <Dialog.Title className="sr-only">{st("البحث في المتجر")}</Dialog.Title>
+          <div className="bn-wrap relative pt-5 pb-8">
+            <SearchBar shell={shell} autoFocus onDone={() => setOpen(false)} className="min-w-0" />
+            <Dialog.Close aria-label={st("إغلاق البحث")} className="bn-icon absolute end-(--bn-gutter) top-6">
+              <X />
+            </Dialog.Close>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}

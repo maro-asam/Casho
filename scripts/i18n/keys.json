@@ -2669,6 +2669,9 @@
   "اختيار": [
    "app/(merchant)/(builder)/builder/_components/media/UnsplashPickerModal.tsx"
   ],
+  "اختيار الطحنة": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
+  ],
   "اختيار باقة": [
    "app/(merchant)/dashboard/change-plan/page.tsx"
   ],
@@ -3298,6 +3301,9 @@
   "اقفلها لو بتبيع أكواد أو كروت هدايا مش محتاجة حساب: الطلب بيتأكد من غير خانة المعرّف.": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
+  "اقفلها لو بتبيع البن مطحون جاهز: صفحة البن هتطلب من غير الطحنة.": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
+  ],
   "اقفلها لو متجرك مش صيدلية: الشكل زي ما هو، وزراير الروشتة بتبقى «كلّمنا واتساب».": [
    "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
@@ -3781,6 +3787,9 @@
   ],
   "البريد المصري": [
    "lib/shipping/carriers.ts"
+  ],
+  "البن الحبوب بيطلب من العميل يختار الطحنة (حبوب، إسبريسو، تركي، فلتر…)، وبتظهرلك في الطلب.": [
+   "app/(merchant)/(builder)/builder/_components/panels/LayoutPanel.tsx"
   ],
   "البوليصة": [
    "app/(merchant)/dashboard/orders/[id]/_components/shipment-card.tsx"
@@ -4758,6 +4767,10 @@
   "الصيغة": [
    "app/(merchant)/dashboard/image-compressor/_components/image-compressor.tsx"
   ],
+  "الطحنة": [
+   "app/(merchant)/dashboard/orders/[id]/page.tsx",
+   "app/(merchant)/print/orders/[id]/invoice/page.tsx"
+  ],
   "الطريقة": [
    "app/(merchant)/dashboard/orders/[id]/page.tsx"
   ],
@@ -4985,7 +4998,7 @@
   "العميل هينزّله بعد ما يدفع": [
    "app/(merchant)/dashboard/products/_components/product-form/digital-input.tsx"
   ],
-  "العميل يحول على الحساب البنكي المصري الخاص بالتاجر.": [
+  "العميل يحول على الحساب البنكي الخاص بالتاجر.": [
    "constants/welcome/payment-methods.ts"
   ],
   "العميل يحول على رقم STC Pay الخاص بالتاجر.": [
@@ -5001,6 +5014,9 @@
    "app/(merchant)/onboarding/_components/OnboardingWizard.tsx"
   ],
   "العميل يختار الميزانية ونوع القطعة ويوصل للهدية المناسبة، أو يسألك على واتساب.": [
+   "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
+  ],
+  "العميل يختار طريقة التحضير وعدد الفناجين ويعرف المقادير والطحنة، مع بن من متجرك يناسبها.": [
    "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
   ],
   "العميل يدفع أو يحول على حساب PayPal الخاص بالتاجر.": [
@@ -7699,6 +7715,9 @@
   "ثيم طبي احترافي للصيدليات: بحث كبير، أقسام بأيقونات، روشتة على واتساب، اسأل الصيدلي، كروت منتجات واضحة، وسلة جانبية.": [
    "constants/store-themes.ts"
   ],
+  "ثيم قهوة ومحامص: ورق كرافت وبنّي إسبريسو ولمسة كريما، بطاقة محصول لكل بن (المنشأ والمعالجة والارتفاع والنكهات) من خصائص المنتج، مؤشر درجة التحميص، اختيار الطحنة مع الطلب، دليل تحضير بحاسبة مقادير، وخريطة حزام البن بمناشئ قهوتك. فاتح وغامق.": [
+   "constants/store-themes.ts"
+  ],
   "ثيم قوي بالأسود والأحمر، معمول للجيم والمكملات وينفع لأي متجر: هيرو ضخم، ترتيب الأكثر مبيعًا، عروض بعدّاد، وحاسبة بروتين بتظهر لمتاجر المكملات بس.": [
    "constants/store-themes.ts"
   ],
@@ -8173,6 +8192,9 @@
   "حروف وأرقام إنجليزي، تحت اسم البيكسل.": [
    "app/(merchant)/dashboard/pixels/_components/pixels-form.tsx"
   ],
+  "حزام البن": [
+   "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
+  ],
   "حساب انستجرام": [
    "app/(merchant)/dashboard/instagram/_components/ConnectionStatus.tsx"
   ],
@@ -8377,6 +8399,9 @@
   "خريطة الموقع (Sitemap)": [
    "app/(merchant)/dashboard/seo/_components/seo-form.tsx"
   ],
+  "خريطة بمناشئ قهوتك من خاصية «المنشأ» في المنتجات، والعميل يدوس على البلد ويشوف قهوتها.": [
+   "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
+  ],
   "خزنلي": [
    "lib/shipping/carriers.ts"
   ],
@@ -8559,6 +8584,9 @@
   ],
   "دلوقتي": [
    "app/(merchant)/(builder)/builder/_components/BuilderTopBar.tsx"
+  ],
+  "دليل التحضير": [
+   "app/(merchant)/(builder)/builder/_components/section-meta.tsx"
   ],
   "ده \"{0}\". انسخه دلوقتي — مش هنقدر نعرضه تاني بعد ما تقفل.": [
    "app/(merchant)/dashboard/api-keys/_components/key-reveal.tsx"
@@ -11113,6 +11141,9 @@
   ],
   "كاشو بتظبط الـ DNS": [
    "app/(merchant)/dashboard/domain/_components/domain-status.tsx"
+  ],
+  "كاشو بُن": [
+   "constants/store-themes.ts"
   ],
   "كاشو جيم": [
    "constants/store-themes.ts"

@@ -1,0 +1,164 @@
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, SearchX, X } from "lucide-react";
+
+import { buildStoreUrl } from "@/helpers/BuildStoreURL";
+import { BeanIcon } from "../icons";
+import { productsQueryString, type ProductsQuery } from "@/lib/products-query";
+import { cn } from "@/lib/utils";
+import type { CategoryLink, ListingViewProps } from "../../types";
+import ProductCard from "../product/ProductCard";
+import { Empty, PageHead, Wrap, btn, num } from "../ui";
+import ListingControls from "./ListingControls";
+import { formatPrice, st } from "@/lib/i18n/storefront";
+
+function href(slug: string, q: Partial<ProductsQuery>) {
+  return buildStoreUrl(slug, `/products${productsQueryString(q)}`);
+}
+
+/** Collections as a centered line of names, the current one underlined in gold. */
+export function CollectionTabs({ slug, current, categories, query }: { slug: string; current: string; categories: CategoryLink[]; query?: ProductsQuery }) {
+  if (categories.length === 0) return null;
+  const to = (c: string) => (query ? href(slug, { ...query, category: c, page: 1 }) : c ? buildStoreUrl(slug, `/categories/${c}`) : buildStoreUrl(slug, "/products"));
+  return (
+    <nav aria-label={st("الأقسام")} className="bn-ctabs">
+      <ul className="bn-rail bn-bleed">
+        {[{ id: "all", slug: "", name: st("الكل") }, ...categories].map((c) => (
+          <li key={c.id} className="shrink-0">
+            <Link href={to(c.slug)} scroll={false} aria-current={current === c.slug ? "page" : undefined} className="bn-ctab">
+              {c.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+function ActiveChips({ slug, query, categoryName }: { slug: string; query: ProductsQuery; categoryName?: string }) {
+  const chips: { label: string; remove: Partial<ProductsQuery> }[] = [];
+  if (query.search) chips.push({ label: `«${query.search}»`, remove: { search: "" } });
+  if (categoryName) chips.push({ label: categoryName, remove: { category: "" } });
+  if (query.inStock) chips.push({ label: st("المتوفر حالًا"), remove: { inStock: false } });
+  if (query.featured) chips.push({ label: st("اختيارات المحمصة"), remove: { featured: false } });
+  if (query.brand) chips.push({ label: query.brand, remove: { brand: "" } });
+  if (query.size) chips.push({ label: query.size, remove: { size: "" } });
+  if (query.color) chips.push({ label: query.color, remove: { color: "" } });
+  if (query.minPrice > 0) chips.push({ label: st("من {0}", formatPrice(query.minPrice)), remove: { minPrice: 0 } });
+  if (query.maxPrice > 0) chips.push({ label: st("لحد {0}", formatPrice(query.maxPrice)), remove: { maxPrice: 0 } });
+  if (chips.length === 0) return null;
+  return (
+    <div className="mb-8 flex flex-wrap items-center gap-2">
+      {chips.map((c) => (
+        <Link key={c.label} href={href(slug, { ...query, ...c.remove, page: 1 })} scroll={false} aria-label={st("إزالة فلتر {0}", c.label)} className="bn-chip bn-chip--sm bn-chip--on">
+          <span className="max-w-48 truncate">{c.label}</span>
+          <X className="size-3.5" />
+        </Link>
+      ))}
+      {chips.length > 1 && (
+        <Link href={href(slug, { sort: query.sort })} scroll={false} className="bn-link ms-2 text-sm">
+          <span className="bn-underline">{st("مسح الكل")}</span>
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function Pagination({ slug, query, totalPages, shown, total }: { slug: string; query: ProductsQuery; totalPages: number; shown: number; total: number }) {
+  if (totalPages <= 1) return null;
+  const page = query.page;
+  const pages: (number | "…")[] = [];
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) pages.push(p);
+    else if (pages[pages.length - 1] !== "…") pages.push("…");
+  }
+  return (
+    <nav aria-label={st("الصفحات")} className="mt-16 flex flex-col items-center gap-5">
+      <p className="text-sm text-(--bn-ink-2)">
+        {st("شفت {0} من {1} منتج", num(shown), num(total))}
+      </p>
+      <span className="h-px w-56 bg-(--bn-line)" aria-hidden>
+        <span className="block h-px bg-(--bn-crema)" style={{ width: `${Math.round((shown / total) * 100)}%` }} />
+      </span>
+      <div className="flex items-center gap-1">
+        {page > 1 && (
+          <Link href={href(slug, { ...query, page: page - 1 })} aria-label={st("الصفحة السابقة")} className="bn-page">
+            <ChevronRight className="size-4 ltr:rotate-180" />
+          </Link>
+        )}
+        {pages.map((p, i) =>
+          p === "…" ? (
+            <span key={`g${i}`} className="px-1 text-(--bn-ink-2)" aria-hidden>
+              …
+            </span>
+          ) : (
+            <Link key={p} href={href(slug, { ...query, page: p })} aria-current={p === page ? "page" : undefined} aria-label={st("الصفحة {0}", p)} className={cn("bn-page", p === page && "is-on")}>
+              {num(p)}
+            </Link>
+          ),
+        )}
+        {page < totalPages && (
+          <Link href={href(slug, { ...query, page: page + 1 })} aria-label={st("الصفحة التالية")} className="bn-page">
+            <ChevronLeft className="size-4 ltr:rotate-180" />
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+export default function BunnListing({ store, products, categories, query, total, totalPages, pageSize, priceBounds, dir, facets }: ListingViewProps) {
+  const category = categories.find((c) => c.slug === query.category);
+  const activeCount =
+    (query.category ? 1 : 0) + (query.featured ? 1 : 0) + (query.inStock ? 1 : 0) + (query.brand ? 1 : 0) + (query.size ? 1 : 0) + (query.color ? 1 : 0) + (query.minPrice > 0 ? 1 : 0) + (query.maxPrice > 0 ? 1 : 0);
+  const filtered = activeCount > 0 || !!query.search;
+  const shown = Math.min(query.page * pageSize, total);
+  const title = query.search ? st("نتائج «{0}»", query.search) : category ? category.name : query.featured ? st("اختيارات المحمصة") : st("كل المنتجات");
+  const kicker = query.search ? st("البحث") : category ? st("القسم") : query.featured ? st("اختيارنا ليك") : store.name;
+  const crumbs = [
+    { label: st("الرئيسية"), href: buildStoreUrl(store.slug) },
+    ...(query.search || category ? [{ label: st("كل المنتجات"), href: buildStoreUrl(store.slug, "/products") }, { label: query.search ? st("البحث") : category!.name }] : [{ label: st("كل المنتجات") }]),
+  ];
+
+  return (
+    <div className="pb-12">
+      <Wrap>
+        <PageHead kicker={kicker} title={title} crumbs={crumbs} note={total > 0 ? st("{0} منتج", num(total)) : undefined} />
+        <CollectionTabs slug={store.slug} current={query.category} categories={categories} query={query} />
+        <ListingControls storeSlug={store.slug} query={query} categories={categories} priceBounds={priceBounds} facets={facets} dir={dir} activeCount={activeCount} total={total} />
+        <ActiveChips slug={store.slug} query={query} categoryName={category?.name} />
+        {products.length === 0 ? (
+          filtered ? (
+            <Empty
+              icon={<SearchX />}
+              title={query.search ? st("مفيش نتائج لـ «{0}»", query.search) : st("مفيش منتجات بالفلاتر دي")}
+              description={query.search ? st("اتأكد من الكتابة، أو جرّب اسم البلد أو كلمة أبسط.") : st("جرّب تشيل فلتر أو اتنين عشان تشوف منتجات أكتر.")}
+              action={
+                <>
+                  <Link href={href(store.slug, { search: query.search, sort: query.sort })} className={btn()}>
+                    {st("مسح الفلاتر")}
+                  </Link>
+                  <Link href={buildStoreUrl(store.slug, "/products")} className={btn({ variant: "outline" })}>
+                    {st("كل المنتجات")}
+                  </Link>
+                </>
+              }
+            />
+          ) : (
+            <Empty icon={<BeanIcon />} title={st("لسه مفيش منتجات")} description={st("المتجر بيجهز منتجاته. ارجع تاني قريب.")} />
+          )
+        ) : (
+          <>
+            <ul className="bn-pgrid">
+              {products.map((p, i) => (
+                <li key={p.id} className="min-w-0">
+                  <ProductCard product={p} storeSlug={store.slug} priority={i < 4} index={i} />
+                </li>
+              ))}
+            </ul>
+            <Pagination slug={store.slug} query={query} totalPages={totalPages} shown={shown} total={total} />
+          </>
+        )}
+      </Wrap>
+    </div>
+  );
+}

@@ -1,0 +1,92 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useId, useState } from "react";
+import { SlidersHorizontal, X } from "lucide-react";
+import { Dialog } from "radix-ui";
+
+import { productsQueryString } from "@/lib/products-query";
+import { cn } from "@/lib/utils";
+import { SORT_OPTIONS } from "../../shared/commerce";
+import { clearedQueryString } from "../../shared/filters";
+import { storeHref } from "../../shared/store-path";
+import { BN_PORTAL, btn, num } from "../ui";
+import FilterPanel, { type FilterProps } from "./FilterPanel";
+import { st } from "@/lib/i18n/storefront";
+
+type Props = FilterProps & { dir: "rtl" | "ltr"; activeCount: number; total: number };
+
+/** The toolbar over the grid: the filter drawer's button with the active
+ *  count, the number of pieces, and the sort. The grid itself keeps the
+ *  merchant's columns at full width. */
+export default function ListingControls(props: Props) {
+  const router = useRouter();
+  const { storeSlug, query, dir, activeCount, total } = props;
+  const [open, setOpen] = useState(false);
+  const id = useId();
+
+  return (
+    <div className="bn-toolbar">
+      <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="bn-toolbar-btn">
+        <SlidersHorizontal aria-hidden />
+        <span>{st("الفلاتر")}</span>
+        {activeCount > 0 && <span className="bn-count !static">{num(activeCount)}</span>}
+      </button>
+      <p className="bn-num text-sm text-(--bn-ink-2) max-sm:hidden" aria-live="polite">
+        {total > 0 ? st("{0} منتج", num(total)) : st("مفيش نتائج")}
+      </p>
+      <div className="flex items-center gap-2">
+        <label htmlFor={id} className="shrink-0 text-sm text-(--bn-ink-2) max-sm:sr-only">
+          {st("الترتيب:")}
+        </label>
+        <select
+          id={id}
+          value={query.sort}
+          onChange={(e) => router.push(storeHref(storeSlug, `/products${productsQueryString({ ...query, sort: e.target.value as typeof query.sort, page: 1 })}`), { scroll: false })}
+          className="bn-select"
+        >
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className={cn(BN_PORTAL, "bn-scrim fixed inset-0 z-50")} />
+          <Dialog.Content dir={dir} aria-describedby={undefined} className={cn(BN_PORTAL, "bn-drawer bn-drawer--start fixed inset-y-0 start-0 z-50 flex w-[min(92vw,24rem)] flex-col bg-(--bn-sheet) outline-none")}>
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-(--bn-line) px-6">
+              <Dialog.Title className="bn-h3">{st("فلترة المنتجات")}</Dialog.Title>
+              <Dialog.Close className="bn-icon -me-2" aria-label={st("إغلاق")}>
+                <X />
+              </Dialog.Close>
+            </div>
+            <FilterPanel
+              {...props}
+              onApplied={() => setOpen(false)}
+              footer={
+                <div className="grid shrink-0 grid-cols-[auto_1fr] gap-2.5 border-t border-(--bn-line) p-4" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      router.push(storeHref(storeSlug, `/products${clearedQueryString(query)}`), { scroll: false });
+                      setOpen(false);
+                    }}
+                    className={btn({ variant: "outline" })}
+                  >
+                    {st("مسح الكل")}
+                  </button>
+                  <button type="submit" className={btn({ full: true })}>
+                    {st("عرض النتائج")}
+                  </button>
+                </div>
+              }
+            />
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </div>
+  );
+}

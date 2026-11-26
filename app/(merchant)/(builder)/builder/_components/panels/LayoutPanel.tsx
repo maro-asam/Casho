@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ClipboardPlus, Gamepad2 } from "lucide-react";
+import { ClipboardPlus, Coffee, Gamepad2 } from "lucide-react";
 import { UpdateThemeLayoutAction } from "@/actions/settings/theme.actions";
 import { SegmentedButtons } from "@/components/saas-page";
 import type { ThemeLayout } from "@/types/store-theme.types";
@@ -166,6 +166,19 @@ export default function LayoutPanel() {
             description={tr("صفحة اللعبة بتطلب معرّف اللاعب (ID) واسمه، ويظهرولك في الطلب.")}
             checked={layout.playerId !== false}
             onCheckedChange={(v) => set("playerId", v)}
+          />
+        </Group>
+      )}
+
+      {theme.presetId === "bunn" && (
+        <Group title={tr("خاص بالثيم")} footer={tr("اقفلها لو بتبيع البن مطحون جاهز: صفحة البن هتطلب من غير الطحنة.")}>
+          <SwitchRow
+            icon={Coffee}
+            tint="bg-(--sys-orange)"
+            label={tr("اختيار الطحنة")}
+            description={tr("البن الحبوب بيطلب من العميل يختار الطحنة (حبوب، إسبريسو، تركي، فلتر…)، وبتظهرلك في الطلب.")}
+            checked={layout.grind !== false}
+            onCheckedChange={(v) => set("grind", v)}
           />
         </Group>
       )}

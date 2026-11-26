@@ -17,6 +17,7 @@ import { medicalTheme } from "./medical";
 import { celloTheme } from "./cello";
 import { qiratTheme } from "./qirat";
 import { arenaTheme } from "./arena";
+import { bunnTheme } from "./bunn";
 import { riwaqTheme } from "./riwaq";
 import type { StorefrontTheme } from "./types";
 
@@ -33,6 +34,7 @@ const THEMES: Record<ThemePresetId, StorefrontTheme> = {
   stage: stageTheme,
   qirat: qiratTheme,
   arena: arenaTheme,
+  bunn: bunnTheme,
 };
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {

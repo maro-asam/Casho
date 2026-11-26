@@ -5,7 +5,7 @@
 
 // ─── Preset IDs ──────────────────────────────────────────────────────────────
 
-export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym", "market", "stage", "qirat", "arena"] as const;
+export const THEME_PRESET_IDS = ["default", "riwaq", "mada", "dune", "maximize", "cello", "medical", "gym", "market", "stage", "qirat", "arena", "bunn"] as const;
 
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 
@@ -87,6 +87,10 @@ export type ThemeLayout = {
    *  it with the order (lib/orders/account-fields). Off = a store selling codes
    *  or gift cards, where nothing needs to be charged to an account. Missing = on. */
   playerId?: boolean;
+  /** Casho Bunn only: coffee sold as beans asks how to grind it (whole bean,
+   *  espresso, Turkish, filter…) and sends it with the order as the cart
+   *  line's `grind` feature. Off = beans go as they are. Missing = on. */
+  grind?: boolean;
 };
 
 // ─── Section Content Types ────────────────────────────────────────────────────
@@ -254,7 +258,9 @@ export type SectionKey =
   | "showCalculator"
   | "showShoppingList"
   | "showSpotlight"
-  | "showGiftFinder";
+  | "showGiftFinder"
+  | "showBrewGuide"
+  | "showOrigins";
 
 /**
  * Recommended default section order for new stores.
@@ -280,6 +286,8 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "showShoppingList",
   "showSpotlight",
   "showGiftFinder",
+  "showBrewGuide",
+  "showOrigins",
 ];
 
 export type HomePageSections = {
@@ -306,6 +314,8 @@ export type HomePageSections = {
   showShoppingList: boolean;
   showSpotlight: boolean;
   showGiftFinder: boolean;
+  showBrewGuide: boolean;
+  showOrigins: boolean;
   /** Render order — falls back to DEFAULT_SECTION_ORDER */
   sectionOrder?: SectionKey[];
 };

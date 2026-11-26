@@ -51,6 +51,7 @@ const FEATURE_LABELS: Record<string, string> = {
   get color() { return tr("اللون"); },
   get playerId() { return tr("معرّف اللاعب"); },
   get playerName() { return tr("اسم اللاعب"); },
+  get grind() { return tr("الطحنة"); },
 };
 
 /** Egyptian mobile → international digits for wa.me (01xxxxxxxxx → 201xxxxxxxxx). */

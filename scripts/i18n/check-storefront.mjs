@@ -126,7 +126,7 @@ for (const sf of project.getSourceFiles()) {
 }
 
 // Keys the code builds at runtime (split parts of composite strings).
-for (const k of ["المقاس: {0}", "اللون: {0}"]) add(keys, k, "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx");
+for (const k of ["المقاس: {0}", "اللون: {0}", "الطحنة: {0}"]) add(keys, k, "app/store/[slug]/_themes/shared/track/TrackedOrderView.tsx");
 // Customer status emails translate STATUS_COPY at send time.
 {
   const sf = project.getSourceFile(path.join(ROOT, "lib/notifications/email/order-emails.ts"));

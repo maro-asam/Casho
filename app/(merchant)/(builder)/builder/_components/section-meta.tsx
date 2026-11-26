@@ -1,5 +1,7 @@
 import {
   AlignLeft,
+  Coffee,
+  Globe2,
   Calculator,
   ListChecks,
   Clock,
@@ -180,6 +182,22 @@ export const SECTION_META: Record<SectionKey, SectionMeta> = {
     get description() { return tr("العميل يختار الميزانية ونوع القطعة ويوصل للهدية المناسبة، أو يسألك على واتساب."); },
     group: "sales",
     themes: ["qirat"],
+  },
+  showBrewGuide: {
+    icon: Coffee,
+    tint: "bg-(--sys-orange)",
+    get label() { return tr("دليل التحضير"); },
+    get description() { return tr("العميل يختار طريقة التحضير وعدد الفناجين ويعرف المقادير والطحنة، مع بن من متجرك يناسبها."); },
+    group: "sales",
+    themes: ["bunn"],
+  },
+  showOrigins: {
+    icon: Globe2,
+    tint: "bg-(--sys-green)",
+    get label() { return tr("حزام البن"); },
+    get description() { return tr("خريطة بمناشئ قهوتك من خاصية «المنشأ» في المنتجات، والعميل يدوس على البلد ويشوف قهوتها."); },
+    group: "story",
+    themes: ["bunn"],
   },
 };
 
@@ -401,6 +419,34 @@ function thumb(id: SectionKey) {
               <div key={i} className="aspect-[3/4] flex-1 rounded-[3px] bg-white/15" />
             ))}
           </div>
+        </div>
+      );
+    case "showBrewGuide":
+      return (
+        <div className="flex h-full gap-1.5 rounded-[6px] bg-[#f6f1e8] p-1">
+          <div className="flex w-1/3 flex-col justify-center gap-1">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={cn("h-2 rounded-full", i === 0 ? "bg-[#2b1a12]" : "bg-[#2b1a12]/15")} />
+            ))}
+          </div>
+          <div className="grid flex-1 grid-cols-2 gap-1">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex flex-col justify-center gap-0.5 rounded-[3px] bg-white px-1">
+                <div className="h-0.5 w-1/2 rounded-full bg-[#2b1a12]/25" />
+                <div className="h-1 w-3/4 rounded-full bg-[#c4813e]" />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case "showOrigins":
+      return (
+        <div className="relative h-full overflow-hidden rounded-[6px] bg-[#1d130d]">
+          <div className="absolute inset-x-0 top-[28%] h-[44%] bg-[#c4813e]/15" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle,#f2e9dd55_1px,transparent_1.2px)] bg-[length:5px_5px]" />
+          {[[22, 46], [48, 38], [56, 30], [78, 52]].map(([x, y], i) => (
+            <div key={i} className="absolute size-1.5 rounded-full bg-[#e3b17b] ring-2 ring-[#e3b17b]/30" style={{ insetInlineStart: `${x}%`, top: `${y}%` }} />
+          ))}
         </div>
       );
     case "showRichText":

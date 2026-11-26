@@ -21,7 +21,7 @@ import { stIn, toStoreLocale, type StoreLocale } from "@/lib/i18n/storefront";
 import { ensureStoreEnglish } from "@/lib/i18n/storefront/load-english";
 import { emailMoney, esc, infoRows, itemsTable, notice, renderEmail, sectionTitle, type EmailBrand } from "./layout";
 
-const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون", playerId: "معرّف اللاعب", playerName: "اسم اللاعب" };
+const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون", playerId: "معرّف اللاعب", playerName: "اسم اللاعب", grind: "الطحنة" };
 
 async function loadOrder(orderId: string) {
   return prisma.order.findUnique({

@@ -2,6 +2,7 @@
 // Arabic source text → English, split by storefront area.
 import type { Dictionary } from "../runtime";
 import _arena from "./arena.json";
+import _bunn from "./bunn.json";
 import _cello from "./cello.json";
 import _classic from "./classic.json";
 import _common from "./common.json";
@@ -18,5 +19,5 @@ import _qirat from "./qirat.json";
 import _riwaq from "./riwaq.json";
 import _stage from "./stage.json";
 
-const english: Dictionary = Object.assign({}, _arena, _cello, _classic, _common, _dune, _emails, _gym, _mada, _market, _maximize, _medical, _messages, _pages, _qirat, _riwaq, _stage);
+const english: Dictionary = Object.assign({}, _arena, _bunn, _cello, _classic, _common, _dune, _emails, _gym, _mada, _market, _maximize, _medical, _messages, _pages, _qirat, _riwaq, _stage);
 export default english;

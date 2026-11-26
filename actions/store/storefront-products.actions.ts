@@ -6,6 +6,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { PRODUCT_CARD_SELECT, toProductCards } from "@/app/store/[slug]/_lib/storefront";
+import { readProductAttributes } from "@/lib/products/attributes";
 import { stockOf } from "@/lib/products/digital";
 
 const MAX_IDS = 24;
@@ -58,6 +59,7 @@ export async function GetQuickViewProductAction(storeSlug: string, productSlug: 
       sizes: true,
       colors: true,
       brand: true,
+      attributes: true,
       category: { select: { name: true, slug: true } },
       reviews: { select: { rating: true } },
     },
@@ -79,6 +81,7 @@ export async function GetQuickViewProductAction(storeSlug: string, productSlug: 
     sizes: p.sizes,
     colors: p.colors,
     brand: p.brand,
+    attributes: readProductAttributes(p.attributes),
     category: p.category,
     rating: count ? { average: p.reviews.reduce((s, r) => s + r.rating, 0) / count, count } : null,
   };

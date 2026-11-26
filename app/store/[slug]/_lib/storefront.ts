@@ -9,6 +9,7 @@ import { BANNER_DEFAULT_CTA, BANNER_LINK_SELECT, liveBannerWhere, resolveBannerL
 import type { ThemeCustomization } from "@/types/store-theme.types";
 import type { BannerData, ProductCardData } from "../_themes/types";
 import { stockOf } from "@/lib/products/digital";
+import { readProductAttributes } from "@/lib/products/attributes";
 import { manualTransferDetail, needsPaymentProof, proofRules, type ProofRules } from "@/lib/payments/manual-proof";
 import { st, storeIntlLocale } from "@/lib/i18n/storefront";
 
@@ -33,6 +34,7 @@ export const PRODUCT_CARD_SELECT = {
   isDigital: true,
   sizes: true,
   colors: true,
+  attributes: true,
   category: { select: { name: true, slug: true } },
 } satisfies Prisma.ProductSelect;
 
@@ -112,6 +114,7 @@ export async function toProductCards(rows: CardRow[]): Promise<ProductCardData[]
     colors: p.colors,
     brand: p.brand,
     isNew: now - p.createdAt.getTime() < NEW_FOR_MS,
+    attributes: readProductAttributes(p.attributes),
   }));
 }
 

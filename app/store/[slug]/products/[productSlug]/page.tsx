@@ -8,6 +8,7 @@ import { absoluteUrl, isPlaceholderImage, jsonLd, metaText, storeBaseUrl } from 
 import { getStorefrontTheme } from "../../_themes";
 import type { BundleItem, WholesaleTier } from "../../_themes/types";
 import { PRODUCT_CARD_SELECT, getStoreThemeId, getStorefrontClosure, toProductCards } from "../../_lib/storefront";
+import { readProductAttributes } from "@/lib/products/attributes";
 import { PixelEvent } from "../../_components/pixels/PixelEvent";
 import { stockOf } from "@/lib/products/digital";
 import { st, storeCurrency, storeIntlLocale } from "@/lib/i18n/storefront";
@@ -220,6 +221,7 @@ export default async function ProductDetailsRoute({ params }: ProductDetailsRout
           type: product.type,
           bundleItems: Array.isArray(product.bundleItems) ? (product.bundleItems as BundleItem[]) : null,
           category: product.category,
+          attributes: readProductAttributes(product.attributes),
         }}
         reviews={reviews}
         related={await toProductCards(relatedRows)}

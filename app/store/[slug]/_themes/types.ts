@@ -12,6 +12,7 @@ import type { BannerLink } from "@/lib/banners/banner-link";
 import type { TrackedOrder } from "@/lib/orders/tracking";
 import type { PolicyBlock, PolicyType } from "@/lib/store-policies";
 import type { StorePause } from "@/lib/store/pause";
+import type { ProductAttribute } from "@/lib/products/attributes";
 import type { ProductsQuery } from "@/lib/products-query";
 import type { StoreNavbarVariant } from "@/constants/store-navbar";
 import type {
@@ -43,7 +44,11 @@ export type ProductCardData = {
   brand: string | null;
   /** Added in the last 30 days. */
   isNew: boolean;
+  /** The merchant's own "key: value" details (product form → خصائص مخصصة). */
+  attributes: ProductAttribute[];
 };
+
+export type { ProductAttribute };
 
 export type CategoryLink = {
   id: string;
@@ -182,6 +187,8 @@ export type ProductDetailData = {
   type: string;
   bundleItems: BundleItem[] | null;
   category: { id: string; name: string; slug: string };
+  /** The merchant's own "key: value" details (product form → خصائص مخصصة). */
+  attributes: ProductAttribute[];
 };
 
 export type ShippingOption = {

@@ -158,7 +158,7 @@ const STAGE_LABEL: Record<Stage, string> = {
   DELIVERED: "اتسلّم",
 };
 const FULL_FLOW: Stage[] = ["PENDING", "PAID", "SHIPPED", "DELIVERED"];
-const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون", playerId: "معرّف اللاعب", playerName: "اسم اللاعب" };
+const FEATURE_LABEL: Record<string, string> = { size: "المقاس", color: "اللون", playerId: "معرّف اللاعب", playerName: "اسم اللاعب", grind: "الطحنة" };
 
 const iso = (d: Date | null | undefined) => (d ? d.toISOString() : null);
 

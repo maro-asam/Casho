@@ -27,6 +27,8 @@ export const FEATURE_LABEL: Record<string, string> = {
   // What a top-up is sent to (themes that sell game/app top-ups ask for it, see lib/orders/account-fields).
   get playerId() { return st("معرّف اللاعب"); },
   get playerName() { return st("اسم اللاعب"); },
+  // How coffee beans are ground (Casho Bunn asks for it on coffee, see bunn/lib/coffee).
+  get grind() { return st("الطحنة"); },
 };
 
 export const SORT_OPTIONS: { value: ProductsQuery["sort"]; label: string }[] = [

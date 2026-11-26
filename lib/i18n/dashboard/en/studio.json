@@ -193,5 +193,12 @@
  "وضع المعاينة": "Preview mode",
  "معرّف اللاعب": "Player ID",
  "صفحة اللعبة بتطلب معرّف اللاعب (ID) واسمه، ويظهرولك في الطلب.": "The game page asks for the player's ID and name, and you see them on the order.",
- "اقفلها لو بتبيع أكواد أو كروت هدايا مش محتاجة حساب: الطلب بيتأكد من غير خانة المعرّف.": "Turn it off if you sell codes or gift cards that don't need an account: orders go through without the ID field."
+ "اقفلها لو بتبيع أكواد أو كروت هدايا مش محتاجة حساب: الطلب بيتأكد من غير خانة المعرّف.": "Turn it off if you sell codes or gift cards that don't need an account: orders go through without the ID field.",
+ "دليل التحضير": "Brew guide",
+ "العميل يختار طريقة التحضير وعدد الفناجين ويعرف المقادير والطحنة، مع بن من متجرك يناسبها.": "Shoppers pick a brew method and how many cups and get the amounts and grind, with your coffees that suit it.",
+ "حزام البن": "Coffee belt",
+ "خريطة بمناشئ قهوتك من خاصية «المنشأ» في المنتجات، والعميل يدوس على البلد ويشوف قهوتها.": "A map of your coffees' origins from the products' «origin» detail; shoppers tap a country to see its coffees.",
+ "اقفلها لو بتبيع البن مطحون جاهز: صفحة البن هتطلب من غير الطحنة.": "Turn it off if you sell coffee already ground: coffee pages order without a grind.",
+ "اختيار الطحنة": "Grind choice",
+ "البن الحبوب بيطلب من العميل يختار الطحنة (حبوب، إسبريسو، تركي، فلتر…)، وبتظهرلك في الطلب.": "Whole-bean coffee asks the shopper to pick a grind (whole bean, espresso, Turkish, filter…), and it shows on the order."
 }

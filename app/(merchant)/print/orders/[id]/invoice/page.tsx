@@ -29,6 +29,7 @@ const FEATURE_LABELS: Record<string, string> = {
   get color() { return tr("اللون"); },
   get playerId() { return tr("معرّف اللاعب"); },
   get playerName() { return tr("اسم اللاعب"); },
+  get grind() { return tr("الطحنة"); },
 };
 
 function MetaRow({ label, children }: { label: string; children: ReactNode }) {
