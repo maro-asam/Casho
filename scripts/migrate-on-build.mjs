@@ -4,7 +4,11 @@
 //
 // Runs only when VERCEL_ENV=production, or when MIGRATE_ON_BUILD=1 is set.
 // Preview deploys skip it: an unmerged branch must not change the production schema.
-// Uses DIRECT_URL when set (a pooled connection can't hold migrate's advisory lock).
+// Never runs through a connection pooler: migrate takes a session advisory lock, and
+// behind PgBouncer (transaction pooling) the unlock can land on another server
+// connection, leaving the lock held so every later build times out (P1002). Uses
+// DIRECT_URL when set, otherwise Neon's direct host derived from DATABASE_URL
+// ("ep-…-pooler.…" → "ep-….…", same credentials).
 // A failed migration fails the build, keeping the last working deployment live.
 import { spawnSync } from "node:child_process";
 
@@ -15,13 +19,25 @@ if (!enabled) {
   process.exit(0);
 }
 
-const url = process.env.DIRECT_URL || process.env.DATABASE_URL;
+/** Neon's pooled host → its direct host; any other URL is returned as is. */
+function directUrl(raw) {
+  try {
+    const u = new URL(raw);
+    if (!u.hostname.includes("-pooler.")) return raw;
+    u.hostname = u.hostname.replace("-pooler.", ".");
+    return u.toString();
+  } catch {
+    return raw;
+  }
+}
+
+const url = process.env.DIRECT_URL || (process.env.DATABASE_URL && directUrl(process.env.DATABASE_URL));
 if (!url) {
   console.error("[migrate-on-build] DATABASE_URL is not set — can't apply migrations.");
   process.exit(1);
 }
 
-console.log("[migrate-on-build] applying pending migrations (prisma migrate deploy)…");
+console.log(`[migrate-on-build] applying pending migrations (prisma migrate deploy) on ${new URL(url).hostname}…`);
 const result = spawnSync("npx", ["prisma", "migrate", "deploy"], {
   stdio: "inherit",
   env: { ...process.env, DATABASE_URL: url },
