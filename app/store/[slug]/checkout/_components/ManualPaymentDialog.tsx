@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { compressImage } from "@/lib/image-compress";
 import { PROOF_MAX_BYTES, normalizePayer } from "@/lib/payments/manual-proof";
 import { cn } from "@/lib/utils";
+import { dataUrlToFile, fileToDataUrl, readTransferDraft, writeTransferDraft } from "./checkout-draft";
 import { formatPrice, st } from "@/lib/i18n/storefront";
 
 /** What the shopper sent — either can be missing when the merchant made it optional. */
@@ -65,12 +66,19 @@ function Step({ n, title, done, optional = false, children }: { n: number; title
  *
  * Rendered inside the store root (`container`) so it keeps the theme's colors,
  * font and direction. Keyed by method in CheckoutForm: another method is
- * another transfer, so it starts over.
+ * another transfer, so it starts over. What's typed and the screenshot stay on
+ * the device (checkout-draft) until the order is placed: the shopper leaves for
+ * their wallet app, and the phone may reload the page meanwhile.
  */
+
+/** Screenshots go up with the order: kept small so they upload on weak mobile data and stay readable. */
+const SHOT_TARGET_BYTES = 450 * 1024;
+const SHOT_MAX_SIDE = 1800;
 export function ManualPaymentDialog({
   open,
   onOpenChange,
   container,
+  storeSlug,
   method,
   methodLabel,
   transferTo,
@@ -84,6 +92,8 @@ export function ManualPaymentDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   container: HTMLElement | null;
+  /** Where the draft is kept on the device. */
+  storeSlug: string;
   method: string;
   methodLabel: string;
   transferTo: string;
@@ -131,11 +141,38 @@ export function ManualPaymentDialog({
     [],
   );
 
-  function keepShot(file: File) {
+  // Back from the wallet app after a reload: what they typed and their screenshot.
+  useEffect(() => {
+    let alive = true;
+    const draft = readTransferDraft(storeSlug, method);
+    if (!draft) return;
+    queueMicrotask(() => alive && draft.payer && setPayer((p) => p || draft.payer));
+    if (draft.image)
+      dataUrlToFile(draft.image.data, draft.image.name, draft.image.type).then((file) => {
+        if (alive && file) keepShot(file, false);
+      });
+    return () => {
+      alive = false;
+    };
+    // Once per method (the dialog is keyed by it).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function keepShot(file: File, save = true) {
     if (shotUrl.current) URL.revokeObjectURL(shotUrl.current);
     const url = URL.createObjectURL(file);
     shotUrl.current = url;
     setShot({ file, url });
+    if (save)
+      fileToDataUrl(file)
+        .then((data) => writeTransferDraft(storeSlug, method, { payer, image: { name: file.name, type: file.type, data } }))
+        .catch(() => {});
+  }
+
+  function changePayer(value: string) {
+    setPayer(value);
+    const saved = readTransferDraft(storeSlug, method);
+    writeTransferDraft(storeSlug, method, { payer: value, image: saved?.image ?? null });
   }
 
   async function copyDetail() {
@@ -157,8 +194,9 @@ export function ManualPaymentDialog({
     }
     setReading(true);
     try {
-      // Server action bodies stop at 1 MB: shrink the screenshot on the phone first.
-      const small = await compressImage(file, { maxBytes: PROOF_MAX_BYTES - 64 * 1024, maxSide: 2200 });
+      // Server action bodies stop at 1 MB, and the bigger the upload the likelier a
+      // weak connection drops it: shrink the screenshot on the phone first.
+      const small = await compressImage(file, { maxBytes: Math.min(SHOT_TARGET_BYTES, PROOF_MAX_BYTES - 64 * 1024), maxSide: SHOT_MAX_SIDE });
       if (small.size > PROOF_MAX_BYTES || !small.type.startsWith("image/")) throw new Error("too big");
       keepShot(small);
     } catch {
@@ -240,7 +278,7 @@ export function ManualPaymentDialog({
                 id={`${ids}-payer`}
                 aria-label={field.label}
                 value={payer}
-                onChange={(e) => setPayer(e.target.value)}
+                onChange={(e) => changePayer(e.target.value)}
                 inputMode={field.inputMode}
                 autoComplete={field.inputMode === "email" ? "email" : field.inputMode === "tel" ? "tel" : "off"}
                 placeholder={field.placeholder}

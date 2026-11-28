@@ -374,7 +374,20 @@ export async function CreateOrderAction(
     }),
   ]);
 
-  if (cartItems.length === 0) throw new Error("Cart is empty");
+  if (cartItems.length === 0) {
+    // A retry after the reply to a placed order was lost (a weak mobile network
+    // while the transfer screenshot uploads): the order exists and emptied the
+    // cart, so open it instead of failing — never a second order.
+    const recent = await prisma.order.findFirst({
+      where: { guestSessionId, storeId: store.id, createdAt: { gte: new Date(Date.now() - 30 * 60_000) } },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, confirmationStatus: true },
+    });
+    if (recent) {
+      redirect(`/store/${store.slug}/order/${recent.id}${recent.confirmationStatus === OrderConfirmationStatus.PENDING ? "/confirm" : ""}`);
+    }
+    throw new Error("سلتك فاضية. ضيف المنتجات تاني وكمّل طلبك.");
+  }
 
   // Never sell what isn't there: fit the cart to live stock and send the
   // customer back to review it (the cart page explains what changed).

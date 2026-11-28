@@ -245,5 +245,14 @@
  "✅ عميل موثّق": "✅ Verified customer",
  "🎁 هدية مجانية مع كل طلب": "🎁 A free gift with every order",
  "💳 الدفع عند الاستلام متاح": "💳 Cash on delivery available",
- "🚚 توصيل سريع لجميع المحافظات": "🚚 Fast delivery to every governorate"
+ "🚚 توصيل سريع لجميع المحافظات": "🚚 Fast delivery to every governorate",
+ "ادفع كاش للمندوب لما الطلب يوصلك.": "Pay the courier in cash when your order arrives.",
+ "حوّل من محفظتك (فودافون كاش أو أي محفظة) على رقم المتجر.": "Transfer from your wallet (Vodafone Cash or any wallet) to the store's number.",
+ "حوّل من تطبيق InstaPay على حساب المتجر.": "Transfer from the InstaPay app to the store's account.",
+ "حوّل على حساب المتجر في البنك.": "Transfer to the store's bank account.",
+ "ادفع في أي منفذ فوري وابعت رقم العملية.": "Pay at any Fawry outlet and send the reference number.",
+ "ادفع من حساب PayPal بتاعك.": "Pay from your PayPal account.",
+ "حوّل من STC Pay على رقم المتجر.": "Transfer from STC Pay to the store's number.",
+ "ادفع أونلاين بالكارت أو المحفظة دلوقتي.": "Pay online now by card or wallet.",
+ "الاتصال اتقطع قبل ما نتأكد إن طلبك وصل. اتأكد من النت ودوس تاني — لو الطلب كان وصل هنفتحلك صفحته، ومش هيتكرر.": "The connection dropped before we could confirm your order. Check your internet and tap again — if the order went through we'll open it, and it won't be placed twice."
 }

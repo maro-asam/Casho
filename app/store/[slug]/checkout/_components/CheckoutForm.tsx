@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { SaveCheckoutContactAction } from "@/actions/store/cart-recovery.actions";
 import { EGYPT_GOVERNORATES } from "@/constants/egypt-governorates";
 import { selectGovernorateAction } from "../../cart/actions";
@@ -30,7 +30,42 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { CheckoutLegal, CheckoutPaymentMethod, CheckoutResult } from "../../_themes/types";
 import { st, storeDir, storeLocale, stv } from "@/lib/i18n/storefront";
+import { clearCheckoutDrafts, readCheckoutDraft, writeCheckoutDraft } from "./checkout-draft";
 import { ManualPaymentDialog, type PaymentProof } from "./ManualPaymentDialog";
+
+/** Fields kept on the device while the shopper is away transferring (checkout-draft). */
+const DRAFT_FIELDS = ["fullName", "phone", "email", "governorate", "address"] as const;
+
+/** What each method means for the shopper (the shared catalog describes it for the merchant). */
+function shopperDescription(key: string): string | null {
+  switch (key) {
+    case "cash_on_delivery":
+      return st("ادفع كاش للمندوب لما الطلب يوصلك.");
+    case "vodafone_cash":
+      return st("حوّل من محفظتك (فودافون كاش أو أي محفظة) على رقم المتجر.");
+    case "instapay":
+      return st("حوّل من تطبيق InstaPay على حساب المتجر.");
+    case "bank_transfer":
+    case "saudi_bank_transfer":
+      return st("حوّل على حساب المتجر في البنك.");
+    case "fawry":
+      return st("ادفع في أي منفذ فوري وابعت رقم العملية.");
+    case "paypal":
+      return st("ادفع من حساب PayPal بتاعك.");
+    case "stc_pay":
+      return st("حوّل من STC Pay على رقم المتجر.");
+    case "paymob":
+      return st("ادفع أونلاين بالكارت أو المحفظة دلوقتي.");
+    default:
+      return null;
+  }
+}
+
+/** A failure the router handles itself (the redirect to the order page), not a broken request. */
+function isNavigation(error: unknown) {
+  const digest = (error as { digest?: unknown } | null)?.digest;
+  return typeof digest === "string" && (digest.startsWith("NEXT_REDIRECT") || digest.startsWith("NEXT_HTTP_ERROR_FALLBACK"));
+}
 
 const NO_LEGAL: CheckoutLegal = { requireConsent: false, links: [] };
 
@@ -169,8 +204,12 @@ export default function CheckoutForm({
   // re-render the server summary so the shopper sees the real total.
   function onGovernorateChange(code: string) {
     startPricing(async () => {
-      await selectGovernorateAction(storeSlug, code);
-      router.refresh();
+      try {
+        await selectGovernorateAction(storeSlug, code);
+        router.refresh();
+      } catch {
+        // A dropped request must not break the page: the order prices shipping again anyway.
+      }
     });
   }
 
@@ -218,12 +257,65 @@ export default function CheckoutForm({
     if (proof?.image) data.set("paymentProof", proof.image, proof.image.name);
     setError(null);
     startPlacing(async () => {
-      const result = await action(data);
-      // No answer = the action redirected: keep the spinner until the order page opens.
-      if (result?.error) setError(stv(result.error));
-      else setRedirecting(true);
+      try {
+        const result = await action(data);
+        // No answer = the action redirected: keep the spinner until the order page opens.
+        if (result?.error) setError(stv(result.error));
+        else {
+          clearCheckoutDrafts(storeSlug);
+          setRedirecting(true);
+        }
+      } catch (err) {
+        if (isNavigation(err)) {
+          clearCheckoutDrafts(storeSlug);
+          throw err;
+        }
+        // The request never came back (weak mobile data while the screenshot uploads,
+        // a server hiccup): keep everything and let them press again. If the order
+        // did go through, the retry opens it instead of placing a second one.
+        setError(st("الاتصال اتقطع قبل ما نتأكد إن طلبك وصل. اتأكد من النت ودوس تاني — لو الطلب كان وصل هنفتحلك صفحته، ومش هيتكرر."));
+      }
     });
   }
+
+  // Keep what's typed on the device, and bring it back after a reload (the
+  // shopper went to their wallet app to transfer and the phone reloaded the page).
+  function saveDraft(paying = payOpen, method = paymentMethod) {
+    const form = formRef.current;
+    if (!form) return;
+    const data = new FormData(form);
+    const fields: Record<string, string> = {};
+    for (const name of DRAFT_FIELDS) {
+      const value = data.get(name);
+      if (typeof value === "string" && value) fields[name] = value;
+    }
+    writeCheckoutDraft(storeSlug, { fields, paymentMethod: method, paying });
+  }
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const form = formRef.current;
+      const draft = readCheckoutDraft(storeSlug);
+      if (!form || !draft) return;
+      for (const name of DRAFT_FIELDS) {
+        const saved = draft.fields?.[name];
+        const el = form.elements.namedItem(name);
+        if (!saved || !(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) || el.value) continue;
+        el.value = saved;
+        if (name === "governorate") onGovernorateChange(saved);
+      }
+      const method = paymentMethods.find((m) => m.key === draft.paymentMethod);
+      if (method) setPaymentMethod(method.key);
+      // Back from the wallet app: reopen the transfer window where they left it.
+      if (draft.paying && method?.transferTo && form.checkValidity()) {
+        setPortalRoot(form.closest<HTMLElement>(".store-theme-root"));
+        setPayOpen(true);
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+    // Once, on mount: restoring later would overwrite what the shopper types.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); // the browser already checked the required fields
@@ -232,13 +324,14 @@ export default function CheckoutForm({
       setError(null);
       setPortalRoot(formRef.current?.closest<HTMLElement>(".store-theme-root") ?? null);
       setPayOpen(true);
+      saveDraft(true);
       return;
     }
     place();
   }
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} onBlur={captureContact} className="space-y-6" dir="rtl">
+    <form ref={formRef} onSubmit={onSubmit} onBlur={captureContact} onChange={() => saveDraft()} className="space-y-6" dir="rtl">
       <div className="space-y-2 text-start">
         <h2 className="text-2xl font-semibold">{st("بيانات الطلب")}</h2>
 
@@ -387,7 +480,10 @@ export default function CheckoutForm({
               <button
                 key={method.key}
                 type="button"
-                onClick={() => setPaymentMethod(method.key)}
+                onClick={() => {
+                  setPaymentMethod(method.key);
+                  saveDraft(false, method.key);
+                }}
                 className={cn(
                   "flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-start transition-all",
                   "hover:border-primary/50 hover:bg-primary/5",
@@ -409,7 +505,8 @@ export default function CheckoutForm({
                     </p>
 
                     <p className="text-xs leading-5 text-muted-foreground">
-                      {config?.description ??
+                      {shopperDescription(method.key) ??
+                        config?.description ??
                         st("اختر الوسيلة المناسبة لإتمام الطلب")}
                     </p>
 
@@ -474,7 +571,11 @@ export default function CheckoutForm({
         <ManualPaymentDialog
           key={selected.key}
           open={payOpen}
-          onOpenChange={setPayOpen}
+          onOpenChange={(open) => {
+            setPayOpen(open);
+            saveDraft(open);
+          }}
+          storeSlug={storeSlug}
           container={portalRoot}
           method={selected.key}
           methodLabel={getPaymentMethodByKey(selected.key)?.label ?? selected.label}

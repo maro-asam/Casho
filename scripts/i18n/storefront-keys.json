@@ -1555,9 +1555,21 @@
    "app/store/[slug]/_themes/bunn/listing/BunnListing.tsx",
    "app/store/[slug]/_themes/qirat/listing/QiratListing.tsx"
   ],
+  "ادفع أونلاين بالكارت أو المحفظة دلوقتي.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
   "ادفع عن طريق {0}": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx",
    "app/store/[slug]/order/[orderId]/page.tsx"
+  ],
+  "ادفع في أي منفذ فوري وابعت رقم العملية.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "ادفع كاش للمندوب لما الطلب يوصلك.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "ادفع من حساب PayPal بتاعك.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
   "ارجع للمنتج ده قريب، أو شوف منتجات قريبة منه تحت.": [
    "app/store/[slug]/_themes/dune/product/BuyForm.tsx"
@@ -2169,6 +2181,9 @@
    "app/store/[slug]/_themes/bunn/lib/coffee.ts"
   ],
   "الإيميل": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "الاتصال اتقطع قبل ما نتأكد إن طلبك وصل. اتأكد من النت ودوس تاني — لو الطلب كان وصل هنفتحلك صفحته، ومش هيتكرر.": [
    "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
   "الاختيارات": [
@@ -5281,11 +5296,23 @@
   "حوّل المبلغ، وبعدها اكتب الرقم اللي حوّلت منه.": [
    "app/store/[slug]/checkout/_components/ManualPaymentDialog.tsx"
   ],
+  "حوّل على حساب المتجر في البنك.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
   "حول على فودافون كاش": [
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
   ],
   "حول عن طريق InstaPay": [
    "app/store/[slug]/order/[orderId]/_components/ManualPaymentInstructions.tsx"
+  ],
+  "حوّل من STC Pay على رقم المتجر.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "حوّل من تطبيق InstaPay على حساب المتجر.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
+  ],
+  "حوّل من محفظتك (فودافون كاش أو أي محفظة) على رقم المتجر.": [
+   "app/store/[slug]/checkout/_components/CheckoutForm.tsx"
   ],
   "خدمة العملاء": [
    "app/store/[slug]/_themes/bunn/footer/BunnFooter.tsx",
@@ -9247,6 +9274,9 @@
   ],
   "سلتك جاهزة": [
    "actions/store/cart-recovery.actions.ts"
+  ],
+  "سلتك فاضية. ضيف المنتجات تاني وكمّل طلبك.": [
+   "actions/store/orders.actions.ts"
   ],
   "سياسة الاسترجاع": [
    "lib/store-policies/index.ts"
